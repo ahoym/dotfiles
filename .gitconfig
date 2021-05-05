@@ -1,6 +1,7 @@
 [alias]
   br = branch
   cm = commit
+  co = checkout
   cp = cherry-pick
   df = diff
   dfs = diff --staged
