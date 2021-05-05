@@ -8,5 +8,6 @@ cat << EOT >> ../.gitconfig
   path = ./dotfiles/.gitconfig
 EOT
 
-cp -R ./vim_related/ ~/test
+# Copy vim related files/dirs to root
+cp -R ./vim_related/ ~
 
