@@ -1,0 +1,19 @@
+[alias]
+  br = branch
+  cm = commit
+  cp = cherry-pick
+  df = diff
+  dfs = diff --staged
+  st = status
+
+  # For testing/experimentation purposes
+  yy = "!git add -A; git commit -m 'RESET ME' --no-verify"
+  zz = "!git reset --soft HEAD~1; git reset"
+
+  # Finds a filename from git status list
+  filename = "!git status --porcelain | sed s/^...// | grep "$1" -i | pbcopy"
+  # Places current branch in paste buffer
+  brname = "!git rev-parse --abbrev-ref HEAD | pbcopy; echo \"Copied to clippy: $(pbpaste)\";"
+  # Pushes current changes up to branch
+  pushcurrent = "!git brname; git push origin $(pbpaste)"
+
