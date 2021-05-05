@@ -1,0 +1,4 @@
+
+alias g="git"
+alias work="cd $PATH_TO_WORKSPACE"
+
