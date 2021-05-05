@@ -8,3 +8,5 @@ cat << EOT >> ../.gitconfig
   path = ./dotfiles/.gitconfig
 EOT
 
+cp -R ./vim_related/ ~/test
+
