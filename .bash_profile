@@ -1,5 +1,5 @@
-source "./exports"
-source "./aliases"
+source "./.exports"
+source "./.aliases"
 
 MYVIMRC=~/.vimrc
 
