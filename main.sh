@@ -1,12 +1,19 @@
 #!/bin/bash
 
+GITCONFIG_PATH="$(pwd)/.gitconfig"
+
 # Extends the base .gitconfig file with the dotfiles .gitconfig
-# Expects the dotfiles repo to be sibilngs with root dot files
-cat << EOT >> ../.gitconfig
+if ! grep -q $GITCONFIG_PATH ~/.gitconfig; then
+echo "Adding [include] path for $(pwd)/.gitconfig to ~/.gitconfig"
+cat << EOT >> ~/.gitconfig
 
 [include]
-  path = ./dotfiles/.gitconfig
+  path = $(pwd)/.gitconfig
+
 EOT
+else
+  echo "ahoym/dotfiles already [include]d in ~/.gitconfig"
+fi
 
 # Copy vim related files/dirs to root
 cp -R ./vim_related/ ~
