@@ -30,6 +30,16 @@ else
 fi
 echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS[40%]\r"
 
+# [include-xcode]
+# Check for xcode command line tools, install if it doesn't exist.
+if type xcode-select >&- && xpath=$( xcode-select --print-path ) &&
+   test -d "${xpath}" && test -x "${xpath}" ; then
+  echo "[include-xcode] xcode found, skipping."
+else
+  echo "[include-xcode] xcode not found, installing."
+  xcode-select --install
+fi
+
 # [include-brew]
 # Check for homebrew, install if it doesn't exist. Update if it does
 which -s brew
