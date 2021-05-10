@@ -39,6 +39,7 @@ else
   echo "[include-xcode] xcode not found, installing."
   xcode-select --install
 fi
+echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS[60%]\r"
 
 # [include-brew]
 # Check for homebrew, install if it doesn't exist. Update if it does
@@ -50,7 +51,7 @@ else
   echo "[include-brew] Homebrew exists, updating."
   brew update
 fi
-echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS[60%]\r"
+echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS[80%]\r"
 
 # [include-nvm]
 # Check for nvm, install if it doesn't exist.
@@ -63,7 +64,5 @@ else
   nvm install stable
   nvm alias default stable
 fi
-echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS[80%]\r"
-
-
 echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL[100%]\r"
+
