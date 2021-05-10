@@ -3,6 +3,15 @@
 BASIC_PROGRESS_SIGIL=">>>>>>>>>>"
 BASIC_EMPTY_PROGRESS="          "
 
+# [include-workspace]
+# Create a WORKSPACE directory for git repos
+if [ ! -d ~/WORKSPACE ] ; then
+  echo "[include-workspace] WORKSPACE dir not found, creating."
+  mkdir ~/WORKSPACE
+else
+  echo "[include-workspace] WORKSPACE dir found, skipping."
+fi
+
 # [include-git]
 GITCONFIG_PATH="$(pwd)/.gitconfig"
 # Extends the base .gitconfig file with the dotfiles .gitconfig
