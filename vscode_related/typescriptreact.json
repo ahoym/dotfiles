@@ -19,6 +19,17 @@
     ],
     "description": "Sleep a promise for 1 second"
   },
+  "Mock history push": {
+    "prefix": "mhis",
+    "body": [
+      "const mockHistoryPush = jest.fn();",
+      "jest.mock('react-router-dom', () =< ({",
+      "  ...jest.requireActual('react-router-dom'),",
+      "  useHistory: () => ({ push: mockHistoryPush }),",
+      "}));"
+    ],
+    "description": "Use a local mockHistory jest.fn() to test history changes through react-router"
+  },
   "describe(...)": {
     "prefix": "ds",
     "body": [
@@ -67,5 +78,17 @@
       "});"
     ],
     "description": "In jest tests, await an async act"
+  },
+  "Functional Component const notation": {
+    "prefix": "cfc",
+    "body": [
+      "interface ${1:Component}Props {",
+      "  //",
+      "}",
+      "const ${1:Component}: FC<$${1:Component}Props> => {",
+      "  const {} = props;",
+      "  return <div>Replace Me!</div>;",
+      "};"
+    ]
   }
 }
