@@ -1,0 +1,62 @@
+{
+	"Print to console": {
+		"prefix": "log",
+		"body": [
+			"console.log('TESTING LOG HERE', $1);"
+		],
+		"description": "Log output to console"
+	},
+  "import * as React from 'react';": {
+    "prefix": "imr",
+    "body": [
+      "import * as React from 'react';"
+    ]
+  },
+  "sleep": {
+    "prefix": "sleep",
+    "body": [
+      ".then((response: any) -> new Promise((resolve: any) => setTimeout(() => resolve(response, 1000)))"
+    ],
+    "description": "Sleep a promise for 1 second"
+  },
+  "describe(...)": {
+    "prefix": "ds",
+    "body": [
+      "describe('${1:is something}', () => {",
+      "  $2",
+      "});"
+    ]
+  },
+  "it(...)": {
+    "prefix": "it",
+    "body": [
+      "it('${1:does something}', () => {",
+      "  ${2:expect(1).toEqual(2);}",
+      "});"
+    ]
+  },
+  "beforeEach(...)": {
+    "prefix": "bfe",
+    "body": [
+      "beforeEach(() => {",
+      "  $2",
+      "});"
+    ]
+  },
+  "afterEach(...)": {
+    "prefix": "afe",
+    "body": [
+      "afterEach(() => {",
+      "  $2",
+      "});"
+    ]
+  },
+  "afterAll(...)": {
+    "prefix": "afa",
+    "body": [
+      "afterAll(() => {",
+      "  $2",
+      "});"
+    ]
+  }
+}
