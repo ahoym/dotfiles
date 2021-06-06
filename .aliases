@@ -1,6 +1,7 @@
 alias g="git"
 alias v="vim"
 alias work="cd $PATH_TO_WORKSPACE"
+alias yocode="code ."
 alias zource="source ~/.zshrc"
 alias zrc="source ~/.zshrc"
 
