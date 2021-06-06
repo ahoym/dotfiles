@@ -1,7 +1,8 @@
 alias g="git"
+alias gi="git"
+alias uuid="uuidgen | pbcopy && pbpaste && echo"
 alias v="vim"
 alias work="cd $PATH_TO_WORKSPACE"
 alias yocode="code ."
 alias zource="source ~/.zshrc"
 alias zrc="source ~/.zshrc"
-
