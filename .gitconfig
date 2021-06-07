@@ -5,6 +5,7 @@
   cp = cherry-pick
   df = diff
   dfs = diff --staged
+  pl = pull
   st = status
 
   # For testing/experimentation purposes
@@ -12,7 +13,7 @@
   zz = "!git reset --soft HEAD~1; git reset"
 
   # Finds a filename from git status list
-  filename = "!git status --porcelain | sed s/^...// | grep "$1" -i | pbcopy"
+  filename = "!git status --porcelain | sed s/^...// | grep "$1" -i | pbcopy; echo \"Copied to clippy: $(pbpaste)\";"
   # Places current branch in paste buffer
   brname = "!git rev-parse --abbrev-ref HEAD | pbcopy; echo \"Copied to clippy: $(pbpaste)\";"
   # Pushes current changes up to branch
