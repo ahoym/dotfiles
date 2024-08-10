@@ -66,7 +66,7 @@ echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_
 # Check for nvm, install if it doesn't exist.
 if [ ! -d ~/.nvm ] ; then
   echo "[include-nvm] nvm not found, installing"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
 else
   echo "[include-nvm] nvm found, installing stable and setting as default"
   . ~/.nvm/nvm.sh
