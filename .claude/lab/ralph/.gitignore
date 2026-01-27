@@ -1,0 +1,2 @@
+# Ignore iteration logs (they're project-specific and can be large)
+logs/

@@ -1,0 +1,49 @@
+"""<Module description>.
+
+<Optional extended description of what this module provides.>
+
+Usage:
+    from <package> import <MainClass>, <helper_function>
+
+    instance = MainClass(...)
+    result = helper_function(...)
+"""
+
+# Constants
+from <package>.constants import (
+    CONSTANT_A,
+    CONSTANT_B,
+)
+
+# Models and types
+from <package>.models import (
+    ClassA,
+    ClassB,
+    EnumType,
+)
+
+# Utility functions
+from <package>.utils import (
+    helper_function_a,
+    helper_function_b,
+)
+
+# Core classes
+from <package>.core import (
+    MainClass,
+)
+
+__all__ = [
+    # Constants
+    "CONSTANT_A",
+    "CONSTANT_B",
+    # Models
+    "ClassA",
+    "ClassB",
+    "EnumType",
+    # Functions
+    "helper_function_a",
+    "helper_function_b",
+    # Classes
+    "MainClass",
+]
