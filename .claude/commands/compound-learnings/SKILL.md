@@ -50,13 +50,22 @@ Save new patterns and learnings from the current session into skills or guidelin
 
    If no learnings are selected, inform user and exit.
 
-3. **Create worktree for target branch**:
+3. **Run steps 3–7 as a background Task agent**:
+
+   After the user selects learnings, use the `Task` tool with `run_in_background: true` to execute the remaining steps autonomously. Provide the task agent with:
+   - The `SELECTED_LEARNINGS` (descriptions, types, target files, content to write)
+   - The `$ARGUMENTS` (PR number, branch name, or empty)
+   - The current repo's working directory path
+   - Enough session context to write the learning content
+
+   The task agent then executes steps 4–8 below without further user interaction.
+
+4. **Create worktree for target branch**:
 
    Store the worktree path as `WORKTREE_PATH` (e.g., `../worktree-compound-learnings`).
 
    **If `$ARGUMENTS` starts with `#` (PR number)**:
    ```bash
-   # Get branch name from PR
    TARGET_BRANCH=$(gh pr view <number> --json headRefName --jq '.headRefName')
    git fetch origin "$TARGET_BRANCH"
    git worktree add ../worktree-compound-learnings "$TARGET_BRANCH"
@@ -66,14 +75,9 @@ Save new patterns and learnings from the current session into skills or guidelin
    ```bash
    git fetch origin
    git branch -r | grep -q "origin/$ARGUMENTS"
-   ```
-   If branch exists:
-   ```bash
    git worktree add ../worktree-compound-learnings "$ARGUMENTS"
    ```
    Store as `TARGET_BRANCH`.
-
-   If branch doesn't exist, inform user the branch wasn't found and ask them to provide a valid branch name or PR number.
 
    **If no arguments, create new branch**:
    - Derive topic from the primary learning (e.g., "lgtm-response", "hook-configuration")
@@ -83,7 +87,7 @@ Save new patterns and learnings from the current session into skills or guidelin
    ```
    Store `docs/<derived-topic>-learnings` as `TARGET_BRANCH`.
 
-4. **Update appropriate files** (in `WORKTREE_PATH`):
+5. **Update appropriate files** (in `WORKTREE_PATH`):
    - For each item in `SELECTED_LEARNINGS`:
      - **Skills** go in `<WORKTREE_PATH>/.claude/commands/<skill-name>/`
      - **Guidelines** go in `<WORKTREE_PATH>/.claude/guidelines/<guideline-name>.md`
@@ -92,30 +96,28 @@ Save new patterns and learnings from the current session into skills or guidelin
    - Include examples from the session where helpful
    - See @skill-template.md for skill structure and @writing-best-practices.md for conventions
 
-5. **Commit changes** (from `WORKTREE_PATH`):
+6. **Commit changes** (using the helper script to avoid permission prompts):
    ```bash
-   cd <WORKTREE_PATH>
-   git add .claude/ docs/
-   git commit -m "$(cat <<'EOF'
+   bash ~/.claude/commands/compound-learnings/worktree-commit.sh <WORKTREE_PATH> "$(cat <<'EOF'
    Add <brief description> to <file>
 
    - <bullet point for each learning>
 
-   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
    EOF
    )"
    ```
 
-6. **Push changes** (from `WORKTREE_PATH`):
+7. **Push and create PR** (from the main repo — worktrees share the git object database):
    ```bash
    git push origin <TARGET_BRANCH>
    ```
 
-   **If adding to existing PR**: Done - changes are pushed to the PR's branch.
+   **If adding to existing PR**: Done — changes are pushed to the PR's branch.
 
    **If new branch, create PR**:
    ```bash
-   gh pr create --base main --title "<title>" --body "$(cat <<'EOF'
+   gh pr create --head <TARGET_BRANCH> --base main --title "<title>" --body "$(cat <<'EOF'
    ## Summary
 
    Capture learnings from <context, e.g., "PR #10 review cycle">.
@@ -135,9 +137,8 @@ Save new patterns and learnings from the current session into skills or guidelin
    )"
    ```
 
-7. **Cleanup worktree and report**:
+8. **Cleanup worktree and report**:
    ```bash
-   cd <original working directory>
    git worktree remove ../worktree-compound-learnings
    ```
    Report to user:
@@ -188,6 +189,9 @@ Cleaned up worktree.
 ## Important Notes
 
 - **CRITICAL: Use AskUserQuestion in step 2** - Do NOT proceed to step 3 until user selects learnings. Use multi-select to let them choose which items to capture.
+- **Background execution**: After learning selection, steps 3–8 run as a background Task agent. The user should not need to approve any further actions.
+- **Avoid `cd` in Bash commands**: Commands starting with `cd` don't match pre-approved permission patterns like `Bash(git add:*)`, causing unnecessary approval prompts. The helper script `worktree-commit.sh` handles add+commit inside the worktree. Run `git push` and `gh pr create` from the main repo directory (worktrees share the object database).
+- **Required permission**: `Bash(bash ~/.claude/commands/compound-learnings/worktree-commit.sh:*)` must be in the project's `.claude/settings.local.json` for background execution to work without prompts. Other git/gh commands (`git fetch`, `git push`, `git worktree add/remove`, `gh pr create`) are typically already approved.
 - **Worktree isolation**: Using a worktree means the user's main working directory is not affected. They can continue working while learnings are captured.
 - Capture learnings while they're fresh in context
 - Prefer updating existing files over creating new ones
