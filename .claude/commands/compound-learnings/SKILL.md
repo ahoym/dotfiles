@@ -19,6 +19,19 @@ Save new patterns and learnings from the current session into skills or guidelin
 - @writing-best-practices.md - Conventions for writing effective skills
 - @iterative-loop-design.md - Patterns for Ralph-style research loops
 
+## Prerequisites
+
+Add these to your project's `.claude/settings.local.json` for background execution:
+
+- `Bash(git fetch:*)`
+- `Bash(git worktree add:*)`
+- `Bash(git worktree remove:*)`
+- `Bash(git push:*)`
+- `Bash(gh pr create:*)`
+- `Bash(bash ~/.claude/commands/compound-learnings/worktree-commit.sh:*)`
+- `Write(path:../worktree-*/**)`
+- `Edit(path:../worktree-*/**)`
+
 ## Instructions
 
 1. **Identify learnings from current session**:
@@ -57,6 +70,8 @@ Save new patterns and learnings from the current session into skills or guidelin
    - The `$ARGUMENTS` (PR number, branch name, or empty)
    - The current repo's working directory path
    - Enough session context to write the learning content
+   - Which target directories already exist and which need creating, so the agent can write files immediately without exploring
+   - If any selected learnings are of type Skill, read @skill-template.md and @writing-best-practices.md and include relevant excerpts so the background agent follows conventions
 
    The task agent then executes steps 4–8 below without further user interaction.
 
@@ -191,7 +206,7 @@ Cleaned up worktree.
 - **CRITICAL: Use AskUserQuestion in step 2** - Do NOT proceed to step 3 until user selects learnings. Use multi-select to let them choose which items to capture.
 - **Background execution**: After learning selection, steps 3–8 run as a background Task agent. The user should not need to approve any further actions.
 - **Avoid `cd` in Bash commands**: Commands starting with `cd` don't match pre-approved permission patterns like `Bash(git add:*)`, causing unnecessary approval prompts. The helper script `worktree-commit.sh` handles add+commit inside the worktree. Run `git push` and `gh pr create` from the main repo directory (worktrees share the object database).
-- **Required permission**: `Bash(bash ~/.claude/commands/compound-learnings/worktree-commit.sh:*)` must be in the project's `.claude/settings.local.json` for background execution to work without prompts. Other git/gh commands (`git fetch`, `git push`, `git worktree add/remove`, `gh pr create`) are typically already approved.
+- **Permissions**: See Prerequisites section above for required `.claude/settings.local.json` entries.
 - **Worktree isolation**: Using a worktree means the user's main working directory is not affected. They can continue working while learnings are captured.
 - Capture learnings while they're fresh in context
 - Prefer updating existing files over creating new ones
