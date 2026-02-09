@@ -171,6 +171,36 @@ Add a "Related References" section at the bottom of each reference file:
 - Creates a navigable web of documentation
 - Makes the split files feel cohesive rather than fragmented
 
+## Conditional vs Eager References
+
+Prefer conditional references over `@`-prefixed eager loading to keep context lean.
+
+### The Problem
+
+`@filename.md` in the Reference Files section loads the full file into context on every skill invocation — even when the content is only needed in specific branches (e.g., Skill-type learnings, error recovery). Four eagerly-loaded files at ~100-300 lines each adds ~790 tokens before the orchestrator does anything.
+
+### The Fix
+
+List reference files WITHOUT the `@` prefix. Add a note on when each should be read:
+
+```markdown
+## Reference Files (conditional — read only when needed)
+- content-type-decisions.md — Read if categorization is ambiguous
+- skill-template.md — Read only when writing a new skill
+```
+
+The orchestrator uses the Read tool to load files at the point they're needed, then passes relevant content to subagents.
+
+### When to Use `@` (Eager)
+
+Only when the file is needed on EVERY invocation AND is small (<30 lines). Otherwise, conditional.
+
+### When to Use Conditional
+
+- File is only needed in specific branches of the skill logic
+- File is >30 lines
+- File is only needed by a subagent (pass via Task prompt, not orchestrator context)
+
 ## Skill Composition
 
 When skills can be used together, add cross-references to help users discover related workflows:
