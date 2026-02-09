@@ -85,23 +85,11 @@ gh pr list --head <TARGET_BRANCH> --json number,url --jq '.[0]'
 **If PR exists**: Done — changes are pushed. Optionally use `gh pr edit <number> --body ...` to update the PR body with newly added learnings.
 
 **If no PR exists, create one**:
+1. Read `.claude/commands/git-create-pr/pr-body-template.md` for the PR body format
+2. Create the PR following that template:
 ```bash
 gh pr create --head <TARGET_BRANCH> --base main --title "<title>" --body "$(cat <<'EOF'
-## Summary
-
-Capture learnings from <context>.
-
-## Changes
-
-### <File 1>
-- <What was added>
-
-### <File 2>
-- <What was added>
-
-## Context
-
-These patterns emerged from <brief description of the session/task>.
+<body following pr-body-template.md format>
 EOF
 )"
 ```
