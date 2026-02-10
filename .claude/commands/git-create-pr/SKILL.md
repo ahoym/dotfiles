@@ -11,9 +11,9 @@ Create a pull request or update an existing one following project conventions.
 - `/git-create-pr` - Create PR to main
 - `/git-create-pr <base-branch>` - Create PR to specified base branch
 
-## Reference Files
+## Reference Files (conditional — read when creating PR)
 
-- @pr-body-template.md - PR body structure template
+- pr-body-template.md - PR body structure template
 
 ## Instructions
 
@@ -42,7 +42,7 @@ Create a pull request or update an existing one following project conventions.
 5. **Check if push needed**:
    - If local is ahead of remote, push first: `git push -u origin <branch>`
 
-6. **Create or update PR** using the template from @pr-body-template.md
+6. **Create or update PR** using the template from pr-body-template.md
 
 7. **Run the gh command**:
 

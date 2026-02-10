@@ -12,10 +12,10 @@ Poll a PR for new comments at regular intervals and address them as they come in
 - `/git-monitor-pr-comments <pr-number>` - Monitor specific PR
 - `/git-monitor-pr-comments <pr-number> <interval>` - Custom interval (default: 30s)
 
-## Reference Files
+## Reference Files (conditional — read only when needed)
 
-- @init-tracking.sh - Initialize the processed comments tracking file
-- @monitor-script.sh - Background polling script
+- init-tracking.sh - Initialize the processed comments tracking file
+- monitor-script.sh - Background polling script
 
 ## Instructions
 

@@ -19,9 +19,9 @@ One-line description of what the skill does.
 - `/skill-name <arg>` - With argument
 - `/skill-name --flag` - With option
 
-## Reference Files
+## Reference Files (conditional — read only when needed)
 
-- @reference-file.md - Description of what it contains
+- reference-file.md - Description of what it contains
 
 ## Instructions
 
@@ -63,7 +63,7 @@ When a skill grows to need reference files (templates, scripts, etc.):
 1. Create directory: `mkdir .claude/commands/skill-name/`
 2. Move skill: `mv .claude/commands/skill-name.md .claude/commands/skill-name/SKILL.md`
 3. Extract large content blocks into reference files (e.g., `pr-body-template.md`, `init-script.sh`)
-4. Add `## Reference Files` section with `@filename` references
+4. Add `## Reference Files` section with references to supporting files
 
 **Before:**
 ```
@@ -87,10 +87,10 @@ Extract content into separate files when:
 - Content would benefit from syntax highlighting in its own file
 - Multiple skills might share the same reference
 
-See @writing-best-practices.md for conventions when writing skill content.
+See writing-best-practices.md for conventions when writing skill content.
 
 ## Related References
 
-- @content-type-decisions.md - Deciding if something should be a skill, guideline, or learning
-- @writing-best-practices.md - Conventions for writing effective skills
-- @iterative-loop-design.md - Patterns for Ralph-style research loops
+- content-type-decisions.md - Deciding if something should be a skill, guideline, or learning
+- writing-best-practices.md - Conventions for writing effective skills
+- iterative-loop-design.md - Patterns for Ralph-style research loops

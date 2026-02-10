@@ -155,8 +155,8 @@ Add a "Related References" section at the bottom of each reference file:
 ```markdown
 ## Related References
 
-- @other-file.md - Brief description of what it covers
-- @another-file.md - Brief description of what it covers
+- other-file.md - Brief description of what it covers
+- another-file.md - Brief description of what it covers
 ```
 
 ### When to Cross-Reference
@@ -326,6 +326,6 @@ Result: Extract 85 lines → SKILL.md reduced to 224 lines
 
 ## Related References
 
-- @skill-template.md - Template and file organization for skills
-- @content-type-decisions.md - Deciding if something should be a skill, guideline, or learning
-- @iterative-loop-design.md - Patterns for Ralph-style research loops
+- skill-template.md - Template and file organization for skills
+- content-type-decisions.md - Deciding if something should be a skill, guideline, or learning
+- iterative-loop-design.md - Patterns for Ralph-style research loops

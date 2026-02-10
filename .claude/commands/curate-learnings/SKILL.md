@@ -12,9 +12,9 @@ Review specific learning files to identify patterns that should be migrated to s
 - `/curate-learnings <file1> <file2>` - Curate multiple files
 - `/curate-learnings` - Prompt for which learning file to curate
 
-## Reference Files
+## Reference Files (conditional — read in step 4)
 
-- @classification-model.md - The 6-bucket classification model with decision criteria
+- classification-model.md - The 6-bucket classification model with decision criteria
 
 ## Instructions
 
@@ -64,7 +64,7 @@ For each pattern in `PATTERNS`:
 
 ### 4. Classify each pattern
 
-Using the criteria in @classification-model.md, classify each pattern into one of:
+Using the criteria in classification-model.md, classify each pattern into one of:
 
 | Classification | Description |
 |----------------|-------------|

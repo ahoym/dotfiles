@@ -59,5 +59,5 @@ Periodically review guidelines for continued utility:
 
 ## Related References
 
-- @skill-template.md - Template and file organization for skills
-- @writing-best-practices.md - Conventions for writing effective skills
+- skill-template.md - Template and file organization for skills
+- writing-best-practices.md - Conventions for writing effective skills

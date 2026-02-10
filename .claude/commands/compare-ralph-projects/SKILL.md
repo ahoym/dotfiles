@@ -12,9 +12,9 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 - `/compare-ralph-projects <dir1> <dir2> <dir3>` - Compare three directories
 - `/compare-ralph-projects` - Will prompt for directories to compare
 
-## Reference Files
+## Reference Files (conditional — read in step 3)
 
-- @comparison-checklist.md - Aspects to compare and signs of supersession
+- comparison-checklist.md - Aspects to compare and signs of supersession
 
 ## Instructions
 
@@ -29,7 +29,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
    - Note which files are unique to each directory
 
 3. **Build comparison table**:
-   Using the checklist in @comparison-checklist.md, compare:
+   Using the checklist in comparison-checklist.md, compare:
 
    ```markdown
    | Aspect | Dir A | Dir B |
