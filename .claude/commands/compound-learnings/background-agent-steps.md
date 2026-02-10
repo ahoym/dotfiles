@@ -4,7 +4,7 @@ Steps for the background Task agent launched by the compound-learnings orchestra
 
 ## Aliases
 
-- `LIFECYCLE` = the full lifecycle script path provided by the orchestrator (e.g., `bash /absolute/path/to/worktree-lifecycle.sh`)
+- `LIFECYCLE` = the lifecycle command provided by the orchestrator (e.g., `bash ~/.claude/commands/compound-learnings/worktree-lifecycle.sh`). IMPORTANT: use `~` literally — do NOT expand to an absolute path, so the command matches the permission pattern in settings.
 - `WORKTREE` = `../worktree-compound-learnings`
 
 Use these as shorthand in the instructions below. In actual commands, expand to their full values.
@@ -85,7 +85,7 @@ gh pr list --head <TARGET_BRANCH> --json number,url --jq '.[0]'
 **If PR exists**: Done — changes are pushed. Optionally use `gh pr edit <number> --body ...` to update the PR body with newly added learnings.
 
 **If no PR exists, create one**:
-1. Read `.claude/commands/git-create-pr/pr-body-template.md` for the PR body format
+1. Read `~/.claude/commands/git-create-pr/pr-body-template.md` for the PR body format
 2. Create the PR following that template:
 ```bash
 gh pr create --head <TARGET_BRANCH> --base main --title "<title>" --body "$(cat <<'EOF'

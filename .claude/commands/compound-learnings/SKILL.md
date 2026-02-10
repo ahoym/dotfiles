@@ -65,15 +65,16 @@ Add these to your project's `.claude/settings.local.json` for background executi
 3. **Launch background agent**:
    - Read `background-agent-steps.md` and include its full content in the Task prompt
    - If any Skill-type learning is selected: also read `skill-template.md` and `writing-best-practices.md`, include relevant excerpts in the prompt
-   - Resolve the absolute path to `worktree-lifecycle.sh` (relative to this skill's directory) and pass it as the `LIFECYCLE` value
+   - Set the `LIFECYCLE` value to `bash ~/.claude/commands/compound-learnings/worktree-lifecycle.sh` — use the `~` literal so it matches the permission pattern in settings. Do NOT resolve to an absolute path.
    - Provide the background agent with:
      - `SELECTED_LEARNINGS` (descriptions, types, target files, content to write)
      - `$ARGUMENTS` (PR number, branch name, or empty)
      - Current repo's working directory path
-     - The resolved absolute path to `worktree-lifecycle.sh`
+     - The `LIFECYCLE` command string (using `~`, not absolute path)
      - Enough session context to write the learning content
      - Which target directories already exist and which need creating
    - Launch with `run_in_background: true`
+   - **Do NOT call `TaskOutput` with `block: true` after launching.** Inform the user the agent is running in the background and continue the conversation. The task notification will arrive automatically when the agent finishes.
 
 ## Important Notes
 
