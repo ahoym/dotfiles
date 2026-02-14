@@ -8,7 +8,7 @@ Review specific learning files to identify patterns that should be migrated to s
 
 ## Usage
 
-- `/curate-learnings <file-path>` - Curate a specific learning file
+- `/curate-learnings <file-path>` - Curate a specific learning file (relative to `~/.claude/`)
 - `/curate-learnings <file1> <file2>` - Curate multiple files
 - `/curate-learnings` - Prompt for which learning file to curate
 
@@ -21,19 +21,22 @@ Review specific learning files to identify patterns that should be migrated to s
 ### 1. Get target learning file(s)
 
 **If `$ARGUMENTS` provided**:
-- Parse as space-separated file paths
-- Verify each file exists in `docs/claude-learnings/` or `.claude/guidelines/`
+- Parse as space-separated file paths (relative to `~/.claude/`)
+- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `guidelines/`)
 - Store as `TARGET_FILES`
 
 **If no arguments**:
+- List available files under `~/.claude/learnings/` and `~/.claude/guidelines/`
 - Use `AskUserQuestion` to prompt user with available learning files:
   ```
   Which learning file would you like to curate?
 
-  Options from docs/claude-learnings/:
-  - backtest-warmup-period.md
-  - ci-cd.md
-  - git-workflow-patterns.md
+  Options from ~/.claude/learnings/:
+  - communication.md
+  - xrpl-patterns.md
+  - ...
+
+  Options from ~/.claude/guidelines/:
   - ...
   ```
 - Store selection as `TARGET_FILES`
@@ -55,8 +58,8 @@ Store as `PATTERNS` list.
 ### 3. Cross-reference existing skills and guidelines
 
 For each pattern in `PATTERNS`:
-1. Search existing skills in `.claude/commands/` for related content
-2. Search guidelines in `.claude/guidelines/` for related content
+1. Search existing skills in `~/.claude/commands/` for related content
+2. Search guidelines in `~/.claude/guidelines/` for related content
 3. Note any matches:
    - **Exact match**: Pattern is already fully covered
    - **Partial match**: Related skill/guideline exists but doesn't cover this
@@ -71,7 +74,7 @@ Using the criteria in classification-model.md, classify each pattern into one of
 | **Skill candidate** | Actionable, repeatable workflow → Create or enhance skill |
 | **Template for skill** | Reusable structure/format → Skill references or embeds it |
 | **Context for skill** | Explanatory material → Skill includes as preamble or reference |
-| **Guideline candidate** | Code standard or practice → Migrate to `.claude/guidelines/` |
+| **Guideline candidate** | Code standard or practice → Migrate to `~/.claude/guidelines/` |
 | **Standalone reference** | Useful but no skill connection → Keep as learning |
 | **Outdated** | Superseded, references non-existent code, or deprecated → Delete candidate |
 
@@ -164,7 +167,7 @@ For **standalone reference** (keep as learning):
 ```
 ## Curation Complete
 
-**File curated**: docs/claude-learnings/ralph-loop-usage.md
+**File curated**: ~/.claude/learnings/ralph-loop-usage.md
 
 **Actions taken**:
 - Added 2 patterns to init-ralph-research skill
@@ -178,7 +181,7 @@ For **standalone reference** (keep as learning):
 ## Example Session
 
 ```
-User: /curate-learnings docs/claude-learnings/ralph-loop-usage.md
+User: /curate-learnings learnings/ralph-loop-usage.md
 
 Claude: Analyzing ralph-loop-usage.md...
 
@@ -216,9 +219,9 @@ User: Apply all
 
 Claude: Applying changes...
 
-- Updated .claude/commands/init-ralph-research/SKILL.md with context sections
-- Created .claude/commands/init-ralph-research/comparison-table-template.md
-- Created .claude/commands/init-ralph-research/assumptions-template.md
+- Updated ~/.claude/commands/init-ralph-research/SKILL.md with context sections
+- Created ~/.claude/commands/init-ralph-research/comparison-table-template.md
+- Created ~/.claude/commands/init-ralph-research/assumptions-template.md
 
 Curation complete.
 ```

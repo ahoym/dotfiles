@@ -9,7 +9,7 @@ The 6-bucket model for classifying learning patterns during curation.
 | **Skill candidate** | Actionable, repeatable workflow | Create new skill or enhance existing |
 | **Template for skill** | Reusable structure/format that a skill would generate or reference | Add as reference file in skill directory |
 | **Context for skill** | Explanatory material that helps execute a skill better | Add to skill's instructions or preamble |
-| **Guideline candidate** | Code standard or behavioral practice | Migrate to `.claude/guidelines/` |
+| **Guideline candidate** | Code standard or behavioral practice | Migrate to `~/.claude/guidelines/` |
 | **Standalone reference** | Useful knowledge with no skill/guideline connection | Keep as learning |
 | **Outdated** | Superseded, stale, or deprecated | Mark for deletion |
 
