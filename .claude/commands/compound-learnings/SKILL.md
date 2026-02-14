@@ -58,6 +58,7 @@ Add these to your project's `.claude/settings.local.json` for background executi
    - **Low** - Standard knowledge or already documented (shown for transparency)
 
    Use `AskUserQuestion` with multi-select to let user choose which learnings to capture.
+   **Include the utility rating in each option's `description` field** (e.g., `"Utility: High — novel pattern I wouldn't know without documenting"`). This ensures utility is visible in the interactive selection widget, since the markdown table above may be clipped by the terminal UI.
    Store selected items as `SELECTED_LEARNINGS`.
 
    **Do NOT proceed until user selects.** If no learnings selected, inform user and exit.
@@ -78,6 +79,7 @@ Add these to your project's `.claude/settings.local.json` for background executi
 
 ## Important Notes
 
+- **Plan mode conflict**: The background agent cannot execute bash commands while plan mode is active. If plan mode is on when this skill is invoked, exit plan mode first before launching the background agent.
 - **Background execution**: After learning selection, all work runs via background-agent-steps.md in a Task agent
 - Prefer updating existing files over creating new ones
 - Keep learnings atomic — one concept per section
