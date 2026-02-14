@@ -4,24 +4,17 @@ description: Capture session learnings and save to skills, guidelines, or refere
 
 # Compound Learnings
 
-Save new patterns and learnings from the current session into skills or guidelines.
+Save new patterns and learnings from the current session into global skills, guidelines, or learnings under `~/.claude/`.
 
 ## Usage
 
-- `/compound-learnings` - Capture learnings from current session (creates new branch)
-- `/compound-learnings #<pr-number>` - Add learnings to an existing PR's branch
-- `/compound-learnings <branch-name>` - Add learnings to an existing branch
+- `/compound-learnings` - Capture learnings from current session
 
 ## Prerequisites
 
-Add these to your project's `.claude/settings.local.json` for background execution:
+Add this to your project's `.claude/settings.local.json` for background execution:
 
-- `Bash(bash ~/.claude/commands/compound-learnings/worktree-lifecycle.sh:*)`
-- `Bash(git push:*)`
-- `Bash(gh pr create:*)`
-- `Bash(gh pr edit:*)`
-- `Bash(gh pr list:*)`
-- `Bash(gh pr view:*)`
+- `Bash(bash ~/.claude/commands/compound-learnings/file-io.sh:*)`
 
 ## Reference Files (conditional — read only when needed)
 
@@ -47,10 +40,12 @@ Add these to your project's `.claude/settings.local.json` for background executi
 
    | # | Learning | Type | Target File | Utility |
    |---|----------|------|-------------|---------|
-   | 1 | LGTM verification process | Skill | address-pr-review.md | High - novel project pattern |
-   | 2 | Co-authorship in PR replies | Guideline | git-workflow.md | Low - already documented |
-   | 3 | SessionEnd hook configuration | Learning | ci-cd.md | High - useful reference |
+   | 1 | LGTM verification process | Skill | commands/address-pr-review/SKILL.md | High - novel project pattern |
+   | 2 | Co-authorship in PR replies | Guideline | guidelines/git-workflow.md | Low - already documented |
+   | 3 | SessionEnd hook configuration | Learning | learnings/ci-cd.md | High - useful reference |
    ```
+
+   Target files are relative to `~/.claude/`.
 
    **Utility ratings** (self-assessment of value to Claude):
    - **High** - Novel pattern I wouldn't know without documenting
@@ -66,14 +61,11 @@ Add these to your project's `.claude/settings.local.json` for background executi
 3. **Launch background agent**:
    - Read `background-agent-steps.md` and include its full content in the Task prompt
    - If any Skill-type learning is selected: also read `skill-template.md` and `writing-best-practices.md`, include relevant excerpts in the prompt
-   - Set the `LIFECYCLE` value to `bash ~/.claude/commands/compound-learnings/worktree-lifecycle.sh` — use the `~` literal so it matches the permission pattern in settings. Do NOT resolve to an absolute path.
+   - Set the `FILE_IO` value to `bash ~/.claude/commands/compound-learnings/file-io.sh` — use the `~` literal so it matches the permission pattern in settings. Do NOT resolve to an absolute path.
    - Provide the background agent with:
      - `SELECTED_LEARNINGS` (descriptions, types, target files, content to write)
-     - `$ARGUMENTS` (PR number, branch name, or empty)
-     - Current repo's working directory path
-     - The `LIFECYCLE` command string (using `~`, not absolute path)
+     - The `FILE_IO` command string (using `~`, not absolute path)
      - Enough session context to write the learning content
-     - Which target directories already exist and which need creating
    - Launch with `run_in_background: true`
    - **Do NOT call `TaskOutput` with `block: true` after launching.** Inform the user the agent is running in the background and continue the conversation. The task notification will arrive automatically when the agent finishes.
 
