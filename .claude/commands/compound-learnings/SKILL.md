@@ -29,6 +29,9 @@ Save new patterns and learnings from the current session into global skills, gui
      - Reference info, patterns, or examples? → **Learning**
 
 2. **Display learnings for selection**:
+
+   **ALWAYS use a markdown table** — never use section breaks, horizontal rules, or prose paragraphs to list learnings.
+
    ```
    Identified learnings from this session:
 
