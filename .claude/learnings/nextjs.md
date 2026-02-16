@@ -29,7 +29,7 @@ export const config = {
 
 Pattern for wiring a token-bucket rate limiter through the Next.js 16 proxy:
 
-- **Tiered limits**: STRICT (expensive ops like wallet generation, 5/min), MODERATE (mutations/POST, 15/min), RELAXED (reads/GET, 60/min)
+- **Tiered limits**: STRICT (expensive/destructive ops, 5/min), MODERATE (mutations/POST, 15/min), RELAXED (reads/GET, 60/min)
 - **IP extraction**: `x-forwarded-for` (Vercel) → `x-real-ip` → `"unknown"` fallback
 - **Bucket key**: `${ip}:${method}:${pathname}` — keeps GET/POST limits independent per route
 - **Response**: 429 with `Retry-After` header (seconds until next token available)
@@ -38,7 +38,7 @@ Pattern for wiring a token-bucket rate limiter through the Next.js 16 proxy:
 
 ```typescript
 function getTier(pathname: string, method: string) {
-  if (pathname === "/api/accounts/generate" && method === "POST") return STRICT;
+  if (STRICT_ROUTES.has(`${method}:${pathname}`)) return STRICT;
   if (method === "POST") return MODERATE;
   return RELAXED;
 }

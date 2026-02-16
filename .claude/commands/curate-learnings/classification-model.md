@@ -74,6 +74,8 @@ A pattern is **standalone reference** when:
 - It's situational or rarely needed
 - It's explanatory without being behavioral
 
+**Before recommending "keep"**, check: is this pattern in its most reusable form? If it contains project-specific details (hardcoded routes, app-specific examples, repo-specific paths), genericize them. "Keep as-is" is only correct when the content is already portable.
+
 **Examples:**
 - "History of Feature X" → Reference only
 - "Comparison of Library A vs B" → Reference only
@@ -97,12 +99,16 @@ A pattern is **outdated** when ANY of these apply:
 - Partially migrated (only the migrated portions are outdated)
 - Niche/rarely used (low usage ≠ outdated)
 
+## Migration Litmus Test
+
+Before classifying any pattern as a migration candidate (skill, template, context, or guideline), ask: **"Would having this in the target file actually change how I execute?"** If the answer is no, the pattern isn't worth migrating regardless of which bucket it technically fits. Basic tool knowledge, self-evident behavior, and obvious facts fail this test — they add bulk without changing decisions.
+
 ## Confidence Levels
 
 | Level | Meaning | Action |
 |-------|---------|--------|
 | **High** | Classification is clear, criteria strongly match | Apply without additional verification |
-| **Medium** | Likely correct but some ambiguity | Note rationale, apply with user confirmation |
+| **Medium** | Likely correct but some ambiguity | Note rationale, offer discussion before asking for commit/skip |
 | **Low** | Uncertain, multiple classifications could fit | Ask user to decide |
 
 ## Cross-Reference Matching

@@ -42,15 +42,3 @@ else
 ## xrpl.js BookOffer Mixed Casing
 
 xrpl.js `BookOffer` type uses **PascalCase** for main fields (`TakerGets`, `TakerPays`, `Account`, `Sequence`) but **snake_case** for funded fields (`taker_gets_funded`, `taker_pays_funded`). Easy to assume all fields follow the same convention — always check the type definition.
-
-## bignumber.js Not Transitive in pnpm
-
-Even though `xrpl` uses `bignumber.js` internally, pnpm's strict dependency isolation means it's **not importable** from your project unless explicitly installed as a direct dependency (`pnpm add bignumber.js`). This differs from npm's flat `node_modules` behavior where transitive deps are hoisted and importable.
-
-## BigNumber `comparedTo()` Returns `number | null`
-
-BigNumber.js `comparedTo()` returns `number | null` (null when comparing NaN). When used in `Array.sort()` callbacks, TypeScript rejects it because sort expects `(a, b) => number`. Fix: append `?? 0`:
-
-```typescript
-asks.sort((a, b) => b.price.comparedTo(a.price) ?? 0);
-```

@@ -15,6 +15,7 @@ Save new patterns and learnings from the current session into global skills, gui
 - `content-type-decisions.md` — Read if categorization is ambiguous
 - `skill-template.md` — Read only when a Skill-type learning is selected
 - `writing-best-practices.md` — Read only when a Skill-type learning is selected
+- `skill-authoring.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
 
 ## Instructions
@@ -52,7 +53,7 @@ Save new patterns and learnings from the current session into global skills, gui
    **Do NOT proceed until user selects.** If no learnings selected, inform user and exit.
 
 3. **Write learnings to files**:
-   - If any Skill-type learning is selected: read `skill-template.md` and `writing-best-practices.md` first
+   - If any Skill-type learning is selected: read `skill-template.md`, `writing-best-practices.md`, and `skill-authoring.md` first
    - For each item in `SELECTED_LEARNINGS`:
      - Read the target file (`~/.claude/<relative-path>`) to check if it exists
      - **Existing file**: use Edit to append new sections (find a unique string near the end, replace with itself + new content)
