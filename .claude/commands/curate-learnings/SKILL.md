@@ -1,48 +1,60 @@
 ---
-description: Review learnings to consolidate into skills or guidelines
+description: Curate learnings, guidelines, and skills — consolidate, reorganize, or prune
 ---
 
 # Curate Learnings
 
-Review specific learning files to identify patterns that should be migrated to skills, used as templates, added as skill context, moved to guidelines, or flagged as outdated.
+Review learnings, guidelines, or skills to identify content that should be migrated, reorganized, or pruned.
 
 ## Usage
 
-- `/curate-learnings <file-path>` - Curate a specific learning file (relative to `~/.claude/`)
+- `/curate-learnings <file-path>` - Curate a specific file (relative to `~/.claude/`)
 - `/curate-learnings <file1> <file2>` - Curate multiple files
-- `/curate-learnings` - Prompt for which learning file to curate
+- `/curate-learnings` - Prompt for which file to curate
 
 ## Reference Files (conditional — read in step 4)
 
-- classification-model.md - The 6-bucket classification model with decision criteria
+- classification-model.md - The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills)
 - `~/.claude/commands/compound-learnings/content-type-decisions.md` - Skill vs guideline vs learning decision tree (for reorganization recommendations)
 
 ## Instructions
 
-### 1. Get target learning file(s)
+### 1. Get target file(s)
 
 **If `$ARGUMENTS` provided**:
 - Parse as space-separated file paths (relative to `~/.claude/`)
-- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `guidelines/`)
+- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `guidelines/`, `commands/`)
+- Determine the **curation mode** per file:
+  - `learnings/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
+  - `commands/*` → **Skill mode** (skill-level evaluation)
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/` and `~/.claude/guidelines/`
-- Use `AskUserQuestion` to prompt user with available learning files:
+- List available files under `~/.claude/learnings/`, `~/.claude/guidelines/`, and skill directories under `~/.claude/commands/`
+- Use `AskUserQuestion` to prompt user:
   ```
-  Which learning file would you like to curate?
+  What would you like to curate?
 
-  Options from ~/.claude/learnings/:
-  - communication.md
-  - xrpl-patterns.md
+  Learnings:
+  - learnings/nextjs.md
   - ...
 
-  Options from ~/.claude/guidelines/:
+  Guidelines:
+  - guidelines/communication.md
+  - ...
+
+  Skills:
+  - commands/do-security-audit
+  - commands/git-split-pr
   - ...
   ```
 - Store selection as `TARGET_FILES`
 
-### 2. Parse learning file into patterns
+---
+
+## Content Mode (learnings & guidelines)
+
+### 2. Parse file into patterns
 
 For each file in `TARGET_FILES`:
 1. Read the file content
@@ -93,10 +105,58 @@ While cross-referencing, note any skills that:
 
 Flag these as `SKILL_REVIEW_CANDIDATES`.
 
+---
+
+## Skill Mode (commands)
+
+### 2s. Read the skill package
+
+For the target skill directory:
+1. Read `SKILL.md` (main instructions)
+2. List and read all reference files in the skill directory
+3. Note the skill's description, usage patterns, and reference file count
+
+### 3s. Evaluate the skill
+
+Using the Skill Pruning Criteria in classification-model.md, evaluate:
+
+| Dimension | What to check |
+|-----------|---------------|
+| **Relevance** | Is the workflow this skill automates still used? |
+| **Overlap** | Does another skill do 80%+ the same thing? |
+| **Complexity vs value** | Does the skill's complexity justify its usage frequency? |
+| **Reference freshness** | Are reference files current, or do they reference stale patterns? |
+| **Scope** | Is the skill too broad (should split) or too narrow (should merge)? |
+
+Also check:
+- Does the skill have reference files that could be pruned or consolidated?
+- Is the skill description accurate for what it actually does?
+- Are there missing reference files that would improve execution?
+
+### 4s. Classify the skill
+
+| Classification | Description |
+|----------------|-------------|
+| **Keep** | Skill is relevant, well-scoped, and reference files are current |
+| **Enhance** | Skill is useful but missing context, reference files, or coverage |
+| **Merge** | Skill overlaps significantly with another — combine them |
+| **Split** | Skill is too broad — break into focused skills |
+| **Prune** | Skill is outdated, too specialized, or easily done manually |
+
+For each classification, note:
+- **Confidence**: High/Medium/Low
+- **Rationale**: Why this classification
+- **Target**: If merging/enhancing, which skill?
+
+---
+
+## Shared Steps (both modes)
+
 ### 6. Generate recommendations
 
-Display the full report inline in the CLI:
+Display the full report inline in the CLI.
 
+**Content mode report:**
 ```
 ## Curation Summary: <filename>
 
@@ -106,28 +166,30 @@ Display the full report inline in the CLI:
 |---|---------|-------|----------------|------------|--------|
 | 1 | Comparison Table Template | 21-32 | Template for skill | High | init-ralph-research |
 | 2 | Signs Directory Superseded | 34-40 | Context for skill | Medium | init-ralph-research |
-| 3 | v1 Spec Structure | 264-350 | Outdated | High | Delete - already in spec-template.md |
-
-### Pattern Details
-
-For each pattern, include:
-- **Rationale**: Why this classification was chosen
-- **Cross-references**: What existing skills/guidelines relate to this
 
 ### Recommended Actions
+...
+```
 
-**Migrate to skills:**
-- [ ] Pattern 1 → Add to `init-ralph-research` as template
-- [ ] Pattern 2 → Add to `init-ralph-research` as context
+**Skill mode report:**
+```
+## Skill Curation: <skill-name>
 
-**Keep as learning:**
-- Pattern 5: Standalone reference, no skill relevance
+### Overview
+- **Description**: ...
+- **Files**: SKILL.md + N reference files
+- **Classification**: Keep / Enhance / Merge / Split / Prune
+- **Confidence**: High/Medium/Low
 
-**Delete candidates:**
-- Pattern 3: Superseded by v2 spec in same file
+### Evaluation
+- **Relevance**: ...
+- **Overlap**: ...
+- **Reference freshness**: ...
+- **Scope**: ...
 
-### Skills to Review
-- `<skill-name>`: <reason for review>
+### Recommended Actions
+- [ ] Action 1
+- [ ] Action 2
 ```
 
 ### 7. Apply changes (with approval)
@@ -137,101 +199,90 @@ For each recommended action, use `AskUserQuestion` to confirm:
 ```
 Apply these changes?
 
-1. Add "Comparison Table Template" to init-ralph-research
-2. Add "Signs Directory Superseded" as context to init-ralph-research
-3. Mark "v1 Spec Structure" section as outdated in source file
-
-Options: [Apply all] [Select specific] [Skip - just save report]
+Options: [Apply all] [Select specific] [Discuss] [Skip]
 ```
+
+Always include a **Discuss** option, especially for medium-confidence items.
 
 **If user approves**:
 
-For **skill migrations**:
-1. Read target skill file
-2. Add pattern content to appropriate section
-3. If template: add to skill's reference files
-4. If context: add to skill's instructions or preamble
+For **content mode** actions:
+- Skill migrations: add pattern to target skill's reference files or instructions
+- Guideline migrations: add pattern as new section in target guideline
+- Outdated deletions: delete the section from source file (with approval)
+- Standalone reference: no action, pattern stays in place
 
-For **guideline migrations**:
-1. Read target guideline file
-2. Add pattern as new section (or merge with existing)
-
-For **outdated deletions**:
-1. With user approval, delete the outdated section from the source file
-2. User can review the deletion in the PR before merging
-
-For **standalone reference** (keep as learning):
-- No action needed, pattern stays in place
+For **skill mode** actions:
+- Enhance: add missing reference files or context to the skill
+- Merge: combine two skills into one, delete the redundant one
+- Split: create new skill directories, distribute content
+- Prune: delete the skill directory (with approval)
 
 ### 8. Report results
 
 ```
 ## Curation Complete
 
-**File curated**: ~/.claude/learnings/ralph-loop-usage.md
+**Curated**: <file or skill name>
 
 **Actions taken**:
-- Added 2 patterns to init-ralph-research skill
-- Deleted 1 outdated section
-- Kept 4 patterns as standalone learnings
+- ...
 
-**Skills flagged for review**: 1
-- `git-split-pr`: No usage found in learnings, may be underutilized
+**Skills flagged for review**: N
 ```
 
-## Example Session
+## Example Sessions
 
+### Content mode
 ```
-User: /curate-learnings learnings/ralph-loop-usage.md
+User: /curate-learnings learnings/nextjs.md
 
-Claude: Analyzing ralph-loop-usage.md...
+Claude:
+## Curation Summary: nextjs.md
+### Patterns Analyzed: 2
 
-Found 12 discrete patterns. Cross-referencing with 18 skills and 4 guidelines...
-
-## Curation Summary: ralph-loop-usage.md
-
-### Patterns Analyzed: 12
-
-| # | Pattern | Classification | Confidence | Target |
-|---|---------|----------------|------------|--------|
-| 1 | Comparing Duplicate Outputs | Context for skill | High | init-ralph-research |
-| 2 | Comparison Table Template | Template for skill | High | init-ralph-research |
-| 3 | Assumptions Document Structure | Template for skill | High | init-ralph-research |
-| 4 | Preventing Early Loop Termination | Context for skill | High | init-ralph-research |
-| 5 | Deep Research Artifact Sync | Context for skill | Medium | init-ralph-research |
-| 6 | info.md as Tracker | Context for skill | Medium | init-ralph-research |
-| 7 | Consolidating Duplicates | Standalone reference | Medium | Keep |
-| 8 | Deep Research: Files vs Consolidation | Context for skill | Medium | init-ralph-research |
-| 9 | v2 Spec Enhancements | Context for skill | High | init-ralph-research |
+| # | Pattern | Lines | Classification | Confidence | Target |
+|---|---------|-------|----------------|------------|--------|
+| 1 | Next.js 16: middleware → proxy | 3-26 | Standalone reference | High | Keep |
+| 2 | Rate Limiter Wiring Pattern | 28-45 | Standalone reference | High | Keep (genericize) |
 
 ### Recommended Actions
+**Keep as learning** (genericize project-specific details in pattern 2)
 
-**Migrate to init-ralph-research:**
-- 2 templates (Comparison Table, Assumptions Structure)
-- 6 context sections
+Apply? [Apply all] [Select specific] [Discuss] [Skip]
+```
 
-**Keep as learning:**
-- "Consolidating Duplicates" - situational reference
+### Skill mode
+```
+User: /curate-learnings commands/git-monitor-pr-comments
 
-Apply these changes?
-[Apply all] [Select specific] [Skip]
+Claude:
+## Skill Curation: git-monitor-pr-comments
 
-User: Apply all
+### Overview
+- **Description**: Watch a PR in background and address new comments
+- **Files**: SKILL.md + 2 scripts (init-tracking.sh, monitor-script.sh)
+- **Classification**: Prune
+- **Confidence**: Medium
 
-Claude: Applying changes...
+### Evaluation
+- **Relevance**: Specialized — background polling for PR comments
+- **Overlap**: Partially overlaps with git-address-pr-review
+- **Complexity vs value**: Requires background agent setup for occasional use
+- **Reference freshness**: Scripts are current
 
-- Updated ~/.claude/commands/init-ralph-research/SKILL.md with context sections
-- Created ~/.claude/commands/init-ralph-research/comparison-table-template.md
-- Created ~/.claude/commands/init-ralph-research/assumptions-template.md
+### Recommended Actions
+- [ ] Prune skill (complex setup, rare use case)
 
-Curation complete.
+Apply? [Apply all] [Discuss] [Skip]
 ```
 
 ## Important Notes
 
 - **User approval required**: Always use `AskUserQuestion` before applying changes
-- **Deletion with approval**: Outdated content can be deleted if user approves (they can review in PR)
-- **Preserve context**: When migrating, ensure the pattern retains enough context to be useful standalone
-- **Update cross-references**: If a pattern is migrated, update any internal links in the source file
-- **Frequency**: Designed for daily/frequent use to prevent learning bloat
+- **Discuss option**: Always include for medium-confidence items
+- **Deletion with approval**: Content/skills can be deleted if user approves
+- **Preserve context**: When migrating, ensure content retains enough context to be useful standalone
+- **Update cross-references**: If content is migrated, update any internal links in the source file
+- **Frequency**: Designed for regular use to prevent bloat across learnings, guidelines, and skills
 - **Complements compound-learnings**: This curates existing content; `compound-learnings` creates new content
