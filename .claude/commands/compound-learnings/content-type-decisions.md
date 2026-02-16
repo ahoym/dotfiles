@@ -8,7 +8,7 @@ How to decide whether content should be a skill, guideline, or learning.
 |------|---------|----------|-------------|
 | **Skill** | Actionable, repeatable task | `.claude/commands/` | Multi-step procedures invoked via `/skill-name` |
 | **Guideline** | Rules that shape behavior | `.claude/guidelines/` | Practices loaded via CLAUDE.md that affect how work is done |
-| **Learning** | Reference knowledge | `docs/claude-learnings/` | Patterns, examples, or info useful for context but not behavioral |
+| **Learning** | Reference knowledge | `~/.claude/learnings/` | Patterns, examples, or info useful for context but not behavioral |
 
 ### Quick Decision Tree
 

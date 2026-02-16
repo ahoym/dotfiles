@@ -83,13 +83,12 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 ```json
 "Read(~/.claude/commands/**)",
 "Read(~/.claude/learnings/**)",
-"Read(~/.claude/skills/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/learnings/**)",
-"Write(~/.claude/skills/**)",
+"Write(~/.claude/commands/**)",
 "Write(~/.claude/guidelines/**)",
 "Edit(~/.claude/learnings/**)",
-"Edit(~/.claude/skills/**)",
+"Edit(~/.claude/commands/**)",
 "Edit(~/.claude/guidelines/**)"
 ```
 
