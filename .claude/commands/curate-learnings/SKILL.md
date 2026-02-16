@@ -15,6 +15,7 @@ Review specific learning files to identify patterns that should be migrated to s
 ## Reference Files (conditional — read in step 4)
 
 - classification-model.md - The 6-bucket classification model with decision criteria
+- `~/.claude/commands/compound-learnings/content-type-decisions.md` - Skill vs guideline vs learning decision tree (for reorganization recommendations)
 
 ## Instructions
 
