@@ -47,6 +47,18 @@ A guideline is a candidate for skill conversion when it describes an actionable,
 3. Replace guideline content with: "Use `/<skill-name>` to..."
 4. Keep the guideline header for discoverability
 
+### Guideline Scoping: Always-On vs Conditional
+
+A guideline not `@`-imported in CLAUDE.md is only found via search — functionally identical to a learning file. If a guideline is useful but not needed every session, scope it as a **conditional reference** for the specific skill that benefits instead of leaving it unwired.
+
+| Scope | Mechanism | When to use |
+|-------|-----------|-------------|
+| **Always-on** | `@` import in CLAUDE.md | Behavioral rules that apply to every interaction |
+| **Conditional** | Reference file in a skill directory | Context needed only when that skill runs |
+| **Search-only** | Standalone file in `guidelines/` or `learnings/` | Rarely needed, fine to discover ad-hoc |
+
+Prefer conditional scoping over always-on when the content is only relevant during a specific workflow.
+
 ### Evaluating Existing Guidelines
 
 Periodically review guidelines for continued utility:
