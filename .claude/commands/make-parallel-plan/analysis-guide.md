@@ -2,14 +2,16 @@
 
 ## File-Conflict Matrix
 
-For each step in the plan, list every file it touches. Then build a matrix:
+For each step in the plan, list every file it touches — **including test files**. Then build a matrix:
 
 ```
-         step1  step2  step3  step4  step5
-file-a     M                    M
-file-b            C
-file-c                   M             M
-file-d            C      C
+                   step1  step2  step3  step4  step5
+src/file-a           M                    M
+src/file-b                  C
+test/file-a.test     C                    M
+test/file-b.test            C
+test/helpers         M             M             M
+src/file-c                         M             M
 ```
 
 Legend: M = modify, C = create, D = delete
@@ -20,6 +22,8 @@ Legend: M = modify, C = create, D = delete
 - M + C or M + D = conflict
 - C in one row, M in another row = no conflict (different files)
 - A step that only creates NEW files never conflicts with steps that only modify EXISTING files
+
+**Test file ownership:** Each agent owns its test files alongside its source files. When building the matrix, include the test files the agent will create or modify. Shared test infrastructure (e.g., `conftest.py`, shared fixtures) should be consolidated into an early agent, just like shared utility files.
 
 ## Dependency Types
 
@@ -101,16 +105,16 @@ If one agent dominates the critical path, consider splitting it:
 
 ## Estimating Agent Time
 
-Based on observed patterns:
+Based on observed patterns. TDD adds ~40-60% overhead per agent due to writing tests first, verifying RED/GREEN phases, and running test commands.
 
 | Task type | Expected time | Expected tool uses |
 |-----------|---------------|-------------------|
-| Single file, small edit | 20-30s | 3-5 |
-| Single file, complex edit | 45-60s | 8-12 |
-| Create 1 new file (< 100 lines) | 20-40s | 3-6 |
-| Create 1 new file (> 200 lines) | 60-90s | 8-12 |
-| Create 2-3 new files + modify 1-2 | 100-150s | 18-25 |
-| Integration (wire props in 2-3 files) | 80-100s | 15-22 |
+| Single file, small edit + test | 40-55s | 6-10 |
+| Single file, complex edit + test | 70-100s | 14-20 |
+| Create 1 new file + test (< 100 lines) | 40-65s | 6-10 |
+| Create 1 new file + test (> 200 lines) | 90-140s | 14-20 |
+| Create 2-3 new files + tests + modify 1-2 | 150-220s | 25-38 |
+| Integration (wire + integration tests) | 120-160s | 22-32 |
 
 ### Wall-Clock Reality
 
@@ -135,3 +139,7 @@ Factor this into critical path estimates. The value of parallelization comes fro
 4. **Shared utility files**: Files like `types.ts`, `constants.ts`, `index.ts` are often touched by multiple steps. Consolidate all changes to these files into a single agent.
 
 5. **Over-splitting**: Creating 6 agents for 200 lines of total code. Agent overhead (prompt processing, file reads) means tiny agents can be slower than merging them. Minimum viable agent: ~30 lines of meaningful changes.
+
+6. **Shared test infrastructure**: Files like test helpers, shared fixtures, or test utilities (e.g., `conftest.py`, `test-utils.ts`, `testhelpers_test.go`) are often needed by multiple agents. Consolidate all changes to shared test files into an early agent (just like shared utility files). Each agent should own its own test files but depend on the agent that sets up shared fixtures.
+
+7. **TDD overhead in splitting decisions**: With TDD, each agent has more tool uses (write test → run test → write code → run test → refactor → run test). Factor this into the minimum viable agent size — an agent with a single 5-line edit now involves ~6-10 tool uses with TDD, so the merge threshold is higher.

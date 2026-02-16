@@ -81,6 +81,8 @@ When an agent completes:
    - Types match the shared contract
    - Exports are named correctly
    - File paths match what the plan specified
+   - Tests exist for the agent's implementation (TDD was followed)
+   - Test file paths match what the plan's `tdd_steps` specified
 3. **Update task status** — mark the agent's task as completed
 4. **Persist execution state** — use the Edit tool to update the plan file's Execution State table:
    - Set the agent's row: status → `completed` (or `failed`), Agent ID, Duration, and Notes

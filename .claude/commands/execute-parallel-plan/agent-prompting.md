@@ -6,10 +6,11 @@ Every agent prompt should follow this structure:
 
 ```
 1. Role and scope declaration
-2. File ownership (what to touch, what NOT to touch)
+2. File ownership (what to touch, what NOT to touch) — including test files
 3. Shared contract (types, interfaces, API shapes)
-4. Specific changes with code landmarks
-5. Constraints and anti-patterns
+4. TDD workflow with concrete steps (RED → GREEN → REFACTOR)
+5. Specific changes with code landmarks
+6. Constraints and anti-patterns
 ```
 
 ## What Makes a Fast Agent (< 40s, < 6 tool uses)
@@ -58,6 +59,42 @@ Write: "Find `const canSubmit = !submitting &&` and add `!insufficientBalance &&
 
 The more specific the landmark, the fewer reads the agent needs.
 
+## TDD Workflow in Prompts
+
+Every agent prompt must include a TDD section. The planner defines the TDD steps; the executor copies them verbatim into the prompt.
+
+**Structure:**
+```
+## TDD Workflow (mandatory)
+
+For each change, follow RED → GREEN → REFACTOR:
+
+**Step 1: <description>**
+- RED: Write `<test_name>` in `<test-file-path>` that tests <behavior>.
+  Run it — it MUST fail (the implementation doesn't exist yet).
+  ```bash
+  <project's test command targeting the specific test>
+  ```
+- GREEN: Implement the minimal code in `<source-file>` to make the test pass.
+  Run it — it MUST pass now.
+- REFACTOR: Clean up while keeping tests green.
+
+**Step 2: <description>**
+...
+
+Before finishing, run the full test suite:
+```bash
+<project's full test command>
+```
+```
+
+**Key points:**
+- Use the project's actual test commands (e.g., `uv run pytest`, `npm test`, `go test ./...`, `cargo test`) — never hardcode a specific tool
+- Test file paths must be concrete, not "find the appropriate test file"
+- Test names must be specific and descriptive, not generic like `test_it_works`
+- The RED phase run command should target the specific test, not the full suite (faster feedback)
+- If the agent needs shared fixtures from another agent, the dependency must be declared in `depends_on`
+
 ## Boundary Constraints
 
 Always include explicit boundaries:
@@ -87,9 +124,9 @@ This ensures all agents agree on interfaces without seeing each other's code.
 
 ## Model Selection
 
-- **haiku**: Single file, small edit (< 30 lines changed), or writing a small new file with a provided template. Fast, cheap.
-- **sonnet**: Default for most agents. Good balance of speed and capability.
-- **opus**: Complex logic, large new files (> 200 lines), or agents that need to understand existing patterns and make nuanced decisions.
+- **haiku**: Single file, small edit (< 30 lines changed) with a straightforward test. Only when the TDD steps are simple and the test is obvious. Fast, cheap.
+- **sonnet**: Default for most agents. Handles TDD workflow reliably — can write meaningful tests, verify RED/GREEN phases, and refactor.
+- **opus**: Complex logic, large new files (> 200 lines), or agents that need to understand existing patterns and make nuanced decisions. Also use for agents where the test design itself is non-trivial (e.g., testing async behavior, complex mocking).
 
 ## Integration Agent Prompts
 
