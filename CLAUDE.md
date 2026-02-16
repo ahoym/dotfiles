@@ -1,3 +1,4 @@
 # Guidelines
 
-@~/.claude/guidelines/communication.md
+@.claude/guidelines/communication.md
+
