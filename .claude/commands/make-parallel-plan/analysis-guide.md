@@ -27,14 +27,46 @@ Legend: M = modify, C = create, D = delete
 
 ## Dependency Types
 
-### Data dependencies
-Agent B reads output produced by Agent A (e.g., B imports a type that A creates).
+### Hard dependencies (`depends_on`)
+Agent B needs Agent A's work to be **fully completed and verified** before starting. Use when:
+- Agent B imports and calls functions that Agent A implements (not just type signatures)
+- Agent B modifies files that Agent A also modifies (sequential access)
+- Agent B needs Agent A's tests to pass to validate its own assumptions
 
-### Interface dependencies
-Agent B implements an interface that Agent A defines (e.g., B creates a component accepting props that A's type defines).
+### Soft dependencies (`soft_depends_on`)
+Agent B only needs Agent A's **interface contract** (types, signatures, file structure) — not the full implementation. Use when:
+- Agent B imports types/interfaces that Agent A creates (just needs the file to exist)
+- Agent B implements against a protocol/interface that Agent A defines
+- Agent B creates a component that accepts props defined by Agent A's types
+
+The executor can start soft-dependent agents as soon as the dependency's files are written to disk, without waiting for full verification. This reduces wall-clock time on deep DAGs.
+
+```
+# Hard: B waits for A to fully complete
+A (60s, verified) ──→ B (50s) → total: 110s
+
+# Soft: B starts as soon as A's files exist (~30s into A's run)
+A (60s) ──soft──→ B (50s, starts at ~30s) → total: ~80s
+```
 
 ### Integration dependencies
-A "wiring" agent that connects outputs from multiple agents (e.g., passing props from parent to children modified by separate agents).
+A "wiring" agent that connects outputs from multiple agents (e.g., passing props from parent to children modified by separate agents). Integration agents almost always use hard dependencies.
+
+### Interface-first pattern
+
+When the plan introduces shared types or test fixtures that multiple agents depend on, create a small, fast **Agent A** dedicated solely to defining these. This agent:
+- Creates type/interface definition files and shared test helpers
+- Has no dependencies itself
+- Completes quickly (< 60s), unblocking the rest of the DAG
+- All other agents soft-depend on it (they just need the types to exist)
+
+```
+A (types, 30s) ──soft──┬──→ B (implementation)
+                       ├──→ C (implementation)
+                       └──→ D (implementation) ──hard──→ E (integration)
+```
+
+This is the highest-impact parallelism pattern — one fast agent unblocks many concurrent agents.
 
 ## DAG Design
 

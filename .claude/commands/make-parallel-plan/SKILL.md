@@ -42,6 +42,15 @@ Convert the file-conflict matrix and dependencies into a directed acyclic graph 
 - **Split large agents** on the critical path to reduce depth (see analysis-guide.md)
 - **Dependencies are per-agent, not per-phase** — agent B depends on agent A specifically, not on "everything before it"
 - **Test files belong to their agent** — each agent owns its test files alongside its source files. Include test files in the `creates`/`modifies` lists.
+- **Use soft dependencies to maximize parallelism** — if an agent only needs the interface contract (types, function signatures) but not the full implementation, mark it as a soft dependency. The executor can start soft-dependent agents as soon as the dependency's files are written, without waiting for full verification. See analysis-guide.md for details.
+
+**Interface-first pattern:** When the plan introduces shared types, interfaces, or test fixtures that multiple agents depend on, create a small, fast **Agent A** dedicated to defining these. This agent should:
+- Create type/interface definition files
+- Create shared test fixtures or helpers
+- Have no dependencies itself
+- Be small enough to complete quickly (< 60s), unblocking the rest of the DAG
+
+This is the single highest-impact pattern for parallelism — one fast agent unblocks many.
 
 ### Step 3: Define the shared contract
 
@@ -92,6 +101,7 @@ barUtil → import from "@/lib/utils/bar"
 
 ### <letter>: <short-name>
 - **depends_on**: [] | [<agent-letters>]
+- **soft_depends_on**: [] | [<agent-letters>]
 - **creates**: [<file-paths>]
 - **modifies**: [<file-paths>]
 - **deletes**: [<file-paths>]
@@ -121,7 +131,16 @@ barUtil → import from "@/lib/utils/bar"
     - GREEN: test passes
     - REFACTOR: test still passes
 
-    Before finishing, run the full test suite to catch regressions.>
+    Before finishing, run the full test suite to catch regressions.
+
+    ## Completion Report
+
+    When done, end your output with a brief report:
+    - Files created/modified
+    - TDD steps completed (N/N)
+    - Checkpoint: last completed step
+    - Discoveries: any gotchas, surprises, or learnings that other agents
+      or future work should know about>
 
 ### <letter>: <short-name>
 ...
@@ -134,6 +153,17 @@ A ──┐
 B ──┘         ↑
 C ────────────┘
 ```
+
+## Pre-Execution Verification
+<Commands to verify the project's toolchain works before launching agents>
+
+```bash
+<test command> --help        # or equivalent dry-run
+<lint command> --help
+```
+
+## Integration Tests
+<Tests to run after ALL agents complete, verifying the pieces work together>
 
 ## Verification
 <How to test the changes end-to-end after execution>
@@ -155,15 +185,19 @@ Build: not yet run
 ### Format Rules
 
 1. **Agents are lettered A-Z** — short identifiers for the DAG
-2. **`depends_on`** lists agent letters, not phase numbers
-3. **File lists are exhaustive** — every file an agent touches must be listed, including test files
-4. **No two agents share a file** in their creates/modifies/deletes lists
-5. **Prompts are complete** — the executor copies them verbatim to the subagent
-6. **Prompts include the shared contract** — don't assume agents can read the plan header
-7. **Prompts include explicit boundaries** — "DO NOT modify X" for files owned by other agents
-8. **Prompts include TDD workflow** — every agent prompt must specify RED → GREEN → REFACTOR steps with concrete test names and file paths
-9. **`tdd_steps` field is required** — lists each TDD cycle with the test name and path, giving reviewers a quick summary without reading the full prompt
-10. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution
+2. **`depends_on`** lists hard dependencies (agent letters). Agent cannot start until these are fully completed and verified.
+3. **`soft_depends_on`** lists soft dependencies (agent letters). Agent can start as soon as the dependency's files exist on disk — it only needs the interface contract, not full verification. Omit if empty.
+4. **File lists are exhaustive** — every file an agent touches must be listed, including test files
+5. **No two agents share a file** in their creates/modifies/deletes lists
+6. **Prompts are complete** — the executor copies them verbatim to the subagent
+7. **Prompts include the shared contract** — don't assume agents can read the plan header
+8. **Prompts include explicit boundaries** — "DO NOT modify X" for files owned by other agents
+9. **Prompts include TDD workflow** — every agent prompt must specify RED → GREEN → REFACTOR steps with concrete test names and file paths
+10. **`tdd_steps` field is required** — lists each TDD cycle with the test name and path, giving reviewers a quick summary without reading the full prompt
+11. **Prompts end with a Completion Report section** — agents must report files changed, TDD steps completed, checkpoint, and discoveries
+12. **Pre-Execution Verification section is required** — lists commands to validate the toolchain before any agents run
+13. **Integration Tests section is required** — lists tests to run after all agents complete, verifying cross-agent integration
+14. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution
 
 ## Important Notes
 

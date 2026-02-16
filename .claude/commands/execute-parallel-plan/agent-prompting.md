@@ -11,6 +11,7 @@ Every agent prompt should follow this structure:
 4. TDD workflow with concrete steps (RED → GREEN → REFACTOR)
 5. Specific changes with code landmarks
 6. Constraints and anti-patterns
+7. Completion Report requirements
 ```
 
 ## What Makes a Fast Agent (< 40s, < 6 tool uses)
@@ -62,6 +63,8 @@ The more specific the landmark, the fewer reads the agent needs.
 ## TDD Workflow in Prompts
 
 Every agent prompt must include a TDD section. The planner defines the TDD steps; the executor copies them verbatim into the prompt.
+
+**Important:** Background agents can use Bash but cannot prompt for permissions. The project's test/build/lint commands must have matching allow patterns in `.claude/settings.local.json` before launching agents. The executor verifies this in Step 0 (pre-execution verification).
 
 **Structure:**
 ```
@@ -127,6 +130,45 @@ This ensures all agents agree on interfaces without seeing each other's code.
 - **haiku**: Single file, small edit (< 30 lines changed) with a straightforward test. Only when the TDD steps are simple and the test is obvious. Fast, cheap.
 - **sonnet**: Default for most agents. Handles TDD workflow reliably — can write meaningful tests, verify RED/GREEN phases, and refactor.
 - **opus**: Complex logic, large new files (> 200 lines), or agents that need to understand existing patterns and make nuanced decisions. Also use for agents where the test design itself is non-trivial (e.g., testing async behavior, complex mocking).
+
+## Completion Report in Prompts
+
+Every agent prompt must end with instructions to produce a **Completion Report**. This is how the orchestrator captures checkpoints, discoveries, and status from agents whose sessions are otherwise lost.
+
+**Include this section in every prompt:**
+```
+## Completion Report (required)
+
+When you finish, end your output with this report:
+
+### Files
+- Created: [list files created]
+- Modified: [list files modified]
+
+### TDD Steps
+- Completed: N/N
+- Checkpoint: Step N (last fully completed step)
+
+### Discoveries
+Report anything surprising, unexpected, or useful for other agents:
+- Gotchas (e.g., "API returns dates as ISO strings, not timestamps")
+- Pattern observations (e.g., "existing tests use factory fixtures, not raw constructors")
+- Edge cases found during implementation
+- If nothing notable, write "None"
+```
+
+**Why this matters:**
+- Agent sessions are isolated — the orchestrator only sees the final output message and the files on disk
+- Checkpoints enable resumption from the right step if the agent fails and needs to be re-launched
+- Discoveries are collected by the orchestrator and surfaced to the user (and to other agents if relevant)
+
+## Interface-First Agent Prompts
+
+The interface-first agent (typically Agent A) defines shared types and test fixtures. Its prompt should:
+- List every type/interface to create with exact field definitions
+- Create test fixtures that other agents will import
+- Complete quickly — keep scope minimal, no business logic
+- Its soft dependents may start as soon as its files are written, so file creation should happen early in the agent's execution
 
 ## Integration Agent Prompts
 
