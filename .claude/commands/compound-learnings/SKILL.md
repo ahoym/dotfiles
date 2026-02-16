@@ -10,19 +10,12 @@ Save new patterns and learnings from the current session into global skills, gui
 
 - `/compound-learnings` - Capture learnings from current session
 
-## Prerequisites
-
-Add this to your project's `.claude/settings.local.json` for background execution:
-
-- `Bash(bash ~/.claude/commands/compound-learnings/file-io.sh:*)`
-
 ## Reference Files (conditional — read only when needed)
 
 - `content-type-decisions.md` — Read if categorization is ambiguous
 - `skill-template.md` — Read only when a Skill-type learning is selected
 - `writing-best-practices.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
-- `background-agent-steps.md` — Read in step 3 to pass to background agent
 
 ## Instructions
 
@@ -58,21 +51,46 @@ Add this to your project's `.claude/settings.local.json` for background executio
 
    **Do NOT proceed until user selects.** If no learnings selected, inform user and exit.
 
-3. **Launch background agent**:
-   - Read `background-agent-steps.md` and include its full content in the Task prompt
-   - If any Skill-type learning is selected: also read `skill-template.md` and `writing-best-practices.md`, include relevant excerpts in the prompt
-   - Set the `FILE_IO` value to `bash ~/.claude/commands/compound-learnings/file-io.sh` — use the `~` literal so it matches the permission pattern in settings. Do NOT resolve to an absolute path.
-   - Provide the background agent with:
-     - `SELECTED_LEARNINGS` (descriptions, types, target files, content to write)
-     - The `FILE_IO` command string (using `~`, not absolute path)
-     - Enough session context to write the learning content
-   - Launch with `run_in_background: true`
-   - **Do NOT call `TaskOutput` with `block: true` after launching.** Inform the user the agent is running in the background and continue the conversation. The task notification will arrive automatically when the agent finishes.
+3. **Write learnings to files**:
+   - If any Skill-type learning is selected: read `skill-template.md` and `writing-best-practices.md` first
+   - For each item in `SELECTED_LEARNINGS`:
+     - Read the target file (`~/.claude/<relative-path>`) to check if it exists
+     - **Existing file**: use Edit to append new sections (find a unique string near the end, replace with itself + new content)
+     - **New file** (Read returned error): use Write with full content
+   - File placement rules:
+     - **Skills** → `~/.claude/commands/<skill-name>/SKILL.md`
+     - **Guidelines** → `~/.claude/guidelines/<guideline-name>.md`
+     - **Learnings** → `~/.claude/learnings/<topic>.md`
+
+4. **Verify and report**:
+   - Read back each written file to confirm content was saved correctly
+   - Output a summary:
+     ```
+     Updated files:
+     - <path> — <what was added> (Utility: <High/Medium/Low>)
+
+     Wrote N learnings to ~/.claude/.
+     ```
+
+## Prerequisites
+
+For prompt-free execution, add these allow patterns to **user-level** `~/.claude/settings.local.json`:
+
+```json
+"Read(~/.claude/commands/**)",
+"Read(~/.claude/learnings/**)",
+"Read(~/.claude/skills/**)",
+"Read(~/.claude/guidelines/**)",
+"Write(~/.claude/learnings/**)",
+"Write(~/.claude/skills/**)",
+"Write(~/.claude/guidelines/**)",
+"Edit(~/.claude/learnings/**)",
+"Edit(~/.claude/skills/**)",
+"Edit(~/.claude/guidelines/**)"
+```
 
 ## Important Notes
 
-- **Plan mode conflict**: The background agent cannot execute bash commands while plan mode is active. If plan mode is on when this skill is invoked, exit plan mode first before launching the background agent.
-- **Background execution**: After learning selection, all work runs via background-agent-steps.md in a Task agent
 - Prefer updating existing files over creating new ones
 - Keep learnings atomic — one concept per section
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
