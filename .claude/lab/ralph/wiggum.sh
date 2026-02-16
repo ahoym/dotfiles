@@ -92,11 +92,22 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     if grep -q "$COMPLETION_SIGNAL" "$PROGRESS_FILE"; then
         LOOP_END_TIME=$(date +%s)
         LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
+
+        # Push completed research to a branch
+        BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
+        echo ""
+        echo "Pushing research to branch: $BRANCH_NAME"
+        git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
+        git add "$PROJECT_DIR"
+        git commit -m "research: complete $(basename "$PROJECT_DIR") ralph loop"
+        git push -u origin "$BRANCH_NAME"
+
         echo ""
         echo "════════════════════════════════════════════════════════════"
         echo "Done! Completion signal received."
         echo "Total iterations: $i"
         echo "Total duration:   ${LOOP_DURATION}s"
+        echo "Branch:           $BRANCH_NAME"
         echo "Completed at:     $(date)"
         echo "════════════════════════════════════════════════════════════"
         exit 0
@@ -109,10 +120,20 @@ done
 LOOP_END_TIME=$(date +%s)
 LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
+# Push partial research to a branch
+BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
+echo ""
+echo "Pushing partial research to branch: $BRANCH_NAME"
+git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
+git add "$PROJECT_DIR"
+git commit -m "research: partial $(basename "$PROJECT_DIR") ralph loop (max iterations reached)"
+git push -u origin "$BRANCH_NAME"
+
 echo ""
 echo "════════════════════════════════════════════════════════════"
 echo "Max iterations reached without completion."
 echo "Total duration: ${LOOP_DURATION}s"
+echo "Branch:         $BRANCH_NAME"
 echo "Ended at:       $(date)"
 echo "════════════════════════════════════════════════════════════"
 exit 1
