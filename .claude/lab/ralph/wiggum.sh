@@ -41,6 +41,9 @@ if [ ! -f "$PROGRESS_FILE" ]; then
     exit 1
 fi
 
+# Record the starting branch so we can branch from main for the push
+STARTING_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 # Create logs directory
 mkdir -p "$LOG_DIR"
 
@@ -93,14 +96,18 @@ for i in $(seq 1 $MAX_ITERATIONS); do
         LOOP_END_TIME=$(date +%s)
         LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
-        # Push completed research to a branch
+        # Push completed research to a branch off main
         BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
         echo ""
         echo "Pushing research to branch: $BRANCH_NAME"
+        git stash --include-untracked
+        git checkout main
         git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
+        git stash pop
         git add "$PROJECT_DIR"
         git commit -m "research: complete $(basename "$PROJECT_DIR") ralph loop"
-        git push -u origin "$BRANCH_NAME"
+        git push -u origin "$BRANCH_NAME" || echo "Warning: push failed — branch $BRANCH_NAME committed locally"
+        git checkout "$STARTING_BRANCH"
 
         echo ""
         echo "════════════════════════════════════════════════════════════"
@@ -120,14 +127,18 @@ done
 LOOP_END_TIME=$(date +%s)
 LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
-# Push partial research to a branch
+# Push partial research to a branch off main
 BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
 echo ""
 echo "Pushing partial research to branch: $BRANCH_NAME"
+git stash --include-untracked
+git checkout main
 git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
+git stash pop
 git add "$PROJECT_DIR"
 git commit -m "research: partial $(basename "$PROJECT_DIR") ralph loop (max iterations reached)"
-git push -u origin "$BRANCH_NAME"
+git push -u origin "$BRANCH_NAME" || echo "Warning: push failed — branch $BRANCH_NAME committed locally"
+git checkout "$STARTING_BRANCH"
 
 echo ""
 echo "════════════════════════════════════════════════════════════"
