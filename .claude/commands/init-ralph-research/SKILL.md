@@ -50,7 +50,7 @@ Create a new Ralph loop project directory with customized spec and progress file
    - progress.md
 
    To run the loop:
-   bash .claude/lab/ralph/wiggum.sh docs/claude-learnings/<project-name> 10
+   bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/<project-name> 10
    ```
 
 ## Example
@@ -65,7 +65,7 @@ Files created:
 - progress.md (ready for first iteration)
 
 To run the loop:
-bash .claude/lab/ralph/wiggum.sh docs/claude-learnings/options-pricing-models 10
+bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/options-pricing-models 10
 ```
 
 ## Research Conventions
