@@ -70,13 +70,18 @@ Store as `PATTERNS` list.
 
 ### 3. Cross-reference existing skills and guidelines
 
+**This step must be thorough — read the actual skill/guideline files, don't just grep for keywords.** Shallow cross-referencing leads to wrong classifications (e.g., recommending "migrate" when the content is already fully covered).
+
 For each pattern in `PATTERNS`:
 1. Search existing skills in `~/.claude/commands/` for related content
-2. Search guidelines in `~/.claude/guidelines/` for related content
-3. Note any matches:
+2. **Read the relevant skill files** (SKILL.md and reference files) to check for coverage
+3. Search guidelines in `~/.claude/guidelines/` for related content
+4. Note any matches:
    - **Exact match**: Pattern is already fully covered
    - **Partial match**: Related skill/guideline exists but doesn't cover this
    - **No match**: No existing skill/guideline covers this topic
+
+**Do NOT present the classification table (step 6) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
 
 ### 4. Classify each pattern
 
