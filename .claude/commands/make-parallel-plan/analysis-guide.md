@@ -118,6 +118,66 @@ A ──→ B ──┐
 C ──→ D ──┼──→ E
 ```
 
+## Soft Dependency Audit
+
+After building the initial DAG, perform a systematic audit of every `depends_on` (hard) dependency. Hard dependencies are the primary bottleneck for parallelism — every hard dep that could be soft represents wasted wall-clock time.
+
+**For each hard dependency A → B, ask:**
+
+1. **Does B import types/interfaces from A?** → Soft. B only needs the file to exist with the right exports.
+2. **Does B call functions that A implements?** → Hard. B needs the function to actually work.
+3. **Does B modify files that A also modifies?** → Hard (sequential file access).
+4. **Does B need A's tests to pass?** → Hard. B's correctness depends on A's verified behavior.
+5. **Does B consume A's output at runtime** (e.g., reads a file A generates, imports a module A creates)? → Depends: if B only needs the file structure/shape, soft. If B needs correct runtime behavior, hard.
+
+**Common upgrades (hard → soft):**
+- Agent creates types → downstream agents import those types (soft — just needs file on disk)
+- Agent creates a new module → downstream agent imports from it but only uses type information (soft)
+- Agent adds constants/config → downstream agent references them (soft — values just need to exist)
+
+**Must stay hard:**
+- Agent implements business logic → downstream agent's tests exercise that logic
+- Agent modifies a file → another agent also needs to modify the same file (should be same agent)
+- Agent creates test fixtures → downstream agent runs tests that use those fixtures with real assertions
+
+**Checklist format for the plan:**
+```
+Soft dependency audit:
+- B depends_on A: B imports types from A → DOWNGRADE to soft_depends_on ✓
+- D depends_on B: D calls fetchOrderbook() from B → KEEP as depends_on ✓
+- E depends_on A: E imports constants from A → DOWNGRADE to soft_depends_on ✓
+```
+
+Include this audit in your analysis (internal working, not in the output plan) to demonstrate that every hard dependency was intentionally chosen.
+
+**Aggressive soft dependency opportunities to look for:**
+- **UI components that import types from a lib agent** — the UI only needs the type file to exist, not the implementation behind it. Downgrade to soft.
+- **Adapter/provider layers that import param types** — the wallet adapter only needs the interface definitions, not the API route implementations. Downgrade to soft.
+- **Integration agents that consume hooks** — if the hook file just needs to exist (correct exports), the integration agent can start before the hook's tests pass. Downgrade to soft.
+- **Any agent that only reads from an upstream agent's `creates` list** — if it doesn't call functions or run logic from those files, it's soft.
+
+The soft dependency audit is the single highest-impact step for reducing wall-clock time. Every hard→soft downgrade potentially shaves seconds off the critical path.
+
+## DAG Visualization Verification
+
+After drawing the DAG visualization, perform a cross-check:
+
+1. **Forward check**: For each arrow in the visualization, verify there's a corresponding `depends_on` or `soft_depends_on` in the agent definition.
+2. **Reverse check**: For each `depends_on` and `soft_depends_on` declaration, verify there's an arrow in the visualization.
+3. **Arrow style**: Use `──→` for hard dependencies and `··→` for soft dependencies to make the distinction visible.
+
+Example:
+```
+A ──┐
+    ├··→ C ──→ D
+A ··→ B      ↗
+    E ──────┘
+```
+
+This means: C soft-depends on A, D hard-depends on C, B soft-depends on A, D hard-depends on E.
+
+Mismatches between visualization and declarations are a common source of confusion.
+
 ## Splitting Large Agents
 
 If one agent dominates the critical path, consider splitting it:
@@ -148,6 +208,40 @@ Based on observed patterns. TDD adds ~40-60% overhead per agent due to writing t
 | Create 2-3 new files + tests + modify 1-2 | 150-220s | 25-38 |
 | Integration (wire + integration tests) | 120-160s | 22-32 |
 
+Each agent must include an `estimated_duration` field using these ranges.
+
+### Critical Path Estimation
+
+After assigning durations to each agent, compute the critical path — the longest path through the DAG in wall-clock time.
+
+**How to compute:**
+1. For each agent with no dependencies, its start time is 0.
+2. For each agent with dependencies, its start time = max(end time of all hard deps). For soft deps, start time = max(30% of soft dep's duration) — soft deps let you start early.
+3. End time = start time + estimated_duration.
+4. Critical path = the path from start to the agent with the latest end time.
+
+**Example:**
+```
+A (30s, start=0, end=30)
+B (100s, soft_dep=A, start=9, end=109)   ← starts at 30% of A
+C (80s, soft_dep=A, start=9, end=89)
+D (60s, hard_dep=B, start=109, end=169)  ← waits for B to fully complete
+E (120s, hard_dep=[C,D], start=169, end=289)
+
+Critical path: A → B → D → E = 289s
+Sequential total: 390s
+Speedup: 1.35x
+```
+
+Include a **Critical Path Estimate** section in the plan output with a table showing:
+- Each path through the DAG
+- The agents on that path
+- Estimated wall-clock time
+- Total sequential estimate vs parallel estimate
+- Speedup ratio
+
+This helps reviewers evaluate whether the parallelization is worth the complexity.
+
 ### Wall-Clock Reality
 
 Subagents run with partial concurrency, not true parallelism. Observed behavior:
@@ -175,3 +269,141 @@ Factor this into critical path estimates. The value of parallelization comes fro
 6. **Shared test infrastructure**: Files like test helpers, shared fixtures, or test utilities (e.g., `conftest.py`, `test-utils.ts`, `testhelpers_test.go`) are often needed by multiple agents. Consolidate all changes to shared test files into an early agent (just like shared utility files). Each agent should own its own test files but depend on the agent that sets up shared fixtures.
 
 7. **TDD overhead in splitting decisions**: With TDD, each agent has more tool uses (write test → run test → write code → run test → refactor → run test). Factor this into the minimum viable agent size — an agent with a single 5-line edit now involves ~6-10 tool uses with TDD, so the merge threshold is higher.
+
+## TDD Escape Hatch: build-verify
+
+Not every change is practically unit-testable. Some code changes are better verified by a type-check/build step than by a unit test. The `build-verify` entry type in `tdd_steps` exists for these cases.
+
+### When to use build-verify
+
+- **API route handlers** that need a running server and real HTTP context to test meaningfully — these are better covered by integration tests after all agents complete
+- **UI prop-threading** (passing a prop from parent to child without logic) — type-checking catches mismatches; a unit test would just assert "prop was passed" which adds no value
+- **Pure wiring code** that connects two existing, tested modules — the individual modules have tests; the wiring is verified by build + integration tests
+- **Config/constant additions** where the value is self-evident (e.g., adding a regex constant) — though the constant itself may still warrant a unit test for correctness
+
+### When NOT to use build-verify
+
+- **Any function with logic** (conditionals, loops, transformations) — these MUST have unit tests
+- **New utility functions** — always test
+- **Data processing/filtering** — always test
+- **Anything where "it compiles" doesn't mean "it works correctly"**
+
+### Justification requirement
+
+Every `build-verify` entry MUST include a parenthetical explaining why TDD is impractical:
+
+```
+tdd_steps:
+    1. "Add hybrid flag to FLAG_MAP" → `lib/xrpl/offers.test.ts::includes hybrid in VALID_OFFER_FLAGS`
+    2. build-verify → "pnpm build" (API route handler — tested via integration)
+    3. "Filter trades by domain" → `lib/xrpl/__tests__/trades-fetch.test.ts::filters by DomainID`
+```
+
+Without the justification, the plan reviewer can't distinguish intentional TDD skips from laziness.
+
+## Integration Test Specificity
+
+The Integration Tests section must describe 2-3 **specific cross-cutting scenarios**, not just generic commands. Each scenario should:
+
+1. **Name the data flow being tested** — which agent's output feeds into which other agent's input
+2. **Describe the concrete interaction** — what data crosses the boundary and what should happen
+3. **Be verifiable** — describe how to check that the integration works
+
+### Good examples
+
+```
+## Integration Tests
+
+1. **Domain ID flows from hook → API → orderbook**: Set `activeDomainID` in `useTradingData` →
+   verify `useFetchMarketData` includes `?domain=` in API URL → verify API route calls
+   `fetchPermissionedOrderbook()` instead of `fetchAndNormalizeOrderbook()`
+
+2. **Hybrid flag round-trips through wallet adapter**: Call `adapterCreateOffer()` with
+   `flags: ["hybrid"]` and `domainID` set → verify `buildOfferCreateTx()` sets both
+   `tx.DomainID` and `tfHybrid` flag on the transaction
+
+3. **Account offers include domain metadata**: Fetch offers for an account that has
+   domain offers → verify the response includes `domainID` field → verify the orders
+   table renders the domain column
+```
+
+### Bad examples (too generic)
+
+```
+## Integration Tests
+
+Run `pnpm test` to verify all tests pass.
+Run `pnpm build` to verify no type errors.
+```
+
+These belong in the Verification section, not Integration Tests. Integration Tests must describe cross-agent boundary scenarios.
+
+## Prompt Preamble Pattern
+
+The executor prepends **Shared Contract + Prompt Preamble** to every agent's prompt. This means:
+- The Shared Contract section (types, API contracts, import paths) is automatically included — agents always see it
+- The Prompt Preamble contains only **process instructions** that apply to all agents
+
+This separation avoids markdown code-fence nesting issues (no TypeScript blocks inside code-fenced preambles) and keeps the shared contract as a single source of truth.
+
+### Benefits
+
+- **Reduces plan size** — common boilerplate appears once instead of N times
+- **Ensures consistency** — all agents get identical shared instructions
+- **Single source of truth** — the shared contract lives in one place, not duplicated in preamble + agent prompts
+- **No markdown nesting** — the preamble contains only prose and lists, no code blocks that could conflict with the plan's own fencing
+
+### What belongs in the preamble
+
+- TDD workflow template (RED → GREEN → REFACTOR cycle description)
+- Test/build/lint commands for the project
+- Completion Report format
+- Common "DO NOT" rules that apply to all agents (e.g., "DO NOT modify files outside your listed scope")
+
+### What does NOT belong in the preamble
+
+- **Shared Contract content** — this is prepended separately by the executor from the Shared Contract section
+- **Agent-specific instructions** — these go in each agent's `prompt` field
+
+### What stays in agent-specific prompts
+
+- File scope (creates/modifies/deletes with context)
+- Agent-specific TDD steps
+- Code landmarks for edits (function names, line numbers, surrounding context)
+- Agent-specific "DO NOT modify X" boundaries (files owned by other agents)
+- Agent-specific implementation details
+
+### Example structure
+
+```markdown
+## Shared Contract
+[types, interfaces, import paths — the executor includes this automatically]
+
+## Prompt Preamble
+
+You are implementing part of a parallel plan. Follow these rules:
+
+### Project Commands
+- Test: `pnpm test`
+- Build: `pnpm build`
+
+### TDD Workflow
+For each change, follow RED → GREEN → REFACTOR:
+[standard TDD instructions]
+
+### Completion Report
+When done, end your output with:
+[standard report format]
+```
+
+Then each agent's prompt becomes focused:
+
+```markdown
+## Agent B: server-libs
+
+[Agent-specific scope, TDD steps, implementation details only]
+
+DO NOT modify: lib/xrpl/types.ts (owned by Agent A), ...
+```
+
+The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.

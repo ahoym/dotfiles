@@ -32,29 +32,54 @@ You should **never write implementation code directly**. All code changes go thr
 
 Before launching any agents, verify the project's toolchain works. Read the plan's **Pre-Execution Verification** section and run the listed commands.
 
+Also check for a code formatter:
+- Look for `.prettierrc`, `.prettierrc.json`, `biome.json`, or a `format`/`format:check` script in `package.json` (or equivalents for other ecosystems)
+- If found, note the format command — you'll need to either include it in each agent's prompt or run it as a post-completion step in Step 7
+
 If any command fails, stop and report to the user — don't waste agent cycles on a broken toolchain.
 
 ### Step 1: Parse the plan
 
 Read the parallel plan file. It must follow the structured format from `/make-parallel-plan`:
 - **Shared Contract** section with types, API contracts, import paths
+- **Prompt Preamble** section (optional) with process instructions common to all agents (TDD workflow, project commands, completion report format, general rules). This does NOT contain the shared contract — the contract is a separate section.
 - **Agents** section with lettered agents, each having `depends_on`, `soft_depends_on`, file lists, descriptions, and prompts
 - **Pre-Execution Verification** section
 - **Integration Tests** section
 - **DAG Visualization**
 
+Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 4.
+
 If the plan doesn't follow this format, ask the user to run `/make-parallel-plan` first.
 
 ### Step 2: Check for existing execution state
 
-Look for an `## Execution State` section in the plan file.
+Execution state is tracked in a **lightweight state file** (`.parallel-plan-state.json`) alongside the plan file, not by editing the plan markdown. This avoids fragmenting the coordinator's attention with repeated plan edits.
 
-- **If present with non-pending agents** — this is a **resumed execution**. Read the state to determine:
+**State file location:** Same directory as the plan file, named `.parallel-plan-state.json`.
+
+**State file schema:**
+```json
+{
+  "started": "2026-02-18 12:00:00",
+  "lastUpdated": "2026-02-18 12:05:00",
+  "build": "not yet run",
+  "integration": "not yet run",
+  "agents": {
+    "A": { "status": "pending", "agentId": null, "duration": null, "notes": "" },
+    "B": { "status": "pending", "agentId": null, "duration": null, "notes": "blocked by: A" }
+  }
+}
+```
+
+- **If the state file exists with non-pending agents** — this is a **resumed execution**. Read the state to determine:
   - `completed` agents: skip these entirely — their work is already done. Create their tasks as already-completed so the DAG tracks them.
   - `in_progress` agents with an Agent ID: attempt to resume the agent using the `resume` parameter on the Task tool. If the agent completed, read output and verify. If stale (no recent progress in output file), re-launch with the same prompt.
-  - `failed` agents: read the notes column for attempt history and checkpoint. Diagnose the failure, attempt to fix the underlying issue, then re-launch. If a checkpoint was recorded, instruct the new agent to resume from that step.
+  - `failed` agents: read the notes field for attempt history and checkpoint. Diagnose the failure, attempt to fix the underlying issue, then re-launch. If a checkpoint was recorded, instruct the new agent to resume from that step.
   - `pending` agents whose dependencies are all `completed`: these are ready to launch immediately.
-- **If absent or all agents are pending** — this is a **fresh execution**. Initialize the Execution State section in the plan file using the Edit tool, populating one row per agent with status `pending` and noting `blocked by: <deps>` where applicable. Set `Started` to the current timestamp and `Last updated` to the same.
+- **If the state file doesn't exist** — this is a **fresh execution**. Create the state file with one entry per agent, all `pending`, noting `blocked by: <deps>` where applicable.
+
+Update the state file whenever an agent's status changes (batch updates when multiple things happen at once). At the end of execution, also update the plan file's `## Execution State` section with the final results for archival.
 
 **State vocabulary**:
 - `pending` — not yet started, may be blocked by dependencies
@@ -82,12 +107,20 @@ For soft dependencies, check that the dependency agent's `creates` files exist o
 
 Read `agent-prompting.md` before crafting prompts if you haven't already.
 
-Each agent prompt must include:
-1. The agent's specific task description
-2. The shared contract (types, interfaces, API shapes) — copied from the plan, not referenced
-3. Explicit file scope — what to create/modify and what NOT to touch
-4. Code landmarks for edits (exact strings to match, not vague descriptions)
-5. Test commands to run (must match pre-configured allow patterns)
+**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see agent-prompting.md § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
+
+**Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
+
+**Formatting:** If a project formatter was detected in Step 0, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 7 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
+
+**Prompt construction:** For each agent, build the full prompt by concatenating:
+1. **Shared Contract** — the full Shared Contract section from the plan (types, API contracts, import paths)
+2. **Prompt Preamble** — the Prompt Preamble section from the plan (TDD workflow, project commands, completion report format), if present
+3. **Agent prompt** — the agent's `prompt` field from the plan
+
+This ensures every agent sees the shared contract and common instructions without the planner having to duplicate them in each agent's prompt. The agent's `prompt` field focuses on agent-specific work: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
+
+If the plan has no Prompt Preamble section, fall back to the previous behavior: each agent's prompt must be self-contained with all necessary context.
 
 ### Step 5: Monitor and advance (the scheduling loop)
 
@@ -106,10 +139,11 @@ When an agent completes:
    - Test file paths match what the plan's `tdd_steps` specified
 3. **Capture discoveries** — if the agent reported discoveries in its Completion Report, note them in the Execution State Notes column. If a discovery affects a pending agent's work, incorporate it into that agent's prompt when launching.
 4. **Update task status** — mark the agent's task as completed
-5. **Persist execution state** — use the Edit tool to update the plan file's Execution State table:
-   - Set the agent's row: status → `completed` (or `failed`), Agent ID, Duration, and Notes (include checkpoint and discoveries)
-   - Update the `Last updated` timestamp
-   - This ensures the plan file always reflects current progress, enabling resumption if the session is interrupted
+5. **Persist execution state** — update the state file (`.parallel-plan-state.json`):
+   - Set the agent's status → `completed` (or `failed`), agentId, duration, and notes (include checkpoint and discoveries)
+   - Update the `lastUpdated` timestamp
+   - Batch multiple updates when possible (e.g., marking agent complete + noting newly unblocked agents)
+   - This ensures the state file always reflects current progress, enabling resumption if the session is interrupted
 6. **Check for newly unblocked agents** — an agent is unblocked when:
    - All its `depends_on` (hard) agents are `completed`, AND
    - All its `soft_depends_on` agents have their output files on disk
@@ -122,15 +156,20 @@ When an agent completes:
 
 ### Step 6: Handle failures
 
-If an agent produces bad output:
+If an agent produces bad output, follow the **escalation ladder** — each attempt increases coordinator involvement:
 
 1. **Diagnose** — read the output, identify what went wrong. Check the agent's Completion Report for its checkpoint (last completed step) and any error context.
-2. **Record the attempt** — update the Execution State Notes column with a structured record:
+2. **Record the attempt** — update the state file notes with a structured record:
    `attempt 1: <what failed and why>`. This prevents retrying the same approach and gives context if escalating to the user.
-3. **Fix dependencies** — if the issue is a missing type, wrong import path, or incorrect file created by a predecessor agent, fix the dependency file first
-4. **Re-prompt the agent** — resume the agent with additional context, or launch a new agent with a corrected prompt. If the agent reported a checkpoint, instruct the new agent to resume from that step rather than starting over.
-5. **Max 3 attempts** — after 3 failed attempts for the same agent, mark it as `failed` in the Execution State with all attempt notes, and escalate to the user with the full attempt history.
-6. **If unresolvable** — try to fix the issue directly (small fixes only), or escalate to the user
+3. **Fix dependencies** — if the issue is a missing type, wrong import path, or incorrect file created by a predecessor agent, fix the dependency file first.
+
+**Attempt 1: Resume with error context.** Resume the agent using its agent ID with a message explaining what went wrong. Often the agent just hit a transient issue or made a small mistake it can self-correct. Tell it to start from its checkpoint.
+
+**Attempt 2: Relaunch with corrected prompt.** Launch a fresh agent with a *corrected* prompt — incorporate what went wrong, adjust the approach (e.g., different import path, simpler type cast, explicit code snippet for the failing section), and tell it to start from the checkpoint rather than step 1.
+
+**Attempt 3: Reduce scope.** Split the failing agent's remaining work into a smaller piece. Do the blocking part manually (small fix only — you're the coordinator, not the implementer, but a 1-2 line fix to unblock is acceptable), then relaunch for the rest. Or split into two simpler agents.
+
+**After 3 attempts:** Mark as `failed` in the state file with all attempt notes, and escalate to the user with the full attempt history.
 
 **Don't let a failed agent block the entire DAG.** If agent B fails but agent C is independent, C should still proceed.
 
@@ -138,12 +177,13 @@ If an agent produces bad output:
 
 After all agents complete:
 
-1. **Run the project's build/compile command** to verify compilation
-2. **Run integration tests** — execute the tests listed in the plan's **Integration Tests** section. These verify the pieces work together across agent boundaries, catching issues that per-agent TDD can't.
-3. If build or integration tests fail, diagnose and fix — launch a targeted subagent for non-trivial fixes
-4. Record the end timestamp
-5. **Collect discoveries** — gather all discoveries reported by agents (from Completion Reports captured in the Notes column). Report these to the user as a consolidated list — they may be worth saving as project learnings.
-6. **Finalize execution state** — use the Edit tool to update the plan file:
+1. **Run the project formatter** (if detected in Step 0) on all changed files. This catches formatting inconsistencies across agents before the build step. If you didn't include the formatter in each agent's prompt, this is your safety net.
+2. **Run the project's build/compile command** to verify compilation
+3. **Run integration tests** — execute the tests listed in the plan's **Integration Tests** section. These verify the pieces work together across agent boundaries, catching issues that per-agent TDD can't.
+4. If build, formatting, or integration tests fail, diagnose and fix — launch a targeted subagent for non-trivial fixes
+5. Record the end timestamp
+6. **Collect discoveries** — gather all discoveries reported by agents (from the state file notes). Report these to the user as a consolidated list — they may be worth saving as project learnings.
+7. **Finalize execution state** — update the state file, then sync the final results to the plan file's `## Execution State` section using the Edit tool (for archival):
    - Set `Build` to `pass` or `fail (N attempts)`
    - Set `Integration` to `pass` or `fail (details)`
    - Ensure all agent rows reflect their final status
@@ -182,5 +222,5 @@ After all agents complete:
 - **You are the coordinator, not an implementer** — delegate all code changes to subagents
 - **Verify after every agent** — catch contract violations before they cascade to dependent agents
 - **Launch eagerly** — as soon as an agent's dependencies are satisfied, launch it. Don't batch.
-- **Prompts are self-contained** — each agent prompt includes everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
+- **Prompts are self-contained** — each agent receives `Shared Contract + Prompt Preamble + Agent Prompt`, which together include everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
 - **Use haiku model** for simple agents (single file, small edit, < 30 lines changed) to minimize cost and latency

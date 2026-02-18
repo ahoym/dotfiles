@@ -2,17 +2,19 @@
 
 ## Prompt Structure
 
-Every agent prompt should follow this structure:
+The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.
+
+The **Shared Contract** and **Prompt Preamble** are prepended automatically (see SKILL.md Step 4). The agent's own `prompt` field should contain:
 
 ```
-1. Role and scope declaration
+1. Role and scope declaration (task description)
 2. File ownership (what to touch, what NOT to touch) — including test files
-3. Shared contract (types, interfaces, API shapes)
-4. TDD workflow with concrete steps (RED → GREEN → REFACTOR)
-5. Specific changes with code landmarks
-6. Constraints and anti-patterns
-7. Completion Report requirements
+3. Specific changes with code landmarks
+4. Agent-specific TDD steps (RED → GREEN → REFACTOR with concrete test names)
+5. Constraints and DO NOT MODIFY boundaries
 ```
+
+The shared contract, general TDD workflow template, project commands, and completion report format are provided by the preamble — don't duplicate them in agent prompts.
 
 ## What Makes a Fast Agent (< 40s, < 6 tool uses)
 
@@ -98,6 +100,20 @@ Before finishing, run the full test suite:
 - The RED phase run command should target the specific test, not the full suite (faster feedback)
 - If the agent needs shared fixtures from another agent, the dependency must be declared in `depends_on`
 
+## Code Formatting
+
+If the project uses a code formatter (prettier, biome, dprint, etc.), every agent must run it on its files before the final test suite. Look for formatter config files (`.prettierrc`, `.prettierrc.json`, `biome.json`, `.editorconfig`) or format scripts in `package.json` during pre-execution verification.
+
+Include the format command in the agent prompt's final steps:
+```
+Before finishing, format your files:
+<project's format command, e.g., `npx prettier --write <files>`>
+
+Then run the full test suite to verify nothing broke.
+```
+
+If the project has a `format:fix` or equivalent script, prefer that over raw `npx prettier --write`.
+
 ## Boundary Constraints
 
 Always include explicit boundaries:
@@ -113,21 +129,19 @@ This prevents:
 
 ## Shared Contract in Prompts
 
-Each agent prompt must include the relevant parts of the shared contract — don't assume agents can read the plan file:
+The executor automatically prepends the plan's **Shared Contract** section to every agent prompt (see SKILL.md Step 4). Agent prompts do NOT need to duplicate the shared contract — they can reference it (e.g., "see Shared Contract above").
 
-```
-## Shared Contract
-- The `FilledOrder` type is defined in `lib/types.ts` as:
-  `{ side: "buy" | "sell", price: string, baseAmount: string, ... }`
-- The API endpoint returns: `{ address: string, filledOrders: FilledOrder[] }`
-- The component accepts: `filledOrders: FilledOrder[]` and `loadingFilled: boolean`
-```
+If the plan has a **Prompt Preamble** section, that is also prepended (after the Shared Contract, before the agent's own prompt). The preamble contains process instructions (TDD workflow, project commands, completion report format) that apply to all agents.
 
-This ensures all agents agree on interfaces without seeing each other's code.
+The full prompt sent to each agent is: `Shared Contract + Prompt Preamble + Agent Prompt`.
+
+This ensures all agents agree on interfaces without the planner duplicating the contract in every agent prompt. Agent-specific prompts focus on: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
 
 ## Model Selection
 
-- **haiku**: Single file, small edit (< 30 lines changed) with a straightforward test. Only when the TDD steps are simple and the test is obvious. Fast, cheap.
+The **coordinator** makes the final model decision for each agent, overriding any plan suggestion if appropriate. Consider the agent's actual scope and complexity, not just what the plan estimated.
+
+- **haiku**: Single file, small edit (< 30 lines changed) with a straightforward test. Only when the TDD steps are simple and the test is obvious. Also good for: agents that only create new files by following an existing pattern (e.g., a new API route that mirrors an existing one), and agents with only `build-verify` TDD steps. Fast, cheap.
 - **sonnet**: Default for most agents. Handles TDD workflow reliably — can write meaningful tests, verify RED/GREEN phases, and refactor.
 - **opus**: Complex logic, large new files (> 200 lines), or agents that need to understand existing patterns and make nuanced decisions. Also use for agents where the test design itself is non-trivial (e.g., testing async behavior, complex mocking).
 

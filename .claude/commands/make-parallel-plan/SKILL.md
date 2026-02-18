@@ -21,6 +21,12 @@ Writes a structured parallel plan to the plan file. The output follows the forma
 
 ## Instructions
 
+### Step 0: Resolve the plan file
+
+If arguments were provided (e.g., `/make-parallel-plan docs/plans/my-plan.md` or `/make-parallel-plan from .claude/plans/my-plan.md`), extract the file path from the arguments (strip any leading "from" prefix) and resolve it relative to the project root. Read that file as the input plan.
+
+If no arguments were provided, use the plan most recently discussed in the conversation. If no plan has been discussed, ask the user which plan file to parallelize.
+
 ### Step 1: Analyze the plan for parallelism
 
 Read the plan file. For each step, identify:
@@ -51,6 +57,10 @@ Convert the file-conflict matrix and dependencies into a directed acyclic graph 
 - Be small enough to complete quickly (< 60s), unblocking the rest of the DAG
 
 This is the single highest-impact pattern for parallelism — one fast agent unblocks many.
+
+**Soft dependency audit:** After building the initial DAG, re-examine every `depends_on` (hard) dependency. For each one, ask: "Does the downstream agent actually call functions from the upstream agent, or does it only import types/interfaces?" If the answer is "only types/interfaces," downgrade to `soft_depends_on`. This audit consistently recovers parallelism that the initial pass misses. See analysis-guide.md for the full checklist.
+
+**DAG visualization verification:** After drawing the DAG visualization, verify that every arrow corresponds to a declared `depends_on` or `soft_depends_on` in the agent definitions. Also verify the reverse — every declared dependency has a corresponding arrow. Mismatches between the visualization and the declarations are a common source of confusion for reviewers and the executor.
 
 ### Step 3: Define the shared contract
 
@@ -97,6 +107,15 @@ FooType → import from "@/lib/types"
 barUtil → import from "@/lib/utils/bar"
 ```
 
+## Prompt Preamble
+
+<Process instructions prepended to every agent prompt by the executor.
+DO NOT duplicate the Shared Contract here — the executor automatically
+prepends the Shared Contract section followed by this Prompt Preamble
+to each agent's prompt. This section should only contain process
+instructions that apply to all agents: TDD workflow, project commands,
+completion report format, and general rules.>
+
 ## Agents
 
 ### <letter>: <short-name>
@@ -105,10 +124,12 @@ barUtil → import from "@/lib/utils/bar"
 - **creates**: [<file-paths>]
 - **modifies**: [<file-paths>]
 - **deletes**: [<file-paths>]
+- **estimated_duration**: <Xs> (e.g., "60s", "120s")
 - **description**: <what this agent does, 1-2 sentences>
 - **tdd_steps**:
     1. "<test description>" → `<test-file-path>::<test_name>`
     2. "<test description>" → `<test-file-path>::<test_name>`
+    3. build-verify → "pnpm build" (use when TDD is impractical — see format rules)
 - **prompt**: |
     <Full prompt to give the subagent. Include TDD workflow,
     file scope, shared contract excerpt, code landmarks for edits,
@@ -162,8 +183,26 @@ C ────────────┘
 <lint command> --help
 ```
 
+## Critical Path Estimate
+
+| Path | Agents | Estimated Wall-Clock |
+|------|--------|---------------------|
+| <longest path through DAG> | A → D → F | ~Xs |
+| <second longest> | A → B → D → F | ~Xs |
+
+Total sequential estimate: ~Xs
+Parallel estimate: ~Xs (critical path)
+Speedup: ~N.Nx
+
 ## Integration Tests
-<Tests to run after ALL agents complete, verifying the pieces work together>
+
+<2-3 specific cross-cutting scenarios that verify agents' outputs work together.
+Each scenario should name the concrete data flow or interaction being tested.
+Generic commands like "pnpm test" belong in Verification, not here.>
+
+Example format:
+1. **Domain flows through to API call**: Create an offer with `domainID` set → verify the API request includes `DomainID` field and the response reflects it back
+2. **Hook passes domain to fetch**: Set `activeDomainID` in `useTradingData` → verify `useFetchMarketData` includes `?domain=` in its API call
 
 ## Verification
 <How to test the changes end-to-end after execution>
@@ -189,15 +228,20 @@ Build: not yet run
 3. **`soft_depends_on`** lists soft dependencies (agent letters). Agent can start as soon as the dependency's files exist on disk — it only needs the interface contract, not full verification. Omit if empty.
 4. **File lists are exhaustive** — every file an agent touches must be listed, including test files
 5. **No two agents share a file** in their creates/modifies/deletes lists
-6. **Prompts are complete** — the executor copies them verbatim to the subagent
-7. **Prompts include the shared contract** — don't assume agents can read the plan header
+6. **Prompts are complete** — the executor prepends `Shared Contract + Prompt Preamble` automatically, then appends the agent's `prompt` field. Agent prompts should NOT duplicate the shared contract or preamble content.
+7. **Prompts include agent-specific context** — landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries. The shared contract is already provided via the preamble; agent prompts can reference it (e.g., "see Shared Contract above") instead of repeating it.
 8. **Prompts include explicit boundaries** — "DO NOT modify X" for files owned by other agents
 9. **Prompts include TDD workflow** — every agent prompt must specify RED → GREEN → REFACTOR steps with concrete test names and file paths
 10. **`tdd_steps` field is required** — lists each TDD cycle with the test name and path, giving reviewers a quick summary without reading the full prompt
-11. **Prompts end with a Completion Report section** — agents must report files changed, TDD steps completed, checkpoint, and discoveries
-12. **Pre-Execution Verification section is required** — lists commands to validate the toolchain before any agents run
-13. **Integration Tests section is required** — lists tests to run after all agents complete, verifying cross-agent integration
-14. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution
+11. **`build-verify` is a valid tdd_steps entry** — use it when a function is impractical to unit-test (e.g., API route handlers that need a running server, UI wiring that only adds prop-threading). The agent must include an explicit justification in its prompt explaining why TDD is skipped for that step, and must run a type-check/build command instead. Format: `build-verify → "<build command>"` with a parenthetical reason, e.g., `build-verify → "pnpm build" (API route handler — tested via integration)`
+12. **`estimated_duration` is required** — use the time estimates from analysis-guide.md. This enables the Critical Path Estimate section.
+13. **Prompts end with a Completion Report section** — agents must report files changed, TDD steps completed, checkpoint, and discoveries
+14. **Pre-Execution Verification section is required** — lists commands to validate the toolchain before any agents run
+15. **Integration Tests section is required** — must include 2-3 specific cross-cutting scenarios that name the concrete data flow being tested. Generic commands like "run all tests" are insufficient — each scenario should describe what crosses agent boundaries and how to verify it.
+16. **Critical Path Estimate section is required** — shows the longest path through the DAG with estimated wall-clock time, enabling reviewers to evaluate whether the parallelization is worthwhile
+17. **DAG visualization must match declarations** — every arrow in the visualization must correspond to a `depends_on` or `soft_depends_on` entry, and vice versa. Use `──→` for hard dependencies and `··→` (dotted) for soft dependencies.
+18. **Prompt Preamble contains only process instructions** — TDD workflow template, project commands, completion report format, and general rules. DO NOT include the Shared Contract in the preamble — the executor prepends `Shared Contract + Prompt Preamble` automatically. This avoids markdown code-fence nesting issues and keeps the contract as a single source of truth.
+19. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution. The executor tracks live state in a `.parallel-plan-state.json` file alongside the plan (lightweight, avoids repeated plan edits) and syncs results back to the plan's Execution State section at completion for archival.
 
 ## Important Notes
 
