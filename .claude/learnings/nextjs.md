@@ -43,3 +43,18 @@ function getTier(pathname: string, method: string) {
   return RELAXED;
 }
 ```
+
+## Hydration Mismatch with localStorage-Derived Values
+
+Components that render values from `localStorage` (e.g., network selector, theme toggle) will cause hydration mismatches because the server renders a default value while the client reads from storage.
+
+**Fix:** Gate rendering on a `hydrated` flag that starts `false` on the server and becomes `true` on the client.
+
+```tsx
+const { state, hydrated } = useAppState();
+
+// Only render after hydration to avoid mismatch
+{hydrated && <NetworkSelector network={state.network} />}
+```
+
+**Why not `suppressHydrationWarning`?** That only suppresses the warning — the user still sees a flash of the wrong value. Gating avoids rendering the wrong value entirely.

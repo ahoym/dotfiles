@@ -42,3 +42,29 @@ else
 ## xrpl.js BookOffer Mixed Casing
 
 xrpl.js `BookOffer` type uses **PascalCase** for main fields (`TakerGets`, `TakerPays`, `Account`, `Sequence`) but **snake_case** for funded fields (`taker_gets_funded`, `taker_pays_funded`). Easy to assume all fields follow the same convention — always check the type definition.
+
+## account_offers vs account_objects for DomainID
+
+`account_offers` returns **simplified** offer objects (snake_case fields: `seq`, `flags`, `taker_gets`, `taker_pays`, `quality`, `expiration`). It does **not** include `DomainID` even if the offer was placed in a permissioned domain.
+
+To get full ledger entry fields including `DomainID`, use `account_objects` with `type: "offer"` instead. This returns PascalCase fields (`Sequence`, `Flags`, `TakerGets`, `TakerPays`, `DomainID`, etc.).
+
+```typescript
+// BAD — DomainID missing from response
+client.request({ command: "account_offers", account: address });
+
+// GOOD — full ledger entries with DomainID
+client.request({ command: "account_objects", account: address, type: "offer" });
+```
+
+## Transaction Flags vs Ledger Entry Flags
+
+XRPL transaction flags (`tf*`) and ledger entry flags (`lsf*`) use **different bit positions** for the same concept. When checking flags on ledger objects (from `account_objects`, `book_offers`), use `lsf*` values, not `tf*`.
+
+| Flag | Transaction (`tf*`) | Ledger Entry (`lsf*`) |
+|------|--------------------|-----------------------|
+| Passive | `tfPassive = 0x00010000` | `lsfPassive = 0x00010000` |
+| Sell | `tfSell = 0x00020000` | `lsfSell = 0x00020000` |
+| **Hybrid** | **`tfHybrid = 0x00100000`** | **`lsfHybrid = 0x00040000`** |
+
+Note that Passive and Sell happen to have the same values, but **Hybrid does not**. Always use the correct constant for the context.
