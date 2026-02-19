@@ -50,6 +50,8 @@ Verify all required toolchain dependencies (test framework, build tools, linters
 
 If a dependency is missing, flag it to the user — never delegate installation to an agent.
 
+While verifying dependencies, collect every distinct Bash command pattern that agents will need to run (test commands, build commands, lint commands, format commands). These go in the plan's **Required Bash Permissions** section.
+
 ### Step 5: Design the agent DAG
 
 Convert the file-conflict matrix into a directed acyclic graph. Read `analysis-guide.md` for detailed methodology on:
@@ -86,6 +88,8 @@ Run through `analysis-guide.md` → "Self-Review Checklist" before writing the f
 - No dependency installation delegated to agents
 - Speedup computed after merges
 - All prompts have concrete landmarks
+- Required Bash Permissions section populated
+- Review Notes populated for uncertain decisions (or section omitted if none)
 
 Fix any failures before proceeding.
 
@@ -200,6 +204,19 @@ C ────────────┘
 <lint command> --help
 ```
 
+## Required Bash Permissions
+
+<Every distinct Bash command pattern that agents will need to run.
+The executor verifies these against `.claude/settings.local.json`
+before launching agents. Missing rules cause silent agent failures.>
+
+```bash
+<test-command> *           # e.g., Bash(pnpm test *)
+<build-command>            # e.g., Bash(pnpm build)
+<lint-command> *           # e.g., Bash(pnpm lint *)
+<format-command> *         # e.g., Bash(npx prettier --write *)
+```
+
 ## Critical Path Estimate
 
 | Path | Agents | Estimated Wall-Clock |
@@ -223,6 +240,15 @@ Example format:
 
 ## Verification
 <How to test the changes end-to-end after execution>
+
+## Review Notes
+
+<Flag decisions the planner was uncertain about. The executor's fresh-eyes review
+will examine each flagged item. Omit this section if there are no uncertainties.>
+
+- [ ] <description of uncertainty and reasoning>
+- [ ] <e.g., "A→B is hard but might be soft — B only imports types from A">
+- [ ] <e.g., "Agent C scope may be too large (est. 180s) — could split C1/C2">
 
 ## Execution State
 
@@ -259,6 +285,8 @@ Build: not yet run
 17. **DAG visualization must match declarations** — every arrow in the visualization must correspond to a `depends_on` or `soft_depends_on` entry, and vice versa. Use `──→` for hard dependencies and `··→` (dotted) for soft dependencies.
 18. **Prompt Preamble contains only process instructions** — TDD workflow template, project commands, completion report format, and general rules. DO NOT include the Shared Contract in the preamble — the executor prepends `Shared Contract + Prompt Preamble` automatically. This avoids markdown code-fence nesting issues and keeps the contract as a single source of truth.
 19. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution. The executor tracks live state in a `.parallel-plan-state.json` file alongside the plan (lightweight, avoids repeated plan edits) and syncs results back to the plan's Execution State section at completion for archival.
+20. **`Required Bash Permissions` section is required** — lists every distinct Bash command pattern agents will need, using the same `Bash(...)` syntax as `.claude/settings.local.json` allow patterns. The executor verifies these against settings before launching agents.
+21. **`Review Notes` section is optional but encouraged** — the planner flags decisions they were uncertain about (dependency classifications, agent scope, landmark accuracy). The executor's fresh-eyes review examines each item. Omit the section entirely if there are no uncertainties.
 
 ## Important Notes
 

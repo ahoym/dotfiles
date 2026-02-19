@@ -24,17 +24,42 @@ You should **never write implementation code directly**. All code changes go thr
 
 ## Instructions
 
-### Step 0: Pre-execution verification
+### Step 0: Fresh-eyes plan review
+
+Before doing anything else, perform a structured review of the plan with fresh eyes. You are reading this plan for the first time — use that perspective to catch issues the planner may have missed due to context fatigue or tunnel vision.
+
+1. **Read the full plan** — internalize the context, shared contract, DAG structure, and every agent prompt. Understand the overall shape of the change.
+2. **Re-read source files** — for each agent that modifies existing files, read those files and verify:
+   - Code landmarks in the prompt still match the actual code (function names, line numbers, surrounding context)
+   - The file structure hasn't changed since the plan was written
+   - Import paths referenced in the plan are correct
+3. **Audit dependencies** — for each `depends_on` (hard dependency), ask: does the downstream agent truly need the upstream to be fully completed and verified, or would it suffice for the upstream's files to exist on disk (soft dependency)? Flag any hard dependencies that could be downgraded.
+4. **Check agent scope balance** — flag agents that seem too large (> 200s estimated, touching 5+ files) or too small (< 30 lines of changes). Suggest splits or merges.
+5. **Review the Review Notes** — if the planner included a **Review Notes** section, examine each flagged uncertainty and form your own judgment.
+6. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the user — agents will silently fail without these permissions.
+7. **Present findings** — report your review to the user:
+   - Issues found (stale landmarks, wrong dependencies, scope imbalances)
+   - Proposed adjustments (with rationale)
+   - Planner's flagged uncertainties and your assessment
+   - Permission gaps (if any)
+   - Or: "Plan looks good, no issues found" — don't invent problems
+8. **Get approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
+
+Do NOT skip this step. The value of a fresh session is the fresh perspective — use it.
+
+### Step 1: Pre-execution verification
 
 Before launching any agents, verify the project's toolchain works. Read the plan's **Pre-Execution Verification** section and run the listed commands.
 
 Also check for a code formatter:
 - Look for `.prettierrc`, `.prettierrc.json`, `biome.json`, or a `format`/`format:check` script in `package.json` (or equivalents for other ecosystems)
-- If found, note the format command — you'll need to either include it in each agent's prompt or run it as a post-completion step in Step 7
+- If found, note the format command — you'll need to either include it in each agent's prompt or run it as a post-completion step in Step 8
 
-If any command fails, stop and report to the user — don't waste agent cycles on a broken toolchain.
+**Check Edit/Write permissions:** Background agents cannot prompt for tool permissions. Read `.claude/settings.local.json` and verify that `"Edit"` and `"Write"` appear in the `permissions.allow` array. If either is missing, stop and tell the user — agents need these to modify files and will silently fail without them.
 
-### Step 1: Parse the plan
+If any command fails or permissions are missing, stop and report to the user — don't waste agent cycles on a broken toolchain.
+
+### Step 2: Parse the plan
 
 Read the parallel plan file. It must follow the structured format from `/make-parallel-plan`:
 - **Shared Contract** section with types, API contracts, import paths
@@ -43,12 +68,14 @@ Read the parallel plan file. It must follow the structured format from `/make-pa
 - **Pre-Execution Verification** section
 - **Integration Tests** section
 - **DAG Visualization**
+- **Required Bash Permissions** section
+- **Review Notes** section (optional — planner's flagged uncertainties)
 
-Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 4.
+Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 5.
 
 If the plan doesn't follow this format, ask the user to run `/make-parallel-plan` first.
 
-### Step 2: Check for existing execution state
+### Step 3: Check for existing execution state
 
 Execution state is tracked in a **lightweight state file** (`.parallel-plan-state.json`) alongside the plan file, not by editing the plan markdown. This avoids fragmenting the coordinator's attention with repeated plan edits.
 
@@ -83,17 +110,17 @@ Update the state file whenever an agent's status changes (batch updates when mul
 - `completed` — agent finished successfully, output verified
 - `failed` — agent finished with errors, needs intervention or re-launch
 
-### Step 3: Create the task DAG
+### Step 4: Create the task DAG
 
 Use `TaskCreate` for each agent. Set `blockedBy` according to each agent's `depends_on` list. This gives the user visibility into progress and maps the DAG into the task system.
 
 Record the start timestamp (`date +%s`).
 
-### Step 4: Launch ready agents
+### Step 5: Launch ready agents
 
 Identify all agents whose dependencies are satisfied and launch them **all simultaneously** in a single message using `Task` with `run_in_background: true`.
 
-**Important: Background agents can use Bash but cannot prompt for permissions.** If a Bash command doesn't match a pre-configured allow pattern in settings, the agent silently fails. Before launching agents, verify that the project's test/build/lint commands have matching allow patterns in `.claude/settings.local.json` (e.g., `Bash(uv run pytest *)`). This is checked in Step 0's pre-execution verification.
+**Important: Background agents cannot prompt for permissions.** If a Bash command doesn't match a pre-configured allow pattern, or if `Edit`/`Write` tools aren't in the allow list, the agent silently fails. This is verified during Step 0 (plan review) and Step 1 (pre-execution verification) — do not skip those checks.
 
 An agent is **ready** when:
 - All `depends_on` (hard) agents are `completed` (verified), AND
@@ -108,7 +135,7 @@ For soft dependencies, check that the dependency agent's `creates` files exist o
 
 **Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
 
-**Formatting:** If a project formatter was detected in Step 0, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 7 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
+**Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 8 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
 
 **Prompt construction:** For each agent, build the full prompt by concatenating:
 1. **Shared Contract** — the full Shared Contract section from the plan (types, API contracts, import paths)
@@ -119,7 +146,7 @@ This ensures every agent sees the shared contract and common instructions withou
 
 If the plan has no Prompt Preamble section, fall back to the previous behavior: each agent's prompt must be self-contained with all necessary context.
 
-### Step 5: Monitor and advance (the scheduling loop)
+### Step 6: Monitor and advance (the scheduling loop)
 
 When an agent completes:
 
@@ -151,7 +178,7 @@ When an agent completes:
 
 **Soft dependency acceleration:** While waiting for hard-dependent agents to complete, periodically check if soft-dependent agents can start. A soft dependency is satisfied as soon as the dependency's `creates` files exist on disk — even if the dependency agent is still running (e.g., still in its REFACTOR phase). This lets downstream agents start sooner.
 
-### Step 6: Handle failures
+### Step 7: Handle failures
 
 If an agent produces bad output, follow the **escalation ladder** — each attempt increases coordinator involvement:
 
@@ -170,11 +197,11 @@ If an agent produces bad output, follow the **escalation ladder** — each attem
 
 **Don't let a failed agent block the entire DAG.** If agent B fails but agent C is independent, C should still proceed.
 
-### Step 7: Verify and report
+### Step 8: Verify and report
 
 After all agents complete:
 
-1. **Run the project formatter** (if detected in Step 0) on all changed files. This catches formatting inconsistencies across agents before the build step. If you didn't include the formatter in each agent's prompt, this is your safety net.
+1. **Run the project formatter** (if detected in Step 1) on all changed files. This catches formatting inconsistencies across agents before the build step. If you didn't include the formatter in each agent's prompt, this is your safety net.
 2. **Run the project's build/compile command** to verify compilation
 3. **Run integration tests** — execute the tests listed in the plan's **Integration Tests** section. These verify the pieces work together across agent boundaries, catching issues that per-agent TDD can't.
 4. If build, formatting, or integration tests fail, diagnose and fix — launch a targeted subagent for non-trivial fixes

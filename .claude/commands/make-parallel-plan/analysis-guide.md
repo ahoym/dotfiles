@@ -329,6 +329,11 @@ After building the DAG, performing the soft dependency audit, and resolving merg
 - [ ] **Speedup computed after merges** — the reported speedup reflects the final DAG, not the pre-merge version.
 - [ ] **Speedup flagged if marginal** — if < 1.3x, the plan includes an honest note about the tradeoff (contract enforcement vs. speed).
 
+### Handoff checks
+
+- [ ] **Required Bash Permissions populated** — every Bash command pattern that agents will run is listed in the Required Bash Permissions section, using `Bash(...)` syntax matching `.claude/settings.local.json` allow patterns.
+- [ ] **Review Notes populated for uncertainties** — any decisions the planner was uncertain about (dependency types, agent scope, landmark freshness) are flagged in the Review Notes section. If there are genuinely no uncertainties, the section can be omitted.
+
 ## Estimating Agent Time
 
 Based on observed patterns. TDD adds ~40-60% overhead per agent due to writing tests first, verifying RED/GREEN phases, and running test commands.
