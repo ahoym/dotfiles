@@ -25,6 +25,62 @@ Legend: M = modify, C = create, D = delete
 
 **Test file ownership:** Each agent owns its test files alongside its source files. When building the matrix, include the test files the agent will create or modify. Shared test infrastructure (e.g., `conftest.py`, shared fixtures) should be consolidated into an early agent, just like shared utility files.
 
+## Parallelization Gate
+
+Before building a full parallel plan, evaluate whether parallelization is worthwhile. This prevents wasting effort on plans where the coordination overhead exceeds the speedup.
+
+### Decision criteria
+
+| Signal | Threshold | Action |
+|--------|-----------|--------|
+| Total lines changed | < 300 | Flag: likely not worth parallelizing |
+| Total files changed | < 6 | Flag: limited parallelism opportunity |
+| Independent branches in DAG | < 2 | Flag: DAG is essentially linear |
+| Estimated speedup | < 1.3x | Flag: marginal benefit |
+| Estimated sequential time | < 3 minutes | Flag: fast enough without parallelism |
+
+**None of these are hard blockers.** Parallelization still provides value through contract enforcement (agents can't accidentally couple files) and context window pressure reduction. But the user should be informed when the speedup is marginal so they can make an informed choice.
+
+### How to evaluate
+
+1. Count total lines of meaningful changes across all plan steps (exclude boilerplate)
+2. Count files touched — only files with real changes, not incidental reads
+3. Sketch the DAG mentally: how many steps can run at the same time?
+4. If the answer is "mostly 1 at a time with occasional overlap," the DAG is essentially linear
+
+### What to tell the user
+
+When the gate fails, be transparent:
+
+> "This plan has ~200 lines across 8 files. The DAG is mostly linear (A → B → C), giving ~1.2x speedup. The main benefits would be contract enforcement and context isolation, not speed. Want to proceed with parallelization, or execute sequentially?"
+
+Do NOT silently produce a plan with marginal speedup. The user deserves to know.
+
+## Pre-flight Dependency Verification
+
+Before writing agent prompts, verify that all test and build dependencies exist in the project. Agents should never install, upgrade, or modify dependencies mid-flight.
+
+### What to check
+
+1. **Test framework**: Verify the test runner is installed (e.g., `vitest`, `jest`, `pytest` in `package.json` / `requirements.txt`)
+2. **Test utilities**: If agent prompts will use `renderHook`, `render`, `screen`, etc., verify `@testing-library/react` (or equivalent) is in `package.json`
+3. **Build tools**: Verify the build command works (e.g., `pnpm build` has necessary deps)
+4. **Linters**: If agents will run lint, verify the config exists
+
+### How to check
+
+- Read `package.json` (or equivalent) and search for the dependency names
+- Search existing test files for import patterns (e.g., `grep` for `@testing-library/react`) to confirm the library is both installed and actually used in the project
+
+### When a dependency is missing
+
+Do NOT add "install X if not available" to an agent prompt. Instead:
+1. Flag it to the user before generating the plan
+2. Ask them to install it first, or adjust the testing approach
+3. If the library is genuinely optional (e.g., can test a pure function without `renderHook`), adjust the agent prompt to use the simpler approach
+
+**Why this matters:** A dependency installation mid-flight can break other concurrent agents (lock file conflicts), pollute the project with unintended changes, or fail entirely if the agent guesses the wrong version.
+
 ## Dependency Types
 
 ### Hard dependencies (`depends_on`)
@@ -195,6 +251,84 @@ If one agent dominates the critical path, consider splitting it:
 - The overhead of two agents exceeds the time saved
 - The agent is already < 60s estimated
 
+## Merge Candidate Detection
+
+After building the initial DAG and performing the soft dependency audit, scan for agents that should be merged. Over-splitting creates coordination overhead that exceeds the parallelism benefit.
+
+### Merge signals
+
+Two agents are merge candidates when ANY of these apply:
+
+1. **Same dependency chain + small upstream**: Agent A → B where A is < 60s estimated or < 50 lines of meaningful changes. B waits for A anyway, so merging loses no parallelism.
+
+2. **Orphaned agent**: Nothing hard-depends or soft-depends on the agent. If it fails, no other agent notices — the failure only surfaces during final verification. Merge into the agent that shares the most conceptual overlap.
+
+3. **Build-verify-only agent**: The agent has no unit tests (only `build-verify` TDD steps) and touches < 3 files. The overhead of a separate agent (prompt processing, file reads, coordination) exceeds the benefit. Merge into an adjacent agent.
+
+4. **Tiny agent**: < 30 lines of meaningful changes across all files. The agent startup overhead (~15-20s for reading files and understanding context) dominates the actual work time.
+
+### Merge procedure
+
+1. Combine the `creates`, `modifies`, and `deletes` lists
+2. Union the `depends_on` and `soft_depends_on` lists (remove self-references)
+3. Update downstream agents' dependency lists to point to the merged agent
+4. Combine the TDD steps
+5. Merge the prompts (keep both sets of instructions, combine TDD workflows)
+6. **Recalculate the critical path** — the speedup number may have changed
+7. **Re-run the parallelization gate** — if the speedup drops below 1.3x, inform the user
+
+### When NOT to merge
+
+- The two agents touch different files AND can run in parallel (merging would serialize them)
+- The merged agent would exceed ~200s estimated duration (too large for a single context)
+- The agents have fundamentally different testing strategies (one uses TDD, the other uses build-verify)
+
+### Example
+
+**Before (4 agents):**
+```
+A (types, 30s) ··→ B (API route, 60s)
+A ──→ C (hook, 100s) ··→ D (wiring, 90s)
+```
+B is orphaned (nothing depends on it) and A is small. Merge A + B:
+
+**After (3 agents):**
+```
+A (types + API route, 70s) ──→ B (hook, 100s) ··→ C (wiring, 90s)
+```
+
+Sequential: 280s → 260s (merging A+B saved 30s overhead)
+Parallel: ~200s → ~200s (critical path unchanged since A+B were on different branches)
+But: B is no longer orphaned — its output (API route) is exercised when B's hook tests mock the API response shape.
+
+## Self-Review Checklist
+
+After building the DAG, performing the soft dependency audit, and resolving merge candidates, run through this checklist before writing the final plan. Every item must pass.
+
+### Structural checks
+
+- [ ] **No orphaned agents** — every agent is either depended on by another agent, or is the final integration/wiring agent. An orphaned agent's failure goes undetected until final verification.
+- [ ] **No linear-only DAG without justification** — if DAG depth equals agent count (the graph is a chain with no branching), the parallelism benefit is marginal. Either find a way to introduce branching, or inform the user.
+- [ ] **No agents under 50 lines of meaningful changes** — merge them into an adjacent agent. The agent startup overhead (~15-20s) makes tiny agents counterproductive.
+- [ ] **No two agents share a file** — double-check the creates/modifies/deletes lists for overlaps.
+
+### Dependency checks
+
+- [ ] **Soft dependency audit completed** — every `depends_on` was evaluated for potential downgrade to `soft_depends_on`.
+- [ ] **DAG visualization matches declarations** — every arrow has a corresponding dep, and vice versa.
+
+### Agent prompt checks
+
+- [ ] **No dependency installation delegated to agents** — all deps verified in pre-flight (Step 4).
+- [ ] **All edit landmarks are concrete** — line numbers, function names, surrounding code context. Never "somewhere around line X" — read the file and give exact locations.
+- [ ] **All prompts have explicit DO NOT MODIFY boundaries** — listing files owned by other agents.
+- [ ] **Placement instructions are unambiguous** — for edits to existing files, specify exactly where new code goes relative to existing code (e.g., "immediately after line 46: `const [refreshKey, ...] = useState(0);` and before line 47: `const [depth, ...] = ...`"). Don't say "around line X" or "near the top".
+
+### Estimate checks
+
+- [ ] **Speedup computed after merges** — the reported speedup reflects the final DAG, not the pre-merge version.
+- [ ] **Speedup flagged if marginal** — if < 1.3x, the plan includes an honest note about the tradeoff (contract enforcement vs. speed).
+
 ## Estimating Agent Time
 
 Based on observed patterns. TDD adds ~40-60% overhead per agent due to writing tests first, verifying RED/GREEN phases, and running test commands.
@@ -264,11 +398,19 @@ Factor this into critical path estimates. The value of parallelization comes fro
 
 4. **Shared utility files**: Files like `types.ts`, `constants.ts`, `index.ts` are often touched by multiple steps. Consolidate all changes to these files into a single agent.
 
-5. **Over-splitting**: Creating 6 agents for 200 lines of total code. Agent overhead (prompt processing, file reads) means tiny agents can be slower than merging them. Minimum viable agent: ~30 lines of meaningful changes.
+5. **Over-splitting**: Creating 6 agents for 200 lines of total code. Agent overhead (prompt processing, file reads) means tiny agents can be slower than merging them. Minimum viable agent: ~30 lines of meaningful changes. Use the **Merge Candidate Detection** section to catch this systematically.
 
 6. **Shared test infrastructure**: Files like test helpers, shared fixtures, or test utilities (e.g., `conftest.py`, `test-utils.ts`, `testhelpers_test.go`) are often needed by multiple agents. Consolidate all changes to shared test files into an early agent (just like shared utility files). Each agent should own its own test files but depend on the agent that sets up shared fixtures.
 
 7. **TDD overhead in splitting decisions**: With TDD, each agent has more tool uses (write test → run test → write code → run test → refactor → run test). Factor this into the minimum viable agent size — an agent with a single 5-line edit now involves ~6-10 tool uses with TDD, so the merge threshold is higher.
+
+8. **Orphaned agents**: An agent that nothing depends on can fail silently — no downstream agent will break, so the failure only surfaces during final `pnpm build` / `pnpm test`. Either ensure every agent is depended on, or merge orphaned agents into one that is.
+
+9. **Delegating dependency installation to agents**: Never put "install X if not available" in an agent prompt. Dependency changes (lock files, `package.json`) can conflict between concurrent agents, waste time on version resolution, or introduce unintended upgrades. Verify all deps exist in **Pre-flight Dependency Verification** before generating the plan.
+
+10. **Reporting pre-merge speedup**: Computing speedup before resolving merge candidates gives an inflated number. Always merge first, then compute. A plan that showed 1.7x pre-merge but 1.3x post-merge should report 1.3x — the honest number.
+
+11. **Vague placement instructions**: Telling an agent to add code "around line X" or "near the top" leads to incorrect insertions. Always read the target file, identify the exact insertion point with surrounding context (the line before and the line after), and include both in the prompt.
 
 ## TDD Escape Hatch: build-verify
 
