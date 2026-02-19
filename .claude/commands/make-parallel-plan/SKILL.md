@@ -14,6 +14,7 @@ Analyze a plan for parallelization opportunities, build a dependency DAG, and ou
 ## Reference Files
 
 - `analysis-guide.md` — Detailed methodology for file-conflict analysis, dependency types, DAG design, and agent splitting strategies
+- `prompt-writing-guide.md` — Best practices for writing agent prompts (speed, landmarks, scaling, TDD, boundaries)
 
 ## Output
 
@@ -21,13 +22,13 @@ Writes a structured parallel plan to the plan file. The output follows the forma
 
 ## Instructions
 
-### Step 0: Resolve the plan file
+### Step 1: Resolve the plan file
 
 If arguments were provided (e.g., `/make-parallel-plan docs/plans/my-plan.md` or `/make-parallel-plan from .claude/plans/my-plan.md`), extract the file path from the arguments (strip any leading "from" prefix) and resolve it relative to the project root. Read that file as the input plan.
 
 If no arguments were provided, use the plan most recently discussed in the conversation. If no plan has been discussed, ask the user which plan file to parallelize.
 
-### Step 1: Analyze the plan for parallelism
+### Step 2: Analyze the plan for parallelism
 
 Read the plan file. For each step, identify:
 - **Files touched** (created, modified, deleted)
@@ -37,32 +38,36 @@ Build a **file-conflict matrix**: two steps conflict if they modify the same fil
 
 Read `analysis-guide.md` for the detailed methodology.
 
-### Step 2: Design the agent DAG
+### Step 3: Parallelization gate
 
-Convert the file-conflict matrix and dependencies into a directed acyclic graph of agents. Each agent is an independent unit of work.
+Evaluate whether parallelization is worthwhile before investing in a full plan. See `analysis-guide.md` → "Parallelization Gate" for decision criteria and thresholds.
 
-**Key principles:**
-- **File boundary = agent boundary** — never let two agents modify the same file
-- **New file creation is always safe** — agents creating new files never conflict
-- **Minimize depth** (longest path through the DAG) — this is the floor for wall-clock time
-- **Split large agents** on the critical path to reduce depth (see analysis-guide.md)
-- **Dependencies are per-agent, not per-phase** — agent B depends on agent A specifically, not on "everything before it"
-- **Test files belong to their agent** — each agent owns its test files alongside its source files. Include test files in the `creates`/`modifies` lists.
-- **Use soft dependencies to maximize parallelism** — if an agent only needs the interface contract (types, function signatures) but not the full implementation, mark it as a soft dependency. The executor can start soft-dependent agents as soon as the dependency's files are written, without waiting for full verification. See analysis-guide.md for details.
+If the gate fails, inform the user and explain why. Offer to proceed for contract-enforcement benefits. Do NOT silently produce a plan with < 1.3x speedup.
 
-**Interface-first pattern:** When the plan introduces shared types, interfaces, or test fixtures that multiple agents depend on, create a small, fast **Agent A** dedicated to defining these. This agent should:
-- Create type/interface definition files
-- Create shared test fixtures or helpers
-- Have no dependencies itself
-- Be small enough to complete quickly (< 60s), unblocking the rest of the DAG
+### Step 4: Pre-flight dependency verification
 
-This is the single highest-impact pattern for parallelism — one fast agent unblocks many.
+Verify all required toolchain dependencies (test framework, build tools, linters) exist before writing agent prompts. See `analysis-guide.md` → "Pre-flight Dependency Verification".
 
-**Soft dependency audit:** After building the initial DAG, re-examine every `depends_on` (hard) dependency. For each one, ask: "Does the downstream agent actually call functions from the upstream agent, or does it only import types/interfaces?" If the answer is "only types/interfaces," downgrade to `soft_depends_on`. This audit consistently recovers parallelism that the initial pass misses. See analysis-guide.md for the full checklist.
+If a dependency is missing, flag it to the user — never delegate installation to an agent.
 
-**DAG visualization verification:** After drawing the DAG visualization, verify that every arrow corresponds to a declared `depends_on` or `soft_depends_on` in the agent definitions. Also verify the reverse — every declared dependency has a corresponding arrow. Mismatches between the visualization and the declarations are a common source of confusion for reviewers and the executor.
+### Step 5: Design the agent DAG
 
-### Step 3: Define the shared contract
+Convert the file-conflict matrix into a directed acyclic graph. Read `analysis-guide.md` for detailed methodology on:
+- Dependency types (hard vs soft) → "Dependency Types"
+- Interface-first pattern → "Interface-first Pattern"
+- Soft dependency audit → "Soft Dependency Audit"
+- DAG visualization verification → "DAG Visualization Verification"
+- Splitting large agents → "Splitting Large Agents"
+
+Key invariant: **no two agents share a file** in their creates/modifies/deletes lists.
+
+### Step 6: Merge candidate check
+
+Scan for agents that should be merged (orphaned, tiny, same-chain small pairs, build-verify-only). See `analysis-guide.md` → "Merge Candidate Detection".
+
+After merging, recalculate the critical path and re-run the parallelization gate. Compute speedup **after** merging — report the realistic number.
+
+### Step 7: Define the shared contract
 
 Before agents can work independently, they must agree on interfaces. The contract includes:
 - **Types/interfaces** to be created (exact definitions)
@@ -72,9 +77,21 @@ Before agents can work independently, they must agree on interfaces. The contrac
 
 The contract should be concrete enough that all agents can write compatible code without seeing each other's output.
 
-### Step 4: Write the parallel plan
+### Step 8: Self-review checklist
 
-Write the structured plan to the plan file following the format below. Present it to the user for review.
+Run through `analysis-guide.md` → "Self-Review Checklist" before writing the final plan. Key checks:
+- No orphaned agents
+- No linear-only DAGs without justification
+- No agents under 50 lines
+- No dependency installation delegated to agents
+- Speedup computed after merges
+- All prompts have concrete landmarks
+
+Fix any failures before proceeding.
+
+### Step 9: Write the parallel plan
+
+Read `prompt-writing-guide.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
 
 ---
 

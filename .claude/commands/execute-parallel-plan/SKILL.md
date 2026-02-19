@@ -11,10 +11,6 @@ Execute a structured parallel plan produced by `/make-parallel-plan`. Acts as a 
 - `/execute-parallel-plan <plan-file>` — Execute a parallel plan file
 - `/execute-parallel-plan` — Execute the most recently discussed parallel plan
 
-## Reference Files
-
-- `agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
-
 ## Role: Coordinator
 
 You are a **team lead**, not an implementer. Your job is to:
@@ -105,9 +101,10 @@ An agent is **ready** when:
 
 For soft dependencies, check that the dependency agent's `creates` files exist on disk before launching. If the soft dependency agent is still running but its files don't exist yet, wait.
 
-Read `agent-prompting.md` before crafting prompts if you haven't already.
-
-**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see agent-prompting.md § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
+**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model. The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively.
+- **haiku**: Single file, small edit (< 30 lines), straightforward test. Also good for agents that follow an existing pattern or have only `build-verify` TDD steps.
+- **sonnet**: Default for most agents. Handles TDD workflow reliably.
+- **opus**: Complex logic, large new files (> 200 lines), or non-trivial test design (async behavior, complex mocking).
 
 **Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
 
@@ -223,4 +220,3 @@ After all agents complete:
 - **Verify after every agent** — catch contract violations before they cascade to dependent agents
 - **Launch eagerly** — as soon as an agent's dependencies are satisfied, launch it. Don't batch.
 - **Prompts are self-contained** — each agent receives `Shared Contract + Prompt Preamble + Agent Prompt`, which together include everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
-- **Use haiku model** for simple agents (single file, small edit, < 30 lines changed) to minimize cost and latency

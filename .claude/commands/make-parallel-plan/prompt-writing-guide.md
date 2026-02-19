@@ -1,20 +1,18 @@
-# Agent Prompting Best Practices
+# Prompt Writing Guide
+
+Best practices for writing agent prompts in parallel plans. Read this when writing agent prompts in Step 9.
 
 ## Prompt Structure
 
-The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.
+The executor prepends `Shared Contract + Prompt Preamble` to every agent prompt automatically. The agent's `prompt` field should contain only agent-specific content:
 
-The **Shared Contract** and **Prompt Preamble** are prepended automatically (see SKILL.md Step 4). The agent's own `prompt` field should contain:
-
-```
 1. Role and scope declaration (task description)
 2. File ownership (what to touch, what NOT to touch) — including test files
 3. Specific changes with code landmarks
 4. Agent-specific TDD steps (RED → GREEN → REFACTOR with concrete test names)
 5. Constraints and DO NOT MODIFY boundaries
-```
 
-The shared contract, general TDD workflow template, project commands, and completion report format are provided by the preamble — don't duplicate them in agent prompts.
+Do not duplicate shared contract or preamble content in agent prompts.
 
 ## What Makes a Fast Agent (< 40s, < 6 tool uses)
 
@@ -64,9 +62,7 @@ The more specific the landmark, the fewer reads the agent needs.
 
 ## TDD Workflow in Prompts
 
-Every agent prompt must include a TDD section. The planner defines the TDD steps; the executor copies them verbatim into the prompt.
-
-**Important:** Background agents can use Bash but cannot prompt for permissions. The project's test/build/lint commands must have matching allow patterns in `.claude/settings.local.json` before launching agents. The executor verifies this in Step 0 (pre-execution verification).
+Every agent prompt must include a TDD section with concrete test names and file paths.
 
 **Structure:**
 ```
@@ -77,9 +73,7 @@ For each change, follow RED → GREEN → REFACTOR:
 **Step 1: <description>**
 - RED: Write `<test_name>` in `<test-file-path>` that tests <behavior>.
   Run it — it MUST fail (the implementation doesn't exist yet).
-  ```bash
-  <project's test command targeting the specific test>
-  ```
+  [project's test command targeting the specific test]
 - GREEN: Implement the minimal code in `<source-file>` to make the test pass.
   Run it — it MUST pass now.
 - REFACTOR: Clean up while keeping tests green.
@@ -88,13 +82,11 @@ For each change, follow RED → GREEN → REFACTOR:
 ...
 
 Before finishing, run the full test suite:
-```bash
-<project's full test command>
-```
+[project's full test command]
 ```
 
 **Key points:**
-- Use the project's actual test commands (e.g., `uv run pytest`, `npm test`, `go test ./...`, `cargo test`) — never hardcode a specific tool
+- Use the project's actual test commands (e.g., `uv run pytest`, `npm test`, `go test ./...`) — never hardcode a specific tool
 - Test file paths must be concrete, not "find the appropriate test file"
 - Test names must be specific and descriptive, not generic like `test_it_works`
 - The RED phase run command should target the specific test, not the full suite (faster feedback)
@@ -102,9 +94,8 @@ Before finishing, run the full test suite:
 
 ## Code Formatting
 
-If the project uses a code formatter (prettier, biome, dprint, etc.), every agent must run it on its files before the final test suite. Look for formatter config files (`.prettierrc`, `.prettierrc.json`, `biome.json`, `.editorconfig`) or format scripts in `package.json` during pre-execution verification.
+If the project uses a code formatter (prettier, biome, dprint, etc.), include the format command in each agent prompt's final steps:
 
-Include the format command in the agent prompt's final steps:
 ```
 Before finishing, format your files:
 <project's format command, e.g., `npx prettier --write <files>`>
@@ -127,29 +118,10 @@ This prevents:
 - File conflicts between parallel agents
 - Scope creep that breaks the DAG
 
-## Shared Contract in Prompts
+## Completion Report
 
-The executor automatically prepends the plan's **Shared Contract** section to every agent prompt (see SKILL.md Step 4). Agent prompts do NOT need to duplicate the shared contract — they can reference it (e.g., "see Shared Contract above").
+Every agent prompt must end with instructions to produce a Completion Report:
 
-If the plan has a **Prompt Preamble** section, that is also prepended (after the Shared Contract, before the agent's own prompt). The preamble contains process instructions (TDD workflow, project commands, completion report format) that apply to all agents.
-
-The full prompt sent to each agent is: `Shared Contract + Prompt Preamble + Agent Prompt`.
-
-This ensures all agents agree on interfaces without the planner duplicating the contract in every agent prompt. Agent-specific prompts focus on: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
-
-## Model Selection
-
-The **coordinator** makes the final model decision for each agent, overriding any plan suggestion if appropriate. Consider the agent's actual scope and complexity, not just what the plan estimated.
-
-- **haiku**: Single file, small edit (< 30 lines changed) with a straightforward test. Only when the TDD steps are simple and the test is obvious. Also good for: agents that only create new files by following an existing pattern (e.g., a new API route that mirrors an existing one), and agents with only `build-verify` TDD steps. Fast, cheap.
-- **sonnet**: Default for most agents. Handles TDD workflow reliably — can write meaningful tests, verify RED/GREEN phases, and refactor.
-- **opus**: Complex logic, large new files (> 200 lines), or agents that need to understand existing patterns and make nuanced decisions. Also use for agents where the test design itself is non-trivial (e.g., testing async behavior, complex mocking).
-
-## Completion Report in Prompts
-
-Every agent prompt must end with instructions to produce a **Completion Report**. This is how the orchestrator captures checkpoints, discoveries, and status from agents whose sessions are otherwise lost.
-
-**Include this section in every prompt:**
 ```
 ## Completion Report (required)
 
@@ -172,9 +144,9 @@ Report anything surprising, unexpected, or useful for other agents:
 ```
 
 **Why this matters:**
-- Agent sessions are isolated — the orchestrator only sees the final output message and the files on disk
-- Checkpoints enable resumption from the right step if the agent fails and needs to be re-launched
-- Discoveries are collected by the orchestrator and surfaced to the user (and to other agents if relevant)
+- Agent sessions are isolated — the coordinator only sees the final output and files on disk
+- Checkpoints enable resumption if the agent fails and needs re-launch
+- Discoveries are collected by the coordinator and surfaced to the user
 
 ## Interface-First Agent Prompts
 
@@ -182,7 +154,7 @@ The interface-first agent (typically Agent A) defines shared types and test fixt
 - List every type/interface to create with exact field definitions
 - Create test fixtures that other agents will import
 - Complete quickly — keep scope minimal, no business logic
-- Its soft dependents may start as soon as its files are written, so file creation should happen early in the agent's execution
+- File creation should happen early in execution, since soft dependents may start as soon as files exist
 
 ## Integration Agent Prompts
 
