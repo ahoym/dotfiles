@@ -14,9 +14,10 @@ Review learnings, guidelines, or skills to identify content that should be migra
 
 ## Reference Files (conditional)
 
-- classification-model.md - The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
-- `~/.claude/commands/compound-learnings/content-type-decisions.md` - Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
-- persona-design.md - Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
+- `~/.claude/commands/_shared/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
+- classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
+- `~/.claude/commands/compound-learnings/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
+- persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
 
 ## Parallel Execution
 
@@ -101,9 +102,9 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 4. Store as `PATTERNS` list
 
 **Pre-load (step 3 reads)** — In the same parallel batch as the parse reads above:
-1. Glob `~/.claude/commands/*/SKILL.md` and read all skill instruction files
-2. Glob and read all `~/.claude/guidelines/*.md`
-3. Glob `~/.claude/commands/set-persona/*.md` (needed for step 5a)
+1. Read `~/.claude/commands/_shared/corpus-cross-reference.md` for the corpus loading procedure
+2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings
+3. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
 4. Read classification-model.md and `~/.claude/commands/compound-learnings/content-type-decisions.md` (needed for step 4)
 
 Store all pre-loaded content for use in subsequent steps.
@@ -112,16 +113,7 @@ Store all pre-loaded content for use in subsequent steps.
 
 ### 3 (cont). Cross-reference patterns against corpus
 
-**This step must be thorough — compare patterns against the pre-loaded skill/guideline content, not just keyword grep.** Shallow cross-referencing leads to wrong classifications (e.g., recommending "migrate" when the content is already fully covered).
-
-For each pattern in `PATTERNS`:
-1. Search the pre-loaded skills for related content
-2. Check coverage depth in relevant skill files (SKILL.md and reference files)
-3. Search the pre-loaded guidelines for related content
-4. Note any matches:
-   - **Exact match**: Pattern is already fully covered
-   - **Partial match**: Related skill/guideline exists but doesn't cover this
-   - **No match**: No existing skill/guideline covers this topic
+Follow the "Cross-Referencing Content" procedure in `corpus-cross-reference.md`. Use the match types (exact, partial, thematic, no match) and confidence levels defined there.
 
 **Do NOT present the classification table (step 6) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
 

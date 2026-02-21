@@ -41,6 +41,7 @@ EXCLUDES=(
 
 ## Reference Files (conditional)
 
+- `~/.claude/commands/_shared/corpus-cross-reference.md` — Read in step 3 for corpus loading and cross-referencing procedure
 - `~/.claude/commands/curate-learnings/classification-model.md` — Read in step 3 for classifying incoming content
 
 ## Parallel Execution
@@ -114,17 +115,15 @@ For each file that exists only in source:
 
 #### 3b. Assess incoming content
 
+Read `_shared/corpus-cross-reference.md` and follow its procedure to load the target corpus and cross-reference incoming content.
+
 For each candidate (new files + source-unique sections from diverged files):
 
 1. **Read the incoming content** — the full file for "only in source", or just the source-unique sections for diverged files
-2. **Cross-reference against target's existing corpus:**
-   - Read target's existing skills (`<TARGET>/.claude/commands/*/SKILL.md`) — already loaded or load now
-   - Read target's existing learnings and guidelines
-   - For each incoming section, check coverage:
-     - **Already covered** — content exists in target under a different file/section (redundant)
-     - **Partially covered** — related content exists but this adds new detail (valuable)
-     - **Not covered** — genuinely new knowledge (valuable)
-     - **Outdated** — superseded by newer content in target or references stale patterns
+2. **Cross-reference against target's corpus** using the procedure in `corpus-cross-reference.md`:
+   - Load the corpus (skills, guidelines, learnings) if not already loaded
+   - For each incoming section, assess coverage using the match types (exact, partial, thematic, no match)
+   - Use the confidence levels to determine how certain the assessment is
 3. **Assign a recommendation:**
 
 | Recommendation | Criteria | Default action |
