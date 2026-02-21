@@ -1,3 +1,8 @@
+<!-- Only include issue ticket if one was inferred -->
+**Issue ticket(s):** <TICKET-URL>
+
+---
+
 ## Dependencies
 <!-- Only include if base is not main -->
 This branch is based on `<base-branch>` and should be merged after that branch.
@@ -18,8 +23,18 @@ This branch is based on `<base-branch>` and should be merged after that branch.
 **Key changes:**
 - <list of significant changes with file references>
 
+## Screenshots
+<!-- Include screenshots for UI changes, otherwise use N/A -->
+N/A
+
 ## Test plan
 - [ ] <checklist items for testing>
+
+## Checklist
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] DB migration tested (if applicable)
+- [ ] README or docs updated (if needed)
 
 ---
 Generated with [Claude Code](https://claude.ai/code)

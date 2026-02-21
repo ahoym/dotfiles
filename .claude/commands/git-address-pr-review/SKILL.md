@@ -12,7 +12,13 @@ Fetch and address review comments from a pull request.
 - `/address-pr-review <pr-number>` - Address comments on specific PR
 - `/address-pr-review <pr-url>` - Address comments on PR by URL
 
+## Reference Files (conditional — read only when needed)
+
+- @../_shared/platform-detection.md - Platform detection for GitHub/GitLab
+
 ## Instructions
+
+0. **Detect platform** — follow `@../_shared/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
 
 1. **Fetch PR and comments** (run in parallel):
    - Get PR details:
@@ -223,3 +229,89 @@ This is a clarification request. Reply to confirm the understanding, then implem
 ```
 Yes, `is_` here means "in-sample". Would you like me to rename to `in_sample_*` or `train_*`?
 ```
+
+### Line Number Drift
+
+When comments reference specific line numbers (inline diff comments), be aware that:
+- The line numbers in the API response refer to line numbers **at the time the comment was made**
+- If new commits have been pushed since the comment was made, line numbers may have shifted
+
+**To find what an inline comment is actually about:**
+```bash
+# Option 1: Check out the commit the comment was made on
+git show <commit_sha>:<file_path> | sed -n '<line_number>p'
+
+# Option 2: View the file at that commit with context
+git show <commit_sha>:<file_path> | head -n <line_number+5> | tail -n 10
+```
+
+**Do NOT** assume current file line numbers match the comment's line numbers after pushing changes.
+
+### Investigation vs Approval Distinction
+
+Be careful to distinguish comment types:
+
+- **Clear approval** (execute): "Claude can you update...", "Go ahead and change it", "Please update the plan to...", "yes, proceed", "send it"
+- **Investigation request** (analyze, then ask): "Can you look into X?", "Claude, can you investigate Y?"
+- **Preference statement** (do NOT execute): "please annotate with X", "we should use X", "it would be better to..."
+
+For investigation requests: Analyze the request, provide your findings/recommendations, then explicitly ask for approval before making changes.
+
+### Planning Documents Exception
+
+For `.md` files in `docs/plans/`, do NOT auto-fix even if you agree with the comment. Planning documents require discussion, so reply with your thoughts and wait for explicit approval from the PR author before making changes.
+
+**When approval is given, only include what was specifically approved** - don't expand scope to include related improvements discussed in the same thread.
+
+### Delta Summaries
+
+Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level PR comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
+
+```bash
+gh pr comment <PR_NUMBER> --body "## Summary of Changes Since Last Update
+
+- <change 1>
+- <change 2>
+
+---
+_Co-authored by Claude Code (Claude Opus 4.5)_"
+```
+
+### Re-review Requests
+
+After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review:
+
+```bash
+# Find all unique reviewers who approved
+gh api repos/{owner}/{repo}/pulls/<PR_NUMBER>/reviews --jq '[.[] | select(.state == "APPROVED") | .user.login] | unique | .[]'
+
+# Post re-review request
+gh pr comment <PR_NUMBER> --body "@<reviewer> New changes have been pushed - could you please re-review?
+
+---
+_Co-authored by Claude Code (Claude Opus 4.5)_"
+```
+
+**Important:** Tag ALL reviewers who gave LGTM comments, including the PR author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
+
+### Keep PRs Focused
+
+When responding to PR feedback leads to changes unrelated to the PR's purpose (e.g., updating rules/guidelines while reviewing an error handling audit), move those changes to a separate branch:
+
+```bash
+# Stash unrelated changes
+git stash push -m "unrelated changes" <files>
+
+# Switch to appropriate branch (often the base branch)
+git checkout <target_branch>
+
+# Apply and commit
+git stash pop
+git add -A && git commit -m "<message>"
+git push origin <target_branch>
+
+# Return to original branch
+git checkout <original_branch>
+```
+
+This keeps the PR focused on its intended scope and makes reviews easier.

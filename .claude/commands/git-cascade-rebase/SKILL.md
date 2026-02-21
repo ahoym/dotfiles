@@ -82,6 +82,10 @@ Step 3: Rebasing feature/phase3 onto feature/phase2...
 All branches rebased. Ready to push.
 ```
 
+## Reference Files (conditional — read only when needed)
+
+- rebase-patterns.md - Common rebase patterns and troubleshooting
+
 ## Important Notes
 
 - This rewrites history - ensure no one else is working on these branches

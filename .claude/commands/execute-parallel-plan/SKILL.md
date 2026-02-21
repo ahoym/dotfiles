@@ -11,6 +11,10 @@ Execute a structured parallel plan produced by `/make-parallel-plan`. Acts as a 
 - `/execute-parallel-plan <plan-file>` — Execute a parallel plan file
 - `/execute-parallel-plan` — Execute the most recently discussed parallel plan
 
+## Reference Files
+
+- `agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
+
 ## Role: Coordinator
 
 You are a **team lead**, not an implementer. Your job is to:
@@ -57,6 +61,12 @@ Also check for a code formatter:
 
 **Check Edit/Write permissions:** Background agents cannot prompt for tool permissions. Read `.claude/settings.local.json` and verify that `"Edit"` and `"Write"` appear in the `permissions.allow` array. If either is missing, stop and tell the user — agents need these to modify files and will silently fail without them.
 
+If the plan includes a **Branch Strategy** section, also verify:
+- The current branch is the base branch specified in the strategy (usually `main`)
+- Working tree is clean (`git status --porcelain` is empty)
+- Remote is accessible (`git ls-remote origin` succeeds)
+- PR/MR creation CLI is available (`gh --version` for GitHub, `glab --version` for GitLab — check the project's git remote URL to determine which)
+
 If any command fails or permissions are missing, stop and report to the user — don't waste agent cycles on a broken toolchain.
 
 ### Step 2: Parse the plan
@@ -70,8 +80,9 @@ Read the parallel plan file. It must follow the structured format from `/make-pa
 - **DAG Visualization**
 - **Required Bash Permissions** section
 - **Review Notes** section (optional — planner's flagged uncertainties)
+- **Branch Strategy** section (optional) with per-agent branch names, branch-from sources, MR/PR targets, and merge order
 
-Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 5.
+Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 5. If a **Branch Strategy** section exists, extract the per-agent branch configuration — you will use it in Step 6 to create branches, commits, and PRs/MRs as agents complete.
 
 If the plan doesn't follow this format, ask the user to run `/make-parallel-plan` first.
 
@@ -89,14 +100,14 @@ Execution state is tracked in a **lightweight state file** (`.parallel-plan-stat
   "build": "not yet run",
   "integration": "not yet run",
   "agents": {
-    "A": { "status": "pending", "agentId": null, "duration": null, "notes": "" },
-    "B": { "status": "pending", "agentId": null, "duration": null, "notes": "blocked by: A" }
+    "A": { "status": "pending", "agentId": null, "duration": null, "notes": "", "branch": null, "prUrl": null },
+    "B": { "status": "pending", "agentId": null, "duration": null, "notes": "blocked by: A", "branch": null, "prUrl": null }
   }
 }
 ```
 
 - **If the state file exists with non-pending agents** — this is a **resumed execution**. Read the state to determine:
-  - `completed` agents: skip these entirely — their work is already done. Create their tasks as already-completed so the DAG tracks them.
+  - `completed` agents: skip these entirely — their work is already done. Create their tasks as already-completed so the DAG tracks them. If a completed agent has no `branch` in the state file and the plan has a Branch Strategy, retry the branch/PR creation step (Step 6, item 6).
   - `in_progress` agents with an Agent ID: attempt to resume the agent using the `resume` parameter on the Task tool. If the agent completed, read output and verify. If stale (no recent progress in output file), re-launch with the same prompt.
   - `failed` agents: read the notes field for attempt history and checkpoint. Diagnose the failure, attempt to fix the underlying issue, then re-launch. If a checkpoint was recorded, instruct the new agent to resume from that step.
   - `pending` agents whose dependencies are all `completed`: these are ready to launch immediately.
@@ -128,10 +139,9 @@ An agent is **ready** when:
 
 For soft dependencies, check that the dependency agent's `creates` files exist on disk before launching. If the soft dependency agent is still running but its files don't exist yet, wait.
 
-**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model. The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively.
-- **haiku**: Single file, small edit (< 30 lines), straightforward test. Also good for agents that follow an existing pattern or have only `build-verify` TDD steps.
-- **sonnet**: Default for most agents. Handles TDD workflow reliably.
-- **opus**: Complex logic, large new files (> 200 lines), or non-trivial test design (async behavior, complex mocking).
+Read `agent-prompting.md` before crafting prompts if you haven't already.
+
+**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see agent-prompting.md § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
 
 **Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
 
@@ -168,11 +178,27 @@ When an agent completes:
    - Update the `lastUpdated` timestamp
    - Batch multiple updates when possible (e.g., marking agent complete + noting newly unblocked agents)
    - This ensures the state file always reflects current progress, enabling resumption if the session is interrupted
-6. **Check for newly unblocked agents** — an agent is unblocked when:
+6. **Create branch, commit, and PR/MR** — if the plan has a Branch Strategy section:
+   - Look up the agent's row in the Branch Strategy table (branch name, branch-from, PR/MR target, merge order)
+   - Determine the base ref:
+     - "Branch From" is the base branch (e.g., `main`) → use `origin/main`
+     - "Branch From" is another agent letter (e.g., `A`) → use that agent's local branch name (must already exist from a previous completion)
+   - Create the branch: `git branch <branch-name> <base-ref>`
+   - **Use a temporary git worktree** to commit without disturbing the working tree (other agents may still be running):
+     1. `git worktree add <tmp-dir> <branch-name>` — creates a checkout of the branch in an isolated directory
+     2. Copy the agent's output files (`creates` + `modifies` from the plan) into the worktree at the same relative paths. Ensure parent directories exist.
+     3. For `deletes` files, run `git rm` in the worktree
+     4. Stage, commit, and push from within the worktree
+     5. `git worktree remove <tmp-dir>` — clean up
+   - **Create PR/MR** targeting the branch specified in the target column (usually `main`). Use the project's CLI (`gh pr create` for GitHub, `glab mr create` for GitLab). Title: agent's short name and description. Body: summary of changes and file list.
+   - Update the state file with `branch` and `prUrl`
+   - **If branch/PR creation fails**, log the error in state notes but do not block the DAG — the agent's code work is complete regardless. The user can create PRs manually.
+   - **For dependent agents**: their branch is created from the dependency's branch, so it automatically includes the dependency's committed code. The PR/MR diff against main will show both the dependency's and this agent's changes. After the dependency's PR merges, this agent's branch should be rebased onto main (the plan's merge order section describes this).
+7. **Check for newly unblocked agents** — an agent is unblocked when:
    - All its `depends_on` (hard) agents are `completed`, AND
    - All its `soft_depends_on` agents have their output files on disk
-7. **Launch newly unblocked agents** — immediately, in parallel if multiple are ready. When launching, update the agent's row to `in_progress` with the new Agent ID.
-8. **Repeat** until all agents are complete
+8. **Launch newly unblocked agents** — immediately, in parallel if multiple are ready. When launching, update the agent's row to `in_progress` with the new Agent ID.
+9. **Repeat** until all agents are complete
 
 **Key principle: launch agents as soon as their specific dependencies are satisfied.** Don't wait for unrelated agents to finish. This is swim-lane scheduling, not batch phases.
 
@@ -210,19 +236,19 @@ After all agents complete:
 7. **Finalize execution state** — update the state file, then sync the final results to the plan file's `## Execution State` section using the Edit tool (for archival):
    - Set `Build` to `pass` or `fail (N attempts)`
    - Set `Integration` to `pass` or `fail (details)`
-   - Ensure all agent rows reflect their final status
+   - Ensure all agent rows reflect their final status, including branch names and PR/MR URLs (if Branch Strategy was used)
    - Update `Last updated` to the final timestamp
-7. Report the execution scorecard:
+8. Report the execution scorecard:
 
 ```
 ## Execution Scorecard
 
-| Agent | Task | Time | Tool Uses | Status |
-|-------|------|------|-----------|--------|
-| A     | ...  | 64s  | 10        | pass   |
-| B     | ...  | 46s  | 8         | pass   |
-| C     | ...  | 80s  | 10        | pass   |
-| D     | ...  | 45s  | 7         | pass   |
+| Agent | Task | Time | Tool Uses | Status | PR |
+|-------|------|------|-----------|--------|----|
+| A     | ...  | 64s  | 10        | pass   | <url or —> |
+| B     | ...  | 46s  | 8         | pass   | <url or —> |
+| C     | ...  | 80s  | 10        | pass   | <url or —> |
+| D     | ...  | 45s  | 7         | pass   | <url or —> |
 
 | Metric | Value |
 |--------|-------|
@@ -239,6 +265,14 @@ After all agents complete:
 ## Agent Discoveries
 <Consolidated list of discoveries from all agents' Completion Reports.
  Each entry notes which agent reported it.>
+
+## Merge Order (if Branch Strategy was used)
+<List the PRs/MRs in the order they should be merged:
+ 1. Merge order 1 PR(s) first (root agents)
+ 2. After merge, rebase order 2 branches onto updated main
+ 3. Merge order 2 PR(s)
+ 4. Continue until all PRs are merged
+ Include the actual PR URLs for easy clicking.>
 ```
 
 ## Important Notes
@@ -247,3 +281,5 @@ After all agents complete:
 - **Verify after every agent** — catch contract violations before they cascade to dependent agents
 - **Launch eagerly** — as soon as an agent's dependencies are satisfied, launch it. Don't batch.
 - **Prompts are self-contained** — each agent receives `Shared Contract + Prompt Preamble + Agent Prompt`, which together include everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
+- **Use haiku model** for simple agents (single file, small edit, < 30 lines changed) to minimize cost and latency
+- **Branch Strategy is optional** — if the plan has no Branch Strategy section, skip all branch/commit/PR operations. The executor works the same as before, just without git integration.

@@ -15,7 +15,24 @@ Create a pull request or update an existing one following project conventions.
 
 - pr-body-template.md - PR body structure template
 
+## Reference Files (conditional — read only when needed)
+
+- @../_shared/platform-detection.md - Platform detection for GitHub/GitLab
+
+## Pre-PR Checklist
+
+Before creating the PR, verify these items are complete:
+
+- [ ] All tests pass locally
+- [ ] Code formatted with linter
+- [ ] No sensitive data in code or logs
+- [ ] Metrics added for new operations (if applicable)
+- [ ] Error handling implemented
+- [ ] Documentation updated (if needed)
+
 ## Instructions
+
+0. **Detect platform** — follow `@../_shared/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
 
 1. **Gather context** (run in parallel):
    - `git status` - Check for uncommitted changes
@@ -34,17 +51,22 @@ Create a pull request or update an existing one following project conventions.
    - If a PR already exists, ask user: "PR #N already exists for this branch. Update its description instead of creating new?"
    - If yes, use `gh pr edit <number> --body "..."` instead of `gh pr create`
 
-4. **Determine base branch**:
+4. **Infer Jira ticket** (if applicable):
+   - Extract Jira ticket ID from the branch name (common patterns: `feature/PROJ-123`, `bugfix/PROJ-456`, `PROJ-789-description`)
+   - Look for Jira ticket references in commit messages
+   - If no ticket can be inferred, leave the URL incomplete for the user to fill in
+
+5. **Determine base branch**:
    - If `$ARGUMENTS` provided, use that as base
    - If branch name suggests a parent (e.g., `feature/foo-part2` might be based on `feature/foo`), ask user
    - Default to `main`
 
-5. **Check if push needed**:
+6. **Check if push needed**:
    - If local is ahead of remote, push first: `git push -u origin <branch>`
 
-6. **Create or update PR** using the template from pr-body-template.md
+7. **Create or update PR** using the template from pr-body-template.md
 
-7. **Run the gh command**:
+8. **Run the gh command**:
 
 For new PR:
 ```bash
@@ -62,4 +84,4 @@ EOF
 )"
 ```
 
-8. **Return the PR URL** to the user.
+9. **Return the PR URL** to the user.

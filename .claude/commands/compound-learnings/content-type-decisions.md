@@ -55,9 +55,12 @@ A guideline not `@`-imported in CLAUDE.md is only found via search — functiona
 |-------|-----------|-------------|
 | **Always-on** | `@` import in CLAUDE.md | Behavioral rules that apply to every interaction |
 | **Conditional** | Reference file in a skill directory | Context needed only when that skill runs |
+| **Persona** | Reference file in `set-persona/` | Domain-specific behavioral rules loaded on activation |
 | **Search-only** | Standalone file in `guidelines/` or `learnings/` | Rarely needed, fine to discover ad-hoc |
 
-Prefer conditional scoping over always-on when the content is only relevant during a specific workflow.
+**Persona scoping:** Domain-specific behavioral rules (e.g., "think backwards from alerts" for Java observability) belong in persona files rather than guidelines. Personas are loaded on activation (`/set-persona`), not every session — so they don't consume context budget when the domain isn't active. Use personas when content is behavioral/prescriptive AND domain-specific. Keep as a guideline only when the rule applies universally regardless of domain.
+
+Prefer conditional or persona scoping over always-on when the content is only relevant during a specific workflow or domain.
 
 ### Evaluating Existing Guidelines
 

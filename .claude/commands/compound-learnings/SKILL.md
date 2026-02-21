@@ -17,6 +17,7 @@ Save new patterns and learnings from the current session into global skills, gui
 - `writing-best-practices.md` — Read only when a Skill-type learning is selected
 - `skill-authoring.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
+- `public-release-review.md` — Read when learning will be shared publicly or across repos
 
 ## Instructions
 
