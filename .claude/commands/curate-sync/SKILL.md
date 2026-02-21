@@ -4,7 +4,7 @@ description: Pull and merge Claude skills, learnings, and guidelines from a sync
 
 # Curate Sync
 
-Pull content from a configured sync source into the current repo. For diverged files, does content-aware merging that preserves improvements from both sides instead of picking a winner.
+Pull content from a configured sync source into the current repo. Analyzes incoming changes for relevance and redundancy before offering them, and does content-aware merging for diverged files.
 
 ## Usage
 
@@ -39,12 +39,17 @@ EXCLUDES=(
 )
 ```
 
+## Reference Files (conditional)
+
+- `~/.claude/commands/curate-learnings/classification-model.md` — Read in step 3 for classifying incoming content
+
 ## Parallel Execution
 
 | Opportunity | When | How |
 |---|---|---|
-| **Inventory both dirs** | Always | List all sync dirs in both source and current repo in one parallel batch |
+| **Inventory both dirs** | Always | List all sync dirs in both source and target in one parallel batch |
 | **Read file pairs** | Diverged files detected | Read both versions of each file in parallel |
+| **Git history + content reads** | Analysis phase | Check git history and read incoming content in parallel |
 | **Apply merges** | After approval | Write to independent files as parallel tool calls |
 
 ## Instructions
@@ -84,48 +89,93 @@ Classify into:
 | Status | Meaning |
 |--------|---------|
 | **Identical** | Same content in both — skip |
-| **Only in source** | Exists only in source — candidate to pull in |
+| **Only in source** | Exists only in source — needs analysis before offering |
 | **Only in target** | Exists only in current repo — local-only, leave it alone |
-| **Diverged** | Both exist with different content — needs merge |
+| **Diverged** | Both exist with different content — needs analysis + merge |
 
 For **diverged** files, further assess:
 - Which version is larger (more content)
 - Identify sections unique to each version (by H2/H3 headers for learnings/guidelines, by numbered steps for skills)
-- Determine if source is a **strict superset** of target (simple overwrite) vs both have unique content (needs content-aware merge)
+- Determine if source is a **strict superset** of target (simple overwrite candidate) vs both have unique content (needs content-aware merge)
+- For strict supersets where target is already ahead: skip — nothing new to pull
 
-### 3. Display merge plan
+### 3. Analyze incoming content
+
+This step evaluates every candidate before presenting it. Read `classification-model.md` for the full classification criteria.
+
+**⚡ Parallel:** Run git history checks and content reads in one batch.
+
+#### 3a. Check git history for "only in source" files
+
+For each file that exists only in source:
+- Run `git log --all --oneline -- <relative-path>` in the target repo
+- If commits are found → file was **previously removed** from target (intentional curation)
+- If no commits → file is **genuinely new** (never existed in target)
+
+#### 3b. Assess incoming content
+
+For each candidate (new files + source-unique sections from diverged files):
+
+1. **Read the incoming content** — the full file for "only in source", or just the source-unique sections for diverged files
+2. **Cross-reference against target's existing corpus:**
+   - Read target's existing skills (`<TARGET>/.claude/commands/*/SKILL.md`) — already loaded or load now
+   - Read target's existing learnings and guidelines
+   - For each incoming section, check coverage:
+     - **Already covered** — content exists in target under a different file/section (redundant)
+     - **Partially covered** — related content exists but this adds new detail (valuable)
+     - **Not covered** — genuinely new knowledge (valuable)
+     - **Outdated** — superseded by newer content in target or references stale patterns
+3. **Assign a recommendation:**
+
+| Recommendation | Criteria | Default action |
+|----------------|----------|----------------|
+| **Pull** | New content, not covered in target, passes relevance check | Include in selection |
+| **Merge** | Diverged file where source has valuable unique sections | Include in selection |
+| **Skip (previously removed)** | File has git history in target — was intentionally curated out | Exclude from selection, mention in summary |
+| **Skip (redundant)** | Content is already fully covered elsewhere in target | Exclude from selection, mention in summary |
+| **Skip (outdated)** | Content references stale patterns or is superseded | Exclude from selection, mention in summary |
+| **Review** | Uncertain — could be valuable or redundant, medium confidence | Include in selection with note |
+
+### 4. Display merge plan
 
 **ALWAYS use a markdown table** — never prose paragraphs to list items.
 
 ```
 ## Sync Plan: pulling from <SOURCE> into <TARGET>
 
-### Files needing action: N (of M total)
+### Files to pull: N
 
-| # | File | Status | Action | Detail |
-|---|------|--------|--------|--------|
-| 1 | learnings/skill-design.md | Diverged | Merge | source +2 sections, both share base |
-| 2 | learnings/observability-workflow.md | Only in source | Copy in | 1KB, observability patterns |
-| 3 | commands/curate-learnings/SKILL.md | Diverged | Merge | Both have unique edits |
-| 4 | learnings/parallel-plans.md | Diverged | Overwrite | source is strict superset |
+| # | File | Status | Action | Assessment | Detail |
+|---|------|--------|--------|------------|--------|
+| 1 | learnings/skill-design.md | Diverged | Merge | Pull — 4 new sections not in target | source +4, target +82 |
+| 2 | commands/curate-learnings/SKILL.md | Diverged | Merge | Review — source has minor edits, unclear value | source +15, target +149 |
+| 3 | learnings/new-topic.md | New | Copy in | Pull — genuinely new, not covered | 2KB, new patterns |
 
-K files identical (skipped). J files local-only (skipped).
+### Skipped: M files
+
+| File | Reason |
+|------|--------|
+| learnings/observability-workflow.md | Previously removed (curated out in commit abc123) |
+| learnings/old-patterns.md | Redundant — covered by skill-design.md |
+
+K files identical. J files local-only.
 ```
 
 **Action** column values:
 - `Copy in` — file only exists in source, copy to target
 - `Merge` — both versions have unique content, produce merged version for target
 - `Overwrite` — source is a strict superset of target, replace target's version
-- *(files only in target are skipped — they're local content)*
+
+**Assessment** column: the recommendation from step 3 with a brief rationale.
 
 Use `AskUserQuestion` with multi-select to let user choose which items to pull.
-Include status and action detail in each option's `description` field.
+Include the assessment and detail in each option's `description` field.
 
 **Do NOT proceed until user selects.** If no items selected, inform user and exit.
 
-If `$ARGUMENTS` is "diff", display the table and exit without prompting.
+If `$ARGUMENTS` is "diff", display both tables and exit without prompting.
 
-### 4. Execute sync
+### 5. Execute sync
 
 For each selected item:
 
@@ -157,7 +207,7 @@ For each selected item:
 
 **⚡ Parallel:** Writes to independent files can run as parallel tool calls.
 
-### 5. Verify and report
+### 6. Verify and report
 
 Read back a sample of written/updated files to confirm content was saved correctly.
 
@@ -165,11 +215,14 @@ Read back a sample of written/updated files to confirm content was saved correct
 ## Sync Complete: <SOURCE> → <TARGET>
 
 **Actions taken:**
-- learnings/skill-design.md — merged (2 new sections from source, preserved 6 local sections)
-- learnings/observability-workflow.md — copied from source
+- learnings/skill-design.md — merged (4 new sections from source, preserved 6 local sections)
 - commands/curate-learnings/SKILL.md — merged (preserved unique edits from both)
 
-Pulled N items. K files were already identical. J files local-only (untouched).
+**Skipped:**
+- learnings/observability-workflow.md — previously removed
+- learnings/old-patterns.md — redundant
+
+Pulled N items. K identical. J local-only. M skipped (analyzed).
 ```
 
 ## Prerequisites
@@ -190,6 +243,8 @@ For prompt-free execution, ensure allow patterns in `~/.claude/settings.local.js
 ## Important Notes
 
 - **Pull-only**: This skill only writes to the current repo — it never modifies the source
+- **Analysis before action**: Every candidate is assessed for relevance, redundancy, and history before being offered
+- **Previously removed detection**: Uses git history to identify files that were intentionally curated out — these are skipped by default
 - **User approval required**: Always use `AskUserQuestion` before applying changes
 - **Local content preserved**: Files only in the current repo are left alone — they're local additions, not deletions
 - **Excludes respected**: settings.json, settings.local.json, README.md, lab/, personas/, worktrees/ are never synced

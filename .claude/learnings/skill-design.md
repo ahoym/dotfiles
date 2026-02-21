@@ -180,3 +180,67 @@ After running a skill in a real session, assess its performance while context is
 **Why same-session:** Skill improvements lose fidelity across sessions. The specific friction points, improvised workarounds, and "I had to figure out X manually" moments fade quickly. Capturing them while the execution is in working memory produces more precise fixes.
 
 **Example:** After running `/curate-learnings` broad sweep, identified 5 improvements. Ranked them: broad sweep mode (#1, prevents quality regression) >> persona enhancement guidance (#5, one-line fix) > whole-file deletion (#4, small gap) >> thin pointer detection (#2, minor efficiency) = genericize action (#3, rare). Applied top 3.
+
+## Skill Orchestration: Wrapper Skills That Delegate Methodology
+
+A wrapper skill can orchestrate another skill by reading its SKILL.md at step 0 and following its methodology, while overriding specific steps (e.g., the approval flow). This avoids duplicating domain knowledge — classification models, reference files, and analysis logic stay in one place.
+
+**Pattern:**
+1. Wrapper skill's Step 0: "Read `../inner-skill/SKILL.md` to internalize the analysis methodology"
+2. Wrapper follows the inner skill's analysis steps (e.g., steps 1-6) for each iteration
+3. Wrapper replaces the inner skill's interaction step (e.g., step 7 approval) with its own logic (e.g., auto-apply loop)
+4. Wrapper references inner skill's reference files by path — no copies
+
+**Benefits:**
+- Single source of truth for domain knowledge (classification model, persona design, etc.)
+- Changes to the inner skill automatically flow through to the wrapper
+- Wrapper stays lean — pure orchestration logic, no duplicated analysis instructions
+- Clear separation: inner skill owns "how to analyze," wrapper owns "when to apply"
+
+**Discovered from:** Designing `/consolidate-learnings` as a multi-sweep orchestrator around `/curate-learnings`.
+
+## Confidence-Tiered Loop Design
+
+When an iterative skill produces recommendations at different confidence levels, use confidence tiers to determine automation level in each loop phase:
+
+**Pattern:**
+1. **Phase 1 (HIGH loop):** Auto-apply HIGH-confidence items → re-analyze → repeat until none remain
+2. **Phase 2 (MEDIUM batch):** Present remaining MEDIUMs as a single batch for user approval (fresh analysis, not accumulated)
+3. **Phase 3 (Verification):** Re-analyze after user-approved changes → if new HIGHs surface, cycle back to Phase 1; if new MEDIUMs, back to Phase 2; if clean, done
+
+**Why this ordering works:**
+- HIGHs are safe to auto-apply by definition (classification criteria say "apply without additional verification")
+- Burning through HIGHs first changes the landscape — some MEDIUMs will resolve as side effects
+- The MEDIUM batch after HIGHs gives an accurate picture of what actually needs human judgment
+- Post-MEDIUM verification catches cascading effects (approved changes may surface new patterns)
+
+**Generalizable to:** Any iterative skill with confidence-rated recommendations — code review fixups, dependency upgrades, migration tasks, etc.
+
+## Fresh Analysis Beats Accumulation in Iterative Loops
+
+When looping through analyze-apply cycles, re-analyze from scratch after each round of changes rather than accumulating findings across iterations.
+
+**Why:**
+- Each applied action changes the state — folding content, deleting files, enhancing personas
+- An earlier MEDIUM assessment may become moot (resolved as side effect of a HIGH action)
+- An earlier "keep" may become a new HIGH (content is now partially redundant after a merge)
+- Stale accumulated findings lead to incorrect batch presentations and wasted user attention
+
+**Pattern:** At each phase transition (e.g., "HIGHs exhausted, now show MEDIUMs"), run a fresh full analysis of current state. The MEDIUM batch should reflect the world *after* all HIGH actions, not a union of assessments from earlier sweeps.
+
+**Counterintuitive aspect:** It feels wasteful to re-analyze everything when you "already know" the MEDIUMs. But the cost of a fresh sweep is low (minutes), while the cost of presenting stale recommendations is high (user approves something that's no longer relevant, or misses something new).
+
+## Dual Safety Caps for Nested Loops
+
+Iterative skills with nested loop structures need two layers of safety caps:
+
+**Pattern:**
+- **Per-phase cap** (e.g., 5 iterations): Prevents the inner loop from running away. When hit, offer an escape hatch that moves to the next phase rather than just stopping (e.g., "downgrade remaining HIGHs to MEDIUMs for human review").
+- **Overall cap** (e.g., 10 total iterations): Prevents the outer cycle (Phase 1 → Phase 2 → Phase 3 → Phase 1...) from looping indefinitely. When hit, pause and show current state with option to continue or stop.
+
+**Why both caps:**
+- Per-phase cap alone doesn't prevent the Phase 1→2→3→1 cycle from repeating forever
+- Overall cap alone allows one phase to consume all iterations (5 HIGH sweeps, 5 MEDIUM batches = cap hit without ever verifying)
+- The escape hatch (downgrading persistent HIGHs) acknowledges that cascading recommendations may benefit from human judgment rather than more automation
+
+**Extends:** `iterative-loop-design.md` expansion/contraction pattern — adds structured termination for confidence-tiered loops.
