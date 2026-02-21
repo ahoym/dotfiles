@@ -79,7 +79,18 @@ Before agents can work independently, they must agree on interfaces. The contrac
 
 The contract should be concrete enough that all agents can write compatible code without seeing each other's output.
 
-### Step 8: Self-review checklist
+### Step 8: Design the branch strategy
+
+Derive the branch strategy from the DAG:
+- **Root agents** (no dependencies) → branch from `main`
+- **Dependent agents** → branch from their (first) hard or soft dependency's branch
+- **All PRs** → target `main` (never target another agent's branch)
+- **Merge order** → topological sort of the DAG (root agents merge first, then dependents after rebasing onto updated main)
+- **Branch naming** → `feat/<plan-slug>/<agent-name>` (e.g., `feat/bank-ref/foundation`)
+
+For agents with multiple dependencies, branch from the dependency that is on the critical path (longest estimated duration).
+
+### Step 9: Self-review checklist
 
 Run through `analysis-guide.md` → "Self-Review Checklist" before writing the final plan. Key checks:
 - No orphaned agents
@@ -89,11 +100,12 @@ Run through `analysis-guide.md` → "Self-Review Checklist" before writing the f
 - Speedup computed after merges
 - All prompts have concrete landmarks
 - Required Bash Permissions section populated
+- Branch Strategy section populated with per-agent branch names, merge order
 - Review Notes populated for uncertain decisions (or section omitted if none)
 
 Fix any failures before proceeding.
 
-### Step 9: Write the parallel plan
+### Step 10: Write the parallel plan
 
 Read `prompt-writing-guide.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
 
@@ -241,6 +253,17 @@ Example format:
 ## Verification
 <How to test the changes end-to-end after execution>
 
+## Branch Strategy
+
+Base: <main-branch-name>
+
+| Agent | Branch From | Branch Name | PR Target | Merge Order |
+|-------|-------------|-------------|-----------|-------------|
+| <letter> | main | feat/<plan-slug>/<agent-name> | main | 1 |
+| <letter> | <dep-agent-letter> | feat/<plan-slug>/<agent-name> | main | 2 (after <dep>) |
+
+After merge order N completes, rebase order N+1 branches onto main.
+
 ## Review Notes
 
 <Flag decisions the planner was uncertain about. The executor's fresh-eyes review
@@ -286,7 +309,8 @@ Build: not yet run
 18. **Prompt Preamble contains only process instructions** — TDD workflow template, project commands, completion report format, and general rules. DO NOT include the Shared Contract in the preamble — the executor prepends `Shared Contract + Prompt Preamble` automatically. This avoids markdown code-fence nesting issues and keeps the contract as a single source of truth.
 19. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution. The executor tracks live state in a `.parallel-plan-state.json` file alongside the plan (lightweight, avoids repeated plan edits) and syncs results back to the plan's Execution State section at completion for archival.
 20. **`Required Bash Permissions` section is required** — lists every distinct Bash command pattern agents will need, using the same `Bash(...)` syntax as `.claude/settings.local.json` allow patterns. The executor verifies these against settings before launching agents.
-21. **`Review Notes` section is optional but encouraged** — the planner flags decisions they were uncertain about (dependency classifications, agent scope, landmark accuracy). The executor's fresh-eyes review examines each item. Omit the section entirely if there are no uncertainties.
+21. **`Branch Strategy` section is required** — defines per-agent branch names, branch-from sources, PR targets, and merge order. All PRs target `main`. Root agents (no deps) branch from `main`. Dependent agents branch from their dependency's branch (so they have upstream code). Merge order is derived from topological sort of the DAG. After upstream PRs merge, downstream branches rebase onto main. The executor uses this section to mechanically create branches, commits, and PRs as agents complete.
+22. **`Review Notes` section is optional but encouraged** — the planner flags decisions they were uncertain about (dependency classifications, agent scope, landmark accuracy). The executor's fresh-eyes review examines each item. Omit the section entirely if there are no uncertainties.
 
 ## Important Notes
 

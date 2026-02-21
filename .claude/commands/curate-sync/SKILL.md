@@ -110,14 +110,15 @@ The inventory script (step 1) already provides git history checks and source-uni
 **Scale the analysis to the number of candidates.** Don't load the entire corpus for 2-3 candidates — use targeted checks instead.
 
 **For ≤5 candidates (typical):**
-1. For each candidate, extract the source-unique content: `diff "$TARGET/$f" "$SOURCE/$f" | grep '^> '`
-2. Use targeted `grep` searches in the target repo to check if the incoming content is already covered elsewhere
-3. Read specific target files that match (not the entire corpus)
+1. For each candidate with **≤15 source-unique lines**, extract the source-unique content from the inventory diff output and use targeted `grep` searches in the target repo to check coverage
+2. For each candidate with **>15 source-unique lines**, read both the source and target versions in full — diff excerpts hide structural gaps (missing sections, missing instruction steps, missing format rules). Compare document structure (headings, numbered steps, format sections), not just line content.
+3. Read specific target files that match grep hits (not the entire corpus)
 
 **For >5 candidates:**
 1. Read `_shared/corpus-cross-reference.md` and follow its full corpus loading procedure
 2. Bulk-load target skills, guidelines, and learnings
 3. Cross-reference all candidates against the loaded corpus
+4. Still apply the >15-line threshold — read both full files for large diffs
 
 **For each candidate, determine:**
 
@@ -129,6 +130,8 @@ The inventory script (step 1) already provides git history checks and source-uni
 | **Outdated** | Incoming references patterns/tools that target has moved past (e.g., target genericized a Python-specific version) |
 
 **Watch for genericization:** If the target has a stack-agnostic version of what the source has as stack-specific, the target version is better — mark source as redundant.
+
+**Watch for structural gaps:** A term appearing in the target ecosystem doesn't mean the *same file* covers it. If the source adds a section to file X, check whether file X in the target has that section — not just whether *some other file* mentions the concept. Producer/consumer contracts (e.g., a planner skill producing a section that an executor skill consumes) are especially easy to miss with grep-only checks.
 
 #### 2c. Assign recommendations
 
