@@ -111,7 +111,7 @@ The inventory script (step 1) already provides git history checks and source-uni
 
 **For ≤5 candidates (typical):**
 1. For each candidate with **≤15 source-unique lines**, extract the source-unique content from the inventory diff output and use targeted `grep` searches in the target repo to check coverage
-2. For each candidate with **>15 source-unique lines**, read both the source and target versions in full — diff excerpts hide structural gaps (missing sections, missing instruction steps, missing format rules). Compare document structure (headings, numbered steps, format sections), not just line content.
+2. For each candidate with **>15 source-unique lines**, read both the source and target versions in full yourself (do NOT delegate to subagents — structural comparison requires understanding document shape, and subagents can confuse source/target directionality). Compare document structure (headings, numbered steps, format sections), not just line content. Diff excerpts hide structural gaps like missing sections, instruction steps, or format rules.
 3. Read specific target files that match grep hits (not the entire corpus)
 
 **For >5 candidates:**

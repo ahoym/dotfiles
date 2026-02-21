@@ -14,7 +14,7 @@ Analyze a plan for parallelization opportunities, build a dependency DAG, and ou
 ## Reference Files
 
 - `analysis-guide.md` — Detailed methodology for file-conflict analysis, dependency types, DAG design, and agent splitting strategies
-- `prompt-writing-guide.md` — Best practices for writing agent prompts (speed, landmarks, scaling, TDD, boundaries)
+- `~/.claude/commands/_shared/agent-prompting.md` — Best practices for writing agent prompts (speed, landmarks, scaling, TDD, boundaries)
 
 ## Output
 
@@ -107,7 +107,7 @@ Fix any failures before proceeding.
 
 ### Step 10: Write the parallel plan
 
-Read `prompt-writing-guide.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
+Read `~/.claude/commands/_shared/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
 
 ---
 
