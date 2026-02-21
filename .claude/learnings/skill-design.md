@@ -116,6 +116,18 @@ When two repos have independently evolved the same skill, merge by keeping uniqu
 - Learnings applied to one skill automatically apply to both platforms
 - Shared reference file is a single source of truth for CLI/terminology mapping
 
+## Cross-Skill Reference File Deduplication
+
+When curating a skill, compare its reference files against reference files in companion skills — especially producer/consumer pairs or skills in the same workflow. Duplicated reference files diverge silently as each skill evolves independently.
+
+**Detection:** During skill curation (step 3s evaluation), read reference files from related skills and check for >80% content overlap. The superset version is usually in the skill that uses the content more heavily.
+
+**Resolution:** Move the superset version to `_shared/` and update both skills' SKILL.md to reference the shared path. This ensures future improvements propagate to both skills automatically.
+
+**Example:** `make-parallel-plan/prompt-writing-guide.md` (180 lines) and `execute-parallel-plan/agent-prompting.md` (208 lines) covered ~90% identical content (prompt structure, fast/slow agents, TDD workflow, landmarks, boundaries). The executor's version was a superset (added model selection, shared contract sections). Consolidated into `_shared/agent-prompting.md`.
+
+**Why this happens:** When a producer/consumer skill pair is developed, both need guidance on the same topic (e.g., "how to write good agent prompts"). The guidance gets written in one skill first, then copied to the other with minor additions. Over time the copies diverge as each skill adds its own refinements.
+
 ## Skill Improvement Feedback Loop
 
 After running a skill in a real session, assess its performance while context is fresh:
@@ -195,6 +207,40 @@ Iterative skills with nested loop structures need two layers of safety caps:
 - The escape hatch (downgrading persistent HIGHs) acknowledges that cascading recommendations may benefit from human judgment rather than more automation
 
 **Extends:** `iterative-loop-design.md` expansion/contraction pattern — adds structured termination for confidence-tiered loops.
+
+## Permission Patterns Must Match Invocation Paths
+
+Bash permission patterns in `settings.json` use literal string matching. If a pattern uses `~` (e.g., `Bash(bash ~/.claude/commands/**)`), the invocation must also use `~` — not the expanded `/Users/<user>/.claude/commands/...` path.
+
+**Why this matters:** Skills with inventory scripts or helper commands that are invoked via Bash need consistent path conventions between the permission pattern and the actual command.
+
+**Pattern:** Always use `~` in both:
+- The permission pattern: `Bash(bash ~/.claude/commands/**)`
+- The invocation: `bash ~/.claude/commands/curate-sync/inventory.sh ...`
+
+**Discovered from:** curate-sync inventory script was being prompted for permission despite having a matching allow pattern, because the invocation used the fully expanded path.
+
+## Diff Excerpts Hide Structural Gaps
+
+When comparing diverged files between repos, line-level diff output (`diff | grep '^> ' | head -30`) shows textual differences but hides structural ones. Missing sections, instruction steps, or format rules are invisible in diff excerpts — you need to read both full files to see document shape.
+
+**Threshold:** If a file has >15 source-unique lines, read both versions in full. Below that threshold, diff excerpts + targeted grep are sufficient.
+
+**Why 15 lines:** Below 15, the diffs are typically terminology swaps or minor additions visible in the excerpt. Above 15, there's enough unique content that structural differences (new sections, reordered steps, missing format rules) become plausible.
+
+**Discovered from:** curate-sync missed that `make-parallel-plan/SKILL.md` was missing a Branch Strategy section — the diff showed "MR" references which led to batch-dismissing the entire file as terminology changes.
+
+## Producer/Consumer Contract Validation
+
+When two skills form a producer/consumer pair (e.g., `make-parallel-plan` produces plans that `execute-parallel-plan` consumes), validate that the producer knows how to generate every section the consumer expects.
+
+**Pattern:** For each section the consumer references:
+1. Check whether the **producer's** SKILL.md has instructions to generate that section
+2. Don't just grep the target ecosystem — "Branch Strategy" appearing in the executor doesn't mean the planner produces it
+
+**Why grep-only checks fail:** Searching for "Branch Strategy" in the target repo and finding 9+ references in `execute-parallel-plan` made it look like the concept was covered. But the planner (`make-parallel-plan`) had no instruction to produce Branch Strategy sections — the producer/consumer contract was broken.
+
+**Discovered from:** curate-sync missed this gap because the analysis used grep to check coverage rather than reading both the producer and consumer skills.
 
 ## First Run of /consolidate-learnings
 
