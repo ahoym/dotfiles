@@ -270,9 +270,24 @@ Display the full report inline in the CLI.
 |---|------|---------|--------|--------|
 | 1 | api-design | Consistent Response Shapes | Genericize | Keep (remove Python examples) |
 
+### Suggested Deep Dives
+
+| File | Why | Command |
+|------|-----|---------|
+| `parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/curate-learnings learnings/parallel-plans.md` |
+| `skill-design.md` | 11 patterns, several skill-context candidates | `/curate-learnings learnings/skill-design.md` |
+
 ### Recommended Actions
 ...
 ```
+
+**Deep dive criteria** — include a file in "Suggested Deep Dives" when any of these apply:
+- **Medium-confidence items**: patterns where classification is uncertain and needs per-pattern cross-referencing
+- **High pattern count**: files with 5+ patterns are more likely to have migration candidates that cluster-level analysis misses
+- **New content since last sweep**: files that grew by 3+ sections since the previous sweep
+- **Context-for-skill clusters**: multiple patterns in one file that could fold into the same skill's reference files
+
+Omit this section if no files meet the criteria (collection is fully curated).
 
 **Skill mode report:**
 ```

@@ -72,6 +72,18 @@ Before writing agent prompts, verify that all test and build dependencies exist 
 - Read `package.json` (or equivalent) and search for the dependency names
 - Search existing test files for import patterns (e.g., `grep` for `@testing-library/react`) to confirm the library is both installed and actually used in the project
 
+### When no test framework exists
+
+If the project has no test framework (no vitest/jest/mocha/pytest in dependencies, no `test` script):
+- All `tdd_steps` become `build-verify → "pnpm build"` (or equivalent)
+- Each build-verify entry needs a parenthetical justification: `(no test framework — verified via compilation)`
+- The Prompt Preamble must explain the verification workflow substitute
+- This is a valid approach — type-checking via build catches most integration issues
+
+**What to check in package.json:**
+- `devDependencies` or `dependencies` for: vitest, jest, mocha, @testing-library/*
+- `scripts` section for: test, test:unit, test:integration
+
 ### When a dependency is missing
 
 Do NOT add "install X if not available" to an agent prompt. Instead:

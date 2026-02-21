@@ -46,19 +46,6 @@ D creates:  app/api/create/route.ts (calls txFailureResponse)
 → D depends_on A ✓ (D needs the actual function to compile, hard is safer)
 ```
 
-## Pre-Flight Must Check for Test Framework
-
-During pre-flight dependency verification, always check whether the project has a test framework (vitest, jest, mocha, etc.) in `package.json`.
-
-**When no test framework exists:**
-- All `tdd_steps` become `build-verify → "pnpm build"` (or equivalent)
-- Each build-verify entry needs a parenthetical justification: `(no test framework — verified via compilation)`
-- The Prompt Preamble must explain the verification workflow substitute
-- This is a valid approach — type-checking via build catches most integration issues
-
-**What to check in package.json:**
-- `devDependencies` or `dependencies` for: vitest, jest, mocha, @testing-library/*
-- `scripts` section for: test, test:unit, test:integration
 
 ## Context Continuation Loses File Contents
 
