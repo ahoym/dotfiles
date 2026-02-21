@@ -72,6 +72,23 @@ When comparing two versions of a file where directionality matters (source vs ta
 
 **Discovered from:** quantum-tunnel-claudes delegated structural comparison of `execute-parallel-plan/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
 
+## Verify Subagent Output Before Acting On It
+
+When you delegate research or analysis to a subagent and plan to act on the result (presenting findings to the user, making edits, offering to merge), spot-check the key claim before proceeding.
+
+**Why:** Subagent output *sounds* authoritative — it's structured, detailed, and confident. But subagents can misread files, confuse labels, or draw wrong conclusions. If you pass their output through to the user without verification, you amplify the error with your own credibility.
+
+**When to verify:**
+- The subagent's finding would trigger an action (merge, edit, recommendation to user)
+- The finding is directional (A has X, B doesn't) — these are especially error-prone
+- The finding contradicts your prior understanding or seems surprising
+
+**How to verify:** Read the relevant file/section yourself and confirm the key claim. One targeted read is enough — you don't need to redo the full analysis.
+
+**When to skip:** The subagent's output is purely informational (e.g., "how many files match this pattern?") and you won't act on it without further investigation.
+
+**Discovered from:** quantum-tunnel-claudes accepted an explore agent's claim that the source had a fresh-eyes review framework the target lacked — the opposite was true. A single file read would have caught it.
+
 ## Structured Templates as Natural Size Constraints
 
 Instead of hard output size limits (which LLMs can't reliably count or enforce), use structured templates to naturally constrain agent output length.
