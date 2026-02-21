@@ -116,54 +116,11 @@ When two repos have independently evolved the same skill, merge by keeping uniqu
 - Learnings applied to one skill automatically apply to both platforms
 - Shared reference file is a single source of truth for CLI/terminology mapping
 
-## Guideline vs Reference File Placement
+## Compound-Learnings Should Be Persona-Aware
 
-Content that is only relevant during a specific skill's execution should be a **reference file inside that skill directory**, not an always-on guideline.
+`/compound-learnings` should detect when a new learning matches an existing persona's domain and offer to fold it into the persona alongside (or instead of) a learnings file. This is the incremental counterpart to `/curate-learnings` step 5a (which detects persona opportunities in existing content during batch curation).
 
-**Decision criteria:**
-- Is this needed in every conversation? → **Guideline** (always loaded into context)
-- Is this only needed when a specific skill runs? → **Reference file** (loaded conditionally, zero context cost otherwise)
-
-**Why it matters:** Guidelines consume context window in every session. A 50-line guideline about persona structure wastes tokens in 95% of conversations where no persona work happens. As a reference file, it's only loaded when `/curate-learnings` detects a persona opportunity.
-
-**Pattern:** If you create a guideline and realize it's only referenced by one skill, move it to that skill's directory and add it to the skill's "Reference Files (conditional)" list.
-
-**Discovered from:** Created `~/.claude/guidelines/persona-design.md`, then immediately realized it was only relevant during `/curate-learnings` persona detection — moved it to `commands/curate-learnings/persona-design.md`.
-
-## Persona-Aware Curation and Compounding
-
-Both `/curate-learnings` and `/compound-learnings` should be persona-aware:
-
-- **Curate-learnings** (implemented in step 5a): detects when learnings cluster around a domain/stack without a matching persona, suggests creating one. Also detects learnings that belong in an existing persona's gotchas or review checks.
-- **Compound-learnings** (not yet implemented): when saving a new learning, should check if it matches an existing persona's domain and offer to fold it into the persona alongside (or instead of) a learnings file.
-
-**Why both skills:** `/curate-learnings` finds persona opportunities in *existing* content (batch). `/compound-learnings` catches them at *creation time* (incremental). Together they ensure personas stay current without manual review.
-
-## Broad Sweep Curation: Cluster-First Approach
-
-When curating all learnings files at once (broad sweep), don't classify all ~50 patterns individually — it's too verbose and most are "standalone reference / keep."
-
-**Pattern:**
-1. Cluster files by domain/stack (XRPL+TS, Java+Spring, Python, Meta/tooling)
-2. Check each cluster against existing personas for enhancement opportunities
-3. Report a summary table of clusters with pattern counts and persona status
-4. Only classify individual patterns when they need action (outdated, migrate, enhance persona)
-5. Skip meta/tooling clusters for persona analysis (per persona-design.md criteria)
-
-**Output structure:** Cluster table → Persona suggestions table → Highlights-only pattern table → Recommended actions. This keeps the report scannable even with 17 files.
-
-## Thin Pointer Files: Fold and Delete
-
-During curation, files under ~20 lines that primarily point to other files (e.g., "see X persona" and "see Y learning") should be folded into the target and deleted.
-
-**Detection criteria:**
-- File is < 20 lines
-- More than half the content is cross-references or "see also" pointers
-- The substantive content (if any) fits naturally in an existing persona or skill
-
-**Why delete:** Each file adds to the cognitive load of "what's in my learnings?" without adding standalone value. If the content is just routing, the target should contain it directly.
-
-**Example:** `observability-workflow.md` (14 lines) was mostly "see java-devops persona" and "see spring-patterns.md" — the 6-step process folded into java-devops persona's gotchas section, file deleted.
+**Why:** Together, batch curation + incremental capture ensure personas stay current without manual review. Currently only the batch side (curate-learnings) is implemented.
 
 ## Skill Improvement Feedback Loop
 

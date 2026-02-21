@@ -48,9 +48,9 @@ EXCLUDES=(
 
 | Opportunity | When | How |
 |---|---|---|
-| **Inventory both dirs** | Always | List all sync dirs in both source and target in one parallel batch |
-| **Read file pairs** | Diverged files detected | Read both versions of each file in parallel |
-| **Git history + content reads** | Analysis phase | Check git history and read incoming content in parallel |
+| **Inventory + classify** | Always | Single Bash command handles both inventory and classification |
+| **Git history checks** | "Only in source" files exist | Run all `git log` checks in one batch |
+| **Targeted reads** | Analysis phase | Read source-unique content + specific target files for cross-reference in parallel |
 | **Apply merges** | After approval | Write to independent files as parallel tool calls |
 
 ## Instructions
@@ -68,74 +68,114 @@ EXCLUDES=(
      sync-source: /path/to/source/repo
      ```
 
-### 1. Inventory both directories
+### 1. Inventory and classify
 
-**⚡ Parallel:** List all sync directories in both source and target simultaneously.
+Combine inventory and classification into a single Bash command. This avoids piping issues and produces the full picture in one pass.
 
-For each directory in `SYNC_DIRS`:
-- List all `*.md` files recursively in `<SOURCE>/<dir>` and `<TARGET>/<dir>`
-- Exclude files/dirs matching `EXCLUDES`
-- Build a unified file list keyed by relative path
+**Recommended approach:** Use `find` to list files in both repos, `comm` to separate into only-in-source / only-in-target / common, then write the common files to a temp file and iterate with a `while read` loop (not a pipe) to classify each:
 
-### 2. Classify each file
+```bash
+SOURCE="<SOURCE>"
+TARGET="<TARGET>"
+EXCLUDES="personas/|lab/|worktrees/|settings\.json|settings\.local\.json|README\.md"
 
-For each unique relative path found:
-1. Check if it exists in source, target, or both
-2. If both exist, read both files and compare content
+# List files in each repo
+src_files=$(cd "$SOURCE" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
+tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
 
-**⚡ Parallel:** Read all file pairs for comparison in a single batch.
+# Files only in source / only in target
+only_source=$(comm -23 <(echo "$src_files") <(echo "$tgt_files"))
+only_target=$(comm -13 <(echo "$src_files") <(echo "$tgt_files"))
 
-Classify into:
+# Common files → temp file, then classify via while-read loop (NOT a pipe)
+comm -12 <(echo "$src_files") <(echo "$tgt_files") > /tmp/curate-sync-common.txt
 
-| Status | Meaning |
-|--------|---------|
-| **Identical** | Same content in both — skip |
-| **Only in source** | Exists only in source — needs analysis before offering |
-| **Only in target** | Exists only in current repo — local-only, leave it alone |
-| **Diverged** | Both exist with different content — needs analysis + merge |
+identical=0
+while IFS= read -r f; do
+  if diff -q "$SOURCE/$f" "$TARGET/$f" >/dev/null 2>&1; then
+    identical=$((identical + 1))
+  else
+    # Count lines unique to each side
+    s_only=$(diff "$TARGET/$f" "$SOURCE/$f" | grep -c '^> ' || true)
+    t_only=$(diff "$TARGET/$f" "$SOURCE/$f" | grep -c '^< ' || true)
+    # Classify
+    if [[ "$s_only" -gt 0 && "$t_only" -eq 0 ]]; then
+      echo "SUPERSET:source|$f|source +${s_only}"
+    elif [[ "$s_only" -eq 0 && "$t_only" -gt 0 ]]; then
+      echo "SUPERSET:target|$f|target +${t_only}"
+    else
+      echo "BOTH_UNIQUE|$f|source +${s_only}, target +${t_only}"
+    fi
+  fi
+done < /tmp/curate-sync-common.txt
+```
 
-For **diverged** files, further assess:
-- Which version is larger (more content)
-- Identify sections unique to each version (by H2/H3 headers for learnings/guidelines, by numbered steps for skills)
-- Determine if source is a **strict superset** of target (simple overwrite candidate) vs both have unique content (needs content-aware merge)
-- For strict supersets where target is already ahead: skip — nothing new to pull
+**Important:** Do NOT pipe `comm` output into a `while read` loop — the pipe creates a subshell that swallows variables and output. Always use a temp file or process substitution with redirection.
 
-### 3. Analyze incoming content
+Classification results:
 
-This step evaluates every candidate before presenting it. Read `classification-model.md` for the full classification criteria.
+| Status | Meaning | Next step |
+|--------|---------|-----------|
+| **Identical** | Same content — skip | Count for summary |
+| **Only in source** | Candidate to pull — needs analysis (step 3) | Analyze |
+| **Only in target** | Local content — skip | Count for summary |
+| **SUPERSET:source** | Source has everything target has + more — overwrite candidate | Analyze (step 3) |
+| **SUPERSET:target** | Target is already ahead — nothing to pull | Skip, count for summary |
+| **BOTH_UNIQUE** | Both have unique content — merge candidate | Analyze (step 3) |
 
-**⚡ Parallel:** Run git history checks and content reads in one batch.
+**Only these need analysis in step 3:** "only in source", "SUPERSET:source", and "BOTH_UNIQUE" files. Skip everything else.
 
-#### 3a. Check git history for "only in source" files
+### 2. Analyze incoming content
+
+This step evaluates the candidates identified in step 1. Read `classification-model.md` for the full classification criteria.
+
+#### 2a. Check git history for "only in source" files
 
 For each file that exists only in source:
 - Run `git log --all --oneline -- <relative-path>` in the target repo
 - If commits are found → file was **previously removed** from target (intentional curation)
 - If no commits → file is **genuinely new** (never existed in target)
 
-#### 3b. Assess incoming content
+**⚡ Parallel:** Run all git log checks in a single Bash command.
 
-Read `_shared/corpus-cross-reference.md` and follow its procedure to load the target corpus and cross-reference incoming content.
+#### 2b. Assess incoming content
 
-For each candidate (new files + source-unique sections from diverged files):
+**Scale the analysis to the number of candidates.** Don't load the entire corpus for 2-3 candidates — use targeted checks instead.
 
-1. **Read the incoming content** — the full file for "only in source", or just the source-unique sections for diverged files
-2. **Cross-reference against target's corpus** using the procedure in `corpus-cross-reference.md`:
-   - Load the corpus (skills, guidelines, learnings) if not already loaded
-   - For each incoming section, assess coverage using the match types (exact, partial, thematic, no match)
-   - Use the confidence levels to determine how certain the assessment is
-3. **Assign a recommendation:**
+**For ≤5 candidates (typical):**
+1. For each candidate, extract the source-unique content: `diff "$TARGET/$f" "$SOURCE/$f" | grep '^> '`
+2. Use targeted `grep` searches in the target repo to check if the incoming content is already covered elsewhere
+3. Read specific target files that match (not the entire corpus)
+
+**For >5 candidates:**
+1. Read `_shared/corpus-cross-reference.md` and follow its full corpus loading procedure
+2. Bulk-load target skills, guidelines, and learnings
+3. Cross-reference all candidates against the loaded corpus
+
+**For each candidate, determine:**
+
+| Assessment | How to verify |
+|------------|---------------|
+| **Already covered** | `grep` for key terms/concepts in target files — if found, read that file and confirm full coverage |
+| **Partially covered** | Related content exists in target but incoming adds new detail |
+| **Not covered** | No matches found in target — genuinely new |
+| **Outdated** | Incoming references patterns/tools that target has moved past (e.g., target genericized a Python-specific version) |
+
+**Watch for genericization:** If the target has a stack-agnostic version of what the source has as stack-specific, the target version is better — mark source as redundant.
+
+#### 2c. Assign recommendations
 
 | Recommendation | Criteria | Default action |
 |----------------|----------|----------------|
 | **Pull** | New content, not covered in target, passes relevance check | Include in selection |
 | **Merge** | Diverged file where source has valuable unique sections | Include in selection |
-| **Skip (previously removed)** | File has git history in target — was intentionally curated out | Exclude from selection, mention in summary |
-| **Skip (redundant)** | Content is already fully covered elsewhere in target | Exclude from selection, mention in summary |
-| **Skip (outdated)** | Content references stale patterns or is superseded | Exclude from selection, mention in summary |
+| **Skip (previously removed)** | File has git history in target — was intentionally curated out | Exclude, mention in summary |
+| **Skip (redundant)** | Content is already fully covered elsewhere in target | Exclude, mention in summary |
+| **Skip (outdated)** | Content references stale patterns or is superseded | Exclude, mention in summary |
+| **Skip (target ahead)** | Target is already a strict superset of source | Exclude, count in summary |
 | **Review** | Uncertain — could be valuable or redundant, medium confidence | Include in selection with note |
 
-### 4. Display merge plan
+### 3. Display merge plan
 
 **ALWAYS use a markdown table** — never prose paragraphs to list items.
 
@@ -157,7 +197,7 @@ For each candidate (new files + source-unique sections from diverged files):
 | learnings/observability-workflow.md | Previously removed (curated out in commit abc123) |
 | learnings/old-patterns.md | Redundant — covered by skill-design.md |
 
-K files identical. J files local-only.
+K files identical. J files local-only. P files where target is already ahead.
 ```
 
 **Action** column values:
@@ -165,7 +205,7 @@ K files identical. J files local-only.
 - `Merge` — both versions have unique content, produce merged version for target
 - `Overwrite` — source is a strict superset of target, replace target's version
 
-**Assessment** column: the recommendation from step 3 with a brief rationale.
+**Assessment** column: the recommendation from step 2 with a brief rationale.
 
 Use `AskUserQuestion` with multi-select to let user choose which items to pull.
 Include the assessment and detail in each option's `description` field.
@@ -174,7 +214,7 @@ Include the assessment and detail in each option's `description` field.
 
 If `$ARGUMENTS` is "diff", display both tables and exit without prompting.
 
-### 5. Execute sync
+### 4. Execute sync
 
 For each selected item:
 
@@ -206,7 +246,7 @@ For each selected item:
 
 **⚡ Parallel:** Writes to independent files can run as parallel tool calls.
 
-### 6. Verify and report
+### 5. Verify and report
 
 Read back a sample of written/updated files to confirm content was saved correctly.
 
@@ -221,7 +261,7 @@ Read back a sample of written/updated files to confirm content was saved correct
 - learnings/observability-workflow.md — previously removed
 - learnings/old-patterns.md — redundant
 
-Pulled N items. K identical. J local-only. M skipped (analyzed).
+Pulled N items. K identical. J local-only. P target-ahead. M skipped (analyzed).
 ```
 
 ## Prerequisites
@@ -244,6 +284,7 @@ For prompt-free execution, ensure allow patterns in `~/.claude/settings.local.js
 - **Pull-only**: This skill only writes to the current repo — it never modifies the source
 - **Analysis before action**: Every candidate is assessed for relevance, redundancy, and history before being offered
 - **Previously removed detection**: Uses git history to identify files that were intentionally curated out — these are skipped by default
+- **Genericization awareness**: If target has a stack-agnostic version of stack-specific source content, the target version is better — source is marked redundant
 - **User approval required**: Always use `AskUserQuestion` before applying changes
 - **Local content preserved**: Files only in the current repo are left alone — they're local additions, not deletions
 - **Excludes respected**: settings.json, settings.local.json, README.md, lab/, personas/, worktrees/ are never synced
