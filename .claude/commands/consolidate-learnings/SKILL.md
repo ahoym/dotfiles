@@ -319,5 +319,5 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 |----------|-------|
 | Curate a specific file | `/curate-learnings <file>` |
 | Capture learnings from a session | `/compound-learnings` |
-| Pull learnings from sync source | `/curate-sync` |
+| Pull learnings from sync source | `/quantum-tunnel-claudes` |
 | Distribute learnings to a project | `/distribute-learnings` |

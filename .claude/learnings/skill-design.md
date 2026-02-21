@@ -216,9 +216,9 @@ Bash permission patterns in `settings.json` use literal string matching. If a pa
 
 **Pattern:** Always use `~` in both:
 - The permission pattern: `Bash(bash ~/.claude/commands/**)`
-- The invocation: `bash ~/.claude/commands/curate-sync/inventory.sh ...`
+- The invocation: `bash ~/.claude/commands/quantum-tunnel-claudes/inventory.sh ...`
 
-**Discovered from:** curate-sync inventory script was being prompted for permission despite having a matching allow pattern, because the invocation used the fully expanded path.
+**Discovered from:** quantum-tunnel-claudes inventory script was being prompted for permission despite having a matching allow pattern, because the invocation used the fully expanded path.
 
 ## Diff Excerpts Hide Structural Gaps
 
@@ -228,7 +228,7 @@ When comparing diverged files between repos, line-level diff output (`diff | gre
 
 **Why 15 lines:** Below 15, the diffs are typically terminology swaps or minor additions visible in the excerpt. Above 15, there's enough unique content that structural differences (new sections, reordered steps, missing format rules) become plausible.
 
-**Discovered from:** curate-sync missed that `make-parallel-plan/SKILL.md` was missing a Branch Strategy section — the diff showed "MR" references which led to batch-dismissing the entire file as terminology changes.
+**Discovered from:** quantum-tunnel-claudes missed that `make-parallel-plan/SKILL.md` was missing a Branch Strategy section — the diff showed "MR" references which led to batch-dismissing the entire file as terminology changes.
 
 ## Producer/Consumer Contract Validation
 
@@ -240,14 +240,14 @@ When two skills form a producer/consumer pair (e.g., `make-parallel-plan` produc
 
 **Why grep-only checks fail:** Searching for "Branch Strategy" in the target repo and finding 9+ references in `execute-parallel-plan` made it look like the concept was covered. But the planner (`make-parallel-plan`) had no instruction to produce Branch Strategy sections — the producer/consumer contract was broken.
 
-**Discovered from:** curate-sync missed this gap because the analysis used grep to check coverage rather than reading both the producer and consumer skills.
+**Discovered from:** quantum-tunnel-claudes missed this gap because the analysis used grep to check coverage rather than reading both the producer and consumer skills.
 
 ## First Run of /consolidate-learnings
 
 Execution log from the first real consolidation run (16 learnings files, 1 guideline, 4 personas):
 
 **Phase 1 (HIGHs):** 2 sweeps, 4 actions auto-applied:
-- Sweep 1: 3 HIGHs — "Broad Sweep Curation" and "Thin Pointer Files" deleted from skill-design.md (migrated to curate-learnings SKILL.md), "Bidirectional Repo Sync" deleted from multi-agent-patterns.md (superseded by /curate-sync)
+- Sweep 1: 3 HIGHs — "Broad Sweep Curation" and "Thin Pointer Files" deleted from skill-design.md (migrated to curate-learnings SKILL.md), "Bidirectional Repo Sync" deleted from multi-agent-patterns.md (superseded by /quantum-tunnel-claudes)
 - Sweep 2: 1 HIGH — "Guideline vs Reference File Placement" deleted from skill-design.md (migrated to content-type-decisions.md)
 
 **Phase 2 (MEDIUMs):** 6 candidates, 2 applied:

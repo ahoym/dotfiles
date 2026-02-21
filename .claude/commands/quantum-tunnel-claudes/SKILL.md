@@ -2,14 +2,14 @@
 description: Pull and merge Claude skills, learnings, and guidelines from a sync source into the current repo
 ---
 
-# Curate Sync
+# Quantum Tunnel Claudes
 
 Pull content from a configured sync source into the current repo. Analyzes incoming changes for relevance and redundancy before offering them, and does content-aware merging for diverged files.
 
 ## Usage
 
-- `/curate-sync` - Pull and merge from sync source
-- `/curate-sync diff` - Preview only (no changes applied)
+- `/quantum-tunnel-claudes` - Pull and merge from sync source
+- `/quantum-tunnel-claudes diff` - Preview only (no changes applied)
 
 ## Configuration
 
@@ -72,7 +72,7 @@ EXCLUDES=(
 Run the inventory script to get the full picture in one pass — file bucketing, classification, git history checks, and source-unique diffs:
 
 ```bash
-bash <TARGET>/.claude/commands/curate-sync/inventory.sh "<SOURCE>" "<TARGET>"
+bash <TARGET>/.claude/commands/quantum-tunnel-claudes/inventory.sh "<SOURCE>" "<TARGET>"
 ```
 
 The script outputs structured sections that feed directly into step 2:

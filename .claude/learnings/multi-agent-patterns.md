@@ -64,13 +64,13 @@ When comparing two versions of a file where directionality matters (source vs ta
 **Why:** Subagents receive two file paths with labels, but can confuse which is which — especially when paths are similar (e.g., two repos with overlapping directory structures). If the agent swaps source and target, it reports the exact opposite of reality, and the error is hard to catch because the analysis *sounds* correct.
 
 **When this applies:**
-- curate-sync: comparing source repo files against target repo files
+- quantum-tunnel-claudes: comparing source repo files against target repo files
 - Any diff/merge workflow where "which side has X" is the key question
 - PR review where "old vs new" determines the recommendation
 
 **What's safe to delegate:** Non-directional analysis (e.g., "does this file contain X?", "how many sections does this file have?") where swapping inputs doesn't change the answer.
 
-**Discovered from:** curate-sync delegated structural comparison of `execute-parallel-plan/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
+**Discovered from:** quantum-tunnel-claudes delegated structural comparison of `execute-parallel-plan/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
 
 ## Structured Templates as Natural Size Constraints
 

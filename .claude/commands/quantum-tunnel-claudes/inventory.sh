@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# curate-sync inventory script
+# quantum-tunnel-claudes inventory script
 # Usage: inventory.sh <source> <target>
 # Outputs structured inventory + classification + git history + diffs
 
@@ -20,7 +20,7 @@ tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/lea
 # Bucket files
 only_source=$(comm -23 <(echo "$src_files") <(echo "$tgt_files"))
 only_target=$(comm -13 <(echo "$src_files") <(echo "$tgt_files"))
-comm -12 <(echo "$src_files") <(echo "$tgt_files") > /tmp/curate-sync-common.txt
+comm -12 <(echo "$src_files") <(echo "$tgt_files") > /tmp/qtc-common.txt
 
 echo "=== ONLY IN SOURCE ==="
 echo "$only_source"
@@ -47,7 +47,7 @@ while IFS= read -r f; do
       echo "BOTH_UNIQUE|$f|source +${s_only}, target +${t_only}"
     fi
   fi
-done < /tmp/curate-sync-common.txt
+done < /tmp/qtc-common.txt
 
 echo ""
 echo "IDENTICAL: $identical"
@@ -81,6 +81,6 @@ while IFS= read -r f; do
       diff "$TARGET/$f" "$SOURCE/$f" | grep '^> ' | head -30 || true
     fi
   fi
-done < /tmp/curate-sync-common.txt
+done < /tmp/qtc-common.txt
 
-rm -f /tmp/curate-sync-common.txt
+rm -f /tmp/qtc-common.txt
