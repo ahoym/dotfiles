@@ -48,9 +48,8 @@ EXCLUDES=(
 
 | Opportunity | When | How |
 |---|---|---|
-| **Inventory + classify** | Always | Single Bash command handles both inventory and classification |
-| **Git history checks** | "Only in source" files exist | Run all `git log` checks in one batch |
-| **Targeted reads** | Analysis phase | Read source-unique content + specific target files for cross-reference in parallel |
+| **Inventory** | Always | Single `inventory.sh` call handles inventory, classification, git history, and source-unique diffs |
+| **Targeted reads** | Analysis phase | Read specific target files for cross-reference in parallel |
 | **Apply merges** | After approval | Write to independent files as parallel tool calls |
 
 ## Instructions
@@ -70,47 +69,17 @@ EXCLUDES=(
 
 ### 1. Inventory and classify
 
-Combine inventory and classification into a single Bash command. This avoids piping issues and produces the full picture in one pass.
-
-**Recommended approach:** Use `find` to list files in both repos, `comm` to separate into only-in-source / only-in-target / common, then write the common files to a temp file and iterate with a `while read` loop (not a pipe) to classify each:
+Run the inventory script to get the full picture in one pass — file bucketing, classification, git history checks, and source-unique diffs:
 
 ```bash
-SOURCE="<SOURCE>"
-TARGET="<TARGET>"
-EXCLUDES="personas/|lab/|worktrees/|settings\.json|settings\.local\.json|README\.md"
-
-# List files in each repo
-src_files=$(cd "$SOURCE" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
-tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
-
-# Files only in source / only in target
-only_source=$(comm -23 <(echo "$src_files") <(echo "$tgt_files"))
-only_target=$(comm -13 <(echo "$src_files") <(echo "$tgt_files"))
-
-# Common files → temp file, then classify via while-read loop (NOT a pipe)
-comm -12 <(echo "$src_files") <(echo "$tgt_files") > /tmp/curate-sync-common.txt
-
-identical=0
-while IFS= read -r f; do
-  if diff -q "$SOURCE/$f" "$TARGET/$f" >/dev/null 2>&1; then
-    identical=$((identical + 1))
-  else
-    # Count lines unique to each side
-    s_only=$(diff "$TARGET/$f" "$SOURCE/$f" | grep -c '^> ' || true)
-    t_only=$(diff "$TARGET/$f" "$SOURCE/$f" | grep -c '^< ' || true)
-    # Classify
-    if [[ "$s_only" -gt 0 && "$t_only" -eq 0 ]]; then
-      echo "SUPERSET:source|$f|source +${s_only}"
-    elif [[ "$s_only" -eq 0 && "$t_only" -gt 0 ]]; then
-      echo "SUPERSET:target|$f|target +${t_only}"
-    else
-      echo "BOTH_UNIQUE|$f|source +${s_only}, target +${t_only}"
-    fi
-  fi
-done < /tmp/curate-sync-common.txt
+bash <TARGET>/.claude/commands/curate-sync/inventory.sh "<SOURCE>" "<TARGET>"
 ```
 
-**Important:** Do NOT pipe `comm` output into a `while read` loop — the pipe creates a subshell that swallows variables and output. Always use a temp file or process substitution with redirection.
+The script outputs structured sections that feed directly into step 2:
+- `=== ONLY IN SOURCE ===` / `=== ONLY IN TARGET ===` — file lists
+- `=== COMMON FILES CLASSIFICATION ===` — per-file status lines (`SUPERSET:source|...`, `BOTH_UNIQUE|...`, etc.) plus summary counts
+- `=== GIT HISTORY CHECK ===` — `PREVIOUSLY_REMOVED` / `GENUINELY_NEW` for source-only files
+- `=== SOURCE-UNIQUE DIFFS ===` — the actual diff content for candidates (up to 30 lines each)
 
 Classification results:
 
@@ -129,14 +98,12 @@ Classification results:
 
 This step evaluates the candidates identified in step 1. Read `classification-model.md` for the full classification criteria.
 
-#### 2a. Check git history for "only in source" files
+#### 2a. Parse inventory output
 
-For each file that exists only in source:
-- Run `git log --all --oneline -- <relative-path>` in the target repo
-- If commits are found → file was **previously removed** from target (intentional curation)
-- If no commits → file is **genuinely new** (never existed in target)
-
-**⚡ Parallel:** Run all git log checks in a single Bash command.
+The inventory script (step 1) already provides git history checks and source-unique diffs. Parse its output:
+- `PREVIOUSLY_REMOVED: <file>` → was intentionally curated out of target
+- `GENUINELY_NEW: <file>` → never existed in target, candidate to pull
+- Source-unique diff content → use for the assessment in 2b
 
 #### 2b. Assess incoming content
 
