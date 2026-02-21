@@ -116,12 +116,6 @@ When two repos have independently evolved the same skill, merge by keeping uniqu
 - Learnings applied to one skill automatically apply to both platforms
 - Shared reference file is a single source of truth for CLI/terminology mapping
 
-## Compound-Learnings Should Be Persona-Aware
-
-`/compound-learnings` should detect when a new learning matches an existing persona's domain and offer to fold it into the persona alongside (or instead of) a learnings file. This is the incremental counterpart to `/curate-learnings` step 5a (which detects persona opportunities in existing content during batch curation).
-
-**Why:** Together, batch curation + incremental capture ensure personas stay current without manual review. Currently only the batch side (curate-learnings) is implemented.
-
 ## Skill Improvement Feedback Loop
 
 After running a skill in a real session, assess its performance while context is fresh:
