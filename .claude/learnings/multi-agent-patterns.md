@@ -73,3 +73,23 @@ Instead of hard output size limits (which LLMs can't reliably count or enforce),
 - If an agent genuinely needs 400 lines for a complex domain, that's fine — the synthesizer can handle it
 
 **Discovered from:** Discussing output size limits for `/explore-repo` agents — concluded that templates + soft guidelines give consistent, digestible output without losing signal from large repos.
+
+## Bidirectional Repo Sync with rsync
+
+When two repos share overlapping content (e.g., Claude skills, learnings, guidelines), use rsync with `--delete` for bidirectional sync rather than manual file-by-file copying.
+
+**Pattern:**
+```bash
+SYNC_DIRS=(".claude/commands/" ".claude/guidelines/" ".claude/learnings/")
+EXCLUDES=("--exclude=settings.json" "--exclude=settings.local.json" "--exclude=lab/")
+
+rsync -av --delete "${EXCLUDES[@]}" "$SRC/$dir" "$DST/$dir"
+```
+
+**Key design decisions:**
+- `--delete` removes files in target that don't exist in source — handles renames automatically (e.g., MR-named skill dirs removed when syncing PR-named ones)
+- Exclude repo-specific config files (settings.json, README.md) that should differ between repos
+- Always preview with `-n` (dry run) before applying, then prompt for confirmation
+- Support three modes: `diff` (both directions), `source-to-target`, `target-to-source`
+
+**Discovered from:** Merging dotfiles + mahoy-claude-stuff repos — rsync's `--delete` flag automatically cleaned up 6 MR-named skill directories without manual removal.

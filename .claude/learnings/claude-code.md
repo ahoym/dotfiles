@@ -44,3 +44,9 @@ From the [docs](https://code.claude.com/docs/en/permissions): *"Claude makes a b
 - `Glob(path:~/.claude/learnings)` — wrong tool name
 - `Glob(path:/Users/user/.claude/learnings)` — wrong tool name, absolute path
 - `Search(path:~/.claude/learnings)` — matched display name but still wrong tool name
+
+## Background Bash Agents Lack Permissions for File Operations
+
+When using `Task` with `subagent_type: "Bash"` and `run_in_background: true`, the agent typically cannot execute file-writing commands (cp, mkdir, heredoc redirects) because Bash permissions aren't pre-configured for those patterns.
+
+**Workaround:** For file copy/create operations, do them directly in the main thread using Bash, Write, or Edit tools instead of delegating to background Bash agents. Background agents are better suited for long-running processes where the specific Bash commands have pre-configured allow patterns.

@@ -26,3 +26,14 @@
 - Prefer boring, well-understood infrastructure over cutting-edge
 - Optimize for mean time to recovery, not just mean time between failures
 - Favor explicit configuration over convention when it affects deployment behavior
+
+## Known gotchas & platform specifics
+
+### Metrics & Observability
+- Metrics discussion process: (1) gather context, (2) map existing metrics, (3) analyze gaps against operational questions, (4) propose additions with names/types/tags, (5) iterate to prune, (6) cardinality check before implementing
+- `DistributionSummary.builder()` and `Timer.builder()` respect `application.properties` SLO bucket config; the shorthand `meterRegistry.summary()`/`meterRegistry.timer()` bypasses it entirely
+- Timer try/finally pattern: use an `outcome` variable with try/finally instead of duplicating `sample.stop()` at each exit path. Skip timing for no-op runs (place `Timer.start()` after early return) to keep latency percentiles clean.
+- Testing: use `SimpleMeterRegistry` (in-memory, records real values) not mocked `MeterRegistry` + stubbed `Counter` — assertions on actual recorded values are simpler and more readable
+
+### CI/CD
+- Lightweight CI guard (no checkout): use API calls + `jq` to check for blocked file paths in MR/PR — runs in seconds with no dependencies beyond `curl` and `jq`

@@ -16,3 +16,9 @@ git rebase --onto origin/main "$SKILLS_COMMIT"
 - Self-documenting — the grep pattern makes intent clear
 
 **Convention:** Use bracketed prefixes in commit messages (e.g., `[web-session]`) to make them greppable without false positives.
+
+## rsync --delete Auto-Removes Renamed Directories
+
+When using `rsync --delete` to sync directories, renaming a source directory (e.g., `git-address-mr-review` → `git-address-pr-review`) automatically deletes the old-named directory from the target. This is because `--delete` removes anything in the target that doesn't exist in the source.
+
+**Implication:** For repo migrations that rename multiple directories (e.g., MR→PR skill renaming), a single rsync with `--delete` handles both copying new dirs and removing old dirs — no need for separate `rm -rf` cleanup commands.

@@ -32,22 +32,53 @@ You should **never write implementation code directly**. All code changes go thr
 
 Before doing anything else, perform a structured review of the plan with fresh eyes. You are reading this plan for the first time — use that perspective to catch issues the planner may have missed due to context fatigue or tunnel vision.
 
+This step has two phases: **strategic review** (do we understand what we're building and why?) followed by **technical verification** (are the agent prompts, landmarks, and dependencies correct?). Both must pass before execution begins.
+
+#### Phase A: Strategic review
+
 1. **Read the full plan** — internalize the context, shared contract, DAG structure, and every agent prompt. Understand the overall shape of the change.
-2. **Re-read source files** — for each agent that modifies existing files, read those files and verify:
+
+2. **Discover source research** — look for the research artifacts that informed this plan. Check:
+   - The plan's **Context** section for references to research directories or files
+   - Sibling directories or parent directories for ralph research output (`spec.md`, `progress.md`, `implementation-plan.md`, `assumptions-and-questions.md`, `info.md`)
+   - The plan file's own directory for related `.md` files
+
+   If source research is found, read the key artifacts: `implementation-plan.md` (or equivalent), `assumptions-and-questions.md`, and `progress.md`. These contain the user-confirmed decisions that the parallel plan must faithfully implement.
+
+3. **Cross-reference research decisions** — if source research was found, verify that confirmed decisions carried through into the parallel plan:
+   - **Resolved questions** → check that the answers are reflected in agent prompts (e.g., if the user confirmed "panel goes in the left column," verify the UI agent's prompt says that, not "center column")
+   - **Confirmed assumptions** → check that the shared contract's types, API shapes, and import paths match what the research specified
+   - **Scope boundaries** → check that features marked "out of scope" or "future work" in the research are NOT included in any agent's prompt
+   - **Specific technical decisions** → check that implementation choices (error handling approach, dynamic vs hardcoded values, specific flag/mode support) match the research
+
+   Flag any mismatches — these are high-priority issues because they mean the plan diverged from user-confirmed decisions.
+
+4. **Present strategic summary** — before diving into technical details, give the user a concise overview:
+   - **What we're building**: 2-3 sentence description of the feature/change
+   - **How it's parallelized**: DAG shape in plain language (e.g., "Agent A does types, then B/C/D do API routes in parallel, then E does the hook, then F/G do UI components, then H wires everything together")
+   - **Key decisions reflected**: list 3-5 user decisions from research that the plan implements (so the user can quickly confirm they carried through)
+   - **Strategic concerns**: anything that looks off from a feature/product perspective (not technical issues — those come in Phase B)
+   - If no source research was found, note this and present just the DAG summary
+
+5. **Get strategic approval** — wait for the user to confirm the strategic summary is correct before proceeding to technical verification. If the user identifies mismatches with their intent, update the plan before continuing. This is the "are we building the right thing?" gate.
+
+#### Phase B: Technical verification
+
+6. **Re-read source files** — for each agent that modifies existing files, read those files and verify:
    - Code landmarks in the prompt still match the actual code (function names, line numbers, surrounding context)
    - The file structure hasn't changed since the plan was written
    - Import paths referenced in the plan are correct
-3. **Audit dependencies** — for each `depends_on` (hard dependency), ask: does the downstream agent truly need the upstream to be fully completed and verified, or would it suffice for the upstream's files to exist on disk (soft dependency)? Flag any hard dependencies that could be downgraded.
-4. **Check agent scope balance** — flag agents that seem too large (> 200s estimated, touching 5+ files) or too small (< 30 lines of changes). Suggest splits or merges.
-5. **Review the Review Notes** — if the planner included a **Review Notes** section, examine each flagged uncertainty and form your own judgment.
-6. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the user — agents will silently fail without these permissions.
-7. **Present findings** — report your review to the user:
+7. **Audit dependencies** — for each `depends_on` (hard dependency), ask: does the downstream agent truly need the upstream to be fully completed and verified, or would it suffice for the upstream's files to exist on disk (soft dependency)? Flag any hard dependencies that could be downgraded.
+8. **Check agent scope balance** — flag agents that seem too large (> 200s estimated, touching 5+ files) or too small (< 30 lines of changes). Suggest splits or merges.
+9. **Review the Review Notes** — if the planner included a **Review Notes** section, examine each flagged uncertainty and form your own judgment.
+10. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the user — agents will silently fail without these permissions.
+11. **Present technical findings** — report your review to the user:
    - Issues found (stale landmarks, wrong dependencies, scope imbalances)
    - Proposed adjustments (with rationale)
    - Planner's flagged uncertainties and your assessment
    - Permission gaps (if any)
    - Or: "Plan looks good, no issues found" — don't invent problems
-8. **Get approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
+12. **Get final approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
 
 Do NOT skip this step. The value of a fresh session is the fresh perspective — use it.
 

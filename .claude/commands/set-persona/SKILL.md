@@ -31,6 +31,15 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - Confirm activation with a one-line summary of what you're now focused on
    - Apply the priorities and focus areas from that point forward in the session
 
+## Prerequisites
+
+For prompt-free execution, add these allow patterns to `~/.claude/settings.local.json`:
+
+```json
+"Read(~/.claude/commands/set-persona/**)",
+"Read(.claude/personas/**)"
+```
+
 ## Important Notes
 
 - Personas set focus and priorities — they don't restrict what you can do

@@ -20,20 +20,20 @@ When code generates a value (e.g., a reference ID) and sends it in an API reques
 
 ### Example
 
-```python
-# BAD - reads from API response, every mock must include referenceId
-response = api_client.create_payment(payload=[payment_data], ...)
-payment = response["payments"][0]
-return PaymentResult(reference=payment["referenceId"])
+```typescript
+// BAD - reads from API response, every mock must include referenceId
+const response = await apiClient.createPayment({ payload: [paymentData] });
+const payment = response.payments[0];
+return { reference: payment.referenceId };
 
-# GOOD - reads from local payload, mocks don't need to include it
-payment_data = self.build_payment_payload(...)
-response = api_client.create_payment(payload=[payment_data], ...)
-return PaymentResult(reference=payment_data.get("referenceId"))
+// GOOD - reads from local payload, mocks don't need to include it
+const paymentData = buildPaymentPayload(...);
+const response = await apiClient.createPayment({ payload: [paymentData] });
+return { reference: paymentData.referenceId };
 ```
 
 ### Why it matters
 
 - Adding a field to the response path requires updating every test mock that returns that response
-- Integration tests using HTTP-level mocking (e.g., `responses` library) are especially painful to update
+- Integration tests using HTTP-level mocking are especially painful to update
 - The local payload is deterministic and already in scope — no reason to round-trip through the mock
