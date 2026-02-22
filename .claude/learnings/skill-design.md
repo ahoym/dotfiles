@@ -274,6 +274,7 @@ When two skills serve related but distinct purposes, the lower-level skill's des
 - Between-sweep reports work well for visibility during iterative consolidation runs
 - `AskUserQuestion` multi-select is limited to 4 options — consolidation runs with many MEDIUM items need grouped choices or a different presentation strategy
 - Post-run review caught two systemic issues that became content principles in `content-type-decisions.md`: genericizing tool-specific references, and no TODOs/feature requests in context files
+- **Cadence signal:** A second consolidation run on a recently-curated collection yielded 0 HIGHs and only 2 minor MEDIUMs (misplaced persona content, stale execution log). Consolidation has diminishing returns when run shortly after a clean first run — use `/learnings:curate <file>` for targeted cleanup between full consolidation sweeps
 
 ## Scope _shared/ Files to Their Skill Group
 
