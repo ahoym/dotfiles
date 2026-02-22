@@ -108,3 +108,98 @@ if (msg.includes("actNotFound") || msg.includes("ammNotFound") || msg.includes("
 ```
 
 The `"Account not found"` case occurs when the queried issuer account doesn't exist on the target network (e.g., devnet account queried on testnet).
+
+## xrpl.js Validation Helpers
+
+xrpl.js v4.5.0 provides built-in validation helpers:
+
+- **`isValidClassicAddress(address)`** — validates well-formed XRP Ledger classic address
+- **`isValidSeed(seed)`** — validates well-formed XRPL wallet seed
+
+Always validate inputs before using them in XRPL operations. Even with `isValidSeed()` pre-validation, wrap `Wallet.fromSeed()` in a try-catch as defense-in-depth — the validation function checks format, but edge cases could still cause exceptions.
+
+## Issuer Burn Mechanics: No Trust Line Required
+
+Sending issued currency back to the issuer does NOT require a trust line on the issuer's side. The issuer implicitly accepts their own IOUs, effectively "burning" or redeeming tokens. Only non-issuer accounts need trust lines.
+
+- Any holder can send tokens back to the issuer at any time
+- The issuer's balance is always negative (outstanding IOUs); receiving tokens reduces that
+- No `TrustSet` transaction needed on the issuer's account
+
+**Transfer UI:** When a transfer recipient is the issuer of the currency, skip the trust line validation check and set `trustLineOk = true`. Use a derived `isBurn = destinationAddress === selectedBalance?.issuer` flag to drive both the validation skip and a UI warning explaining the tokens will be destroyed.
+
+### Accurate Order Book Display Pattern
+
+When displaying order book data, use `taker_gets_funded ?? taker_gets` (and same for pays) for actual fillable size. Filter where BOTH `amount > 0` AND `price > 0` — filtering only on amount misses the case where `taker_pays_funded` is `"0"` (producing a 0-price row with positive amount).
+
+## client.getOrderbook() Internals
+
+`client.getOrderbook()` always makes **two** internal `book_offers` RPC calls (one per direction: bids and asks), then separates the results into `buy` and `sell` arrays via `separateBuySellOrders()`.
+
+Key implications:
+
+- **There is no option to request only one side.** Even if you only need bids, the client will still fetch both directions.
+- **Client-side filtering** (e.g., slicing the returned arrays to limit depth) only saves payload size and rendering cost — it does **not** reduce XRPL WebSocket/connection load.
+- Each `getOrderbook()` call = 2 RPC round trips over the WebSocket, regardless of how the results are consumed.
+
+This is relevant when optimizing polling intervals or combining API calls to reduce connection pressure on XRPL public nodes.
+
+## account_offers Does Not Return Transaction Hashes
+
+The XRPL `account_offers` command only returns these fields per offer:
+- `seq` (offer sequence number)
+- `flags`
+- `taker_gets`
+- `taker_pays`
+- `quality`
+- `expiration` (optional)
+
+**No transaction hash is included.** To get the hash of the transaction that created an offer, you must cross-reference `account_tx` results, filtering for `OfferCreate` transactions and matching by sequence number. This requires an additional API call and matching logic, adding network overhead.
+
+## getBalanceChanges() Already Includes Fee Deduction
+
+`getBalanceChanges()` from xrpl.js returns XRP balance deltas that are **already net of transaction fees**. The `AccountRoot` ledger entry in transaction metadata reflects the fee deduction in its `FinalFields.Balance` vs `PreviousFields.Balance`.
+
+**Implication:** Explicitly subtracting `tx.Fee` from `getBalanceChanges()` output **double-counts** the fee. Use the raw delta as-is for accurate trade amounts.
+
+**Example:** If a wallet receives 100 XRP from a trade and pays 12 drops fee:
+- `getBalanceChanges()` returns: +99.999988 XRP (correct, net of fee)
+- Subtracting `tx.Fee` again: +99.999976 XRP (wrong, double-deducted)
+
+## RippleState Balance Sign Convention
+
+In XRPL `RippleState` ledger entries, the balance field follows this convention:
+
+- **Positive balance** → the **low** account holds the IOU (has the asset)
+- **Negative balance** → the **high** account holds the IOU
+
+The "low" and "high" accounts are determined by the `LowLimit.issuer` and `HighLimit.issuer` fields in the `RippleState` object.
+
+**When computing balance deltas** (finalValue - previousValue):
+- A positive delta means the **low** account gained tokens
+- A negative delta means the **high** account gained tokens
+
+**Common mistake**: Assuming positive balance means the high account holds the asset. This silently zeroes out balance changes in trade/fill parsers, causing filled orders to not appear.
+
+## Detecting Filled Orders from account_tx
+
+To determine if an `OfferCreate` transaction resulted in a fill (partial or full), parse the transaction metadata:
+
+1. **Filter**: Only look at `OfferCreate` transactions with `TransactionResult === "tesSUCCESS"`
+2. **Parse `AffectedNodes`**:
+   - `AccountRoot` modifications → XRP balance changes (in drops, divide by 1,000,000)
+   - `RippleState` modifications → Token balance changes (see sign convention above)
+3. **Compute per-account deltas** for the wallet address
+4. **Identify fills**: A fill means the wallet gained one currency and lost another (opposite signs on base/quote deltas)
+5. **Filter fee-only changes**: Unfilled offers still modify `AccountRoot` by the tx fee (~12 drops = 0.000012 XRP). Use a threshold of `< 0.001` on both base and quote amounts to skip these false positives.
+6. **Determine side**: If the wallet's base currency delta is positive, it's a buy; if negative, it's a sell.
+
+## Vercel Serverless + XRPL WebSocket Connections
+
+On Vercel, each API route can run as a **separate serverless function instance**, and each instance opens its own WebSocket connection to the XRPL node (via the singleton in `lib/xrpl/client.ts` — but the singleton is per-process, not per-deployment).
+
+**The Problem:** XRPL public nodes enforce **IP-based connection limits**. When the client polls multiple API routes simultaneously (e.g., orderbook + trades + balances), each route may spawn a separate serverless invocation, each opening its own WebSocket.
+
+**The Mitigation:** Combine multiple XRPL queries into a **single API route** (e.g., a `/api/dex/market-data` endpoint) to reduce the number of concurrent serverless invocations and WebSocket connections.
+
+**Key Takeaway:** The `lib/xrpl/client.ts` singleton only helps within a single serverless invocation. Across concurrent invocations, each process gets its own singleton instance. Reducing the number of concurrent API calls is the primary lever for managing connection count on Vercel.

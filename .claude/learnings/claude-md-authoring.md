@@ -57,3 +57,48 @@ A good subdirectory CLAUDE.md is **concise and navigational**, not exhaustive:
 5. **Cross-references** — links to deeper documentation in `docs/learnings/`
 
 **Anti-pattern:** Don't duplicate content from detailed documentation files. The CLAUDE.md should be a quick-reference that points to deeper docs, not a copy of them.
+
+## Document Relationships, Not Just Inventory
+
+CLAUDE.md should document how components connect — not just list what files exist. A file inventory tells an agent *what* exists, but relationships tell it *how* things work together.
+
+Key relationship sections to include:
+
+- **App Shell**: Component tree from layout down (e.g., `layout.tsx → Providers → NavBar → page`). Shows providers, wrappers, and navigation structure.
+- **State Flow**: How data moves through the system (e.g., context → localStorage → API). Include the auth/session model (or lack thereof).
+- **API Conventions**: Request/response patterns, how mutations vs reads differ, shared validation patterns.
+
+These sections let an agent skip straight to the task instead of reading multiple source files to understand the wiring.
+
+## Use Pointers for Fast-Growing Directories
+
+For directories that grow frequently (e.g., UI components), use a pointer instead of an inventory:
+
+**Good** — scales without maintenance:
+```markdown
+Reusable UI components live in `app/components/`. Before creating a new component, check there first — it likely already exists (modals, loading states, balance formatting, etc.).
+```
+
+**Avoid** — becomes stale, bloats context:
+```markdown
+- `modal-shell.tsx` — Reusable modal wrapper
+- `balance-display.tsx` — Formatted balance rendering
+- `explorer-link.tsx` — Links to XRPL explorer
+...
+```
+
+Reserve detailed inventories for stable infrastructure (lib modules, hooks, API routes) that change infrequently. The pointer pattern gives the agent the location and a behavioral nudge ("check here first") without maintenance burden.
+
+## Single Source of Truth: README + CLAUDE.md + Symlink
+
+To maintain one source of truth for both human and agent documentation:
+
+1. **CLAUDE.md** — The real technical reference. Auto-loaded by agents. Contains architecture, API routes, state management, conventions, and gotchas.
+2. **README.md** — Lightweight human entry point. Project overview, getting started instructions, and a link to the technical docs. No architecture details (avoids duplication).
+3. **TECHNICAL_DETAILS.md** — Symlink to CLAUDE.md. Humans find it from README.md; agents never need it.
+
+```
+README.md (humans) ──link──▶ TECHNICAL_DETAILS.md ──symlink──▶ CLAUDE.md (agents)
+```
+
+Key insight: CLAUDE.md content is already human-readable — the split is about entry points, not content format. Humans expect README.md; agents get CLAUDE.md auto-loaded. The symlink bridges the two without any content duplication.

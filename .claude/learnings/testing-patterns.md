@@ -37,3 +37,33 @@ return { reference: paymentData.referenceId };
 - Adding a field to the response path requires updating every test mock that returns that response
 - Integration tests using HTTP-level mocking are especially painful to update
 - The local payload is deterministic and already in scope — no reason to round-trip through the mock
+
+## Testing Response-Returning Validators
+
+When testing Next.js API validator functions that return `Response | null`:
+
+```typescript
+// Assert success (null = valid)
+expect(validateAddress("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", "addr")).toBeNull();
+
+// Assert failure (Response with status and JSON body)
+const resp = validateAddress("invalid", "addr");
+expect(resp).not.toBeNull();
+expect(resp!.status).toBe(400);
+const body = await resp!.json();
+expect(body.error).toContain("Invalid");
+```
+
+The `!` non-null assertion is safe after the `not.toBeNull()` check. The `await resp!.json()` is needed because `Response.json()` returns a Promise.
+
+## Invalid Date in jsdom/Node
+
+`new Date("not-a-date").toLocaleTimeString()` does **not** throw in jsdom or Node.js — it returns the string `"Invalid Date"`. This means `try/catch` is insufficient to handle invalid date inputs in formatting functions.
+
+**Fix:** Add an explicit validity check before calling locale methods:
+
+```ts
+const d = new Date(iso);
+if (isNaN(d.getTime())) return fallback;
+return d.toLocaleTimeString(...);
+```

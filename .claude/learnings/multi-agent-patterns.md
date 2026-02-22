@@ -16,62 +16,6 @@ When a skill launches multiple agents in parallel and needs to synthesize their 
 - Orchestrator stays lightweight — short summaries, not full reports
 - A separate synthesis step (or separate invocation) reads from the output files with a clean context
 
-**Discovered from:** Running `/explore-repo` on transfer-server — 7 agents completed successfully but their combined outputs exhausted the orchestrator's context window before synthesis could finish.
-
-## Synthesis Should Run in a Separate Invocation
-
-When combining outputs from multiple agents into a unified document, synthesis should happen in a fresh context — either a separate agent or a separate skill invocation — rather than in the orchestrator that launched the agents.
-
-**Why:**
-- The orchestrator's context is already partially consumed by the skill prompt, project context, and agent launch coordination
-- A fresh context gets full budget dedicated to reading output files and writing the final synthesis
-- If context compression hits during synthesis, you're synthesizing from lossy summaries of findings rather than the findings themselves — quality degrades silently
-- If synthesis fails or produces poor results, it can be re-run without re-running all exploration agents
-
-**Pattern (preferred — same skill, separate invocation):**
-1. Exploration agents write to output files (see above)
-2. Skill detects mode via file existence — first run scans, second run synthesizes (see Stateful Mode Detection in skill-design.md)
-3. Synthesis invocation reads each file with a fully clean context, cross-references, writes final output
-
-**Alternative (synthesis as sub-agent):**
-1. Exploration agents write to intermediate files
-2. Orchestrator launches a synthesis agent with file paths and output format requirements
-3. Works but the orchestrator still needs enough context to coordinate
-
-**Implication:** These two patterns together break the "7 agents → 1 orchestrator" bottleneck entirely. The orchestrator becomes a lightweight coordinator rather than a data funnel.
-
-## Agent Output Files as First-Class Documentation
-
-When agents write intermediate files, those files can be standalone useful documentation — not just pipeline artifacts to delete after synthesis.
-
-**Pattern:**
-- Name agent output files descriptively (e.g., `data-model.md`, not `_scan-data-model.md`)
-- Structure agent output with a consistent template (sections, bullet points, file paths)
-- Include scan metadata in a header comment (agent name, commit, branch, date)
-- Git-track the files — they persist across sessions and inform future scans
-
-**Benefits:**
-- A developer can read `integrations.md` directly without needing the synthesized overview
-- The synthesized overview references domain files for deeper context, creating a natural drill-down
-- Staleness detection (commit hash comparison) enables incremental re-scanning
-
-**Discovered from:** Redesigning `/explore-repo` — realized the `_scan-` prefix and deletion after synthesis was treating genuinely useful docs as throwaway intermediates.
-
-## Don't Delegate Directional Comparisons to Subagents
-
-When comparing two versions of a file where directionality matters (source vs target, old vs new, before vs after), do the comparison yourself — don't delegate to subagents.
-
-**Why:** Subagents receive two file paths with labels, but can confuse which is which — especially when paths are similar (e.g., two repos with overlapping directory structures). If the agent swaps source and target, it reports the exact opposite of reality, and the error is hard to catch because the analysis *sounds* correct.
-
-**When this applies:**
-- quantum-tunnel-claudes: comparing source repo files against target repo files
-- Any diff/merge workflow where "which side has X" is the key question
-- PR review where "old vs new" determines the recommendation
-
-**What's safe to delegate:** Non-directional analysis (e.g., "does this file contain X?", "how many sections does this file have?") where swapping inputs doesn't change the answer.
-
-**Discovered from:** quantum-tunnel-claudes delegated structural comparison of `parallel-plan/execute/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
-
 ## Verify Subagent Output Before Acting On It
 
 When you delegate research or analysis to a subagent and plan to act on the result (presenting findings to the user, making edits, offering to merge), spot-check the key claim before proceeding.
@@ -86,51 +30,6 @@ When you delegate research or analysis to a subagent and plan to act on the resu
 **How to verify:** Read the relevant file/section yourself and confirm the key claim. One targeted read is enough — you don't need to redo the full analysis.
 
 **When to skip:** The subagent's output is purely informational (e.g., "how many files match this pattern?") and you won't act on it without further investigation.
-
-**Discovered from:** quantum-tunnel-claudes accepted an explore agent's claim that the source had a fresh-eyes review framework the target lacked — the opposite was true. A single file read would have caught it.
-
-## Pre-Register All Coordinator Bash Permissions Before Parallel Execution
-
-When running parallel plan execution (or any multi-agent workflow with git/PR operations), the coordinator needs its own set of Bash permissions beyond what the agents need. These should be audited and batch-added to `.claude/settings.local.json` **before launching any agents** — a single upfront permission prompt is far better than repeated interruptions during execution.
-
-**Coordinator-specific patterns to check:**
-- `Bash(pnpm build:*)` (or project build command) — final verification
-- `Bash(git worktree:*)` — creating/removing temporary worktrees
-- `Bash(git -C:*)` — running git commands inside worktrees
-- `Bash(git branch:*)` — creating per-agent branches
-- `Bash(git push:*)` — pushing branches to remote
-- `Bash(gh pr create:*)` / `Bash(glab mr create:*)` — creating PRs/MRs
-- `Bash(cp:*)`, `Bash(mkdir:*)`, `Bash(chmod:*)` — file operations in worktrees
-
-**Discovered from:** parallel-plan:execute session where the plan's Required Bash Permissions covered agent needs but not coordinator operations, causing 10+ permission prompts during branch/PR creation.
-
-## Stacked PR Branches Must Be Created in Topological Order
-
-When creating per-agent branches in a DAG-based workflow, each dependency branch must be **fully committed and pushed** before creating any branch that depends on it. If you batch-create all branches first and then commit to each, dependent branches will point at the pre-commit ref (effectively `main`) and miss their dependency's files.
-
-**What goes wrong:**
-```bash
-# BAD — batch creation, all branches created before any commits
-git branch feat/foundation origin/main
-git branch feat/hook feat/foundation     # Points at main, NOT at foundation's commit
-# ... later commit to foundation ...
-# feat/hook still points at the old ref — missing foundation's files
-# PR for hook will fail CI because it can't import types from foundation
-```
-
-**Correct approach:**
-```bash
-# GOOD — sequential: commit dependency, THEN create dependent branch
-git branch feat/foundation origin/main
-# ... commit and push to foundation ...
-git branch feat/hook feat/foundation     # Now includes foundation's commit
-# ... commit and push to hook ...
-# PR for hook includes both foundation's and hook's files — CI passes
-```
-
-**Key insight:** This is naturally solved by creating branches as agents complete (per the skill's Step 6 workflow). The bug surfaces when branch creation is deferred to a batch phase — the topological ordering is lost.
-
-**Discovered from:** parallel-plan:execute session where 7 of 11 PRs had failing Vercel CI because branches were batch-created before dependency commits existed.
 
 ## Structured Templates as Natural Size Constraints
 
@@ -147,18 +46,83 @@ Instead of hard output size limits (which LLMs can't reliably count or enforce),
 - The template structure itself limits verbosity — bullets force conciseness, named sections prevent rambling
 - If an agent genuinely needs 400 lines for a complex domain, that's fine — the synthesizer can handle it
 
-**Discovered from:** Discussing output size limits for `/explore-repo` agents — concluded that templates + soft guidelines give consistent, digestible output without losing signal from large repos.
+## Coordinating Prop Removal Across Parallel Subagents
 
-## Context Compaction Makes State Files Critical for Session Resumption
+When removing a prop from many components using parallel subagents, each agent must update **both** the component interface and any child component call sites within the same file.
 
-When a long-running orchestrator session hits the context window limit, prior messages are compacted into a summary. Any progress tracked only in-memory (variables, mental state) is lost or degraded. Only data persisted to disk survives intact.
+**The Problem:** Agent A removes `network` from `RecipientCard`'s props. Agent B removes `network` from `BalanceDisplay`'s props. But `RecipientCard` renders `<BalanceDisplay network={network} />` — if Agent A doesn't also remove that prop from the JSX, the build breaks because `BalanceDisplay` no longer accepts `network`.
 
-**Implication for parallel execution:**
-- The `.parallel-plan-state.json` file must be updated **incrementally as each agent completes** — not deferred to a batch phase at the end
-- If the session compacts mid-execution, the state file is the only reliable record of which agents finished, their agent IDs, branch names, and PR URLs
-- Without incremental writes, a resumed session starts from scratch or guesses based on the compacted summary (which may omit agent IDs, durations, and discovery details)
+**The Rule:** Each subagent that modifies a component should:
+1. Remove the prop from the component's interface
+2. Remove the prop from the destructured parameters
+3. Add the replacement (e.g., `useAppState()`) inside the component
+4. **Remove the prop from all child component JSX within that file** where the child is also being refactored
 
-**General pattern:** Any multi-step workflow that might exceed context should persist checkpoints to disk after each step. The orchestrator should be able to cold-start from the checkpoint file alone, without relying on conversation history.
+**Execution Order:** Leaf components first (no children to update), then mid-level components (update own interface + remove prop from leaf children), then parent pages last (remove prop from all top-level component calls).
 
-**Discovered from:** parallel-plan:execute session where 11 agents ran but the state file showed all "pending" because updates were deferred — when context compacted and the session was resumed, the coordinator had to reconstruct state manually.
+## Group Parallel Refactoring by File Domain, Not Change Type
 
+When distributing a large refactor across parallel subagents, group changes by file domain (API routes, frontend components, lib, test scripts) — not by change type (all `validateRequired` replacements in one agent, all `getNetworkParam` in another).
+
+**Why:** Grouping by change type creates conflicts when both agents need to edit the same file's imports. Grouping by file domain ensures each file is only touched by one agent. Don't split a single file domain across multiple agents — risks conflicts on shared imports. Run a final build after all agents complete to verify cross-agent compatibility.
+
+## Sandbox Workaround: Lifecycle Scripts for Out-of-Directory Operations
+
+Task tool subagents are sandboxed to the project directory. They cannot create directories, write, or edit files outside the project root. For skills that need to operate in a git worktree (outside project root), create a single lifecycle shell script with subcommands (create, attach, write, read, delete, commit, remove) and pre-approve it:
+
+```
+Bash(bash ~/.claude/commands/<skill-name>/worktree-lifecycle.sh:*)
+```
+
+Key design decisions:
+- Use heredoc redirect syntax (`bash ... write ... <<'DELIM'`) so the command starts with `bash` and matches the permission pattern
+- Single permission entry covers all operations
+- Auto-cleanup of stale worktrees in create/attach subcommands
+- Every filesystem operation the agent might need (CRUD) must have a corresponding subcommand — without `read`, agents resort to fragile `git show branch:path`; without `delete`, agents cannot clean up probe/test files before committing
+
+## Codebase Comparison for Feature Porting
+
+When comparing two codebases to identify features worth porting:
+
+1. **Parallel exploration**: Launch 2 Explore agents simultaneously — one per project. Each reads all components in the target area and summarizes features, props, notable patterns.
+2. **Build the feature matrix**: Categorize as "port candidates" (A has, B doesn't), "preserve" (B has, A doesn't), "compare quality" (shared, different implementations), "evaluate" (architectural differences).
+3. **Prioritize** by user impact, implementation effort, dependencies, and risk.
+4. **Write the plan** with file ownership and parallel execution phases.
+
+## Three-Phase Subagent Refactoring
+
+When performing codebase-wide refactoring with subagents:
+
+1. **Exploration phase**: Launch 2-3 Explore agents in parallel, each focused on a different area (API routes, lib modules, test infrastructure). They analyze independently and report findings.
+2. **Implementation phase**: Launch general-purpose agents in parallel for independent changes. Each agent gets the specific files to modify, what to change, and instructions to verify its own work.
+3. **Verification phase**: After all parallel agents complete, run the full test suite once to catch any cross-agent conflicts.
+
+## Git Worktrees for Parallel Subagent Execution
+
+When running parallel subagents that modify code in the same repo, use **git worktrees** so each agent works in its own directory on its own branch.
+
+**Branching model within a batch:**
+- Independent items: each worktree branches from the batch's starting point
+- Dependent items: branch the dependent from the dependency's branch
+- After all agents complete, merge branches sequentially, running the gate after each merge
+
+## Scope Agent Context Narrowly
+
+When launching parallel subagents for a refactoring plan, give each agent **only its relevant section** of the plan — not the full document. Full plan context leads to over-engineering and cross-cutting concerns that aren't the agent's responsibility.
+
+## Pre-Approve Permissions Before Parallel Execution
+
+Before launching parallel subagents, ensure wildcard bash permissions are pre-approved (e.g., `Bash(git branch:*)`, `Bash(pnpm test:*)`). In restrictive permission mode, each agent prompts independently for every command, serializing what should be parallel work.
+
+## Project Adaptation Workflow
+
+When forking or adapting an existing codebase into a new project, systematically categorize every file:
+
+| Category | Description | Example |
+|----------|-------------|---------|
+| **Copy as-is** | Files needing zero changes | Utility modules, generic hooks, configs |
+| **Adapt** | Files needing specific, enumerable modifications | Remove features, rename, add fields |
+| **New** | Files that don't exist in the source | New pages, new components for changed UX |
+| **Exclude** | Source files that should NOT be brought over | Features being dropped entirely |
+
+**Process:** Inventory the source by architectural layer → categorize each file → document specific changes for "Adapt" files → group by dependency layer (libs → hooks → API routes → components → pages) → identify parallelization (independent layers run concurrently by separate agents).

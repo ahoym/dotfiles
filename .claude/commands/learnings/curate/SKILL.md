@@ -18,6 +18,7 @@ Review learnings, guidelines, or skills to identify content that should be migra
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
 - `~/.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
+- curation-insights.md — Operational calibration and phase-specific patterns from prior consolidation runs — read in step 4
 
 ## Parallel Execution
 

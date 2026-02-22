@@ -175,10 +175,58 @@ Report anything surprising, unexpected, or useful for other agents:
 - If nothing notable, write "None"
 ```
 
+**When Branch Strategy exists**, add a PR URL field:
+```
+### PR
+- URL: [the PR URL from `gh pr create` output]
+```
+
 **Why this matters:**
 - Agent sessions are isolated — the orchestrator only sees the final output message and the files on disk
 - Checkpoints enable resumption from the right step if the agent fails and needs to be re-launched
-- Discoveries are collected by the orchestrator and surfaced to the user (and to other agents if relevant)
+- Discoveries are collected by the orchestrator and surfaced to the user as post-execution documentation — in fan-out DAGs, discoveries arrive too late to help parallel agents, but they're valuable for project learnings and future plans
+- PR URLs let the coordinator update state without re-running git commands
+
+## Git Workflow in Prompts (when Branch Strategy exists)
+
+When the plan has a Branch Strategy, agents run in isolated worktrees (`isolation: "worktree"`) and handle their own git workflow. The coordinator appends a **Git Workflow** section to each agent's prompt.
+
+**For root agents (no dependencies):**
+```
+## Git Workflow
+
+Your branch name: `feat/add-e2e/foundation`
+PR base: `main`
+
+After completing your implementation:
+1. Rename your branch: `git branch -m feat/add-e2e/foundation`
+2. Stage and commit: `git add <files> && git commit -m "<message>\n\nCo-Authored-By: Claude <model> <noreply@anthropic.com>"`
+3. Push: `git push -u origin feat/add-e2e/foundation`
+4. Create PR: `gh pr create --base main --title "..." --body "..."`
+5. Include the PR URL in your Completion Report
+```
+
+**For agents with dependencies:**
+```
+## Git Workflow
+
+Your branch name: `feat/add-e2e/setup-spec`
+PR base: `main`
+
+Before starting your implementation, pull in dependency files:
+git cherry-pick main..feat/add-e2e/foundation
+
+After completing your implementation:
+1. Rename your branch: `git branch -m feat/add-e2e/setup-spec`
+2. Stage and commit (only your new files, not cherry-picked ones — they're already committed)
+3. Push: `git push -u origin feat/add-e2e/setup-spec`
+4. Create PR: `gh pr create --base main --title "..." --body "..."`
+5. Include the PR URL in your Completion Report
+```
+
+The cherry-pick range `main..<dep-branch>` brings in all commits from the dependency that aren't on main. For deeper chains (C depends on B depends on A), cherry-pick the immediate dependency — it already includes its own ancestors' commits.
+
+**Key:** The coordinator must wait for a dependency to complete and push before launching any agent that cherry-picks from it. This means `soft_depends_on` effectively becomes `depends_on` when Branch Strategy is active.
 
 ## Interface-First Agent Prompts
 

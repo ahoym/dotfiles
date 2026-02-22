@@ -24,3 +24,68 @@ fi
 ```
 
 This preserves explicit user overrides (`NETWORK=mainnet ./script.sh`) while allowing the script to use a data-driven default (e.g., from a state file) instead of the library's hardcoded default.
+
+## Shared Test Helper Library Pattern (scripts/lib.sh)
+
+When multiple bash test scripts share the same boilerplate (BASE_URL, response parsing, status assertion), extract a shared library:
+
+```bash
+#!/usr/bin/env bash
+# scripts/lib.sh
+export BASE_URL="${BASE_URL:-http://localhost:3000}"
+
+parse_response() {
+  local response="$1"
+  HTTP_CODE=$(echo "$response" | tail -1)
+  BODY=$(echo "$response" | sed '$d')
+}
+
+assert_status() {
+  local expected="$1"
+  local description="$2"
+  if [ "$HTTP_CODE" -eq "$expected" ]; then
+    echo "PASS: ${description}"
+  else
+    echo "FAIL: ${description} -- expected HTTP ${expected}, got ${HTTP_CODE}"
+    echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
+    exit 1
+  fi
+}
+```
+
+Source with: `source "$(cd "$(dirname "$0")" && pwd)/lib.sh"` — resolves absolute path regardless of invocation directory. The `| tail -1 | grep -q "201"` pattern does string matching (would match `2012`); `parse_response` + `assert_status` gives proper numeric comparison.
+
+## `set -e` and `pipefail` Traps
+
+### `$()` Assignments Propagate Exit Codes Under `set -e`
+
+When a command substitution fails inside a variable assignment, `set -e` kills the script immediately — before any error-handling code runs.
+
+```bash
+# Silent death:
+RESULT=$(some_command_that_might_fail)
+
+# Fix: Append || true then handle explicitly:
+RESULT=$(some_command_that_might_fail) || true
+[ -z "$RESULT" ] && { echo "error message"; exit 1; }
+```
+
+### `ls` + Glob + `pipefail` = Silent Death
+
+`ls` with a non-matching glob exits non-zero. Combined with `pipefail`, this propagates through pipes and kills `$()` assignments silently:
+
+```bash
+# Silent death when no files match:
+LATEST=$(ls -t /some/dir/*.json 2>/dev/null | head -1)
+
+# Fix:
+LATEST=$(ls -t /some/dir/*.json 2>/dev/null | head -1) || true
+```
+
+### `((x++))` Returns Exit 1 When x Is 0
+
+Arithmetic `((expr))` returns exit code 1 when the expression evaluates to 0, which `set -e` treats as failure. Use `x=$((x + 1))` instead.
+
+### General Principle
+
+Under `set -euo pipefail`, any command that might legitimately fail in a `$()` assignment needs `|| true` to allow fallthrough to explicit error handling.

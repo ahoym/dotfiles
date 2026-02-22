@@ -25,3 +25,21 @@ Encrypting localStorage requires a password prompt on every app load (for seed-t
 
 ### Decision framework
 If the app supports wallet adapter integrations as the secure path, encrypting localStorage adds UX friction for marginal security gain. Focus encryption efforts on exported files (higher-risk artifact) and push users toward wallet adapters for mainnet use.
+
+## URI XSS via `javascript:` Protocol in `<a href>`
+
+When rendering URIs from external or user-controlled sources as clickable `<a href>` links, the URI protocol must be validated. A malicious actor can store a URI like `javascript:alert(document.cookie)` which executes arbitrary JavaScript when clicked.
+
+**Fix:** Check that the URI uses `http:` or `https:` before rendering as a clickable link. For any other protocol, render as inert text:
+
+```tsx
+{uri ? (
+  /^https?:\/\//i.test(uri) ? (
+    <a href={uri} target="_blank" rel="noopener noreferrer">{uri}</a>
+  ) : (
+    <span>{uri}</span>
+  )
+) : "—"}
+```
+
+**General rule:** Never pass untrusted strings directly into `href` attributes. Always allowlist expected protocols (`http:`, `https:`, and potentially `mailto:`) and treat everything else as plain text. This is a **stored XSS vector** when the payload persists in an external data source (e.g., blockchain ledger, database).

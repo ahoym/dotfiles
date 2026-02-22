@@ -12,9 +12,12 @@
 - Flag any XRPL code using `tf*` flags on ledger objects — must use `lsf*` equivalents (bit positions differ, e.g. `tfHybrid = 0x00100000` vs `lsfHybrid = 0x00040000`)
 - Check that `taker_gets_funded ?? TakerGets` fallback is used for book offers — absence of funded fields means fully funded, not missing data
 - Watch for `account_offers` when `DomainID` or full ledger fields are needed — use `account_objects` with `type: "offer"` instead
+- Validate addresses with `isValidClassicAddress()` and seeds with `isValidSeed()` before XRPL operations; still wrap `Wallet.fromSeed()` in try-catch as defense-in-depth
+- For order book display, use `taker_gets_funded ?? taker_gets` AND filter where BOTH amount > 0 AND price > 0 — filtering only on amount misses zero-price rows from `taker_pays_funded: "0"`
 - Verify `dropsToXrp()` and `fundWallet()` results are wrapped with `String()` before assigning to string-typed fields (both return `number`)
 - Ensure `account_lines` hex currency codes are decoded to ASCII before any user-facing comparison or display
 - Verify `getOrderbook` results are re-categorized by checking `TakerGets`/`TakerPays` currencies — xrpl.js splits by `lsfSell` flag, not by book side
+- Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `learnings/bignumber-financial-arithmetic.md` for patterns)
 - Ensure dynamic route params are `await`ed (Next.js 16 returns `Promise<{...}>`)
 - Gate localStorage-derived renders on hydration state to prevent SSR mismatches
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
@@ -35,7 +38,8 @@
 - `TakerGets` = what the offer creator is selling; `TakerPays` = what they want in return (naming is from the taker's perspective, not the creator's)
 - OfferCreate requires the creator to hold `TakerGets` funds, but only needs a trust line (no balance) for `TakerPays`
 - `BookOffer` uses PascalCase for main fields (`TakerGets`, `Account`) but snake_case for funded fields (`taker_gets_funded`) — don't assume uniform casing
-- Trust line prerequisite: recipient must have a trust line to the issuer before receiving an issued currency
+- Trust line prerequisite: recipient must have a trust line to the issuer before receiving an issued currency — EXCEPT sending back to the issuer (burn), which requires no trust line
+- URI XSS from ledger-stored credential URIs: validate protocol (`/^https?:\/\//i`) before rendering as `<a href>` — `javascript:` payloads in on-ledger data are a stored XSS vector
 - Unfunded offers (zero balance) are excluded entirely from `book_offers` responses by rippled
 - `AMMCreate` has a special higher fee — xrpl.js autofill handles it automatically, don't manually set the `Fee` field
 - `amm_info` may return `asset`/`asset2` in the pool's canonical order, not the order you queried — normalize by comparing response currencies against your query's base/quote before using reserve amounts or computing spot price

@@ -76,3 +76,40 @@ git worktree remove --force .claude/worktrees/agent-XXXXXXXX
 ```
 
 These accumulate across rebase rounds — clean up before they pile up, as they hold refs to old branch HEADs.
+
+## Bulk PR Content Extraction Without Checkout
+
+When multiple unmerged PRs contain files to extract (e.g., learnings docs on `docs/*-learnings` branches), use `git fetch` + `git show` to pull files directly without checking out each branch:
+
+```bash
+for pr in 2 3 4 5; do
+  branch=$(gh pr view $pr --json headRefName -q .headRefName)
+  git fetch origin "$branch" --quiet
+  # List files on the branch
+  git ls-tree -r --name-only "origin/$branch" -- docs/claude-learnings/
+  # Extract a specific file
+  git show "origin/$branch:docs/claude-learnings/topic.md" > "pr${pr}-topic.md"
+done
+```
+
+**Collision avoidance:** Prefix extracted files with `pr{N}-` to maintain provenance and prevent overwrites when multiple PRs touch the same filename (e.g., `refactoring-patterns.md` in PRs #13 and #23).
+
+**Cleanup:** After extraction, close PRs and delete branches in one pass:
+```bash
+gh pr close $pr --comment "Content extracted." --delete-branch
+```
+
+**Why this over merging:** Avoids merge conflicts between branches, works even when branches are stale or conflict with main, and lets a downstream tool (e.g., `learnings:consolidate`) handle deduplication and categorization.
+
+## pnpm Lockfile Rebase Conflicts
+
+When rebasing causes conflicts in `pnpm-lock.yaml`, don't attempt manual merge. Instead:
+
+```bash
+git checkout --theirs pnpm-lock.yaml
+pnpm install --frozen-lockfile=false
+git add pnpm-lock.yaml
+git rebase --continue
+```
+
+This accepts the upstream lockfile, then regenerates it with your branch's added/modified dependencies. Works because the lockfile is deterministically generated from `package.json`.
