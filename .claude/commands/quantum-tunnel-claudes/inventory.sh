@@ -14,8 +14,8 @@ EXCLUDES="personas/|lab/|worktrees/|settings\.json|settings\.local\.json|README\
 [[ -d "$TARGET" ]] || { echo "ERROR: Target not found: $TARGET"; exit 1; }
 
 # List files in each repo
-src_files=$(cd "$SOURCE" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
-tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/learnings docs/claude-learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
+src_files=$(cd "$SOURCE" && find .claude/commands .claude/guidelines .claude/learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
+tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/learnings -name '*.md' 2>/dev/null | grep -Ev "$EXCLUDES" | sort)
 
 # Bucket files
 only_source=$(comm -23 <(echo "$src_files") <(echo "$tgt_files"))

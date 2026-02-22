@@ -29,7 +29,7 @@ Create a new Ralph loop project directory with customized spec and progress file
 
 3. **Create project directory**:
    ```bash
-   mkdir -p docs/claude-learnings/<project-name>
+   mkdir -p docs/learnings/<project-name>
    ```
 
 4. **Create spec.md** using @spec-template.md:
@@ -43,14 +43,14 @@ Create a new Ralph loop project directory with customized spec and progress file
 
 6. **Confirm to user**:
    ```
-   Created Ralph research project: docs/claude-learnings/<project-name>/
+   Created Ralph research project: docs/learnings/<project-name>/
 
    Files created:
    - spec.md
    - progress.md
 
    To run the loop:
-   bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/<project-name> 10
+   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/<project-name> 10
    ```
 
 ## Example
@@ -58,14 +58,14 @@ Create a new Ralph loop project directory with customized spec and progress file
 ```
 /ralph:init options pricing models
 
-Created Ralph research project: docs/claude-learnings/options-pricing-models/
+Created Ralph research project: docs/learnings/options-pricing-models/
 
 Files created:
 - spec.md (configured for "Options Pricing Models" research)
 - progress.md (ready for first iteration)
 
 To run the loop:
-bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/options-pricing-models 10
+bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models 10
 ```
 
 ## Research Conventions

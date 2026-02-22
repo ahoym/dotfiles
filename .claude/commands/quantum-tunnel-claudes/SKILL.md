@@ -26,7 +26,6 @@ SYNC_DIRS=(
   ".claude/commands/"
   ".claude/guidelines/"
   ".claude/learnings/"
-  "docs/claude-learnings/"
 )
 
 EXCLUDES=(
@@ -240,13 +239,9 @@ For prompt-free execution, ensure allow patterns in `~/.claude/settings.local.js
 
 ```json
 "Read(~/WORKSPACE/dotfiles/.claude/**)",
-"Read(~/WORKSPACE/dotfiles/docs/**)",
 "Read(~/WORKSPACE/mahoy-claude-stuff/.claude/**)",
-"Read(~/WORKSPACE/mahoy-claude-stuff/docs/**)",
 "Write(.claude/**)",
-"Write(docs/**)",
-"Edit(.claude/**)",
-"Edit(docs/**)"
+"Edit(.claude/**)"
 ```
 
 ## Important Notes

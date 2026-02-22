@@ -87,3 +87,24 @@ XRPL transaction flags (`tf*`) and ledger entry flags (`lsf*`) use **different b
 | **Hybrid** | **`tfHybrid = 0x00100000`** | **`lsfHybrid = 0x00040000`** |
 
 Note that Passive and Sell happen to have the same values, but **Hybrid does not**. Always use the correct constant for the context.
+
+## AMM: amm_info Error Message Variants for Non-Existent Pools
+
+When querying `amm_info` for a pool that doesn't exist, xrpl.js throws errors with different messages depending on the situation:
+
+| Scenario | Error message contains |
+|----------|----------------------|
+| No AMM pool for this pair | `"actNotFound"` |
+| No AMM pool (alternate) | `"ammNotFound"` |
+| Account doesn't exist on network | `"Account not found"` |
+
+Catch all three variants to return `{ exists: false }` instead of a 500:
+
+```typescript
+const msg = err instanceof Error ? err.message : String(err);
+if (msg.includes("actNotFound") || msg.includes("ammNotFound") || msg.includes("Account not found")) {
+  return Response.json({ exists: false });
+}
+```
+
+The `"Account not found"` case occurs when the queried issuer account doesn't exist on the target network (e.g., devnet account queried on testnet).

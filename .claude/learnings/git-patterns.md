@@ -48,3 +48,31 @@ git show HEAD:path/to/file
 ```
 
 If the file contents are already there, the commit already happened. Don't assume changes are lost or that git is confused — check HEAD first.
+
+## Parallel Branch Rebase with Worktree Isolation
+
+When multiple PR branches need rebasing onto an updated main, use the Task tool with `isolation: "worktree"` and `subagent_type: "Bash"` to rebase all branches simultaneously:
+
+```
+// Launch N parallel agents, one per branch
+Task(isolation: "worktree", subagent_type: "Bash", prompt: `
+  git fetch origin
+  git checkout feat/branch-name
+  git rebase origin/main
+  git push --force-with-lease origin feat/branch-name
+`)
+```
+
+**Why worktree isolation:** Each rebase needs its own checkout — you can't rebase multiple branches from the same working tree. Worktree isolation gives each agent its own copy.
+
+**Tested with 9 simultaneous rebases** — all completed in ~50s wall-clock (vs ~7min sequential). Clean rebases are near-instant per agent; the overhead is worktree creation.
+
+**Gotcha — stale worktrees:** Rebase agents leave behind worktrees in `.claude/worktrees/` that `git clean` skips (they're nested repos). Clean up after with:
+```bash
+# List them
+git worktree list
+# Remove all stale ones
+git worktree remove --force .claude/worktrees/agent-XXXXXXXX
+```
+
+These accumulate across rebase rounds — clean up before they pile up, as they hold refs to old branch HEADs.

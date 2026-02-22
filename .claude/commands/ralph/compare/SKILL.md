@@ -20,7 +20,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 
 1. **Get directories to compare**:
    - If `$ARGUMENTS` provided, parse as space-separated directory paths
-   - Otherwise, ask: "Which directories would you like to compare? (e.g., `docs/claude-learnings/tmp-feature docs/claude-learnings/feature`)"
+   - Otherwise, ask: "Which directories would you like to compare? (e.g., `docs/learnings/tmp-feature docs/learnings/feature`)"
    - Verify each directory exists
 
 2. **Read all files from each directory**:
@@ -91,7 +91,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 ## Example
 
 ```
-User: /ralph:compare docs/claude-learnings/tmp-monte-carlo docs/claude-learnings/monte-carlo-simulation
+User: /ralph:compare docs/learnings/tmp-monte-carlo docs/learnings/monte-carlo-simulation
 
 Claude: Comparing directories...
 
@@ -113,7 +113,7 @@ Claude: Comparing directories...
 
 **Porting needed**: No - monte-carlo-simulation covers all topics with more depth
 
-**Action**: `rm -rf docs/claude-learnings/tmp-monte-carlo`
+**Action**: `rm -rf docs/learnings/tmp-monte-carlo`
 ```
 
 ## Important Notes

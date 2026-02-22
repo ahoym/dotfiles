@@ -37,6 +37,8 @@
 - `BookOffer` uses PascalCase for main fields (`TakerGets`, `Account`) but snake_case for funded fields (`taker_gets_funded`) — don't assume uniform casing
 - Trust line prerequisite: recipient must have a trust line to the issuer before receiving an issued currency
 - Unfunded offers (zero balance) are excluded entirely from `book_offers` responses by rippled
+- `AMMCreate` has a special higher fee — xrpl.js autofill handles it automatically, don't manually set the `Fee` field
+- `amm_info` may return `asset`/`asset2` in the pool's canonical order, not the order you queried — normalize by comparing response currencies against your query's base/quote before using reserve amounts or computing spot price
 
 ### Next.js 16
 - `proxy.ts` replaces `middleware.ts` — exported function must be named `proxy()`, runs on Node runtime (not Edge)

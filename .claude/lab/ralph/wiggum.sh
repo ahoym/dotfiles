@@ -3,7 +3,7 @@
 # Usage: ./wiggum.sh <project_directory> [max_iterations]
 #
 # Example:
-#   ./wiggum.sh ./docs/claude-learnings/monte-carlo 10
+#   ./wiggum.sh ./docs/learnings/monte-carlo 10
 
 set -e
 
@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Require project directory as first argument
 if [ -z "$1" ]; then
     echo "Usage: $0 <project_directory> [max_iterations]"
-    echo "Example: $0 ./docs/claude-learnings/monte-carlo 10"
+    echo "Example: $0 ./docs/learnings/monte-carlo 10"
     exit 1
 fi
 
