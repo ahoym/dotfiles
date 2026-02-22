@@ -96,11 +96,13 @@ Key points from learnings:curate to apply on every sweep:
 
 **Goal:** Present all current MEDIUM-confidence recommendations as a single batch for user approval.
 
-**Important:** Do NOT reuse MEDIUMs accumulated during Phase 1 sweeps. The state has changed — run a fresh analysis.
+**Important:** Do NOT reuse MEDIUMs accumulated during Phase 1 sweeps when HIGHs were applied — the state has changed and needs fresh analysis.
 
-1. **Run fresh broad sweep analysis** — learnings:curate steps 1–6. Increment `SWEEP_COUNT`.
+1. **Determine whether re-analysis is needed:**
+   - If Phase 1 applied any HIGH actions → state changed. Run fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
+   - If Phase 1 applied zero actions (no HIGHs found on first sweep) → state is unchanged. The MEDIUMs from the Phase 1 sweep are already current — skip re-analysis and use them directly.
 
-2. **Extract `MEDIUM_FINDINGS`** from the fresh results.
+2. **Extract `MEDIUM_FINDINGS`** from the results (fresh or carried forward).
 
 3. **Check if empty:** If no MEDIUMs found → skip to **Step 3**.
 
@@ -146,7 +148,25 @@ Key points from learnings:curate to apply on every sweep:
 
 1. **Check overall safety cap:** If `SWEEP_COUNT` >= 10 → display overall cap report (see Edge Cases) and pause.
 
-2. **Run verification sweep** — fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
+2. **Determine verification scope** based on the actions applied in Phase 2:
+
+   **Lightweight verification** — use when ALL of these are true:
+   - Actions only modified content within existing files (no files created, deleted, or moved)
+   - No content was migrated between files (no cross-file effects)
+   - Changes are self-contained (removing a section, trimming content, genericizing examples)
+
+   For lightweight verification:
+   - For each changed file, check whether the edit created broken cross-references (other files pointing to removed content)
+   - Confirm no other file's classification would change based on the edits
+   - This is a targeted check, not a full re-read of the corpus. Increment `SWEEP_COUNT`.
+
+   **Full verification** — use when ANY of these are true:
+   - Content was moved between files (folded into persona, migrated to skill)
+   - Files were created or deleted
+   - A persona was enhanced or created (changes what gets cross-referenced in future sweeps)
+
+   For full verification:
+   - Run fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
 
 3. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.

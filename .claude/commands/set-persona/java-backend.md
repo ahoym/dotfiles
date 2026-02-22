@@ -26,7 +26,3 @@
 - `@Scheduled` + `@SchedulerLock` (ShedLock): swallow exceptions in the top-level method — Spring's TaskScheduler catches/logs anyway, ShedLock releases the lock regardless, and the job retries on next cron tick. Rethrowing just produces duplicate error logs.
 - Inner loops processing independent items should catch per-item to prevent one failure from killing the batch
 - `DistributionSummary.builder().register(registry)` respects `application.properties` SLO bucket config; `meterRegistry.summary()` shorthand bypasses it. Same for `Timer.builder()` vs `meterRegistry.timer()`
-
-### Pydantic / API Design
-- Always include nullable fields in response shapes (`Optional[X] = None`) — don't use `exclude_none=True` to hide them. Clients should rely on a predictable contract.
-- Custom test matcher objects (e.g., `IsInstanceOf(str)`) can't be used as Pydantic field values — Pydantic validates input types. Use `response.<field>` instead.

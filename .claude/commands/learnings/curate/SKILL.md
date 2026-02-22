@@ -275,11 +275,18 @@ Display the full report inline in the CLI.
 ...
 ```
 
-**Deep dive criteria** — include a file in "Suggested Deep Dives" when any of these apply:
+**Deep dive criteria** — include a file in "Suggested Deep Dives" when it meets the **size threshold AND at least one action signal**:
+
+**Size threshold** (necessary but not sufficient):
+- 5+ patterns in the file
+
+**Action signals** (at least one required):
 - **Medium-confidence items**: patterns where classification is uncertain and needs per-pattern cross-referencing
-- **High pattern count**: files with 5+ patterns are more likely to have migration candidates that cluster-level analysis misses
 - **New content since last sweep**: files that grew by 3+ sections since the previous sweep
-- **Context-for-skill clusters**: multiple patterns in one file that could fold into the same skill's reference files
+- **Context-for-skill clusters**: multiple patterns that could fold into the same skill's reference files, AND the target skill hasn't been read yet to verify coverage
+- **Unverified cross-references**: patterns that reference specific skills but the skill files weren't read during cluster-level analysis
+
+A large file with all High-confidence "standalone reference" classifications does NOT need a deep dive — the broad sweep already confirmed its status. Size alone indicates potential, not need.
 
 Omit this section if no files meet the criteria (collection is fully curated).
 
