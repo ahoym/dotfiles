@@ -1,5 +1,5 @@
 ---
-description: Run a security audit on one or more projects using parallel agents
+description: "Run a security audit on one or more projects using parallel agents."
 ---
 
 # Security Audit

@@ -1,5 +1,5 @@
 ---
-description: Create a GitHub issue from a PR review comment
+description: "Create a GitHub issue from a PR review comment."
 ---
 
 # Create Follow-up Issue

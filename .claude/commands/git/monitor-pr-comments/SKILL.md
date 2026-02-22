@@ -1,5 +1,5 @@
 ---
-description: Watch a PR in background and address new comments as they arrive
+description: "Watch a PR in background and address new comments as they arrive."
 ---
 
 # Monitor PR Comments

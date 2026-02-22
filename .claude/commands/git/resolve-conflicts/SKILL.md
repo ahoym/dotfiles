@@ -1,5 +1,5 @@
 ---
-description: Interactively resolve merge conflicts between branches
+description: "Resolve merge conflicts between branches."
 ---
 
 # Resolve Conflicts

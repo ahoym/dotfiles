@@ -1,5 +1,5 @@
 ---
-description: Extract independent changes from a feature branch into a new PR targeting main
+description: "Extract independent changes from a feature branch into a new PR targeting main."
 ---
 
 # Repoint Branch

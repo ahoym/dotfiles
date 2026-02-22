@@ -1,5 +1,5 @@
 ---
-description: Create a pull request or update an existing one following project conventions
+description: "Create a pull request or update an existing one following project conventions."
 ---
 
 # Create Pull Request

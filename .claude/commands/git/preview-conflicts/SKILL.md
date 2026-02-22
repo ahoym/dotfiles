@@ -1,5 +1,5 @@
 ---
-description: Preview merge conflicts between branches without merging
+description: "Preview merge conflicts between branches without merging."
 ---
 
 # Preview Conflicts

@@ -1,5 +1,5 @@
 ---
-description: Analyze a large PR and propose how to split it into smaller, reviewable units
+description: "Analyze a large PR and propose how to split it into smaller, reviewable units."
 ---
 
 # Split Large PR

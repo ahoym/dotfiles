@@ -1,5 +1,5 @@
 ---
-description: Pull down a PR to get context and ask questions about it
+description: "Pull down a PR to get context and ask questions about it."
 ---
 
 # Explore PR

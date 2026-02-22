@@ -1,5 +1,5 @@
 ---
-description: Distribute global learnings and guidelines into the current project
+description: "Distribute global learnings and guidelines from ~/.claude/ into the current project's .claude/ directory."
 ---
 
 # Distribute Learnings

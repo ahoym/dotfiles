@@ -1,5 +1,5 @@
 ---
-description: Clean up local branches that have been merged into main
+description: "Clean up local branches that have been merged into main."
 ---
 
 # Prune Merged Branches

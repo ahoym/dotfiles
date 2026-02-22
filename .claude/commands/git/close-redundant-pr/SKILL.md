@@ -1,5 +1,5 @@
 ---
-description: Close a redundant PR and extract unique content into a new focused PR
+description: "Close a redundant PR and extract unique content into a new focused PR."
 ---
 
 # Close Redundant PR

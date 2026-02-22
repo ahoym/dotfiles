@@ -22,3 +22,17 @@ When a background agent fails silently (no output, or "permission denied"), foll
 4. If the simple command also fails — escalate as a potential platform issue
 
 The most common cause of background agent failure is a missing Bash allow pattern, not a fundamental limitation.
+
+## Frontmatter Description Principle
+
+Skill descriptions should contain a clear functional description. Only add routing hints ("Use when...") when the skill name + functional description isn't enough for agent inference.
+
+**Add routing hints when:**
+- The skill name is opaque (agent can't guess intent from the name alone)
+- Two skills overlap and need disambiguation cross-references
+- Internal reference files (`_shared`) need "not invoked directly" markers
+
+**Don't add routing hints when:**
+- The skill name already communicates intent (e.g., `git:create-pr`)
+- The functional description covers it
+- The triggers would just paraphrase the name

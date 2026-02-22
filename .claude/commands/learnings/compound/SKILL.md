@@ -1,5 +1,5 @@
 ---
-description: Capture session learnings and save to skills, guidelines, or reference docs
+description: "Capture session learnings and save to skills, guidelines, or reference docs under ~/.claude/."
 ---
 
 # Compound Learnings

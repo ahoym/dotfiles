@@ -1,5 +1,5 @@
 ---
-description: Rebase a chain of stacked/dependent branches when main is updated
+description: "Rebase a chain of stacked/dependent branches when main is updated."
 ---
 
 # Cascade Rebase

@@ -1,5 +1,5 @@
 ---
-description: Set domain focus and priorities for the current session
+description: "Set domain focus and priorities for the current session."
 ---
 
 # Set Persona

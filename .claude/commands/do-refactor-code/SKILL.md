@@ -1,5 +1,5 @@
 ---
-description: Analyze code for refactoring: helper extraction, nested functions, test factories
+description: "Analyze code for structured refactoring: helper class/method extraction, nested function extraction, and test factory creation."
 ---
 
 # Refactor Code

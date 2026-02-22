@@ -1,5 +1,5 @@
 ---
-description: Fetch and address review comments from a pull request
+description: "Fetch and address review comments from a pull request."
 ---
 
 # Address PR Review

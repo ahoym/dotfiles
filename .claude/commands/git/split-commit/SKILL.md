@@ -1,5 +1,5 @@
 ---
-description: Split a commit with mixed changes into separate commits
+description: "Split a commit with mixed changes into separate, focused commits."
 ---
 
 # Split Commit

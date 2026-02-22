@@ -1,3 +1,7 @@
+---
+description: "Internal reference — procedure for loading and assessing content against existing skills/learnings/guidelines. Used by other skills, not invoked directly."
+---
+
 # Corpus Cross-Reference
 
 Shared procedure for loading the target corpus and assessing content coverage. Used by learnings:curate, quantum-tunnel-claudes, and any skill that needs to evaluate content against existing knowledge.

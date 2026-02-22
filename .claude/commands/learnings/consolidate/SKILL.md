@@ -1,5 +1,5 @@
 ---
-description: "Exhaustive multi-sweep curation — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Use when the user says \"consolidate learnings\", \"deep clean\", \"distill everything\", or wants thorough multi-pass curation. Orchestrates repeated learnings:curate sweeps."
+description: "Exhaustive multi-sweep curation — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Orchestrates repeated learnings:curate sweeps."
 ---
 
 # Consolidate Learnings

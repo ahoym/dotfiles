@@ -1,5 +1,5 @@
 ---
-description: "Single-pass curation of learnings, guidelines, and skills — consolidate, reorganize, or prune. Use when the user says \"clean up learnings\", \"review my guidelines\", \"reorganize skills\", or wants one analysis pass over their knowledge base. For exhaustive multi-sweep curation, use learnings:consolidate instead."
+description: "Single-pass curation of learnings, guidelines, and skills — consolidate, reorganize, or prune. For exhaustive multi-sweep curation, use learnings:consolidate instead."
 ---
 
 # Curate Learnings

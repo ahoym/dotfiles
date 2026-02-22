@@ -242,6 +242,33 @@ When two skills form a producer/consumer pair (e.g., `parallel-plan:make` produc
 
 **Discovered from:** quantum-tunnel-claudes missed this gap because the analysis used grep to check coverage rather than reading both the producer and consumer skills.
 
+## _shared Files Need "Not Invoked Directly" Frontmatter
+
+Files in `commands/_shared/` are internal reference docs, not standalone skills. But Claude Code treats any `.md` file in `commands/` as an invocable skill and lists it in the system-reminder. Without frontmatter, they show up with just their heading text (e.g., "Platform Detection"), giving agents no signal that they shouldn't be invoked.
+
+**Fix:** Add frontmatter with a description that starts with "Internal reference —" and ends with "Used by other skills, not invoked directly."
+
+**Example:**
+```yaml
+---
+description: "Internal reference — GitHub vs GitLab detection logic. Used by git skills, not invoked directly."
+---
+```
+
+**Discovered from:** Frontmatter audit — agents were seeing `_shared:platform-detection: Platform Detection` in the skill list with no indication it was a reference doc.
+
+## Disambiguation Cross-References Between Similar Skills
+
+When two skills serve related but distinct purposes, the lower-level skill's description should cross-reference the higher-level one. This gives agents a clear routing rule without requiring trigger phrases.
+
+**Pattern:** Add a single sentence at the end of the description pointing to the alternative:
+- `learnings:curate`: "...For exhaustive multi-sweep curation, use learnings:consolidate instead."
+- `learnings:consolidate`: "...Orchestrates repeated learnings:curate sweeps."
+
+**Why this works better than trigger phrases:** An agent reading "For exhaustive multi-sweep, use consolidate instead" gets an unambiguous routing rule. Trigger phrases like "Use when the user says 'deep clean'" require the agent to pattern-match against user phrasing, which is less reliable.
+
+**When to apply:** Any time two skills in the same domain could plausibly match the same user request. The cross-reference should clarify the relationship (wrapper vs inner, single-pass vs multi-pass, preview vs execute).
+
 ## First Run of /learnings:consolidate
 
 Execution log from the first real consolidation run (16 learnings files, 1 guideline, 4 personas):

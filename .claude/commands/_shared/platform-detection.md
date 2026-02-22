@@ -1,3 +1,7 @@
+---
+description: "Internal reference — GitHub vs GitLab detection logic. Used by git skills, not invoked directly."
+---
+
 # Platform Detection
 
 Before executing any platform-specific commands, detect whether the repository uses GitHub or GitLab.

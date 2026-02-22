@@ -1,5 +1,5 @@
 ---
-description: Pull and merge Claude skills, learnings, and guidelines from a sync source into the current repo
+description: "Pull and merge Claude skills, learnings, and guidelines from a configured sync source into the current repo."
 ---
 
 # Quantum Tunnel Claudes

@@ -1,3 +1,7 @@
+---
+description: "Internal reference — best practices for crafting subagent prompts (speed, landmarks, boundaries). Used by skills that launch subagents, not invoked directly."
+---
+
 # Agent Prompting Best Practices
 
 ## Prompt Structure

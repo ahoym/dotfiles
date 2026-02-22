@@ -1,5 +1,5 @@
 ---
-description: Deep-scan a repository to understand its structure, functionality, and documentation gaps
+description: "Deep-scan a repository to understand its structure, functionality, and documentation gaps."
 ---
 
 # Explore Repository

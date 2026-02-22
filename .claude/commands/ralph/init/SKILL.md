@@ -1,5 +1,5 @@
 ---
-description: "Initialize an iterative research project with spec and progress tracking. Use when the user says \"start a research project\", \"init ralph\", \"new research loop\", or wants to set up a structured iterative investigation with templates."
+description: "Initialize an iterative research project with spec and progress tracking."
 ---
 
 # Initialize Ralph Research Project

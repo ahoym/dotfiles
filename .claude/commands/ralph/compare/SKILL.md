@@ -1,5 +1,5 @@
 ---
-description: "Compare duplicate research directories to determine which is superseded. Use when the user says \"compare these research dirs\", \"which ralph project is newer\", \"deduplicate research\", or has multiple research loops covering the same topic."
+description: "Compare duplicate research directories to determine which is superseded."
 ---
 
 # Compare Ralph Projects
