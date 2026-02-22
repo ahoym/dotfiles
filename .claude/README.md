@@ -86,7 +86,6 @@ Design a parallel implementation strategy, then run it with concurrent agents.
 ```
 1. Write or discuss a sequential plan with Claude
 2. /parallel-plan:make          → analyzes the plan, produces a parallel plan file
-3. Review the plan file         → adjust dependencies, agent boundaries, branch strategy
 4. /parallel-plan:execute       → runs the plan with concurrent subagents per the DAG
 ```
 
@@ -122,7 +121,7 @@ Distribute (push to a project):
 **Typical cadences:**
 - `compound` — end of any session where you learned something new
 - `curate` — after compound adds content, or when a file feels bloated
-- `consolidate` — periodic deep clean (weekly/monthly), or after a burst of compound runs
+- `consolidate` — periodic deep clean (end of day), or after a burst of compound runs
 - `distribute` — when starting work in a project that should inherit global knowledge
 
 ### Explore Repo + Capture Learnings
