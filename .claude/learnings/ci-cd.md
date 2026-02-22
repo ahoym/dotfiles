@@ -106,3 +106,11 @@ pnpm install && pnpm lint  # (or whichever check failed)
 ```
 
 The `--log-failed` flag on `gh run view` filters to only the failing step output, which is much more useful than `--log` which dumps everything. Pipe through `tail -80` to focus on the error message at the end.
+
+## Missing pnpm-lock.yaml Causes Vercel Deploy Failure
+
+**Utility: Medium**
+
+When adding a new dependency to `package.json`, the `pnpm-lock.yaml` must be regenerated and committed. Vercel (and most CI) runs `pnpm install --frozen-lockfile` by default, which fails if the lockfile doesn't match `package.json`. The build passes locally because `pnpm install` silently updates the lockfile, masking the issue.
+
+Diagnosis: if Vercel deploy fails but `pnpm build` works locally, check `git diff --stat pnpm-lock.yaml` — if the lockfile has uncommitted changes, that's the problem. Run `pnpm install` and commit the updated lockfile.

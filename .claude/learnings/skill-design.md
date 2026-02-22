@@ -122,3 +122,7 @@ Key design choices:
 - **Inline warnings at point of use**: Place warnings where the agent encounters the situation, not in a separate notes section at the bottom
 - **Error recovery at bottom**: Keep concise (2-3 rules)
 
+## Avoid Internal Jargon in User-Facing Report Columns
+
+Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).
+

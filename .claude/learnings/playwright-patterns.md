@@ -1,6 +1,6 @@
 # Playwright E2E Testing Patterns
 
-Patterns, gotchas, and best practices discovered while writing Playwright end-to-end tests for the XRPL DEX Portal.
+Patterns, gotchas, and best practices for writing Playwright end-to-end tests.
 
 ---
 
@@ -123,7 +123,7 @@ const modal = page.locator("form");
 await modal.getByRole("combobox").first().click();
 ```
 
-This pattern is especially important in the XRPL DEX Portal where the nav bar contains a network selector dropdown that could conflict with other selectors on the page.
+This is common when a page has multiple interactive elements across different containers (e.g., a dropdown in the nav bar and another in a modal).
 
 ---
 
@@ -150,8 +150,8 @@ The saved JSON contains:
   "origins": [{
     "origin": "http://localhost:3000",
     "localStorage": [
-      { "name": "app-network", "value": "devnet" },
-      { "name": "app-state-devnet", "value": "{\"issuer\":{...},\"recipients\":[...]}" }
+      { "name": "app-theme", "value": "dark" },
+      { "name": "app-session", "value": "{\"user\":{...},\"preferences\":[...]}" }
     ]
   }],
   "cookies": []
