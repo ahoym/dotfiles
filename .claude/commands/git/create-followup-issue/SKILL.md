@@ -13,11 +13,11 @@ Create a GitHub issue to track work requested in a PR review comment, then reply
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-reference/platform-detection.md - Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/platform-detection.md - Platform detection for GitHub/GitLab
 
 ## Instructions
 
-0. **Detect platform** — follow `@~/.claude/skill-reference/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
+0. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
 
 1. **Get PR number**:
    - If `$ARGUMENTS` provided, use as PR number

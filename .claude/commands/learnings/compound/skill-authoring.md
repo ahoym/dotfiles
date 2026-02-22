@@ -30,7 +30,7 @@ Skill descriptions should contain a clear functional description. Only add routi
 **Add routing hints when:**
 - The skill name is opaque (agent can't guess intent from the name alone)
 - Two skills overlap and need disambiguation cross-references
-- Internal reference files belong in `~/.claude/skill-reference/`, not under `commands/` (which registers them as skills)
+- Internal reference files belong in `~/.claude/skill-references/`, not under `commands/` (which registers them as skills)
 
 **Don't add routing hints when:**
 - The skill name already communicates intent (e.g., `git:create-pr`)
