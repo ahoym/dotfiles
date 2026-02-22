@@ -8,8 +8,8 @@ Create a pull request or update an existing one following project conventions.
 
 ## Usage
 
-- `/git-create-pr` - Create PR to main
-- `/git-create-pr <base-branch>` - Create PR to specified base branch
+- `/git:create-pr` - Create PR to main
+- `/git:create-pr <base-branch>` - Create PR to specified base branch
 
 ## Reference Files (conditional — read when creating PR)
 

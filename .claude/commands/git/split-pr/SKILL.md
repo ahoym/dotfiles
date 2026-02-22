@@ -8,8 +8,8 @@ Analyze a large PR and propose how to split it into smaller, reviewable PRs for 
 
 ## Usage
 
-- `/git-split-pr <PR number>` - Analyze PR and propose split strategy
-- `/git-split-pr` - Analyze current branch's PR
+- `/git:split-pr <PR number>` - Analyze PR and propose split strategy
+- `/git:split-pr` - Analyze current branch's PR
 
 ## Reference Files (conditional — read only when needed)
 
@@ -90,7 +90,7 @@ Analyze a large PR and propose how to split it into smaller, reviewable PRs for 
 
 ## Important Notes
 
-- Use `/git-explore-pr` first if you need to understand the PR before splitting
+- Use `/git:explore-pr` first if you need to understand the PR before splitting
 - Aim for PRs under 400 lines when possible
 - Each PR should pass all tests independently
 - Keep backwards compatibility in restructuring PRs

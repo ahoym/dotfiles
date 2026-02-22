@@ -61,7 +61,7 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 
   Skills:
   - commands/do-security-audit
-  - commands/git-split-pr
+  - commands/git/split-pr
   - ...
   ```
 - Store selection as `TARGET_FILES`
@@ -371,7 +371,7 @@ Apply? [Apply all] [Select specific] [Discuss] [Skip]
 
 ### Skill mode
 ```
-User: /curate-learnings commands/git-monitor-pr-comments
+User: /curate-learnings commands/git/monitor-pr-comments
 
 Claude:
 ## Skill Curation: git-monitor-pr-comments

@@ -8,9 +8,9 @@ Poll a PR for new comments at regular intervals and address them as they come in
 
 ## Usage
 
-- `/git-monitor-pr-comments` - Monitor PR for current branch
-- `/git-monitor-pr-comments <pr-number>` - Monitor specific PR
-- `/git-monitor-pr-comments <pr-number> <interval>` - Custom interval (default: 30s)
+- `/git:monitor-pr-comments` - Monitor PR for current branch
+- `/git:monitor-pr-comments <pr-number>` - Monitor specific PR
+- `/git:monitor-pr-comments <pr-number> <interval>` - Custom interval (default: 30s)
 
 ## Reference Files (conditional — read only when needed)
 
@@ -36,7 +36,7 @@ PR=<pr-number>  # From args or current branch's PR
 Run the init script to mark all current comments as "already seen":
 
 ```bash
-bash .claude/commands/git-monitor-pr-comments/init-tracking.sh "$REPO" "$PR"
+bash .claude/commands/git/monitor-pr-comments/init-tracking.sh "$REPO" "$PR"
 ```
 
 ### 3. Start background monitor
@@ -44,7 +44,7 @@ bash .claude/commands/git-monitor-pr-comments/init-tracking.sh "$REPO" "$PR"
 Copy the monitor script to /tmp and run with `run_in_background: true`:
 
 ```bash
-cp .claude/commands/git-monitor-pr-comments/monitor-script.sh ./tmp/
+cp .claude/commands/git/monitor-pr-comments/monitor-script.sh ./tmp/
 chmod +x ./tmp/monitor-script.sh
 ./tmp/monitor-script.sh "$REPO" "$PR" "30"
 ```
@@ -71,11 +71,11 @@ tail -20 /path/to/task/output
    gh api repos/$REPO/pulls/$PR/comments/<id>
    ```
 
-3. **Categorize and address** using `/git-address-pr-review` workflow
+3. **Categorize and address** using `/git:address-pr-review` workflow
 
 4. **Refresh baseline** after replying (to exclude your own replies):
    ```bash
-   bash .claude/commands/git-monitor-pr-comments/init-tracking.sh "$REPO" "$PR"
+   bash .claude/commands/git/monitor-pr-comments/init-tracking.sh "$REPO" "$PR"
    ```
 
 ### 6. Stop monitoring

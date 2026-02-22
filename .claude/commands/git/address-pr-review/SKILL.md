@@ -203,7 +203,7 @@ Comment 4 was general feedback - no action needed.
 
 ## Important Notes
 
-- Use `/git-explore-pr` first if you need to understand the PR before addressing comments
+- Use `/git:explore-pr` first if you need to understand the PR before addressing comments
 - **Reply to comments on GitHub first** - Do NOT prompt the CLI user for approval. Reply directly to comments on GitHub with your agreement/disagreement and proposed approach
 - **Wait for explicit reviewer approval** - After replying, wait for the reviewer to approve in PR comments before implementing any changes
 - **Never implement suggestions without reviewer approval** - Even if you agree with a suggestion, you must wait for the reviewer to explicitly approve before making changes

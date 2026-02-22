@@ -140,11 +140,11 @@ After exploring a PR, you may want to:
 
 | Next Step | Skill |
 |-----------|-------|
-| Address review comments | `/git-address-pr-review` |
-| Check merge status | `/git-pr-status` |
-| Split a large PR | `/git-split-pr` |
-| Monitor for new comments | `/git-monitor-pr-comments` |
-| Preview merge conflicts | `/git-preview-conflicts` |
+| Address review comments | `/git:address-pr-review` |
+| Check merge status | `/git:pr-status` |
+| Split a large PR | `/git:split-pr` |
+| Monitor for new comments | `/git:monitor-pr-comments` |
+| Preview merge conflicts | `/git:preview-conflicts` |
 
 ## Important Notes
 

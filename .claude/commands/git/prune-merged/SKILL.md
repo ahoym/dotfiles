@@ -8,8 +8,8 @@ Remove local branches that have already been merged into remote main.
 
 ## Usage
 
-- `/git-prune-merged` - List and prune merged branches (with confirmation)
-- `/git-prune-merged --dry-run` - Only list branches that would be pruned
+- `/git:prune-merged` - List and prune merged branches (with confirmation)
+- `/git:prune-merged --dry-run` - Only list branches that would be pruned
 
 ## Instructions
 
@@ -94,7 +94,7 @@ Remove local branches that have already been merged into remote main.
 ## Example Output
 
 ```
-$ /git-prune-merged
+$ /git:prune-merged
 
 Fetching latest from origin...
 

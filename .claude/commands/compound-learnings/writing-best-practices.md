@@ -214,8 +214,8 @@ After exploring a PR, you may want to:
 
 | Next Step | Skill |
 |-----------|-------|
-| Address review comments | `/git-address-pr-review` |
-| Check merge status | `/git-pr-status` |
+| Address review comments | `/git:address-pr-review` |
+| Check merge status | `/git:pr-status` |
 ```
 
 2. **Reference prerequisite skills** in Important Notes:
@@ -223,7 +223,7 @@ After exploring a PR, you may want to:
 ```markdown
 ## Important Notes
 
-- Use `/git-explore-pr` first if you need to understand the PR before splitting
+- Use `/git:explore-pr` first if you need to understand the PR before splitting
 ```
 
 **Why this matters:** Skills are more powerful when composed. Cross-references help users discover workflows they wouldn't find otherwise.

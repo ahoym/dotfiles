@@ -104,7 +104,7 @@ Closed PR #15 with comment referencing #12.
 
 ## Important Notes
 
-- Use `/git-explore-pr` first if you need to understand the PR before closing
+- Use `/git:explore-pr` first if you need to understand the PR before closing
 - Always compare against main to see what's truly unique
 - Don't cherry-pick if files have diverged significantly - manually apply changes instead
 - Reference the merged PR in the close comment for traceability
