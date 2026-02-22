@@ -30,11 +30,11 @@ Extract independent changes from a compound branch into a new branch targeting m
 
 ## Reference Files (conditional — read only when needed)
 
-- @../_shared/platform-detection.md - Platform detection for GitHub/GitLab
+- @_shared/platform-detection.md - Platform detection for GitHub/GitLab
 
 ## Instructions
 
-0. **Detect platform** — follow `@../_shared/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
+0. **Detect platform** — follow `@_shared/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
 
 1. **Parse arguments**:
    - Extract `--name <branch-name>` if provided

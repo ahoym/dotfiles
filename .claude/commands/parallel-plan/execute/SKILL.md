@@ -13,7 +13,7 @@ Execute a structured parallel plan produced by `/parallel-plan:make`. Acts as a 
 
 ## Reference Files
 
-- `~/.claude/commands/_shared/agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
+- `~/.claude/commands/parallel-plan/_shared/agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
 
 ## Role: Coordinator
 
@@ -170,9 +170,9 @@ An agent is **ready** when:
 
 For soft dependencies, check that the dependency agent's `creates` files exist on disk before launching. If the soft dependency agent is still running but its files don't exist yet, wait.
 
-Read `~/.claude/commands/_shared/agent-prompting.md` before crafting prompts if you haven't already.
+Read `~/.claude/commands/parallel-plan/_shared/agent-prompting.md` before crafting prompts if you haven't already.
 
-**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see `~/.claude/commands/_shared/agent-prompting.md` § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
+**Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see `~/.claude/commands/parallel-plan/_shared/agent-prompting.md` § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
 
 **Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
 

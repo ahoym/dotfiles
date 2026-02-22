@@ -81,8 +81,20 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 
 Not invoked directly — used by other skills as shared reference docs.
 
+**Global** (`commands/_shared/`):
+
+| File | Purpose |
+|------|---------|
+| `corpus-cross-reference.md` | Procedure for loading and assessing content against existing skills/learnings |
+
+**Git** (`commands/git/_shared/`):
+
+| File | Purpose |
+|------|---------|
+| `platform-detection.md` | GitHub vs GitLab detection logic |
+
+**Parallel Plan** (`commands/parallel-plan/_shared/`):
+
 | File | Purpose |
 |------|---------|
 | `agent-prompting.md` | Best practices for crafting subagent prompts |
-| `corpus-cross-reference.md` | Procedure for loading and assessing content against existing skills/learnings |
-| `platform-detection.md` | GitHub vs GitLab detection logic for git skills |
