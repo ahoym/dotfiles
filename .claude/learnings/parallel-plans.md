@@ -51,6 +51,6 @@ D creates:  app/api/create/route.ts (calls txFailureResponse)
 
 When a session is continued from a compacted conversation (context overflow), **all file contents read in the prior session are lost**. The conversation summary preserves metadata (file paths, line numbers, key findings) but not the actual file text.
 
-**Impact on `/make-parallel-plan`:** The planner must re-read all source files to get accurate landmarks (line numbers, surrounding code context) for agent prompts. Budget 2-5 minutes for re-reading depending on codebase size.
+**Impact on `/parallel-plan:make`:** The planner must re-read all source files to get accurate landmarks (line numbers, surrounding code context) for agent prompts. Budget 2-5 minutes for re-reading depending on codebase size.
 
 **Mitigation:** The conversation summary should capture critical landmarks explicitly (e.g., "txFailureResponse is at line 200-209 in lib/api.ts"). This reduces re-reading to verification rather than discovery.

@@ -70,7 +70,7 @@ When comparing two versions of a file where directionality matters (source vs ta
 
 **What's safe to delegate:** Non-directional analysis (e.g., "does this file contain X?", "how many sections does this file have?") where swapping inputs doesn't change the answer.
 
-**Discovered from:** quantum-tunnel-claudes delegated structural comparison of `execute-parallel-plan/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
+**Discovered from:** quantum-tunnel-claudes delegated structural comparison of `parallel-plan/execute/SKILL.md` to an explore agent. The agent reported the target's fresh-eyes review framework was in the source, leading to offering to merge content that was already in the target.
 
 ## Verify Subagent Output Before Acting On It
 

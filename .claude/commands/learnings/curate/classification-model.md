@@ -124,7 +124,7 @@ When checking existing skills/guidelines:
 
 ## Skill Pruning Criteria
 
-When reviewing existing skills (step 5 of curate-learnings), evaluate whether skills should be pruned based on these criteria:
+When reviewing existing skills (step 5 of learnings:curate), evaluate whether skills should be pruned based on these criteria:
 
 ### Strong Prune Candidates
 

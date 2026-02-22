@@ -4,12 +4,12 @@ description: Execute a structured parallel plan using concurrent subagents with 
 
 # Execute Parallel Plan
 
-Execute a structured parallel plan produced by `/make-parallel-plan`. Acts as a coordinator — launches subagents, verifies outputs, unblocks dependents, and handles failures.
+Execute a structured parallel plan produced by `/parallel-plan:make`. Acts as a coordinator — launches subagents, verifies outputs, unblocks dependents, and handles failures.
 
 ## Usage
 
-- `/execute-parallel-plan <plan-file>` — Execute a parallel plan file
-- `/execute-parallel-plan` — Execute the most recently discussed parallel plan
+- `/parallel-plan:execute <plan-file>` — Execute a parallel plan file
+- `/parallel-plan:execute` — Execute the most recently discussed parallel plan
 
 ## Reference Files
 
@@ -102,7 +102,7 @@ If any command fails or permissions are missing, stop and report to the user —
 
 ### Step 2: Parse the plan
 
-Read the parallel plan file. It must follow the structured format from `/make-parallel-plan`:
+Read the parallel plan file. It must follow the structured format from `/parallel-plan:make`:
 - **Shared Contract** section with types, API contracts, import paths
 - **Prompt Preamble** section (optional) with process instructions common to all agents (TDD workflow, project commands, completion report format, general rules). This does NOT contain the shared contract — the contract is a separate section.
 - **Agents** section with lettered agents, each having `depends_on`, `soft_depends_on`, file lists, descriptions, and prompts
@@ -115,7 +115,7 @@ Read the parallel plan file. It must follow the structured format from `/make-pa
 
 Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 5. If a **Branch Strategy** section exists, extract the per-agent branch configuration — you will use it in Step 6 to create branches, commits, and PRs/MRs as agents complete.
 
-If the plan doesn't follow this format, ask the user to run `/make-parallel-plan` first.
+If the plan doesn't follow this format, ask the user to run `/parallel-plan:make` first.
 
 ### Step 3: Check for existing execution state
 

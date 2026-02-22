@@ -8,7 +8,7 @@ Save new patterns and learnings from the current session into global skills, gui
 
 ## Usage
 
-- `/compound-learnings` - Capture learnings from current session
+- `/learnings:compound` - Capture learnings from current session
 
 ## Reference Files (conditional — read only when needed)
 

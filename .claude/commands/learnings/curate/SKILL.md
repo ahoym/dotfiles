@@ -8,15 +8,15 @@ Review learnings, guidelines, or skills to identify content that should be migra
 
 ## Usage
 
-- `/curate-learnings <file-path>` - Curate a specific file (relative to `~/.claude/`)
-- `/curate-learnings <file1> <file2>` - Curate multiple files
-- `/curate-learnings` - Prompt for which file to curate
+- `/learnings:curate <file-path>` - Curate a specific file (relative to `~/.claude/`)
+- `/learnings:curate <file1> <file2>` - Curate multiple files
+- `/learnings:curate` - Prompt for which file to curate
 
 ## Reference Files (conditional)
 
 - `~/.claude/commands/_shared/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
-- `~/.claude/commands/compound-learnings/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
+- `~/.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
 
 ## Parallel Execution
@@ -61,7 +61,7 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 
   Skills:
   - commands/do-security-audit
-  - commands/git/split-pr
+  - commands/git:split-pr
   - ...
   ```
 - Store selection as `TARGET_FILES`
@@ -105,7 +105,7 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 1. Read `~/.claude/commands/_shared/corpus-cross-reference.md` for the corpus loading procedure
 2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings
 3. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
-4. Read classification-model.md and `~/.claude/commands/compound-learnings/content-type-decisions.md` (needed for step 4)
+4. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -268,8 +268,8 @@ Display the full report inline in the CLI.
 
 | File | Why | Command |
 |------|-----|---------|
-| `parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/curate-learnings learnings/parallel-plans.md` |
-| `skill-design.md` | 11 patterns, several skill-context candidates | `/curate-learnings learnings/skill-design.md` |
+| `parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/learnings:curate learnings/parallel-plans.md` |
+| `skill-design.md` | 11 patterns, several skill-context candidates | `/learnings:curate learnings/skill-design.md` |
 
 ### Recommended Actions
 ...
@@ -352,7 +352,7 @@ For **skill mode** actions:
 
 ### Content mode
 ```
-User: /curate-learnings learnings/nextjs.md
+User: /learnings:curate learnings/nextjs.md
 
 Claude:
 ## Curation Summary: nextjs.md
@@ -371,7 +371,7 @@ Apply? [Apply all] [Select specific] [Discuss] [Skip]
 
 ### Skill mode
 ```
-User: /curate-learnings commands/git/monitor-pr-comments
+User: /learnings:curate commands/git/monitor-pr-comments
 
 Claude:
 ## Skill Curation: git-monitor-pr-comments
@@ -418,4 +418,4 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 - **Preserve context**: When migrating, ensure content retains enough context to be useful standalone
 - **Update cross-references**: If content is migrated, update any internal links in the source file
 - **Frequency**: Designed for regular use to prevent bloat across learnings, guidelines, and skills
-- **Complements compound-learnings**: This curates existing content; `compound-learnings` creates new content
+- **Complements learnings:compound**: This curates existing content; `learnings:compound` creates new content

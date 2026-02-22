@@ -78,10 +78,10 @@ Periodically review guidelines for continued utility:
 
 Learnings, guidelines, and skills document **patterns** — things that have been observed, decided, or implemented. They do not document aspirations, feature requests, or "not yet implemented" TODOs.
 
-**Why:** The workflow handles aspirations naturally. Save the underlying insight as a learning → `/curate-learnings` will surface it when conditions are right (e.g., enough patterns cluster to warrant a new skill or persona enhancement). A TODO in a context file just adds noise without driving action.
+**Why:** The workflow handles aspirations naturally. Save the underlying insight as a learning → `/learnings:curate` will surface it when conditions are right (e.g., enough patterns cluster to warrant a new skill or persona enhancement). A TODO in a context file just adds noise without driving action.
 
 **What to write instead:**
-- ❌ "/compound-learnings should detect persona opportunities (not yet implemented)"
+- ❌ "/learnings:compound should detect persona opportunities (not yet implemented)"
 - ✅ Document the underlying pattern as a learning; the curation workflow will surface it when relevant
 
 ### Genericize Tool-Specific References

@@ -18,7 +18,7 @@ This is an iterative AI loop. You are one iteration. Complete ONE task, update p
 - **NO MUTATIVE OPERATIONS** - Do not run git commands, modify files outside this project directory, install packages, or make requests that change external state.
 - **UPDATE PROGRESS BEFORE EXITING** - Your work is lost if you don't update progress.md
 - **BE THOROUGH** - Quality over speed; the next agent relies on your output
-- Run `/compound-learnings` with auto "yes" for medium/high utility items after your task is done
+- Run `/learnings:compound` with auto "yes" for medium/high utility items after your task is done
 
 ## Web Research Safety
 

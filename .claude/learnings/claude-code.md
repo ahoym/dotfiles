@@ -7,7 +7,7 @@ The `isolation: "worktree"` parameter on the Task tool creates a git worktree fr
 - Specify a base ref (e.g., branch from another agent's branch instead of HEAD)
 - Control the branch name (e.g., `feat/plan-slug/agent-name`)
 
-**Implication for parallel plans:** DAG-based workflows where dependent agents need worktrees based on a predecessor's branch require manual `git worktree add <path> -b <branch-name> <base-ref>`. This is why `execute-parallel-plan` uses manual worktree commands in Step 5 rather than `isolation: "worktree"`.
+**Implication for parallel plans:** DAG-based workflows where dependent agents need worktrees based on a predecessor's branch require manual `git worktree add <path> -b <branch-name> <base-ref>`. This is why `parallel-plan:execute` uses manual worktree commands in Step 5 rather than `isolation: "worktree"`.
 
 ## Skill Discovery: Sibling vs Subdirectory `.md` Files
 

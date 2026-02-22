@@ -6,22 +6,22 @@ description: Multi-sweep curation — auto-applies HIGH recommendations, batches
 
 Run exhaustive multi-sweep curation of all learnings, guidelines, and skills. Automatically applies HIGH-confidence recommendations and batches MEDIUMs for approval, looping until the collection is fully distilled.
 
-This skill orchestrates multiple invocations of the `/curate-learnings` broad sweep methodology. It owns the loop and approval flow; `/curate-learnings` owns the analysis methodology.
+This skill orchestrates multiple invocations of the `/learnings:curate` broad sweep methodology. It owns the loop and approval flow; `/learnings:curate` owns the analysis methodology.
 
 ## Usage
 
-- `/consolidate-learnings` — Full consolidation run (no arguments, always broad sweep)
+- `/learnings:consolidate` — Full consolidation run (no arguments, always broad sweep)
 
-For targeted single-file curation, use `/curate-learnings <file>` instead.
+For targeted single-file curation, use `/learnings:curate <file>` instead.
 
 ## Reference Files (conditional — read only when needed)
 
-This skill delegates analysis methodology to curate-learnings. Read these files at the steps indicated:
+This skill delegates analysis methodology to learnings:curate. Read these files at the steps indicated:
 
-- `../curate-learnings/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology, classification steps, cross-referencing, and report formats. Follow its analysis steps (1 through 6) for each sweep, but replace its approval flow (step 7) with the loop defined below.
-- `../curate-learnings/classification-model.md` — Read via curate-learnings step 4. Contains the 6-bucket classification model and confidence level definitions.
-- `../curate-learnings/persona-design.md` — Read when persona clusters are detected during a sweep (via curate-learnings step 5a).
-- `~/.claude/commands/compound-learnings/content-type-decisions.md` — Read via curate-learnings step 4. Skill vs guideline vs learning decision tree.
+- `../curate/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology, classification steps, cross-referencing, and report formats. Follow its analysis steps (1 through 6) for each sweep, but replace its approval flow (step 7) with the loop defined below.
+- `../curate/classification-model.md` — Read via learnings:curate step 4. Contains the 6-bucket classification model and confidence level definitions.
+- `../curate/persona-design.md` — Read when persona clusters are detected during a sweep (via learnings:curate step 5a).
+- `~/.claude/commands/learnings/compound/content-type-decisions.md` — Read via learnings:curate step 4. Skill vs guideline vs learning decision tree.
 
 ## State Variables
 
@@ -39,9 +39,9 @@ Track these across all sweeps:
 
 ### Step 0: Load methodology
 
-Read `../curate-learnings/SKILL.md` to internalize the broad sweep analysis methodology. You will follow its analysis steps (steps 1 through 6, broad sweep mode) for each sweep below, but replace its approval flow (step 7) with the automated loop defined in this skill.
+Read `../curate/SKILL.md` to internalize the broad sweep analysis methodology. You will follow its analysis steps (steps 1 through 6, broad sweep mode) for each sweep below, but replace its approval flow (step 7) with the automated loop defined in this skill.
 
-Key points from curate-learnings to apply on every sweep:
+Key points from learnings:curate to apply on every sweep:
 - Always use **broad sweep mode** (cluster-first approach)
 - Pre-load the full reference corpus (skills, guidelines, personas)
 - Use **parallel tool calls aggressively** (per-cluster subagents, parallel reads)
@@ -54,7 +54,7 @@ Key points from curate-learnings to apply on every sweep:
 
 **Loop** (max 5 iterations):
 
-1. **Run broad sweep analysis** — follow curate-learnings steps 1–6 (broad sweep mode). Generate the full broad sweep report.
+1. **Run broad sweep analysis** — follow learnings:curate steps 1–6 (broad sweep mode). Generate the full broad sweep report.
 
 2. **Separate findings by confidence:**
    - `HIGH_FINDINGS` — classifications with High confidence
@@ -84,7 +84,7 @@ Key points from curate-learnings to apply on every sweep:
    Applying N HIGH actions...
    ```
 
-5. **Auto-apply all HIGH actions** — execute the actions from curate-learnings step 7 (apply changes), but **without user confirmation**. Use parallel tool calls for independent file writes (different target files). Sequential writes for actions targeting the same file.
+5. **Auto-apply all HIGH actions** — execute the actions from learnings:curate step 7 (apply changes), but **without user confirmation**. Use parallel tool calls for independent file writes (different target files). Sequential writes for actions targeting the same file.
 
 6. **Record actions** — append each applied action to `CUMULATIVE_ACTIONS` with sweep number, action type, source, target, and confidence.
 
@@ -98,7 +98,7 @@ Key points from curate-learnings to apply on every sweep:
 
 **Important:** Do NOT reuse MEDIUMs accumulated during Phase 1 sweeps. The state has changed — run a fresh analysis.
 
-1. **Run fresh broad sweep analysis** — curate-learnings steps 1–6. Increment `SWEEP_COUNT`.
+1. **Run fresh broad sweep analysis** — learnings:curate steps 1–6. Increment `SWEEP_COUNT`.
 
 2. **Extract `MEDIUM_FINDINGS`** from the fresh results.
 
@@ -146,7 +146,7 @@ Key points from curate-learnings to apply on every sweep:
 
 1. **Check overall safety cap:** If `SWEEP_COUNT` >= 10 → display overall cap report (see Edge Cases) and pause.
 
-2. **Run verification sweep** — fresh broad sweep analysis (curate-learnings steps 1–6). Increment `SWEEP_COUNT`.
+2. **Run verification sweep** — fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
 
 3. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.
@@ -290,12 +290,12 @@ Use `AskUserQuestion`:
 
 ## Important Notes
 
-- **Always broad sweep** — this skill does not support targeted files. Use `/curate-learnings <file>` for that.
-- **HIGHs are auto-applied** — that's the value proposition. If uncomfortable, use `/curate-learnings` instead.
+- **Always broad sweep** — this skill does not support targeted files. Use `/learnings:curate <file>` for that.
+- **HIGHs are auto-applied** — that's the value proposition. If uncomfortable, use `/learnings:curate` instead.
 - **MEDIUMs always get approval** — the batch in Phase 2 is the primary user interaction point.
-- **LOWs are never auto-applied** — they appear in reports for awareness but require explicit `/curate-learnings` runs.
+- **LOWs are never auto-applied** — they appear in reports for awareness but require explicit `/learnings:curate` runs.
 - **Fresh analysis per phase** — MEDIUMs are NOT accumulated across sweeps. Each transition triggers fresh analysis because state has changed.
-- **Methodology delegation** — this skill orchestrates the loop; `/curate-learnings` owns the analysis. Changes to curate-learnings automatically flow through.
+- **Methodology delegation** — this skill orchestrates the loop; `/learnings:curate` owns the analysis. Changes to learnings:curate automatically flow through.
 
 ## Prerequisites
 
@@ -317,7 +317,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 | Workflow | Skill |
 |----------|-------|
-| Curate a specific file | `/curate-learnings <file>` |
-| Capture learnings from a session | `/compound-learnings` |
+| Curate a specific file | `/learnings:curate <file>` |
+| Capture learnings from a session | `/learnings:compound` |
 | Pull learnings from sync source | `/quantum-tunnel-claudes` |
-| Distribute learnings to a project | `/distribute-learnings` |
+| Distribute learnings to a project | `/learnings:distribute` |

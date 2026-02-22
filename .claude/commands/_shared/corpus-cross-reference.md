@@ -1,6 +1,6 @@
 # Corpus Cross-Reference
 
-Shared procedure for loading the target corpus and assessing content coverage. Used by curate-learnings, quantum-tunnel-claudes, and any skill that needs to evaluate content against existing knowledge.
+Shared procedure for loading the target corpus and assessing content coverage. Used by learnings:curate, quantum-tunnel-claudes, and any skill that needs to evaluate content against existing knowledge.
 
 ## Loading the Corpus
 
@@ -13,7 +13,7 @@ Load these in a single parallel batch:
 
 Store all content for use in subsequent cross-referencing. This corpus represents the target's current knowledge base.
 
-**Note:** `<TARGET>` is the repo root — for curate-learnings this is typically `~/.claude/`, for quantum-tunnel-claudes it's the current project root.
+**Note:** `<TARGET>` is the repo root — for learnings:curate this is typically `~/.claude/`, for quantum-tunnel-claudes it's the current project root.
 
 ## Cross-Referencing Content
 

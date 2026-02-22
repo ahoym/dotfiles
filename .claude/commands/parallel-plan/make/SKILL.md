@@ -4,12 +4,12 @@ description: Analyze a sequential plan for parallelization opportunities and pro
 
 # Make Parallel Plan
 
-Analyze a plan for parallelization opportunities, build a dependency DAG, and output a structured parallel plan that `/execute-parallel-plan` can run.
+Analyze a plan for parallelization opportunities, build a dependency DAG, and output a structured parallel plan that `/parallel-plan:execute` can run.
 
 ## Usage
 
-- `/make-parallel-plan <plan-file>` — Analyze and parallelize a plan file
-- `/make-parallel-plan` — Analyze the most recently discussed plan
+- `/parallel-plan:make <plan-file>` — Analyze and parallelize a plan file
+- `/parallel-plan:make` — Analyze the most recently discussed plan
 
 ## Reference Files
 
@@ -18,13 +18,13 @@ Analyze a plan for parallelization opportunities, build a dependency DAG, and ou
 
 ## Output
 
-Writes a structured parallel plan to the plan file. The output follows the format defined in the **Parallel Plan Format** section below — this is the contract between this skill and `/execute-parallel-plan`.
+Writes a structured parallel plan to the plan file. The output follows the format defined in the **Parallel Plan Format** section below — this is the contract between this skill and `/parallel-plan:execute`.
 
 ## Instructions
 
 ### Step 1: Resolve the plan file
 
-If arguments were provided (e.g., `/make-parallel-plan docs/plans/my-plan.md` or `/make-parallel-plan from .claude/plans/my-plan.md`), extract the file path from the arguments (strip any leading "from" prefix) and resolve it relative to the project root. Read that file as the input plan.
+If arguments were provided (e.g., `/parallel-plan:make docs/plans/my-plan.md` or `/parallel-plan:make from .claude/plans/my-plan.md`), extract the file path from the arguments (strip any leading "from" prefix) and resolve it relative to the project root. Read that file as the input plan.
 
 If no arguments were provided, use the plan most recently discussed in the conversation. If no plan has been discussed, ask the user which plan file to parallelize.
 
@@ -113,7 +113,7 @@ Read `~/.claude/commands/_shared/agent-prompting.md` for best practices on promp
 
 ## Parallel Plan Format
 
-This is the contract between `/make-parallel-plan` (producer) and `/execute-parallel-plan` (consumer).
+This is the contract between `/parallel-plan:make` (producer) and `/parallel-plan:execute` (consumer).
 
 ````markdown
 # Parallel Plan: <title>
@@ -275,7 +275,7 @@ will examine each flagged item. Omit this section if there are no uncertainties.
 
 ## Execution State
 
-_This section is managed by `/execute-parallel-plan`. Do not edit manually._
+_This section is managed by `/parallel-plan:execute`. Do not edit manually._
 
 | Agent | Status | Agent ID | Duration | Notes |
 |-------|--------|----------|----------|-------|
@@ -314,7 +314,7 @@ Build: not yet run
 
 ## Important Notes
 
-- The goal is a plan that `/execute-parallel-plan` can run mechanically — no interpretation needed
+- The goal is a plan that `/parallel-plan:execute` can run mechanically — no interpretation needed
 - If a step is too small for a subagent (< 5 lines changed), merge it into an adjacent agent that touches related files
 - Shared utility files (`types.ts`, `constants.ts`) should have all changes consolidated into a single early agent
 - The DAG visualization helps the user understand the parallelism at a glance

@@ -8,7 +8,7 @@ Copy or merge global learnings and guidelines from `~/.claude/` into the current
 
 ## Usage
 
-- `/distribute-learnings` - Distribute global learnings/guidelines to current project
+- `/learnings:distribute` - Distribute global learnings/guidelines to current project
 
 ## Instructions
 

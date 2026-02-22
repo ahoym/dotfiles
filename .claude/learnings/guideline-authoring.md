@@ -10,7 +10,7 @@ When two guidelines cover similar territory, merge them into a single section ra
 
 **Why this works**: Fewer guidelines are easier to internalize. When two sections overlap, readers (and AI) have to reconcile them. A single section with a clear principle + concrete examples is both shorter and more actionable.
 
-**When to apply**: During guideline curation (`/curate-learnings`), look for sections that address the same underlying behavior from different angles. If one is a specific instance of the other, merge them.
+**When to apply**: During guideline curation (`/learnings:curate`), look for sections that address the same underlying behavior from different angles. If one is a specific instance of the other, merge them.
 
 ## Avoid Nesting Subdirectories Inside learnings/
 
@@ -39,4 +39,4 @@ Global learnings (in `~/.claude/learnings/`) should use domain-neutral examples.
 - Standard library types and patterns
 - The underlying insight — only the example wrapping changes
 
-**When to apply:** During `/curate-learnings`, check each "Standalone reference" pattern for project-specific content. If the examples use names from a specific codebase, genericize them while preserving the pattern's teaching value.
+**When to apply:** During `/learnings:curate`, check each "Standalone reference" pattern for project-specific content. If the examples use names from a specific codebase, genericize them while preserving the pattern's teaching value.

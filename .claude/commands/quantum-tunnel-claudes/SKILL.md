@@ -42,7 +42,7 @@ EXCLUDES=(
 ## Reference Files (conditional)
 
 - `~/.claude/commands/_shared/corpus-cross-reference.md` — Read in step 3 for corpus loading and cross-referencing procedure
-- `~/.claude/commands/curate-learnings/classification-model.md` — Read in step 3 for classifying incoming content
+- `~/.claude/commands/learnings/curate/classification-model.md` — Read in step 3 for classifying incoming content
 
 ## Parallel Execution
 
@@ -157,7 +157,7 @@ The inventory script (step 1) already provides git history checks and source-uni
 | # | File | Status | Action | Assessment | Detail |
 |---|------|--------|--------|------------|--------|
 | 1 | learnings/skill-design.md | Diverged | Merge | Pull — 4 new sections not in target | source +4, target +82 |
-| 2 | commands/curate-learnings/SKILL.md | Diverged | Merge | Review — source has minor edits, unclear value | source +15, target +149 |
+| 2 | commands/learnings/curate/SKILL.md | Diverged | Merge | Review — source has minor edits, unclear value | source +15, target +149 |
 | 3 | learnings/new-topic.md | New | Copy in | Pull — genuinely new, not covered | 2KB, new patterns |
 
 ### Skipped: M files
@@ -225,7 +225,7 @@ Read back a sample of written/updated files to confirm content was saved correct
 
 **Actions taken:**
 - learnings/skill-design.md — merged (4 new sections from source, preserved 6 local sections)
-- commands/curate-learnings/SKILL.md — merged (preserved unique edits from both)
+- commands/learnings/curate/SKILL.md — merged (preserved unique edits from both)
 
 **Skipped:**
 - learnings/observability-workflow.md — previously removed
@@ -260,4 +260,4 @@ For prompt-free execution, ensure allow patterns in `~/.claude/settings.local.js
 - **Excludes respected**: settings.json, settings.local.json, README.md, lab/, personas/, worktrees/ are never synced
 - **Content-aware merge**: For diverged files, Claude reads both versions and produces a clean union rather than picking a winner
 - **Strict superset detection**: When the source contains everything the target has plus more, skip the merge and just overwrite — simpler and faster
-- **Complements curate-learnings**: Run `/curate-learnings` after sync to prune or reorganize the pulled content
+- **Complements learnings:curate**: Run `/learnings:curate` after sync to prune or reorganize the pulled content
