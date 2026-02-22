@@ -114,3 +114,22 @@ The `--log-failed` flag on `gh run view` filters to only the failing step output
 When adding a new dependency to `package.json`, the `pnpm-lock.yaml` must be regenerated and committed. Vercel (and most CI) runs `pnpm install --frozen-lockfile` by default, which fails if the lockfile doesn't match `package.json`. The build passes locally because `pnpm install` silently updates the lockfile, masking the issue.
 
 Diagnosis: if Vercel deploy fails but `pnpm build` works locally, check `git diff --stat pnpm-lock.yaml` — if the lockfile has uncommitted changes, that's the problem. Run `pnpm install` and commit the updated lockfile.
+
+## GitLab CI/CD Gotchas
+
+**Utility: Medium**
+
+Key gotchas when working with `.gitlab-ci.yml`:
+
+- `rules:` replaces `only:/except:` — prefer `rules:` for all new pipelines; the two syntaxes can't be combined in the same job
+- `needs:` enables DAG-style parallelism — jobs run as soon as dependencies finish rather than waiting for the entire previous stage to complete
+- **Cache is per-runner by default**, not shared across runners — use a distributed cache backend (S3, GCS) or `cache:key:files:` with lockfile paths for consistent cross-runner cache hits
+- `artifacts:expire_in:` defaults to 30 days — set explicitly to avoid storage bloat; use `artifacts:reports:` for test/coverage/SAST results that integrate with MR widgets
+- `interruptible: true` on safely-cancellable jobs saves runner minutes on re-push (analogous to GitHub's `cancel-in-progress`)
+- `extends:` over YAML anchors (`&`/`*`) — `extends:` supports deep merge and is more readable
+- `include:project` for org-wide shared templates, `include:local` for repo-internal fragments
+- **Protected variables gotcha**: variables marked as protected are only injected on protected branches/tags — jobs on feature branches silently get empty values, causing confusing failures
+- `GIT_DEPTH: 20` for faster clones; `GIT_DEPTH: 0` when full history is needed (changelog, diff-based checks)
+- `allow_failure: true` for non-blocking jobs; `allow_failure:exit_codes:` for granular control
+- `environment:` with `on_stop:` for review app cleanup when MRs are merged/closed
+- `retry: 2` on flaky infrastructure jobs (Docker pulls, network steps) — avoid on test jobs as it masks real failures
