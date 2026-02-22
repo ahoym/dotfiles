@@ -236,13 +236,36 @@ Generate the final consolidation report:
 
 ### First sweep finds nothing
 
-If the very first sweep returns no HIGH or MEDIUM items, skip directly to Step 4:
+If the very first sweep returns no HIGH or MEDIUM items, skip directly to Step 4. **Lead with LOW items** — on a clean sweep, polish opportunities are the primary value of the run. Don't bury them after a "no action needed" headline that signals completion.
 
 ```
-## 🏁 Consolidation Complete (no action needed)
+## 🏁 Consolidation Complete
 
-Swept N files (~M patterns). All content is current and well-organized.
-No HIGH or MEDIUM recommendations found.
+Swept N files (~M patterns). No HIGH or MEDIUM recommendations.
+
+### Polish Opportunities
+
+These won't break anything as-is, but could improve the collection:
+
+| # | File | Opportunity | Tradeoff |
+|---|------|-------------|----------|
+| 1 | playwright-patterns.md | Genericize XRPL contextual references | Provenance notes only, code examples already generic |
+| 2 | trade-page-patterns.md | Genericize XRPL implementation details | Small file, domain context adds teaching value |
+
+Use `/learnings:curate <file>` to act on any of these.
+
+### Collection Health
+
+- **Files**: N learnings, M guidelines, K skills, J personas
+- **Status**: Curated — N polish items noted above
+```
+
+If there are truly zero LOWs either, use this minimal variant:
+
+```
+## 🏁 Consolidation Complete
+
+Swept N files (~M patterns). No recommendations at any confidence level.
 
 Collection is fully curated. ✅
 ```
