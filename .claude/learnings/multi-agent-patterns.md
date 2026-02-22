@@ -89,6 +89,49 @@ When you delegate research or analysis to a subagent and plan to act on the resu
 
 **Discovered from:** quantum-tunnel-claudes accepted an explore agent's claim that the source had a fresh-eyes review framework the target lacked — the opposite was true. A single file read would have caught it.
 
+## Pre-Register All Coordinator Bash Permissions Before Parallel Execution
+
+When running parallel plan execution (or any multi-agent workflow with git/PR operations), the coordinator needs its own set of Bash permissions beyond what the agents need. These should be audited and batch-added to `.claude/settings.local.json` **before launching any agents** — a single upfront permission prompt is far better than repeated interruptions during execution.
+
+**Coordinator-specific patterns to check:**
+- `Bash(pnpm build:*)` (or project build command) — final verification
+- `Bash(git worktree:*)` — creating/removing temporary worktrees
+- `Bash(git -C:*)` — running git commands inside worktrees
+- `Bash(git branch:*)` — creating per-agent branches
+- `Bash(git push:*)` — pushing branches to remote
+- `Bash(gh pr create:*)` / `Bash(glab mr create:*)` — creating PRs/MRs
+- `Bash(cp:*)`, `Bash(mkdir:*)`, `Bash(chmod:*)` — file operations in worktrees
+
+**Discovered from:** parallel-plan:execute session where the plan's Required Bash Permissions covered agent needs but not coordinator operations, causing 10+ permission prompts during branch/PR creation.
+
+## Stacked PR Branches Must Be Created in Topological Order
+
+When creating per-agent branches in a DAG-based workflow, each dependency branch must be **fully committed and pushed** before creating any branch that depends on it. If you batch-create all branches first and then commit to each, dependent branches will point at the pre-commit ref (effectively `main`) and miss their dependency's files.
+
+**What goes wrong:**
+```bash
+# BAD — batch creation, all branches created before any commits
+git branch feat/foundation origin/main
+git branch feat/hook feat/foundation     # Points at main, NOT at foundation's commit
+# ... later commit to foundation ...
+# feat/hook still points at the old ref — missing foundation's files
+# PR for hook will fail CI because it can't import types from foundation
+```
+
+**Correct approach:**
+```bash
+# GOOD — sequential: commit dependency, THEN create dependent branch
+git branch feat/foundation origin/main
+# ... commit and push to foundation ...
+git branch feat/hook feat/foundation     # Now includes foundation's commit
+# ... commit and push to hook ...
+# PR for hook includes both foundation's and hook's files — CI passes
+```
+
+**Key insight:** This is naturally solved by creating branches as agents complete (per the skill's Step 6 workflow). The bug surfaces when branch creation is deferred to a batch phase — the topological ordering is lost.
+
+**Discovered from:** parallel-plan:execute session where 7 of 11 PRs had failing Vercel CI because branches were batch-created before dependency commits existed.
+
 ## Structured Templates as Natural Size Constraints
 
 Instead of hard output size limits (which LLMs can't reliably count or enforce), use structured templates to naturally constrain agent output length.
@@ -105,4 +148,17 @@ Instead of hard output size limits (which LLMs can't reliably count or enforce),
 - If an agent genuinely needs 400 lines for a complex domain, that's fine — the synthesizer can handle it
 
 **Discovered from:** Discussing output size limits for `/explore-repo` agents — concluded that templates + soft guidelines give consistent, digestible output without losing signal from large repos.
+
+## Context Compaction Makes State Files Critical for Session Resumption
+
+When a long-running orchestrator session hits the context window limit, prior messages are compacted into a summary. Any progress tracked only in-memory (variables, mental state) is lost or degraded. Only data persisted to disk survives intact.
+
+**Implication for parallel execution:**
+- The `.parallel-plan-state.json` file must be updated **incrementally as each agent completes** — not deferred to a batch phase at the end
+- If the session compacts mid-execution, the state file is the only reliable record of which agents finished, their agent IDs, branch names, and PR URLs
+- Without incremental writes, a resumed session starts from scratch or guesses based on the compacted summary (which may omit agent IDs, durations, and discovery details)
+
+**General pattern:** Any multi-step workflow that might exceed context should persist checkpoints to disk after each step. The orchestrator should be able to cold-start from the checkpoint file alone, without relying on conversation history.
+
+**Discovered from:** parallel-plan:execute session where 11 agents ran but the state file showed all "pending" because updates were deferred — when context compacted and the session was resumed, the coordinator had to reconstruct state manually.
 

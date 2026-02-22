@@ -23,6 +23,22 @@ When using `rsync --delete` to sync directories, renaming a source directory (e.
 
 **Implication:** For repo migrations that rename multiple directories (e.g., MR→PR skill renaming), a single rsync with `--delete` handles both copying new dirs and removing old dirs — no need for separate `rm -rf` cleanup commands.
 
+## Fixing Misordered Stacked PR Branches
+
+When stacked PR branches were created in the wrong order (dependent branches created before dependency commits), the fix is straightforward:
+
+1. **Reset** the branch to the correct dependency: `git branch -f <broken-branch> <correct-base>`
+2. **Worktree** to avoid disturbing the working tree: `git worktree add /tmp/fix-<name> <broken-branch>`
+3. **Copy** the agent's own files from the working tree into the worktree
+4. **Commit and force-push**: `git -C /tmp/fix-<name> add -A && git -C /tmp/fix-<name> commit && git -C /tmp/fix-<name> push --force`
+5. **Clean up**: `git worktree remove /tmp/fix-<name>`
+
+**Key principle:** Each branch should only contain its own agent's files. Don't bundle dependency files into the commit — let the branch ancestry provide them. CI will fail until upstream PRs merge, which is expected and documented in the PR description.
+
+**Process in topological order** — fix dependency branches before dependent ones, since dependent branches use the fixed dependency as their base.
+
+**Discovered from:** parallel-plan:execute session where 7 of 11 PR branches were based on `main` instead of their dependency branches, causing Vercel CI failures.
+
 ## Verify Commit State Before Committing
 
 When `git status` shows "nothing to commit, working tree clean" but you just created/edited files, check whether the changes were already committed (e.g., by hooks or auto-commit):

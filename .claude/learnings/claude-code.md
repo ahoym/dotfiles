@@ -50,3 +50,31 @@ From the [docs](https://code.claude.com/docs/en/permissions): *"Claude makes a b
 When using `Task` with `subagent_type: "Bash"` and `run_in_background: true`, the agent typically cannot execute file-writing commands (cp, mkdir, heredoc redirects) because Bash permissions aren't pre-configured for those patterns.
 
 **Workaround:** For file copy/create operations, do them directly in the main thread using Bash, Write, or Edit tools instead of delegating to background Bash agents. Background agents are better suited for long-running processes where the specific Bash commands have pre-configured allow patterns.
+
+## Bash Permission Prefix Matching: `cd &&` Breaks Git Patterns
+
+Bash permission patterns match on the **command prefix**. A compound command like `cd /tmp/worktree && git add .` starts with `cd`, not `git`, so `Bash(git add:*)` won't match — causing a silent failure in background agents or a permission prompt for the coordinator.
+
+**Fix:** Use `git -C <dir>` instead of `cd <dir> && git` for all operations in alternate directories (worktrees, clones, etc.). This keeps `git` as the command prefix and matches existing `Bash(git -C:*)` or `Bash(git:*)` patterns.
+
+```bash
+# BAD — starts with "cd", won't match git permission patterns
+cd /tmp/worktree-123 && git add . && git commit -m "msg"
+
+# GOOD — starts with "git", matches Bash(git -C:*) or Bash(git:*)
+git -C /tmp/worktree-123 add .
+git -C /tmp/worktree-123 commit -m "msg"
+```
+
+**Discovered from:** parallel-plan:execute session where worktree git operations triggered repeated permission prompts because commands were prefixed with `cd`.
+
+## Use TaskOutput, Not Bash, to Check Background Agent Progress
+
+When monitoring background agents launched via `Task` with `run_in_background: true`, always use the `TaskOutput` tool — never fall back to ad-hoc Bash commands (like `tail`, `grep`, or `cat` on agent output files under `/private/tmp/`).
+
+**Why:**
+- `TaskOutput` with `block: false` gives a non-blocking status check — no Bash permissions needed
+- `TaskOutput` with `block: true` and a timeout waits for completion cleanly
+- Ad-hoc Bash commands on output files require Bash permission patterns that aren't typically pre-configured, causing repeated permission prompts
+
+**Discovered from:** parallel-plan:execute session where checking agent progress via Bash scripts triggered permission prompts that interrupted the user.

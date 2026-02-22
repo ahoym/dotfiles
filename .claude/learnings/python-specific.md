@@ -34,13 +34,13 @@ For API response models, prefer value optionality (consistent shape). See `learn
 When a `TypedDict` field is marked `NotRequired`, pyright will error on direct bracket access:
 
 ```python
-class AcmePayment(TypedDict):
+class PaymentRequest(TypedDict):
     amount: int
-    customerReference: NotRequired[str]
+    referenceId: NotRequired[str]
 
-payment: AcmePayment = {...}
-payment["customerReference"]      # pyright error: reportTypedDictNotRequiredAccess
-payment.get("customerReference")  # OK - returns str | None
+payment: PaymentRequest = {...}
+payment["referenceId"]      # pyright error: reportTypedDictNotRequiredAccess
+payment.get("referenceId")  # OK - returns str | None
 ```
 
 Even if you know the key was set, pyright can't verify it. Use `.get()` for `NotRequired` keys.

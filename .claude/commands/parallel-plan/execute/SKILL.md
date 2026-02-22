@@ -92,6 +92,22 @@ Also check for a code formatter:
 
 **Check Edit/Write permissions:** Background agents cannot prompt for tool permissions. Read `.claude/settings.local.json` and verify that `"Edit"` and `"Write"` appear in the `permissions.allow` array. If either is missing, stop and tell the user — agents need these to modify files and will silently fail without them.
 
+**Coordinator permissions audit:** The coordinator (you) also runs Bash commands that need permissions — build verification, git worktree operations, PR creation, file copying, etc. These are distinct from the agent permissions listed in the plan's Required Bash Permissions section. Audit `.claude/settings.local.json` for the following coordinator command patterns and **add any that are missing** (after confirming with the user):
+
+- `Bash(pnpm build:*)` (or the project's build command) — final build verification
+- `Bash(git worktree:*)` — creating/removing temporary worktrees for PR branches
+- `Bash(git -C:*)` — running git commands inside worktrees without `cd`
+- `Bash(git branch:*)` — creating per-agent branches
+- `Bash(git push:*)` — pushing branches to remote
+- `Bash(gh pr create:*)` or `Bash(glab mr create:*)` — creating PRs/MRs
+- `Bash(cp:*)` — copying agent output files into worktrees
+- `Bash(mkdir:*)` — creating directories in worktrees
+- `Bash(chmod:*)` — making scripts executable
+
+Present all missing patterns to the user in a single batch and add them all at once. This prevents repeated permission prompts during execution.
+
+**Important — avoid `cd &&` compound commands:** Permission patterns match on the command prefix. A command like `cd /tmp/worktree && git add .` starts with `cd`, NOT `git`, so `Bash(git add:*)` won't match. Always use `git -C <dir>` instead of `cd <dir> && git` for worktree operations. This avoids needing additional permission patterns.
+
 If the plan includes a **Branch Strategy** section, also verify:
 - The current branch is the base branch specified in the strategy (usually `main`)
 - Working tree is clean (`git status --porcelain` is empty)
@@ -138,7 +154,7 @@ Execution state is tracked in a **lightweight state file** (`.parallel-plan-stat
 ```
 
 - **If the state file exists with non-pending agents** — this is a **resumed execution**. Read the state to determine:
-  - `completed` agents: skip these entirely — their work is already done. Create their tasks as already-completed so the DAG tracks them. If a completed agent has no `branch` in the state file and the plan has a Branch Strategy, retry the branch/PR creation step (Step 6, item 6).
+  - `completed` agents: skip these entirely — their work is already done. Create their tasks as already-completed so the DAG tracks them. If a completed agent has no `branch` in the state file and the plan has a Branch Strategy, retry the branch/PR creation step (Step 6, item 6). **Critical: process these in topological order** (dependencies before dependents) — each branch must be committed and pushed before any dependent branch is created from it. Creating all branches first and committing later results in dependent branches missing their dependency's files, which breaks CI.
   - `in_progress` agents with an Agent ID: attempt to resume the agent using the `resume` parameter on the Task tool. If the agent completed, read output and verify. If stale (no recent progress in output file), re-launch with the same prompt.
   - `failed` agents: read the notes field for attempt history and checkpoint. Diagnose the failure, attempt to fix the underlying issue, then re-launch. If a checkpoint was recorded, instruct the new agent to resume from that step.
   - `pending` agents whose dependencies are all `completed`: these are ready to launch immediately.
@@ -174,7 +190,17 @@ Read `~/.claude/commands/parallel-plan/_shared/agent-prompting.md` before crafti
 
 **Model selection:** Before launching each agent, evaluate its complexity and choose the appropriate model (see `~/.claude/commands/parallel-plan/_shared/agent-prompting.md` § Model Selection). The plan may suggest models, but the coordinator makes the final call based on actual scope. Override aggressively — a pattern-matching API route doesn't need opus.
 
-**Discovery propagation:** Before launching each agent, review discoveries reported by all completed predecessor agents (from the state file's notes). If any discovery is relevant to the agent being launched, incorporate it into the prompt. For example, if Agent A discovered "the API returns dates as ISO strings," and Agent B consumes that API, add that fact to Agent B's prompt.
+**Discovery propagation (mandatory):** Maintain a running **discoveries digest** — a cumulative list of all discoveries from completed agents. Before launching each agent, append the full digest to the agent's prompt. This is cheap (typically < 200 tokens) and prevents the coordinator from forgetting to propagate individual discoveries. Format:
+
+```
+## Discoveries from completed agents
+- Agent A: walletFromSeed returns { wallet } | { error }, narrow with "error" in result
+- Agent B: encodeXrplCurrency handles 3-char codes differently from longer ones
+```
+
+Even if a discovery seems irrelevant to the current agent, include it — the agent may encounter the same pattern unexpectedly.
+
+**Dependency file excerpts for soft-dep agents:** When launching an agent whose soft dependencies have completed, include the actual function signatures and type definitions from the dependency's output files — not just the planned contract. Read the key exports from the dependency's files and add them to the prompt. This ensures the agent works against reality (what was actually implemented) rather than just the plan (what was intended). This catches contract drift before it causes downstream failures.
 
 **Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 8 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
 
@@ -189,6 +215,8 @@ If the plan has no Prompt Preamble section, fall back to the previous behavior: 
 
 ### Step 6: Monitor and advance (the scheduling loop)
 
+**Critical: Steps 1–8 below are an atomic per-agent completion workflow.** When an agent completes, execute ALL of these steps for that agent before moving on to launching the next wave. Do NOT defer state updates or PR creation to a later batch — this is the #1 cause of lost progress on session interruption and missing PRs.
+
 When an agent completes:
 
 1. **Read the output** — verify the agent completed successfully. Look for the **Completion Report** at the end of the agent's output:
@@ -202,36 +230,50 @@ When an agent completes:
    - File paths match what the plan specified
    - Tests exist for the agent's implementation (TDD was followed)
    - Test file paths match what the plan's `tdd_steps` specified
-3. **Capture discoveries** — if the agent reported discoveries in its Completion Report, note them in the Execution State Notes column. If a discovery affects a pending agent's work, incorporate it into that agent's prompt when launching.
-4. **Update task status** — mark the agent's task as completed
-5. **Persist execution state** — update the state file (`.parallel-plan-state.json`):
+3. **Import audit** — grep the agent's output files for import statements. For each import, verify the imported module is either:
+   - An existing file in the repo (predates the plan)
+   - A file owned by a completed hard/soft dependency agent
+   - If the agent imports from a **parallel** (non-dependency) agent's file, flag it — this means the agent's PR branch won't compile in isolation. Note this in the state file so the PR description can document the cross-dependency.
+4. **Contract drift detection** — if the agent's actual exports differ from the shared contract (e.g., different function signature, renamed export, extra required parameter), update the shared contract and note the drift in the discoveries digest. Downstream agents need the corrected contract, not the original plan.
+5. **Capture discoveries** — append all discoveries from this agent to the running discoveries digest. Include both agent-reported discoveries (from its Completion Report) and coordinator-detected issues (from steps 2-4 above).
+6. **Update task status** — mark the agent's task as completed
+7. **Persist execution state immediately** — update the state file (`.parallel-plan-state.json`) RIGHT NOW, not later:
    - Set the agent's status → `completed` (or `failed`), agentId, duration, and notes (include checkpoint and discoveries)
    - Update the `lastUpdated` timestamp
-   - Batch multiple updates when possible (e.g., marking agent complete + noting newly unblocked agents)
+   - When multiple agents complete simultaneously, update all of them in a single write
    - This ensures the state file always reflects current progress, enabling resumption if the session is interrupted
-6. **Create branch, commit, and PR/MR** — if the plan has a Branch Strategy section:
+8. **Create branch, commit, and PR/MR immediately** — if the plan has a Branch Strategy section, do this NOW as part of the agent's completion workflow, not in a separate phase. This ensures PRs are available for review as soon as each piece is done.
    - Look up the agent's row in the Branch Strategy table (branch name, branch-from, PR/MR target, merge order)
    - Determine the base ref:
      - "Branch From" is the base branch (e.g., `main`) → use `origin/main`
      - "Branch From" is another agent letter (e.g., `A`) → use that agent's local branch name (must already exist from a previous completion)
    - Create the branch: `git branch <branch-name> <base-ref>`
-   - **Use a temporary git worktree** to commit without disturbing the working tree (other agents may still be running):
+   - **Use a temporary git worktree** to commit without disturbing the working tree (other agents may still be running). **Important: use `git -C <worktree-dir>` for all git operations inside the worktree — never use `cd <dir> && git`**, as `cd`-prefixed commands won't match `git` permission patterns:
      1. `git worktree add <tmp-dir> <branch-name>` — creates a checkout of the branch in an isolated directory
-     2. Copy the agent's output files (`creates` + `modifies` from the plan) into the worktree at the same relative paths. Ensure parent directories exist.
-     3. For `deletes` files, run `git rm` in the worktree
-     4. Stage, commit, and push from within the worktree
-     5. `git worktree remove <tmp-dir>` — clean up
-   - **Create PR/MR** targeting the branch specified in the target column (usually `main`). Use the project's CLI (`gh pr create` for GitHub, `glab mr create` for GitLab). Title: agent's short name and description. Body: summary of changes and file list.
+     2. Copy the agent's output files (`creates` + `modifies` from the plan) into the worktree at the same relative paths. Use `mkdir -p` to ensure parent directories exist, then `cp` for each file.
+     3. For `deletes` files, run `git -C <tmp-dir> rm <file>`
+     4. Stage: `git -C <tmp-dir> add <files>`
+     5. Commit: `git -C <tmp-dir> commit -m "<message>"`
+     6. Push: `git -C <tmp-dir> push -u origin <branch-name>`
+     7. Clean up: `git worktree remove <tmp-dir>`
+   - **Create PR/MR** targeting the branch specified in the target column (usually `main`). Use the project's CLI (`gh pr create` for GitHub, `glab mr create` for GitLab). Title: agent's short name and description. Body must include:
+     - **Summary**: what this agent implemented (bullet points)
+     - **Dependencies**: list each upstream PR by number and name, note which PR the branch is based on
+     - **Merge Order**: the agent's merge order number and what must merge before it. Example: "**3** — merge after #17, #18, #19, #20, #21, #22. Rebase onto main first."
+     - This makes the merge sequence self-documenting — reviewers can see exactly what must land before each PR.
    - Update the state file with `branch` and `prUrl`
    - **If branch/PR creation fails**, log the error in state notes but do not block the DAG — the agent's code work is complete regardless. The user can create PRs manually.
    - **For dependent agents**: their branch is created from the dependency's branch, so it automatically includes the dependency's committed code. The PR/MR diff against main will show both the dependency's and this agent's changes. After the dependency's PR merges, this agent's branch should be rebased onto main (the plan's merge order section describes this).
-7. **Check for newly unblocked agents** — an agent is unblocked when:
+   - **Critical ordering rule**: a dependency's branch must be fully committed and pushed BEFORE creating any dependent branch from it. If you create `feat/hook` from `feat/foundation` before `feat/foundation` has its commit, `feat/hook` will point at the pre-commit ref (effectively `main`) and miss the dependency's files — causing CI build failures. This is why per-agent PR creation (not batch) is essential: processing agents as they complete naturally ensures predecessors are committed first.
+9. **Check for newly unblocked agents** — an agent is unblocked when:
    - All its `depends_on` (hard) agents are `completed`, AND
    - All its `soft_depends_on` agents have their output files on disk
-8. **Launch newly unblocked agents** — immediately, in parallel if multiple are ready. When launching, update the agent's row to `in_progress` with the new Agent ID.
-9. **Repeat** until all agents are complete
+10. **Launch newly unblocked agents** — immediately, in parallel if multiple are ready. When launching, update the agent's row to `in_progress` with the new Agent ID.
+11. **Repeat** until all agents are complete
 
 **Key principle: launch agents as soon as their specific dependencies are satisfied.** Don't wait for unrelated agents to finish. This is swim-lane scheduling, not batch phases.
+
+**Checking agent progress:** Use `TaskOutput` with `block: false` for non-blocking status checks on running agents, or `block: true` with a timeout to wait for completion. Do NOT fall back to ad-hoc Bash commands (like `tail` or `grep` on agent output files) to check progress — these require Bash permissions that may not be pre-configured and will prompt the user. `TaskOutput` is a dedicated tool that needs no Bash permissions.
 
 **Soft dependency acceleration:** While waiting for hard-dependent agents to complete, periodically check if soft-dependent agents can start. A soft dependency is satisfied as soon as the dependency's `creates` files exist on disk — even if the dependency agent is still running (e.g., still in its REFACTOR phase). This lets downstream agents start sooner.
 
@@ -311,6 +353,9 @@ After all agents complete:
 - **You are the coordinator, not an implementer** — delegate all code changes to subagents
 - **Verify after every agent** — catch contract violations before they cascade to dependent agents
 - **Launch eagerly** — as soon as an agent's dependencies are satisfied, launch it. Don't batch.
+- **State + PR per agent, not per wave** — update the state file and create the PR immediately when each agent completes. Never defer these to a batch phase. If the session is interrupted, the state file and PRs are the recovery mechanism — they must always be current.
+- **Never use `cd <dir> && git`** — permission patterns match on command prefix. Use `git -C <dir>` for all worktree operations so commands match `Bash(git -C:*)`.
+- **Pre-register all permissions** — during Step 1, audit and add ALL Bash permissions the coordinator and agents will need. A single batch prompt at the start is far better than repeated interruptions during execution.
 - **Prompts are self-contained** — each agent receives `Shared Contract + Prompt Preamble + Agent Prompt`, which together include everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
 - **Use haiku model** for simple agents (single file, small edit, < 30 lines changed) to minimize cost and latency
 - **Branch Strategy is optional** — if the plan has no Branch Strategy section, skip all branch/commit/PR operations. The executor works the same as before, just without git integration.
