@@ -67,7 +67,7 @@ Without these patterns, loops complete in predictable iterations (typically 4) r
 
 ## Reference Implementation
 
-See `.claude/commands/init-ralph-research/` for templates implementing this pattern.
+See `.claude/commands/ralph/init/` for templates implementing this pattern.
 
 ## Testing Long-Running Scripts
 

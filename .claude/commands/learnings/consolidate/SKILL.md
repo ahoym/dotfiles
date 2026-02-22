@@ -1,5 +1,5 @@
 ---
-description: Multi-sweep curation — auto-applies HIGH recommendations, batches MEDIUMs, loops until collection is fully distilled
+description: "Exhaustive multi-sweep curation — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Use when the user says \"consolidate learnings\", \"deep clean\", \"distill everything\", or wants thorough multi-pass curation. Orchestrates repeated learnings:curate sweeps."
 ---
 
 # Consolidate Learnings
@@ -178,7 +178,7 @@ Generate the final consolidation report:
 | Deleted outdated | 2 | v1-spec-structure, ... |
 | Enhanced personas | 1 | java-backend (+4 gotchas) |
 | Created personas | 0 | — |
-| Migrated to skills | 1 | comparison-template → init-ralph-research |
+| Migrated to skills | 1 | comparison-template → ralph:init |
 | Migrated to guidelines | 0 | — |
 | Genericized | 2 | api-design: Response Shapes, ... |
 

@@ -50,7 +50,7 @@ A pattern is **context for skill** when:
 
 **Examples:**
 - "Signs One Directory is Superseded" → Context (helps comparison decisions)
-- "When to Use v2 vs v1 Spec" → Context (helps init-ralph-research decisions)
+- "When to Use v2 vs v1 Spec" → Context (helps ralph:init decisions)
 - "Priority Definitions for Questions" → Context (helps assumptions doc creation)
 
 ### Guideline Candidate
@@ -167,10 +167,10 @@ When reviewing existing skills (step 5 of learnings:curate), evaluate whether sk
 
 | Pattern | Classification | Rationale |
 |---------|----------------|-----------|
-| "Comparison Table Template" | Template for skill | Structured format that init-ralph-research could generate |
+| "Comparison Table Template" | Template for skill | Structured format that ralph:init could generate |
 | "Signs Directory Superseded" | Context for skill | Decision criteria that helps comparison process |
 | "v2 Spec Structure" | Template for skill | Document structure for spec file generation |
-| "When to Use v2 vs v1" | Context for skill | Decision logic for init-ralph-research |
+| "When to Use v2 vs v1" | Context for skill | Decision logic for ralph:init |
 | "Consolidating Duplicates" | Standalone reference | Situational procedure, no matching skill |
 | "v1 Spec Structure" | Outdated | Superseded by v2 in same file |
 

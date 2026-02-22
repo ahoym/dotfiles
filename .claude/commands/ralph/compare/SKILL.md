@@ -1,5 +1,5 @@
 ---
-description: Compare duplicate research directories to determine which is superseded
+description: "Compare duplicate research directories to determine which is superseded. Use when the user says \"compare these research dirs\", \"which ralph project is newer\", \"deduplicate research\", or has multiple research loops covering the same topic."
 ---
 
 # Compare Ralph Projects
@@ -8,9 +8,9 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 
 ## Usage
 
-- `/compare-ralph-projects <dir1> <dir2>` - Compare two directories
-- `/compare-ralph-projects <dir1> <dir2> <dir3>` - Compare three directories
-- `/compare-ralph-projects` - Will prompt for directories to compare
+- `/ralph:compare <dir1> <dir2>` - Compare two directories
+- `/ralph:compare <dir1> <dir2> <dir3>` - Compare three directories
+- `/ralph:compare` - Will prompt for directories to compare
 
 ## Reference Files (conditional — read in step 3)
 
@@ -91,7 +91,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 ## Example
 
 ```
-User: /compare-ralph-projects docs/claude-learnings/tmp-monte-carlo docs/claude-learnings/monte-carlo-simulation
+User: /ralph:compare docs/claude-learnings/tmp-monte-carlo docs/claude-learnings/monte-carlo-simulation
 
 Claude: Comparing directories...
 

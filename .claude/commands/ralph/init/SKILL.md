@@ -1,5 +1,5 @@
 ---
-description: Initialize an iterative research project with spec and progress tracking
+description: "Initialize an iterative research project with spec and progress tracking. Use when the user says \"start a research project\", \"init ralph\", \"new research loop\", or wants to set up a structured iterative investigation with templates."
 ---
 
 # Initialize Ralph Research Project
@@ -8,8 +8,8 @@ Create a new Ralph loop project directory with customized spec and progress file
 
 ## Usage
 
-- `/init-ralph-research <topic>` - Create project for the given topic
-- `/init-ralph-research` - Will prompt for topic
+- `/ralph:init <topic>` - Create project for the given topic
+- `/ralph:init` - Will prompt for topic
 
 ## Reference Files
 
@@ -56,7 +56,7 @@ Create a new Ralph loop project directory with customized spec and progress file
 ## Example
 
 ```
-/init-ralph-research options pricing models
+/ralph:init options pricing models
 
 Created Ralph research project: docs/claude-learnings/options-pricing-models/
 

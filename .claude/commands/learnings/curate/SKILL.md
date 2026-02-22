@@ -1,5 +1,5 @@
 ---
-description: Curate learnings, guidelines, and skills — consolidate, reorganize, or prune
+description: "Single-pass curation of learnings, guidelines, and skills — consolidate, reorganize, or prune. Use when the user says \"clean up learnings\", \"review my guidelines\", \"reorganize skills\", or wants one analysis pass over their knowledge base. For exhaustive multi-sweep curation, use learnings:consolidate instead."
 ---
 
 # Curate Learnings
@@ -221,8 +221,8 @@ Display the full report inline in the CLI.
 
 | # | Pattern | Lines | Classification | Confidence | Target |
 |---|---------|-------|----------------|------------|--------|
-| 1 | Comparison Table Template | 21-32 | Template for skill | High | init-ralph-research |
-| 2 | Signs Directory Superseded | 34-40 | Context for skill | Medium | init-ralph-research |
+| 1 | Comparison Table Template | 21-32 | Template for skill | High | ralph:init |
+| 2 | Signs Directory Superseded | 34-40 | Context for skill | Medium | ralph:init |
 
 ### Persona Suggestions (if any)
 
