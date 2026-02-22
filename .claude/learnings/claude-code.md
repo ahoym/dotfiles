@@ -78,3 +78,11 @@ When monitoring background agents launched via `Task` with `run_in_background: t
 - Ad-hoc Bash commands on output files require Bash permission patterns that aren't typically pre-configured, causing repeated permission prompts
 
 **Discovered from:** parallel-plan:execute session where checking agent progress via Bash scripts triggered permission prompts that interrupted the user.
+
+## Glob/Grep Tools Don't Resolve `~` in Path Parameters
+
+The Glob and Grep tools do not expand `~` to the home directory in the `path` parameter. Patterns like `Glob(pattern: "learnings/**/*.md", path: "~/.claude")` return "No files found" even when matching files exist.
+
+**Workaround:** Use absolute paths (`/Users/<user>/.claude`) in the `path` parameter, or use Bash `ls` to discover file listings and then Read with absolute paths.
+
+**Note:** The `~` syntax works in *permission rules* (e.g., `Read(~/.claude/learnings/**)`), but not in tool invocation parameters. Don't confuse the two — permission rules use gitignore-style path matching, while tool parameters need real filesystem paths.

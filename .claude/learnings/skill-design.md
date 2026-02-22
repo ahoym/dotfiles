@@ -261,6 +261,7 @@ When two skills serve related but distinct purposes, the lower-level skill's des
 - `AskUserQuestion` multi-select is limited to 4 options — consolidation runs with many MEDIUM items need grouped choices or a different presentation strategy
 - Post-run review caught two systemic issues that became content principles in `content-type-decisions.md`: genericizing tool-specific references, and no TODOs/feature requests in context files
 - **Cadence signal:** A second consolidation run on a recently-curated collection yielded 0 HIGHs and only 2 minor MEDIUMs (misplaced persona content, stale execution log). Consolidation has diminishing returns when run shortly after a clean first run — use `/learnings:curate <file>` for targeted cleanup between full consolidation sweeps
+- **Inline analysis beats subagents for small collections:** For collections under ~20 files, inline cluster analysis is faster than launching per-cluster Task subagents. The overhead of subagent coordination (prompt construction, context transfer, result merging) exceeds the parallelization benefit at small scale. Reserve per-cluster subagents for 30+ file collections or 5+ clusters.
 
 ## Scope _shared/ Files to Their Skill Group
 
