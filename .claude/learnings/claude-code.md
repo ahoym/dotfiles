@@ -31,22 +31,15 @@ Verified empirically: moving `personas/*.md` up to sit next to `SKILL.md` remove
 
 ## Permission Rules: `Read()` Covers Glob and Grep
 
-The permission system's tool names don't match the display names shown in prompts. When Claude Code asks permission for a Glob or Grep operation, the prompt shows `Search(pattern: "**/*.md", path: "~/.claude/learnings")` — but the correct allow rule uses **`Read`**, not `Search` or `Glob`.
+Glob/Grep operations show as `Search(...)` in prompts but the correct allow rule uses **`Read`**, not `Search` or `Glob`.
 
-From the [docs](https://code.claude.com/docs/en/permissions): *"Claude makes a best-effort attempt to apply `Read` rules to all built-in tools that read files like Grep and Glob."*
-
-**Path syntax** follows gitignore conventions with four types:
-- `Read(~/path)` — relative to home directory
-- `Read(//absolute/path)` — absolute filesystem path (note the double slash)
-- `Read(/relative/path)` — relative to settings file location
-- `Read(path)` — relative to current working directory
+**Path syntax** (gitignore conventions): `Read(~/path)` (home-relative), `Read(//absolute/path)` (absolute, note double slash), `Read(/relative/path)` (settings-file-relative), `Read(path)` (CWD-relative).
 
 **Example** — auto-allow Glob/Grep under `~/.claude/`:
 ```json
 "permissions": {
   "allow": [
     "Read(~/.claude/learnings/**)",
-    "Read(~/.claude/guidelines/**)",
     "Read(~/.claude/commands/**)"
   ]
 }
@@ -60,22 +53,11 @@ When using `Task` with `subagent_type: "Bash"` and `run_in_background: true`, th
 
 ## Bash Permission Prefix Matching Gotchas
 
-Bash permission patterns match on the **literal command prefix**. Three common ways this breaks:
+Bash permission patterns match on the **literal command prefix**. Three common breaks:
 
-**1. `cd &&` prefix:** `cd /tmp/worktree && git add .` starts with `cd`, not `git`, so `Bash(git add:*)` won't match. **Fix:** Use `git -C <dir>` instead of `cd <dir> && git`.
-
-```bash
-# BAD — starts with "cd", won't match git permission patterns
-cd /tmp/worktree-123 && git add . && git commit -m "msg"
-
-# GOOD — starts with "git", matches Bash(git -C:*) or Bash(git:*)
-git -C /tmp/worktree-123 add .
-git -C /tmp/worktree-123 commit -m "msg"
-```
-
-**2. `git -C` prefix:** `git -C ../worktree push origin branch` does NOT match `Bash(git push:*)` because `-C ../worktree` comes before `push`. **Workaround:** From the main repo, `git push origin <branch>` pushes commits made in any worktree (shared object database).
-
-**3. Tilde expansion:** If a background agent expands `~` to `/Users/foo/.claude/...`, the command won't match `Bash(bash ~/.claude/commands/...:*)`. Always pass `~` literally — the shell expands it at runtime, but the permission check happens on the literal text.
+1. **`cd &&` prefix:** `cd /tmp/worktree && git add .` starts with `cd`, not `git` — won't match `Bash(git add:*)`. Fix: use `git -C <dir>` instead.
+2. **`git -C` prefix:** `git -C ../worktree push` doesn't match `Bash(git push:*)` because `-C` comes before `push`. Workaround: push from main repo — `git push origin <branch>` works for worktree commits (shared object database).
+3. **Tilde expansion:** Background agents may expand `~` to `/Users/...`, breaking `Bash(bash ~/.claude/...:*)`. Always pass `~` literally — the shell expands at runtime, permission checks the literal text.
 
 ## Scoping Bash Permissions: Helper Scripts
 
@@ -83,16 +65,13 @@ When a skill needs Bash commands that don't match existing patterns, wrap them i
 
 ```bash
 #!/usr/bin/env bash
-# worktree-commit.sh
-WORKTREE_PATH="$1"
-COMMIT_MSG="$2"
-git -C "$WORKTREE_PATH" add -A
-git -C "$WORKTREE_PATH" commit -m "$COMMIT_MSG"
+# worktree-commit.sh — wraps git operations for permission scoping
+git -C "$1" add -A && git -C "$1" commit -m "$2"
 ```
 
-Permission entry: `Bash(bash ~/.claude/commands/compound-learnings/worktree-commit.sh:*)` — grants permission with any arguments, without exposing broad `git -C` permissions.
+Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any arguments, without exposing broad `git -C` permissions.
 
-**Anti-pattern: `Bash(bash:*)`** — this matches ANY command starting with `bash`, including `bash -c '<anything>'`. Agents can bypass every other permission by wrapping denied commands in `bash -c`. Background agents self-discover this workaround when commands are auto-denied. Always scope with enough path: `Bash(bash scripts/:*)` or `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
+**Anti-pattern: `Bash(bash:*)`** matches ANY `bash` command including `bash -c '<anything>'` — agents discover this bypass when commands are auto-denied. Always scope with path: `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
 
 ## Use TaskOutput, Not Bash, to Check Background Agent Progress
 

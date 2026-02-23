@@ -55,5 +55,3 @@ Consolidate (rather than delete) when directories evolved independently and cont
 - Different spec versions with distinct features worth keeping
 - Deep research files in one, core docs in another
 - Different iteration counts with complementary (not overlapping) coverage
-
-See the "Consolidating Duplicate Ralph Loop Projects" section in `docs/learnings/ralph-loop-usage.md` for the full consolidation process.

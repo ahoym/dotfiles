@@ -68,6 +68,19 @@ When a persona mixes generic and domain-specific content, extract the generic la
 
 **Example**: `java-devops` extends `platform-engineer` — generic CI/CD, deployment, and observability patterns live in the parent; Java-specific JVM tuning and Spring Boot operational patterns stay in the child.
 
+**Heuristic for tool categorization:** Categorize tools by their actual scope, not where you first learned them. Example: `dependency-review-action` is language-agnostic (GitHub scans any ecosystem) but `pnpm audit` is TypeScript-specific — they belong in different personas even though you encountered both while setting up the same CI pipeline.
+
+## Tiering: Core vs Deep-Reference
+
+When a persona file accumulates enough domain-specific gotchas that signal density degrades, split into two tiers:
+
+- **Core (always-loaded):** High-frequency patterns checked on every review — flag usage, casing conventions, trust line prerequisites, arithmetic rules. These belong in the persona file itself.
+- **Deep-reference (conditional):** Operation-specific knowledge relevant only during certain tasks. Reference via `@` pointer to a learnings file; the agent loads it when the task context matches.
+
+**Cut line:** "Check every time I see domain code" → core. "Reference when building feature X" → deep-reference.
+
+**Trigger:** Signal density, not raw line count. If a reviewer would skim past most entries because they're irrelevant to the current task, the file has crossed the threshold.
+
 ## Maintenance
 
 - Fold new learnings into matching personas during curation when they fit a persona's domain
