@@ -49,7 +49,8 @@ Create a new Ralph loop project directory with customized spec and progress file
    - spec.md
    - progress.md
 
-   Next: Run your Ralph loop runner pointing to docs/learnings/<project-name>/
+   Next: Run the Ralph loop:
+   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/<project-name>
    ```
 
 ## Example
@@ -63,7 +64,8 @@ Files created:
 - spec.md (configured for "Options Pricing Models" research)
 - progress.md (ready for first iteration)
 
-Next: Run your Ralph loop runner pointing to docs/learnings/options-pricing-models/
+Next: Run the Ralph loop:
+bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models
 ```
 
 ## Research Conventions

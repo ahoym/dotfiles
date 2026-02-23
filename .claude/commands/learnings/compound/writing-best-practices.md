@@ -73,7 +73,7 @@ When a skill requires Bash commands, update `.claude/settings.json`:
 ## Skill Naming Conventions
 
 - Use lowercase with hyphens: `/cascade-rebase`, `/pr-status`
-- Verb-noun or noun-verb: `/split-commit`, `/preview-conflicts`
+- Verb-noun or noun-verb: `/split-commit`, `/resolve-conflicts`
 - Keep names short but descriptive (2-3 words max)
 
 ## Skill Description Frontmatter

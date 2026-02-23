@@ -100,26 +100,6 @@ After deleting skills, grep remaining skills for the deleted skill names — oth
 
 Skills with `Co-Authored-By` or `Co-authored with` lines hardcode the model version (e.g., "Claude Opus 4.5"). These go stale on model upgrades. During curation sweeps, grep for the previous model version string across all skill directories and bulk-update.
 
-## Curate Reference Files in Content Mode, Not Skill Mode
-
-The curate skill's mode detection (`commands/*` → skill mode) is too coarse. Reference files under `commands/` (e.g., `writing-best-practices.md`, `classification-model.md`) are content files with discrete patterns — they need content mode (pattern-level analysis), not skill mode (package-level evaluation). Skill mode is only appropriate for SKILL.md files and their parent directories.
-
-## Curate Skill Groups Together, Not Individually
-
-When curating skills, evaluate the full group (e.g., all git skills) in one pass. Overlaps, merge opportunities, and thin wrapper candidates are only visible when comparing skills side by side. Individual evaluation misses cross-skill redundancy (e.g., preview-conflicts being a subset of resolve-conflicts).
-
-## Separate Orthogonal Dimensions in State Tracking
-
-When a skill's scope expands along a new dimension (e.g., consolidate adding content types), track dimensions independently rather than creating combinatorial state values. `CONTENT_TYPE=SKILLS` + `PHASE=MEDIUM_BATCH` is cleaner than `PHASE=SKILL_MEDIUM_BATCH`. Each dimension changes independently and the loop logic stays generic across content types.
-
-## Corpus Refresh at Content-Type Boundaries
-
-When a multi-phase skill processes content types sequentially (learnings → skills → guidelines), re-read files modified by prior phases at each transition. This is lighter than a full corpus re-read but catches cross-type effects (e.g., a learning migrated into a skill reference file during the learnings phase affects the skill's evaluation). Track modified files via `CUMULATIVE_ACTIONS` targets.
-
-## Context-Specific Guidance → skill-references, Not @-Referenced Guidelines
-
-If guidance only applies during specific workflows, place it in `skill-references/` and reference from consuming skills — not in `@`-referenced files. See `content-type-decisions.md` "Guideline Scoping" for the full decision framework.
-
 ## "LLM Knows X" ≠ "LLM Consistently Applies X"
 
 When deciding whether to codify a pattern, the question isn't "can the model execute this when asked?" but "does it reliably do so unprompted?" Textbook patterns (extract class, DRY, factories) that the model knows but doesn't consistently apply during implementation still warrant codification — as a lightweight checklist reminder, not a tutorial. The correct form factor is a slim reference file (~15 lines) that reminds, not a 229-line reference file that teaches.
@@ -127,8 +107,3 @@ When deciding whether to codify a pattern, the question isn't "can the model exe
 ## Stale Path References Are the Primary Skill Maintenance Issue
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
-
-## Skill Curation Must Scan Beyond `commands/`
-
-When curating "all skills," also check for automation content outside `~/.claude/commands/` — e.g., `~/.claude/lab/` contains scripts like `wiggum.sh` (Ralph Loop runner) that aren't skill-registered but are part of the tooling surface. The skill loader only discovers `commands/`, so content elsewhere is invisible to skill-mode curation unless explicitly scanned.
-

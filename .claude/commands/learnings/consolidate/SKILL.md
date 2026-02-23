@@ -206,7 +206,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 
 #### 4a. Cluster skills by prefix
 
-Group all skill directories under `~/.claude/commands/` by their namespace prefix:
+Group all skill directories under `~/.claude/commands/` by their namespace prefix. Also check `~/.claude/lab/` for automation scripts (e.g., `wiggum.sh`) that aren't skill-registered but are part of the tooling surface — the skill loader only discovers `commands/`, so content elsewhere needs explicit scanning.
 
 | Cluster | Skills |
 |---------|--------|

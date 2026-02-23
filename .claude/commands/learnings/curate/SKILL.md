@@ -58,7 +58,8 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 - Verify each file exists under `~/.claude/` (e.g., `learnings/`, `guidelines/`, `commands/`)
 - Determine the **curation mode** per file:
   - `learnings/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
-  - `commands/*` → **Skill mode** (skill-level evaluation)
+  - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
+  - `commands/*` reference files (e.g., `writing-best-practices.md`, `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
 - Store as `TARGET_FILES`
 
 **If no arguments**:

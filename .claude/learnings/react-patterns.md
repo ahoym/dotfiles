@@ -146,6 +146,25 @@ Design modals to handle only form input and preview, then call an `onExecute(dat
 
 In sequential async loops, bump `refreshKey` after each successful iteration rather than only at the end. This triggers data re-fetching hooks after every operation so the user sees results in real time. Works because `await` between iterations yields control back to React.
 
+## Large Pages: Decompose into Sub-Components with Shared Hooks
+
+When a page component grows beyond ~200 lines, decompose it into:
+
+1. **Slim orchestrator page** (~100-150 lines) — owns top-level state, wires props between sections
+2. **Sub-components** in a dedicated subdirectory (e.g., `app/components/feature/`) — each manages its own submission/loading/error state
+3. **Shared hooks** in `lib/hooks/` — extract repeated data-fetching and action patterns
+
+**Rules:**
+- Each sub-component owns its action state (loading, error for its own POST calls) — the orchestrator doesn't need to know about submission details
+- Shared hooks own fetch state (data, loading, refresh) — multiple components consume the same hook independently
+- The orchestrator provides context (addresses, config, callbacks for cross-component refresh)
+- **Refresh coordination:** Pass `refreshKey` numbers or `onChanged` callbacks to trigger sibling refreshes when one component modifies shared data
+
+**When NOT to extract:**
+- Don't extract a hook for a one-off action unique to a single component
+- Don't extract a sub-component for a section < 50 lines
+- Don't extract a shared hook if only one consumer exists (extract when a second consumer appears)
+
 ## Audit Before Abstracting: Two-Tier Hook Design
 
 When extracting a "repeated pattern" across N components into a shared abstraction, research every component's actual usage first. The pattern is often less uniform than it appears.
