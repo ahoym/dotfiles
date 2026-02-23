@@ -161,3 +161,11 @@ When a persona file accumulates enough domain-specific gotchas that signal densi
 
 **When to tier:** The trigger is signal density, not raw line count. If a reviewer would skim past most entries because they're irrelevant to the current task, the file has crossed the threshold. Every entry in core should be worth checking on every review.
 
+## Persona Pollution: Extract Ecosystem-Specific Content into Child Personas
+
+When a generic persona (e.g., `platform-engineer`) accumulates language/ecosystem-specific gotchas (pnpm, ESLint, Vercel), extract them into a child persona using `Extends: parent`. The parent stays language-agnostic; the child inherits generic patterns and adds ecosystem specifics.
+
+**Pattern:** Mirrors `java-backend` / `java-devops` split. For each item in the parent, ask: "Is this relevant regardless of language?" If no, it belongs in a child.
+
+**Heuristic for tool categorization:** When splitting, categorize tools by their actual scope, not where you first learned them. Example: `dependency-review-action` is language-agnostic (GitHub scans any ecosystem) but `pnpm audit` is TypeScript-specific — they belong in different personas even though you encountered both while setting up the same CI pipeline.
+
