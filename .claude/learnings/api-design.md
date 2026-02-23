@@ -45,7 +45,7 @@ The `as unknown as Record<string, unknown>` cast is needed when the body is type
 - **Cap user-provided limit parameters:** Always clamp with `Math.min(userValue, hardCap)` to prevent resource exhaustion
 - **Use `encodeURIComponent()` for URL path segments:** When constructing API URLs with user-provided values (e.g., addresses)
 - **`Cache-Control: no-store` for sensitive responses:** Prevent browser/proxy caching of wallet seeds, keys
-- **Validate seeds with try-catch around `Wallet.fromSeed()`:** Return 400 for invalid seeds instead of unhandled 500
+- **Validate user-provided credentials with try-catch:** Return 400 for invalid inputs instead of unhandled 500
 
 ## API Contract Audit Approach
 
