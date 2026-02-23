@@ -26,6 +26,18 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Granular files > monolithic files for selective loading.** Smaller, focused files let the agent load only what's relevant. Split large files when distinct sections serve different tasks — the agent can then pay tokens only for the section it needs
 - **Deduplication has compounding returns.** Content duplicated across N files costs N× tokens when multiple files are loaded in the same conversation. Consolidating to a single authoritative location saves tokens proportional to the overlap
 
+## Compression Target Patterns
+
+The conciseness check (curate step 4) should specifically flag these patterns as compression candidates:
+
+- **Provenance notes** — "Discovered from: building the /api/amm/info route..." adds no teaching value; the pattern stands on its own
+- **Compound-time self-assessments** — "Utility: High — novel pattern" was useful during triage but is noise once the learning is accepted
+- **Debugging trails** — "What didn't work: tried X, then Y" belongs in commit history, not permanent reference docs
+- **Verbose source code** — Multi-line code blocks when an English summary captures the same insight (e.g., a 15-line C++ snippet reducible to "Source: rippled `NetworkOPs.cpp` ~4177-4191")
+- **Redundant structural dividers** — `---` between sections when `##` headings already provide visual separation
+
+**Calibration:** These patterns typically yield ~30% compression without losing teaching value. The goal is fewer tokens per insight, not fewer insights.
+
 ## Phase 2 Patterns
 
 - **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
