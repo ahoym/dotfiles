@@ -14,6 +14,7 @@ Execute a structured parallel plan produced by `/parallel-plan:make`. Acts as a 
 ## Reference Files
 
 - `~/.claude/skill-references/agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
+- `~/.claude/skill-references/code-quality-checklist.md` — Include in agent prompts so implementations self-review for structural issues
 
 ## Role: Coordinator
 
@@ -216,6 +217,7 @@ Don't treat discovery propagation as a blocking step. If all dependent agents ar
 1. **Shared Contract** — the full Shared Contract section from the plan (types, API contracts, import paths)
 2. **Prompt Preamble** — the Prompt Preamble section from the plan (TDD workflow, project commands, completion report format), if present
 3. **Agent prompt** — the agent's `prompt` field from the plan
+4. **Code quality checklist** — append the contents of `~/.claude/skill-references/code-quality-checklist.md` as a final self-review step (read the file once and reuse for all agents)
 
 This ensures every agent sees the shared contract and common instructions without the planner having to duplicate them in each agent's prompt. The agent's `prompt` field focuses on agent-specific work: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
 
