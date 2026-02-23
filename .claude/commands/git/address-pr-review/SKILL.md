@@ -72,7 +72,7 @@ Fetch and address review comments from a pull request.
      -f body="Good point - I'll update this to use bcrypt instead. The current sha256 approach is less secure for password hashing.
 
    ---
-   *Co-authored with Claude Opus 4.5*" \
+   *Co-authored with Claude Opus 4.6*" \
      -F in_reply_to=<comment_id>
    ```
 
@@ -97,7 +97,7 @@ Fetch and address review comments from a pull request.
 
    - <summary of changes made>
 
-   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
    EOF
    )"
    ```
@@ -115,7 +115,7 @@ Fetch and address review comments from a pull request.
      -f body="<brief explanation>. Fixed in <COMMIT_HASH>.
 
 ---
-*Co-authored with Claude Opus 4.5*" \
+*Co-authored with Claude Opus 4.6*" \
      -F in_reply_to=<comment_id>
    ```
 
@@ -125,7 +125,7 @@ Fetch and address review comments from a pull request.
      -f body="<explanation or response>
 
 ---
-*Co-authored with Claude Opus 4.5*" \
+*Co-authored with Claude Opus 4.6*" \
      -F in_reply_to=<comment_id>
    ```
 
@@ -274,7 +274,7 @@ gh pr comment <PR_NUMBER> --body "## Summary of Changes Since Last Update
 - <change 2>
 
 ---
-_Co-authored by Claude Code (Claude Opus 4.5)_"
+_Co-authored by Claude Code (Claude Opus 4.6)_"
 ```
 
 ### Re-review Requests
@@ -289,7 +289,7 @@ gh api repos/{owner}/{repo}/pulls/<PR_NUMBER>/reviews --jq '[.[] | select(.state
 gh pr comment <PR_NUMBER> --body "@<reviewer> New changes have been pushed - could you please re-review?
 
 ---
-_Co-authored by Claude Code (Claude Opus 4.5)_"
+_Co-authored by Claude Code (Claude Opus 4.6)_"
 ```
 
 **Important:** Tag ALL reviewers who gave LGTM comments, including the PR author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.

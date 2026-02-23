@@ -35,7 +35,7 @@ gh api repos/{owner}/{repo}/issues/{pr}/comments \
 I'd suggest taking a closer look at the changes in \`path/to/main/file.py\` and the new \`path/to/new/module.py\` to see what's actually being added here.
 
 ---
-*Co-authored with Claude Opus 4.5*"
+*Co-authored with Claude Opus 4.6*"
 ```
 
 ## Confirming Valid LGTM
@@ -47,5 +47,5 @@ gh api repos/{owner}/{repo}/issues/{pr}/comments \
   -f body="Thanks! That summary accurately reflects the PR. ✅
 
 ---
-*Co-authored with Claude Opus 4.5*"
+*Co-authored with Claude Opus 4.6*"
 ```

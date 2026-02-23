@@ -42,7 +42,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    git add <files>
    git commit -m "<message>
 
-   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
    ```
 
 6. **Apply remaining changes**:
@@ -52,7 +52,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    git add <files>
    git commit -m "<message>
 
-   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
    ```
 
 7. **Verify and push**:

@@ -10,6 +10,7 @@ Resolve merge conflicts between your PR branch and its base branch.
 
 - `/resolve-conflicts` - Resolve conflicts for current branch against its base
 - `/resolve-conflicts <base-branch>` - Resolve against specified base branch
+- `/resolve-conflicts --preview` - Preview conflicts only (runs steps 1-3, skips the actual merge)
 
 ## Reference Files (conditional — read only when needed)
 
@@ -18,6 +19,10 @@ Resolve merge conflicts between your PR branch and its base branch.
 ## Instructions
 
 0. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
+
+1. **Check for preview-only mode**:
+   - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true` and remove `--preview` from args
+   - If preview-only: run steps 1-3 only (determine branches, fetch, preview), then stop
 
 1. **Determine branches**:
    - Current branch: `git branch --show-current`
