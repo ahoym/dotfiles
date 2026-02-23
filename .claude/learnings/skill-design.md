@@ -169,3 +169,7 @@ When deciding whether to codify a pattern, the question isn't "can the model exe
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
 
+## Skill Curation Must Scan Beyond `commands/`
+
+When curating "all skills," also check for automation content outside `~/.claude/commands/` — e.g., `~/.claude/lab/` contains scripts like `wiggum.sh` (Ralph Loop runner) that aren't skill-registered but are part of the tooling surface. The skill loader only discovers `commands/`, so content elsewhere is invisible to skill-mode curation unless explicitly scanned.
+
