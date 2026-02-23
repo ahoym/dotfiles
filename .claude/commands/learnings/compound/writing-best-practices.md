@@ -203,6 +203,17 @@ Periodically review skills 100+ lines to identify content extractable into condi
 
 **Evaluate extraction benefit:** 50+ lines situational = high value, 20-50 = medium, <20 = overhead exceeds benefit. Don't extract content under 15 lines, needed on every invocation, or that loses context when separated.
 
+## Gap vs Inconsistency Boundary
+
+When a skill categorizes findings into "gaps" and "inconsistencies," define them with a non-overlapping boundary: a **gap** means code has a pattern completely absent from docs; an **inconsistency** means docs exist but contradict the code. Add a preamble to each category excluding the other to prevent items from appearing in both.
+
+## Orchestrator/Agent Separation for Multi-Step Skills
+
+Split SKILL.md into two files when a skill has a multi-step background workflow:
+
+1. **Orchestrator (SKILL.md)** — User interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines. List reference files as conditional (no eager `@`).
+2. **Background agent steps (separate .md)** — Autonomous workflow executed by a Task agent. Use aliases at top, decision tables for branching, inline warnings at point of use, error recovery at bottom.
+
 ## Related References
 
 - skill-template.md - Template and file organization for skills

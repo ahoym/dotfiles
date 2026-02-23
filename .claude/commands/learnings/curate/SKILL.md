@@ -216,6 +216,8 @@ Also check:
 - Does the skill have reference files that could be pruned or consolidated?
 - Is the skill description accurate for what it actually does?
 - Are there missing reference files that would improve execution?
+- **Cross-skill reference deduplication:** Compare reference files against companion skills — especially producer/consumer pairs. Check for >80% content overlap. The superset version is usually in the skill that uses the content more heavily. Resolution: move the superset to `skill-reference/` and update both skills to reference the shared path.
+- **Producer/consumer contract validation:** When two skills form a producer/consumer pair, validate that the producer generates every section the consumer expects. A term appearing in the consumer doesn't mean the producer actually generates it.
 
 ### 4s. Classify the skill
 
