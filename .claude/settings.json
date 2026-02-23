@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash ~/.claude/commands/**)",
+      "Bash(chmod:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git merge:*)",
+      "Bash(git mv:*)",
+      "Bash(git push:*)",
+      "Bash(git status:*)",
+      "Bash(git switch:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Edit(~/.claude/guidelines/**)",
+      "Edit(~/.claude/learnings/**)",
+      "Edit(~/.claude/skill-references/**)",
+      "Edit(~/.claude/skills/**)",
+      "Read(~/.claude/commands/**)",
+      "Read(~/.claude/guidelines/**)",
+      "Read(~/.claude/learnings/**)",
+      "Read(~/.claude/skill-references/**)",
+      "Read(~/.claude/skills/**)",
+      "Read(~/WORKSPACE/**)",
+      "Write(~/.claude/guidelines/**)",
+      "Write(~/.claude/learnings/**)",
+      "Write(~/.claude/skill-references/**)",
+      "Write(~/.claude/skills/**)"
+    ]
+  }
+}

@@ -9,7 +9,7 @@ DOTFILES_CLAUDE_DIR="$(cd "$(dirname "$0")/.claude" && pwd)"
 TARGET_DIR="$HOME/.claude"
 
 # Items to symlink (everything in .claude/ except README.md)
-ITEMS=(commands guidelines lab learnings settings.local.json)
+ITEMS=(commands guidelines lab learnings settings.json settings.local.json skill-references)
 
 if [ ! -d "$TARGET_DIR" ]; then
   mkdir -p "$TARGET_DIR"
