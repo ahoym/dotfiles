@@ -12,6 +12,22 @@ Review learnings, guidelines, or skills to identify content that should be migra
 - `/learnings:curate <file1> <file2>` - Curate multiple files
 - `/learnings:curate` - Prompt for which file to curate
 
+## Context Window Optimization
+
+Curation serves a dual purpose: organizing content AND minimizing baseline context window cost. Every token in reference material is a token unavailable for the actual task.
+
+**Core principles:**
+
+- **`@` references are always-on cost.** Content in `@`-referenced files (e.g., `@.claude/guidelines/...` in CLAUDE.md) is injected into every conversation regardless of relevance. Keep `@`-referenced files lean — only universally-needed content belongs there.
+- **Non-`@` path references are conditional.** Skill reference files, learnings, and non-`@` files are only read when the agent judges them relevant to the current task. Prefer these for domain-specific, task-specific, or situational content.
+- **Reorganization enables selectivity.** Well-organized, granular files let the agent pull in only what's relevant. A monolithic 200-line file forces loading all 200 lines even when only 20 matter.
+- **Conciseness is a feature.** When reorganizing content, also compress it. Redundant phrasing, excessive examples, and verbose explanations waste context budget. Say the same thing in fewer tokens.
+
+**During classification (step 4), factor in context cost:**
+- Content currently in `@`-referenced files that isn't universally needed → candidate for migration to a conditional reference (skill reference file, learning, or non-`@` guideline)
+- Content that could be split from a large file into a focused file the agent can selectively load → candidate for extraction
+- Duplicate or near-duplicate content across files → consolidation saves tokens in every conversation that loads both
+
 ## Reference Files (conditional)
 
 - `~/.claude/skill-references/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3

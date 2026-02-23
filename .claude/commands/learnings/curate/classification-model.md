@@ -103,6 +103,14 @@ A pattern is **outdated** when ANY of these apply:
 
 Before classifying any pattern as a migration candidate (skill, template, context, or guideline), ask: **"Would having this in the target file actually change how I execute?"** If the answer is no, the pattern isn't worth migrating regardless of which bucket it technically fits. Basic tool knowledge, self-evident behavior, and obvious facts fail this test — they add bulk without changing decisions.
 
+### Context Cost Check
+
+After passing the litmus test, also consider **where** the content will land and its context window cost:
+
+- **Moving TO an `@`-referenced file** increases always-on cost for every conversation. Only do this if the content is universally needed.
+- **Moving FROM an `@`-referenced file** to a conditional reference (skill reference, learning, non-`@` guideline) reduces baseline context cost. Flag these as context optimization wins.
+- **Prefer non-`@` path references** when content is domain-specific or task-specific. The agent can decide at runtime whether to load it, paying tokens only when relevant.
+
 ## Confidence Levels
 
 | Level | Meaning | Action |

@@ -18,6 +18,14 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Inline analysis beats subagents for small collections:** Under ~25 files, read and analyze directly inline — skip subagent fan-out entirely. Direct reads are faster and avoid wasted agent work when the corpus fits easily in context. Reserve per-cluster subagents for 30+ file collections or 5+ clusters
 - **Partial overlap → decompose, don't downgrade.** When a section has N concepts covered elsewhere and 1+ novel concepts, don't classify the whole thing as MEDIUM. Decompose into separate items: HIGH-delete for the covered concepts, HIGH-extract for the novel ones. Each is individually unambiguous. Coverage means *conceptual* coverage (same idea, not necessarily verbatim text)
 
+## Context Window Optimization
+
+- **`@` references are always-on context cost.** Content included via `@` in CLAUDE.md is injected into every conversation. During curation, flag domain-specific or task-specific content in `@`-referenced files as candidates for migration to conditional references (skill reference files, learnings, non-`@` guidelines)
+- **Non-`@` path references enable selective loading.** The agent decides at runtime whether to read a file based on task relevance. This is strictly better than `@` for content that isn't universally needed. Prefer reorganizations that move content from always-on to conditional
+- **Reorganization should also compress.** When moving or consolidating content, look for opportunities to say the same thing more concisely. Redundant phrasing, excessive examples, and verbose explanations waste context budget
+- **Granular files > monolithic files for selective loading.** Smaller, focused files let the agent load only what's relevant. Split large files when distinct sections serve different tasks — the agent can then pay tokens only for the section it needs
+- **Deduplication has compounding returns.** Content duplicated across N files costs N× tokens when multiple files are loaded in the same conversation. Consolidating to a single authoritative location saves tokens proportional to the overlap
+
 ## Phase 2 Patterns
 
 - **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
