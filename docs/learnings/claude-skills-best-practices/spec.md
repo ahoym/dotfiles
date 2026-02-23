@@ -1,4 +1,4 @@
-# Ralph Loop Project: <PROJECT_NAME>
+# Ralph Loop Project: Claude Skills Best Practices
 
 This is an iterative AI loop. You are one iteration. Complete ONE task, update progress, then exit.
 
@@ -87,37 +87,7 @@ Deep Research → Create <topic>.md → Update cross-references → Discover mor
               Update assumptions/questions
 ```
 
-### When to Create Separate Files vs. Append
-
-**Create a separate `<topic>.md` file when:**
-- Research exceeds ~200 lines
-- Topic is self-contained with its own sources
-- Content includes code samples, tables, or detailed specifications
-- Topic may be referenced independently
-
-**Append to info.md when:**
-- Research is brief (<100 lines)
-- Findings are closely tied to core research
-- Topic doesn't warrant standalone navigation
-
-### Tracking Investigation Progress in info.md
-
-Use strikethrough + links to show completed investigations:
-```markdown
-## Areas for Deeper Investigation
-1. ~~Token optimization strategies~~ → See [token-optimization.md](./token-optimization.md)
-2. ~~CI/CD integration~~ → See [ci-cd-integration.md](./ci-cd-integration.md)
-3. Quality metrics - measuring output quality across iterations
-```
-
-For lighter investigations (no separate file produced), use checkboxes:
-```markdown
-- [x] Token optimization strategies
-- [ ] Quality metrics
-```
-
-### File Structure
-
+**File structure example:**
 ```
 project/
 ├── info.md                        # Overview + "Areas for Deeper Investigation" tracker
@@ -129,8 +99,7 @@ project/
 └── code-implementation-guardrails.md  # Deep research file
 ```
 
-### Stop Criteria
-
+**Stop criteria for the cycle:**
 - No new areas identified that would meaningfully change the implementation plan
 - Remaining questions require human judgment (not more research)
 - Diminishing returns: new research isn't producing actionable insights
@@ -171,41 +140,11 @@ WOOT_COMPLETE_WOOT  <!-- Only add when: ALL tasks done AND Questions section pop
 - Project outputs: `./` (this directory)
 - Repository root: `../../../` (relative to this spec)
 
-## Assumptions & Questions Format
-
-When creating `assumptions-and-questions.md`, use this structure:
-
-```markdown
-# Assumptions & Questions: <Project Name>
-
-## Assumptions
-
-### A1: <Short Title>
-**Assumption**: <What we're assuming to be true>
-**Rationale**: <Why this assumption is reasonable>
-**Confirmed/Trade-offs/Exception**: <Validation or caveats>
-
-## Questions & Answers
-
-### Q1: <Question Title>
-**Question**: <The question that arose>
-**Answer**: <Resolution based on research>
-
-## Open Items for Implementation
-
-### O1: <Item Title>
-**Item**: <What needs to be done>
-**Approach**: <How to do it>
-**Priority**: <Low/Medium/High - brief justification>
-```
-
-For complex projects with many assumptions (10+), group by criticality (Critical / Moderate / Working) instead of flat numbering. For blocking questions, include a "Default if no answer" field to enable autonomous progress.
-
 ## Initial Tasks
 
 These are the starting tasks. You will add more as you discover areas needing investigation.
 
-1. **Research & Document** - Learn about <TOPIC> and document findings to `./info.md`. Include an "Areas for Deeper Investigation" section.
+1. **Research & Document** - Learn about Claude skills best practices and document findings to `./info.md`. Include an "Areas for Deeper Investigation" section.
 2. **Codebase Summary** - Review relevant repository code. Create a concise summary for other agents in `./codebase-summary.md`
 3. **Assumptions & Questions** - Log any questions you had or assumptions made when writing any documentation down in `./assumptions-and-questions.md`
 4. **Implementation Plan** - Create a phased plan that can be parallelized and easily reviewed in `./implementation-plan.md`

@@ -15,7 +15,6 @@ Create a new Ralph loop project directory with customized spec and progress file
 
 - @spec-template.md - Template for spec.md with v2 features (dynamic tasks, deep research workflow)
 - @progress-template.md - Template for progress.md with questions section
-- @assumptions-template.md - Template and guidance for assumptions-and-questions.md
 
 ## Instructions
 
@@ -27,21 +26,24 @@ Create a new Ralph loop project directory with customized spec and progress file
    - Convert topic to kebab-case for directory name (e.g., "Monte Carlo Simulation" → "monte-carlo-simulation")
    - Keep it concise (3-4 words max)
 
-3. **Create project directory**:
+3. **Check for existing project**:
+   - If `docs/learnings/<project-name>/` already exists, warn the user: "Project directory already exists. Overwriting will destroy any in-progress research. Proceed?"
+   - Only continue if the user confirms
+
+4. **Create project directory**:
    ```bash
    mkdir -p docs/learnings/<project-name>
    ```
 
-4. **Create spec.md** using @spec-template.md:
+5. **Create spec.md** using @spec-template.md:
    - Replace `<PROJECT_NAME>` with the topic (title case)
    - Replace `<TOPIC>` with the topic
-   - Replace `<output_file>` with `info.md`
    - Adjust References section to use correct relative path to repository root
 
-5. **Create progress.md** using @progress-template.md:
+6. **Create progress.md** using @progress-template.md:
    - Replace `<TOPIC>` with the topic
 
-6. **Confirm to user**:
+7. **Confirm to user**:
    ```
    Created Ralph research project: docs/learnings/<project-name>/
 
@@ -67,44 +69,3 @@ Files created:
 Next: Run the Ralph loop:
 bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models
 ```
-
-## Research Conventions
-
-### info.md as Investigation Tracker
-
-The "Areas for Deeper Investigation" section in info.md serves as the tracker for research progress. Use strikethrough + links to show completed investigations:
-
-```markdown
-## Areas for Deeper Investigation
-
-1. ~~Token optimization strategies~~ → See [token-optimization.md](./token-optimization.md)
-2. ~~CI/CD integration~~ → See [ci-cd-integration.md](./ci-cd-integration.md)
-3. Quality metrics - measuring output quality across iterations
-4. Context handoff patterns - efficient state transfer between iterations
-```
-
-**Why this format:**
-- Visual progress: Strikethrough shows what's done at a glance
-- Navigation: Links let readers jump to detailed research
-- Task generation: Remaining non-struck items drive new Deep Research tasks
-
-**Alternative for lighter investigations** (no separate file produced):
-```markdown
-- [x] Token optimization strategies
-- [ ] Quality metrics
-```
-
-### Deep Research: Separate Files vs. Consolidation
-
-**Create separate `<topic>.md` files when:**
-- Research exceeds ~200 lines
-- Topic is self-contained with its own sources
-- Content includes code samples, tables, or detailed specifications
-- Topic may be referenced independently
-
-**Append to info.md when:**
-- Research is brief (<100 lines)
-- Findings are closely tied to core research
-- Topic doesn't warrant standalone navigation
-
-The hybrid approach keeps info.md lean as a navigation hub while substantial research lives in dedicated files.
