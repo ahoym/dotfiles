@@ -152,6 +152,13 @@ For each classification, note:
 - **Rationale**: Why this classification
 - **Target**: If migrating, where should it go?
 
+**Conciseness check:** For patterns classified as "Standalone reference" (keep), also evaluate token efficiency:
+- Could the pattern express the same insight in fewer tokens without losing teaching value?
+- Are there redundant phrasing, over-explained concepts, or excessive examples?
+- Could code examples be shortened while preserving the teaching point?
+
+Flag patterns where meaningful compression (~30%+) is achievable. Include as a "Compress" action in the recommendations.
+
 **Project CLAUDE.md redundancy check:** For any learning file named after a specific project (e.g., `payment-service-setup.md`), check if that project has a CLAUDE.md. If so, compare each pattern against the project CLAUDE.md — content already covered there is an outdated (migrated) candidate.
 
 ### 5 + 5a. Check underutilized skills AND detect persona opportunities
@@ -341,6 +348,7 @@ For **content mode** actions:
 - Guideline migrations: add pattern as new section in target guideline
 - Outdated deletions: delete the section from source file (with approval). If all sections in a file are deleted or folded elsewhere, delete the entire file.
 - Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value.
+- Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.
