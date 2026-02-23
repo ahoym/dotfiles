@@ -126,3 +126,14 @@ Key design choices:
 
 Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).
 
+## Persona Tiering: Core vs Deep-Reference
+
+When a persona file accumulates enough domain-specific gotchas that signal density starts degrading, split into two tiers:
+
+- **Core (always-loaded):** High-frequency patterns checked on every review — flag usage, casing conventions, trust line prerequisites, arithmetic rules. These belong in the persona file itself.
+- **Deep-reference (conditional):** Operation-specific knowledge relevant only during certain tasks (e.g., AMM pool creation, order book display, fill detection). Reference via `@` pointer to a learnings file; the agent loads it when the task context matches.
+
+**Cut line:** "Check every time I see XRPL code" → core. "Reference when building feature X" → deep-reference.
+
+**When to tier:** The trigger is signal density, not raw line count. If a reviewer would skim past most entries because they're irrelevant to the current task, the file has crossed the threshold. Every entry in core should be worth checking on every review.
+
