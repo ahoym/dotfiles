@@ -40,7 +40,7 @@ EXCLUDES=(
 
 ## Reference Files (conditional)
 
-- `~/.claude/skill-reference/corpus-cross-reference.md` — Read in step 3 for corpus loading and cross-referencing procedure
+- `~/.claude/skill-references/corpus-cross-reference.md` — Read in step 3 for corpus loading and cross-referencing procedure
 - `~/.claude/commands/learnings/curate/classification-model.md` — Read in step 3 for classifying incoming content
 
 ## Parallel Execution
@@ -114,7 +114,7 @@ The inventory script (step 1) already provides git history checks and source-uni
 3. Read specific target files that match grep hits (not the entire corpus)
 
 **For >5 candidates:**
-1. Read `~/.claude/skill-reference/corpus-cross-reference.md` and follow its full corpus loading procedure
+1. Read `~/.claude/skill-references/corpus-cross-reference.md` and follow its full corpus loading procedure
 2. Bulk-load target skills, guidelines, and learnings
 3. Cross-reference all candidates against the loaded corpus
 4. Still apply the >15-line threshold — read both full files for large diffs

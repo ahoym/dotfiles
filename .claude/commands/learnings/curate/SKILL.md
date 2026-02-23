@@ -14,7 +14,7 @@ Review learnings, guidelines, or skills to identify content that should be migra
 
 ## Reference Files (conditional)
 
-- `~/.claude/skill-reference/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
+- `~/.claude/skill-references/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
 - `~/.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
@@ -103,7 +103,7 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 4. Store as `PATTERNS` list
 
 **Pre-load (step 3 reads)** — In the same parallel batch as the parse reads above:
-1. Read `~/.claude/skill-reference/corpus-cross-reference.md` for the corpus loading procedure
+1. Read `~/.claude/skill-references/corpus-cross-reference.md` for the corpus loading procedure
 2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings
 3. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
 4. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
