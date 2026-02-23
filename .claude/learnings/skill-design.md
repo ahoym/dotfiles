@@ -107,3 +107,7 @@ When deciding whether to codify a pattern, the question isn't "can the model exe
 ## Stale Path References Are the Primary Skill Maintenance Issue
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
+
+## Skills Sweep: Parallel Subagent Summarization
+
+When evaluating 20+ skills in a consolidation sweep, use parallel Explore subagents (clustered by namespace) to read and summarize each skill package — purpose, line count, reference files, cross-references, stale paths. Evaluate from summaries in the main context rather than reading all SKILL.md files directly. This avoids blowing the context window on full-file reads while preserving enough detail for overlap detection and classification. Follow up with targeted Grep checks for cross-cutting issues (co-authorship versions, stale references, deleted skill names).
