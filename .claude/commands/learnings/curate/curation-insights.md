@@ -16,6 +16,7 @@ Operational calibration and phase-specific patterns from prior consolidation run
 
 - **Rename actions should be HIGH confidence:** Removing provenance prefixes (e.g., `pr14-playwright-patterns` → `playwright-patterns`) has no ambiguity — classify as HIGH, not MEDIUM
 - **Inline analysis beats subagents for small collections:** Under ~25 files, read and analyze directly inline — skip subagent fan-out entirely. Direct reads are faster and avoid wasted agent work when the corpus fits easily in context. Reserve per-cluster subagents for 30+ file collections or 5+ clusters
+- **Partial overlap → decompose, don't downgrade.** When a section has N concepts covered elsewhere and 1+ novel concepts, don't classify the whole thing as MEDIUM. Decompose into separate items: HIGH-delete for the covered concepts, HIGH-extract for the novel ones. Each is individually unambiguous. Coverage means *conceptual* coverage (same idea, not necessarily verbatim text)
 
 ## Phase 2 Patterns
 
