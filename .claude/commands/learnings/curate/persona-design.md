@@ -56,6 +56,18 @@ Do NOT suggest a persona for:
 - A domain already covered by an existing persona (suggest enhancing instead)
 - Meta/tooling topics (skill design, git patterns) — these are workflow knowledge, not domain expertise
 
+## Persona Inheritance / Extraction
+
+When a persona mixes generic and domain-specific content, extract the generic layer into a parent persona and slim the child to domain-specific concerns only:
+
+1. **Identify generic content**: tradeoff principles, CI/CD patterns, deployment strategies, and gotchas not tied to a specific language or framework
+2. **Create the parent**: move generic content into a new standalone persona following the same 4-section structure
+3. **Enrich the parent**: pull in related learnings from `~/.claude/learnings/` that fit the generic domain
+4. **Slim the child**: add `## Extends: <parent>`, remove migrated content, keep only domain-specific sections. Remove entire sections if fully inherited
+5. **Verify both paths**: test activating the parent standalone and the child with inheritance
+
+**Example**: `java-devops` extends `platform-engineer` — generic CI/CD, deployment, and observability patterns live in the parent; Java-specific JVM tuning and Spring Boot operational patterns stay in the child.
+
 ## Maintenance
 
 - Fold new learnings into matching personas during curation when they fit a persona's domain
