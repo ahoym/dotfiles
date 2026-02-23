@@ -49,23 +49,6 @@ The `as unknown as Record<string, unknown>` cast is needed when the body is type
 
 ## API Contract Audit Approach
 
-When building a shared API client utility (e.g., `apiFetch<T>`):
+When building a shared API client utility (e.g., `apiFetch<T>`), first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
-### 1. Audit actual vs documented contract
-- Read every route handler — document actual success and error response shapes
-- Read every client-side consumer — document how hooks/adapters parse responses
-- Compare with documented contract — they often diverge significantly
-
-### 2. Choose normalization strategy
-
-**Option A — Client-side only (recommended first):**
-- Build `apiFetch<T>` with discriminated union: `ApiResult<T> = { ok: true; data: T } | { ok: false; error: string }`
-- `data` is the full JSON body typed as `T` — no unwrapping, routes keep current shapes
-- Zero server changes required
-
-**Option B — Server + client normalization (later):**
-- Wrap all route responses in `{ data: T }` envelope
-- Update `apiFetch` to unwrap `json.data`
-- Bigger change, touches every route and callsite
-
-**Recommendation:** Option A first for incremental adoption. The discriminated union is the important part.
+**Normalization strategy:** Start client-side only — build `apiFetch<T>` returning `ApiResult<T> = { ok: true; data: T } | { ok: false; error: string }`. Zero server changes, `data` is the full JSON body typed as `T`. Server-side envelope wrapping (`{ data: T }`) can come later as a bigger refactor touching every route.

@@ -2,8 +2,6 @@
 
 Patterns, gotchas, and best practices for writing Playwright end-to-end tests.
 
----
-
 ## 1. Shared BrowserContext for Serial Tests
 
 When using `test.describe.serial()` in Playwright, each test gets its own `BrowserContext` by default (via the `{ page }` fixture). This means **localStorage is NOT shared** between serial tests. To share state (e.g., a generated wallet stored in localStorage), create a shared `BrowserContext` and `Page` in `beforeAll`, and have test callbacks use `async ()` (no fixture destructuring) so they reference the closure variables.
@@ -34,8 +32,6 @@ test.describe.serial("Feature", () => {
 
 **Key takeaway:** If you destructure `{ page }` from the test fixture in a serial block, each test gets a fresh context and localStorage is wiped. Use closure variables instead.
 
----
-
 ## 2. page.once vs page.on for Dialog Handlers on Shared Pages
 
 When reusing a `Page` instance across serial tests, using `page.on("dialog", handler)` **stacks handlers** — each test adds another listener. When a dialog fires, multiple handlers try to accept it, causing:
@@ -54,8 +50,6 @@ page.on("dialog", (d) => d.accept());
 page.once("dialog", (d) => d.accept());
 ```
 
----
-
 ## 3. getByRole Uses Accessible Name (aria-label) Over Visible Text
 
 Playwright's `getByRole("button", { name: "..." })` matches the **accessible name**, which prioritizes `aria-label` over visible text content. A button with `aria-label="Expand orders"` and inner text "Show Orders" will **NOT** match `{ name: "Show Orders" }`.
@@ -73,8 +67,6 @@ await page.getByRole("button", { name: "Expand orders" }).click();
 ```
 
 **Tip:** Use the Playwright Inspector or `page.getByRole("button").all()` to debug which names Playwright sees for each element.
-
----
 
 ## 4. Nav Bar textContent Concatenation Causes False Regex Matches
 
@@ -96,8 +88,6 @@ await page.getByText(/r[a-zA-Z0-9]{24,}/).click();
 await page.getByRole("link", { name: /^r[a-zA-Z0-9]{24,}/ }).click();
 ```
 
----
-
 ## 5. Scope Selectors to Containers to Avoid Strict Mode Violations
 
 When a page has duplicate interactive elements (e.g., a network selector in the nav bar AND a currency selector in a modal), unscoped selectors like `page.getByRole("combobox").first()` may resolve to the wrong element or cause strict mode errors if multiple matches exist.
@@ -114,8 +104,6 @@ await modal.getByRole("combobox").first().click();
 ```
 
 This is common when a page has multiple interactive elements across different containers (e.g., a dropdown in the nav bar and another in a modal).
-
----
 
 ## 6. StorageState for localStorage-Only Apps (No Cookies/Sessions)
 
@@ -147,8 +135,6 @@ The saved JSON contains:
 ```
 
 **Key insight:** Components that gate rendering on a `hydrated` flag (from `useLocalStorage`) will show loading states until the first client-side render hydrates from `localStorage`. Downstream specs should wait for hydration (e.g., assert an address link is visible) before interacting with the page.
-
----
 
 ## 7. `selectOption` Only Accepts `string` for `label` — Not `RegExp`
 
