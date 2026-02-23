@@ -2,30 +2,13 @@
 
 ## DAG Shape Bounds Speedup
 
-Parallel plan speedup is bounded by the **DAG shape** (critical path), not by tooling or agent speed. Before optimizing agent prompts or model selection, analyze the critical path to know the ceiling.
+Parallel plan speedup is bounded by the **DAG shape** (critical path), not by tooling or agent speed. If actual wall-clock ≈ critical path time, the scheduler is already near-optimal — the speedup is a property of the work distribution, not a missed optimization.
 
-**How to analyze:**
-1. Compute the critical path: the longest chain of hard-dependent agents
-2. Sum their durations — this is the minimum wall-clock time (theoretical floor)
-3. Compare to actual wall-clock — if they're close, the scheduler is already near-optimal
-4. Speedup = sum-of-all-agents / critical-path-time
-
-**Example from credential management (4 agents):**
-```
-A (242s) ──→ B (77s)     ← off critical path (leaf)
-A (242s) ──┐
-            ├──→ D (117s) ← critical path: A→D = 359s
-C (235s) ──┘
-```
-- Critical path: 359s, actual: ~370s (near-optimal)
-- Sum of parts: 671s → speedup: 1.8x
-- The 1.8x is a property of the work distribution, not a missed optimization
-
-**How to improve speedup:**
-- Split agents on the critical path (e.g., split A into A1+A2 so downstream starts sooner)
+**Improving speedup:**
+- Split agents on the critical path so downstream agents start sooner
 - Use soft dependencies to start agents before hard deps fully verify
 - Design features with more independent pieces (wider DAG = more parallelism)
-- Note: features with inherent layering (types → logic → UI) have natural parallelism ceilings
+- Features with inherent layering (types → logic → UI) have natural parallelism ceilings
 
 ## Soft Deps for Type-Appending Agents
 
@@ -47,14 +30,6 @@ D creates:  app/api/create/route.ts (calls txFailureResponse)
 ```
 
 
-## Context Continuation Loses File Contents
-
-When a session is continued from a compacted conversation (context overflow), **all file contents read in the prior session are lost**. The conversation summary preserves metadata (file paths, line numbers, key findings) but not the actual file text.
-
-**Impact on `/parallel-plan:make`:** The planner must re-read all source files to get accurate landmarks (line numbers, surrounding code context) for agent prompts. Budget 2-5 minutes for re-reading depending on codebase size.
-
-**Mitigation:** The conversation summary should capture critical landmarks explicitly (e.g., "txFailureResponse is at line 200-209 in lib/api.ts"). This reduces re-reading to verification rather than discovery.
-
 ## Fast/Slow Track Plan Splitting
 
 When a plan contains multiple independent suggestions of varying complexity, split them into separate tracks:
@@ -63,28 +38,6 @@ When a plan contains multiple independent suggestions of varying complexity, spl
 - **Slow track**: Open a separate plan for changes benefiting from discussion (new abstractions, API design, architectural choices)
 
 **When to split:** Items are both independent of each other AND different in complexity/discussion-worthiness. Trivial wins ship faster instead of being blocked by unrelated design discussions.
-
-## Writing Plans for Parallel Execution
-
-When authoring a plan for parallel execution:
-
-1. **Assign named agents** — label each step with an agent so the executor can map work directly
-2. **List file ownership** — for each step, explicitly list files it creates, modifies, or deletes
-3. **Group into phases** — steps modifying the same file go in different phases; independent steps run in parallel
-4. **Draw the dependency graph** — show which phases depend on which, identify the critical path
-5. **Document agent outputs** — list what each prior agent produces so integration agent prompts are precise
-6. **Include a measurement table** — track time, tool uses, and speedup to refine over time
-
-### Identifying Parallelization from Dependency Graphs
-
-1. **List all phases** and what each phase imports/depends on
-2. **Draw dependency edges** (e.g., "hooks import from lib/" → hooks depend on libs)
-3. **Identify independent phases** — phases with no cross-dependencies can run in parallel
-4. **Group into sequential batches** where each batch's phases run in parallel
-
-A typical Next.js app follows a predictable dependency pattern: `configs → lib/ → hooks + API routes → shared components → pages`. Hooks and API routes are almost always independent (client-side vs server-side), making them a reliable parallelization boundary.
-
-**Within-phase parallelism:** All API routes are independent of each other, all pages are independent of each other, and library files with no cross-imports can be written in parallel. Each parallel item maps directly to a separate Task subagent.
 
 ## E2E Test Suites Are Ideal Fan-Out Candidates
 

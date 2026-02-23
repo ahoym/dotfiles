@@ -186,6 +186,15 @@ A ──→ B ──┐
 C ──→ D ──┼──→ E
 ```
 
+**Pattern 4: E2E Test Fan-Out**
+Best-case parallelization. N independent spec files fan out from a shared foundation.
+```
+A (config + helpers) ··→ B (page1.spec)
+                     ··→ C (page2.spec)
+                     ··→ D (page3.spec)
+```
+Each spec creates a single new file — zero file conflicts. All deps are soft (specs only import types/helpers). No integration agent needed — specs are leaf nodes verified by the test runner. Speedup ≈ N × 0.6-0.8x. Use `build-verify → "npx tsc --noEmit"` since e2e tests require a live server and can't be RED/GREEN'd in isolation.
+
 ## Soft Dependency Audit
 
 After building the initial DAG, perform a systematic audit of every `depends_on` (hard) dependency. Hard dependencies are the primary bottleneck for parallelism — every hard dep that could be soft represents wasted wall-clock time.
@@ -200,6 +209,7 @@ After building the initial DAG, perform a systematic audit of every `depends_on`
 
 **Common upgrades (hard → soft):**
 - Agent creates types → downstream agents import those types (soft — just needs file on disk)
+- Agent **modifies** (appends to) an existing type file → downstream agents that import those types in **new files** they create (soft — the file already exists on disk, updated types are immediately available once written)
 - Agent creates a new module → downstream agent imports from it but only uses type information (soft)
 - Agent adds constants/config → downstream agent references them (soft — values just need to exist)
 
@@ -428,6 +438,10 @@ Factor this into critical path estimates. The value of parallelization comes fro
 10. **Reporting pre-merge speedup**: Computing speedup before resolving merge candidates gives an inflated number. Always merge first, then compute. A plan that showed 1.7x pre-merge but 1.3x post-merge should report 1.3x — the honest number.
 
 11. **Vague placement instructions**: Telling an agent to add code "around line X" or "near the top" leads to incorrect insertions. Always read the target file, identify the exact insertion point with surrounding context (the line before and the line after), and include both in the prompt.
+
+12. **Grouping by change type instead of file domain**: Distributing a refactor so one agent handles "all validateRequired replacements" and another handles "all getNetworkParam replacements" creates conflicts when both agents edit the same file's imports. Group by file domain (API routes, frontend components, lib) so each file is only touched by one agent.
+
+13. **Missing child component updates during prop removal**: When Agent A removes a prop from `ComponentX` and Agent B removes the same prop from `ComponentY`, but `ComponentX` renders `<ComponentY prop={value} />` — Agent A must also update the JSX call site. Each agent must remove the prop from all child component JSX within its file where the child is also being refactored. Process leaf components first, then mid-level, then parents.
 
 ## TDD Escape Hatch: build-verify
 

@@ -208,6 +208,8 @@ Don't treat discovery propagation as a blocking step. If all dependent agents ar
 
 **Dependency file excerpts for soft-dep agents:** When launching an agent whose soft dependencies have completed, include the actual function signatures and type definitions from the dependency's output files — not just the planned contract. Read the key exports from the dependency's files and add them to the prompt. This ensures the agent works against reality (what was actually implemented) rather than just the plan (what was intended). This catches contract drift before it causes downstream failures.
 
+**Parallel `tsc` on shared working tree:** When multiple agents run `npx tsc --noEmit` concurrently on the same working tree, each agent sees type errors from other agents' half-written files. Best fix: use `isolation: "worktree"` so each agent's tsc only sees its own files. When worktrees aren't feasible, add "ignore type errors from files outside your scope" to the prompt preamble.
+
 **Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 8 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
 
 **Prompt construction:** For each agent, build the full prompt by concatenating:

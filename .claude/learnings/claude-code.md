@@ -103,6 +103,12 @@ When monitoring background agents launched via `Task` with `run_in_background: t
 - `TaskOutput` with `block: true` and a timeout waits for completion cleanly
 - Ad-hoc Bash commands on output files require Bash permission patterns that aren't typically pre-configured, causing repeated permission prompts
 
+## Context Continuation Loses File Contents
+
+When a session is continued from a compacted conversation (context overflow), **all file contents read in the prior session are lost**. The conversation summary preserves metadata (file paths, line numbers, key findings) but not the actual file text. Budget time for re-reading source files after continuation.
+
+**Mitigation:** Capture critical landmarks explicitly in conversation (e.g., "txFailureResponse is at line 200-209 in lib/api.ts") so continuation reduces re-reading to verification rather than discovery.
+
 ## Glob/Grep Tools Don't Resolve `~` in Path Parameters
 
 The Glob and Grep tools do not expand `~` to the home directory in the `path` parameter. Patterns like `Glob(pattern: "learnings/**/*.md", path: "~/.claude")` return "No files found" even when matching files exist.

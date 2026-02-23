@@ -1,50 +1,6 @@
 # Multi-Agent Patterns
 
-## Agents Should Write Output to Intermediate Files
-
-When a skill launches multiple agents in parallel and needs to synthesize their outputs, agents should write their results to intermediate files on disk rather than returning everything to the orchestrator.
-
-**Why:**
-- Agent outputs can be very large (each agent may read hundreds of files and produce detailed reports)
-- The orchestrator must hold ALL agent outputs in context simultaneously for synthesis
-- With 7 agents returning substantial outputs, this easily exhausts the context window mid-synthesis
-- When context compresses, the synthesis works from a summary rather than the full data — detail is lost
-
-**Pattern:**
-- Agents write full findings to output files (e.g., `docs/learnings/<dimension>.md`)
-- Agents return only a 2-3 sentence summary to the orchestrator (for success/failure tracking)
-- Orchestrator stays lightweight — short summaries, not full reports
-- A separate synthesis step (or separate invocation) reads from the output files with a clean context
-
-## Verify Subagent Output Before Acting On It
-
-When you delegate research or analysis to a subagent and plan to act on the result (presenting findings to the user, making edits, offering to merge), spot-check the key claim before proceeding.
-
-**Why:** Subagent output *sounds* authoritative — it's structured, detailed, and confident. But subagents can misread files, confuse labels, or draw wrong conclusions. If you pass their output through to the user without verification, you amplify the error with your own credibility.
-
-**When to verify:**
-- The subagent's finding would trigger an action (merge, edit, recommendation to user)
-- The finding is directional (A has X, B doesn't) — these are especially error-prone
-- The finding contradicts your prior understanding or seems surprising
-
-**How to verify:** Read the relevant file/section yourself and confirm the key claim. One targeted read is enough — you don't need to redo the full analysis.
-
-**When to skip:** The subagent's output is purely informational (e.g., "how many files match this pattern?") and you won't act on it without further investigation.
-
-## Structured Templates as Natural Size Constraints
-
-Instead of hard output size limits (which LLMs can't reliably count or enforce), use structured templates to naturally constrain agent output length.
-
-**Why hard limits don't work:**
-- "Keep output under 300 lines" might produce 150 or 500
-- Technical enforcement (truncation) risks cutting off findings mid-thought
-- Hard limits on large repos force agents to silently drop important findings
-
-**Pattern:**
-- Give each agent a template with named sections, bullet-point format, and table structures
-- Add a soft guideline: "Aim for 150-250 lines. Prioritize the most architecturally significant findings."
-- The template structure itself limits verbosity — bullets force conciseness, named sections prevent rambling
-- If an agent genuinely needs 400 lines for a complex domain, that's fine — the synthesizer can handle it
+See also: `~/.claude/skill-references/subagent-patterns.md` for universal patterns (output verification, intermediate files, structured templates).
 
 ## Coordinating Prop Removal Across Parallel Subagents
 
@@ -96,23 +52,6 @@ When performing codebase-wide refactoring with subagents:
 1. **Exploration phase**: Launch 2-3 Explore agents in parallel, each focused on a different area (API routes, lib modules, test infrastructure). They analyze independently and report findings.
 2. **Implementation phase**: Launch general-purpose agents in parallel for independent changes. Each agent gets the specific files to modify, what to change, and instructions to verify its own work.
 3. **Verification phase**: After all parallel agents complete, run the full test suite once to catch any cross-agent conflicts.
-
-## Git Worktrees for Parallel Subagent Execution
-
-When running parallel subagents that modify code in the same repo, use **git worktrees** so each agent works in its own directory on its own branch.
-
-**Branching model within a batch:**
-- Independent items: each worktree branches from the batch's starting point
-- Dependent items: branch the dependent from the dependency's branch
-- After all agents complete, merge branches sequentially, running the gate after each merge
-
-## Scope Agent Context Narrowly
-
-When launching parallel subagents for a refactoring plan, give each agent **only its relevant section** of the plan — not the full document. Full plan context leads to over-engineering and cross-cutting concerns that aren't the agent's responsibility.
-
-## Pre-Approve Permissions Before Parallel Execution
-
-Before launching parallel subagents, ensure wildcard bash permissions are pre-approved (e.g., `Bash(git branch:*)`, `Bash(pnpm test:*)`). In restrictive permission mode, each agent prompts independently for every command, serializing what should be parallel work.
 
 ## Project Adaptation Workflow
 
