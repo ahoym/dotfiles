@@ -1,11 +1,11 @@
 # BigNumber.js for Financial Arithmetic
 
-All financial calculations in this project must use **BigNumber.js** (`bignumber.js`) instead of native JavaScript arithmetic. This prevents floating-point precision errors in prices, totals, cumulative sums, spread, and basis-point calculations.
+Financial calculations should use **BigNumber.js** (`bignumber.js`) instead of native JavaScript arithmetic. This prevents floating-point precision errors in prices, totals, cumulative sums, spread, and basis-point calculations.
 
 ## Rules
 
 1. **Never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`)** on financial values (prices, amounts, totals, spread).
-2. **BigNumber is already available** — it ships as a dependency of the `xrpl` package and is also a direct project dependency. Import as:
+2. **Import BigNumber** (commonly available as a transitive dependency in financial libraries like `xrpl`):
    ```ts
    import BigNumber from "bignumber.js";
    ```

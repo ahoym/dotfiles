@@ -15,6 +15,8 @@ Fetch and address review comments from a pull request.
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md - Platform detection for GitHub/GitLab
+- reply-templates.md - Templates for replying to different comment types
+- lgtm-verification.md - How to verify LGTM comments match the implementation
 
 ## Instructions
 
@@ -195,11 +197,6 @@ Pushed to origin/feature/auth
 Replied to 3 comments with commit reference.
 Comment 4 was general feedback - no action needed.
 ```
-
-## Reference Files (conditional — read only when needed)
-
-- reply-templates.md - Templates for replying to different comment types
-- lgtm-verification.md - How to verify LGTM comments match the implementation
 
 ## Important Notes
 

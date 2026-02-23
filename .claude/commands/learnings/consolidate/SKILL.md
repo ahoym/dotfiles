@@ -30,12 +30,14 @@ Track these across all sweeps:
 | Variable | Purpose | Initial |
 |----------|---------|---------|
 | `SWEEP_COUNT` | Total sweeps executed across all phases and content types | 0 |
-| `PHASE` | Current phase: `HIGH_SWEEP`, `MEDIUM_BATCH`, `VERIFICATION` | `HIGH_SWEEP` |
+| `PHASE` | Current phase: `HIGH_SWEEP`, `MEDIUM_BATCH`, `VERIFICATION`, `DEEP_DIVE` | `HIGH_SWEEP` |
 | `CONTENT_TYPE` | Current content type: `LEARNINGS`, `SKILLS`, `GUIDELINES` | `LEARNINGS` |
 | `CUMULATIVE_ACTIONS` | All actions across all sweeps — each with: sweep number, content type, action type, source, target, confidence | Empty list |
 | `HIGH_SWEEP_COUNT` | Sweeps within the current HIGH_SWEEP phase (resets per content type) | 0 |
 | `PHASE_TRANSITIONS` | Log of phase transitions with sweep number, content type, and reason | Empty list |
 | `CONTENT_TYPE_SUMMARIES` | Per-type action counts and sweep counts for final summary | Empty map |
+| `DEEP_DIVE_CANDIDATES` | Files flagged by broad sweep's "Suggested Deep Dives" | Empty list |
+| `DEEP_DIVE_SWEEP_COUNT` | Deep dive sweeps for current content type (resets per type) | 0 |
 
 ## Instructions
 
@@ -52,6 +54,7 @@ Key points from learnings:curate to apply on every sweep:
 - Cross-reference thoroughly before classifying
 - After clustering (learnings phase), run **concept-name collision detection**: grep for identical or near-identical H2/H3 headings across all files. Flag matches as HIGH-confidence duplicate candidates regardless of cluster membership. This catches cross-file duplicates that cluster-level analysis misses.
 - Use the appropriate report format for each content type
+- **Deep dive candidates** are extracted from the broad sweep report's "Suggested Deep Dives" section. After clean VERIFICATION, run targeted per-file analysis via subagents. Only applies to LEARNINGS and GUIDELINES — skills use skill mode (per-skill evaluation), not per-pattern analysis.
 
 ### Content Type Progression
 
@@ -60,7 +63,7 @@ Content types are swept in fixed order: **LEARNINGS → SKILLS → GUIDELINES**.
 **Transition between content types:**
 
 1. **Record summary** — save the current content type's action counts, sweep counts, and findings to `CONTENT_TYPE_SUMMARIES`.
-2. **Reset phase counters** — set `PHASE` to `HIGH_SWEEP`, `HIGH_SWEEP_COUNT` to 0.
+2. **Reset phase counters** — set `PHASE` to `HIGH_SWEEP`, `HIGH_SWEEP_COUNT` to 0, `DEEP_DIVE_CANDIDATES` to empty, `DEEP_DIVE_SWEEP_COUNT` to 0.
 3. **Refresh modified corpus** — re-read only the files that were modified by the prior content type's phases. This is lighter than a full corpus re-read but ensures subsequent analysis reflects current state.
 4. **Advance `CONTENT_TYPE`** — move to the next content type.
 5. **Check for skip** — if the content type has no files to sweep (e.g., no skills exist), log "No [type] files found, skipping" and advance to the next.
@@ -75,7 +78,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 
 **Loop** (max 5 iterations):
 
-1. **Run broad sweep analysis** — follow learnings:curate steps 1–6 (broad sweep mode). Generate the full broad sweep report.
+1. **Run broad sweep analysis** — follow learnings:curate steps 1–6 (broad sweep mode). Generate the full broad sweep report. Extract any "Suggested Deep Dives" entries into `DEEP_DIVE_CANDIDATES` (overwrite previous — state changes invalidate earlier suggestions).
 
 2. **Separate findings by confidence:**
    - `HIGH_FINDINGS` — classifications with High confidence
@@ -196,13 +199,86 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 4. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.
    - **New MEDIUMs found** → log transition: "Changes surfaced N new MEDIUM items." Return to **Step 2**.
-   - **Clean sweep** (no HIGHs or MEDIUMs) → record learnings summary, proceed to **Step 4** (Skills sweep).
+   - **Clean sweep** (no HIGHs or MEDIUMs) → check `DEEP_DIVE_CANDIDATES`. If non-empty and content type is LEARNINGS, proceed to **Step 1d** (Deep Dive). If empty or content type is SKILLS, record summary and proceed to next content type.
+
+### Step 1d: Learnings Deep Dive Phase
+
+**Goal:** Run targeted per-file analysis on files flagged during the broad sweep, catching within-file opportunities (compression, genericization, section-level reorganization) that broad sweeps miss.
+
+Set `PHASE` to `DEEP_DIVE`.
+
+1. **Check candidates** — if `DEEP_DIVE_CANDIDATES` is empty, log "No deep dive candidates — proceeding to next content type." and proceed. This is the common case.
+
+2. **Display plan:**
+
+   ```
+   ## Deep Dive Phase (Learnings)
+
+   | # | File | Patterns | Reason |
+   |---|------|----------|--------|
+   | 1 | parallel-plans.md | 8 | 2 medium-confidence items, 3 new sections |
+   | 2 | skill-design.md | 11 | Several skill-context candidates |
+   ```
+
+3. **Safety cap budget check** — if `SWEEP_COUNT` >= 13 before launching, warn and use `AskUserQuestion`:
+   - **Run deep dives** — "Proceed with deep dive analysis (budget: N sweeps remaining)"
+   - **Skip and list** — "Skip deep dives, list files for manual `/learnings:curate <file>`"
+   - **Skip entirely** — "Skip deep dives, proceed to next content type"
+
+4. **Launch subagents** — one Task subagent per candidate file (parallel, max 5 concurrent). Each subagent runs learnings:curate content mode (steps 2–5a) on its file with the pre-loaded corpus. Subagents return per-pattern classification tables — they analyze and report, they do NOT apply changes.
+
+5. **Merge results** — collect classification tables across subagents. Separate into HIGH_FINDINGS, MEDIUM_FINDINGS, LOW_FINDINGS. Remove candidates where the subagent returned no findings (log "classification confirmed" for each).
+
+6. **Deep dive HIGH sweep** (max 3 iterations, tracked by `DEEP_DIVE_SWEEP_COUNT`):
+   - If no HIGHs → skip to substep 7.
+   - Auto-apply HIGHs. Display between-sweep report:
+
+   ```
+   ## Sweep N ([Content Type] — Deep Dive HIGHs)
+
+   | # | File | Pattern | Action | Target | Detail |
+   |---|------|---------|--------|--------|--------|
+   | 1 | parallel-plans.md | Retry Strategies | Fold | error-handling.md | Duplicate of existing section |
+   ```
+
+   - Record actions to `CUMULATIVE_ACTIONS`. Increment `SWEEP_COUNT` and `DEEP_DIVE_SWEEP_COUNT`.
+   - Re-run subagents only for affected files. If `DEEP_DIVE_SWEEP_COUNT` >= 3, stop and move remaining HIGHs to MEDIUM batch.
+
+7. **Deep dive MEDIUM batch** — present all MEDIUMs across files in a single `AskUserQuestion` (multi-select):
+
+   ```
+   ## [Content Type] — Deep Dive MEDIUMs
+
+   | # | File | Pattern | Action | Target | Rationale | Concern |
+   |---|------|---------|--------|--------|-----------|---------|
+   | 1 | skill-design.md | Naming Conventions | Genericize | Keep | Hardcoded project names | Context may aid recall |
+   | 2 | parallel-plans.md | DAG Scheduling | Compress | Keep | 40% compression achievable | May lose edge case detail |
+   ```
+
+   Include LOWs for reference (not selectable). Include **Discuss** and **Skip All** options.
+
+   Apply approved MEDIUMs. Record to `CUMULATIVE_ACTIONS`.
+
+8. **Lightweight verification** — check for broken cross-references in modified files only. If cross-file effects occurred (content migrated to files outside the deep-dived set), log them:
+
+   ```
+   ### Cross-File Effects
+   Deep dive actions modified files outside the deep-dived set:
+   - <file> (received content from <source pattern>)
+   These will be evaluated in subsequent consolidation runs.
+   ```
+
+   Do NOT trigger a broad re-sweep.
+
+9. **Record and transition** — save deep dive results to `CONTENT_TYPE_SUMMARIES`. Proceed to next content type.
 
 ---
 
 ### Step 4: Skills Sweep
 
 **Goal:** Evaluate all skills for overlap, staleness, and scope issues using learnings:curate's skill mode methodology.
+
+**No deep dive phase for skills.** Skills use skill mode (per-skill evaluation), not per-pattern analysis.
 
 #### 4a. Cluster skills by prefix
 
@@ -321,7 +397,9 @@ Run the same three-phase loop as learnings (Steps 1–3 pattern), with these dif
 
 **Guideline-specific actions:** Compress, Extract to conditional, Migrate to persona, Delete unwired, Keep (standard content mode classifications plus the additional checks above).
 
-After guidelines sweep completes, proceed to **Step 6** (Cumulative Summary).
+After the guidelines VERIFICATION loop exits clean: check `DEEP_DIVE_CANDIDATES`. If non-empty, run the same deep dive phase as Step 1d (substituting GUIDELINES for the content type). If empty, proceed to **Step 6**.
+
+After guidelines sweep completes (including any deep dive phase), proceed to **Step 6** (Cumulative Summary).
 
 ---
 
@@ -334,12 +412,12 @@ Generate the final consolidation report:
 
 ### Execution Summary
 
-| Content Type | Sweeps | HIGH Applied | MEDIUM Applied | MEDIUM Skipped |
-|--------------|--------|--------------|----------------|----------------|
-| Learnings | N | N | N | N |
-| Skills | N | N | N | N |
-| Guidelines | N | N | N | N |
-| **Total** | **N** | **N** | **N** | **N** |
+| Content Type | Sweeps | HIGH Applied | MEDIUM Applied | MEDIUM Skipped | Deep Dives |
+|--------------|--------|--------------|----------------|----------------|------------|
+| Learnings | N | N | N | N | N files |
+| Skills | N | N | N | N | — |
+| Guidelines | N | N | N | N | N files |
+| **Total** | **N** | **N** | **N** | **N** | **N** |
 
 ### Actions by Type
 
@@ -371,6 +449,13 @@ Generate the final consolidation report:
 | 1 | Learnings | 2 | Delete outdated | v1-spec-structure | — | High |
 | 7 | Skills | 5 | Merge | git:monitor-pr-comments | git:address-pr-review | High |
 | ... | | | | | | |
+
+### Deep Dive Detail
+
+| Content Type | File | Patterns | HIGHs | MEDIUMs Applied | MEDIUMs Skipped |
+|--------------|------|----------|-------|-----------------|-----------------|
+| Learnings | parallel-plans.md | 8 | 1 | 2 | 0 |
+| Guidelines | communication.md | 5 | 0 | 1 | 1 |
 
 ### Remaining Items (not actioned)
 
@@ -500,6 +585,18 @@ Use `AskUserQuestion`:
 - **Apply HIGHs only and stop** — "Auto-apply remaining HIGHs, skip MEDIUMs, show summary"
 - **Stop here** — "End consolidation with current results"
 
+### Deep dive: no candidates (common case)
+
+One-line log, no interaction: "No deep dive candidates — proceeding to next content type."
+
+### Deep dive: subagent returns no findings
+
+Remove the file from candidates. Log: "[file] — classification confirmed, no within-file actions needed."
+
+### Deep dive: cross-file conflict between subagents
+
+Orchestrator sequences conflicting actions — same pattern as broad sweep (parallel for different target files, sequential for actions targeting the same file).
+
 ## Important Notes
 
 - **Always broad sweep** — this skill does not support targeted files. Use `/learnings:curate <file>` for that.
@@ -511,6 +608,7 @@ Use `AskUserQuestion`:
 - **Corpus refresh at content type boundaries** — when transitioning between content types, re-read files modified by prior phases rather than the full corpus. This keeps subsequent analysis current without the cost of a full re-read.
 - **Skill mode vs content mode** — skills use learnings:curate's skill mode (2s–4s); guidelines use content mode (2–5a). The loop structure is the same, but the analysis methodology differs.
 - **Methodology delegation** — this skill orchestrates the loop; `/learnings:curate` owns the analysis. Changes to learnings:curate automatically flow through.
+- **Deep dives are bounded** — cross-file effects from deep dive actions are logged but don't cascade back to broad sweeps. Run `/learnings:curate <file>` or another consolidation for full re-evaluation.
 
 ## Prerequisites
 
