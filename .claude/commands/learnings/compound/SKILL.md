@@ -97,5 +97,6 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 
 - Prefer updating existing files over creating new ones
 - Keep learnings atomic — one concept per section
+- **Write concisely** — every token in a learning/guideline/skill costs context budget when loaded. Express insights in the fewest tokens that preserve the teaching value. Prefer terse patterns over verbose explanations; code examples over prose when the code speaks for itself.
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
 - Be honest in utility self-assessments

@@ -12,6 +12,22 @@ Review learnings, guidelines, or skills to identify content that should be migra
 - `/learnings:curate <file1> <file2>` - Curate multiple files
 - `/learnings:curate` - Prompt for which file to curate
 
+## Context Window Optimization
+
+Curation serves a dual purpose: organizing content AND minimizing baseline context window cost. Every token in reference material is a token unavailable for the actual task.
+
+**Core principles:**
+
+- **`@` references are always-on cost.** Content in `@`-referenced files (e.g., `@.claude/guidelines/...` in CLAUDE.md) is injected into every conversation regardless of relevance. Keep `@`-referenced files lean — only universally-needed content belongs there.
+- **Non-`@` path references are conditional.** Skill reference files, learnings, and non-`@` files are only read when the agent judges them relevant to the current task. Prefer these for domain-specific, task-specific, or situational content.
+- **Reorganization enables selectivity.** Well-organized, granular files let the agent pull in only what's relevant. A monolithic 200-line file forces loading all 200 lines even when only 20 matter.
+- **Conciseness is a feature.** When reorganizing content, also compress it. Redundant phrasing, excessive examples, and verbose explanations waste context budget. Say the same thing in fewer tokens.
+
+**During classification (step 4), factor in context cost:**
+- Content currently in `@`-referenced files that isn't universally needed → candidate for migration to a conditional reference (skill reference file, learning, or non-`@` guideline)
+- Content that could be split from a large file into a focused file the agent can selectively load → candidate for extraction
+- Duplicate or near-duplicate content across files → consolidation saves tokens in every conversation that loads both
+
 ## Reference Files (conditional)
 
 - `~/.claude/skill-references/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
@@ -135,6 +151,13 @@ For each classification, note:
 - **Confidence**: High/Medium/Low
 - **Rationale**: Why this classification
 - **Target**: If migrating, where should it go?
+
+**Conciseness check:** For patterns classified as "Standalone reference" (keep), also evaluate token efficiency:
+- Could the pattern express the same insight in fewer tokens without losing teaching value?
+- Are there redundant phrasing, over-explained concepts, or excessive examples?
+- Could code examples be shortened while preserving the teaching point?
+
+Flag patterns where meaningful compression (~30%+) is achievable. Include as a "Compress" action in the recommendations.
 
 **Project CLAUDE.md redundancy check:** For any learning file named after a specific project (e.g., `payment-service-setup.md`), check if that project has a CLAUDE.md. If so, compare each pattern against the project CLAUDE.md — content already covered there is an outdated (migrated) candidate.
 
@@ -325,6 +348,7 @@ For **content mode** actions:
 - Guideline migrations: add pattern as new section in target guideline
 - Outdated deletions: delete the section from source file (with approval). If all sections in a file are deleted or folded elsewhere, delete the entire file.
 - Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value.
+- Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.

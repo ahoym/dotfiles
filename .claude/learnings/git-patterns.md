@@ -37,8 +37,6 @@ When stacked PR branches were created in the wrong order (dependent branches cre
 
 **Process in topological order** — fix dependency branches before dependent ones, since dependent branches use the fixed dependency as their base.
 
-**Discovered from:** parallel-plan:execute session where 7 of 11 PR branches were based on `main` instead of their dependency branches, causing Vercel CI failures.
-
 ## Verify Commit State Before Committing
 
 When `git status` shows "nothing to commit, working tree clean" but you just created/edited files, check whether the changes were already committed (e.g., by hooks or auto-commit):
