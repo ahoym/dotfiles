@@ -9,12 +9,14 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Cadence signal:** Consolidation has diminishing returns when run shortly after a clean first run — use `/learnings:curate <file>` for targeted cleanup between full consolidation sweeps
 - **Run consolidation after bulk imports** (PR extraction, quantum-tunnel sync, manual additions) — bulk imports often introduce content overlapping with existing personas or skills
 - **Load files incrementally:** Re-list the directory at each sweep start — files may be added mid-session by hooks or parallel processes
+- **Pure-deletion re-sweeps: skip and state why.** After a sweep where all actions were deletions, skip the mechanical re-sweep — deletions can't create new overlaps. State explicitly: "Skipping re-sweep because deletions can't create new overlaps" rather than pretending to run one
 - **Clean sweep summaries should lead with polish items:** When the sweep returns 0 HIGHs and 0 MEDIUMs, LOW items *are* the value of the run. Lead with "Polish Opportunities" rather than "no action needed" — the latter signals false completion and buries the useful output
 
 ## Classification Calibration
 
 - **Rename actions should be HIGH confidence:** Removing provenance prefixes (e.g., `pr14-playwright-patterns` → `playwright-patterns`) has no ambiguity — classify as HIGH, not MEDIUM
-- **Inline analysis beats subagents for small collections:** Under ~20 files, inline cluster analysis is faster. Reserve per-cluster subagents for 30+ file collections or 5+ clusters
+- **Inline analysis beats subagents for small collections:** Under ~25 files, read and analyze directly inline — skip subagent fan-out entirely. Direct reads are faster and avoid wasted agent work when the corpus fits easily in context. Reserve per-cluster subagents for 30+ file collections or 5+ clusters
+- **Partial overlap → decompose, don't downgrade.** When a section has N concepts covered elsewhere and 1+ novel concepts, don't classify the whole thing as MEDIUM. Decompose into separate items: HIGH-delete for the covered concepts, HIGH-extract for the novel ones. Each is individually unambiguous. Coverage means *conceptual* coverage (same idea, not necessarily verbatim text)
 
 ## Phase 2 Patterns
 

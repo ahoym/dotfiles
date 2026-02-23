@@ -104,7 +104,7 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 
 **Pre-load (step 3 reads)** — In the same parallel batch as the parse reads above:
 1. Read `~/.claude/skill-references/corpus-cross-reference.md` for the corpus loading procedure
-2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings
+2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings. **Read all files in the target directory** — don't pre-filter or skip files based on name/size
 3. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
 4. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
 
@@ -314,15 +314,7 @@ Omit this section if no files meet the criteria (collection is fully curated).
 
 ### 7. Apply changes (with approval)
 
-For each recommended action, use `AskUserQuestion` to confirm:
-
-```
-Apply these changes?
-
-Options: [Apply all] [Select specific] [Discuss] [Skip]
-```
-
-Always include a **Discuss** option, especially for medium-confidence items.
+For each recommended action, use `AskUserQuestion` with **multi-select** to let the user pick which actions to apply. Each action should be a separate selectable option (not a table followed by a generic "apply?" prompt). Always include a **Discuss** option as one of the choices, especially for medium-confidence items.
 
 **If user approves**:
 
