@@ -84,38 +84,24 @@ You are exploring a repository to deeply understand its structure and organizati
 ## What to Search For
 
 Use Glob to find these file patterns, then read every match:
-- Build files: **/pom.xml, **/build.gradle, **/package.json, **/Cargo.toml, **/go.mod, **/requirements.txt, **/pyproject.toml, Makefile, CMakeLists.txt
-- CI/CD: .gitlab-ci.yml, .github/workflows/**, Jenkinsfile, .circleci/**, .travis.yml
+- Build files: **/pom.xml, **/build.gradle, **/build.gradle.kts, **/package.json, **/Cargo.toml, **/go.mod, **/requirements.txt, **/pyproject.toml, **/Pipfile, **/composer.json, **/*.csproj, **/*.sln, Makefile, CMakeLists.txt
+- Monorepo: **/turbo.json, **/nx.json, **/lerna.json, **/pnpm-workspace.yaml, **/Cargo.toml (workspace)
+- CI/CD: .gitlab-ci.yml, .github/workflows/**, Jenkinsfile, .circleci/**, .travis.yml, **/bitbucket-pipelines.yml
 - Docker: **/Dockerfile, **/docker-compose*.yml, **/.dockerignore
-- Project config: .editorconfig, .eslintrc*, .prettierrc*, **/tsconfig.json, .tool-versions, .nvmrc, .java-version, .ruby-version
-- Scripts: **/*.sh, scripts/**, utils/**
+- Project config: .editorconfig, .eslintrc*, .prettierrc*, **/tsconfig.json, .tool-versions, .nvmrc, .java-version, .ruby-version, .python-version, **/rustfmt.toml, **/.golangci.yml
+- Scripts: **/*.sh, scripts/**, utils/**, **/Makefile
 - Root docs: README*, LICENSE*, CHANGELOG*, CONTRIBUTING*, CLAUDE.md
 - Run configs: .run/**, .vscode/launch.json, .idea/runConfigurations/**
 
 ## What to Extract
 
-For each module/package:
-- Name, location, and purpose
-- Entry point (main class, index file)
-- Key dependencies (important libraries, not every transitive dep)
-- How it relates to other modules
+For each module/package: name, location, purpose, entry point, key dependencies, relationship to other modules.
 
-For the build system:
-- How to build the full project
-- How to build individual modules
-- Available build targets/profiles
-- Dependency management approach
+For the build system: how to build (full project + individual modules), available targets/profiles, dependency management approach.
 
-For CI/CD:
-- Pipeline stages and what each does
-- Test stages and what they run
-- Build/deploy stages
-- Any special CI configuration
+For CI/CD: pipeline stages and what each does, test/build/deploy stages, special CI configuration.
 
-For deployment:
-- Docker setup and what containers exist
-- Container relationships (compose files)
-- Deployment scripts and their usage
+For deployment: Docker setup, container relationships, deployment scripts.
 
 ## Output Format
 
@@ -125,32 +111,22 @@ For deployment:
 [1-2 paragraphs: what this project is, how it's organized, key technology choices]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries. Focus on things that are non-obvious, surprising, or critical for working with the codebase.]
+[3-7 most important non-obvious discoveries]
 
 ## Modules
-
-### [Module Name]
-- **Purpose:** [what it does]
-- **Location:** [path]
-- **Entry point:** [main file]
-- **Key dependencies:** [important libraries]
-- **Relationship to other modules:** [depends on / depended on by]
+For each module: name, purpose, location, entry point, key dependencies, relationships to other modules.
 
 ## Build System
-- **Tool:** [Maven/Gradle/npm/cargo/etc.]
-- **Build command:** [full project build]
-- **Module-specific builds:** [per-module commands if applicable]
-- **Other commands:** [test, lint, format, etc.]
-- **Profiles/configurations:** [build profiles or configurations]
+Tool, build commands (full project + per-module), test/lint/format commands, profiles/configurations.
 
 ## Dependencies
-[Key external dependencies that define the project's character — frameworks, databases, messaging, etc. Not every utility library.]
+[Key external dependencies that define the project's character — not every utility library]
 
 ## CI/CD Pipeline
-[Pipeline stages, what triggers them, what they do]
+[Pipeline stages, triggers, what each does]
 
 ## Deployment
-[Docker setup, container definitions, deployment scripts]
+[Docker setup, containers, deployment scripts]
 
 ## Scripts & Utilities
 | Script | Purpose |
@@ -158,10 +134,10 @@ For deployment:
 | [path] | [what it does] |
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine. Be honest about coverage gaps.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -185,87 +161,68 @@ You are exploring a repository to comprehensively map its API surface and extern
 ## What to Search For
 
 Use Glob and Grep to find, then read every match:
-- REST controllers: **/*Controller*.java, **/*Handler*.java, **/routes/**, **/router*, **/api/**
-- Route annotations: Grep for @RestController, @Controller, @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @PatchMapping, @RequestMapping
-- For non-Java: Grep for app.get, app.post, router.get, @app.route, @api_view
-- gRPC definitions: **/*.proto, **/*GrpcService*, **/*Grpc*
-- GraphQL: **/*.graphql, **/schema.graphql, **/*Resolver*
-- DTOs/request-response models: **/*Request*.java, **/*Response*.java, **/*Dto*.java, **/*DTO*.java, **/dto/**, **/model/** (in API layer)
-- API docs: **/openapi*, **/swagger*, **/api-docs*
-- Middleware/filters: **/*Filter*.java, **/*Interceptor*.java, **/middleware/**
-- Error handling: **/*ExceptionHandler*, **/*ErrorHandler*, **/exception/**
+
+**Routes & controllers** — Glob for **/routes/**, **/controllers/**, **/api/**, plus:
+  Java/Kotlin: **/*Controller*.java, **/*Controller*.kt; Grep @RestController, @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @RequestMapping
+  Python: **/*views*.py, **/*routes*.py, **/*endpoints*.py, **/urls.py; Grep @app.route, @api_view, APIRouter, path(, re_path(
+  TypeScript/JS: **/*.controller.ts, **/*.router.ts, **/routes.ts; Grep app.get, app.post, router.get, @Controller, @Get, @Post
+  Go: Grep http.HandleFunc, mux.Handle, gin.GET, echo.GET, chi.Get, fiber.Get
+  Rust: Grep #\[get\], #\[post\], Router::new, web::resource, HttpServer::new
+  C#: **/*Controller*.cs; Grep \[ApiController\], \[HttpGet\], \[HttpPost\]
+
+**API definitions & docs:** **/*.proto, **/*.graphql, **/schema.graphql, **/*Resolver*, **/openapi*, **/swagger*, **/api-docs*
+
+**Request/response models:**
+  Java/Kotlin: **/*Request*.java, **/*Response*.java, **/*Dto*.java, **/dto/**
+  Python: **/*schema*.py, **/*serializer*.py; Grep BaseModel, Serializer, @dataclass (in API layer)
+  TypeScript/JS: **/*dto*.ts, **/*schema*.ts; Grep z.object, class.*Dto, interface.*Request
+  Go/Rust: Request/response structs near route handlers
+
+**Middleware & error handling:**
+  Java/Kotlin: **/*Filter*.java, **/*Interceptor*.java; Grep @ExceptionHandler, @ControllerAdvice
+  Python: **/middleware.py, **/middleware/**, **/exceptions.py; Grep exception_handler, middleware
+  TypeScript/JS: **/middleware/**; Grep app.use, ExceptionFilter, NestMiddleware
+  Go: Grep middleware, func.*http.Handler
+  Universal: **/middleware/**, **/*ErrorHandler*, **/*ExceptionHandler*
 
 ## What to Extract
 
-For each endpoint:
-- HTTP method and full path (including path variables)
-- Request body shape (key fields and types)
-- Response body shape (key fields and types)
-- Path parameters and query parameters
-- Authentication/authorization requirements
-- Notable middleware or filters applied
+For each endpoint: HTTP method, full path, request/response shapes, path/query params, auth requirements, notable middleware.
 
-Also document:
-- API versioning strategy
-- Common error response format
-- Pagination patterns
-- Rate limiting
-- Request validation approach
-- CORS configuration
+Also: API versioning strategy, common error response format, pagination patterns, rate limiting, validation approach, CORS config.
 
 ## Output Format
 
 # API Surface
 
 ## Endpoints Overview
-[Brief summary: how many endpoints, groupings, versioning]
+[Count, groupings, versioning strategy]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries about the API surface.]
+[3-7 most important non-obvious discoveries]
 
 ## REST Endpoints
-
-### [Controller/Group Name]
-[Brief description of this group]
-
+Group by controller/resource. For each group, provide an endpoint table:
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
-| GET | /v0/things | List all things | JWT |
-| POST | /v0/things | Create a thing | JWT |
-| GET | /v0/things/{id} | Get thing by ID | JWT |
-
-### [Next Controller/Group]
-...
 
 ## Request/Response Models
+For each important model: name, which endpoints use it, key fields with types.
 
-### [Model Name]
-- **Used by:** [which endpoints]
-- **Fields:**
-  - `fieldName` (Type) — description
-  - `otherField` (Type, optional) — description
-
-## gRPC Services
-[If applicable: service name, methods, request/response messages]
-
-## Other Interfaces
-[CLI commands, WebSocket endpoints, event interfaces, webhook callbacks]
+## gRPC / GraphQL / Other Interfaces
+[If applicable: service names, methods, schema, WebSocket endpoints, CLI commands]
 
 ## API Conventions
-- **Versioning:** [strategy]
-- **Error format:** [structure and common error codes]
-- **Pagination:** [pattern — offset/limit, cursor, page/size]
-- **Authentication:** [mechanism — JWT, API key, OAuth2]
-- **Validation:** [how request validation works]
+Versioning, error format, pagination pattern, authentication mechanism, validation approach.
 
 ## Middleware & Filters
-[What middleware/filters exist, their order, what they do]
+[What exists, execution order, what each does]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -289,92 +246,78 @@ You are exploring a repository to comprehensively understand its data model and 
 ## What to Search For
 
 Use Glob and Grep to find, then read every match:
-- Entities/models: **/*Entity*.java, **/entity/**, **/entities/**, Grep for @Entity, @Table, @Document
-- Also check: **/model/**, **/models/**, **/domain/** (non-DTO models)
-- Repositories/DAOs: **/*Repository*.java, **/*Dao*.java, **/repository/**
-- Migrations: **/migration/**, **/migrations/**, **/db/migration/**, **/flyway/**, **/liquibase/**, **/alembic/**
-- Schema: **/schema.sql, **/init.sql, **/ddl/**, **/*.sql (in migration dirs)
-- Enums: Grep for enum.*Status, enum.*Type, enum.*State (look specifically for state/status enums)
+
+**Entities & models:**
+  Java/Kotlin: **/*Entity*.java, **/entity/**, **/entities/**; Grep @Entity, @Table, @Document
+  Python: **/models.py, **/models/**, **/*model*.py; Grep class.*Model, class.*db.Model, Base =
+  TypeScript/JS: **/*entity*.ts, **/*model*.ts, **/schema.prisma; Grep @Entity, model (Prisma), Schema( (Mongoose)
+  Go: **/model/**, **/models/**, **/entity/**; Grep gorm.Model, bun.BaseModel
+  Rust: Grep #\[derive.*Queryable\], diesel::table!, #\[derive.*FromRow\]
+  Universal: **/model/**, **/models/**, **/domain/** (non-DTO models)
+
+**Repositories & data access:**
+  Java/Kotlin: **/*Repository*.java, **/*Dao*.java, **/repository/**
+  Python: Grep objects.filter, session.query, .select(), Manager
+  TypeScript/JS: **/*repository*.ts; Grep getRepository, PrismaClient, mongoose.model
+  Go: **/*repository*.go, **/*repo*.go, **/store/**
+  Universal: **/repository/**, **/repositories/**, **/store/**
+
+**Migrations & schema:**
+  Universal: **/migration/**, **/migrations/**, **/db/migration/**, **/*.sql (in migration dirs)
+  Java: **/flyway/**, **/liquibase/**
+  Python: **/alembic/**, **/migrations/ (Django)
+  TypeScript/JS: **/prisma/migrations/**, **/knex/migrations/**
+  Go: **/migrate/**, **/goose/**
+
+**State & type enums:** Grep for enum.*Status, enum.*Type, enum.*State, class.*Status, class.*State
+
+**Additional:**
 - Views: Grep for CREATE VIEW, CREATE OR REPLACE VIEW in SQL files
-- ORM config: **/persistence.xml, **/hibernate.cfg.xml, **/orm.xml
-- Converters: **/*Converter*.java, Grep for @Convert, AttributeConverter
-- Auditing: Grep for @Audited, @EntityListeners, Envers, @CreatedDate, @LastModifiedDate
+- Converters/serializers: **/*Converter*.java, Grep @Convert, AttributeConverter, custom serializers
+- Auditing: Grep for @Audited, @CreatedDate, @LastModifiedDate, auto_now, timestamps, updated_at, created_at
 
 ## What to Extract
 
-- Every entity with its fields, types, and important annotations
-- All relationships (OneToMany, ManyToOne, ManyToMany) and their mapping details
-- Status/state enums and their valid transitions (trace through service code if needed)
-- Database indexes and unique constraints
-- Views — name, definition, purpose
+- Every entity with fields, types, and important annotations/decorators
+- All relationships and their mapping details
+- Status/state enums and valid transitions (trace through service code if needed)
+- Indexes, unique constraints, views
 - Converters and special field handling (encryption, serialization)
-- Audit mechanisms (Envers, timestamps, soft deletes)
-- Migration history — focus on structural milestones, not every migration
+- Audit mechanisms and migration history highlights
 
 ## Output Format
 
 # Data Model
 
 ## Overview
-[Brief summary: how many entities, key relationships, database technology]
+[Entity count, key relationships, database technology]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries about the data model.]
+[3-7 most important non-obvious discoveries]
 
 ## Core Entities
-
-### [Entity Name]
-- **Table:** `[schema.table_name]`
-- **Purpose:** [what this entity represents]
-- **Key fields:**
-  - `id` (UUID) — primary key
-  - `fieldName` (Type) — description
-  - `status` (StatusEnum) — [possible values]
-- **Relationships:**
-  - → [OtherEntity] (ManyToOne via `other_id`)
-  - ← [AnotherEntity] (OneToMany, mapped by `this_field`)
-- **Special handling:** [encryption, auditing, soft delete, etc.]
-
-### [Next Entity]
-...
+For each entity: table/collection name, purpose, key fields (name, type, description), relationships (direction, cardinality, join), special handling (encryption, auditing, soft delete).
 
 ## Entity Relationships
-[Prose description or text diagram showing how the major entities connect]
+[Prose description or text diagram showing how major entities connect]
 
 ## State Machines
-
-### [Entity] Status Flow
-```
-STATE_A → STATE_B → STATE_C
-   ↓         ↓
-STATE_D   STATE_E
-```
-**Transitions:**
-- STATE_A → STATE_B: [what triggers this]
-- STATE_B → STATE_C: [what triggers this]
-- ...
+For each status flow: ASCII state diagram, transition triggers, and conditions.
 
 ## Database Details
-- **Database:** [PostgreSQL/MySQL/MongoDB/etc.]
-- **Schema:** [schema name if applicable]
-- **Key views:** [view names and purposes]
-- **Notable indexes:** [indexes on frequently queried columns]
-- **Constraints:** [important unique/check constraints]
+Database technology, schema, key views, notable indexes, important constraints.
 
 ## Data Patterns
-- **Encryption:** [which fields, how]
-- **Auditing:** [mechanism — Envers, timestamps, etc.]
-- **Soft deletes:** [if applicable]
-- **Converters:** [custom type converters]
+Encryption, auditing, soft deletes, converters, versioning — whatever patterns exist.
 
 ## Migration Highlights
-[Notable structural changes in migration history — new tables, major alterations, data migrations]
+[Notable structural changes — new tables, major alterations, data migrations]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -398,80 +341,74 @@ You are exploring a repository to understand all external service integrations. 
 ## What to Search For
 
 Use Glob and Grep to find, then read every match:
-- Client classes: **/*Client*.java, **/*ServiceClient*, **/client/**, **/clients/**
-- Integration packages: **/integration/**, **/integrations/**, **/external/**, **/vendor/**
-- gRPC clients: **/*Stub*, **/*GrpcClient*, **/*GrpcService*
-- HTTP clients: Grep for RestTemplate, WebClient, HttpClient, OkHttp, Feign, Retrofit
-- Auth: **/*Auth*.java, **/*Token*.java, **/*Credential*, Grep for OAuth2, Bearer, M2M, clientId, clientSecret (references only, not values)
-- Retry/resilience: Grep for @Retryable, @CircuitBreaker, RetryTemplate, resilience4j, @Retry
-- External config: Grep for url, endpoint, base-url, host in config files (to find external service references)
-- Message queues: Grep for @KafkaListener, @RabbitListener, @JmsListener, SQS, SNS, pub/sub
-- Webhooks: **/*Webhook*, **/*webhook*
+
+**Client classes & integration packages:**
+  Universal: **/client/**, **/clients/**, **/integration/**, **/integrations/**, **/external/**, **/vendor/**
+  Java/Kotlin: **/*Client*.java, **/*ServiceClient*; Grep RestTemplate, WebClient, OkHttp, Feign, Retrofit
+  Python: **/*client*.py; Grep requests.get, requests.post, httpx, aiohttp, urllib
+  TypeScript/JS: **/*client*.ts, **/*service*.ts; Grep axios, fetch(, got(, node-fetch
+  Go: **/*client*.go; Grep http.NewRequest, http.Client, resty
+  Rust: Grep reqwest::Client, hyper::Client
+
+**gRPC clients:** **/*Stub*, **/*GrpcClient*, **/*GrpcService*, **/*_grpc.pb*
+
+**Auth patterns:**
+  Universal: **/*Auth*, **/*Token*, **/*Credential*
+  Grep for OAuth2, Bearer, M2M, clientId, clientSecret, api_key, API_KEY (references only, not values)
+
+**Retry & resilience:**
+  Java/Kotlin: Grep @Retryable, @CircuitBreaker, RetryTemplate, resilience4j
+  Python: Grep tenacity, retry, backoff, @retry
+  TypeScript/JS: Grep retry, p-retry, cockatiel, polly
+  Go: Grep retry, backoff
+  Universal: Grep circuit.breaker, circuit_breaker, fallback
+
+**External config:** Grep for url, endpoint, base-url, base_url, host in config files (to find external service references)
+
+**Message queues & async:**
+  Java/Kotlin: Grep @KafkaListener, @RabbitListener, @JmsListener
+  Python: Grep celery, kombu, pika, boto3.*sqs
+  TypeScript/JS: Grep BullModule, amqplib, kafkajs, @nestjs/microservices
+  Universal: Grep SQS, SNS, pub/sub, AMQP, NATS
+
+**Webhooks:** **/*Webhook*, **/*webhook*
 
 ## What to Extract
 
-For each external integration:
-- Service name and what it's used for
-- Communication type (REST, gRPC, SDK, message queue, webhook)
-- Authentication method (OAuth2 M2M, API key, mTLS, basic auth)
-- Key operations (what endpoints/methods are called)
-- Error handling approach (retry config, circuit breaker, fallback)
-- Configuration required (properties, env vars, URLs)
-- Health/connectivity checks
+For each integration: service name, purpose, communication type (REST/gRPC/SDK/queue/webhook), auth method, key operations, error handling (retry/circuit breaker/fallback), config required.
 
-Also document:
-- Shared HTTP client configuration
-- Common retry patterns across integrations
-- Timeout defaults
-- Connection pooling
+Also: shared HTTP client config, common retry patterns, timeout defaults, connection pooling.
 
 ## Output Format
 
 # Integrations
 
 ## Overview
-[Brief summary: how many external services, common patterns]
+[External service count, common patterns]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries about integrations.]
+[3-7 most important non-obvious discoveries]
 
 ## External Services
-
-### [Service Name]
-- **Purpose:** [what it's used for in this system]
-- **Type:** [REST/gRPC/SDK/Queue/Webhook]
-- **Auth:** [authentication method and details]
-- **Key operations:**
-  - [Operation 1] — [what it does]
-  - [Operation 2] — [what it does]
-- **Error handling:** [retry count, backoff, circuit breaker, fallback]
-- **Config required:** [properties/env vars needed to connect]
-- **Location:** [code path for the client]
-
-### [Next Service]
-...
+For each service: purpose, type (REST/gRPC/SDK/Queue/Webhook), auth method, key operations, error handling strategy, config required, code location.
 
 ## Integration Patterns
-- **HTTP client:** [what library/approach — RestTemplate, WebClient, etc.]
-- **Retry strategy:** [common retry configuration]
-- **Circuit breaker:** [if applicable, tool used]
-- **Timeouts:** [connection and read timeout defaults]
-- **Connection pooling:** [if configured]
+HTTP client library, retry strategy, circuit breaker approach, timeout defaults, connection pooling.
 
 ## Authentication Summary
-[How external authentication works — shared patterns, token management, credential storage]
+[Shared auth patterns, token management, credential storage]
 
 ## Message Queues / Async
-[If applicable: queue technology, topics/queues, producers, consumers, message formats]
+[If applicable: technology, topics/queues, producers, consumers, message formats]
 
 ## Webhook System
-[If the system sends or receives webhooks: registration, delivery, signature verification, retry]
+[If applicable: registration, delivery, signature verification, retry]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -495,78 +432,89 @@ You are exploring a repository to understand its core business logic and process
 ## What to Search For
 
 Use Glob and Grep to find, then read every match:
-- Service classes: **/*Service*.java, **/service/**, **/services/** (focus on business logic, not integration clients)
-- Orchestrators: **/*Processor*, **/*Orchestrator*, **/*Handler*, **/*Workflow*, **/*UseCase*
-- Schedulers: Grep for @Scheduled, @EnableScheduling, CronTrigger, ScheduledExecutorService
-- Event handling: **/*Listener*, **/*EventHandler*, **/*Consumer*, Grep for @EventListener, @TransactionalEventListener
-- State transitions: Grep for status changes, state machine patterns, enum transitions
-- Validators: **/*Validator*, **/*Validation*, Grep for @Valid, @Validated
-- Business rules: Look for conditional logic, calculations, allocation algorithms
-- Transaction management: Grep for @Transactional, TransactionTemplate, Propagation
+
+**Service & business logic:**
+  Java/Kotlin: **/*Service*.java, **/service/**, **/services/**; Grep @Service (focus on business logic, not integration clients)
+  Python: **/*service*.py, **/services/**, **/use_cases/**; Grep class.*Service, class.*UseCase
+  TypeScript/JS: **/*service*.ts, **/services/**, **/use-cases/**; Grep @Injectable, class.*Service
+  Go: **/*service*.go, **/service/**, **/usecase/**
+  Rust: **/service/**, **/services/**; Grep impl.*Service
+
+**Orchestrators & handlers:**
+  Universal: **/*Processor*, **/*Orchestrator*, **/*Handler*, **/*Workflow*, **/*UseCase*, **/*Pipeline*
+
+**Schedulers & cron:**
+  Java/Kotlin: Grep @Scheduled, @EnableScheduling, CronTrigger
+  Python: Grep celery.task, @periodic_task, schedule, APScheduler, crontab
+  TypeScript/JS: Grep @Cron, @Interval, cron, node-schedule, BullModule
+  Go: Grep cron.New, time.Ticker, gocron
+  Universal: Grep crontab, cron, schedule
+
+**Event handling:**
+  Java/Kotlin: **/*Listener*, **/*EventHandler*; Grep @EventListener, @TransactionalEventListener
+  Python: Grep signal, @receiver, EventHandler, on_event
+  TypeScript/JS: Grep @OnEvent, EventEmitter, on(, subscribe(
+  Go: Grep chan, Subscribe, Publish
+  Universal: **/*Listener*, **/*Consumer*, **/*Subscriber*
+
+**State transitions:** Grep for status changes, state machine patterns, enum transitions
+
+**Validation:**
+  Java/Kotlin: **/*Validator*; Grep @Valid, @Validated
+  Python: **/*validator*.py; Grep validate, ValidationError, validator
+  TypeScript/JS: Grep class-validator, zod, yup, joi
+  Go: Grep validate, Validate
+
+**Transaction management:**
+  Java/Kotlin: Grep @Transactional, TransactionTemplate, Propagation
+  Python: Grep atomic, transaction, session.commit, db.session
+  TypeScript/JS: Grep transaction, $transaction, knex.transaction
+  Go: Grep tx, Begin, Commit, Rollback
 
 ## What to Extract
 
-- Every major business workflow (what triggers it, every step, what the outcome is)
-- State transitions (what moves entities between states, under what conditions)
-- Scheduled operations (what runs on a schedule, cron expression, what it does)
-- Event flows (what emits events, what listens, what happens)
-- Business rules and validations (the logic that enforces correctness)
-- Transaction boundaries (where @Transactional is used and the propagation strategy)
-- Error and recovery flows (what happens when things fail)
+- Every major business workflow (trigger, steps, outcome)
+- State transitions (what moves entities between states, conditions)
+- Scheduled operations (schedule, purpose, what it does)
+- Event flows (emitters, listeners, side effects)
+- Business rules and validations
+- Transaction boundaries and propagation strategy
+- Error and recovery flows
 
 ## Output Format
 
 # Processing Flows
 
 ## Overview
-[Brief summary: key business domain, main workflows, processing philosophy]
+[Key business domain, main workflows, processing philosophy]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries. Focus on things that are non-obvious, surprising, or critical for working with the codebase.]
+[3-7 most important non-obvious discoveries]
 
 ## Core Workflows
-
-### [Workflow Name]
-**Trigger:** [what starts this flow — API call, scheduled task, event, external webhook]
-**Steps:**
-1. [Step] — [what happens, which service/method]
-2. [Step] — [what happens]
-3. ...
-**Outcome:** [end state, side effects, notifications]
-**Error handling:** [what happens on failure at each critical step]
-**Location:** [primary service/class]
-
-### [Next Workflow]
-...
+For each workflow: trigger, numbered steps with service/method references, outcome, error handling, code location.
 
 ## Scheduled Operations
-
 | Job | Schedule | Purpose | Location |
 |-----|----------|---------|----------|
-| [name] | [cron/interval] | [what it does] | [class] |
 
 ## Event Flows
-
-### [Event Name/Type]
-- **Emitted by:** [what produces it]
-- **Consumed by:** [what listens]
-- **Payload:** [key data included]
-- **Side effects:** [what happens when consumed]
+For each event type: emitter, consumer(s), payload, side effects.
 
 ## Business Rules
-[Key validations, calculations, algorithms, allocation logic — the domain-specific rules that define correctness]
+[Key validations, calculations, algorithms — the domain-specific rules that define correctness]
 
 ## Transaction Boundaries
-[Where transactional boundaries exist, propagation strategies, why they're structured that way]
+[Where boundaries exist, propagation strategies, rationale]
 
 ## Error & Recovery Flows
-[What happens when things fail — retry, compensation, manual intervention, recovery jobs]
+[Retry, compensation, manual intervention, recovery jobs]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -592,89 +540,102 @@ ADDITIONAL RULE: You will encounter sensitive configuration files (.env, credent
 ## What to Search For
 
 Use Glob and Grep to find, then read every match:
-- Config files: **/application*.properties, **/application*.yml, **/application*.yaml, **/.env.example, **/config/**, **/*config*.java, **/*Config*.java, **/*Configuration*.java, **/*Properties*.java
-- Profiles: Grep for spring.profiles, @Profile, NODE_ENV, RAILS_ENV
-- Feature flags: Grep for @ConditionalOn, feature., .enabled, .disabled, toggle
-- Monitoring: Grep for @Timed, Counter., Timer., MeterRegistry, prometheus, micrometer, Gauge
-- Health: **/*Health*.java, Grep for @HealthIndicator, AbstractHealthIndicator, /actuator/health
-- Logging: **/logback*.xml, **/log4j*.xml, **/logging.*, Grep for LoggerFactory, @Slf4j, structured logging
-- Secrets: Grep for vault, transit, kms, ssm, keystore, secret.management (references to secrets infrastructure, NOT actual secrets)
-- Infrastructure: **/terraform/**, **/k8s/**, **/kubernetes/**, **/helm/**, **/deploy/**, **/infra/**
-- Operational scripts: **/utils/**, **/scripts/**, **/ops/**, **/bin/**
+
+**Configuration files:**
+  Java/Kotlin: **/application*.properties, **/application*.yml; Grep @Configuration, @ConfigurationProperties, @Value
+  Python: **/settings.py, **/config.py, **/pyproject.toml, **/.env.example; Grep DJANGO_SETTINGS, Flask config, pydantic.*Settings
+  TypeScript/JS: **/config/**, **/.env.example, **/next.config*, **/nest-cli.json; Grep ConfigModule, process.env, dotenv
+  Go: **/config/**, **/*.toml, **/*.yaml (config); Grep viper, envconfig, os.Getenv
+  Rust: **/config/**, **/*.toml (config); Grep config::Config, dotenv
+  Universal: **/*config*, **/*Config*, **/config/**, **/.env.example
+
+**Profiles & environments:**
+  Grep for spring.profiles, @Profile, NODE_ENV, RAILS_ENV, DJANGO_SETTINGS_MODULE, APP_ENV, GO_ENV, RUST_ENV
+
+**Feature flags:** Grep for @ConditionalOn, feature., .enabled, .disabled, toggle, feature_flag, FEATURE_
+
+**Monitoring & metrics:**
+  Java/Kotlin: Grep @Timed, Counter., Timer., MeterRegistry, micrometer, Gauge
+  Python: Grep prometheus_client, statsd, Counter(, Histogram(, opentelemetry
+  TypeScript/JS: Grep prom-client, prometheus, opentelemetry, metrics
+  Go: Grep prometheus, metrics, opentelemetry
+  Universal: Grep prometheus, grafana, datadog, newrelic, opentelemetry
+
+**Health checks:**
+  Java/Kotlin: **/*Health*.java; Grep @HealthIndicator, /actuator/health
+  Python: Grep health, healthcheck, readiness, liveness
+  TypeScript/JS: Grep HealthCheck, terminus, /health
+  Go: Grep /health, /ready, /live
+
+**Logging:**
+  Java/Kotlin: **/logback*.xml, **/log4j*.xml; Grep @Slf4j, LoggerFactory
+  Python: **/logging.*, Grep logging.config, structlog, loguru
+  TypeScript/JS: Grep winston, pino, bunyan, morgan, logger
+  Go: Grep log, zap, logrus, zerolog
+  Universal: Grep structured.logging, log.level
+
+**Secrets & infrastructure:**
+  Grep for vault, transit, kms, ssm, keystore, secret.management (references to secrets infrastructure, NOT actual secrets)
+  Glob: **/terraform/**, **/k8s/**, **/kubernetes/**, **/helm/**, **/deploy/**, **/infra/**
+
+**Operational scripts:** **/utils/**, **/scripts/**, **/ops/**, **/bin/**
 
 ## What to Extract
 
-- Configuration hierarchy (what sources exist, precedence order)
+- Configuration hierarchy (sources, precedence order)
 - Environment profiles and how they differ
-- Feature flags with their defaults
-- All metrics being collected (counters, timers, gauges)
+- Feature flags with defaults
+- Metrics being collected (counters, timers, gauges)
 - Health check dependencies
-- Logging configuration (format, levels, destinations)
-- Secrets management approach (tool, integration, key paths)
-- Deployment configuration
-- Operational scripts and their purposes
+- Logging config (format, levels, destinations)
+- Secrets management approach
+- Deployment config and operational scripts
 
 ## Output Format
 
 # Configuration & Operations
 
 ## Overview
-[Brief summary: configuration approach, key operational concerns]
+[Configuration approach, key operational concerns]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries. Focus on things that are non-obvious, surprising, or critical for working with the codebase.]
+[3-7 most important non-obvious discoveries]
 
 ## Configuration Hierarchy
-[What config sources exist and their precedence — e.g., env vars > profile properties > defaults]
+[Config sources and their precedence]
 
 ## Environment Profiles
-
 | Profile | Purpose | Key Differences |
 |---------|---------|-----------------|
-| [name] | [when used] | [what's different] |
 
 ## Key Configuration Properties
-[Important properties grouped by category — not every property, just the ones that matter for understanding and operating the system]
+[Important properties grouped by category — only what matters for understanding and operating the system]
 
 ## Feature Flags
-
 | Flag | Default | Purpose |
 |------|---------|---------|
-| [property path] | [value] | [what it controls] |
 
 ## Monitoring & Metrics
-
-### Metrics
-[What's being measured — key counters, timers, gauges and what they track]
-
-### Health Checks
-[What dependencies are health-checked, endpoints]
-
-### Logging
-- **Format:** [structured/plain, pattern]
-- **Levels:** [default levels, per-package overrides]
-- **Configuration:** [logback/log4j, file location]
+Metrics (counters, timers, gauges), health checks, logging config (format, levels, destinations).
 
 ## Secrets Management
-[How secrets are managed — Vault, env vars, K8s secrets, etc. What secrets exist and where they're referenced. NO actual values.]
+[How secrets are managed, what exists, where referenced. NO actual values.]
 
 ## Deployment
-[How the application is deployed — Docker, K8s, scripts, manual]
+[How the app is deployed — Docker, K8s, scripts, manual]
 
 ## Operational Scripts
-
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| [path] | [what it does] | [how to run it] |
 
 ## Local Development Setup
-[What's needed to run locally — services, configuration, bootstrap scripts]
+[What's needed to run locally]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
 
 ---
@@ -700,83 +661,82 @@ NOTE: For test files themselves, you don't need to read every individual test me
 ## What to Search For
 
 Use Glob and Grep to find:
-- Test files: **/*Test*.java, **/*IT*.java, **/*Spec*.java, **/*.test.*, **/*.spec.*, **/*_test.go, **/test_*.py
-- Test config: **/test/resources/**, **/*TestConfig*.java, **/*TestBase*.java, **/conftest.py, **/jest.config*, **/pytest.ini, **/vitest.config*
-- Test utilities: **/*TestHelper*, **/*TestUtil*, **/*TestData*, **/*Factory* (in test dirs), **/*Builder* (in test dirs)
-- Mocks/fakes: **/*Mock*, **/*Fake*, **/*Stub* (in test dirs)
-- Test containers: Grep for @Testcontainers, TestContainers, testcontainer
-- Fixtures: **/fixtures/**, **/testdata/**, **/__fixtures__/**
-- CI test config: Look at CI pipeline for test stages and commands
+
+**Test files:**
+  Java/Kotlin: **/*Test*.java, **/*IT*.java, **/*Spec*.java
+  Python: **/test_*.py, **/*_test.py, **/tests.py, **/tests/**
+  TypeScript/JS: **/*.test.*, **/*.spec.*, **/__tests__/**
+  Go: **/*_test.go
+  Rust: Grep #\[test\], #\[cfg(test)\]; **/tests/**
+  C#: **/*Test*.cs, **/*Tests*.cs
+
+**Test config:**
+  Java/Kotlin: **/test/resources/**, **/*TestConfig*.java, **/*TestBase*.java
+  Python: **/conftest.py, **/pytest.ini, **/setup.cfg (test section), **/tox.ini
+  TypeScript/JS: **/jest.config*, **/vitest.config*, **/.mocharc*, **/playwright.config*
+  Go: **/testdata/**, **/*_test_helpers*.go
+  Universal: **/*TestConfig*, **/*TestBase*
+
+**Test utilities & factories:**
+  Universal: **/*TestHelper*, **/*TestUtil*, **/*TestData*, **/*Factory* (in test dirs), **/*Builder* (in test dirs), **/*fixture*
+  Python: **/conftest.py (fixtures), **/factories.py; Grep factory_boy, pytest.fixture
+  TypeScript/JS: **/*mock*, **/mocks/**; Grep jest.mock, vi.mock, sinon
+
+**Mocks/fakes:** **/*Mock*, **/*Fake*, **/*Stub* (in test dirs)
+**Test containers:** Grep @Testcontainers, TestContainers, testcontainer, docker-compose.*test
+**Fixtures:** **/fixtures/**, **/testdata/**, **/__fixtures__/**
+**CI test config:** Look at CI pipeline for test stages and commands
 
 Read every test utility, config, mock, and base class file. For actual test files, read enough to identify all patterns.
 
 ## What to Extract
 
-- Test types present (unit, integration, e2e, contract, performance)
-- Approximate count of tests by type
-- How to run each type of test (exact commands)
-- Test frameworks and assertion libraries used
-- Test utility classes and what they provide
+- Test types (unit, integration, e2e, contract, performance) with approximate counts
+- How to run each test type (exact commands)
+- Frameworks and assertion libraries used
+- Test utilities and what they provide
 - Mocking strategies per external dependency
-- Test data management approach (factories, fixtures, seed data)
+- Test data management (factories, fixtures, seeds)
 - Test base classes and their responsibilities
-- Test container setup (what containers, how configured)
-- CI/CD test pipeline (what runs in CI, in what order)
-- Any notable testing patterns or conventions
+- Test container setup
+- CI/CD test pipeline and conventions
 
 ## Output Format
 
 # Testing
 
 ## Overview
-[Brief summary: testing philosophy, maturity, coverage approach]
+[Testing philosophy, maturity, coverage approach]
 
 ## Key Findings
-[Bulleted list of the 3-7 most important discoveries. Focus on things that are non-obvious, surprising, or critical for working with the codebase.]
+[3-7 most important non-obvious discoveries]
 
 ## Test Types
-
-| Type | Approximate Count | Location Pattern | Run Command |
-|------|-------------------|------------------|-------------|
-| Unit | ~[N] | `*Test.java` | `[command]` |
-| Integration | ~[N] | `*IT.java` | `[command]` |
-| E2E | ~[N] | [pattern] | `[command]` |
+| Type | ~Count | Location Pattern | Run Command |
+|------|--------|------------------|-------------|
 
 ## Test Frameworks
-[What testing libraries and tools are used — JUnit, Mockito, Testcontainers, etc.]
+[Testing libraries and tools used]
 
-## Test Utilities
-
-### [Utility/Helper Name]
-- **Location:** [path]
-- **Purpose:** [what it provides]
-- **Used by:** [which test types use it]
-
-## Test Base Classes
-
-### [Base Class Name]
-- **Location:** [path]
-- **Provides:** [what it sets up — containers, config, common fixtures]
-- **Used by:** [which tests extend it]
+## Test Utilities & Base Classes
+For each: location, purpose, what it provides, which tests use it.
 
 ## Mocking Strategy
-
 | External Dependency | Mock Approach | Location |
 |--------------------|---------------|----------|
-| [service name] | [Mockito/@MockBean/Fake class/WireMock] | [mock file] |
 
 ## Test Data Management
-[How test data is created — factories, builders, fixtures, SQL seeds, @Transactional rollback]
+[Factories, builders, fixtures, SQL seeds, transactional rollback — whatever approach is used]
 
 ## Test Patterns & Conventions
-[Common patterns — naming conventions, setup/teardown, assertion style, test organization]
+[Naming conventions, setup/teardown, assertion style, organization]
 
 ## CI/CD Test Pipeline
-[How tests run in CI — which stages, what's parallelized, test reporting]
+[Stages, parallelization, test reporting]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer familiar with the framework but new to this codebase.]
+[Non-obvious patterns that would surprise a developer new to this codebase]
 
 ## Scan Limitations
-[Areas you did not fully explore or could not determine.]
+[Coverage gaps and areas not fully explored]
 ```
