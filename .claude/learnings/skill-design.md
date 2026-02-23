@@ -172,11 +172,16 @@ When migrating file paths (e.g., relocating shared references), preserve each sk
 
 Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
 
-## Skill-References for Universal Multi-Agent Patterns
 
-When a pattern applies broadly across many agent-launching skills (curation, security audits, parallel execution, exploration) but isn't needed in every session, `skill-references/` is the right home — not `guidelines/` (too always-on) and not `learnings/` (too passive, won't be loaded by skills).
+## Absorb Thin Wrapper Skills as Flags
 
-**Decision criteria:** The pattern is behavioral/prescriptive AND applies to 3+ skills AND is only relevant when launching subagents. Skills reference it with `~/.claude/skill-references/<file>.md`; the agent loads it on-demand when the skill runs.
+When pruning a skill that's a thin wrapper around a single command or a subset of a broader skill, absorb it as a `--flag` or mode in the broader skill rather than deleting the capability entirely. Example: `preview-conflicts` was step 3 of `resolve-conflicts` — absorbed as `resolve-conflicts --preview` (runs steps 1-3 only).
 
-**Example:** "Verify subagent output before acting on it" — applies to any skill delegating research/analysis to agents, but irrelevant in sessions without subagent use. Lives in `skill-references/subagent-patterns.md` alongside `agent-prompting.md`.
+## Cross-Reference Cleanup After Skill Deletion
+
+After deleting skills, grep remaining skills for the deleted skill names — other skills may reference them in "Related Skills" tables, usage examples, or conditional workflows. Stale references to non-existent skills confuse execution.
+
+## Stale Model Version Strings in Co-Authorship Lines
+
+Skills with `Co-Authored-By` or `Co-authored with` lines hardcode the model version (e.g., "Claude Opus 4.5"). These go stale on model upgrades. During curation sweeps, grep for the previous model version string across all skill directories and bulk-update.
 

@@ -113,12 +113,4 @@ When a session is continued from a compacted conversation (context overflow), **
 
 `~/.claude` is a real directory on disk. Dotfiles are individually symlinked into it by `setup-claude.sh`. Symlinks created inside `~/.claude` must use **absolute paths** to the dotfiles repo (e.g., `/Users/<user>/WORKSPACE/dotfiles/.claude/skill-references`). Relative paths like `.claude/skill-references` resolve incorrectly to `~/.claude/.claude/skill-references`.
 
-## Glob/Grep Tools Don't Resolve `~` in Path Parameters
-
-The Glob and Grep tools do not expand `~` to the home directory in the `path` parameter. Patterns like `Glob(pattern: "learnings/**/*.md", path: "~/.claude")` return "No files found" even when matching files exist.
-
-**Workaround:** Use absolute paths (`/Users/<user>/.claude`) in the `path` parameter, or use Bash `ls` to discover file listings and then Read with absolute paths.
-
-**Note:** The `~` syntax works in *permission rules* (e.g., `Read(~/.claude/learnings/**)`), but not in tool invocation parameters. Don't confuse the two — permission rules use gitignore-style path matching, while tool parameters need real filesystem paths.
-
 

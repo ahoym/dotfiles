@@ -89,3 +89,7 @@ Arithmetic `((expr))` returns exit code 1 when the expression evaluates to 0, wh
 ### General Principle
 
 Under `set -euo pipefail`, any command that might legitimately fail in a `$()` assignment needs `|| true` to allow fallthrough to explicit error handling.
+
+## rsync --delete Auto-Removes Renamed Directories
+
+`rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.

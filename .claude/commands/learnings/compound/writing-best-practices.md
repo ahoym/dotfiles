@@ -18,8 +18,6 @@ When a skill stores data in one step and uses it later, explicitly name and refe
    ```
 ```
 
-**Why this matters:** Without explicit naming, later steps become ambiguous. "Add the files" is unclear; "Add `FILES_TO_EXTRACT`" is unambiguous.
-
 ## User Interaction Points
 
 Mark steps where user input is needed:
@@ -70,7 +68,7 @@ When a skill requires Bash commands, update `.claude/settings.json`:
 }
 ```
 
-**Why this matters:** Without pre-approved permissions, users get prompted for every command, creating friction and defeating the purpose of automation. Uncommitted permission changes may appear to work in the current session but won't persist or be available to other users/sessions.
+**Why this matters:** Uncommitted permission changes may appear to work in the current session but won't persist or be available to other users/sessions.
 
 ## Skill Naming Conventions
 
@@ -108,8 +106,6 @@ The `description:` field in SKILL.md frontmatter should be optimized for searcha
 | Extract changes from a compound branch... | Extract independent changes from a feature branch into a new PR... | Removed jargon, clarified output |
 | Initialize a new Ralph loop research project... | Initialize an iterative research project with spec and progress tracking | Removed internal jargon |
 
-**Why this matters:** Better descriptions help me recognize when a skill applies and help users find skills via search.
-
 ## Making Skills Portable
 
 Skills should work across different projects, not just the one where they were created. Periodically audit skills to remove project-specific content.
@@ -131,26 +127,14 @@ Skills should work across different projects, not just the one where they were c
 
 ### Audit Process
 
-1. Search skills for project-specific class/file names:
-   ```bash
-   grep -r "YourClassName\|your_file.py" .claude/commands/
-   ```
-
+1. Search skills for project-specific class/file names
 2. Check both SKILL.md and reference files (patterns, templates, examples)
-
 3. Replace with domain-neutral examples that illustrate the same concept
-
 4. Verify the examples still make sense in the generic context
-
-**Why this matters:** Portable skills can be copied to new projects or shared with others without modification.
 
 ## Cross-Referencing Between Reference Files
 
-When splitting a large file into multiple focused reference files, add cross-references to help users navigate between related content.
-
-### Pattern
-
-Add a "Related References" section at the bottom of each reference file:
+When splitting a large file into multiple focused reference files, add a "Related References" section at the bottom of each to help navigate between related content:
 
 ```markdown
 ## Related References
@@ -158,18 +142,6 @@ Add a "Related References" section at the bottom of each reference file:
 - other-file.md - Brief description of what it covers
 - another-file.md - Brief description of what it covers
 ```
-
-### When to Cross-Reference
-
-- Files that cover complementary topics (e.g., "skill template" ↔ "writing best practices")
-- Files where readers of one are likely to need the other
-- Files that were split from a common source
-
-### Benefits
-
-- Helps users discover related content they might need
-- Creates a navigable web of documentation
-- Makes the split files feel cohesive rather than fragmented
 
 ## Conditional vs Eager References
 
@@ -205,124 +177,31 @@ Only when the file is needed on EVERY invocation AND is small (<30 lines). Other
 
 When skills can be used together, add cross-references to help users discover related workflows:
 
-1. **Add "Related Skills" section** to skills that have natural follow-ups:
-
-```markdown
-## Related Skills
-
-After exploring a PR, you may want to:
-
-| Next Step | Skill |
-|-----------|-------|
-| Address review comments | `/git:address-pr-review` |
-| Check merge status | `/git:pr-status` |
-```
-
-2. **Reference prerequisite skills** in Important Notes:
-
-```markdown
-## Important Notes
-
-- Use `/git:explore-pr` first if you need to understand the PR before splitting
-```
-
-**Why this matters:** Skills are more powerful when composed. Cross-references help users discover workflows they wouldn't find otherwise.
+1. **Add "Related Skills" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
+2. **Reference prerequisite skills** in Important Notes (e.g., "Use `/git:explore-pr` first if you need to understand the PR before splitting")
 
 ## Validating Skill Changes
 
-After modifying or creating skills, run validation checks before committing.
+After modifying or creating skills, verify before committing:
 
-### Structure Checks
-
-```bash
-# Verify directory structure
-ls -la .claude/commands/<skill-name>/
-
-# Confirm old file removed (if migrated)
-test -f .claude/commands/<old-file>.md && echo "OLD FILE EXISTS" || echo "OK"
-```
-
-### Content Checks
-
-```bash
-# Key content present in skill
-grep -q "<expected-content>" .claude/commands/<skill>/SKILL.md && echo "OK" || echo "MISSING"
-
-# Reference files linked correctly
-grep -q "@<reference-file>" .claude/commands/<skill>/SKILL.md && echo "OK" || echo "MISSING"
-```
-
-### Permission Checks
-
-```bash
-# Permissions added for Bash commands
-grep "<command-pattern>" .claude/settings.json
-```
-
-### Functional Test
-
-When possible, test the actual command the skill uses:
-
-```bash
-# Example: Test PR detection for git-create-pr skill
-gh pr list --head <branch>
-```
-
-### Why Validate Skills?
-
-- Catches broken references before users hit them
-- Confirms permissions won't block skill execution
-- Verifies migrations completed cleanly
-- Documents that the skill was tested
+1. **Structure** — Directory exists, old files removed (if migrated)
+2. **Content** — Key content present in SKILL.md, reference files linked correctly
+3. **Permissions** — Required Bash patterns added to settings.json
+4. **Function** — Test the actual commands the skill uses when possible
 
 ## Analyzing Skills for Token Optimization
 
-Periodically review skills to identify content that could be extracted into reference files, reducing tokens loaded per invocation.
+Periodically review skills 100+ lines to identify content extractable into conditional reference files.
 
-### Analysis Workflow
+**Categorize content by extraction potential:**
 
-1. **List all skills and their line counts**:
-   ```bash
-   wc -l .claude/commands/*/SKILL.md | sort -n
-   ```
+| Content Type | Extract? | Threshold |
+|---|---|---|
+| Core instructions | No | Always needed |
+| Templates, examples, reference tables | Yes | 10+ lines, only needed situationally |
+| Edge case documentation | Maybe | 20+ lines |
 
-2. **Identify large skills** (100+ lines) as candidates
-
-3. **For each candidate, categorize content**:
-   | Content Type | Extract? | Reason |
-   |--------------|----------|--------|
-   | Core instructions | No | Always needed |
-   | Templates (10+ lines) | Yes | Only needed when generating output |
-   | Examples/reference tables | Yes | Only needed situationally |
-   | Edge case documentation | Maybe | Extract if 20+ lines |
-
-4. **Check for situational content** - sections only needed in specific scenarios:
-   - Reply templates (only when replying)
-   - Verification checklists (only when verifying)
-   - Error handling guides (only when errors occur)
-
-5. **Evaluate extraction benefit**:
-   - **High value**: 50+ lines of situational content
-   - **Medium value**: 20-50 lines of situational content
-   - **Low value**: <20 lines (overhead of separate file may not be worth it)
-
-### Example Analysis
-
-```
-git-address-pr-review/SKILL.md (309 lines)
-├── Core instructions: 180 lines (keep)
-├── Reply Templates: 35 lines (extract - only needed when replying)
-├── LGTM Verification: 50 lines (extract - only needed for LGTM comments)
-└── Important Notes: 44 lines (keep - always relevant)
-
-Result: Extract 85 lines → SKILL.md reduced to 224 lines
-```
-
-### When NOT to Extract
-
-- Content under 10-15 lines (overhead exceeds benefit)
-- Content needed on every invocation
-- Content that would lose context when separated
+**Evaluate extraction benefit:** 50+ lines situational = high value, 20-50 = medium, <20 = overhead exceeds benefit. Don't extract content under 15 lines, needed on every invocation, or that loses context when separated.
 
 ## Related References
 

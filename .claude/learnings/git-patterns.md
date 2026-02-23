@@ -17,12 +17,6 @@ git rebase --onto origin/main "$SKILLS_COMMIT"
 
 **Convention:** Use bracketed prefixes in commit messages (e.g., `[web-session]`) to make them greppable without false positives.
 
-## rsync --delete Auto-Removes Renamed Directories
-
-When using `rsync --delete` to sync directories, renaming a source directory (e.g., `git-address-mr-review` → `git-address-pr-review`) automatically deletes the old-named directory from the target. This is because `--delete` removes anything in the target that doesn't exist in the source.
-
-**Implication:** For repo migrations that rename multiple directories (e.g., MR→PR skill renaming), a single rsync with `--delete` handles both copying new dirs and removing old dirs — no need for separate `rm -rf` cleanup commands.
-
 ## Fixing Misordered Stacked PR Branches
 
 When stacked PR branches were created in the wrong order (dependent branches created before dependency commits), the fix is straightforward:
@@ -49,55 +43,25 @@ If the file contents are already there, the commit already happened. Don't assum
 
 ## Parallel Branch Rebase with Worktree Isolation
 
-When multiple PR branches need rebasing onto an updated main, use the Task tool with `isolation: "worktree"` and `subagent_type: "Bash"` to rebase all branches simultaneously:
+When multiple independent PR branches need rebasing onto updated main, launch one Task agent per branch with `isolation: "worktree"` and `subagent_type: "Bash"`. Each agent: fetch, checkout, rebase, force-push-with-lease. Worktree isolation is required because each rebase needs its own checkout.
 
-```
-// Launch N parallel agents, one per branch
-Task(isolation: "worktree", subagent_type: "Bash", prompt: `
-  git fetch origin
-  git checkout feat/branch-name
-  git rebase origin/main
-  git push --force-with-lease origin feat/branch-name
-`)
-```
+**Performance:** 9 simultaneous rebases completed in ~50s vs ~7min sequential.
 
-**Why worktree isolation:** Each rebase needs its own checkout — you can't rebase multiple branches from the same working tree. Worktree isolation gives each agent its own copy.
-
-**Tested with 9 simultaneous rebases** — all completed in ~50s wall-clock (vs ~7min sequential). Clean rebases are near-instant per agent; the overhead is worktree creation.
-
-**Gotcha — stale worktrees:** Rebase agents leave behind worktrees in `.claude/worktrees/` that `git clean` skips (they're nested repos). Clean up after with:
-```bash
-# List them
-git worktree list
-# Remove all stale ones
-git worktree remove --force .claude/worktrees/agent-XXXXXXXX
-```
-
-These accumulate across rebase rounds — clean up before they pile up, as they hold refs to old branch HEADs.
+**Gotcha — stale worktrees:** Agents leave worktrees in `.claude/worktrees/` that `git clean` skips. Clean up with `git worktree list` + `git worktree remove --force`. These accumulate and hold refs to old branch HEADs.
 
 ## Bulk PR Content Extraction Without Checkout
 
-When multiple unmerged PRs contain files to extract (e.g., learnings docs on `docs/*-learnings` branches), use `git fetch` + `git show` to pull files directly without checking out each branch:
+Use `git fetch origin <branch>` + `git show origin/<branch>:<path>` to extract files from unmerged PR branches without checkout. Prefix output files with `pr{N}-` to avoid collisions when multiple PRs touch the same filename.
 
 ```bash
 for pr in 2 3 4 5; do
   branch=$(gh pr view $pr --json headRefName -q .headRefName)
   git fetch origin "$branch" --quiet
-  # List files on the branch
-  git ls-tree -r --name-only "origin/$branch" -- docs/claude-learnings/
-  # Extract a specific file
-  git show "origin/$branch:docs/claude-learnings/topic.md" > "pr${pr}-topic.md"
+  git show "origin/$branch:docs/topic.md" > "pr${pr}-topic.md"
 done
 ```
 
-**Collision avoidance:** Prefix extracted files with `pr{N}-` to maintain provenance and prevent overwrites when multiple PRs touch the same filename (e.g., `refactoring-patterns.md` in PRs #13 and #23).
-
-**Cleanup:** After extraction, close PRs and delete branches in one pass:
-```bash
-gh pr close $pr --comment "Content extracted." --delete-branch
-```
-
-**Why this over merging:** Avoids merge conflicts between branches, works even when branches are stale or conflict with main, and lets a downstream tool (e.g., `learnings:consolidate`) handle deduplication and categorization.
+**Why this over merging:** Avoids merge conflicts between branches, works with stale branches, and lets downstream tools handle deduplication. Clean up after with `gh pr close $pr --comment "Content extracted." --delete-branch`.
 
 ## pnpm Lockfile Rebase Conflicts
 
