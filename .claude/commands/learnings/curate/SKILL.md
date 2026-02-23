@@ -309,7 +309,7 @@ Display the full report inline in the CLI.
 **Action signals** (at least one required):
 - **Medium-confidence items**: patterns where classification is uncertain and needs per-pattern cross-referencing
 - **New content since last sweep**: files that grew by 3+ sections since the previous sweep
-- **Context-for-skill clusters**: multiple patterns that could fold into the same skill's reference files, AND the target skill hasn't been read yet to verify coverage
+- **Context-for-skill clusters**: multiple patterns that could fold into the same skill's reference files, AND the broad sweep didn't verify per-pattern coverage against the skill's reference files (cluster analysis checks thematic overlap, not line-by-line coverage)
 - **Unverified cross-references**: patterns that reference specific skills but the skill files weren't read during cluster-level analysis
 
 A large file with all High-confidence "standalone reference" classifications does NOT need a deep dive — the broad sweep already confirmed its status. Size alone indicates potential, not need.

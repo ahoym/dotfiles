@@ -1,12 +1,12 @@
 ---
-description: "Exhaustive multi-sweep curation — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Orchestrates repeated learnings:curate sweeps."
+description: "Exhaustive multi-sweep curation of learnings, skills, and guidelines — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Orchestrates repeated learnings:curate sweeps across all content types."
 ---
 
-# Consolidate Learnings
+# Consolidate Learnings, Skills & Guidelines
 
-Run exhaustive multi-sweep curation of all learnings, guidelines, and skills. Automatically applies HIGH-confidence recommendations and batches MEDIUMs for approval, looping until the collection is fully distilled.
+Run exhaustive multi-sweep curation of all learnings, skills, and guidelines. Each content type is swept in sequence — learnings first (most commonly migrate into other types), then skills (merges/prunes affect guideline evaluation), then guidelines (benefits from all prior cleanup). Automatically applies HIGH-confidence recommendations and batches MEDIUMs for approval, looping until each content type is fully distilled.
 
-This skill orchestrates multiple invocations of the `/learnings:curate` broad sweep methodology. It owns the loop and approval flow; `/learnings:curate` owns the analysis methodology.
+This skill orchestrates multiple invocations of the `/learnings:curate` methodology. It owns the loop, content type progression, and approval flow; `/learnings:curate` owns the analysis methodology.
 
 ## Usage
 
@@ -18,7 +18,7 @@ For targeted single-file curation, use `/learnings:curate <file>` instead.
 
 This skill delegates analysis methodology to learnings:curate. Read these files at the steps indicated:
 
-- `../curate/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology, classification steps, cross-referencing, and report formats. Follow its analysis steps (1 through 6) for each sweep, but replace its approval flow (step 7) with the loop defined below.
+- `../curate/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology (learnings), skill mode methodology (2s–4s), and content mode methodology (2–5a). Follow its analysis steps for each sweep, but replace its approval flow (step 7) with the loop defined below.
 - `../curate/classification-model.md` — Read via learnings:curate step 4. Contains the 6-bucket classification model and confidence level definitions.
 - `../curate/persona-design.md` — Read when persona clusters are detected during a sweep (via learnings:curate step 5a).
 - `~/.claude/commands/learnings/compound/content-type-decisions.md` — Read via learnings:curate step 4. Skill vs guideline vs learning decision tree.
@@ -29,27 +29,47 @@ Track these across all sweeps:
 
 | Variable | Purpose | Initial |
 |----------|---------|---------|
-| `SWEEP_COUNT` | Total sweeps executed across all phases | 0 |
+| `SWEEP_COUNT` | Total sweeps executed across all phases and content types | 0 |
 | `PHASE` | Current phase: `HIGH_SWEEP`, `MEDIUM_BATCH`, `VERIFICATION` | `HIGH_SWEEP` |
-| `CUMULATIVE_ACTIONS` | All actions applied across all sweeps — each with: sweep number, action type, source, target, confidence | Empty list |
-| `HIGH_SWEEP_COUNT` | Sweeps within the current Phase 1 run | 0 |
-| `PHASE_TRANSITIONS` | Log of phase transitions with sweep number and reason | Empty list |
+| `CONTENT_TYPE` | Current content type: `LEARNINGS`, `SKILLS`, `GUIDELINES` | `LEARNINGS` |
+| `CUMULATIVE_ACTIONS` | All actions across all sweeps — each with: sweep number, content type, action type, source, target, confidence | Empty list |
+| `HIGH_SWEEP_COUNT` | Sweeps within the current HIGH_SWEEP phase (resets per content type) | 0 |
+| `PHASE_TRANSITIONS` | Log of phase transitions with sweep number, content type, and reason | Empty list |
+| `CONTENT_TYPE_SUMMARIES` | Per-type action counts and sweep counts for final summary | Empty map |
 
 ## Instructions
 
 ### Step 0: Load methodology
 
-Read `../curate/SKILL.md` to internalize the broad sweep analysis methodology. You will follow its analysis steps (steps 1 through 6, broad sweep mode) for each sweep below, but replace its approval flow (step 7) with the automated loop defined in this skill.
+Read `../curate/SKILL.md` to internalize all analysis methodologies. You will follow its analysis steps for each sweep below, but replace its approval flow (step 7) with the automated loop defined in this skill.
 
 Key points from learnings:curate to apply on every sweep:
-- Always use **broad sweep mode** (cluster-first approach)
-- Pre-load the full reference corpus (skills, guidelines, personas)
+- **Learnings sweeps** use **broad sweep mode** (cluster-first approach, steps 1–6 broad sweep)
+- **Skills sweeps** use **skill mode** (steps 2s–4s: read skill package, evaluate, classify)
+- **Guidelines sweeps** use **content mode** (steps 2–5a: parse, cross-reference, classify)
+- Pre-load the full reference corpus (skills, guidelines, personas) — this shared corpus benefits all content types
 - Use **parallel tool calls aggressively** (per-cluster subagents, parallel reads)
 - Cross-reference thoroughly before classifying
-- After clustering, run **concept-name collision detection**: grep for identical or near-identical H2/H3 headings across all files. Flag matches as HIGH-confidence duplicate candidates regardless of cluster membership. This catches cross-file duplicates that cluster-level analysis misses.
-- Use the broad sweep report format
+- After clustering (learnings phase), run **concept-name collision detection**: grep for identical or near-identical H2/H3 headings across all files. Flag matches as HIGH-confidence duplicate candidates regardless of cluster membership. This catches cross-file duplicates that cluster-level analysis misses.
+- Use the appropriate report format for each content type
 
-### Step 1: Phase 1 — HIGH Sweep Loop
+### Content Type Progression
+
+Content types are swept in fixed order: **LEARNINGS → SKILLS → GUIDELINES**. This ordering maximizes value — learnings most commonly migrate into skills/guidelines, and skill merges/prunes affect guideline evaluation.
+
+**Transition between content types:**
+
+1. **Record summary** — save the current content type's action counts, sweep counts, and findings to `CONTENT_TYPE_SUMMARIES`.
+2. **Reset phase counters** — set `PHASE` to `HIGH_SWEEP`, `HIGH_SWEEP_COUNT` to 0.
+3. **Refresh modified corpus** — re-read only the files that were modified by the prior content type's phases. This is lighter than a full corpus re-read but ensures subsequent analysis reflects current state.
+4. **Advance `CONTENT_TYPE`** — move to the next content type.
+5. **Check for skip** — if the content type has no files to sweep (e.g., no skills exist), log "No [type] files found, skipping" and advance to the next.
+
+After the final content type completes (GUIDELINES), proceed to the Cumulative Summary (Step 6).
+
+---
+
+### Step 1: Learnings — HIGH Sweep Loop
 
 **Goal:** Automatically apply all HIGH-confidence recommendations until none remain.
 
@@ -69,7 +89,7 @@ Key points from learnings:curate to apply on every sweep:
 4. **Display between-sweep report:**
 
    ```
-   ## Sweep N (Phase 1: HIGHs)
+   ## Sweep N (Learnings — Phase 1: HIGHs)
 
    ### HIGH-Confidence Actions (auto-applying)
 
@@ -87,13 +107,13 @@ Key points from learnings:curate to apply on every sweep:
 
 5. **Auto-apply all HIGH actions** — execute the actions from learnings:curate step 7 (apply changes), but **without user confirmation**. Use parallel tool calls for independent file writes (different target files). Sequential writes for actions targeting the same file.
 
-6. **Record actions** — append each applied action to `CUMULATIVE_ACTIONS` with sweep number, action type, source, target, and confidence.
+6. **Record actions** — append each applied action to `CUMULATIVE_ACTIONS` with sweep number, content type (`LEARNINGS`), action type, source, target, and confidence.
 
 7. **Increment counters** — `SWEEP_COUNT += 1`, `HIGH_SWEEP_COUNT += 1`.
 
 8. **Loop** — return to substep 1 for a fresh sweep.
 
-### Step 2: Phase 2 — MEDIUM Batch
+### Step 2: Learnings — MEDIUM Batch
 
 **Goal:** Present all current MEDIUM-confidence recommendations as a single batch for user approval.
 
@@ -112,7 +132,7 @@ Key points from learnings:curate to apply on every sweep:
 5. **Present MEDIUM batch for approval:**
 
    ```
-   ## Phase 2: MEDIUM-Confidence Recommendations
+   ## Learnings — Phase 2: MEDIUM-Confidence Recommendations
 
    These items are likely correct but have some ambiguity. Review and select which to apply.
 
@@ -145,13 +165,13 @@ Key points from learnings:curate to apply on every sweep:
 
 8. **Log transition** — add to `PHASE_TRANSITIONS`.
 
-### Step 3: Phase 3 — Post-MEDIUM Verification
+### Step 3: Learnings — Post-MEDIUM Verification
 
 **Goal:** Check whether changes surfaced new insights.
 
-1. **Check for short-circuit:** If ALL Phase 2 actions were in-place modifications (no files created, deleted, or moved; no content migrated between files), skip verification entirely — in-place edits (genericization, section merges, compression) cannot create new overlaps or classification changes. Log: "Skipping verification — all Phase 2 actions were in-place modifications." Proceed directly to **Step 4**.
+1. **Check for short-circuit:** If ALL Phase 2 actions were in-place modifications (no files created, deleted, or moved; no content migrated between files), skip verification entirely — in-place edits (genericization, section merges, compression) cannot create new overlaps or classification changes. Log: "Skipping verification — all Phase 2 actions were in-place modifications." Proceed to **Step 4** (Skills sweep).
 
-2. **Check overall safety cap:** If `SWEEP_COUNT` >= 10 → display overall cap report (see Edge Cases) and pause.
+2. **Check overall safety cap:** If `SWEEP_COUNT` >= 15 → display overall cap report (see Edge Cases) and pause.
 
 3. **Determine verification scope** based on the actions applied in Phase 2:
 
@@ -176,9 +196,136 @@ Key points from learnings:curate to apply on every sweep:
 4. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.
    - **New MEDIUMs found** → log transition: "Changes surfaced N new MEDIUM items." Return to **Step 2**.
-   - **Clean sweep** (no HIGHs or MEDIUMs) → proceed to **Step 4**.
+   - **Clean sweep** (no HIGHs or MEDIUMs) → record learnings summary, proceed to **Step 4** (Skills sweep).
 
-### Step 4: Cumulative Summary
+---
+
+### Step 4: Skills Sweep
+
+**Goal:** Evaluate all skills for overlap, staleness, and scope issues using learnings:curate's skill mode methodology.
+
+#### 4a. Cluster skills by prefix
+
+Group all skill directories under `~/.claude/commands/` by their namespace prefix:
+
+| Cluster | Skills |
+|---------|--------|
+| `git:*` | git:split-pr, git:cascade-rebase, git:create-pr, ... |
+| `learnings:*` | learnings:curate, learnings:compound, learnings:consolidate, ... |
+| `ralph:*` | ralph:init, ralph:compare |
+| `parallel-plan:*` | parallel-plan:make, parallel-plan:execute |
+| Standalone | do-refactor-code, do-security-audit, explore-repo, set-persona, ... |
+
+This clustering enables cross-skill overlap detection within namespaces.
+
+#### 4b. Evaluate each skill
+
+For each skill, follow learnings:curate skill mode (steps 2s–4s) with full cross-skill context:
+
+1. Read the skill package (SKILL.md + reference files)
+2. Evaluate against pruning criteria (relevance, overlap, complexity vs value, reference freshness, scope)
+3. Classify: Keep, Enhance, Merge, Split, or Prune
+
+**Cross-skill context:** When evaluating a skill, consider other skills in its cluster. Flag:
+- Significant overlap between skills in the same namespace (merge candidates)
+- Shared reference files that could be deduplicated
+- Skills that are subsets of other skills (merge or prune candidates)
+- Namespace gaps (missing skills that would complete a workflow)
+
+**Inline analysis** for the current collection size (~23 skills). Use subagents for collections of 30+.
+
+#### 4c. Separate findings by confidence
+
+Same as learnings phase — split into HIGH_FINDINGS, MEDIUM_FINDINGS, LOW_FINDINGS.
+
+#### 4d. HIGH/MEDIUM/VERIFICATION loop
+
+Run the same three-phase loop as learnings (Steps 1–3 pattern), with these differences:
+
+**Between-sweep report format:**
+```
+## Sweep N (Skills — Phase 1: HIGHs)
+
+### HIGH-Confidence Actions (auto-applying)
+
+| # | Action | Skill | Target | Detail |
+|---|--------|-------|--------|--------|
+| 1 | Merge | git:monitor-pr-comments | git:address-pr-review | 80% overlap, monitoring is subset |
+| 2 | Prune | deprecated-skill | — | References removed code |
+
+### Deferred
+- N MEDIUM items noted
+- M LOW items noted
+```
+
+**MEDIUM batch format:**
+```
+## Skills — Phase 2: MEDIUM-Confidence Recommendations
+
+| # | Action | Skill | Target | Rationale | Concern |
+|---|--------|-------|--------|-----------|---------|
+| 1 | Enhance | ralph:init | — | Missing error recovery patterns | May over-complicate the skill |
+| 2 | Split | do-security-audit | do-security-audit, do-dependency-audit | Two distinct workflows | Shared reference files need duplication |
+```
+
+**Skill-specific actions:** Prune, Merge, Enhance, Split, Keep (from learnings:curate 4s).
+
+After skills sweep completes (clean sweep or all phases done), record skills summary and proceed to **Step 5** (Guidelines sweep).
+
+---
+
+### Step 5: Guidelines Sweep
+
+**Goal:** Evaluate all guidelines for redundancy, scope, cost, and wiring issues using learnings:curate's content mode methodology.
+
+#### 5a. Evaluate each guideline
+
+For each file in `~/.claude/guidelines/`, follow learnings:curate content mode (steps 2–5a) with these **additional checks**:
+
+| Check | What to look for |
+|-------|-----------------|
+| **`@`-reference cost** | Is this guideline `@`-referenced in CLAUDE.md? If so, every token is always-on cost. Does all content need to be always-on, or could parts move to conditional references? |
+| **Wiring check** | Is this guideline referenced anywhere (CLAUDE.md, skills, other guidelines)? An unwired guideline may be dead weight. |
+| **Behavioral vs reference** | Does the guideline define behavior (how to communicate, code style) vs reference material (API patterns, framework specifics)? Reference material is often better as a conditional skill reference file. |
+| **Domain-specific → persona** | Does the guideline contain domain-specific patterns that belong in a persona instead? |
+
+#### 5b–5c. HIGH/MEDIUM/VERIFICATION loop
+
+Run the same three-phase loop as learnings (Steps 1–3 pattern), with these differences:
+
+**Between-sweep report format:**
+```
+## Sweep N (Guidelines — Phase 1: HIGHs)
+
+### HIGH-Confidence Actions (auto-applying)
+
+| # | Action | Guideline | Target | Detail |
+|---|--------|-----------|--------|--------|
+| 1 | Extract to conditional | communication.md §API patterns | skill reference file | Always-on cost for rarely-needed content |
+| 2 | Migrate to persona | code-style.md §Java conventions | java-backend persona | Domain-specific, not universal |
+
+### Deferred
+- N MEDIUM items noted
+- M LOW items noted
+```
+
+**MEDIUM batch format:**
+```
+## Guidelines — Phase 2: MEDIUM-Confidence Recommendations
+
+| # | Action | Guideline | Target | Rationale | Concern |
+|---|--------|-----------|--------|-----------|---------|
+| 1 | Compress | communication.md | — | 30%+ compression achievable | May lose nuance |
+| 2 | Unwired, delete? | old-patterns.md | — | No references found | May be used implicitly |
+```
+
+**Guideline-specific actions:** Compress, Extract to conditional, Migrate to persona, Delete unwired, Keep (standard content mode classifications plus the additional checks above).
+
+After guidelines sweep completes, proceed to **Step 6** (Cumulative Summary).
+
+---
+
+### Step 6: Cumulative Summary
 
 Generate the final consolidation report:
 
@@ -187,64 +334,68 @@ Generate the final consolidation report:
 
 ### Execution Summary
 
-| Metric | Value |
-|--------|-------|
-| Total sweeps | N |
-| Phase 1 (HIGH) sweeps | N |
-| Phase 2 (MEDIUM) batches | N |
-| Phase 3 (Verification) sweeps | N |
-| Total actions applied | N |
+| Content Type | Sweeps | HIGH Applied | MEDIUM Applied | MEDIUM Skipped |
+|--------------|--------|--------------|----------------|----------------|
+| Learnings | N | N | N | N |
+| Skills | N | N | N | N |
+| Guidelines | N | N | N | N |
+| **Total** | **N** | **N** | **N** | **N** |
 
 ### Actions by Type
 
-| Action Type | Count | Examples |
-|-------------|-------|---------|
-| Folded thin files | 3 | observability-workflow.md → java-devops, ... |
-| Deleted outdated | 2 | v1-spec-structure, ... |
-| Enhanced personas | 1 | java-backend (+4 gotchas) |
-| Created personas | 0 | — |
-| Migrated to skills | 1 | comparison-template → ralph:init |
-| Migrated to guidelines | 0 | — |
-| Genericized | 2 | api-design: Response Shapes, ... |
+| Action Type | Content Type | Count | Examples |
+|-------------|--------------|-------|---------|
+| Folded thin files | Learnings | 3 | observability-workflow.md → java-devops, ... |
+| Deleted outdated | Learnings | 2 | v1-spec-structure, ... |
+| Enhanced personas | Learnings | 1 | java-backend (+4 gotchas) |
+| Merged skills | Skills | 1 | git:monitor-pr-comments → git:address-pr-review |
+| Pruned skills | Skills | 1 | deprecated-skill |
+| Extracted to conditional | Guidelines | 1 | communication.md §API patterns |
+| Compressed | Guidelines | 2 | code-style.md, ... |
 
 ### Phase Transition Log
 
-| Sweep | From | To | Reason |
-|-------|------|----|--------|
-| 3 | HIGH_SWEEP | MEDIUM_BATCH | No more HIGHs found |
-| 5 | MEDIUM_BATCH | VERIFICATION | User approved 4 of 6 MEDIUMs |
-| 6 | VERIFICATION | DONE | Clean sweep |
+| Sweep | Content Type | From | To | Reason |
+|-------|--------------|------|----|--------|
+| 3 | Learnings | HIGH_SWEEP | MEDIUM_BATCH | No more HIGHs found |
+| 5 | Learnings | MEDIUM_BATCH | VERIFICATION | User approved 4 of 6 MEDIUMs |
+| 6 | Learnings | VERIFICATION | DONE | Clean sweep |
+| 7 | Skills | HIGH_SWEEP | MEDIUM_BATCH | No more HIGHs found |
+| ... | | | | |
 
 ### Actions Detail (chronological)
 
-| Sweep | # | Action | Source | Target | Confidence |
-|-------|---|--------|--------|--------|------------|
-| 1 | 1 | Fold thin file | observability-workflow.md | java-devops persona | High |
-| 1 | 2 | Delete outdated | v1-spec-structure | — | High |
-| 2 | 3 | Enhance persona | spring-patterns (4 items) | java-backend | High |
-| ... | | | | | |
+| Sweep | Content Type | # | Action | Source | Target | Confidence |
+|-------|--------------|---|--------|--------|--------|------------|
+| 1 | Learnings | 1 | Fold thin file | observability-workflow.md | java-devops persona | High |
+| 1 | Learnings | 2 | Delete outdated | v1-spec-structure | — | High |
+| 7 | Skills | 5 | Merge | git:monitor-pr-comments | git:address-pr-review | High |
+| ... | | | | | | |
 
 ### Remaining Items (not actioned)
 
-| # | Item | Confidence | Reason |
-|---|------|------------|--------|
-| 1 | ... | Medium | User skipped |
-| 2 | ... | Low | Below threshold |
+| # | Content Type | Item | Confidence | Reason |
+|---|--------------|------|------------|--------|
+| 1 | Learnings | ... | Medium | User skipped |
+| 2 | Skills | ... | Low | Below threshold |
 
 ### Collection Health
 
-- **Files**: N learnings, M guidelines, K skills, J personas
+- **Learnings**: N files, ~M patterns
+- **Skills**: K skill directories
+- **Guidelines**: J guideline files
+- **Personas**: P persona files
 - **Status**: [Fully curated | N items remaining for manual review]
 ```
 
 ## Edge Cases
 
-### First sweep finds nothing
+### Learnings sweep finds nothing
 
-If the very first sweep returns no HIGH or MEDIUM items, skip directly to Step 4. **Lead with LOW items** — on a clean sweep, polish opportunities are the primary value of the run. Don't bury them after a "no action needed" headline that signals completion.
+If the very first learnings sweep returns no HIGH or MEDIUM items, proceed to the skills sweep (Step 4) — don't stop the entire consolidation. **Lead with LOW items** — on a clean sweep, polish opportunities are the primary value. Don't bury them after a "no action needed" headline that signals completion.
 
 ```
-## 🏁 Consolidation Complete
+## Learnings: Clean
 
 Swept N files (~M patterns). No HIGH or MEDIUM recommendations.
 
@@ -259,20 +410,32 @@ These won't break anything as-is, but could improve the collection:
 
 Use `/learnings:curate <file>` to act on any of these.
 
-### Collection Health
-
-- **Files**: N learnings, M guidelines, K skills, J personas
-- **Status**: Curated — N polish items noted above
+Proceeding to skills sweep...
 ```
 
-If there are truly zero LOWs either, use this minimal variant:
+### Content type has no actionable findings
+
+If a content type's first sweep returns no HIGH or MEDIUM items, log a brief summary and skip to the next content type:
+
+```
+## [Content Type]: Clean
+
+Swept N items. No actionable recommendations. Proceeding to [next type]...
+```
+
+### All content types clean
+
+If all three content types produce no actionable findings:
 
 ```
 ## 🏁 Consolidation Complete
 
-Swept N files (~M patterns). No recommendations at any confidence level.
+Swept all content types:
+- Learnings: N files (~M patterns) — clean
+- Skills: K skills — clean
+- Guidelines: J files — clean
 
-Collection is fully curated. ✅
+No recommendations at any confidence level. Collection is fully curated. ✅
 ```
 
 ### HIGHs keep cascading (Phase 1 cap hit)
@@ -280,7 +443,7 @@ Collection is fully curated. ✅
 If 5 HIGH sweeps complete and new HIGHs keep appearing:
 
 ```
-## ⚠️ Phase 1 Safety Cap: 5 HIGH sweeps completed
+## ⚠️ Phase 1 Safety Cap: 5 HIGH sweeps completed ([Content Type])
 
 Actions are creating cascading changes (e.g., folding content surfaces new overlaps).
 
@@ -302,15 +465,16 @@ Use `AskUserQuestion`:
 - **Downgrade to MEDIUMs** — "Move remaining HIGHs to Phase 2 for manual review"
 - **Stop here** — "End consolidation, show summary of what was applied"
 
-### Overall safety cap (10 sweeps)
+### Overall safety cap (15 sweeps)
 
 ```
-## ⚠️ Overall Safety Cap: 10 sweeps completed
+## ⚠️ Overall Safety Cap: 15 sweeps completed
 
 ### Current State
 - N remaining MEDIUM items
 - M remaining LOW items
 - K total actions applied
+- Currently processing: [Content Type]
 
 The collection may have diminishing-return items that keep surfacing.
 ```
@@ -321,10 +485,10 @@ Use `AskUserQuestion`:
 
 ### Phase cycle repeats 2+ times
 
-If the Phase 1 → Phase 2 → Phase 3 → Phase 1 cycle completes more than twice:
+If the Phase 1 → Phase 2 → Phase 3 → Phase 1 cycle completes more than twice within a single content type:
 
 ```
-## ℹ️ Cycle Check: Round N through the full cycle
+## ℹ️ Cycle Check: Round N through the full cycle ([Content Type])
 
 Each round of changes keeps surfacing new recommendations.
 
@@ -339,10 +503,13 @@ Use `AskUserQuestion`:
 ## Important Notes
 
 - **Always broad sweep** — this skill does not support targeted files. Use `/learnings:curate <file>` for that.
+- **Fixed content type ordering** — LEARNINGS → SKILLS → GUIDELINES. This is not configurable; the ordering ensures each type benefits from prior cleanup.
 - **HIGHs are auto-applied** — that's the value proposition. If uncomfortable, use `/learnings:curate` instead.
 - **MEDIUMs always get approval** — the batch in Phase 2 is the primary user interaction point.
 - **LOWs are never auto-applied** — they appear in reports for awareness but require explicit `/learnings:curate` runs.
 - **Fresh analysis per phase** — MEDIUMs are NOT accumulated across sweeps. Each transition triggers fresh analysis because state has changed.
+- **Corpus refresh at content type boundaries** — when transitioning between content types, re-read files modified by prior phases rather than the full corpus. This keeps subsequent analysis current without the cost of a full re-read.
+- **Skill mode vs content mode** — skills use learnings:curate's skill mode (2s–4s); guidelines use content mode (2–5a). The loop structure is the same, but the analysis methodology differs.
 - **Methodology delegation** — this skill orchestrates the loop; `/learnings:curate` owns the analysis. Changes to learnings:curate automatically flow through.
 
 ## Prerequisites
