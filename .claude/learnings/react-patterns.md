@@ -57,6 +57,41 @@ if (prevPropValue !== propValue) {
 
 This is the pattern recommended by the React docs ("Adjusting state when a prop changes").
 
+### 3. Data-fetching effects with loading/error state
+
+For effects that fetch data and set loading/error state, derive a `fetchKey` and use render-time sync for the "starting fetch" state transitions. The effect body only contains async callbacks (which are allowed):
+
+```tsx
+// Derive a key that changes when we need a new fetch
+const fetchKey = url ? `${url}::${refreshKey}` : null;
+
+// Synchronously set loading=true when fetchKey changes (render-time pattern)
+const [prevFetchKey, setPrevFetchKey] = useState(fetchKey);
+if (prevFetchKey !== fetchKey) {
+  setPrevFetchKey(fetchKey);
+  if (!fetchKey) {
+    setData(null);
+    setLoading(false);
+  } else {
+    setLoading(true);
+    setError(null);
+  }
+}
+
+// Effect only does the async work — setState calls are in callbacks (allowed)
+useEffect(() => {
+  if (!url) return;
+  let cancelled = false;
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => { if (!cancelled) setData(data); })
+    .finally(() => { if (!cancelled) setLoading(false); });
+  return () => { cancelled = true; };
+}, [url, refreshKey]);
+```
+
+**Key insight:** `setLoading(true)` at the top of an effect body is synchronous and triggers the lint error. Moving it to render-time via the prev-key pattern is the correct fix.
+
 ## Hydration Mismatch with localStorage-Derived Values
 
 Components that render values from `localStorage` (e.g., network selector, theme toggle) will cause hydration mismatches in SSR frameworks because the server renders a default value while the client reads from storage.

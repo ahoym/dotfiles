@@ -122,6 +122,30 @@ Key design choices:
 - **Inline warnings at point of use**: Place warnings where the agent encounters the situation, not in a separate notes section at the bottom
 - **Error recovery at bottom**: Keep concise (2-3 rules)
 
+## AskUserQuestion Has a 4-Option Maximum
+
+`AskUserQuestion` enforces `maxItems: 4` on the options array. This is a hard schema constraint — not configurable. Skills that present learnings, tasks, or choices to the user will fail at runtime if they try to offer >4 options.
+
+**Workarounds (in order of preference):**
+1. **Auto-save high-confidence items** — Remove them from the selection set entirely. Only prompt for uncertain items, which usually fit in 4 options.
+2. **Group by theme** — Combine related items into a single option (e.g., "CI patterns (3 items)" instead of 3 separate options).
+3. **Use free-text input** — Present a numbered table and let the user type "1,3,5" or "all" as a regular message instead of using the widget.
+4. **Multi-round prompting** — Split into batches of 4, though this adds friction.
+
+**Where this bites:** `/learnings:compound` when a session produces >4 learnings. The fix applied there: auto-save High-utility learnings (they're almost always worth keeping) and only prompt for Medium/Low.
+
+## In-Session Skill Repair
+
+When a skill hits a limitation or bug during execution, fix it in the same session rather than noting it for later. The context is fresh — you've just seen the exact failure mode, the workaround you improvised, and the user's reaction.
+
+**Why same-session matters:**
+- The failure mode is in working memory with full context (error messages, user feedback, what was tried)
+- The skill file is likely already read into context
+- The user can validate the fix immediately by re-running
+- Cross-session, the specific friction fades and fixes become vaguer
+
+**Scope:** Keep fixes minimal and targeted. One constraint workaround or one behavioral tweak per incident. Don't refactor the whole skill because one step was awkward.
+
 ## Avoid Internal Jargon in User-Facing Report Columns
 
 Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).

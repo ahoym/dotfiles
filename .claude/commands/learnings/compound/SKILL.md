@@ -50,11 +50,18 @@ Save new patterns and learnings from the current session into global skills, gui
    - **Medium** - Useful reminder, but I could rediscover if needed
    - **Low** - Standard knowledge or already documented (shown for transparency)
 
-   Use `AskUserQuestion` with multi-select to let user choose which learnings to capture.
-   **Include the utility rating in each option's `description` field** (e.g., `"Utility: High — novel pattern I wouldn't know without documenting"`). This ensures utility is visible in the interactive selection widget, since the markdown table above may be clipped by the terminal UI.
-   Store selected items as `SELECTED_LEARNINGS`.
+   **Auto-save High-utility learnings.** Learnings rated High are automatically included — they are novel patterns that would be lost without documenting.
 
-   **Do NOT proceed until user selects.** If no learnings selected, inform user and exit.
+   **Prompt for Medium/Low-utility learnings.** Use `AskUserQuestion` with multi-select to let the user choose which Medium/Low learnings to also capture (if any exist). If all learnings are High, skip the prompt entirely and proceed to writing. **Include the utility rating in each option's `description` field** (e.g., `"Utility: Medium — useful reminder, but could rediscover if needed"`).
+
+   After the table, clearly state which learnings will be auto-saved:
+   ```
+   Auto-saving N High-utility learning(s). Select any Medium/Low learnings to also include:
+   ```
+
+   Combine the auto-saved and user-selected items into `SELECTED_LEARNINGS`.
+
+   **Do NOT proceed until user selects (or all are auto-saved).** If no learnings selected and none are High, inform user and exit.
 
 3. **Write learnings to files**:
    - If any Skill-type learning is selected: read `skill-template.md`, `writing-best-practices.md`, and `skill-authoring.md` first

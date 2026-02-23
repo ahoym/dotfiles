@@ -157,3 +157,22 @@ await page.locator("select").selectOption(value!);
 ```
 
 **Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded keys (e.g., `"XRP|"` for currency code + pipe + issuer). Always inspect the actual DOM to determine the value format.
+
+---
+
+## 8. Use `exact: true` for Ambiguous Button Names
+
+**Utility: Medium**
+
+`getByRole("button", { name: "Add" })` can match multiple elements when the page has a `<span role="button">` whose accessible name contains "Add" (e.g., "Copy address" where the parent text includes "Add"). This causes Playwright strict mode violations in CI even if it works locally (due to timing differences).
+
+```ts
+// Bad — matches both <span role="button" title="Copy address"> and <button>Add</button>
+// when the accessible name computation includes "Add" from surrounding text
+await page.getByRole("button", { name: "Add" }).click();
+
+// Good — exact match prevents partial/substring matches
+await page.getByRole("button", { name: "Add", exact: true }).click();
+```
+
+**When to use:** Always use `exact: true` for short, common button names ("Add", "OK", "Go", "Set") that could appear as substrings in other elements' accessible names.

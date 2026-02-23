@@ -37,7 +37,9 @@
 - Changed-files-only checks (e.g., Prettier): use `git diff --name-only --diff-filter=ACMR origin/$base_ref` with `head -200` to prevent arg overflow
 - `dependency-review-action` gates PRs on *newly introduced* vulnerable deps (actionable); `pnpm audit` scans the full tree (noisy) — use the former in CI, Dependabot alerts for the latter
 - Diagnosing failures: `gh run view <RUN_ID> --job <JOB_ID> --log-failed` filters to the failing step; pipe through `tail -80`
-- When adding Prettier alongside ESLint, always add `eslint-config-prettier` as the last config to disable conflicting formatting rules
+- When adding Prettier alongside ESLint, always add `eslint-config-prettier` as the last config to disable conflicting formatting rules. For ESLint v9 flat config, use `eslint-config-prettier/flat` (the bare import is for legacy `.eslintrc` configs)
+- Shared install job: use `actions/cache/save` in a dedicated `install` job, then `actions/cache/restore` in parallel downstream jobs — avoids N redundant `pnpm install` calls. Downstream jobs still need `pnpm/action-setup` + `actions/setup-node` for binaries but skip `cache: pnpm`
+- Playwright browser caching: cache `~/.cache/ms-playwright` keyed on `@playwright/test` version (~30-40s saved). On cache hit, run `playwright install-deps chromium` (system deps only); on miss, run `playwright install --with-deps chromium` (browsers + system deps)
 
 ### GitLab CI/CD
 - `rules:` replaces `only:/except:` — prefer `rules:` for all new pipelines; `only:/except:` can't combine with `rules:` in the same job
