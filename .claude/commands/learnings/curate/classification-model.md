@@ -88,7 +88,7 @@ A pattern is **outdated** when ANY of these apply:
 | Criterion | How to Verify |
 |-----------|---------------|
 | **Superseded by newer learning** | Same topic exists in more recent file/section with updated content |
-| **References non-existent code** | File paths, classes, or functions no longer exist in codebase |
+| **References non-existent code** | File paths, classes, or functions no longer exist in codebase. **Verify with `Read`, not `Glob`** — Glob doesn't reliably resolve symlinked directories (e.g., `~/.claude/` subdirs). |
 | **Contradicts current skill/guideline** | A skill or guideline now recommends a different approach |
 | **Migrated completely** | Content was fully incorporated into a skill or guideline |
 | **References deprecated tooling** | Mentions tools/libraries no longer used (e.g., pipenv → uv) |

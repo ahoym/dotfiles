@@ -310,6 +310,10 @@ For each skill, follow learnings:curate skill mode (steps 2s–4s) with full cro
 
 **Inline analysis** for the current collection size (~23 skills). Use subagents for collections of 30+.
 
+**Additional cross-cutting checks** (run after individual skill evaluation):
+- **Stale model version strings:** Grep all skill directories for `Co-Authored-By` and `Co-authored with` lines with outdated model versions (e.g., previous model generation). Bulk-update matches.
+- **Post-prune cross-reference cleanup:** After any Prune action is applied, grep remaining skills for the deleted skill's name — check "Related Skills" tables, usage examples, and conditional workflows. Flag stale references as HIGH-confidence follow-up actions.
+
 #### 4c. Separate findings by confidence
 
 Same as learnings phase — split into HIGH_FINDINGS, MEDIUM_FINDINGS, LOW_FINDINGS.
