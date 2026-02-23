@@ -14,13 +14,13 @@ Instead of polling a secondary dataset on a timer alongside a primary data feed,
 
 ## Client-Side Expiration Tracking
 
-For XRPL offers with an `expiration` field (Ripple epoch seconds), convert to JS timestamp via `fromRippleEpoch()`, compute the delay until expiry, and `setTimeout` to trigger a silent refetch of open orders 1 second after expiration. Only schedule timers for offers expiring within 5 minutes. Clean up timers on unmount or when the offers list changes. This avoids continuous polling while ensuring expired orders don't linger in the UI.
+For orders/offers with an expiration timestamp, convert to JS timestamp (using the appropriate epoch conversion for your platform), compute the delay until expiry, and `setTimeout` to trigger a silent refetch 1 second after expiration. Only schedule timers for items expiring within 5 minutes. Clean up timers on unmount or when the list changes. This avoids continuous polling while ensuring expired items don't linger in the UI.
 
 **Key points:**
-- Convert XRPL Ripple epoch to JS via `fromRippleEpoch()`
+- Convert platform-specific epoch to JS timestamp
 - Schedule `setTimeout` for 1 second after computed expiry time
-- Only bother with offers expiring within a 5-minute window
-- Clean up all timers on unmount or when the offers list re-renders
+- Only bother with items expiring within a 5-minute window
+- Clean up all timers on unmount or when the list re-renders
 
 ## Silent Fetch Pattern
 
@@ -33,16 +33,15 @@ Add a `silent = false` parameter to data-fetching callbacks. When `silent` is tr
 - Use `silent: true` for all background/automated refreshes
 - Use `silent: false` for user-initiated actions and initial page load
 
-## Balance Validation for DEX Orders
+## Balance Validation for Exchange Orders
 
-The trade form must check the user's available balance for the currency being *spent* before allowing order submission.
+The order form must check the user's available balance for the currency being *spent* before allowing submission.
 
 **Key detail:** Buy orders spend the **quote currency** (the `total` = amount x price), while sell orders spend the **base currency** (the `amount`).
 
-Look up the balance using `matchesCurrency()` which works with any object having `{ currency, issuer? }` shape. Show an inline error ("Insufficient X balance — you have Y but need Z") and disable the submit button when `spendAmount > availableBalance`.
+Look up the balance using a currency matcher that works with any `{ currency, issuer? }` shape. Show an inline error ("Insufficient X balance — you have Y but need Z") and disable the submit button when `spendAmount > availableBalance`.
 
 **Key points:**
 - Buy side: validate `total` (amount x price) against quote currency balance
 - Sell side: validate `amount` against base currency balance
-- Use `matchesCurrency()` for flexible currency matching
 - Disable submit button and show inline error with specific amounts

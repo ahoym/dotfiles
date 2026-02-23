@@ -55,19 +55,18 @@ When curating a skill, compare its reference files against reference files in co
 
 **Why this happens:** When a producer/consumer skill pair is developed, both need guidance on the same topic (e.g., "how to write good agent prompts"). The guidance gets written in one skill first, then copied to the other with minor additions. Over time the copies diverge as each skill adds its own refinements.
 
-## Skill Improvement Feedback Loop
+## Skill Improvement: Fix and Assess In-Session
 
-After running a skill in a real session, assess its performance while context is fresh:
+Apply skill improvements and repairs in the same session — context fades quickly across sessions. Specific friction points, improvised workarounds, and failure modes are most accurately captured while in working memory.
 
-1. **What worked** — note patterns that executed smoothly and produced good results
-2. **What didn't** — identify friction, improvisation, or gaps in the skill instructions
-3. **Prioritize by value** — rank improvements by impact on execution quality:
-   - Quality regression prevention (codifying improvised approaches) >> minor efficiency gains
-   - One-line fixes with real impact >> structural overhauls
-   - Diminishing returns are real — stop at 3-5 improvements per session
-4. **Apply in the same session** — context is fresh, the skill files are already read, and the user can validate immediately
+**Proactive assessment** (after running a skill):
+1. **What worked** — note patterns that executed smoothly
+2. **What didn't** — identify friction, improvisation, or gaps
+3. **Prioritize** — quality regression prevention >> minor efficiency gains; one-line fixes with real impact >> structural overhauls. Stop at 3-5 improvements per session.
 
-**Why same-session:** Skill improvements lose fidelity across sessions. The specific friction points, improvised workarounds, and "I had to figure out X manually" moments fade quickly. Capturing them while the execution is in working memory produces more precise fixes.
+**Reactive repair** (skill hits a bug mid-execution):
+- Fix immediately — the failure mode, workaround, and user reaction are all in context
+- Scope: one constraint workaround or behavioral tweak per incident. Don't refactor the whole skill because one step was awkward.
 
 ## Producer/Consumer Contract Validation
 
@@ -134,18 +133,6 @@ Key design choices:
 
 **Where this bites:** `/learnings:compound` when a session produces >4 learnings. The fix applied there: auto-save High-utility learnings (they're almost always worth keeping) and only prompt for Medium/Low.
 
-## In-Session Skill Repair
-
-When a skill hits a limitation or bug during execution, fix it in the same session rather than noting it for later. The context is fresh — you've just seen the exact failure mode, the workaround you improvised, and the user's reaction.
-
-**Why same-session matters:**
-- The failure mode is in working memory with full context (error messages, user feedback, what was tried)
-- The skill file is likely already read into context
-- The user can validate the fix immediately by re-running
-- Cross-session, the specific friction fades and fixes become vaguer
-
-**Scope:** Keep fixes minimal and targeted. One constraint workaround or one behavioral tweak per incident. Don't refactor the whole skill because one step was awkward.
-
 ## Avoid Internal Jargon in User-Facing Report Columns
 
 Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).
@@ -168,4 +155,20 @@ When a generic persona (e.g., `platform-engineer`) accumulates language/ecosyste
 **Pattern:** Mirrors `java-backend` / `java-devops` split. For each item in the parent, ask: "Is this relevant regardless of language?" If no, it belongs in a child.
 
 **Heuristic for tool categorization:** When splitting, categorize tools by their actual scope, not where you first learned them. Example: `dependency-review-action` is language-agnostic (GitHub scans any ecosystem) but `pnpm audit` is TypeScript-specific — they belong in different personas even though you encountered both while setting up the same CI pipeline.
+
+## Skill-Reference File Placement
+
+Files under `.claude/commands/` are automatically registered as invocable skills — including `_shared/` directories intended as internal references. To keep shared reference files referenceable (via `@` or path includes) without polluting the skill list, place them in `.claude/skill-reference/` instead.
+
+- Skills reference them with `@~/.claude/skill-reference/<file>.md` (for `@`-style includes) or `` `~/.claude/skill-reference/<file>.md` `` (for bare path references)
+- The `skill-reference/` directory is not scanned by the skill loader, so files there never appear in the skill list
+
+## Preserve Reference Style During Migrations
+
+When migrating file paths (e.g., relocating shared references), preserve each skill's original reference style rather than normalizing all references to a single style:
+
+- If a skill used `@_shared/file.md` (auto-include directive), update to `@~/.claude/skill-reference/file.md`
+- If a skill used `` `~/.claude/commands/.../file.md` `` (bare path in backticks), update to `` `~/.claude/skill-reference/file.md` ``
+
+Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
 

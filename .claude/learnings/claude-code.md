@@ -111,7 +111,4 @@ The Glob and Grep tools do not expand `~` to the home directory in the `path` pa
 
 **Note:** The `~` syntax works in *permission rules* (e.g., `Read(~/.claude/learnings/**)`), but not in tool invocation parameters. Don't confuse the two — permission rules use gitignore-style path matching, while tool parameters need real filesystem paths.
 
-## AskUserQuestion Multi-Select Limit
-
-`AskUserQuestion` with `multiSelect: true` is limited to **4 options** maximum. When presenting more than 4 items for selection, group them by action type or category to fit within the limit.
 

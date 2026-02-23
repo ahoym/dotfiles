@@ -158,11 +158,7 @@ await page.locator("select").selectOption(value!);
 
 **Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded keys (e.g., `"XRP|"` for currency code + pipe + issuer). Always inspect the actual DOM to determine the value format.
 
----
-
 ## 8. Use `exact: true` for Ambiguous Button Names
-
-**Utility: Medium**
 
 `getByRole("button", { name: "Add" })` can match multiple elements when the page has a `<span role="button">` whose accessible name contains "Add" (e.g., "Copy address" where the parent text includes "Add"). This causes Playwright strict mode violations in CI even if it works locally (due to timing differences).
 
@@ -176,3 +172,42 @@ await page.getByRole("button", { name: "Add", exact: true }).click();
 ```
 
 **When to use:** Always use `exact: true` for short, common button names ("Add", "OK", "Go", "Set") that could appear as substrings in other elements' accessible names.
+
+## 9. Option Visibility in `<select>`
+
+`<option>` elements inside a collapsed `<select>` are attached to the DOM but NOT considered "visible" by Playwright. Use `waitFor({ state: "attached" })` instead of default `waitFor()` (which waits for "visible").
+
+## 10. `getByLabel()` Requires Proper HTML Association
+
+`getByLabel("Base")` only works when the `<label>` is associated with the control via `for`/`id` or by wrapping. A sibling `<label>` without `for` renders as `generic` in the aria tree — Playwright won't find the associated `<select>`. Fix: add `htmlFor`/`id` attributes.
+
+## 11. Modal Scoping with `role="dialog"`
+
+When modals overlay the main page, `getByRole("spinbutton")` or `getByPlaceholder()` can match elements in BOTH the modal and the page. Fix: add `role="dialog"` and `aria-modal="true"` to the modal container, then scope all modal interactions with `page.getByRole("dialog")`.
+
+## 12. Strict Mode and `getByText()` Substring Matching
+
+`getByText("Foo")` does case-insensitive substring matching — "Foo" matches "Foobar", "Copy Foo address", etc. When multiple elements match, Playwright throws a strict mode violation. Fixes: `{ exact: true }`, or use `getByRole` with a specific role (e.g., `getByRole("cell", { name: "KYC" })`).
+
+## 13. `.first()` Is a Dynamic Locator
+
+After removing the first matched element (e.g., cancelling an order), `.first()` resolves to the NEXT element. `expect(btn).not.toBeVisible()` will fail because the new first is still visible. Fix: use count-based assertions — `expect(locator).toHaveCount(initialCount - 1)`.
+
+## 14. Dynamic File Inputs — Use `filechooser` Event
+
+When app creates `<input type="file">` dynamically via JS (not pre-existing in DOM), `locator('input[type="file"]').setInputFiles()` finds nothing. Use:
+```typescript
+const [fileChooser] = await Promise.all([
+  page.waitForEvent("filechooser"),
+  page.getByRole("button", { name: "Import" }).click(),
+]);
+await fileChooser.setFiles(filePath);
+```
+
+## 15. Transient Success Banners Are Unreliable Assertions
+
+Success messages that auto-clear after 2s can be missed by Playwright assertions even with long timeouts. Assert the **side effect** instead (e.g., item appears in a list, form resets, button state changes).
+
+## 16. `.filter({ has: getByText() }).first()` Matches Ancestor Divs
+
+`page.locator("div").filter({ has: getByText("Card Title") }).first()` can match a high-level ancestor div containing multiple cards. For tighter scoping, use the heading's parent: `page.getByRole("heading", { name: "Card Title" }).locator("..")`.
