@@ -75,3 +75,11 @@ git rebase --continue
 ```
 
 This accepts the upstream lockfile, then regenerates it with your branch's added/modified dependencies. Works because the lockfile is deterministically generated from `package.json`.
+
+## `git add <file>` Can Commit Unintended Files
+
+When `git add <specific-file>` is followed by `git commit`, pre-commit hooks or other mechanisms may auto-stage additional modified files. Verify with `git status` after committing that only intended files were included. If unexpected files were committed, use `git reset HEAD~1` to undo and re-stage selectively.
+
+## Pre-Commit Hooks Can Alter Commits Silently
+
+Pre-commit hooks may modify staged files (formatting, linting) or change the commit message. After committing, verify with `git log --oneline -1` that the message matches expectations. If the hook modifies files post-stage, those changes appear as new unstaged modifications — not a sign that the commit failed.

@@ -34,16 +34,12 @@ When two repos have independently evolved the same skill, merge by keeping uniqu
 
 **Pattern:**
 1. Compare both versions side by side — identify unique sections in each
-2. Use the more complete version as the base
-3. Append unique sections from the other version
-4. For platform-specific commands (gh vs glab, PR vs MR), create a shared reference file (e.g., `_shared/platform-detection.md`) with detection logic and a mapping table
-5. Add "Step 0: Detect platform" to each skill that references the shared file
-6. Keep PR-based naming (majority convention) and let runtime detection handle GitLab
+2. Use the more complete version as the base, append unique sections from the other
+3. For platform-specific commands (gh vs glab, PR vs MR), create a shared reference file with detection logic and a mapping table
+4. Add "Step 0: Detect platform" to each skill that references the shared file
+5. Keep PR-based naming (majority convention) and let runtime detection handle GitLab
 
-**Why parameterize instead of maintaining two copies:**
-- One codebase to maintain, no future drift
-- Learnings applied to one skill automatically apply to both platforms
-- Shared reference file is a single source of truth for CLI/terminology mapping
+One codebase to maintain means no future drift — learnings applied to one skill automatically apply to both platforms.
 
 ## Cross-Skill Reference File Deduplication
 
@@ -51,7 +47,7 @@ When curating a skill, compare its reference files against reference files in co
 
 **Detection:** During skill curation (step 3s evaluation), read reference files from related skills and check for >80% content overlap. The superset version is usually in the skill that uses the content more heavily.
 
-**Resolution:** Move the superset version to `_shared/` and update both skills' SKILL.md to reference the shared path. This ensures future improvements propagate to both skills automatically.
+**Resolution:** Move the superset version to `skill-reference/` (or a skill group's shared location) and update both skills' SKILL.md to reference the shared path. This ensures future improvements propagate to both skills automatically.
 
 **Why this happens:** When a producer/consumer skill pair is developed, both need guidance on the same topic (e.g., "how to write good agent prompts"). The guidance gets written in one skill first, then copied to the other with minor additions. Over time the copies diverge as each skill adds its own refinements.
 
@@ -78,48 +74,18 @@ When two skills form a producer/consumer pair (e.g., a planner skill produces pl
 
 **Why grep-only checks fail:** Searching for a section name in the target repo and finding many references in the consumer made it look covered. But the producer had no instruction to produce that section — the producer/consumer contract was broken.
 
-## _shared Files: Discovery and Frontmatter
-
-Files in `commands/_shared/` (or `<group>/_shared/`) are internal reference docs, not standalone skills. But Claude Code treats any `.md` file in `commands/` as an invocable skill and lists it in the system-reminder. This is cosmetic — agents see the description and route correctly — but the skill list gets noisier.
-
-**Fix:** Add frontmatter with a description that starts with "Internal reference —" and ends with "Used by other skills, not invoked directly."
-
-```yaml
----
-description: "Internal reference — GitHub vs GitLab detection logic. Used by git skills, not invoked directly."
----
-```
-
-
-## Scope _shared/ Files to Their Skill Group
-
-When a `_shared/` reference file is only used by skills within a single group, it should live in that group's `_shared/` directory rather than the global `commands/_shared/`. Only truly cross-group references belong in global `_shared/`.
-
-**Decision criteria:** Grep for all references to the shared file. If every reference is within a single skill group → move it into `<group>/_shared/`. If references span multiple groups or standalone skills → keep in global `_shared/`.
-
-**Benefits:**
-- Collocates reference docs with the skills that use them
-- Makes it obvious which group "owns" the content
-- Reduces the global `_shared/` to genuinely cross-cutting references
-
 ## Orchestrator/Agent Separation for Multi-Step Skills
 
 Split SKILL.md into two files when a skill has a multi-step background workflow:
 
-1. **Orchestrator (SKILL.md)** — Handles user interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines.
-2. **Background agent steps (separate .md)** — Contains the autonomous workflow executed by a Task agent. Includes command templates, decision tables, file placement rules, error recovery.
+1. **Orchestrator (SKILL.md)** — User interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines. No eager `@` references — list reference files as conditional (plain text).
+2. **Background agent steps (separate .md)** — Autonomous workflow executed by a Task agent. Orchestrator reads the file and passes content via the Task tool's prompt parameter.
 
-Key design choices:
-- No eager `@` references in SKILL.md — list reference files as conditional (plain text). Load via Read tool only when needed.
-- Pass background steps via Task prompt — orchestrator reads the file and includes content in the Task tool's prompt parameter.
-- Neither file carries the other's concerns.
-
-## Background Steps File Structure
-
-- **Aliases at top**: Define shorthand for repeated values (not shell variables, just agent instructions)
-- **Decision tables for branching**: Use markdown tables instead of nested if/else prose
-- **Inline warnings at point of use**: Place warnings where the agent encounters the situation, not in a separate notes section at the bottom
-- **Error recovery at bottom**: Keep concise (2-3 rules)
+**Background steps file structure:**
+- Aliases at top for repeated values (agent instructions, not shell variables)
+- Decision tables for branching (markdown tables, not nested if/else prose)
+- Inline warnings at point of use (not in a separate notes section)
+- Error recovery at bottom (2-3 rules)
 
 ## AskUserQuestion Has a 4-Option Maximum
 
@@ -137,31 +103,14 @@ Key design choices:
 
 Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).
 
-## Persona Tiering: Core vs Deep-Reference
-
-When a persona file accumulates enough domain-specific gotchas that signal density starts degrading, split into two tiers:
-
-- **Core (always-loaded):** High-frequency patterns checked on every review — flag usage, casing conventions, trust line prerequisites, arithmetic rules. These belong in the persona file itself.
-- **Deep-reference (conditional):** Operation-specific knowledge relevant only during certain tasks (e.g., AMM pool creation, order book display, fill detection). Reference via `@` pointer to a learnings file; the agent loads it when the task context matches.
-
-**Cut line:** "Check every time I see XRPL code" → core. "Reference when building feature X" → deep-reference.
-
-**When to tier:** The trigger is signal density, not raw line count. If a reviewer would skim past most entries because they're irrelevant to the current task, the file has crossed the threshold. Every entry in core should be worth checking on every review.
-
-## Persona Pollution: Extract Ecosystem-Specific Content into Child Personas
-
-When a generic persona (e.g., `platform-engineer`) accumulates language/ecosystem-specific gotchas (pnpm, ESLint, Vercel), extract them into a child persona using `Extends: parent`. The parent stays language-agnostic; the child inherits generic patterns and adds ecosystem specifics.
-
-**Pattern:** Mirrors `java-backend` / `java-devops` split. For each item in the parent, ask: "Is this relevant regardless of language?" If no, it belongs in a child.
-
-**Heuristic for tool categorization:** When splitting, categorize tools by their actual scope, not where you first learned them. Example: `dependency-review-action` is language-agnostic (GitHub scans any ecosystem) but `pnpm audit` is TypeScript-specific — they belong in different personas even though you encountered both while setting up the same CI pipeline.
-
 ## Skill-Reference File Placement
 
-Files under `.claude/commands/` are automatically registered as invocable skills — including `_shared/` directories intended as internal references. To keep shared reference files referenceable (via `@` or path includes) without polluting the skill list, place them in `.claude/skill-reference/` instead.
+Files under `.claude/commands/` are automatically registered as invocable skills. To keep shared reference files referenceable without polluting the skill list, place them in `.claude/skill-reference/` instead — this directory is not scanned by the skill loader.
 
-- Skills reference them with `@~/.claude/skill-reference/<file>.md` (for `@`-style includes) or `` `~/.claude/skill-reference/<file>.md` `` (for bare path references)
-- The `skill-reference/` directory is not scanned by the skill loader, so files there never appear in the skill list
+- `@~/.claude/skill-reference/<file>.md` for `@`-style includes
+- `` `~/.claude/skill-reference/<file>.md` `` for bare path references
+
+**When to use `skill-reference/` vs other locations:** Content that is behavioral/prescriptive AND applies to 3+ skills AND is only relevant during specific workflows (e.g., subagent launching). Too specialized for `guidelines/` (always-on cost), too actionable for `learnings/` (won't be loaded by skills).
 
 ## Preserve Reference Style During Migrations
 
@@ -171,7 +120,6 @@ When migrating file paths (e.g., relocating shared references), preserve each sk
 - If a skill used `` `~/.claude/commands/.../file.md` `` (bare path in backticks), update to `` `~/.claude/skill-reference/file.md` ``
 
 Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
-
 
 ## Absorb Thin Wrapper Skills as Flags
 
@@ -184,4 +132,12 @@ After deleting skills, grep remaining skills for the deleted skill names — oth
 ## Stale Model Version Strings in Co-Authorship Lines
 
 Skills with `Co-Authored-By` or `Co-authored with` lines hardcode the model version (e.g., "Claude Opus 4.5"). These go stale on model upgrades. During curation sweeps, grep for the previous model version string across all skill directories and bulk-update.
+
+## Curate Reference Files in Content Mode, Not Skill Mode
+
+The curate skill's mode detection (`commands/*` → skill mode) is too coarse. Reference files under `commands/` (e.g., `writing-best-practices.md`, `classification-model.md`) are content files with discrete patterns — they need content mode (pattern-level analysis), not skill mode (package-level evaluation). Skill mode is only appropriate for SKILL.md files and their parent directories.
+
+## Curate Skill Groups Together, Not Individually
+
+When curating skills, evaluate the full group (e.g., all git skills) in one pass. Overlaps, merge opportunities, and thin wrapper candidates are only visible when comparing skills side by side. Individual evaluation misses cross-skill redundancy (e.g., preview-conflicts being a subset of resolve-conflicts).
 
