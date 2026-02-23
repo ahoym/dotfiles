@@ -1,0 +1,16 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Added "`commands/` Supports All `skills/` Frontmatter" section (Utility: High)
+
+Wrote 1 learning to `~/.claude/`. The other 3 candidates were already documented in the file (context:fork clean context, {baseDir} resolution, disable-model-invocation context removal).
+
+---
+
+**Iteration 5 complete.** Here's what was accomplished:
+
+**Deep Research: `commands/` to `skills/` migration** → `commands-to-skills-migration.md`
+
+**Key finding:** Migration is lower priority than expected. The official docs confirm `commands/` supports **all the same frontmatter** as `skills/`. Every improvement (allowed-tools, disable-model-invocation, context: fork, model overrides) can be done in-place without renaming directories. The only skills/-exclusive features (monorepo auto-discovery, --add-dir live detection, plugin packaging) are irrelevant for personal global skills.
+
+**Recommendation:** Stay on `commands/`, add frontmatter in-place. Track directory rename as a future contingency only.
+
+**Cross-references updated:** info.md (area marked investigated), assumptions-and-questions.md (A1 validated, A8 marked moot, Q1 updated with recommendation), progress.md updated for next iteration.

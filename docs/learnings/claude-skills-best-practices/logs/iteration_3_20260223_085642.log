@@ -1,0 +1,18 @@
+Both edits verified. ✅
+
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Refined `{baseDir}` entry with cross-directory limitation (Utility: High)
+- `~/.claude/learnings/skill-design.md` — Added assumption-tracking pattern for iterative research (Utility: Medium)
+
+Wrote 2 learnings to `~/.claude/`.
+
+---
+
+**Iteration 4 complete.** Created `assumptions-and-questions.md` with:
+- 8 assumptions (each with confidence level and rationale)
+- 6 blocking questions for user input
+- Validation tracker table
+
+Key finding: **A3 (`{baseDir}` replacing `~/.claude/`) is likely wrong** — `{baseDir}` resolves to the skill's own directory, not the repo root. Most of our cross-directory references can't use it.
+
+Next iteration should start deep research, beginning with **`commands/` to `skills/` migration** (the foundational decision that gates everything else).

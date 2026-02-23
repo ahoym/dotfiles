@@ -1,0 +1,10 @@
+All learnings written and verified. Summary:
+
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Added 6 new sections: Unused Official Frontmatter Features (High), `disable-model-invocation` Removes Skill from Context (High), Progressive Disclosure: Three Token-Cost Tiers (Medium), Dynamic Context Injection via Shell Preprocessing (Medium), `{baseDir}` portability note (Medium, merged into Unused Features), Skill Description Context Budget (Medium)
+
+Wrote 6 learnings to `~/.claude/`.
+
+---
+
+**Iteration 1 complete.** ✅ Research & Document task done → `info.md` created with comprehensive findings and 8 areas for deeper investigation. Next iteration should pick up the Codebase Summary task.

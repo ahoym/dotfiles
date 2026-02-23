@@ -1,0 +1,18 @@
+## Iteration 6 Complete ✅
+
+**Task:** Deep Research: `disable-model-invocation` budget optimization
+
+**Key findings:**
+- **Budget is not a problem:** 22 skills use only 2,813 chars (~17.6% of the 16k budget). No truncation risk.
+- **Still worth doing:** Disabling 9 manual-only skills saves 1,464 chars and, more importantly, reduces noise in Claude's skill selection decisions and prevents accidental invocation of heavyweight operations.
+- **9 skills to disable:** ralph:init, ralph:compare, learnings:consolidate, learnings:curate, learnings:distribute, parallel-plan:make, parallel-plan:execute, quantum-tunnel-claudes, set-persona
+- **13 skills to keep auto:** All git:* skills, explore-repo, learnings:compound, do-refactor-code, do-security-audit
+- **Known bugs:** Mid-message `/skill` invocation fails for disabled skills (#19729), autocomplete shows disabled skills but errors (#24042) — low impact for our usage patterns
+
+**Files created/updated:**
+- `disable-model-invocation.md` — Full deep research file
+- `info.md` — Cross-reference updated (area 5 marked investigated)
+- `assumptions-and-questions.md` — A5 validated with measurement data
+- `progress.md` — Updated for iteration 6
+
+**Next iteration:** `allowed-tools` scoping strategy (2nd highest priority)

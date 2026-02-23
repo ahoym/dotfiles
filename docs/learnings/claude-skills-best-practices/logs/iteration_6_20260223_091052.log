@@ -1,0 +1,17 @@
+## Iteration 7 Complete
+
+**Task completed:** Deep Research: `allowed-tools` scoping strategy
+
+**Key findings:**
+- `allowed-tools` enforcement is **broken** — restriction not enforced, Bash auto-approval broken, marked "Experimental"
+- Anthropic's own reference skills don't use it; Trail of Bits does (security focus)
+- Recommend adding to 5 read-only auto-invocable skills for documentation/future-proofing
+- `disable-model-invocation` is the higher-impact, safer change — do it first
+- Broad `allowed-tools` adoption should wait for enforcement fix
+
+**Files created/updated:**
+- `allowed-tools-scoping.md` — Full deep research file with tool usage map for all 22 skills
+- `info.md` — Updated Areas for Deeper Investigation with cross-reference
+- `assumptions-and-questions.md` — Updated A6 validation
+- `progress.md` — Updated to iteration 7
+- `~/.claude/learnings/skill-design.md` — Updated `allowed-tools` entry with enforcement findings

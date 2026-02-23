@@ -1,0 +1,18 @@
+---
+
+**Iteration 8 complete.** Here's what was accomplished:
+
+**Task:** Deep Research: `context: fork` candidates
+
+**Key finding:** `context: fork` is largely inapplicable to this repo's 22 skills. The critical constraint is that **subagents cannot spawn other subagents** — this eliminates the two most commonly cited candidates (explore-repo, do-security-audit) which rely on launching parallel Task agents internally. Most remaining skills fail on other criteria: needing conversation history, requiring user interaction mid-task, or performing write operations.
+
+**Only `ralph:compare`** (1 of 22) is a clean fork candidate, and it's a low-frequency manual-only skill. Recommendation: deprioritize `context: fork` adoption entirely.
+
+**Files updated:**
+- Created `context-fork-candidates.md` — full evaluation of all 22 skills
+- Updated `info.md` — marked area 3 as researched with findings
+- Updated `assumptions-and-questions.md` — invalidated Assumption A4 with evidence
+- Updated `progress.md` — iteration 8, deprioritized remaining deep research
+- Updated `~/.claude/learnings/skill-design.md` — added fork constraint + viability checklist
+
+**Next iteration:** Write the implementation plan (the only remaining task). All impactful deep research is done.
