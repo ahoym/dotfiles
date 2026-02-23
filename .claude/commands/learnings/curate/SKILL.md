@@ -30,7 +30,6 @@ Curation serves a dual purpose: organizing content AND minimizing baseline conte
 
 ## Reference Files (conditional)
 
-- `~/.claude/skill-references/corpus-cross-reference.md` — Corpus loading and cross-referencing procedure — read in step 3
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
 - `~/.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
@@ -119,10 +118,9 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 4. Store as `PATTERNS` list
 
 **Pre-load (step 3 reads)** — In the same parallel batch as the parse reads above:
-1. Read `~/.claude/skill-references/corpus-cross-reference.md` for the corpus loading procedure
-2. Follow its "Loading the Corpus" section to load skills, skill reference files, guidelines, and learnings. **Read all files in the target directory** — don't pre-filter or skip files based on name/size
-3. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
-4. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
+1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
+2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
+3. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -130,7 +128,11 @@ Store all pre-loaded content for use in subsequent steps.
 
 ### 3 (cont). Cross-reference patterns against corpus
 
-Follow the "Cross-Referencing Content" procedure in `corpus-cross-reference.md`. Use the match types (exact, partial, thematic, no match) and confidence levels defined there.
+For each pattern, check against the pre-loaded corpus for matches:
+- **Exact match**: Same concept with same or very similar wording in another file → HIGH confidence
+- **Partial match**: Same concept but different scope, detail level, or framing → MEDIUM confidence
+- **Thematic match**: Related concept in the same domain but different specific insight → LOW confidence
+- **No match**: Novel pattern not covered elsewhere
 
 **Do NOT present the classification table (step 6) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
 

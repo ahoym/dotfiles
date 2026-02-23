@@ -46,6 +46,7 @@ Key points from learnings:curate to apply on every sweep:
 - Pre-load the full reference corpus (skills, guidelines, personas)
 - Use **parallel tool calls aggressively** (per-cluster subagents, parallel reads)
 - Cross-reference thoroughly before classifying
+- After clustering, run **concept-name collision detection**: grep for identical or near-identical H2/H3 headings across all files. Flag matches as HIGH-confidence duplicate candidates regardless of cluster membership. This catches cross-file duplicates that cluster-level analysis misses.
 - Use the broad sweep report format
 
 ### Step 1: Phase 1 — HIGH Sweep Loop
@@ -102,11 +103,13 @@ Key points from learnings:curate to apply on every sweep:
    - If Phase 1 applied any HIGH actions → state changed. Run fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
    - If Phase 1 applied zero actions (no HIGHs found on first sweep) → state is unchanged. The MEDIUMs from the Phase 1 sweep are already current — skip re-analysis and use them directly.
 
-2. **Extract `MEDIUM_FINDINGS`** from the results (fresh or carried forward).
+2. **If fresh sweep found new HIGHs:** Auto-apply them inline before extracting MEDIUMs — same procedure as Phase 1 substep 5 (parallel tool calls, record to `CUMULATIVE_ACTIONS`). This avoids cycling back to Phase 1 for HIGHs that only became visible after Phase 1 changes. Display them in the between-sweep report format before the MEDIUM batch.
 
-3. **Check if empty:** If no MEDIUMs found → skip to **Step 3**.
+3. **Extract `MEDIUM_FINDINGS`** from the results (fresh or carried forward).
 
-4. **Present MEDIUM batch for approval:**
+4. **Check if empty:** If no MEDIUMs found → skip to **Step 3**.
+
+5. **Present MEDIUM batch for approval:**
 
    ```
    ## Phase 2: MEDIUM-Confidence Recommendations
@@ -136,19 +139,21 @@ Key points from learnings:curate to apply on every sweep:
    | 1 | ... | Multiple classifications could fit |
    ```
 
-5. **Apply approved MEDIUMs** — execute selected actions. Parallel tool calls for independent file writes.
+6. **Apply approved MEDIUMs** — execute selected actions. Parallel tool calls for independent file writes.
 
-6. **Record actions** — append to `CUMULATIVE_ACTIONS`.
+7. **Record actions** — append to `CUMULATIVE_ACTIONS`.
 
-7. **Log transition** — add to `PHASE_TRANSITIONS`.
+8. **Log transition** — add to `PHASE_TRANSITIONS`.
 
 ### Step 3: Phase 3 — Post-MEDIUM Verification
 
 **Goal:** Check whether changes surfaced new insights.
 
-1. **Check overall safety cap:** If `SWEEP_COUNT` >= 10 → display overall cap report (see Edge Cases) and pause.
+1. **Check for short-circuit:** If ALL Phase 2 actions were in-place modifications (no files created, deleted, or moved; no content migrated between files), skip verification entirely — in-place edits (genericization, section merges, compression) cannot create new overlaps or classification changes. Log: "Skipping verification — all Phase 2 actions were in-place modifications." Proceed directly to **Step 4**.
 
-2. **Determine verification scope** based on the actions applied in Phase 2:
+2. **Check overall safety cap:** If `SWEEP_COUNT` >= 10 → display overall cap report (see Edge Cases) and pause.
+
+3. **Determine verification scope** based on the actions applied in Phase 2:
 
    **Lightweight verification** — use when ALL of these are true:
    - Actions only modified content within existing files (no files created, deleted, or moved)
@@ -168,7 +173,7 @@ Key points from learnings:curate to apply on every sweep:
    For full verification:
    - Run fresh broad sweep analysis (learnings:curate steps 1–6). Increment `SWEEP_COUNT`.
 
-3. **Evaluate results:**
+4. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.
    - **New MEDIUMs found** → log transition: "Changes surfaced N new MEDIUM items." Return to **Step 2**.
    - **Clean sweep** (no HIGHs or MEDIUMs) → proceed to **Step 4**.
