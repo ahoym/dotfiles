@@ -1,19 +1,5 @@
 # Persona System Learnings
 
-## Persona Extends Pattern
-
-**Utility: High**
-
-Child personas can inherit from a parent via an `## Extends: <name>` heading placed immediately after the H1 title. The `set-persona` skill resolves the parent using the same lookup order (project-local `.claude/personas/` → dotfiles `~/.claude/commands/set-persona/`), loads the parent first as foundational context, then layers the child on top.
-
-Key design decisions:
-- Child sections **supplement** the parent — they don't replace them
-- Only **single-level** extension is supported (no chaining) to keep resolution simple
-- Activation confirmation mentions both: "Activated **child** (extends **parent**)"
-- The parent is a standalone persona that can be activated directly too
-
-Example: `java-devops` extends `platform-engineer` — Java-specific JVM/Micrometer concerns layer on top of generic CI/CD, deployment, and infrastructure knowledge.
-
 ## Persona Extraction Strategy
 
 **Utility: Medium**
