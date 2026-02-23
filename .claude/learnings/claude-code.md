@@ -88,8 +88,10 @@ When a session is continued from a compacted conversation (context overflow), **
 
 **Mitigation:** Capture critical landmarks explicitly in conversation (e.g., "txFailureResponse is at line 200-209 in lib/api.ts") so continuation reduces re-reading to verification rather than discovery.
 
-## `~/.claude` Is a Real Directory, Not a Symlink
+## `~/.claude` Symlink Structure
 
-`~/.claude` is a real directory on disk. Dotfiles are individually symlinked into it by `setup-claude.sh`. Symlinks created inside `~/.claude` must use **absolute paths** to the dotfiles repo (e.g., `/Users/<user>/WORKSPACE/dotfiles/.claude/skill-references`). Relative paths like `.claude/skill-references` resolve incorrectly to `~/.claude/.claude/skill-references`.
+`~/.claude` is a real directory on disk. Key subdirectories (`commands/`, `guidelines/`, `learnings/`, `lab/`) are **directory-level symlinks** to the dotfiles repo (e.g., `commands -> /Users/<user>/WORKSPACE/dotfiles/.claude/commands`). Edits to files under these paths land in the repo automatically — no separate copy step needed.
+
+Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
 
 
