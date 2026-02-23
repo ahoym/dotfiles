@@ -19,25 +19,7 @@ Confirmed via rippled C++ source (`NetworkOPs.cpp`):
 - Completely unfunded offers (zero owner funds) are omitted from the response unless the offer belongs to the taker
 - The fallback pattern `taker_gets_funded ?? taker_gets` is correct: absence of `_funded` genuinely means fully funded
 
-### Source reference
-
-rippled `NetworkOPs.cpp` lines ~4177-4191:
-
-```cpp
-if (saOwnerFundsLimit >= saTakerGets)
-{
-    // Sufficient funds no shenanigans.
-    saTakerGetsFunded = saTakerGets;
-}
-else
-{
-    // Only provide, if not fully funded.
-    saTakerGetsFunded = saOwnerFundsLimit;
-    saTakerGetsFunded.setJson(jvOffer[jss::taker_gets_funded]);
-    std::min(saTakerPays, multiply(saTakerGetsFunded, saDirRate, saTakerPays.issue()))
-        .setJson(jvOffer[jss::taker_pays_funded]);
-}
-```
+Source: rippled `NetworkOPs.cpp` ~4177-4191.
 
 ## account_offers vs account_objects for DomainID
 
@@ -73,8 +55,6 @@ const baseReserve = swapped ? asset2Value : assetValue;
 const quoteReserve = swapped ? assetValue : asset2Value;
 const spotPrice = Number(quoteReserve) / Number(baseReserve);
 ```
-
-**Discovered from:** Building the `/api/amm/info` route — without normalization, spot prices and reserve labels were inverted for certain currency pairs.
 
 ## Transaction Flags vs Ledger Entry Flags
 
