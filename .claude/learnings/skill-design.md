@@ -172,3 +172,11 @@ When migrating file paths (e.g., relocating shared references), preserve each sk
 
 Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
 
+## Skill-References for Universal Multi-Agent Patterns
+
+When a pattern applies broadly across many agent-launching skills (curation, security audits, parallel execution, exploration) but isn't needed in every session, `skill-references/` is the right home — not `guidelines/` (too always-on) and not `learnings/` (too passive, won't be loaded by skills).
+
+**Decision criteria:** The pattern is behavioral/prescriptive AND applies to 3+ skills AND is only relevant when launching subagents. Skills reference it with `~/.claude/skill-references/<file>.md`; the agent loads it on-demand when the skill runs.
+
+**Example:** "Verify subagent output before acting on it" — applies to any skill delegating research/analysis to agents, but irrelevant in sessions without subagent use. Lives in `skill-references/subagent-patterns.md` alongside `agent-prompting.md`.
+
