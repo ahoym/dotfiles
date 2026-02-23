@@ -115,6 +115,3 @@ The Glob and Grep tools do not expand `~` to the home directory in the `path` pa
 
 `AskUserQuestion` with `multiSelect: true` is limited to **4 options** maximum. When presenting more than 4 items for selection, group them by action type or category to fit within the limit.
 
-## `git -C` Is Unnecessary When CWD Is the Repo Root
-
-When the current working directory is already the repository root (which it almost always is in a Claude Code session), plain `git` commands work directly. The "avoid cd" instruction is about not changing the shell's CWD (which resets between bash calls anyway) — it is not about qualifying every command with an absolute path. Only use `git -C` when operating on a **different repository** than CWD (e.g., a worktree in another location).

@@ -43,6 +43,12 @@
 - Unfunded offers (zero balance) are excluded entirely from `book_offers` responses by rippled
 - `AMMCreate` has a special higher fee — xrpl.js autofill handles it automatically, don't manually set the `Fee` field
 - `amm_info` may return `asset`/`asset2` in the pool's canonical order, not the order you queried — normalize by comparing response currencies against your query's base/quote before using reserve amounts or computing spot price
+- `amm_info` for non-existent pools throws `"actNotFound"`, `"ammNotFound"`, or `"Account not found"` (issuer doesn't exist on network) — catch all three to return `{ exists: false }` instead of a 500
+- `client.getOrderbook()` always makes 2 RPC calls (both book directions) — no option to request only one side; client-side array slicing saves rendering cost but not WebSocket load
+- `account_offers` does not return transaction hashes — cross-reference `account_tx` filtering for `OfferCreate` and match by sequence number
+- `getBalanceChanges()` returns XRP deltas already net of fees — don't subtract `tx.Fee` again (double-counts the deduction)
+- `RippleState` balance sign: positive = low account holds the IOU, negative = high account — common mistake is assuming positive means "your" side
+- Detecting fills from `account_tx`: parse `AffectedNodes` for `AccountRoot` (XRP) and `RippleState` (token) modifications; filter fee-only changes (< 0.001 XRP delta) — see `learnings/xrpl-patterns.md` for full algorithm
 
 ### Next.js 16
 - `proxy.ts` replaces `middleware.ts` — exported function must be named `proxy()`, runs on Node runtime (not Edge)
