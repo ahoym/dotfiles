@@ -109,6 +109,10 @@ When a session is continued from a compacted conversation (context overflow), **
 
 **Mitigation:** Capture critical landmarks explicitly in conversation (e.g., "txFailureResponse is at line 200-209 in lib/api.ts") so continuation reduces re-reading to verification rather than discovery.
 
+## `~/.claude` Is a Real Directory, Not a Symlink
+
+`~/.claude` is a real directory on disk. Dotfiles are individually symlinked into it by `setup-claude.sh`. Symlinks created inside `~/.claude` must use **absolute paths** to the dotfiles repo (e.g., `/Users/<user>/WORKSPACE/dotfiles/.claude/skill-references`). Relative paths like `.claude/skill-references` resolve incorrectly to `~/.claude/.claude/skill-references`.
+
 ## Glob/Grep Tools Don't Resolve `~` in Path Parameters
 
 The Glob and Grep tools do not expand `~` to the home directory in the `path` parameter. Patterns like `Glob(pattern: "learnings/**/*.md", path: "~/.claude")` return "No files found" even when matching files exist.
