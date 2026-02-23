@@ -1,47 +1,41 @@
-# Trade Page Patterns
+# Reactive Data Patterns
 
-Patterns for real-time data updates, background refreshes, and validation in trading UIs.
+Patterns for real-time data updates, background refreshes, and resource validation in data-driven UIs.
 
 ## Reactive Refresh Over Polling
 
-Instead of polling a secondary dataset on a timer alongside a primary data feed, watch the primary feed for events matching the current user. Track seen event IDs in a `useRef(new Set())`. On first load, seed the set without triggering a refresh. On subsequent updates, if any new event involves the user's account, silently refetch the secondary dataset. This reduces API calls while keeping data fresh.
+Instead of polling a secondary dataset on a timer alongside a primary data feed, watch the primary feed for events matching the current user. Track seen event IDs in a `useRef(new Set())`. On first load, seed the set without triggering a refresh. On subsequent updates, if any new event involves the user, silently refetch the secondary dataset.
 
 **Key points:**
-- Use `useRef(new Set())` to track already-seen event IDs
+- Use `useRef(new Set())` to track already-seen IDs
 - On initial load, populate the set without triggering side effects
 - On subsequent updates, diff against the set to detect new events
-- Only refetch secondary data when a new event involves the current user
+- Only refetch secondary data when a relevant event is detected
 
 ## Client-Side Expiration Tracking
 
-For orders/offers with an expiration timestamp, convert to JS timestamp (using the appropriate epoch conversion for your platform), compute the delay until expiry, and `setTimeout` to trigger a silent refetch 1 second after expiration. Only schedule timers for items expiring within 5 minutes. Clean up timers on unmount or when the list changes. This avoids continuous polling while ensuring expired items don't linger in the UI.
+For items with an expiration timestamp, compute the delay until expiry and `setTimeout` to trigger a silent refetch 1 second after expiration. Only schedule timers for items expiring within 5 minutes. Clean up timers on unmount or when the list changes. This avoids continuous polling while ensuring expired items don't linger in the UI.
 
 **Key points:**
-- Convert platform-specific epoch to JS timestamp
+- Convert platform-specific epoch to JS timestamp if needed
 - Schedule `setTimeout` for 1 second after computed expiry time
-- Only bother with items expiring within a 5-minute window
+- Only schedule for items expiring within a 5-minute window
 - Clean up all timers on unmount or when the list re-renders
 
 ## Silent Fetch Pattern
 
-Add a `silent = false` parameter to data-fetching callbacks. When `silent` is true, skip `setLoading(true)` and don't clear data on error — only update state on success. Use `silent: true` for background/reactive refreshes triggered by event detection or expiration timers, so the UI doesn't flash loading skeletons. Use `silent: false` (default) for initial loads and explicit user-triggered refreshes.
+Add a `silent = false` parameter to data-fetching callbacks. When `silent` is true, skip `setLoading(true)` and don't clear data on error — only update state on success. This prevents loading skeleton flashes during background refreshes.
 
 **Key points:**
 - Default `silent` to `false` for backward compatibility
-- When silent, skip `setLoading(true)` to avoid loading skeleton flashes
-- When silent, don't clear existing data on error — fail gracefully
-- Use `silent: true` for all background/automated refreshes
-- Use `silent: false` for user-initiated actions and initial page load
+- When silent: skip loading state, don't clear data on error
+- Use `silent: true` for background/automated refreshes (event-driven, expiration timers)
+- Use `silent: false` for initial loads and user-triggered refreshes
 
 ## Balance Validation for Exchange Orders
 
-The order form must check the user's available balance for the currency being *spent* before allowing submission.
+When submitting orders that spend a resource, validate the user's available balance for the currency being *spent* before allowing submission.
 
-**Key detail:** Buy orders spend the **quote currency** (the `total` = amount x price), while sell orders spend the **base currency** (the `amount`).
+**Key detail:** Buy orders spend the **quote currency** (total = amount × price), sell orders spend the **base currency** (amount).
 
-Look up the balance using a currency matcher that works with any `{ currency, issuer? }` shape. Show an inline error ("Insufficient X balance — you have Y but need Z") and disable the submit button when `spendAmount > availableBalance`.
-
-**Key points:**
-- Buy side: validate `total` (amount x price) against quote currency balance
-- Sell side: validate `amount` against base currency balance
-- Disable submit button and show inline error with specific amounts
+Show an inline error with specific amounts ("Insufficient X — you have Y but need Z") and disable submit when `spendAmount > availableBalance`.

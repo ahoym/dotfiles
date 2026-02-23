@@ -2,31 +2,15 @@
 
 ## Gap vs Inconsistency Boundary
 
-When a skill identifies documentation issues, "gaps" and "inconsistencies" must be explicitly defined with a clear, non-overlapping boundary — otherwise the same item appears in both.
+When a skill categorizes findings into "gaps" and "inconsistencies," define them with a non-overlapping boundary:
+- **Gap** — Code has a pattern/feature completely absent from docs
+- **Inconsistency** — Docs exist but contradict the code
 
-**Definitions:**
-- **Gap** — Docs don't mention something at all. The code has a pattern/feature/system that is completely absent from documentation.
-- **Inconsistency** — Docs exist but contradict the code. The doc says X, the code does Y.
-
-**Why this matters:**
-- Without explicit boundaries, items like "CLAUDE.md says transactions arrive via REST but they actually come from polling" are both a gap AND an inconsistency
-- Duplication wastes tokens and confuses readers about where the authoritative finding lives
-- The fix is to make each category's definition exclude the other explicitly
-
-**Pattern:** In skill instructions, include a preamble for each category:
-- Gaps section: "Do NOT include items where docs exist but contradict the code; those belong in inconsistencies."
-- Inconsistencies section: "Do NOT duplicate items from the gaps section."
+In skill instructions, add a preamble to each category excluding the other: "Do NOT include items where docs exist but contradict the code; those belong in inconsistencies."
 
 ## Skills Should Self-Document Permission Needs
 
-Skills that read or write files outside the project directory should include a **Prerequisites** section listing the exact `permissions.allow` patterns needed for prompt-free execution.
-
-**Why:**
-- Users shouldn't have to reverse-engineer which permissions a skill needs through trial and error
-- Permission rule syntax is non-obvious (e.g., `Read()` covers Glob/Grep, not `Glob()` or `Search()`)
-- A prerequisites section serves as both documentation and a copy-paste config block
-
-**Pattern:** Add a `## Prerequisites` section to SKILL.md with a JSON snippet listing exact permission patterns.
+Add a `## Prerequisites` section to SKILL.md with a JSON snippet of exact `permissions.allow` patterns. Users shouldn't reverse-engineer permissions through trial and error.
 
 ## Merging Diverged Skills Across Repos
 
@@ -43,13 +27,11 @@ One codebase to maintain means no future drift — learnings applied to one skil
 
 ## Cross-Skill Reference File Deduplication
 
-When curating a skill, compare its reference files against reference files in companion skills — especially producer/consumer pairs or skills in the same workflow. Duplicated reference files diverge silently as each skill evolves independently.
+When curating a skill, compare its reference files against companion skills — especially producer/consumer pairs. Duplicated reference files diverge silently.
 
-**Detection:** During skill curation (step 3s evaluation), read reference files from related skills and check for >80% content overlap. The superset version is usually in the skill that uses the content more heavily.
+**Detection:** Check for >80% content overlap with related skills' reference files. The superset version is usually in the skill that uses the content more heavily.
 
-**Resolution:** Move the superset version to `skill-reference/` (or a skill group's shared location) and update both skills' SKILL.md to reference the shared path. This ensures future improvements propagate to both skills automatically.
-
-**Why this happens:** When a producer/consumer skill pair is developed, both need guidance on the same topic (e.g., "how to write good agent prompts"). The guidance gets written in one skill first, then copied to the other with minor additions. Over time the copies diverge as each skill adds its own refinements.
+**Resolution:** Move the superset to `skill-reference/` and update both skills to reference the shared path.
 
 ## Skill Improvement: Fix and Assess In-Session
 
@@ -66,13 +48,7 @@ Apply skill improvements and repairs in the same session — context fades quick
 
 ## Producer/Consumer Contract Validation
 
-When two skills form a producer/consumer pair (e.g., a planner skill produces plans that an executor skill consumes), validate that the producer knows how to generate every section the consumer expects.
-
-**Pattern:** For each section the consumer references:
-1. Check whether the **producer's** SKILL.md has instructions to generate that section
-2. Don't just grep the target ecosystem — a term appearing in the executor doesn't mean the planner produces it
-
-**Why grep-only checks fail:** Searching for a section name in the target repo and finding many references in the consumer made it look covered. But the producer had no instruction to produce that section — the producer/consumer contract was broken.
+When two skills form a producer/consumer pair, validate that the producer generates every section the consumer expects. For each section the consumer references, check whether the **producer's** SKILL.md has instructions to generate it — a term appearing in the executor doesn't mean the planner produces it.
 
 ## Orchestrator/Agent Separation for Multi-Step Skills
 
@@ -103,15 +79,6 @@ Split SKILL.md into two files when a skill has a multi-step background workflow:
 
 Skill output templates (tables, summaries) should use language meaningful to someone unfamiliar with the skill's internal classification model. Column headers like "Why LOW" reference an internal confidence tier — readers unfamiliar with the HIGH/MEDIUM/LOW system interpret it as "low value" or "low priority." Use action-oriented labels instead (e.g., "Tradeoff" — explains what you'd give up by acting on the item).
 
-## Skill-Reference File Placement
-
-Files under `.claude/commands/` are automatically registered as invocable skills. To keep shared reference files referenceable without polluting the skill list, place them in `.claude/skill-reference/` instead — this directory is not scanned by the skill loader.
-
-- `@~/.claude/skill-reference/<file>.md` for `@`-style includes
-- `` `~/.claude/skill-reference/<file>.md` `` for bare path references
-
-**When to use `skill-reference/` vs other locations:** Content that is behavioral/prescriptive AND applies to 3+ skills AND is only relevant during specific workflows (e.g., subagent launching). Too specialized for `guidelines/` (always-on cost), too actionable for `learnings/` (won't be loaded by skills).
-
 ## Preserve Reference Style During Migrations
 
 When migrating file paths (e.g., relocating shared references), preserve each skill's original reference style rather than normalizing all references to a single style:
@@ -141,14 +108,6 @@ The curate skill's mode detection (`commands/*` → skill mode) is too coarse. R
 
 When curating skills, evaluate the full group (e.g., all git skills) in one pass. Overlaps, merge opportunities, and thin wrapper candidates are only visible when comparing skills side by side. Individual evaluation misses cross-skill redundancy (e.g., preview-conflicts being a subset of resolve-conflicts).
 
-## Pre-Load vs Deep Dive Signal Inconsistency in Curate
-
-Curate's broad sweep pre-loads ALL skill directories including reference files (step 3 reads: "Read all files in each directory — don't pre-filter"). But the deep dive criteria include an action signal: "the target skill hasn't been read yet to verify coverage." This is contradictory — if the pre-load completed, the skill HAS been read. The signal should reference analysis depth, not read status. Fix: reframe to "broad sweep didn't verify per-pattern coverage against the skill's reference files."
-
-## "Read" ≠ "Verified at Pattern Granularity"
-
-Broad sweep cluster-level analysis loads files into context but checks thematic overlap across clusters, not line-by-line coverage against every reference file. Per-pattern verification (checking each H2/H3 against a specific reference file's content) is what deep dives do. The pre-load gives the *ability* to do per-pattern checks — whether the analysis *actually does* them depends on the sweep tier.
-
 ## Separate Orthogonal Dimensions in State Tracking
 
 When a skill's scope expands along a new dimension (e.g., consolidate adding content types), track dimensions independently rather than creating combinatorial state values. `CONTENT_TYPE=SKILLS` + `PHASE=MEDIUM_BATCH` is cleaner than `PHASE=SKILL_MEDIUM_BATCH`. Each dimension changes independently and the loop logic stays generic across content types.
@@ -159,7 +118,7 @@ When a multi-phase skill processes content types sequentially (learnings → ski
 
 ## Context-Specific Guidance → skill-references, Not @-Referenced Guidelines
 
-`@`-referenced guidelines load in every conversation regardless of task. If guidance only applies during code execution (not research, planning, or curation), it doesn't belong in an `@`-referenced file — even if it's only 8 lines. Place it in `skill-references/` and reference from each consuming skill. The content loads only when a relevant skill runs, paying zero tokens otherwise. Example: code quality self-review checklist is relevant to `do-refactor-code` and `parallel-plan:execute` but useless in research or curation sessions.
+If guidance only applies during specific workflows, place it in `skill-references/` and reference from consuming skills — not in `@`-referenced files. See `content-type-decisions.md` "Guideline Scoping" for the full decision framework.
 
 ## "LLM Knows X" ≠ "LLM Consistently Applies X"
 
