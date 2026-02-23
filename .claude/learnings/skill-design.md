@@ -141,3 +141,31 @@ The curate skill's mode detection (`commands/*` → skill mode) is too coarse. R
 
 When curating skills, evaluate the full group (e.g., all git skills) in one pass. Overlaps, merge opportunities, and thin wrapper candidates are only visible when comparing skills side by side. Individual evaluation misses cross-skill redundancy (e.g., preview-conflicts being a subset of resolve-conflicts).
 
+## Pre-Load vs Deep Dive Signal Inconsistency in Curate
+
+Curate's broad sweep pre-loads ALL skill directories including reference files (step 3 reads: "Read all files in each directory — don't pre-filter"). But the deep dive criteria include an action signal: "the target skill hasn't been read yet to verify coverage." This is contradictory — if the pre-load completed, the skill HAS been read. The signal should reference analysis depth, not read status. Fix: reframe to "broad sweep didn't verify per-pattern coverage against the skill's reference files."
+
+## "Read" ≠ "Verified at Pattern Granularity"
+
+Broad sweep cluster-level analysis loads files into context but checks thematic overlap across clusters, not line-by-line coverage against every reference file. Per-pattern verification (checking each H2/H3 against a specific reference file's content) is what deep dives do. The pre-load gives the *ability* to do per-pattern checks — whether the analysis *actually does* them depends on the sweep tier.
+
+## Separate Orthogonal Dimensions in State Tracking
+
+When a skill's scope expands along a new dimension (e.g., consolidate adding content types), track dimensions independently rather than creating combinatorial state values. `CONTENT_TYPE=SKILLS` + `PHASE=MEDIUM_BATCH` is cleaner than `PHASE=SKILL_MEDIUM_BATCH`. Each dimension changes independently and the loop logic stays generic across content types.
+
+## Corpus Refresh at Content-Type Boundaries
+
+When a multi-phase skill processes content types sequentially (learnings → skills → guidelines), re-read files modified by prior phases at each transition. This is lighter than a full corpus re-read but catches cross-type effects (e.g., a learning migrated into a skill reference file during the learnings phase affects the skill's evaluation). Track modified files via `CUMULATIVE_ACTIONS` targets.
+
+## Context-Specific Guidance → skill-references, Not @-Referenced Guidelines
+
+`@`-referenced guidelines load in every conversation regardless of task. If guidance only applies during code execution (not research, planning, or curation), it doesn't belong in an `@`-referenced file — even if it's only 8 lines. Place it in `skill-references/` and reference from each consuming skill. The content loads only when a relevant skill runs, paying zero tokens otherwise. Example: code quality self-review checklist is relevant to `do-refactor-code` and `parallel-plan:execute` but useless in research or curation sessions.
+
+## "LLM Knows X" ≠ "LLM Consistently Applies X"
+
+When deciding whether to codify a pattern, the question isn't "can the model execute this when asked?" but "does it reliably do so unprompted?" Textbook patterns (extract class, DRY, factories) that the model knows but doesn't consistently apply during implementation still warrant codification — as a lightweight checklist reminder, not a tutorial. The correct form factor is a slim reference file (~15 lines) that reminds, not a 229-line reference file that teaches.
+
+## Stale Path References Are the Primary Skill Maintenance Issue
+
+Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
+
