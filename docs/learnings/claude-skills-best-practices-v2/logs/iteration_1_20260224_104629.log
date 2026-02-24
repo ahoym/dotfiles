@@ -1,0 +1,12 @@
+**Iteration 1 complete.** 
+
+Delivered `info.md` with comprehensive research on Claude skills best practices, covering:
+- Skill architecture and progressive disclosure model
+- Complete frontmatter reference (Agent Skills spec + Claude Code extensions)
+- Content patterns (reference vs task, string substitutions, dynamic injection)
+- Advanced patterns (`context: fork`, hooks, visual output)
+- Distribution methods (project, plugin, managed, personal)
+- Empirical patterns from this repo's 22+ production skills
+- Content type decision framework
+- Common pitfalls
+- 9 areas identified for deeper investigation (added as pending tasks)

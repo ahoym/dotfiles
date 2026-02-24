@@ -1,0 +1,16 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Replaced brief dynamic context injection section with comprehensive evaluation framework, disqualifiers, best injection pattern, and implementation pattern (Utility: High)
+
+Wrote 1 learning (consolidated 4 items into 1 cohesive section update) to `~/.claude/`.
+
+---
+
+**Iteration 5 complete.** Deep Research: Dynamic context injection adoption is done.
+
+**What was accomplished:**
+- Evaluated all 22 skills against a 5-criteria framework for `!`command`` adoption
+- Identified 10 skills as candidates (7 git + explore-repo + distribute + cascade-rebase)
+- Found that `!`git branch --show-current`` is the universal highest-value injection
+- Created [dynamic-context-injection.md](./dynamic-context-injection.md) with full evaluation
+- Updated info.md (cross-reference), assumptions-and-questions.md (new O9), implementation-plan.md (concrete Phase 3C)
+- Compounded learnings to `~/.claude/learnings/skill-design.md`

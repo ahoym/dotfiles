@@ -1,0 +1,19 @@
+Iteration 6 complete. Here's what was accomplished:
+
+**Task**: Deep Research: Subagent configuration patterns
+
+**Output**: `subagent-configuration-patterns.md` — comprehensive research covering:
+- Full 12-field frontmatter reference for custom agents
+- 3 skill↔agent integration patterns (fork, skills preload, Task orchestration)
+- Evaluation of 4 candidate custom agents for this repo's skills
+- Concrete recommendation: start with `pr-reviewer` agent (3 skills share PR review needs, `memory: user` for cross-project learning)
+- Critical constraint identified: `explore-repo` uses `general-purpose` to allow sub-delegation — custom agents can't nest, so migration requires empirical verification
+- Agent teams vs subagents comparison (teams are experimental, overkill for current skills)
+- Memory system deep dive with scope recommendations per candidate agent
+
+**Cross-references updated**:
+- `info.md` — Marked subagent patterns and agent teams as investigated
+- `implementation-plan.md` — Phase 4C updated with concrete 4-step rollout
+- `assumptions-and-questions.md` — Added O10 (pr-reviewer creation) and O11 (Task nesting verification)
+
+**Learnings captured**: 3 learnings saved to `~/.claude/learnings/skill-design.md`
