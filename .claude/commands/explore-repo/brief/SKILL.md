@@ -54,7 +54,7 @@ Read files to build the context needed for the brief and Q&A.
 
 1. **SYSTEM_OVERVIEW.md** — read fully (core context, the primary source for the brief)
 2. **inconsistencies.md** — read fully if present (short, high-value)
-3. **Domain files** — read first 30 lines only of each existing file (metadata + Overview + Key Findings). Full content will be lazy-loaded during Q&A when deeper detail is needed.
+3. **Domain files** — for each existing file, read from the top through the end of the `## Key Findings` section (i.e., until the next `##` heading after Key Findings). This captures metadata + Overview + Key Findings regardless of section length. Full content will be lazy-loaded during Q&A when deeper detail is needed.
 
 ---
 
@@ -106,6 +106,8 @@ Output the following to the conversation (do NOT write to a file):
 - Different commit → ⚠️ stale
 - File doesn't exist → ❌ missing
 
+If any domains are missing or stale, add a note after the table: `Run \`/explore-repo\` to update missing or stale domains.`
+
 **Stale scan line:** Only include `[⚠️ stale — HEAD is <current>]` if the SYSTEM_OVERVIEW.md commit differs from current HEAD. Otherwise omit the bracketed portion.
 
 ---
@@ -120,9 +122,9 @@ If no persona is active:
 2. Glob for available persona files:
    - Project-local: `.claude/personas/*.md`
    - Shared: `~/.claude/commands/set-persona/*.md` (exclude `SKILL.md`)
-3. Match using simple heuristics — language + framework keywords against persona filenames and content (e.g., a Java Spring Boot repo → `java-backend`)
-4. **One match** → suggest it with a one-liner: `A **<persona-name>** persona is available that matches this stack. Activate with \`/set-persona <name>\`.`
-5. **Multiple plausible matches** → list up to 2 options with focus descriptions
+3. Match using **filenames only** — compare language + framework keywords from the scan against persona filenames (e.g., a Java Spring Boot repo → `java-backend`). Do NOT read persona file contents for matching.
+4. **One clear match** → suggest it with a one-liner: `A **<persona-name>** persona is available that matches this stack. Activate with \`/set-persona <name>\`.`
+5. **Multiple plausible matches or ambiguous** → ask the user which fits best rather than guessing. List the options with their filenames.
 6. **No match** → omit the `## 💡 Persona Suggestion` section entirely
 
 ---
@@ -139,6 +141,6 @@ After outputting the brief, all core context is loaded. When the user asks follo
 
 - **No output file** — the brief is printed to conversation, not saved. It's ephemeral context-loading, not a persistent artifact.
 - **SYSTEM_OVERVIEW.md is the gate** — without it, the brief can't produce Architecture, Cross-Cutting Patterns, Critical Path, or Documentation Health. Rather than a degraded brief, push the user to complete the scan.
-- **Domain files are lazy-loaded** — reading first 30 lines of each gives enough for the summary table. Full content loads on demand during Q&A to preserve context budget.
+- **Domain files are lazy-loaded** — reading through the end of Key Findings gives enough for the summary table. Full content loads on demand during Q&A to preserve context budget.
 - **No branch fallback** — unlike ralph:brief, scan artifacts live in the repo (not on separate research branches), so a path argument is sufficient for multi-repo/worktree cases.
 - **Persona detection is conversation-based** — the agent checks its own conversation history for prior `/set-persona` activation. No state file needed.

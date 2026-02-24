@@ -43,3 +43,15 @@ exit 0
 - Exit 0 (or any non-2 code) allows the call
 - Multiple matchers can target the same tool; all must pass
 - Args can be baked into the command string (e.g., `guard-write-scope.sh /path/to/project`)
+
+## Hooks vs Permissions: Independent Layers
+
+PreToolUse hooks fire **before** the permission system and are completely independent of it. `--dangerously-skip-permissions` skips permission prompts but does NOT skip hooks. This means hooks are a reliable security boundary for unattended `claude --dangerously-skip-permissions --print` runs.
+
+## Tool Input Guarantees
+
+- `Write` and `Edit` tools always provide **absolute paths** in `tool_input.file_path`. Guards using `case`/pattern matching on absolute paths are safe — no relative path edge cases.
+
+## Idempotent Hook Injection
+
+When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("lab/ralph/hooks/guard-")`).
