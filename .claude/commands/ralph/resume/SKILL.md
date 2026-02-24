@@ -53,6 +53,8 @@ Output a status summary:
 <List unanswered questions from "Questions Requiring User Input" — those WITHOUT **ANSWER:** prefix>
 
 If no blocking questions: "No blocking questions — loop can resume as-is."
+
+💡 *Need to review the research before answering? Run `/ralph:brief <project-path>` first.*
 ```
 
 ### 4. Collect answers
