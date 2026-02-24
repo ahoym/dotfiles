@@ -10,8 +10,8 @@ Every skill lives in a directory with a required `SKILL.md`:
 
 ```yaml
 ---
-name: my-skill                    # Defaults to directory name
-description: What it does         # Primary trigger for auto-invocation
+name: my-skill                    # Defaults to directory name (max 64 chars, kebab-case)
+description: What it does         # Primary trigger for auto-invocation (max 1,024 chars)
 argument-hint: [issue-number]     # Autocomplete hint
 disable-model-invocation: true    # Prevents Claude from auto-loading
 user-invocable: false             # Hides from / menu
@@ -19,12 +19,23 @@ allowed-tools: Read, Grep, Glob   # Scoped tool permissions (active only during 
 model: claude-opus-4              # Override session model
 context: fork                     # Run in isolated subagent
 agent: Explore                    # Subagent type (when context: fork)
+dependencies: other-skill         # Skills this one requires
 ---
 
 Markdown instructions here...
 ```
 
 All frontmatter fields are optional. Only `description` is recommended.
+
+### Field Constraints (from Anthropic's official guide)
+
+- **`name`**: Max 64 characters, lowercase with hyphens. Must not contain "claude" or "anthropic".
+- **`description`**: Max 1,024 characters. Must not contain XML angle brackets (`<` or `>`).
+- **`dependencies`**: Declares skills this one requires (not yet observed in the wild).
+
+### Cross-Platform Scope
+
+Skills are designed to work across **Claude.ai, Claude Code, and the API** — the same skill folder works on all surfaces without modification. Distribution methods vary by surface (ZIP upload for Claude.ai, directory placement for Claude Code, `/v1/skills` API endpoint for CI/CD, org-level workspace deployment for teams).
 
 ### Where Skills Live (Priority: enterprise > personal > project)
 
@@ -148,7 +159,7 @@ Split complex multi-step skills:
 
 ## 5. Description Engineering
 
-The `description` field is the **primary trigger mechanism**. Claude uses natural language understanding (not algorithmic matching) to decide when a skill applies.
+The `description` field is the **primary trigger mechanism** (max 1,024 chars). Claude uses natural language understanding (not algorithmic matching) to decide when a skill applies.
 
 ### WHEN + WHEN NOT Pattern
 ```yaml
@@ -217,7 +228,7 @@ description: >
 
 5. **No `disable-model-invocation: true`** usage — All skills are potentially auto-invocable, which means all 22 skill descriptions consume context budget. Task-specific skills that are only manually invoked (e.g., `/ralph:init`, `/learnings:consolidate`) could save context by opting out.
 
-6. **Skills live in `commands/` not `skills/`** — Uses the legacy commands directory. While functional, migration to `skills/` would enable full skill features and align with Anthropic's recommended path.
+6. ~~**Skills live in `commands/` not `skills/`**~~ — Originally flagged as a gap, but research confirmed `commands/` and `skills/` are fully feature-equivalent. This is a naming convention choice, not a functional gap. See [commands-to-skills-migration.md](./commands-to-skills-migration.md).
 
 7. **No `scripts/` or `assets/` directories** — All supporting files are markdown references. No executable scripts bundled with skills (except `git:monitor-pr-comments` which has `.sh` files).
 
@@ -259,7 +270,7 @@ Editing files in subdirectories also discovers nested `.claude/skills/` director
 
 These topics warrant dedicated research files with cross-references:
 
-1. ~~`commands/` to `skills/` Migration~~ → See [commands-to-skills-migration.md](./commands-to-skills-migration.md). **Key finding:** `commands/` supports all the same frontmatter as `skills/`. Migration is cosmetic/future-proofing only — no directory rename needed for any feature improvement.
+1. ~~`commands/` to `skills/` Migration~~ → See [commands-to-skills-migration.md](./commands-to-skills-migration.md). **Key finding:** `commands/` and `skills/` are fully feature-equivalent — same frontmatter, same auto-discovery, same hot-reload, and both work in plugins. Migration is purely a naming convention choice. No directory rename needed.
 
 2. ~~`allowed-tools` Scoping Strategy~~ → See [allowed-tools-scoping.md](./allowed-tools-scoping.md). **Key finding:** `allowed-tools` enforcement is currently broken (restriction not enforced, Bash auto-approval broken, marked "Experimental"). Recommend adding it to 5 read-only auto-invocable skills for documentation/future-proofing, but defer broad adoption until enforcement is fixed. `disable-model-invocation` is the higher-impact change.
 
@@ -279,12 +290,39 @@ These topics warrant dedicated research files with cross-references:
 
 ## Sources
 
+### Official / Primary
+- [The Complete Guide to Building Skills for Claude — Anthropic (PDF)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — Official 33-page guide covering fundamentals, planning, testing, distribution, and patterns. Source for field constraints (name/description limits, security restrictions), cross-platform scope, distribution methods, and `dependencies` field.
 - [Extend Claude with skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
+- [Claude Code Plugins — Claude Code Docs](https://code.claude.com/docs/en/plugins)
 - [anthropics/skills — GitHub](https://github.com/anthropics/skills)
 - [anthropics/skills — skill-creator/SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+- [Agent Skills Specification](https://agentskills.io/specification)
+
+### Community / Analysis
 - [Claude Agent Skills: A First Principles Deep Dive](https://leehanchung.github.io/blogs/2025/10/26/claude-skills-deep-dive/)
 - [Inside Claude Code Skills](https://mikhail.io/2025/10/claude-code-skills/)
 - [Claude Code Customization Guide](https://alexop.dev/posts/claude-code-customization-guide-claudemd-skills-subagents/)
 - [Skills vs Commands vs Subagents vs Plugins](https://www.youngleaders.tech/p/claude-skills-commands-subagents-plugins)
 - [Claude Code Skills: The Complete Guide](https://fraway.io/blog/claude-code-skills-guide/)
-- Internal: `.claude/learnings/skill-design.md`, `.claude/commands/learnings/compound/writing-best-practices.md`, `.claude/commands/learnings/compound/content-type-decisions.md`
+- [Mastering Claude Skills: The 33-Page Blueprint — TechBytes](https://techbytes.app/posts/anthropic-claude-skills-guide-breakdown-feb-2026/)
+- [How to Create Claude Code Skills — WebSearchAPI](https://websearchapi.ai/blog/how-to-create-claude-code-skills)
+- [Building Skills for Claude: The Complete Guide — Learnia](https://learn-prompting.fr/blog/building-skills-for-claude-complete-guide)
+- [Anthropic's 32-Page Playbook for Building Claude Skills — Medium](https://medium.com/@AdithyaGiridharan/anthropic-just-released-a-32-page-playbook-for-building-claude-skills-heres-what-you-need-to-b86fe0b123ae)
+- [The Complete Guide to Building Skills for Claude (Without Reading 33 Pages) — Medium](https://medium.com/@006amanraj/the-complete-guide-to-building-skills-for-claude-without-reading-33-pages-5f646ccd56b1)
+- [PDF to Markdown conversion — GitHub Gist](https://gist.github.com/liskl/269ae33835ab4bfdd6140f0beb909873)
+- [DevelopersIO — disable-model-invocation testing](https://dev.classmethod.jp/en/articles/disable-model-invocation-claude-code/)
+
+### GitHub Issues
+- [#18837 — allowed-tools restriction not enforced](https://github.com/anthropics/claude-code/issues/18837)
+- [#14956 — Bash auto-approval broken with allowed-tools](https://github.com/anthropics/claude-code/issues/14956)
+- [#18737 — CLI vs SDK allowed-tools inconsistency](https://github.com/anthropics/claude-code/issues/18737)
+- [#19729 — Mid-message invocation fails for disabled skills](https://github.com/anthropics/claude-code/issues/19729)
+- [#24042 — Autocomplete shows disabled skills but errors on selection](https://github.com/anthropics/claude-code/issues/24042)
+- [#20816 — Session resume doesn't re-evaluate disable-model-invocation](https://github.com/anthropics/claude-code/issues/20816)
+- [#23406 — Budget scales with context window](https://github.com/anthropics/claude-code/issues/23406)
+- [#14549 — Many skills exceed budget](https://github.com/anthropics/claude-code/issues/14549)
+- [#14661 — context: fork for slash commands](https://github.com/anthropics/claude-code/issues/14661)
+- [#17283 — Skill tool should honor context: fork](https://github.com/anthropics/claude-code/issues/17283)
+
+### Internal
+- `.claude/learnings/skill-design.md`, `.claude/commands/learnings/compound/writing-best-practices.md`, `.claude/commands/learnings/compound/content-type-decisions.md`

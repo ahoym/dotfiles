@@ -6,11 +6,14 @@ Assumptions made during research, and questions that need user input before proc
 
 ## Assumptions
 
-### A1: `commands/` and `skills/` are feature-equivalent for this repo
+### A1: `commands/` and `skills/` are feature-equivalent for this repo — VALIDATED
 
-info.md states skills are the "recommended path forward," but our skills all live in `commands/`. We assume migration is mostly a directory rename with frontmatter additions — not a rewrite. **This needs verification**: do any of our 22 skills rely on `commands/`-specific behavior that wouldn't carry over?
+**Resolution:** Fully confirmed. The official docs state they "work the same way" and support the same frontmatter. The three features originally thought to be `skills/`-exclusive have been corrected:
+- **Monorepo auto-discovery** — works in `commands/` (confirmed via user testing; docs only describe `skills/`)
+- **`--add-dir` hot-reload** — works in `commands/` (confirmed via user testing; docs only describe `skills/`)
+- **Plugin packaging** — [plugin docs](https://code.claude.com/docs/en/plugins) explicitly list both `commands/` and `skills/` as valid plugin root directories
 
-**Confidence:** Medium. The docs say "custom slash commands still work" and skill takes precedence if both exist, but we haven't tested simultaneous existence or verified all features work identically from `commands/`.
+**Confidence:** High. Migration is purely a naming convention choice — no functional benefit.
 
 ### A2: All 22 skills should remain as individual skills
 
@@ -76,12 +79,7 @@ We assumed skills can be migrated one-at-a-time with `commands/` and `skills/` d
 
 ### Q1: Is `commands/` to `skills/` migration desired at all?
 
-**Research finding:** Migration is NOT needed for any feature. The docs confirm `commands/` supports the same frontmatter as `skills/`. See [commands-to-skills-migration.md](./commands-to-skills-migration.md) for full analysis. **Recommendation: stay on `commands/`, add frontmatter in-place.**
-
-Still worth confirming with user:
-- **(a)** Stay on `commands/` and add frontmatter fields in-place (recommended)
-- **(b)** Rename to `skills/` anyway for convention alignment
-- **(c)** Wait until forced by deprecation
+**Research finding:** Migration is NOT needed for any feature. `commands/` and `skills/` are fully feature-equivalent — same frontmatter, same auto-discovery, same hot-reload, both work in plugins. The only difference is naming convention. See [commands-to-skills-migration.md](./commands-to-skills-migration.md) for full analysis. **Recommendation: stay on `commands/`, add frontmatter in-place.**
 
 **Impact:** No longer gates the implementation plan — all improvements can proceed regardless.
 
@@ -138,7 +136,7 @@ Options:
 
 | ID | Assumption | Confidence | Validated? | Resolution |
 |:---|:-----------|:-----------|:-----------|:-----------|
-| A1 | commands/skills equivalence | Medium | **Yes** | Confirmed: docs say "support the same frontmatter." Only monorepo auto-discovery, --add-dir live detection, and plugin packaging are skills-exclusive — none apply to personal global skills. See [commands-to-skills-migration.md](./commands-to-skills-migration.md) |
+| A1 | commands/skills equivalence | Medium | **Yes** | Confirmed: fully equivalent. Same frontmatter, same auto-discovery, same hot-reload, both work in plugins. No `skills/`-exclusive features exist. See [commands-to-skills-migration.md](./commands-to-skills-migration.md) |
 | A2 | All 22 skills should remain | Low | No | Needs usage data (Q5) |
 | A3 | {baseDir} replaces ~/.claude/ | Low | Likely wrong | {baseDir} = skill dir, not repo root |
 | A4 | context:fork for explore/audit | Medium | **Invalidated** | Both skills spawn subagents internally via Task tool. Subagents cannot spawn subagents, so forking breaks their core architecture. Only `ralph:compare` is a viable fork candidate. See [context-fork-candidates.md](./context-fork-candidates.md) |

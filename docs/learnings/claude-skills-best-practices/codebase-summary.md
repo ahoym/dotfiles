@@ -167,7 +167,7 @@ These support the `learnings:compound` skill with conditional loading:
 3. **No `context: fork`** — No subagent isolation despite good candidates (explore-repo, do-security-audit)
 4. **Minimal `!`command`` usage** — Only explore-repo; git skills could inject git state
 5. **No `disable-model-invocation`** — All 22 descriptions in context budget
-6. **Commands not skills** — Using legacy `commands/` directory
+6. ~~**Commands not skills**~~ — Not a gap. `commands/` and `skills/` are fully feature-equivalent (same frontmatter, auto-discovery, hot-reload, plugin support). Naming convention only.
 7. **No `model:` overrides** — No haiku/sonnet/opus differentiation per skill
 8. **No `argument-hint`** — No autocomplete hints for any skill
 9. **6 skills exceed recommended size** — Bodies over 300 lines (max: 616)
@@ -185,5 +185,7 @@ These support the `learnings:compound` skill with conditional loading:
 | Smallest skill | do-refactor-code (52 lines) |
 | Skills using only `description` frontmatter | 22/22 |
 | Skills using ANY other frontmatter | 0/22 |
+| Longest skill name | quantum-tunnel-claudes (22 chars, limit: 64) |
+| Longest description | learnings:consolidate (259 chars, limit: 1,024) |
 | Learnings files | 22 domain-specific files |
 | Guidelines files | 1 (communication.md) |

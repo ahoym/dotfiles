@@ -34,18 +34,18 @@ From [Extend Claude with skills](https://code.claude.com/docs/en/skills):
 | `{baseDir}` | ✅ | ✅ | Both (resolves to skill's own dir) |
 | SKILL.md in subdirectory | ✅ | ✅ | This repo already does this |
 | Supporting files in same dir | ✅ | ✅ | This repo already does this |
-| Monorepo auto-discovery | ❌ | ✅ | Nested `.claude/skills/` only |
-| `--add-dir` live detection | ❌ | ✅ | Hot-reload only for `skills/` |
-| Plugin packaging | ❌ | ✅ | Plugins use `skills/` only |
+| Monorepo auto-discovery | ✅ | ✅ | Docs only describe `skills/`, but confirmed working in `commands/` via user testing |
+| `--add-dir` live detection | ✅ | ✅ | Docs only describe `skills/`, but confirmed working in `commands/` via user testing |
+| Plugin packaging | ✅ | ✅ | [Plugin docs](https://code.claude.com/docs/en/plugins) list both: `commands/` ("Skills as Markdown files") and `skills/` ("Agent Skills with SKILL.md files") |
 
 ### Key finding
 
-The only features exclusive to `skills/` are:
-1. **Monorepo auto-discovery** — irrelevant for personal global skills
-2. **`--add-dir` live detection** — irrelevant for personal global skills
-3. **Plugin packaging** — only matters if distributing as a plugin
+**No features are exclusive to `skills/`.** The original research identified three features as `skills/`-only, but all three have been corrected:
+1. **Monorepo auto-discovery** — docs only mention `skills/`, but user testing confirms `commands/` works too
+2. **`--add-dir` live detection** — same: docs describe `skills/` only, but `commands/` works in practice
+3. **Plugin packaging** — original research was wrong; the [plugin structure docs](https://code.claude.com/docs/en/plugins) explicitly list `commands/` as a valid plugin root directory alongside `skills/`
 
-**None of these apply to this repo's use case** (personal global skills at `~/.claude/`).
+The only difference is **convention** — Anthropic's docs and examples use `skills/` as the recommended path for new work, and the quickstart guides default to `skills/`. But `commands/` is fully functional and the official docs state they "work the same way."
 
 ---
 
@@ -132,9 +132,8 @@ All would need path updates from `~/.claude/commands/` → `~/.claude/skills/`.
 - ✅ No permission updates needed
 - ✅ No path find-and-replace across files
 - ❌ Doesn't align with Anthropic's "recommended" terminology
-- ❌ Can't use monorepo auto-discovery (irrelevant for personal skills)
 
-**When to reconsider:** If Anthropic announces `commands/` deprecation, or if distributing skills as plugins becomes a goal.
+**When to reconsider:** If Anthropic announces `commands/` deprecation.
 
 ### Strategy B: Clean Cutover to `skills/`
 
@@ -185,7 +184,7 @@ From GitHub issues [#14661](https://github.com/anthropics/claude-code/issues/146
 Rationale:
 1. Every desired feature (`allowed-tools`, `disable-model-invocation`, `context: fork`, `model:`) works in `commands/`
 2. Migration risk (sync tool, permissions, path references) provides no functional benefit
-3. The only unique `skills/` features (monorepo discovery, plugin packaging, --add-dir) are irrelevant for personal global skills
+3. No features are exclusive to `skills/` — monorepo discovery, hot-reload, and plugin packaging all work in `commands/` (see feature comparison table above)
 4. If deprecation is ever announced, the migration is mechanical — a scripted find-and-replace + directory rename
 
 **Track as a future contingency, not an active work item.** Focus deep research efforts on the frontmatter improvements themselves.
