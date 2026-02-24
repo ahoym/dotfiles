@@ -44,8 +44,16 @@ inject_hooks() {
     }')
 
   if [ -f "$settings_file" ]; then
-    # Merge hooks into existing settings (preserves permissions, etc.)
-    jq --argjson hooks "$hooks_json" '.hooks = $hooks' "$settings_file" > "${settings_file}.tmp"
+    # Idempotent: strip existing ralph hooks, then add new ones.
+    # Handles SIGKILL leaving stale hooks from a previous run.
+    # Preserves non-ralph hooks and all other settings (permissions, etc.)
+    jq --argjson hooks "$hooks_json" '
+      # Keep non-ralph PreToolUse entries
+      [(.hooks.PreToolUse // [])[] | select(
+        .hooks | any(.command | contains("lab/ralph/hooks/guard-")) | not
+      )] as $non_ralph |
+      .hooks.PreToolUse = ($non_ralph + $hooks.PreToolUse)
+    ' "$settings_file" > "${settings_file}.tmp"
     mv "${settings_file}.tmp" "$settings_file"
   else
     mkdir -p "$(dirname "$settings_file")"
