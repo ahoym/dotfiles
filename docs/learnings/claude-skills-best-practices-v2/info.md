@@ -171,7 +171,7 @@ Runs the entire skill as an isolated subagent. Critical constraints:
 
 ### `allowed-tools` — Current State
 
-**Currently broken:** restriction not enforced ([#18837](https://github.com/anthropics/claude-code/issues/18837)), Bash auto-approval broken ([#14956](https://github.com/anthropics/claude-code/issues/14956)), marked "Experimental" in Agent Skills spec. Anthropic's own reference skills (16 in `anthropics/skills`) don't use it; Trail of Bits does (security focus). Use for **documentation/intent-signaling** on read-only skills only; defer broad adoption until enforcement is fixed.
+**Currently broken:** restriction not enforced ([#18837](https://github.com/anthropics/claude-code/issues/18837) closed as dup of [#14956](https://github.com/anthropics/claude-code/issues/14956) which remains open), Bash auto-approval broken, SDK ignores the field entirely ([#18737](https://github.com/anthropics/claude-code/issues/18737)), piped commands bypass restrictions ([#1271](https://github.com/anthropics/claude-code/issues/1271)). Marked "Experimental" in Agent Skills spec. Anthropic's own 16 reference skills don't use it; Trail of Bits does (security focus, YAML list syntax, 4+ skills). **Recommended: add now as intent-signaling on 13/22 skills** — documents design intent, prepares for enforcement, zero risk while unenforced. See [allowed-tools-adoption.md](./allowed-tools-adoption.md) for per-skill tool lists.
 
 ### Hooks in Skills
 
@@ -315,11 +315,11 @@ For multi-step skills with background workflows:
 ## Areas for Deeper Investigation
 
 1. ~~Subagent configuration patterns~~ → See [subagent-configuration-patterns.md](./subagent-configuration-patterns.md)
-2. **Plugin packaging** — How to convert this repo's skills into distributable plugins with proper manifest, namespacing, and marketplace distribution.
-3. **Skill context budget optimization** — Empirical measurement of this repo's 22 skills against the 16K char budget. Which skills are being silently excluded?
-4. **`allowed-tools` adoption strategy** — When/how to adopt once enforcement is fixed. Which skills would benefit most from tool restrictions?
+2. ~~Plugin packaging~~ → See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) — **Modular approach recommended** (by namespace). Full manifest, marketplace, and naming strategy documented. 7 open questions for user input.
+3. ~~Skill context budget optimization~~ → See [skill-context-budget.md](./skill-context-budget.md) — **Key finding: only 31% budget utilization, no skills excluded, ~52-skill headroom**
+~~`allowed-tools` adoption strategy~~ → See [allowed-tools-adoption.md](./allowed-tools-adoption.md) — **13/22 skills recommended for adoption (5 read-only Tier 1, 8 narrowly-scoped Tier 2). Add now as intent-signaling; enforce when #14956 is fixed. YAML list syntax recommended (Trail of Bits pattern). 9 orchestrator skills skipped (Tier 3).**
 5. ~~Dynamic context injection (`!` syntax)~~ → See [dynamic-context-injection.md](./dynamic-context-injection.md)
-6. **Agent Skills cross-platform compatibility** — How portable are this repo's skills to other Agent Skills-compatible tools (Cursor, Gemini CLI, VS Code)?
+6. ~~Agent Skills cross-platform compatibility~~ → See [cross-platform-compatibility.md](./cross-platform-compatibility.md) — **Frontmatter maximally portable (description-only), body low portability (CC-specific tools). 8+ platforms adopt the standard. 3 skills near-portable, 10 moderate, 9 deeply coupled. All planned frontmatter additions degrade gracefully. Recommended: add `compatibility` field to signal portability tier.**
 7. ~~Hooks integration with skills~~ → See [hooks-integration.md](./hooks-integration.md)
 8. ~~Skill testing and validation~~ → See [skill-testing-validation.md](./skill-testing-validation.md)
 9. ~~Agent teams vs subagent skills~~ → Covered in [subagent-configuration-patterns.md](./subagent-configuration-patterns.md) §8

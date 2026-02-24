@@ -16,14 +16,14 @@
 
 #### A3: Context Budget Is ~16K Chars Shared Across All Skills
 **Assumption**: All skill descriptions (name + description frontmatter) share a budget of 2% of the context window (~16K chars fallback). Skills exceeding this budget are silently excluded.
-**Rationale**: Official docs. Overrideable via `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var. With 22 skills, this could be tight - but unverified empirically.
-**Trade-offs**: We haven't measured actual consumption. Some skills may already be silently excluded. The `/context` command can check this but wasn't run (no-mutation constraint in research loop).
-**Confidence**: High on the mechanism, **low on whether our 22 skills currently fit within budget**.
+**Rationale**: Official docs. Overrideable via `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var.
+**Confirmed**: Yes — theoretical analysis shows 23 skills (22 repo + keybindings-help) consume ~4,908 chars = **31% of budget**. No skills are being excluded. ~52-skill headroom remains. See [skill-context-budget.md](./skill-context-budget.md) for full breakdown.
+**Confidence**: High on mechanism, **high on current fit** (theoretical; live `/context` validation recommended for final confirmation).
 
-#### A4: `allowed-tools` Enforcement Is Broken — Defer Adoption
-**Assumption**: The `allowed-tools` feature should not be relied on for runtime enforcement. It can be added for documentation/intent-signaling but should not be a blocking item in the implementation plan.
-**Rationale**: Two open GitHub issues ([#18837](https://github.com/anthropics/claude-code/issues/18837), [#14956](https://github.com/anthropics/claude-code/issues/14956)). Anthropic's own 16 reference skills don't use it. Marked "Experimental" in Agent Skills spec.
-**Confirmed**: Yes - documented bugs. Revisit when issues are closed.
+#### A4: `allowed-tools` Enforcement Is Broken — Add as Intent-Signaling
+**Assumption**: The `allowed-tools` feature should not be relied on for runtime enforcement but IS worth adding now as documentation/intent-signaling. The field is harmless when unenforced and prepares for future enforcement.
+**Rationale**: #18837 closed as dup of #14956 (still open). SDK ignores the field entirely (#18737). Piped commands bypass restrictions (#1271). Anthropic's 16 reference skills don't use it. But Trail of Bits (primary community adopter) uses it on 4+ skills with YAML list syntax. Adding it now documents design intent at zero risk.
+**Confirmed**: Yes — broken enforcement confirmed. Intent-signaling value confirmed by Trail of Bits adoption pattern. See [allowed-tools-adoption.md](./allowed-tools-adoption.md).
 
 ### Moderate (Affect approach but not viability)
 
@@ -80,10 +80,36 @@
 **Rationale**: Putting format/lint hooks in every skill that edits files means maintaining 10+ copies. Settings-level hooks apply once to ALL file edits regardless of which skill triggered them.
 **Confidence**: High — follows DRY principle and matches the hooks documentation's guidance on scope.
 
-#### A12: Cross-Platform Compatibility Is Not a Current Priority
-**Assumption**: Optimizing for Agent Skills cross-platform portability (Cursor, Gemini CLI, VS Code) is a nice-to-have, not a driving requirement. Implementation should favor Claude Code-specific features (fork, hooks, disable-model-invocation) over cross-platform purity.
-**Rationale**: This is a personal dotfiles repo, not a distributed plugin. The skills are tuned for Claude Code workflows.
-**Confidence**: Medium - depends on user's distribution intentions. If they want to share skills publicly, cross-platform matters more.
+#### A12: Cross-Platform Portability Is Structurally Free, Behaviorally Expensive
+**Assumption**: Frontmatter additions degrade gracefully across all 8+ Agent Skills platforms — no portability cost. But body content (tool names, orchestration patterns) is deeply Claude Code-specific and not worth rewriting for portability. New skills can target portability cheaply; existing skills should not be retrofitted.
+**Rationale**: Cross-platform research confirmed all planned frontmatter additions (`name`, `disable-model-invocation`, `argument-hint`, `hooks`) are either universally supported or silently ignored. The real portability barrier is body content: 22/22 skills reference CC-specific tools. Only 3 are near-portable today. See [cross-platform-compatibility.md](./cross-platform-compatibility.md).
+**Confirmed**: Yes — via research across Claude Code, VS Code/Copilot, Cursor, Codex, Gemini CLI, Roo Code, OpenCode. All extension fields degrade gracefully (ignored or warned-only).
+**Confidence**: High.
+
+#### A14: Modular Plugins by Namespace Is the Right Distribution Strategy
+**Assumption**: Skills should be packaged as multiple focused plugins grouped by namespace (git, learnings, parallel-plan, explore) rather than a single monolithic plugin.
+**Rationale**: Matches official Anthropic plugin patterns (2-9 skills per plugin). Users install only what they need. Independent versioning per domain. Short namespace prefixes. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §2 for full analysis.
+**Confidence**: High — strongly validated by official plugin examples and user's stated sharing intent.
+
+#### A15: Shared skill-references Should Be Duplicated Across Plugins
+**Assumption**: Each plugin bundles its own copy of required `skill-references/` files rather than depending on a shared external reference.
+**Rationale**: Plugin caching copies plugins to `~/.claude/plugins/cache/`. No path traversal (`../`) allowed. Shared external refs wouldn't resolve. Duplication is <50KB total and ensures self-containment. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §3.
+**Confidence**: High — constraint is architectural (plugin caching system), not a design choice.
+
+#### A16: Nested Namespace Directories Should Be Flattened in Plugins
+**Assumption**: When packaging `git/create-pr` into the `mahoy-git` plugin, flatten to `skills/create-pr/` to avoid double-namespacing (`/mahoy-git:git:create-pr`).
+**Rationale**: Plugin name already provides the namespace context. Double nesting is confusing and verbose.
+**Confidence**: Medium — needs verification that Claude Code doesn't auto-create sub-namespaces from nested skill directories within plugins.
+
+#### A17: `.agents/skills/` Is the Universal Cross-Platform Discovery Path
+**Assumption**: For maximum cross-platform portability, skills should be discoverable at `.agents/skills/<name>/SKILL.md` — the only path supported by ALL 8+ platforms.
+**Rationale**: `~/.claude/skills/` is recognized by Claude Code, VS Code, Cursor, and OpenCode but not by Codex, Gemini CLI, or Roo Code. `.agents/skills/` is the cross-platform convention. See [cross-platform-compatibility.md](./cross-platform-compatibility.md) §1.
+**Confidence**: High — documented across all platform docs.
+
+#### A18: VS Code Frontmatter Warnings Are Cosmetic, Not Functional
+**Assumption**: VS Code's "Attribute not supported" warnings on Claude Code extension fields do not prevent skill loading or execution in Copilot. They are editor-only lint warnings with a known workaround.
+**Rationale**: [Issue #294520](https://github.com/microsoft/vscode/issues/294520) confirms the validation is against a fixed allowlist. Workaround: set `files.associations` to treat SKILL.md as plain markdown. Issue is open with MS maintainers assigned.
+**Confidence**: High — empirically confirmed.
 
 ---
 
@@ -91,7 +117,7 @@
 
 ### Q1: What Is the Actual Context Budget Consumption?
 **Question**: Are any of the 22 skills currently being silently excluded from context due to budget overflow?
-**Answer**: Unknown. Requires running `/context` in a live session to measure. Research loop constraints prevent this. Flagged as a validation item — should be checked before and after implementing `disable-model-invocation` changes.
+**Answer**: **No skills are being excluded.** Theoretical analysis (confirmed by observing all 23 skills in system-reminder) shows ~4,908 chars consumed out of 16,000 budget (31% utilization). ~52-skill headroom remains. Live `/context` validation recommended for final confirmation but is non-blocking. See [skill-context-budget.md](./skill-context-budget.md).
 
 ### Q2: Should We Migrate from `commands/` to `skills/`?
 **Question**: Given full feature equivalence, is there value in migrating the directory name?
@@ -113,6 +139,14 @@
 - `explore-repo` → `opus` (deep analysis benefits from stronger reasoning)
 - `learnings/consolidate` → `opus` (requires nuanced judgment about learning quality)
 But model overrides add maintenance complexity and the default model is usually fine. Low priority.
+
+### Q6: What Plugin Name Prefix Should Be Used?
+**Question**: Should all plugins use `mahoy-` prefix, a shorter prefix, or something different?
+**Answer**: Pending user input. Options analyzed in [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §8. `mahoy-` provides brand consistency. Shorter prefixes (`mah-`) are less clear. Generic names (`git-workflow`) may conflict with other plugins.
+
+### Q7: Should Nested Namespaces Be Flattened?
+**Question**: When packaging `git/create-pr` into the `mahoy-git` plugin, should the `git/` subdirectory be flattened to avoid `/mahoy-git:git:create-pr`?
+**Answer**: Likely yes (see A16), but needs empirical verification (O17). If Claude Code auto-discovers nested directories as sub-namespaces, flattening is mandatory. If it just finds `SKILL.md` anywhere under `skills/`, nesting is fine.
 
 ---
 
@@ -138,10 +172,10 @@ But model overrides add maintenance complexity and the default model is usually 
 **Approach**: Direct edit of two entries.
 **Priority**: Medium - fixes existing bugs but they're currently harmless (dead entries).
 
-### O5: Add `allowed-tools` for Intent Documentation
-**Item**: Add `allowed-tools` to read-only or narrowly scoped skills for documentation purposes.
-**Approach**: Identify skills with clear tool boundaries. Add `allowed-tools` as documentation, not enforcement.
-**Priority**: Low - no runtime impact while enforcement is broken. Revisit when fixed.
+### O5: Add `allowed-tools` to 13 Skills as Intent-Signaling
+**Item**: Add `allowed-tools` YAML lists to 13 skills (5 Tier 1 read-only + 8 Tier 2 narrowly-scoped). Skip 9 Tier 3 orchestrators.
+**Approach**: Use YAML list syntax (Trail of Bits pattern). Bare `Bash` (not scoped patterns) until #1271 is fixed. See [allowed-tools-adoption.md](./allowed-tools-adoption.md) §6 for complete per-skill tool lists.
+**Priority**: Low-Medium — zero risk while unenforced, documents design intent, prepares for enforcement. Can bundle with Phase 1 frontmatter additions.
 
 ### O6: Evaluate `context: fork` for Future Skills
 **Item**: When designing new skills, evaluate against the fork viability checklist.
@@ -182,3 +216,33 @@ But model overrides add maintenance complexity and the default model is usually 
 **Item**: Add the spec-required `name:` field to all 22 SKILL.md frontmatter blocks.
 **Approach**: Set `name` to match immediate parent directory name (e.g., `create-pr` for `git/create-pr/SKILL.md`). Harmless in Claude Code (accepts explicit name), enables future `skills-ref` compatibility, makes skills self-documenting.
 **Priority**: Low-Medium - spec compliance improvement, zero risk, minimal effort (1 line per skill). Could be bundled with Phase 1 frontmatter additions.
+
+### O14: Create Plugin Directory Structures
+**Item**: Create modular plugin packages for Tier 1 skill families (git, parallel-plan) and Tier 2 (explore, learnings).
+**Approach**: For each plugin: create `.claude-plugin/plugin.json` manifest, copy skills into `skills/` directory (flattened from nested namespaces), bundle required `skill-references/`, add README.md and LICENSE. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §12 for full breakdown.
+**Priority**: Medium — depends on Phases 1D (name field) and 3C (dynamic injection) being complete first.
+
+### O15: Create Marketplace Repository
+**Item**: Create a GitHub marketplace repo listing all distributable plugins.
+**Approach**: Create `.claude-plugin/marketplace.json` with plugin entries using relative source paths. Host as public GitHub repo. Test with `/plugin marketplace add` locally first. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §4.
+**Priority**: Medium — depends on O14 (plugin structures exist).
+
+### O16: Update SKILL.md Paths for Plugin Compatibility
+**Item**: Update `skill-references/` paths in SKILL.md files from absolute (`~/.claude/skill-references/...`) to plugin-relative paths so they resolve correctly when installed from a marketplace.
+**Approach**: For each skill that references shared files, update to use relative paths from the skill directory to the bundled `skill-references/` within the plugin. Test resolution with `--plugin-dir`.
+**Priority**: Medium — required before O14 can produce working plugins.
+
+### O17: Verify Plugin Namespace Behavior with Nested Directories
+**Item**: Empirically test whether nested skill directories inside a plugin create nested namespaces (e.g., `skills/git/create-pr/` → `/plugin:git:create-pr` or just `/plugin:create-pr`).
+**Approach**: Create a minimal test plugin with nested `skills/sub/skill-name/SKILL.md` and invoke with `--plugin-dir`. Confirms A16.
+**Priority**: High — blocks O14 structure decisions.
+
+### O18: Add `compatibility` Field to All Skills
+**Item**: Add the `compatibility:` frontmatter field to all 22 skills signaling their portability tier and runtime requirements.
+**Approach**: Tier 1 (near-portable): `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.` Tier 2 (moderate): `compatibility: Designed for Claude Code. Core workflow may work in other Agent Skills tools.` Tier 3 (CC-only): `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).` See [cross-platform-compatibility.md](./cross-platform-compatibility.md) §4 for per-skill tier assignments.
+**Priority**: Low — zero-cost documentation addition. Could bundle with Phase 1D (`name` field).
+
+### O19: Structure Plugin Repos with `.agents/skills/` for Universal Discovery
+**Item**: When packaging plugins for cross-platform distribution (Phase 6), include a `.agents/skills/` layout alongside the `.claude-plugin/` manifest so non-Claude-Code tools can discover the skills.
+**Approach**: In each plugin repo, create a parallel `.agents/skills/<name>/SKILL.md` symlink or copy from `skills/<name>/SKILL.md`. Or use `.agents/skills/` as the primary structure and have the Claude Code plugin manifest reference it.
+**Priority**: Low — only needed if cross-platform distribution is pursued beyond Claude Code marketplace.
