@@ -1,0 +1,21 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Updated `allowed-tools` entry with YAML list syntax recommendation, broader bug landscape (#18737 SDK ignores, #1271 piped bypass), and Trail of Bits adoption patterns (Utility: Medium)
+
+Wrote 1 learning update to `~/.claude/`.
+
+---
+
+## Iteration 12 Complete ✅
+
+**Task completed**: Deep Research: `allowed-tools` adoption strategy → [allowed-tools-adoption.md](./allowed-tools-adoption.md)
+
+**Key findings:**
+- **13/22 skills recommended** for `allowed-tools` adoption (5 Tier 1 read-only + 8 Tier 2 narrowly-scoped). 9 Tier 3 orchestrators skipped.
+- **Bug landscape is broader than expected**: #14956 (main enforcement, open), #1271 (piped commands bypass, open), #18737 (SDK ignores entirely, closed with doc fix)
+- **Trail of Bits is the primary real-world adopter** — YAML list syntax, bare tool names, 4+ skills
+- **Recommended: add now as intent-signaling**, enforce when #14956 is fixed
+- Per-skill tool lists ready to apply in [§6 of the research file](./allowed-tools-adoption.md)
+
+**Cross-references updated:** info.md (investigation tracker + `allowed-tools` section), assumptions-and-questions.md (A4 updated, O5 refined), implementation-plan.md (Phase 1F added, parallelization map updated), skill-design.md (learning updated).
+
+**Research loop status: COMPLETE** 🎉 All 10 deep research areas investigated. Stop criteria met — no new research areas would meaningfully change the implementation plan. Remaining questions (plugin names, licenses, marketplace) require human judgment.

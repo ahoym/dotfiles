@@ -1,0 +1,19 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Added `skills-ref validate` rejects Claude Code extensions + ecosystem CI/CD status (Utility: High + Medium)
+
+Wrote 2 learnings to `~/.claude/`.
+
+---
+
+**Iteration 8 complete.** Here's the summary:
+
+**Task completed**: Deep Research: Skill testing and validation
+
+**Key findings**:
+- The `skills-ref validate` tool enforces strict Agent Skills spec compliance — it **rejects all Claude Code extension fields** (`disable-model-invocation`, `argument-hint`, `hooks`, etc.) and **requires `name`** (missing from all 22 skills)
+- No CI/CD for skill validation exists anywhere in the ecosystem — not in Anthropic's repos, agentskills org, or community repos
+- Recommended a 3-layer validation architecture: structural (CI-friendly), semantic (CI-friendly), behavioral (manual/live session)
+- Added Phase 0.3 (build custom validator) and Phase 1D (add `name` field) to implementation plan
+- Added O12 and O13 to open items in assumptions-and-questions.md
+
+**Loop status**: `WOOT_COMPLETE_WOOT` — all autonomously completable research is done. 3 remaining tasks are either BLOCKED (context budget needs live `/context`) or dependent on user decisions (cross-platform intent, plugin packaging). 7 questions for user input are documented.

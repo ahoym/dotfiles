@@ -1,0 +1,20 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Added 4 learnings: cross-platform field handling, $ARGUMENTS portability, metadata namespace pattern, compatibility field (Utility: 2 High, 2 Medium)
+
+Wrote 4 learnings to `~/.claude/`.
+
+---
+
+**Iteration 11 complete.** 🎯
+
+**Task completed**: Deep Research: Agent Skills cross-platform compatibility → [cross-platform-compatibility.md](./cross-platform-compatibility.md)
+
+**Key findings**:
+- 8+ platforms now adopt the Agent Skills standard
+- This repo's frontmatter is maximally portable (description-only); all planned additions degrade gracefully
+- Body content is low portability — 22/22 skills use CC-specific tools
+- 3 skills near-portable, 10 moderate effort, 9 deeply coupled to CC orchestration
+- `.agents/skills/` is the universal discovery path
+- Added Phase 1E (`compatibility` field), Phase 6F (cross-platform layout), A17-A18, O18-O19
+
+**1 task remaining**: `allowed-tools` adoption strategy (narrow scope, feature is broken).

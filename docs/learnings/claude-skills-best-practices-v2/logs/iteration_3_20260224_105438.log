@@ -1,0 +1,23 @@
+Let me review this session for learnings.
+
+This session was a Ralph loop iteration focused on synthesizing existing research into a structured `assumptions-and-questions.md` file. The work was primarily synthesis and categorization of findings already documented in `info.md`, `codebase-summary.md`, and `~/.claude/learnings/skill-design.md`.
+
+Identified learnings from this session:
+
+| # | Learning | Type | Target File | Utility |
+|---|----------|------|-------------|---------|
+| 1 | Fork viability is design-time only: all 22 existing skills fail the checklist, so `context: fork` is exclusively for new skill design, never retrofit | Learning | learnings/skill-design.md | Low - already captured in fork viability section |
+| 2 | Dead config entries (stale paths, typos in settings) are safe to fix because they already match nothing | Learning | learnings/skill-design.md | Low - straightforward reasoning |
+
+No High-utility learnings identified. This iteration was synthesis of previously documented patterns, not discovery of new ones. Both items are Low-utility — the fork finding is already covered in `skill-design.md`'s viability checklist section, and the config safety reasoning is standard.
+
+No learnings to save. Moving on. ✅
+
+---
+
+**Iteration 3 complete.** Created `assumptions-and-questions.md` with:
+- 12 assumptions grouped by criticality (4 Critical, 4 Moderate, 4 Working)
+- 5 Q&As addressing key decision points
+- 8 open implementation items bridging research → action
+
+Next iteration should tackle the **Implementation Plan**.

@@ -1,0 +1,25 @@
+---
+
+**Iteration 10 complete.** 🎉
+
+### Summary
+
+**Task completed:** Deep Research: Plugin packaging strategy → [plugin-packaging-strategy.md](./plugin-packaging-strategy.md)
+
+**Key findings:**
+- **Modular plugins by namespace** recommended over monolithic (validated by Anthropic's 13 official plugins — all 2-9 skills each)
+- **4 plugin tiers**: Tier 1 (`mahoy-git`, `mahoy-parallel-plan`), Tier 2 (`mahoy-explore`, `mahoy-learnings`), Tier 3 (personal-only: ralph, quantum-tunnel, set-persona)
+- **Plugin caching is the critical constraint** — all dependencies must be self-contained, no external path references after install
+- **Permission injection not supported** — README documentation is the only way to communicate required permissions
+- **Flatten nested namespaces** to avoid `/mahoy-git:git:create-pr` redundancy
+- **New Phase 6** added to implementation plan (5 subtasks: verify namespaces → create plugins → create marketplace → test → publish)
+
+**Artifacts updated:**
+- `plugin-packaging-strategy.md` (new, ~400 lines)
+- `info.md` — Investigation tracker updated
+- `assumptions-and-questions.md` — Added A14-A16, Q6-Q7, O14-O17
+- `implementation-plan.md` — Added Phase 6, updated effort estimates, parallelization map, decision list
+- `progress.md` — Iteration 10 logged, 5 new user-input questions
+- `~/.claude/learnings/skill-design.md` — 3 new plugin-related learnings
+
+**1 task remaining:** Cross-platform compatibility research.

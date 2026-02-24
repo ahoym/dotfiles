@@ -1,0 +1,14 @@
+---
+
+**Iteration 4 complete.** ✅
+
+**What was done**: Created `implementation-plan.md` — a 5-phase plan (Measure → Quick Wins → Descriptions → References → Advanced) with parallelization map, effort estimates, and 4 decision points requiring user input.
+
+**Current state**: All 4 initial tasks are done. 7 deep research tasks remain, but several depend on user decisions:
+
+1. **`commands/` → `skills/` migration** — Worth the rename churn, or defer?
+2. **Context budget urgency** — Should we run `/context` before continuing deep research?
+3. **Cross-platform intent** — Personal-only or sharing as plugins? (Affects 2 deep research tasks)
+4. **Deep research scope** — Which of the 7 remaining areas to prioritize vs. skip?
+
+The loop can continue autonomously on research-only tasks (dynamic context injection, hooks integration) or pause for your input on scope.

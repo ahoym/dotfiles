@@ -21,14 +21,20 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
 1. **Get directories to compare**:
    - If `$ARGUMENTS` provided, parse as space-separated directory paths
    - Otherwise, ask: "Which directories would you like to compare? (e.g., `docs/learnings/tmp-feature docs/learnings/feature`)"
-   - Verify each directory exists
+   - Verify each directory exists locally
 
-2. **Read all files from each directory**:
-   - List files in each directory
-   - Read key files: `spec.md`, `progress.md`, `info.md`, `assumptions-and-questions.md`
-   - Note which files are unique to each directory
+2. **Resolve content from local files or research branches**:
+   - For each directory, list files on the local filesystem first
+   - **If a directory appears empty or has only boilerplate** (just `spec.md` + `progress.md` with no completed tasks): check for a `research/<basename>` branch via `git branch -a --list *research/<basename>*`
+   - If a research branch exists, read files via `git show <branch>:<path>` and list files via `git ls-tree --name-only <branch> <path>/`
+   - Note to the user which source is being used: local filesystem vs research branch
+   - Ralph loops push research to `research/<topic>` branches — the local directory may only have initialization boilerplate while the branch has the full output
 
-3. **Build comparison table**:
+3. **Read key files from each project** (from whichever source resolved in step 2):
+   - Read: `spec.md`, `progress.md`, `info.md`, `assumptions-and-questions.md`
+   - Note which files are unique to each project
+
+4. **Build comparison table**:
    Using the checklist in comparison-checklist.md, compare:
 
    ```markdown
@@ -43,7 +49,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
    | Spec version | v1 | v2 |
    ```
 
-4. **Identify superseded directory**:
+5. **Identify superseded directory**:
    Check for signs of supersession:
    - Minimal progress.md (just completion marker vs structured tracking)
    - Significantly shorter research (fewer lines in info.md)
@@ -51,12 +57,12 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
    - No iteration logs (single incomplete run vs multiple iterations)
    - Missing documentation (no assumptions, codebase analysis, or Q&A)
 
-5. **Check for unique content to port**:
+6. **Check for unique content to port**:
    - Read unique files in the superseded directory
    - Search for sections not covered in the newer version
    - If found, list specific sections that should be ported
 
-6. **Present recommendation**:
+7. **Present recommendation**:
    ```markdown
    ## Comparison Summary
 
@@ -74,7 +80,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
    **Action**: `rm -rf <superseded-directory>`
    ```
 
-7. **If consolidation needed instead** (directories have complementary content):
+8. **If consolidation needed instead** (directories have complementary content):
    ```markdown
    ## Recommendation
 

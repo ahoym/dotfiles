@@ -1,0 +1,16 @@
+Updated files:
+- `~/.claude/learnings/skill-design.md` — Updated "Skill Description Context Budget" section with empirical per-entry overhead formula and capacity table; added new "Built-In Bundled Skills" section (Utility: High + Medium)
+
+Wrote 4 learnings (2 as updates, 2 as new section) to `~/.claude/learnings/skill-design.md`.
+
+---
+
+**Iteration 9 complete.** 🎯
+
+**Task completed**: Deep Research: Skill context budget optimization → `skill-context-budget.md`
+
+**Key finding**: Budget is at **31% utilization** (~4,908/16,000 chars). No skills are being excluded. ~52-skill headroom remains. This changes the implementation plan — `disable-model-invocation` is for invocation control (not budget), and description compression is for routing quality (not budget recovery).
+
+**Cross-references updated**: info.md (investigation tracker), assumptions-and-questions.md (A3 confirmed, Q1 answered), implementation-plan.md (Phase 0.1 downgraded, Phase 0.2 marked complete, Phase 2A rationale changed).
+
+**2 pending tasks remain**: Plugin packaging strategy and Agent Skills cross-platform compatibility.

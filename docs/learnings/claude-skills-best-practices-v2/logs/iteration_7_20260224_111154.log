@@ -1,0 +1,17 @@
+Iteration 7 complete. Here's what was accomplished:
+
+**Task**: Deep Research: Hooks integration with skills
+
+**Deliverable**: `hooks-integration.md` — comprehensive evaluation of all 22 skills against Claude Code's hooks system.
+
+**Key findings**:
+- Most hook value belongs in **settings** (project/user), not skill frontmatter. General formatting, linting, and file protection apply to all edits regardless of which skill triggered them.
+- Only **2 skills** are high-confidence candidates for skill-scoped `hooks:` frontmatter:
+  - `git/resolve-conflicts` — PostToolUse(`Edit`) to grep for residual conflict markers (`<<<<<<<`)
+  - `quantum-tunnel-claudes` — PostToolUse(`Edit`) to verify merge didn't silently drop sections
+- **6 skills deferred** (do-refactor-code, learnings/compound, learnings/consolidate, parallel-plan/execute, git/address-pr-review, explore-repo) — existing instructions already cover the checks, or prompt/agent hook cost isn't justified by the risk.
+- Default to `command` hooks (shell, zero token cost) over `prompt` (~1K tokens) or `agent` (~5-50K tokens).
+
+**Cross-references updated**: info.md (investigation tracker), implementation-plan.md (Phase 4B rewritten with concrete tiers), assumptions-and-questions.md (new A13, refined O7).
+
+**Learnings saved**: 4 learnings consolidated into `~/.claude/learnings/skill-design.md` — hook placement framework, type selection, and key constraints.
