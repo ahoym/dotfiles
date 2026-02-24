@@ -1,18 +1,22 @@
 #!/bin/bash
-# A basic implementation of the Ralph Loop
+# Ralph Loop runner — iterates Claude over a research spec.
 # Usage: ./wiggum.sh <project_directory> [max_iterations]
 #
+# Expects to run from a worktree root (created by /ralph:init).
+# Injects security hooks for the duration of the loop, removes them on exit.
+#
 # Example:
-#   ./wiggum.sh ./docs/learnings/monte-carlo 10
+#   cd .claude/worktrees/ralph-my-topic
+#   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/my-topic 10
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Require project directory as first argument
+# --- Args ---
 if [ -z "$1" ]; then
     echo "Usage: $0 <project_directory> [max_iterations]"
-    echo "Example: $0 ./docs/learnings/monte-carlo 10"
+    echo "Example: $0 docs/learnings/monte-carlo 10"
     exit 1
 fi
 
@@ -20,12 +24,11 @@ PROJECT_DIR="$1"
 PROMPT_FILE="${PROJECT_DIR}/spec.md"
 PROGRESS_FILE="${PROJECT_DIR}/progress.md"
 LOG_DIR="${PROJECT_DIR}/logs"
-COMPLETION_SIGNAL=${3:-"WOOT_COMPLETE_WOOT"}
 MAX_ITERATIONS=${2:-10}
+COMPLETION_SIGNAL=${3:-"WOOT_COMPLETE_WOOT"}
 AI_COMMAND="claude --dangerously-skip-permissions --print"
-# AI_COMMAND="claude --print"
 
-# Validate project directory exists
+# --- Validate ---
 if [ ! -d "$PROJECT_DIR" ]; then
     echo "Error: Project directory does not exist: $PROJECT_DIR"
     exit 1
@@ -41,22 +44,27 @@ if [ ! -f "$PROGRESS_FILE" ]; then
     exit 1
 fi
 
-# Record the starting branch so we can branch from main for the push
-STARTING_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# --- Hooks ---
+SETTINGS_FILE=".claude/settings.local.json"
+ABS_PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
 
-# Create logs directory
+source "$SCRIPT_DIR/hooks/lib-hooks.sh"
+inject_hooks "$SETTINGS_FILE" "$ABS_PROJECT_DIR"
+trap 'remove_hooks "$SETTINGS_FILE"' EXIT
+
+# --- Loop ---
 mkdir -p "$LOG_DIR"
 
-echo "════════════════════════════════════════════════════════════"
-echo "Starting Ralph Loop"
-echo "════════════════════════════════════════════════════════════"
+echo ════════════════════════════════════════════════════════════
+echo Starting Ralph Loop
+echo ════════════════════════════════════════════════════════════
 echo "Project:        $PROJECT_DIR"
 echo "Spec file:      $PROMPT_FILE"
 echo "Progress file:  $PROGRESS_FILE"
 echo "Log directory:  $LOG_DIR"
 echo "Max iterations: $MAX_ITERATIONS"
 echo "Started at:     $(date)"
-echo "════════════════════════════════════════════════════════════"
+echo ════════════════════════════════════════════════════════════
 
 LOOP_START_TIME=$(date +%s)
 
@@ -70,13 +78,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "Started at: $(date)"
     echo "Log file:   $LOG_FILE"
     echo ""
-    echo "Current progress:"
-    cat "$PROGRESS_FILE"
-    echo ""
-    echo "───────────────────────────────────────"
 
-    # Run the AI command, feeding it the prompt file contents
-    # Capture output to log file and display to console
     if cat "$PROMPT_FILE" | $AI_COMMAND 2>&1 | tee "$LOG_FILE"; then
         ITER_STATUS="success"
     else
@@ -88,63 +90,43 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     ITER_DURATION=$((ITER_END_TIME - ITER_START_TIME))
 
     echo ""
-    echo "───────────────────────────────────────"
     echo "Iteration $i completed in ${ITER_DURATION}s (status: $ITER_STATUS)"
 
-    # Check for the completion signal (e.g., WOOT_COMPLETE_WOOT)
+    # Check for completion signal
     if grep -q "$COMPLETION_SIGNAL" "$PROGRESS_FILE"; then
         LOOP_END_TIME=$(date +%s)
         LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
-        # Push completed research to a branch off main
-        BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
         echo ""
-        echo "Pushing research to branch: $BRANCH_NAME"
-        git stash --include-untracked
-        git checkout main
-        git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
-        git stash pop
-        git add "$PROJECT_DIR"
-        git commit -m "research: complete $(basename "$PROJECT_DIR") ralph loop"
-        git push -u origin "$BRANCH_NAME" || echo "Warning: push failed — branch $BRANCH_NAME committed locally"
-        git checkout "$STARTING_BRANCH"
-
-        echo ""
-        echo "════════════════════════════════════════════════════════════"
+        echo ════════════════════════════════════════════════════════════
         echo "Done! Completion signal received."
         echo "Total iterations: $i"
         echo "Total duration:   ${LOOP_DURATION}s"
-        echo "Branch:           $BRANCH_NAME"
         echo "Completed at:     $(date)"
-        echo "════════════════════════════════════════════════════════════"
+        echo ════════════════════════════════════════════════════════════
+        echo ""
+        echo "Next steps:"
+        echo "  git add $PROJECT_DIR"
+        echo "  git commit -m 'research: $(basename "$PROJECT_DIR")'"
+        echo "  git push -u origin $(git rev-parse --abbrev-ref HEAD)"
         exit 0
     fi
 
-    # Short sleep to avoid rate limiting
     sleep 2
 done
 
 LOOP_END_TIME=$(date +%s)
 LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
-# Push partial research to a branch off main
-BRANCH_NAME="research/$(basename "$PROJECT_DIR")"
 echo ""
-echo "Pushing partial research to branch: $BRANCH_NAME"
-git stash --include-untracked
-git checkout main
-git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
-git stash pop
-git add "$PROJECT_DIR"
-git commit -m "research: partial $(basename "$PROJECT_DIR") ralph loop (max iterations reached)"
-git push -u origin "$BRANCH_NAME" || echo "Warning: push failed — branch $BRANCH_NAME committed locally"
-git checkout "$STARTING_BRANCH"
-
-echo ""
-echo "════════════════════════════════════════════════════════════"
+echo ════════════════════════════════════════════════════════════
 echo "Max iterations reached without completion."
 echo "Total duration: ${LOOP_DURATION}s"
-echo "Branch:         $BRANCH_NAME"
 echo "Ended at:       $(date)"
-echo "════════════════════════════════════════════════════════════"
+echo ════════════════════════════════════════════════════════════
+echo ""
+echo "Next steps:"
+echo "  git add $PROJECT_DIR"
+echo "  git commit -m 'research: partial $(basename "$PROJECT_DIR")'"
+echo "  git push -u origin $(git rev-parse --abbrev-ref HEAD)"
 exit 1
