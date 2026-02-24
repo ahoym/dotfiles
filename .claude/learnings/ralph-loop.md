@@ -27,3 +27,11 @@ A ralph project's context lives in 5 core files:
 - `implementation-plan.md` — phased action plan
 
 Deep research files (`<topic>.md`) are supplementary — created when a research area exceeds ~200 lines in info.md.
+
+## Always Check Research Branches
+
+`/ralph:compare` (and any research review) must check `research/<topic>` branches via `git show`, not just the local filesystem. A project directory may appear empty locally (only boilerplate `spec.md` + `progress.md`) while the branch has the full research output — deep research files, iteration logs, codebase summaries, etc. Comparing only local files would incorrectly conclude "never started" and miss real work.
+
+## Brief as Pre-PR Workflow
+
+`/ralph:brief` naturally surfaces cleanup work before creating a PR for a research branch. Loading all core files into context reveals: superseded v1 directories to compare and clean up, unique content to port between versions, open questions to document in the PR. Use brief → compare → port → PR as a natural completion sequence.
