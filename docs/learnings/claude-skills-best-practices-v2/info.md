@@ -301,7 +301,21 @@ For multi-step skills with background workflows:
 
 ---
 
-## 8. Common Pitfalls
+## 8. Community Skill Collections Worth Studying
+
+*(Ported from v1 research)*
+
+| Collection | Focus | Notes |
+|:---|:---|:---|
+| [anthropics/skills](https://github.com/anthropics/skills) | Reference implementation | Includes skill-creator meta-skill |
+| [Trail of Bits](https://github.com/trailofbits/skills) | Security auditing | 12+ security-focused skills, primary `allowed-tools` adopter |
+| [Superpowers](https://github.com/obra/superpowers) | Core engineering competencies | Planning, reviewing, testing, debugging |
+| [Context Engineering Kit](https://github.com/NeoLabHQ/context-engineering-kit) | Minimal token footprint | Advanced context engineering |
+| [Compound Engineering Plugin](https://github.com/EveryInc/compound-engineering-plugin) | Learning from mistakes | Turns errors into learnings |
+
+---
+
+## 9. Common Pitfalls
 
 1. **Stale path references** — skills referencing specific file paths break when files move. Verify every path in SKILL.md resolves. Use `Read` (not `Glob`) to verify paths through symlinks.
 2. **Context budget overflow** — many skills with verbose descriptions exceed the 2% budget. Skills get silently excluded. Check with `/context`.

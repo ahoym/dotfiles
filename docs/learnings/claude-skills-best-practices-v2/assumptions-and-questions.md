@@ -101,6 +101,12 @@
 **Rationale**: Plugin name already provides the namespace context. Double nesting is confusing and verbose.
 **Confidence**: Medium — needs verification that Claude Code doesn't auto-create sub-namespaces from nested skill directories within plugins.
 
+#### A19: `{baseDir}` Resolves to Skill Directory, Not `~/.claude/`
+**Assumption**: `{baseDir}` resolves to the skill's own containing directory (e.g., `~/.claude/commands/ralph/init/`), NOT to `~/.claude/`. It cannot replace the `~/.claude/...` convention for cross-directory references.
+**Rationale**: Only useful for skill-relative scripts or assets. Cross-directory references (to `learnings/`, `skill-references/`, etc.) must continue using `~/.claude/` paths.
+**Confidence**: High — validated in v1 research. Only 2 skills have local scripts where `{baseDir}` would apply.
+*(Ported from v1 research, A3)*
+
 #### A17: `.agents/skills/` Is the Universal Cross-Platform Discovery Path
 **Assumption**: For maximum cross-platform portability, skills should be discoverable at `.agents/skills/<name>/SKILL.md` — the only path supported by ALL 8+ platforms.
 **Rationale**: `~/.claude/skills/` is recognized by Claude Code, VS Code, Cursor, and OpenCode but not by Codex, Gemini CLI, or Roo Code. `.agents/skills/` is the cross-platform convention. See [cross-platform-compatibility.md](./cross-platform-compatibility.md) §1.
