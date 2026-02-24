@@ -47,7 +47,7 @@ The official docs state both "work the same way" and "support the same frontmatt
 
 This repo's skills use only `description:` from SKILL.md frontmatter. Official features not yet adopted:
 
-- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken:** restriction not enforced ([#18837](https://github.com/anthropics/claude-code/issues/18837)), Bash auto-approval broken ([#14956](https://github.com/anthropics/claude-code/issues/14956)), marked "Experimental" in Agent Skills spec. Anthropic's own reference skills (16 in `anthropics/skills`) don't use it; Trail of Bits does (security focus). Use for documentation/intent-signaling on read-only skills only; defer broad adoption until enforcement is fixed. Syntax: comma-delimited (`Read, Grep, Glob`), YAML list, or scoped Bash (`Bash(gh:*)`) all work.
+- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken:** restriction not enforced (#18837 closed as dup of [#14956](https://github.com/anthropics/claude-code/issues/14956) which remains open), SDK ignores the field entirely ([#18737](https://github.com/anthropics/claude-code/issues/18737)), piped/chained commands bypass restrictions ([#1271](https://github.com/anthropics/claude-code/issues/1271)). Marked "Experimental" in Agent Skills spec. Anthropic's 16 reference skills don't use it; Trail of Bits does (security focus, 4+ skills). **Recommended syntax: YAML list** (most readable, used by Trail of Bits as the de facto standard). Space-delimited and comma-delimited also work. Use bare tool names (not scoped `Bash(git:*)`) until piped-command bypass is fixed. Add for intent-signaling on read-only and narrowly-scoped skills; defer reliance on enforcement until #14956 is fixed.
 - **`context: fork` + `agent:`** — Run skill in isolated subagent (Explore, Plan, general-purpose). Skill content becomes the subagent's prompt with no conversation history. **Critical constraint:** subagents cannot spawn subagents, so skills that internally use the Task tool (explore-repo, do-security-audit, parallel-plan:execute) are incompatible with fork.
 - **`model:`** — Override session model per skill (e.g., `haiku` for simple tasks, `opus` for complex reasoning).
 - **`disable-model-invocation: true`** — Prevents auto-invocation AND removes the skill from context entirely. Saves context budget for manual-only skills.
@@ -73,14 +73,39 @@ Key distinction: `scripts/` files execute without reading into context (zero tok
 
 ## Dynamic Context Injection via Shell Preprocessing
 
-The `` !`command` `` syntax in SKILL.md runs shell commands as preprocessing — output replaces the placeholder before Claude sees the prompt. Useful for injecting live state:
+The `` !`command` `` syntax in SKILL.md runs shell commands as preprocessing — output replaces the placeholder before Claude sees the prompt. Not cached; re-runs every invocation.
+
+### Evaluation Framework
+
+A good `!`command`` candidate must pass ALL five criteria:
+
+1. **Reliability** — Command rarely fails regardless of repo state
+2. **Output size** — Small, bounded (<5 lines ideal)
+3. **Always needed** — Used every invocation, not just conditional branches
+4. **Saves a step** — Claude would run the same command as its first action anyway
+5. **Read-only** — No side effects or mutations
+
+### Disqualifiers
+
+- Unbounded output (e.g., `git log` without `| head`, `gh pr diff`)
+- Network-dependent commands that may timeout (e.g., `gh api ...`)
+- State-dependent commands that only work in specific states (e.g., `git diff --name-only --diff-filter=U` only works mid-merge)
+
+### Best Injection: `git branch --show-current`
+
+The single highest-value injection across the skill collection. 7/9 git skills need it as their first context. ~5 tokens, always succeeds, saves 1 Bash call per invocation.
+
+### Implementation Pattern
+
+Add `## Context` section immediately after frontmatter. Always append `2>/dev/null` for graceful degradation outside git repos:
 
 ```markdown
-- Current branch: !`git branch --show-current`
-- Uncommitted changes: !`git diff --stat`
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
+- Project root: !`git rev-parse --show-toplevel 2>/dev/null`
 ```
 
-Not yet used in this repo. Good candidates: git skills that need current repo state, PR skills that need PR metadata.
+For network-dependent commands, provide fallback: `|| echo "unknown"`.
 
 ## `context: fork` vs Task Subagents
 
@@ -141,5 +166,140 @@ When an official frontmatter feature exists but enforcement is broken (e.g., `al
 
 ## Skill Description Context Budget
 
-All skill descriptions (name + description frontmatter) share a budget of **2% of the context window** (~16,000 chars fallback). Skills exceeding the budget are silently excluded. Check with `/context` command. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var. With 22 skills, budget pressure increases — another reason to use `disable-model-invocation` on manual-only skills.
+All skill descriptions share a budget of **2% of the context window** (~16,000 chars fallback). Skills exceeding the budget are silently excluded. Check with `/context`. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var.
+
+**Per-entry overhead is ~109 chars** (XML tags ~85, skill name ~16 avg, location field ~4) beyond description text. Formula: `chars_per_skill = description_length + ~109`. Budget fills at ~15,700 chars total.
+
+**At 22 personal skills + 1 built-in, utilization is ~31%** (~4,908/16,000 chars). ~52-skill headroom at current avg description length (~103 chars). No aggressive description compression needed — `disable-model-invocation` should be motivated by preventing unwanted auto-invocation, not budget savings.
+
+| Avg Desc Length | Max Skills Capacity |
+|----------------|-------------------|
+| 250 chars | ~45 |
+| 150 chars | ~62 |
+| 103 chars (current) | ~75 |
+| 80 chars | ~85 |
+
+## Built-In Bundled Skills
+
+`keybindings-help` is a built-in skill (~337 chars, ~50 tokens/cycle) always loaded by Claude Code, even with `--disable-slash-commands` ([bug #24156](https://github.com/anthropics/claude-code/issues/24156)). Skills are injected as user-message attachments, not in the system prompt. Bundled skills bypass all settings-based filtering — they load after plugin/user/managed skill filtering occurs.
+
+## Custom Agent Definitions (`~/.claude/agents/`)
+
+Custom agents are Markdown files with YAML frontmatter in `~/.claude/agents/` (user-scope) or `.claude/agents/` (project-scope). They define **who does the work** — identity, tools, memory — while skills define **what work to do**.
+
+### Key Frontmatter Fields
+
+| Field | Description |
+|-------|-------------|
+| `name`, `description` | Required. Description used for auto-routing (Claude decides when to delegate). |
+| `tools` / `disallowedTools` | Tool allowlist/denylist. Defaults to inheriting all parent tools. |
+| `model` | `sonnet`, `opus`, `haiku`, or `inherit` (default). |
+| `skills` | Preload skill content into agent context. Full content injected, not just made available. **Agents don't inherit parent's skills** — must list explicitly. |
+| `memory` | `user` / `project` / `local` — persistent directory that survives across sessions. Auto-loads first 200 lines of MEMORY.md. Auto-enables Read/Write/Edit. |
+| `background` | `true` = always background. No AskUserQuestion, no MCP, auto-deny unapproved permissions. |
+| `isolation` | `worktree` = temp git worktree. Auto-cleaned if no changes. |
+| `hooks` | PreToolUse/PostToolUse/Stop hooks scoped to this agent. |
+| `permissionMode` | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`. |
+| `maxTurns` | Max agentic turns before stopping. |
+
+### Critical Constraints
+
+- Agents loaded at **session start** — manual file additions require restart (or use `/agents`).
+- Subagents **cannot spawn other subagents** (no Task nesting). Skills using `general-purpose` specifically to allow sub-delegation cannot migrate to custom agents.
+- When agents share the same name, priority: CLI flag > project > user > plugin.
+
+## Agent `memory:` for Persistent Cross-Session Learning
+
+The `memory` field gives agents a persistent directory for building knowledge over time.
+
+| Scope | Path | Best for |
+|-------|------|----------|
+| `user` | `~/.claude/agent-memory/<name>/` | Cross-project patterns (review style, common bugs) |
+| `project` | `.claude/agent-memory/<name>/` | Project-specific knowledge (architecture, naming) |
+| `local` | `.claude/agent-memory-local/<name>/` | Project-specific, not VCS-tracked |
+
+When enabled: system prompt gets memory instructions, first 200 lines of MEMORY.md auto-loaded, Read/Write/Edit auto-enabled. Include memory instructions in the agent's system prompt for proactive knowledge capture: "Update your agent memory as you discover patterns..."
+
+## Three Skill↔Agent Integration Patterns
+
+Extends the `context: fork` vs Task section above with a third pattern:
+
+**Pattern: Agent preloads skills (`skills:` field)**
+```yaml
+# In agents/api-developer.md
+skills:
+  - api-conventions
+  - error-handling-patterns
+```
+The agent's markdown body is the system prompt; skills provide domain knowledge preloaded into context. This is the **inverse** of `context: fork` — here the agent controls the system prompt, not the skill. Use when the agent needs domain knowledge from multiple skills without the overhead of discovering them.
+
+## Skill-Scoped Hooks: Placement Decision Framework
+
+Hooks can live in skill `hooks:` frontmatter (active only during skill execution) or in `settings.json` (active always). Choose placement based on scope:
+
+**Skill frontmatter** — Use for invariants specific to one skill's workflow:
+- Conflict marker detection after merge edits (`git/resolve-conflicts`)
+- Section count verification after content sync (`quantum-tunnel-claudes`)
+
+**Settings (project/user)** — Use for universal checks that apply to ALL file edits:
+- Auto-format after Edit/Write (project settings)
+- Secret file protection (user settings)
+- CLAUDE.md section preservation (project settings)
+
+**Decision rule**: If you'd need to copy the hook into 3+ skills, it belongs in settings.
+
+### Hook Type Selection
+
+Default to `command` hooks (shell scripts). Only escalate when shell logic can't express the check:
+- **`command`** — Deterministic checks, <1s, zero token cost. `jq` + `grep` for most cases.
+- **`prompt`** — Simple judgment calls, ~2-5s, ~1K tokens (Haiku default).
+- **`agent`** — Complex verification needing tool access, ~10-60s, ~5-50K tokens.
+
+### Key Constraints
+
+- **PostToolUse can't undo** — the tool already executed. Value is *feedback* (stderr → Claude), not prevention. Claude can then take corrective action.
+- **No pre/post state comparison** — PreToolUse and PostToolUse fire independently with no shared state. To compare before/after, PreToolUse must write state to a temp file.
+- **Stop hooks can loop** — Always check `stop_hook_active` field to allow stopping on re-check.
+
+## Plugin Caching: All Dependencies Must Be Self-Contained
+
+Plugins installed from marketplaces are **copied** to `~/.claude/plugins/cache/`. After installation, path traversal (`../`) is blocked — references to files outside the plugin directory fail silently. Every dependency (skill-references, scripts, templates) must live inside the plugin directory.
+
+- **Symlinks** are followed during the copy process, so they work for bundling external content. But symlinks only resolve during initial install — if the symlink target changes later, the cached copy stays stale until the plugin is updated.
+- `${CLAUDE_PLUGIN_ROOT}` is the environment variable for plugin-relative paths. Use it in `hooks.json` and MCP configs — it resolves to the actual install location, not the source directory.
+- The `--plugin-dir` flag bypasses caching (loads directly from disk), so path issues only surface after marketplace installation.
+
+## Plugin `settings.json` Only Supports `agent` Key
+
+Plugin `settings.json` can set a default agent (`"agent": "agent-name"`) but **cannot inject permission allow-patterns** for Bash, Read, Write, or Edit. Users must manually configure permissions (via `/permissions` or their own `settings.json`) for any tool access the plugin's skills need. Document required permissions in the plugin's README.
+
+## Flatten Nested Namespace Directories in Plugins
+
+When packaging skills from a nested directory structure (`git/create-pr/SKILL.md`) into a plugin whose name already provides namespace context (e.g., `mahoy-git`), flatten the subdirectory to avoid double-namespacing. Otherwise: `skills/git/create-pr/` → `/mahoy-git:git:create-pr` (redundant). Flattened: `skills/create-pr/` → `/mahoy-git:create-pr` (clean). **Verify empirically** — exact namespace resolution behavior with nested `skills/` subdirectories needs testing.
+
+## `skills-ref validate` Rejects Claude Code Extensions
+
+The Agent Skills spec validator ([`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)) only allows 6 fields: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`. Claude Code extension fields (`disable-model-invocation`, `argument-hint`, `hooks`, `context`, `agent`, `model`, `user-invocable`) all produce "Unexpected fields" errors. This means **any skill using Claude Code-specific features will fail spec validation**.
+
+For repos targeting Claude Code specifically, build a custom validator that understands the Claude Code superset. Don't depend on `skills-ref validate` — it's also v0.1.0, labeled "demonstration purposes only", not on PyPI, and no CI/CD for skill validation exists in the ecosystem yet (not in Anthropic's repos, agentskills org, or community repos).
+
+## Cross-Platform Extension Field Handling
+
+Claude Code extension frontmatter fields (`disable-model-invocation`, `argument-hint`, `hooks`, `context`, `agent`, `model`) **degrade gracefully** on all 8+ Agent Skills platforms (Feb 2026). Most platforms silently ignore unknown fields. VS Code warns (yellow underline, [issue #294520](https://github.com/microsoft/vscode/issues/294520)) against a fixed allowlist — workaround: `"files.associations": {"**/.claude/skills/**/SKILL.md": "markdown"}`. OpenCode explicitly documents "unknown frontmatter fields are ignored." No platform errors on or rejects skills with extension fields.
+
+**Universal discovery path**: `.agents/skills/` is supported by all platforms. `~/.claude/skills/` is recognized by Claude Code, VS Code, Cursor, OpenCode — but NOT by Codex, Gemini CLI, or Roo Code.
+
+## `$ARGUMENTS` Is the Most Portable Body Feature
+
+`$ARGUMENTS` (and `$ARGUMENTS[N]`/`$N`) is supported by Claude Code, VS Code/Copilot, Cursor, Codex, and likely all Agent Skills tools — it's part of the standard's body substitution convention. Tool names (`Read`, `Edit`, `Task`, `AskUserQuestion`, etc.) are **NOT portable** — they differ across platforms. For cross-platform skills, use natural language instructions ("Read the file at...") instead of tool-specific directives ("Use the Read tool").
+
+## `metadata.*` Namespace for Platform-Specific Config
+
+SkillPort uses `metadata.skillport.*` in YAML frontmatter for platform-specific configuration while staying spec-compliant. This pattern avoids frontmatter pollution and is forward-compatible if platforms standardize on namespaced metadata. Example: `metadata: { skillport: { category: development, alwaysApply: true } }`. Note: no platform currently reads `metadata.*` for runtime behavior — it's documentation/tooling only.
+
+## `compatibility` Field for Signaling Portability
+
+The spec-standard `compatibility:` frontmatter field (max 500 chars) signals intended platform and runtime requirements. Zero runtime cost, recognized by multiple platforms. Good practice for skills with varying portability levels:
+- Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
+- CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
 

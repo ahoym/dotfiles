@@ -69,3 +69,15 @@ Files created:
 Next: Run the Ralph loop:
 bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models
 ```
+
+## Learnings
+
+### Overwrite Guard: Offer "Create Alongside"
+
+When a project directory already exists, offer three options — not just overwrite/abort:
+
+1. **Overwrite** — replace existing project
+2. **Create alongside** — new directory with `-1b` suffix (e.g., `topic-1b/`) for parallel comparison
+3. **Abort** — keep existing, do nothing
+
+Use `-1b` (not `-v2`) because parallel research is for comparison, not versioning. If `-1b` exists, increment: `-1c`, `-1d`, etc.

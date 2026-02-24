@@ -98,4 +98,18 @@ When a session is continued from a compacted conversation (context overflow), **
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
 
+## PreToolUse Hooks Survive `--dangerously-skip-permissions`
+
+`PreToolUse` hooks fire regardless of permission mode — they're the one enforcement layer that works even with `--dangerously-skip-permissions`. Use exit 2 + stderr message to block (message is shown to Claude as feedback). Exit 0 to allow. This makes hooks the right layer for security guards on unattended loops.
+
+Note: `PermissionRequest` hooks do NOT fire in non-interactive mode (`--print`). Only `PreToolUse`/`PostToolUse` fire.
+
+## Hook Performance: Process Spawn Overhead
+
+Each hook spawns a process (~1-2ms on macOS) on every matching tool call. For high-frequency tools (Bash, Write/Edit), permanent hooks cause aggregate latency even with early-exit checks. Scope hooks to contexts where they're needed — e.g., inject into worktree-level `settings.local.json` instead of user-level settings, so hooks only exist during the scoped operation.
+
+## Multiple PreToolUse Hooks Act as AND Gates
+
+When multiple `PreToolUse` hooks match the same tool, **all** must allow for the call to proceed. If Hook A allows and Hook B denies, the call is blocked. This means concurrent write-scope guards for different directories are fundamentally incompatible on shared settings — each guard blocks the other's allowed directory. Solve with isolated settings (worktrees) rather than shared settings with multiple guards.
+
 
