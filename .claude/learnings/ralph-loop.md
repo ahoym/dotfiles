@@ -15,3 +15,15 @@ Use `**ANSWER:**` prefix inline on answered questions rather than changing the s
 Git worktrees give each ralph loop its own `settings.local.json`. Claude loads **user-level** (`~/.claude/settings.local.json` — symlinks to main repo, untouched) + **project-level** (`<worktree>/.claude/settings.local.json` — isolated copy). Hooks injected into the worktree's settings only apply to that loop's `claude --print` invocations.
 
 This also eliminates the fragile `git stash → checkout → branch → stash pop → commit → push → checkout back` dance. With worktrees: `git worktree add` → loop in worktree → commit+push from worktree → `git worktree remove`. No stashing, no branch switching in the main tree, concurrent-safe.
+
+## Core Files
+
+A ralph project's context lives in 5 core files:
+
+- `spec.md` — topic definition, constraints, research workflow
+- `progress.md` — status, completed/pending tasks, answered questions, notes, completion signal
+- `info.md` — comprehensive research findings
+- `assumptions-and-questions.md` — key decisions, assumptions, open items
+- `implementation-plan.md` — phased action plan
+
+Deep research files (`<topic>.md`) are supplementary — created when a research area exceeds ~200 lines in info.md.
