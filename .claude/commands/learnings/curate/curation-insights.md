@@ -6,7 +6,7 @@ Operational calibration and phase-specific patterns from prior consolidation run
 
 - Between-sweep reports work well for visibility during iterative consolidation runs
 - When a sweep returns 0 HIGHs and 0 MEDIUMs, a single-line "Sweep N: clean" is sufficient — reserve the full table format for actionable sweeps
-- **Cadence signal:** Consolidation has diminishing returns when run shortly after a clean first run — use `/learnings:curate <file>` for targeted cleanup between full consolidation sweeps
+- **Cadence signal:** Consolidation has diminishing returns when run shortly after a clean first run — use `/learnings:curate <file>` for targeted cleanup between full consolidation sweeps. When invoked on a recently-curated collection, proactively flag: "Last curation was N commits/hours ago — learnings sweep will likely be clean. Skip to skills/guidelines?" Challenge the premise before running a predictably empty sweep.
 - **Run consolidation after bulk imports** (PR extraction, quantum-tunnel sync, manual additions) — bulk imports often introduce content overlapping with existing personas or skills
 - **Load files incrementally:** Re-list the directory at each sweep start — files may be added mid-session by hooks or parallel processes
 - **Pure-deletion re-sweeps: skip and state why.** After a sweep where all actions were deletions, skip the mechanical re-sweep — deletions can't create new overlaps. State explicitly: "Skipping re-sweep because deletions can't create new overlaps" rather than pretending to run one
