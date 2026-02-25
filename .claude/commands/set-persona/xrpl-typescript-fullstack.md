@@ -48,7 +48,7 @@
 - `account_offers` does not return transaction hashes — cross-reference `account_tx` filtering for `OfferCreate` and match by sequence number
 - `getBalanceChanges()` returns XRP deltas already net of fees — don't subtract `tx.Fee` again (double-counts the deduction)
 - `RippleState` balance sign: positive = low account holds the IOU, negative = high account — common mistake is assuming positive means "your" side
-- Detecting fills from `account_tx`: parse `AffectedNodes` for `AccountRoot` (XRP) and `RippleState` (token) modifications; filter fee-only changes (< 0.001 XRP delta) — see `learnings/xrpl-patterns.md` for full algorithm
+- Detecting fills from `account_tx`: (1) filter `OfferCreate` with `tesSUCCESS`, (2) parse `AffectedNodes` — `AccountRoot` mods for XRP (drops ÷ 1M), `RippleState` mods for tokens (positive balance = low account holds IOU), (3) compute per-account deltas for the wallet, (4) a fill = opposite signs on base/quote deltas, (5) filter fee-only: unfilled offers still modify AccountRoot by ~12 drops — threshold < 0.001 on both amounts, (6) positive base delta = buy, negative = sell
 
 ### Next.js 16
 - `proxy.ts` replaces `middleware.ts` — exported function must be named `proxy()`, runs on Node runtime (not Edge)
