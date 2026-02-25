@@ -57,7 +57,7 @@ This repo's skills use only `description:` from SKILL.md frontmatter. Official f
 - **`disable-model-invocation: true`** — See "`disable-model-invocation` Removes Skill from Context" section below.
 - **`{baseDir}`** — Resolves to skill's own installation directory (e.g., `~/.claude/commands/<skill>/`). Works for intra-skill references (scripts/, references/, assets/) but **cannot** replace `~/.claude/` for cross-directory references to `~/.claude/learnings/`, `~/.claude/skill-references/`, etc.
 
-Gap identified comparing 22 repo skills against official spec — none use these features.
+Gap identified comparing repo skills against official spec — none use these features.
 
 ## `disable-model-invocation` Removes Skill from Context
 
@@ -180,7 +180,7 @@ At typical collection sizes (20-30 skills), utilization is well under 50% with a
 |----------------|-------------------|
 | 250 chars | ~45 |
 | 150 chars | ~62 |
-| 103 chars (current) | ~75 |
+| 103 chars | ~75 |
 | 80 chars | ~85 |
 
 ## Built-In Bundled Skills
@@ -275,7 +275,7 @@ Plugin `settings.json` can set a default agent (`"agent": "agent-name"`) but **c
 
 ## Flatten Nested Namespace Directories in Plugins
 
-When packaging skills from a nested directory structure (`git/create-pr/SKILL.md`) into a plugin whose name already provides namespace context (e.g., `mahoy-git`), flatten the subdirectory to avoid double-namespacing. Otherwise: `skills/git/create-pr/` → `/mahoy-git:git:create-pr` (redundant). Flattened: `skills/create-pr/` → `/mahoy-git:create-pr` (clean). **Verify empirically** — exact namespace resolution behavior with nested `skills/` subdirectories needs testing.
+When packaging skills from a nested directory structure (`git/create-pr/SKILL.md`) into a plugin whose name already provides namespace context (e.g., `acme-git`), flatten the subdirectory to avoid double-namespacing. Otherwise: `skills/git/create-pr/` → `/acme-git:git:create-pr` (redundant). Flattened: `skills/create-pr/` → `/acme-git:create-pr` (clean). **Verify empirically** — exact namespace resolution behavior with nested `skills/` subdirectories needs testing.
 
 ## `skills-ref validate` Rejects Claude Code Extensions
 
