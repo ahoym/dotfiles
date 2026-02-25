@@ -1,5 +1,12 @@
 ---
+name: compare
 description: "Compare duplicate research directories to determine which is superseded."
+disable-model-invocation: true
+argument-hint: "[dir1] [dir2]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
 ---
 
 # Compare Ralph Projects

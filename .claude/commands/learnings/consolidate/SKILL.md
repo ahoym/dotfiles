@@ -1,5 +1,7 @@
 ---
-description: "Exhaustive multi-sweep curation of learnings, skills, and guidelines — auto-applies HIGH-confidence recommendations, batches MEDIUMs for approval, loops until fully distilled. Orchestrates repeated learnings:curate sweeps across all content types."
+name: consolidate
+description: "Run exhaustive multi-sweep curation of all learnings, skills, and guidelines — auto-applies high-confidence recommendations and batches others for approval."
+disable-model-invocation: true
 ---
 
 # Consolidate Learnings, Skills & Guidelines

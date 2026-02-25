@@ -1,5 +1,12 @@
 ---
+name: do-security-audit
 description: "Run a security audit on one or more projects using parallel agents."
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Task
+  - WebFetch
 ---
 
 # Security Audit

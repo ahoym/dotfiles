@@ -1,6 +1,11 @@
 ---
-description: "Load a ralph research project's context and produce a concise brief for Q&A."
+name: brief
+description: "Load a research project's files into context and produce a concise brief for Q&A."
+disable-model-invocation: true
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Brief a Ralph Research Project
 

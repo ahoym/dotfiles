@@ -1,5 +1,10 @@
 ---
+name: prune-merged
 description: "Clean up local branches that have been merged into main."
+allowed-tools:
+  - Read
+  - Bash
+  - AskUserQuestion
 ---
 
 # Prune Merged Branches

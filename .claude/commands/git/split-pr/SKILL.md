@@ -1,6 +1,15 @@
 ---
+name: split-pr
 description: "Analyze a large PR and propose how to split it into smaller, reviewable units."
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Split Large PR
 

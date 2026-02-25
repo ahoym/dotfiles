@@ -1,5 +1,9 @@
 ---
-description: "Set domain focus and priorities for the current session."
+name: set-persona
+description: "Activate a named domain persona to set focus, priorities, and gotchas for the current session."
+argument-hint: "[persona-name]"
+allowed-tools:
+  - Read
 ---
 
 # Set Persona

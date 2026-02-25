@@ -1,6 +1,11 @@
 ---
-description: "Resume a completed or blocked ralph research loop by collecting answers and relaunching."
+name: resume
+description: "Resume a completed or blocked iterative research loop by collecting answers and relaunching."
+disable-model-invocation: true
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Resume a Ralph Research Loop
 

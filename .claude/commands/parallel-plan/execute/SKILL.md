@@ -1,5 +1,7 @@
 ---
-description: Execute a structured parallel plan using concurrent subagents with DAG-based scheduling. Use when the user says "execute this plan", "run this parallel plan", "execute parallel", or references a parallel plan file to execute.
+name: execute
+description: Execute a structured parallel plan by launching concurrent subagents with DAG-based scheduling. Use when the user references a parallel plan file to execute.
+disable-model-invocation: true
 ---
 
 # Execute Parallel Plan

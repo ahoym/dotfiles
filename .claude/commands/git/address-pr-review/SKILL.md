@@ -1,6 +1,11 @@
 ---
+name: address-pr-review
 description: "Fetch and address review comments from a pull request."
+argument-hint: "[pr-number]"
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Address PR Review
 

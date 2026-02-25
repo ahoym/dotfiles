@@ -1,6 +1,19 @@
 ---
+name: explore-repo
 description: "Deep-scan a repository to understand its structure, functionality, and documentation gaps."
+argument-hint: "[repo-path]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Task
+  - WebFetch
 ---
+
+## Context
+- Project root: !`git rev-parse --show-toplevel 2>/dev/null`
+- Current branch: !`git branch --show-current 2>/dev/null`
+- HEAD: !`git rev-parse --short HEAD 2>/dev/null`
 
 # Explore Repository
 

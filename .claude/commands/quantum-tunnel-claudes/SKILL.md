@@ -1,5 +1,7 @@
 ---
+name: quantum-tunnel-claudes
 description: "Pull and merge Claude skills, learnings, and guidelines from a configured sync source into the current repo."
+disable-model-invocation: true
 ---
 
 # Quantum Tunnel Claudes

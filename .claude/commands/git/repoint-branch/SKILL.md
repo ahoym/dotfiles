@@ -1,6 +1,15 @@
 ---
+name: repoint-branch
 description: "Extract independent changes from a feature branch into a new PR targeting main."
+allowed-tools:
+  - Read
+  - Bash
+  - AskUserQuestion
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
+- Changed files (vs main): !`git diff --name-only origin/main...HEAD 2>/dev/null | head -50`
 
 # Repoint Branch
 

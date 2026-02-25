@@ -1,5 +1,7 @@
 ---
-description: "Clean up stale ralph worktrees whose branches have been merged or deleted."
+name: cleanup
+description: "Clean up stale research worktrees whose branches have been merged or deleted."
+disable-model-invocation: true
 ---
 
 # Clean Up Ralph Worktrees

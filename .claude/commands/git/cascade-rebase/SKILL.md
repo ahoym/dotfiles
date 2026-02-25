@@ -1,6 +1,10 @@
 ---
+name: cascade-rebase
 description: "Rebase a chain of stacked/dependent branches when main is updated."
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Cascade Rebase
 

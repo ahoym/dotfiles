@@ -1,5 +1,14 @@
 ---
-description: "Analyze code for structured refactoring opportunities."
+name: do-refactor-code
+description: "Analyze a file for refactoring opportunities and apply selected improvements."
+argument-hint: "[filepath]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
+  - Bash
 ---
 
 # Refactor Code

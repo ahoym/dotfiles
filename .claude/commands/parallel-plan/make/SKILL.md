@@ -1,5 +1,6 @@
 ---
-description: Analyze a sequential plan for parallelization opportunities and produce a structured parallel plan. Use when the user says "parallelize this plan", "make this parallel", or wants to split a plan into concurrent work streams.
+name: make
+description: Analyze a plan for parallelization opportunities and produce a structured parallel plan with a dependency DAG. Use when the user says "parallelize this plan" or wants to split work into concurrent streams.
 ---
 
 # Make Parallel Plan

@@ -1,4 +1,5 @@
 ---
+name: brief
 description: "Load explore-repo scan artifacts into context and produce a concise repository brief for Q&A."
 ---
 

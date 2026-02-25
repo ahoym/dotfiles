@@ -1,6 +1,12 @@
 ---
+name: monitor-pr-comments
 description: "Watch a PR in background and address new comments as they arrive."
+argument-hint: "[pr-number]"
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
+- Repository: !`gh repo view --json owner,name --jq '.owner.login + "/" + .name' 2>/dev/null`
 
 # Monitor PR Comments
 

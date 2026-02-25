@@ -1,6 +1,10 @@
 ---
+name: resolve-conflicts
 description: "Resolve merge conflicts between branches."
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Resolve Conflicts
 

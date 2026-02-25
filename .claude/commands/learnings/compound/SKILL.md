@@ -1,5 +1,14 @@
 ---
+name: compound
 description: "Capture session learnings and save to skills, guidelines, or reference docs under ~/.claude/."
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
+  - AskUserQuestion
+  - Skill
 ---
 
 # Compound Learnings

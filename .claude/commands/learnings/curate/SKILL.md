@@ -1,5 +1,13 @@
 ---
+name: curate
 description: "Single-pass curation of learnings, guidelines, and skills — consolidate, reorganize, or prune. For exhaustive multi-sweep curation, use learnings:consolidate instead."
+disable-model-invocation: true
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
 ---
 
 # Curate Learnings

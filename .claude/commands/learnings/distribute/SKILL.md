@@ -1,6 +1,17 @@
 ---
+name: distribute
 description: "Distribute global learnings and guidelines from ~/.claude/ into the current project's .claude/ directory."
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
+  - Bash
 ---
+
+## Context
+- Project root: !`git rev-parse --show-toplevel 2>/dev/null`
 
 # Distribute Learnings
 

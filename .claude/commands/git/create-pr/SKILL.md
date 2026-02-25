@@ -1,6 +1,11 @@
 ---
+name: create-pr
 description: "Create a pull request or update an existing one following project conventions."
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
+- Commits on branch: !`git log origin/main..HEAD --oneline 2>/dev/null | head -20`
 
 # Create Pull Request
 

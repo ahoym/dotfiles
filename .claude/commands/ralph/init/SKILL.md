@@ -1,5 +1,13 @@
 ---
+name: init
 description: "Initialize an iterative research project with spec and progress tracking."
+disable-model-invocation: true
+argument-hint: "[topic]"
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - TodoWrite
 ---
 
 # Initialize Ralph Research Project

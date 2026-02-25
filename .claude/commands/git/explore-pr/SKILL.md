@@ -1,6 +1,16 @@
 ---
-description: "Pull down a PR to get context and ask questions about it."
+name: explore-pr
+description: "Fetch and analyze a PR's diff and metadata, then enter interactive Q&A mode."
+argument-hint: "[pr-number]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
 ---
+
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
 
 # Explore PR
 
