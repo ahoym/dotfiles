@@ -48,9 +48,25 @@ exit 0
 
 PreToolUse hooks fire **before** the permission system and are completely independent of it. `--dangerously-skip-permissions` skips permission prompts but does NOT skip hooks. This means hooks are a reliable security boundary for unattended `claude --dangerously-skip-permissions --print` runs.
 
+Note: `PermissionRequest` hooks do NOT fire in non-interactive mode (`--print`). Only `PreToolUse`/`PostToolUse` fire.
+
 ## Tool Input Guarantees
 
 - `Write` and `Edit` tools always provide **absolute paths** in `tool_input.file_path`. Guards using `case`/pattern matching on absolute paths are safe — no relative path edge cases.
+
+## Blanket Tool Blocking > Pattern Matching
+
+For unattended loops, block entire tool classes rather than enumerating dangerous patterns. Research loops only need Read, Write, Edit, Glob, Grep, WebFetch, WebSearch — blanket-blocking Bash eliminates the entire class of prompt injection risks (remote code execution, destructive ops, environment manipulation) in 3 lines instead of 200+ lines of regex that can always be bypassed.
+
+Pattern-matching guards are a game of whack-a-mole. Removing the tool entirely is a brick wall.
+
+## Hook Performance: Process Spawn Overhead
+
+Each hook spawns a process (~1-2ms on macOS) on every matching tool call. For high-frequency tools (Bash, Write/Edit), permanent hooks cause aggregate latency even with early-exit checks. Scope hooks to contexts where they're needed — e.g., inject into worktree-level `settings.local.json` instead of user-level settings, so hooks only exist during the scoped operation.
+
+## Multiple PreToolUse Hooks Act as AND Gates
+
+When multiple `PreToolUse` hooks match the same tool, **all** must allow for the call to proceed. If Hook A allows and Hook B denies, the call is blocked. This means concurrent write-scope guards for different directories are fundamentally incompatible on shared settings — each guard blocks the other's allowed directory. Solve with isolated settings (worktrees) rather than shared settings with multiple guards.
 
 ## Idempotent Hook Injection
 

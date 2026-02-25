@@ -88,9 +88,11 @@ Pre-commit hooks may modify staged files (formatting, linting) or change the com
 
 Git worktrees provide natural isolation for `.claude/settings.local.json`. Each worktree gets its own copy of the file at checkout, so hooks/permissions injected there don't affect the main repo or other worktrees.
 
-**How it works:** Claude Code loads project-level settings from `<cwd-project-root>/.claude/settings.local.json`. A worktree is its own project root, so `claude --print` run from a worktree picks up the worktree's settings — not the main repo's.
+**How it works:** Claude Code loads **user-level** (`~/.claude/settings.local.json`) + **project-level** (`<cwd-project-root>/.claude/settings.local.json`). A worktree is its own project root, so `claude --print` run from a worktree picks up the worktree's settings — not the main repo's.
 
 **Use case:** Inject PreToolUse security hooks into a worktree's settings for unattended loops (`--dangerously-skip-permissions`), then remove on exit. The main repo's settings are never touched.
+
+**Workflow benefit:** Eliminates the fragile `git stash → checkout → branch → stash pop → commit → push → checkout back` dance. With worktrees: `git worktree add` → loop in worktree → commit+push from worktree → `git worktree remove`. No stashing, no branch switching in the main tree, concurrent-safe.
 
 ```bash
 # Inject hooks into worktree settings (preserves existing keys like permissions)

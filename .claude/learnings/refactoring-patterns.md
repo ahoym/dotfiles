@@ -57,6 +57,10 @@ Decompose large functions/hooks, consolidate overlapping types, extract shared u
 - Phase 1 makes the code easier to test.
 - Phase 2 makes structural changes safer.
 
+## Plan vs Reality Delta Check
+
+Before implementing a plan, compare it against existing code to find the actual delta. Plans are often written before implementation begins — by the time you execute, much may already exist. Read all relevant files first, identify what's already done, and only implement what's actually missing. This avoids redundant work and keeps changes minimal.
+
 ## Fix Bugs Structurally Through Refactoring
 
 When a refactoring plan includes both "add tests" and "split/extract" phases, use them together strategically:
