@@ -10,26 +10,6 @@ Parallel plan speedup is bounded by the **DAG shape** (critical path), not by to
 - Design features with more independent pieces (wider DAG = more parallelism)
 - Features with inherent layering (types → logic → UI) have natural parallelism ceilings
 
-## Soft Deps for Type-Appending Agents
-
-When Agent A **modifies** (appends to) an existing type file like `lib/types.ts`, downstream agents that import those types in **new files** they create should use `soft_depends_on`, not `depends_on`.
-
-**Why soft works:** The file already exists on disk. Once A writes its additions, the updated types are immediately available for import. Soft dep means "start once A's files are written" — the downstream agent doesn't need to wait for A's full build-verify to pass.
-
-**When hard is needed instead:** If the downstream agent also **modifies** the same file (file conflict), or if it needs verified behavior (not just type signatures) from A's output.
-
-**Example:**
-```
-A modifies: lib/types.ts (appends AmmPoolInfo interface)
-G creates:  app/components/pool-panel.tsx (imports AmmPoolInfo)
-→ G soft_depends_on A ✓ (G creates a new file, only needs types on disk)
-
-A modifies: lib/api.ts (extends txFailureResponse signature)
-D creates:  app/api/create/route.ts (calls txFailureResponse)
-→ D depends_on A ✓ (D needs the actual function to compile, hard is safer)
-```
-
-
 ## Fast/Slow Track Plan Splitting
 
 When a plan contains multiple independent suggestions of varying complexity, split them into separate tracks:
