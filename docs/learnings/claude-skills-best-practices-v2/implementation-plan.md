@@ -2,7 +2,20 @@
 
 ## Overview
 
-This plan applies research findings from `info.md`, `codebase-summary.md`, and `assumptions-and-questions.md` to improve the 22-skill collection at `~/.claude/commands/`. Changes are grouped into phases by dependency and risk, with parallelization opportunities marked.
+This plan applies research findings from `info.md`, `codebase-summary.md`, and `assumptions-and-questions.md` to improve the 26-skill collection at `~/.claude/commands/`. Changes are grouped into phases by dependency and risk, with parallelization opportunities marked.
+
+### Session Decisions (2026-02-24)
+
+Decisions made during implementation planning discussion:
+- **`disable-model-invocation` expanded from 4 → 9 skills**: Added consolidate, curate, parallel-plan/execute, ralph/resume, ralph/brief, ralph/cleanup. Kept set-persona auto-invocable (useful for Claude to suggest domain switching).
+- **Dynamic context injection extended**: Added ralph/brief and ralph/resume (branch auto-detection for research projects). cascade-rebase explicitly included.
+- **Phase 0.1 confirmed live**: `/context` shows 769 tokens (0.4%) for skills, all 25 loaded, no exclusions.
+- **Phase 0.3 deferred**: Validation script not needed before Phase 1 (changes are simple YAML additions).
+- **Phase 1E deferred**: `compatibility` field — cross-platform knowledge captured but not implementing now.
+- **Phase 2A included**: Description quality pass included in first execution round.
+- **O8 deferred**: `learnings/consolidate` line count (640 lines) — separate curation effort.
+- **Phases 4-6 deferred**: Hooks, agents, model overrides, plugin packaging — future work.
+- **Execution approach**: `/parallel-plan:make` + `/parallel-plan:execute` to dogfood the skills. Group by skill file (not task type) so each subagent applies all changes to its batch in one pass.
 
 ---
 
@@ -12,15 +25,13 @@ This plan applies research findings from `info.md`, `codebase-summary.md`, and `
 
 **Why first**: Validates assumptions before mass-editing. ~~Context budget pressure was a key motivator, but~~ [research shows only 31% budget utilization](./skill-context-budget.md) — no pressure exists. Phase 0.1 is now a low-priority confirmation step.
 
-| Task | Description | Depends On | Priority |
-|------|-------------|------------|----------|
-| **0.1** Confirm context budget | Run `/context` in a live session. Expected: no warning about excluded skills, confirming theoretical analysis (~31% utilization). | None | Low (nice-to-have confirmation) |
-| **0.2** ~~Audit SKILL.md line counts~~ | **DONE** — 1 skill over limit: `learnings/consolidate` (640 lines). `learnings/curate` borderline (450). See [skill-context-budget.md](./skill-context-budget.md) §5. | None | Complete |
-| **0.3** Build validation script | Create a custom validation script (shell) that checks structural + semantic validity. Budget estimation feature is **low priority** (not needed at 31% utilization). See [skill-testing-validation.md](./skill-testing-validation.md). | None | Medium |
+| Task | Description | Depends On | Status |
+|------|-------------|------------|--------|
+| **0.1** ~~Confirm context budget~~ | **DONE** — Live `/context` confirmed: 769 tokens (0.4%), all 25 skills loaded, no exclusions. Matches theoretical analysis. | None | **Complete** |
+| **0.2** ~~Audit SKILL.md line counts~~ | **DONE** — 1 skill over limit: `learnings/consolidate` (640 lines). `learnings/curate` borderline (450). See [skill-context-budget.md](./skill-context-budget.md) §5. | None | **Complete** |
+| **0.3** Build validation script | Deferred — not needed before Phase 1 (changes are simple YAML additions). Future CI safety net. See [skill-testing-validation.md](./skill-testing-validation.md). | None | **Deferred** |
 
-**Outputs**: ~~Baseline context consumption number.~~ Confirmed via research: ~4,908/16,000 chars. Line count audit complete: 1 violation (`learnings/consolidate`). Working validation script.
-
-**Parallelizable**: 0.1 and 0.3 can run concurrently.
+**Outputs**: Phase 0 complete. Budget confirmed live. Line count audit complete.
 
 ---
 
@@ -45,25 +56,9 @@ name: <directory-name>
 
 **Validation**: Run Phase 0.3 validation script. Optionally run `skills-ref validate` on individual skills (will still report Claude Code extension fields as errors, but `name` errors should disappear).
 
-### 1E: Add `compatibility` Field (Optional, Zero-Cost)
+### ~~1E: Add `compatibility` Field~~ — Deferred
 
-**Ref**: Open Item O18, [cross-platform-compatibility.md](./cross-platform-compatibility.md) §4
-
-Add the spec-standard `compatibility:` field to all 22 skills signaling portability tier and runtime requirements.
-
-**Change per skill**: Add one line to YAML frontmatter:
-```yaml
-compatibility: <tier-appropriate message>
-```
-
-Tier messages:
-- **Tier 1** (prune-merged, repoint-branch, do-refactor-code): `Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
-- **Tier 2** (10 git/general skills): `Designed for Claude Code. Core workflow may work in other Agent Skills tools.`
-- **Tier 3** (9 orchestration-heavy skills): `Requires Claude Code (uses subagent orchestration and interactive tools).`
-
-**Effect**: Signals to non-Claude-Code users what to expect. Zero runtime impact. Spec-standard field recognized by multiple platforms.
-
-**Validation**: Run `skills-ref validate` — `compatibility` is a recognized spec field.
+**Deferred**: Cross-platform knowledge captured in research but not implementing now. Revisit when plugin distribution is pursued.
 
 ### 1F: Add `allowed-tools` to 13 Skills (Intent-Signaling)
 
@@ -92,20 +87,27 @@ allowed-tools:
 
 **Ref**: Assumption A6, Open Item O2
 
-Add to these 4 skills:
+Add to these 9 skills:
 - `ralph/init` — research project setup, always user-initiated
 - `ralph/compare` — directory comparison, always user-initiated
+- `ralph/resume` — always explicit invocation
+- `ralph/brief` — always explicit invocation
+- `ralph/cleanup` — always explicit invocation
 - `quantum-tunnel-claudes` — skill sync, always user-initiated
-- `set-persona` — session config, always user-initiated
+- `learnings/consolidate` — heavyweight multi-sweep, always explicit
+- `learnings/curate` — primarily a delegate of consolidate
+- `parallel-plan/execute` — always follows make, user-driven
+
+**Kept auto-invocable** (user decision): `set-persona` (useful for Claude to suggest domain switching), `parallel-plan/make` (Claude may suggest parallelizing), `learnings/distribute` (Claude may suggest in new projects), `learnings/compound` (designed for auto-invocation after tasks).
 
 **Change per skill**: Add one line to YAML frontmatter:
 ```yaml
 disable-model-invocation: true
 ```
 
-**Effect**: Removes these 4 descriptions from context budget. Claude won't auto-invoke them (nor should it — they're all deliberate user actions).
+**Effect**: Removes 9 skill descriptions from context budget. Reduces noise in Claude's skill selection. Prevents accidental invocation of heavyweight operations.
 
-**Validation**: Run `/context` after applying. Compare to Phase 0 baseline. Verify these skills still appear in `/` menu.
+**Validation**: Run `/context` after applying. Confirm 9 skills no longer listed. Verify they still work via `/skill-name`.
 
 ### 1B: Add `argument-hint` to Argument-Taking Skills
 
@@ -171,7 +173,9 @@ Review all 22 skill descriptions against these criteria from `info.md`:
 **Routing phrase review** — test whether `parallel-plan:make` (222 chars) and `parallel-plan:execute` (225 chars) route correctly without their "Use when..." phrases (~100 chars each). These are the longest descriptions; the routing phrases may be unnecessary given the clear skill names.
 
 **Lower priority** (skills getting `disable-model-invocation: true` don't need routing optimization since their descriptions won't be in context):
-- `ralph/init`, `ralph/compare`, `quantum-tunnel-claudes`, `set-persona`
+- `ralph/init`, `ralph/compare`, `ralph/resume`, `ralph/brief`, `ralph/cleanup`, `quantum-tunnel-claudes`, `learnings/consolidate`, `learnings/curate`, `parallel-plan/execute`
+
+**Included in first execution round** alongside Phase 1 (user decision).
 
 **Validation**: Invoke skills via natural language and verify correct routing.
 
@@ -183,39 +187,19 @@ Review all 22 skill descriptions against these criteria from `info.md`:
 
 **Depends on**: Phase 0.2 (line count audit identifies which skills need restructuring).
 
-### 3A: Extract Large Inline Content to Reference Files
+### ~~3A: Extract Large Inline Content to Reference Files~~ — Deferred
 
-If Phase 0.2 identifies SKILL.md files over 500 lines, extract conditional-use content into separate reference files.
+Deferred as separate curation effort. `learnings/consolidate` (640 lines) is the only violation. User will handle individually.
 
-**Pattern**:
-```markdown
-# Before (inline)
-## Detailed Reference
-(200 lines of reference content used only in edge cases)
+### ~~3B: Review `@` (Eager) Reference Usage~~ — Deferred
 
-# After (extracted)
-## Reference Files
-- detailed-reference.md - Edge case patterns (read only when needed)
-```
-
-**Candidate skills** (likely longest, pending audit):
-- `learnings/compound` (6 existing refs — may have grown)
-- `parallel-plan/execute` (complex orchestration)
-- `ralph/init` (includes full spec template via `@`)
-
-### 3B: Review `@` (Eager) Reference Usage
-
-Currently 2 skills use `@` references:
-- `ralph/init` → `@spec-template.md`, `@progress-template.md`
-- `explore-repo` → `@agent-prompts.md`
-
-**Evaluate**: Are these files <30 lines AND needed every invocation? If not, switch to conditional references.
+Deferred alongside 3A.
 
 ### 3C: Add Dynamic Context Injection
 
 **Ref**: [dynamic-context-injection.md](./dynamic-context-injection.md) (deep research completed)
 
-Add `## Context` section with `!`command`` preprocessing to 10 skills:
+Add `## Context` section with `!`command`` preprocessing to 12 skills:
 
 | Skill | Injection(s) | Tokens Added |
 |-------|-------------|-------------|
@@ -229,6 +213,10 @@ Add `## Context` section with `!`command`` preprocessing to 10 skills:
 | `git/cascade-rebase` | branch name | ~5 |
 | `explore-repo` | project root, branch name, HEAD hash | ~18 |
 | `learnings/distribute` | project root | ~10 |
+| `ralph/brief` | branch name (auto-detect research project) | ~5 |
+| `ralph/resume` | branch name (auto-detect research project) | ~5 |
+
+**Included in first execution round** alongside Phase 1 (user decision). Grouping by skill file means each subagent applies frontmatter + injection together.
 
 **Implementation pattern:**
 ```markdown
@@ -419,30 +407,33 @@ If cross-platform distribution beyond Claude Code marketplace is desired:
 
 ## Parallelization Map
 
+### First Execution Round (Phases 0-3C + 2A)
+
+Grouped by skill file for parallel execution via `/parallel-plan:execute`:
+
 ```
-Phase 0: [0.1 Measure context] ──────┐
-         [0.2 Audit line counts] ─────┤ All parallel
-         [0.3 Build validation script]┘
+Phase 0: [0.1 DONE] [0.2 DONE] [0.3 Deferred]
+
+         [Stream 1: Git skills (9 files)]     ─┐
+         [Stream 2: Ralph skills (5 files)]    ├── All parallel (different files)
+         [Stream 3: Learnings skills (4 files)] │
+         [Stream 4: Standalone skills (8 files)]│
+         [Stream 5: Settings fix (1 file)]    ─┘
                       │
                       ▼
-Phase 1: [1A disable-model-invocation] ─┐
-         [1B argument-hint]             ├── All parallel (independent)
-         [1C fix stale settings]        │
-         [1D add name field]            │
-         [1E add compatibility field]   │
-         [1F add allowed-tools]        ─┘
+         [Stream 6: Description quality pass] ── Sequential (reviews all descriptions)
                       │
                       ▼
-Phase 2: [2A Description quality pass]
-                      │
-                      ▼
-Phase 3: [3A Extract large content] ──┐
-         [3B Review @ references]     ├── All parallel
-         [3C Dynamic injection eval] ─┘
-                      │
-                      ▼
+         [Verification: /context + manual testing]
+```
+
+Each stream applies ALL applicable changes (name, disable-model-invocation, argument-hint, allowed-tools, dynamic injection) to its batch of skills in a single pass.
+
+### Future Rounds (Deferred)
+
+```
 Phase 4: [4A model: overrides] ───────┐
-         [4B hooks evaluation]        ├── All parallel (independent evaluations)
+         [4B hooks (2 skills)]        ├── All parallel
          [4C agents/ definitions] ────┘
                       │
                       ▼
@@ -451,18 +442,7 @@ Phase 5: [5A Context check]  ─────────┐
          [5C Update learnings] ───────┘
                       │
                       ▼
-Phase 6: [6A Verify namespace behavior] ──┐
-                      │                   │
-                      ▼                   │
-         [6B Tier 1 plugins] ────────┐    │
-         [6C Tier 2 plugins] ────────┤    │ All depend on 6A
-                      │              │    │
-                      ▼              │    │
-         [6D Create marketplace] ────┘    │
-                      │                   │
-                      ▼                   │
-         [6E Test and publish] ───────────┘
-         [6F Cross-platform layout] ───────── Optional, after 6B/6C
+Phase 6: [6A-6F Plugin packaging] ──── Blocked on user decisions Q8-Q12
 ```
 
 ---
@@ -483,21 +463,30 @@ Phase 6: [6A Verify namespace behavior] ──┐
 
 ## Recommended Execution Order
 
-1. **Do first**: Phase 0 (baseline) → Phase 1 (quick wins). These are high-value, low-risk, and inform everything else.
-2. **Do next**: Phase 2 (descriptions) → Phase 3 (references). Medium value, builds on Phase 1 data.
-3. **Do if time/interest**: Phase 4 (advanced features). Lower priority, higher complexity.
-4. **Always do last** (pre-distribution): Phase 5 (validation). Catches regressions.
-5. **Distribution**: Phase 6 (plugin packaging). After all improvements are validated, package and publish.
+1. **First round** (ready now): Phases 1A/1B/1C/1D/1F + 3C + 2A. All frontmatter additions, dynamic injection, settings fix, and description quality. Execute via `/parallel-plan:make` + `/parallel-plan:execute`.
+2. **Future**: Phase 4 (hooks, agents, model overrides). Lower priority, higher complexity.
+3. **Future**: Phase 5 (validation). After Phase 4.
+4. **Future**: Phase 6 (plugin packaging). Blocked on user decisions Q8-Q12.
 
 ---
 
 ## Decisions Requiring User Input
 
-1. **`commands/` → `skills/` migration**: Research says it's functionally equivalent but `skills/` is the newer convention. Worth the rename churn? (See A1, Q2) **ANSWER: Defer.**
-2. ~~**Context budget threshold**~~: **RESOLVED** — [Research shows 31% utilization](./skill-context-budget.md). All 22 skills fit comfortably. Phase 1A priority unchanged (invocation control, not budget). Phase 2A deprioritized from budget optimization to routing quality.
-3. ~~**Cross-platform portability**~~: **RESOLVED** — [Research shows all planned changes degrade gracefully](./cross-platform-compatibility.md). Frontmatter is maximally portable. Body content is CC-specific but not worth rewriting. Added Phase 1E (`compatibility` field) and Phase 6F (optional `.agents/skills/` layout). No existing plan changes needed. **ANSWER: Plan to share.** Implementation adds `compatibility` field (1E) and optional cross-platform layout (6F).
-4. **Model overrides** (Phase 4A): Only worth doing if the user actively wants to reduce costs on simple skills. Otherwise skip.
-5. **Plugin name prefix** (Phase 6): All plugins need a consistent prefix (`mahoy-`?). Affects invocation UX. See Q6 in assumptions-and-questions.md.
-6. **License** (Phase 6): Needed for all distributed plugins. MIT recommended for open sharing. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §13.
-7. **Marketplace repo name** (Phase 6): Where to host the marketplace. Options: `ahoym/mahoy-skills`, `ahoym/claude-plugins`, etc.
-8. **Ralph as plugin?** (Phase 6): Should ralph/ skills be packaged as a separate plugin or kept personal-only?
+### Resolved
+
+1. **`commands/` → `skills/` migration**: **ANSWER: Defer.** Functionally equivalent.
+2. ~~**Context budget threshold**~~: **RESOLVED** — 31% utilization, confirmed live (769 tokens, 0.4%).
+3. ~~**Cross-platform portability**~~: **RESOLVED** — Plan to share. `compatibility` field deferred for now.
+4. **`disable-model-invocation` list**: **ANSWER: 9 skills.** Added consolidate, curate, parallel-plan/execute, ralph/resume, ralph/brief, ralph/cleanup. Kept set-persona auto-invocable.
+5. **Validation script timing**: **ANSWER: Deferred.** Not needed before Phase 1.
+6. **O8 (consolidate line count)**: **ANSWER: Separate effort.** User will curate individually.
+7. **Dynamic injection scope**: **ANSWER: 12 skills.** Added ralph/brief and ralph/resume for research branch auto-detection.
+8. **Phase 2A timing**: **ANSWER: Include in first round** alongside Phase 1.
+
+### Open (Block Phase 4+/6)
+
+9. **Model overrides** (Phase 4A): Only if user wants to reduce costs on simple skills.
+10. **Plugin name prefix** (Phase 6): `mahoy-`? See Q6 in assumptions-and-questions.md.
+11. **License** (Phase 6): MIT recommended. See [plugin-packaging-strategy.md](./plugin-packaging-strategy.md) §13.
+12. **Marketplace repo name** (Phase 6): `ahoym/mahoy-skills`, `ahoym/claude-plugins`, etc.
+13. **Ralph as plugin?** (Phase 6): Distribute or keep personal-only?

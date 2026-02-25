@@ -34,10 +34,27 @@ Status: IN_PROGRESS
 11. **Ralph as plugin?**: Should ralph/ skills be packaged as a separate distributable plugin or kept personal-only?
 12. **Flatten nested namespaces?**: Should `git/create-pr` become just `create-pr/` inside the git plugin? Needs empirical verification (O17) but user preference matters for naming UX.
 
+## Implementation Planning Session (2026-02-24)
+
+User reviewed research via `/ralph:brief`, compared v1 vs v2 (ported unique content, deleted v1), then discussed implementation decisions:
+
+**Decided:**
+- `disable-model-invocation` on 9 skills (expanded from 4): ralph/init, ralph/compare, ralph/resume, ralph/brief, ralph/cleanup, quantum-tunnel-claudes, learnings/consolidate, learnings/curate, parallel-plan/execute
+- Kept auto-invocable: set-persona, parallel-plan/make, learnings/distribute, learnings/compound
+- Dynamic injection extended to 12 skills (added ralph/brief, ralph/resume)
+- Phase 0.1 confirmed live (769 tokens, 0.4%)
+- Phase 0.3 (validation script) deferred
+- Phase 1E (compatibility field) deferred
+- Phase 2A (descriptions) included in first round
+- O8 (consolidate 640 lines) deferred as separate effort
+- Phases 4-6 deferred
+- Execution via `/parallel-plan:make` + `/parallel-plan:execute`, grouped by skill file
+
+**Ready for execution:** Phases 1A/1B/1C/1D/1F + 3C + 2A. Plan file at `~/.claude/plans/quirky-shimmying-island.md`.
+
 ## Notes for Next Iteration
-- **All research tasks complete.** 10 deep research files produced, all cross-references updated.
-- **Stop criteria met**: No new research areas identified that would meaningfully change the implementation plan. All remaining questions (8-12) require human judgment, not more research.
-- **Implementation plan is comprehensive**: 7 phases (0-6), 20 open items, 18 assumptions documented. All 10 deep research investigations complete.
-- **Ready for implementation**: The research loop has fully expanded (discovering 10 deep research areas) and contracted (all investigated). The next step is human review and decisions on questions 8-12, then Phase 1 implementation.
+- **Implementation plan updated** with all session decisions. See "Session Decisions" section at top of implementation-plan.md.
+- **First execution round is scoped**: 26 skill files + 1 settings file. Group by skill file for parallel execution.
+- **Open questions 8-12** (plugin prefix, license, marketplace, ralph as plugin, namespace flattening) only block Phase 6. Not needed for first round.
 
 WOOT_COMPLETE_WOOT
