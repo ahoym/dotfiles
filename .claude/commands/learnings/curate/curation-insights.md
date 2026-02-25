@@ -24,6 +24,8 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Rename actions should be HIGH confidence:** Removing provenance prefixes (e.g., `pr14-playwright-patterns` → `playwright-patterns`) has no ambiguity — classify as HIGH, not MEDIUM
 - **Inline analysis beats subagents for small collections:** Under ~25 files, read and analyze directly inline — skip subagent fan-out entirely. Direct reads are faster and avoid wasted agent work when the corpus fits easily in context. Reserve per-cluster subagents for 30+ file collections or 5+ clusters
 - **Partial overlap → decompose, don't downgrade.** When a section has N concepts covered elsewhere and 1+ novel concepts, don't classify the whole thing as MEDIUM. Decompose into separate items: HIGH-delete for the covered concepts, HIGH-extract for the novel ones. Each is individually unambiguous. Coverage means *conceptual* coverage (same idea, not necessarily verbatim text)
+- **MEMORY.md is not a curation safety net.** Don't classify a learning as "outdated because MEMORY.md covers it." MEMORY.md is always-on context cost; the learning file is conditional and authoritative. When both cover the same pattern, prune the MEMORY.md entry — it's the redundant copy, not the learning.
+- **Persona coverage ≠ learning obsolescence.** When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" If the learning prevents a specific wrong approach (e.g., `suppressHydrationWarning` vs gating) or provides recipes the rule alone can't trigger (e.g., three distinct `setState` alternatives), keep it. Delete only when the rule is self-sufficient to execute correctly.
 
 ## Context Window Optimization
 
@@ -48,3 +50,12 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 ## Phase 2 Patterns
 
 - **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
+
+## Report Formatting
+
+- **Keep full classification tables even when uniform.** When all patterns get the same classification (e.g., "standalone reference / keep"), still show the full table — the user reviews the reasoning per pattern, not just the action items. Don't collapse to "all 16: keep."
+- **Front-load the recommendation.** When the report has a clear opinion (e.g., "only pattern 4 really needs genericizing, the rest are cosmetic"), lead with that instead of presenting equal-weight options and walking it back during discussion. The full table provides visibility; the recommendation provides direction.
+
+## Execution Strategy
+
+- **Single-file curation: targeted reads over bulk agents.** For content-mode curation of 1-2 files, read the most-likely-overlapping files directly (same-domain learnings, relevant personas) + grep for key terms. A bulk-read agent for the full corpus is slower and may not return usable content. Reserve corpus-wide agents for broad sweeps.
