@@ -11,6 +11,9 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Load files incrementally:** Re-list the directory at each sweep start — files may be added mid-session by hooks or parallel processes
 - **Pure-deletion re-sweeps: skip and state why.** After a sweep where all actions were deletions, skip the mechanical re-sweep — deletions can't create new overlaps. State explicitly: "Skipping re-sweep because deletions can't create new overlaps" rather than pretending to run one
 - **Clean sweep summaries should lead with polish items:** When the sweep returns 0 HIGHs and 0 MEDIUMs, LOW items *are* the value of the run. Lead with "Polish Opportunities" rather than "no action needed" — the latter signals false completion and buries the useful output
+- **Concept-name collision detection is a separate, high-value pass.** Grepping for identical/near-identical H2/H3 headings across all files catches cross-file duplicates that cluster-level analysis misses. In a 25-file collection, this found 2 duplicates (worktree settings isolation, hooks/permissions) that cluster analysis didn't flag because the files were in different domain clusters. Run this as a distinct step after clustering, before classification
+
+- **Cross-persona gotcha deduplication:** When personas share a domain boundary (e.g., java-backend and java-devops both cover Java/Spring), identical gotchas can drift into both files' "Known gotchas" sections. During the skills sweep, cross-check personas sharing a parent domain for duplicated content bullets. The more specialized persona owns the gotcha (e.g., metrics patterns → java-devops, not java-backend). Heading-level collision detection won't catch these — the same content appears under different subsection headings ("Spring Boot" vs "Metrics & Observability"), so you need content-level comparison.
 
 ## Classification Calibration
 

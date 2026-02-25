@@ -25,4 +25,3 @@
 ### Spring Boot
 - `@Scheduled` + `@SchedulerLock` (ShedLock): swallow exceptions in the top-level method — Spring's TaskScheduler catches/logs anyway, ShedLock releases the lock regardless, and the job retries on next cron tick. Rethrowing just produces duplicate error logs.
 - Inner loops processing independent items should catch per-item to prevent one failure from killing the batch
-- `DistributionSummary.builder().register(registry)` respects `application.properties` SLO bucket config; `meterRegistry.summary()` shorthand bypasses it. Same for `Timer.builder()` vs `meterRegistry.timer()`

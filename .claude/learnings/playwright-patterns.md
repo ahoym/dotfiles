@@ -76,7 +76,7 @@ await page.getByRole("button", { name: "Expand orders" }).click();
 TradeTransactExplorerTestnet
 ```
 
-The substring `radeTransactExplorerTestnet` (27 characters starting with "r") matches `/r[a-zA-Z0-9]{24,}/` — a regex intended for XRPL addresses (which start with "r" followed by 24+ alphanumeric chars). This causes **strict mode violations** when using `getByText()` with address-like patterns.
+This concatenated string can false-match regexes intended for other content (e.g., an identifier pattern like `/r[a-zA-Z0-9]{24,}/`), causing **strict mode violations** when using `getByText()` with regex locators.
 
 **Fix:** Use role-based selectors that target specific elements rather than searching all text content:
 
@@ -120,15 +120,12 @@ Downstream specs restore this state automatically via config:
 { name: "my-spec", use: { storageState: ".auth/wallet.json" }, dependencies: ["setup"] }
 ```
 
-The saved JSON contains:
+The saved JSON structure — `origins[].localStorage` holds key-value pairs, `cookies` is empty for localStorage-only apps:
 ```json
 {
   "origins": [{
     "origin": "http://localhost:3000",
-    "localStorage": [
-      { "name": "app-theme", "value": "dark" },
-      { "name": "app-session", "value": "{\"user\":{...},\"preferences\":[...]}" }
-    ]
+    "localStorage": [{ "name": "app-session", "value": "{\"user\":{...}}" }]
   }],
   "cookies": []
 }
@@ -156,7 +153,7 @@ const value = await option.getAttribute("value");
 await page.locator("select").selectOption(value!);
 ```
 
-**Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded keys (e.g., `"XRP|"` for currency code + pipe + issuer). Always inspect the actual DOM to determine the value format.
+**Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded compound keys (e.g., `"CODE|issuer"`). Always inspect the actual DOM to determine the value format.
 
 ## 8. Use `exact: true` for Ambiguous Button Names
 
