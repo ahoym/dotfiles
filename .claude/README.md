@@ -22,7 +22,9 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 | `guidelines/` | Shared guidelines referenced by CLAUDE.md |
 | `learnings/` | Accumulated learnings and reference docs |
 | `lab/` | Experimental/research projects |
-| `settings.local.json` | Permission rules for dotfile skills |
+| `skill-references/` | Shared reference docs used by skills |
+| `settings.json` | Global settings and permissions |
+| `settings.local.json` | Local permission rules for dotfile skills |
 
 ## Skills
 
@@ -35,13 +37,9 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 | `/git:explore-pr` | Pull down a PR to get context and ask questions about it |
 | `/git:monitor-pr-comments` | Watch a PR in background and address new comments as they arrive |
 | `/git:split-pr` | Analyze a large PR and propose how to split it into smaller units |
-| `/git:close-redundant-pr` | Close a redundant PR and extract unique content into a new focused PR |
 | `/git:repoint-branch` | Extract independent changes from a feature branch into a new PR targeting main |
 | `/git:cascade-rebase` | Rebase a chain of stacked/dependent branches when main is updated |
-| `/git:preview-conflicts` | Preview merge conflicts between branches without merging |
 | `/git:resolve-conflicts` | Resolve merge conflicts between branches |
-| `/git:split-commit` | Split a commit with mixed changes into separate, focused commits |
-| `/git:create-followup-issue` | Create a GitHub issue from a PR review comment |
 | `/git:prune-merged` | Clean up local branches that have been merged into main |
 
 ### Learnings (`/learnings:*`)
@@ -65,6 +63,9 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 | Skill | Description |
 |-------|-------------|
 | `/ralph:init` | Initialize an iterative research project with spec and progress tracking |
+| `/ralph:resume` | Resume a completed or blocked research loop by collecting answers and relaunching |
+| `/ralph:brief` | Load a research project's files into context and produce a concise brief for Q&A |
+| `/ralph:cleanup` | Clean up stale research worktrees whose branches have been merged or deleted |
 | `/ralph:compare` | Compare duplicate research directories to determine which is superseded |
 
 ### Standalone
@@ -72,6 +73,7 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 | Skill | Description |
 |-------|-------------|
 | `/explore-repo` | Deep-scan a repository to understand its structure and documentation gaps |
+| `/explore-repo:brief` | Load scan artifacts into context and produce a concise repository brief for Q&A |
 | `/do-refactor-code` | Analyze code for structured refactoring: extraction, decomposition, test factories |
 | `/do-security-audit` | Run a security audit on one or more projects using parallel agents |
 | `/set-persona` | Set domain focus and priorities for the current session |
@@ -138,24 +140,14 @@ Scan an unfamiliar codebase, then persist the patterns you discovered.
 
 Step 4 is optional — only run it if the scan surfaced patterns useful beyond this one project (e.g., a framework gotcha, an API design pattern). Project-specific knowledge stays in the project's `docs/learnings/` files.
 
-### Internal References (`_shared/`)
+### Skill References (`skill-references/`)
 
-Not invoked directly — used by other skills as shared reference docs.
-
-**Global** (`commands/_shared/`):
-
-| File | Purpose |
-|------|---------|
-| `corpus-cross-reference.md` | Procedure for loading and assessing content against existing skills/learnings |
-
-**Git** (`commands/git/_shared/`):
-
-| File | Purpose |
-|------|---------|
-| `platform-detection.md` | GitHub vs GitLab detection logic |
-
-**Parallel Plan** (`commands/parallel-plan/_shared/`):
+Not invoked directly — used by skills as shared reference docs.
 
 | File | Purpose |
 |------|---------|
 | `agent-prompting.md` | Best practices for crafting subagent prompts |
+| `code-quality-checklist.md` | Code quality checklist for review and auditing |
+| `corpus-cross-reference.md` | Procedure for loading and assessing content against existing skills/learnings |
+| `platform-detection.md` | GitHub vs GitLab detection logic |
+| `subagent-patterns.md` | Patterns for orchestrating parallel subagents |
