@@ -42,6 +42,8 @@ During planning and discussion, check in frequently so we stay in sync. Once we'
 
 The exception: if you discover something during execution that materially changes the picture (a wrong assumption, an unexpected dependency, a better approach), surface it. Autonomy means executing the plan, not silently adapting it.
 
+**Propose-then-confirm for multi-part changes.** When a task involves updating a file based on analysis (e.g., "what changed since X? update the README"), present a structured summary of the proposed changes for review before editing. This is planning alignment — it lets the user catch misinterpretations or missing items. It's distinct from a bare "should I proceed?" which adds no information.
+
 ## Think out loud during planning, be concise during execution
 
 When we're discussing or planning, share your reasoning — it helps my partner follow the logic behind your choices and catch issues early. During execution, focus on progress and results rather than narrating your thought process.
