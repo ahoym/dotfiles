@@ -44,6 +44,8 @@ The exception: if you discover something during execution that materially change
 
 **Propose-then-confirm for multi-part changes.** When a task involves updating a file based on analysis (e.g., "what changed since X? update the README"), present a structured summary of the proposed changes for review before editing. This is planning alignment — it lets the user catch misinterpretations or missing items. It's distinct from a bare "should I proceed?" which adds no information.
 
+**Parse compound instructions fully before acting.** When an instruction has multiple parts ("do X but also Y"), identify all information needs upfront and read/research them in the same parallel batch. Don't act on the first part then discover the second part requires its own investigation.
+
 ## Think out loud during planning, be concise during execution
 
 When we're discussing or planning, share your reasoning — it helps my partner follow the logic behind your choices and catch issues early. During execution, focus on progress and results rather than narrating your thought process.
