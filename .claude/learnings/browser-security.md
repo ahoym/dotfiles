@@ -1,36 +1,10 @@
 # Browser Security Learnings
 
-## localStorage Encryption Tradeoffs for Wallet Apps
-
-### What localStorage encryption protects against
-- Malicious browser extensions reading storage
-- Shoulder surfing via DevTools → Application → localStorage
-- XSS exfiltration (attacker gets ciphertext, not usable seed)
-- Forensic extraction from browser profiles/backups
-
-### What it does NOT protect against
-- Active XSS while wallet is unlocked (seed lives in JS heap)
-- Keyloggers capturing the encryption password
-- Memory dumps of the running process
-- Supply chain attacks on the app itself
-
-### Key UX tradeoff
-Encrypting localStorage requires a password prompt on every app load (for seed-type wallets). Wallet adapter integrations (Crossmark, GemWallet, Xaman) sidestep this entirely since seeds never touch the app.
-
-### Export encryption has better ROI than localStorage encryption
-- Exported JSON files leave the browser's security boundary (saved to disk, synced to cloud, emailed, backed up)
-- localStorage is at least origin-scoped and ephemeral (clear browser data = gone)
-- Export encryption can be opt-in (no UX friction for users who skip it)
-- Implementation uses Web Crypto API (AES-GCM + PBKDF2) — zero new npm dependencies
-
-### Decision framework
-If the app supports wallet adapter integrations as the secure path, encrypting localStorage adds UX friction for marginal security gain. Focus encryption efforts on exported files (higher-risk artifact) and push users toward wallet adapters for mainnet use.
-
 ## URI XSS via `javascript:` Protocol in `<a href>`
 
-When rendering URIs from external or user-controlled sources as clickable `<a href>` links, the URI protocol must be validated. A malicious actor can store a URI like `javascript:alert(document.cookie)` which executes arbitrary JavaScript when clicked.
+When rendering URIs from external or user-controlled sources as clickable `<a href>` links, validate the protocol. A `javascript:alert(document.cookie)` payload executes arbitrary JavaScript when clicked.
 
-**Fix:** Check that the URI uses `http:` or `https:` before rendering as a clickable link. For any other protocol, render as inert text:
+**Fix:** Allowlist `http:`/`https:` before rendering as a link. Render everything else as inert text:
 
 ```tsx
 {uri ? (
@@ -42,4 +16,4 @@ When rendering URIs from external or user-controlled sources as clickable `<a hr
 ) : "—"}
 ```
 
-**General rule:** Never pass untrusted strings directly into `href` attributes. Always allowlist expected protocols (`http:`, `https:`, and potentially `mailto:`) and treat everything else as plain text. This is a **stored XSS vector** when the payload persists in an external data source (e.g., blockchain ledger, database).
+**General rule:** Never pass untrusted strings directly into `href` attributes. Allowlist expected protocols (`http:`, `https:`, optionally `mailto:`) and treat everything else as plain text. This is a **stored XSS vector** when the payload persists in an external data source (database, third-party API, blockchain ledger).

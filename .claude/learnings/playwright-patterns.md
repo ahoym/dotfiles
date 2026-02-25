@@ -4,7 +4,7 @@ Patterns, gotchas, and best practices for writing Playwright end-to-end tests.
 
 ## 1. Shared BrowserContext for Serial Tests
 
-When using `test.describe.serial()` in Playwright, each test gets its own `BrowserContext` by default (via the `{ page }` fixture). This means **localStorage is NOT shared** between serial tests. To share state (e.g., a generated wallet stored in localStorage), create a shared `BrowserContext` and `Page` in `beforeAll`, and have test callbacks use `async ()` (no fixture destructuring) so they reference the closure variables.
+When using `test.describe.serial()` in Playwright, each test gets its own `BrowserContext` by default (via the `{ page }` fixture). This means **localStorage is NOT shared** between serial tests. To share state (e.g., session data stored in localStorage), create a shared `BrowserContext` and `Page` in `beforeAll`, and have test callbacks use `async ()` (no fixture destructuring) so they reference the closure variables.
 
 ```ts
 test.describe.serial("Feature", () => {
@@ -12,7 +12,7 @@ test.describe.serial("Feature", () => {
   let page: Page;
 
   test.beforeAll(async ({ browser }) => {
-    context = await browser.newContext({ storageState: ".auth/wallet.json" });
+    context = await browser.newContext({ storageState: ".auth/state.json" });
     page = await context.newPage();
   });
 
@@ -70,27 +70,27 @@ await page.getByRole("button", { name: "Expand orders" }).click();
 
 ## 4. Nav Bar textContent Concatenation Causes False Regex Matches
 
-`textContent` on container elements concatenates all child text **without separators**. A nav bar with links "Trade", "Transact", "Explorer", "Testnet" produces the string:
+`textContent` on container elements concatenates all child text **without separators**. A nav bar with links "Home", "Settings", "Profile", "Logout" produces the string:
 
 ```
-TradeTransactExplorerTestnet
+HomeSettingsProfileLogout
 ```
 
-This concatenated string can false-match regexes intended for other content (e.g., an identifier pattern like `/r[a-zA-Z0-9]{24,}/`), causing **strict mode violations** when using `getByText()` with regex locators.
+This concatenated string can false-match regexes intended for other content (e.g., an identifier pattern like `/[a-zA-Z0-9]{8,}/`), causing **strict mode violations** when using `getByText()` with regex locators.
 
 **Fix:** Use role-based selectors that target specific elements rather than searching all text content:
 
 ```ts
 // Bad — matches concatenated nav text
-await page.getByText(/r[a-zA-Z0-9]{24,}/).click();
+await page.getByText(/[a-zA-Z0-9]{8,}/).click();
 
 // Good — targets a specific link element
-await page.getByRole("link", { name: /^r[a-zA-Z0-9]{24,}/ }).click();
+await page.getByRole("link", { name: /^[a-zA-Z0-9]{8,}/ }).click();
 ```
 
 ## 5. Scope Selectors to Containers to Avoid Strict Mode Violations
 
-When a page has duplicate interactive elements (e.g., a network selector in the nav bar AND a currency selector in a modal), unscoped selectors like `page.getByRole("combobox").first()` may resolve to the wrong element or cause strict mode errors if multiple matches exist.
+When a page has duplicate interactive elements (e.g., a dropdown in the nav bar AND another dropdown in a modal), unscoped selectors like `page.getByRole("combobox").first()` may resolve to the wrong element or cause strict mode errors if multiple matches exist.
 
 **Fix:** Scope selectors to a parent container using `.locator()`:
 
@@ -111,13 +111,13 @@ Playwright's `storageState` is typically used for authentication cookies, but it
 
 ```ts
 // global-setup.ts — save state after bootstrapping
-await page.context().storageState({ path: ".auth/wallet.json" });
+await page.context().storageState({ path: ".auth/state.json" });
 ```
 
 Downstream specs restore this state automatically via config:
 ```ts
 // playwright.config.ts
-{ name: "my-spec", use: { storageState: ".auth/wallet.json" }, dependencies: ["setup"] }
+{ name: "my-spec", use: { storageState: ".auth/state.json" }, dependencies: ["setup"] }
 ```
 
 The saved JSON structure — `origins[].localStorage` holds key-value pairs, `cookies` is empty for localStorage-only apps:
@@ -139,21 +139,21 @@ Playwright's `selectOption()` method types the `label` field as `string`, not `s
 
 ```ts
 // Fails TypeScript compilation — label must be string
-await page.locator("select").selectOption({ label: /TCOIN/ });
+await page.locator("select").selectOption({ label: /USD/ });
 
 // Works — exact string match
-await page.locator("select").selectOption({ label: "TCOIN" });
+await page.locator("select").selectOption({ label: "USD" });
 ```
 
 **When the label isn't known exactly** (e.g., it includes dynamic content like balances), find the option element by text and extract its value:
 
 ```ts
-const option = page.locator("option").filter({ hasText: "TCOIN" });
+const option = page.locator("option").filter({ hasText: "USD" });
 const value = await option.getAttribute("value");
 await page.locator("select").selectOption(value!);
 ```
 
-**Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded compound keys (e.g., `"CODE|issuer"`). Always inspect the actual DOM to determine the value format.
+**Note:** `<select>` option values are implementation-specific. Some apps use the display text, others use indices (`"0"`, `"1"`), and others use encoded compound keys (e.g., `"id|category"`). Always inspect the actual DOM to determine the value format.
 
 ## 8. Use `exact: true` for Ambiguous Button Names
 
