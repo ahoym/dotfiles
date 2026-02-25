@@ -142,6 +142,8 @@ Store all pre-loaded content for use in subsequent steps.
 
 ### 3 (cont). Cross-reference patterns against corpus
 
+**Grep scope:** When grepping for pattern terms, scope to content directories only: `~/.claude/learnings/`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
+
 For each pattern, check against the pre-loaded corpus for matches:
 - **Exact match**: Same concept with same or very similar wording in another file → HIGH confidence
 - **Partial match**: Same concept but different scope, detail level, or framing → MEDIUM confidence

@@ -26,6 +26,7 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **Partial overlap → decompose, don't downgrade.** When a section has N concepts covered elsewhere and 1+ novel concepts, don't classify the whole thing as MEDIUM. Decompose into separate items: HIGH-delete for the covered concepts, HIGH-extract for the novel ones. Each is individually unambiguous. Coverage means *conceptual* coverage (same idea, not necessarily verbatim text)
 - **MEMORY.md is not a curation safety net.** Don't classify a learning as "outdated because MEMORY.md covers it." MEMORY.md is always-on context cost; the learning file is conditional and authoritative. When both cover the same pattern, prune the MEMORY.md entry — it's the redundant copy, not the learning.
 - **Persona coverage ≠ learning obsolescence.** When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" If the learning prevents a specific wrong approach (e.g., `suppressHydrationWarning` vs gating) or provides recipes the rule alone can't trigger (e.g., three distinct `setState` alternatives), keep it. Delete only when the rule is self-sufficient to execute correctly.
+- **Internal catalog-to-section redundancy.** When a file has both a catalog (e.g., "Unused Features" listing 5 items) and dedicated sections expanding some of those items, compress the catalog entries to cross-references (e.g., "See section X below") instead of duplicating the summary. Prevents the same insight from consuming tokens twice in the same file.
 
 ## Context Window Optimization
 
@@ -44,6 +45,8 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 - **Debugging trails** — "What didn't work: tried X, then Y" belongs in commit history, not permanent reference docs
 - **Verbose source code** — Multi-line code blocks when an English summary captures the same insight (e.g., a 15-line C++ snippet reducible to "Source: rippled `NetworkOPs.cpp` ~4177-4191")
 - **Redundant structural dividers** — `---` between sections when `##` headings already provide visual separation
+
+- **Stale snapshot numbers** — Specific counts or percentages tied to collection state (e.g., "22 skills, 31% utilization") go stale as files are added/removed. Replace with durable phrasing that captures the insight without brittle numbers (e.g., "well under 50% with ample headroom"). Keep formulas and structural capacity tables — those are state-independent.
 
 **Calibration:** These patterns typically yield ~30% compression without losing teaching value. The goal is fewer tokens per insight, not fewer insights.
 

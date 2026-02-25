@@ -102,3 +102,9 @@ README.md (humans) ──link──▶ TECHNICAL_DETAILS.md ──symlink──�
 ```
 
 Key insight: CLAUDE.md content is already human-readable — the split is about entry points, not content format. Humans expect README.md; agents get CLAUDE.md auto-loaded. The symlink bridges the two without any content duplication.
+
+## State Conclusions, Not Just Premises
+
+When two or more CLAUDE.md facts must be combined to produce correct behavior, state the actionable conclusion explicitly at the point of use — don't rely on the agent to infer it.
+
+**Example:** "Repo is symlinked to `~/.claude`" + "Glob/Read don't resolve `~`" independently are clear, but neither states the conclusion: "use `.claude/` relative paths for Read/Glob." Adding the conclusion inline prevents repeated inference failures across sessions.

@@ -10,7 +10,7 @@ Don't use `git -C <path>` when already in the working directory. Permission patt
 
 # Glob and Grep Tools
 
-The `path` parameter does not resolve `~`. Always use the actual filesystem path (e.g. from CWD or absolute). Note: permission rules DO support `~` — these are different contexts.
+The `path` parameter does not resolve `~`. Always use the actual filesystem path (e.g. from CWD or absolute). Since this repo is symlinked to `~/.claude/`, use `.claude/` relative paths (e.g., `.claude/learnings/foo.md`) for Read/Glob — not `~/.claude/learnings/foo.md`. Note: permission rules DO support `~` — these are different contexts.
 
 # Repo Context
 

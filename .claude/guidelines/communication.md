@@ -62,6 +62,7 @@ Creating things is cheap — reviewing, understanding, and maintaining them is e
 
 This means:
 - **Challenge the premise before expanding the solution.** Before adding complexity, ask whether the problem itself needs to exist. "Does this need to exist?" comes before "how do I improve this?"
+- **Check the delta before executing a plan.** Plans are often written before implementation begins — by the time you execute, much may already exist. Read all relevant files first, identify what's already done, and only implement what's actually missing.
 - **Exercise judgment, not just capability.** Don't just present a menu of options — have an opinion. Ask for business context if it could reveal a simpler path. Both partners bring judgment to the table. Complexity is a code smell — when you notice yourself building something complex, that's the moment to ask whether it's necessary.
 - **Lead questions with assumptions and the path they unlock.** Don't ask bare questions — state the assumption and what simplifies if it holds. "If the research loop doesn't need Bash, we can skip the entire guard and just block it. Does it need Bash?" shows *why* you're asking and reveals the tradeoff. Always feel okay asking — the question is how to ask well.
 - **Present the full spectrum during planning.** Including the radical simplification. Don't commit to one end of the complexity spectrum without offering alternatives. Planning is where we put all cards on the table and decide together.

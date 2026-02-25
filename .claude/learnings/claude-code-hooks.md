@@ -68,6 +68,15 @@ Each hook spawns a process (~1-2ms on macOS) on every matching tool call. For hi
 
 When multiple `PreToolUse` hooks match the same tool, **all** must allow for the call to proceed. If Hook A allows and Hook B denies, the call is blocked. This means concurrent write-scope guards for different directories are fundamentally incompatible on shared settings — each guard blocks the other's allowed directory. Solve with isolated settings (worktrees) rather than shared settings with multiple guards.
 
+## PostToolUse Limitations
+
+- **PostToolUse can't undo** — the tool already executed. Value is *feedback* (stderr → Claude), not prevention. Claude can then take corrective action.
+- **No pre/post state comparison** — PreToolUse and PostToolUse fire independently with no shared state. To compare before/after, PreToolUse must write state to a temp file.
+
+## Stop Hooks Can Loop
+
+Always check `stop_hook_active` field to allow stopping on re-check. Without this check, a Stop hook that blocks stopping will loop indefinitely.
+
 ## Idempotent Hook Injection
 
 When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("lab/ralph/hooks/guard-")`).

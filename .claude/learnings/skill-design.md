@@ -52,9 +52,9 @@ The official docs state both "work the same way" and "support the same frontmatt
 This repo's skills use only `description:` from SKILL.md frontmatter. Official features not yet adopted:
 
 - **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken:** restriction not enforced (#18837 closed as dup of [#14956](https://github.com/anthropics/claude-code/issues/14956) which remains open), SDK ignores the field entirely ([#18737](https://github.com/anthropics/claude-code/issues/18737)), piped/chained commands bypass restrictions ([#1271](https://github.com/anthropics/claude-code/issues/1271)). Marked "Experimental" in Agent Skills spec. Anthropic's 16 reference skills don't use it; Trail of Bits does (security focus, 4+ skills). **Recommended syntax: YAML list** (most readable, used by Trail of Bits as the de facto standard). Space-delimited and comma-delimited also work. Use bare tool names (not scoped `Bash(git:*)`) until piped-command bypass is fixed. Add for intent-signaling on read-only and narrowly-scoped skills; defer reliance on enforcement until #14956 is fixed.
-- **`context: fork` + `agent:`** — Run skill in isolated subagent (Explore, Plan, general-purpose). Skill content becomes the subagent's prompt with no conversation history. **Critical constraint:** subagents cannot spawn subagents, so skills that internally use the Task tool (explore-repo, do-security-audit, parallel-plan:execute) are incompatible with fork.
+- **`context: fork` + `agent:`** — Run skill in isolated subagent. See "`context: fork` vs Task Subagents" section below.
 - **`model:`** — Override session model per skill (e.g., `haiku` for simple tasks, `opus` for complex reasoning).
-- **`disable-model-invocation: true`** — Prevents auto-invocation AND removes the skill from context entirely. Saves context budget for manual-only skills.
+- **`disable-model-invocation: true`** — See "`disable-model-invocation` Removes Skill from Context" section below.
 - **`{baseDir}`** — Resolves to skill's own installation directory (e.g., `~/.claude/commands/<skill>/`). Works for intra-skill references (scripts/, references/, assets/) but **cannot** replace `~/.claude/` for cross-directory references to `~/.claude/learnings/`, `~/.claude/skill-references/`, etc.
 
 Gap identified comparing 22 repo skills against official spec — none use these features.
@@ -122,9 +122,9 @@ They conflict: a forked skill can't spawn Task subagents (no nesting). So skills
 
 **Choose fork when:** entire skill is a pure function (args in, report out). **Choose Task when:** skill needs to coordinate, interact, or delegate.
 
-## `context: fork` Viability Checklist
+### Viability Checklist
 
-A skill is only viable for `context: fork` if ALL of these are true:
+A skill is viable for `context: fork` only if ALL of these are true:
 
 1. **No internal subagent spawning** — skill doesn't use Task tool (subagents can't nest)
 2. **No conversation history dependency** — skill operates from $ARGUMENTS alone, not prior discussion
@@ -174,7 +174,7 @@ All skill descriptions share a budget of **2% of the context window** (~16,000 c
 
 **Per-entry overhead is ~109 chars** (XML tags ~85, skill name ~16 avg, location field ~4) beyond description text. Formula: `chars_per_skill = description_length + ~109`. Budget fills at ~15,700 chars total.
 
-**At 22 personal skills + 1 built-in, utilization is ~31%** (~4,908/16,000 chars). ~52-skill headroom at current avg description length (~103 chars). No aggressive description compression needed — `disable-model-invocation` should be motivated by preventing unwanted auto-invocation, not budget savings.
+At typical collection sizes (20-30 skills), utilization is well under 50% with ample headroom. No aggressive description compression needed — `disable-model-invocation` should be motivated by preventing unwanted auto-invocation, not budget savings.
 
 | Avg Desc Length | Max Skills Capacity |
 |----------------|-------------------|
@@ -259,11 +259,7 @@ Default to `command` hooks (shell scripts). Only escalate when shell logic can't
 - **`prompt`** — Simple judgment calls, ~2-5s, ~1K tokens (Haiku default).
 - **`agent`** — Complex verification needing tool access, ~10-60s, ~5-50K tokens.
 
-### Key Constraints
-
-- **PostToolUse can't undo** — the tool already executed. Value is *feedback* (stderr → Claude), not prevention. Claude can then take corrective action.
-- **No pre/post state comparison** — PreToolUse and PostToolUse fire independently with no shared state. To compare before/after, PreToolUse must write state to a temp file.
-- **Stop hooks can loop** — Always check `stop_hook_active` field to allow stopping on re-check.
+See also: `~/.claude/learnings/claude-code-hooks.md` for PostToolUse limitations, stop hook looping, and other hooks mechanics.
 
 ## Plugin Caching: All Dependencies Must Be Self-Contained
 
