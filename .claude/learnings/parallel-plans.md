@@ -85,3 +85,48 @@ Add a markdown checkbox progress checklist to refactoring plans, grouped by batc
 ```
 
 **Benefits:** Subagents can work on independent items concurrently. If execution stops mid-way, find first unchecked item and resume. Clear progress tracking across sessions.
+
+## Permissions Are Cached at Session Start
+
+Changes to `settings.json` or `settings.local.json` mid-session are **not picked up** by background agents or the current session. This applies to both project-level (`settings.json`) and local (`settings.local.json`) settings files.
+
+**Impact:** If you add `Edit(~/.claude/commands/**)` mid-session and then launch background agents, they silently fail on Edit with "Permission denied." No error propagates to the coordinator — the agent just reports it couldn't edit.
+
+**Fix:** Add all required permissions **before** starting the session. If you discover missing permissions mid-execution, add them and restart the session. The `/parallel-plan:execute` state file (`.parallel-plan-state.json`) enables seamless resumption after restart.
+
+## Pre-Register Edit/Write for Skill File Editing
+
+Before launching parallel agents that edit SKILL.md files under `~/.claude/commands/`, ensure these permissions exist in `settings.json`:
+
+```
+Edit(~/.claude/commands/**)
+Write(~/.claude/commands/**)
+```
+
+Without these, background agents silently fail — they can Read but not Edit/Write. The default settings only include `Read(~/.claude/commands/**)`. Also add `Edit(~/.claude/settings.local.json)` if any agent modifies the settings file.
+
+## Worktree Isolation Creates Permission Mismatches
+
+Edit/Write permission patterns like `Edit(~/.claude/commands/**)` resolve to absolute paths (e.g., `/Users/me/.claude/commands/`). Agents in worktrees edit files at `<worktree>/commands/...` — a different path that doesn't match the permission pattern. Result: silent Edit failures.
+
+**When to skip worktrees:** For tasks where agents have disjoint file scopes (no conflict risk) and no build/test isolation is needed. Especially mechanical edits (YAML, markdown). The Branch Strategy overhead (worktrees, cherry-picks, per-agent PRs) isn't justified when agents can't conflict.
+
+**When worktrees are still needed:** Code tasks with `tsc --noEmit` or build steps where parallel agents would see each other's half-written files.
+
+## Model Selection for Mechanical Edits
+
+haiku handles multi-file mechanical edits well when instructions are explicit (exact field values, clear tables):
+- 5 files with mixed frontmatter additions: 27s, 16 tool uses
+- 4 files with mixed frontmatter additions: 22s, 12 tool uses
+
+Use haiku for pattern-following edits across many files. Use sonnet when the agent needs judgment (e.g., description quality review, diverse context injection templates).
+
+## Adapting Parallel Plans for Non-Code Tasks
+
+The parallel-plan format (designed for code with TDD) adapts to mechanical editing tasks (YAML frontmatter, markdown sections):
+
+- **Shared Contract** → frontmatter field ordering conventions instead of type definitions
+- **TDD steps** → `build-verify → "re-read all files"` instead of test suites
+- **Integration tests** → structural checks (field ordering, count verification) instead of cross-module data flow
+- **Pre-execution verification** → "no commands needed" (all tools are built-in)
+- **Required Bash Permissions** → often none (Read/Edit/Glob/Write only)
