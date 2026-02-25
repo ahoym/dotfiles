@@ -2,7 +2,7 @@
 
 ## When Sync Is Needed vs. Not
 
-- **Needs sync**: Any repo that relies on `~/.claude/commands/` but doesn't contain them (e.g., application repos like algo-trading)
+- **Needs sync**: Any repo that relies on `~/.claude/commands/` but doesn't contain them (e.g., application repos)
 - **Doesn't need sync**: Repos where `.claude/commands/` already lives in the repo (e.g., dotfiles, which IS `~/.claude/` via symlinks) — skills are already available in web sessions
 - **Guard workflow**: Only needed for repos where `.claude/commands/` shouldn't be in main. Not needed for the dotfiles repo itself since commands belong there.
 

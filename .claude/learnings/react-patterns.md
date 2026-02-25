@@ -94,24 +94,24 @@ const { state, hydrated } = useAppState();
 
 When extracting a custom hook that both **produces** derived state and **consumes** that derived state for further computation, pass primitive values (strings, numbers) into the hook rather than resolved objects.
 
-**The Problem:** A hook builds `currencyOptions` from balances and needs `sellingCurrency` (an object resolved from `currencyOptions`) to fetch orderbook data. If the caller must pass `sellingCurrency` as a prop, it needs `currencyOptions` from the hook to resolve it — creating a circular dependency.
+**The Problem:** A hook builds `options` from raw data and needs `selectedItem` (an object resolved from `options`) to fetch related data. If the caller must pass `selectedItem` as a prop, it needs `options` from the hook to resolve it — creating a circular dependency.
 
 **The Solution:** Accept string identifiers and resolve internally:
 
 ```typescript
-// BAD: Circular — caller needs currencyOptions to compute sellingCurrency
-function useTradingData({ sellingCurrency }: { sellingCurrency: CurrencyOption | null }) {
-  const currencyOptions = useMemo(() => /* build from balances */);
+// BAD: Circular — caller needs options to compute selectedItem
+function useComboData({ selectedItem }: { selectedItem: SelectOption | null }) {
+  const options = useMemo(() => /* build from raw data */);
 }
 
 // GOOD: Accept primitives, resolve internally
-function useTradingData({ sellingValue }: { sellingValue: string }) {
-  const currencyOptions = useMemo(() => /* build from balances */);
-  const sellingCurrency = useMemo(
-    () => currencyOptions.find((o) => o.value === sellingValue) ?? null,
-    [currencyOptions, sellingValue],
+function useComboData({ selectedValue }: { selectedValue: string }) {
+  const options = useMemo(() => /* build from raw data */);
+  const selectedItem = useMemo(
+    () => options.find((o) => o.value === selectedValue) ?? null,
+    [options, selectedValue],
   );
-  return { currencyOptions, sellingCurrency, /* ... */ };
+  return { options, selectedItem, /* ... */ };
 }
 ```
 

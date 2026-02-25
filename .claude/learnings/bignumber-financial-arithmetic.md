@@ -5,13 +5,13 @@ Financial calculations should use **BigNumber.js** (`bignumber.js`) instead of n
 ## Rules
 
 1. **Never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`)** on financial values (prices, amounts, totals, spread).
-2. **Import BigNumber** (commonly available as a transitive dependency in financial libraries like `xrpl`):
+2. **Import BigNumber** (commonly available as a transitive dependency in financial libraries):
    ```ts
    import BigNumber from "bignumber.js";
    ```
 3. **Construct from strings**, not numbers, to avoid losing precision:
    ```ts
-   new BigNumber(offer.TakerPays)  // good
+   new BigNumber(item.price)  // good
    new BigNumber(0.1 + 0.2)        // bad — precision already lost
    ```
 

@@ -83,7 +83,7 @@ Reusable UI components live in `app/components/`. Before creating a new componen
 ```markdown
 - `modal-shell.tsx` — Reusable modal wrapper
 - `balance-display.tsx` — Formatted balance rendering
-- `explorer-link.tsx` — Links to XRPL explorer
+- `explorer-link.tsx` — Links to external explorer
 ...
 ```
 

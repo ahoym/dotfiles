@@ -30,10 +30,10 @@ When testing Next.js API validator functions that return `Response | null`:
 
 ```typescript
 // Assert success (null = valid)
-expect(validateAddress("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", "addr")).toBeNull();
+expect(validateInput("user@example.com", "email")).toBeNull();
 
 // Assert failure (Response with status and JSON body)
-const resp = validateAddress("invalid", "addr");
+const resp = validateInput("not-valid", "email");
 expect(resp).not.toBeNull();
 expect(resp!.status).toBe(400);
 const body = await resp!.json();
