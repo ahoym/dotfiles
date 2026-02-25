@@ -17,6 +17,7 @@ Operational calibration and phase-specific patterns from prior consolidation run
 
 - **Mature personas can obsolete entire learning files.** When a persona's "Known gotchas" comprehensively covers a domain's patterns (e.g., 15/15 match), the learning file is fully redundant. Check the corresponding persona early during per-file curation — complete coverage means "delete file" rather than pattern-by-pattern migration.
 - **Inline short algorithms rather than cross-referencing.** When a persona's gotcha references a learning file for detail (e.g., "see X for full algorithm"), consider inlining if the detail is ~6 steps or fewer. Makes the persona self-contained and saves a runtime Read call. Reserve cross-references for genuinely long content (multi-page algorithms, large tables).
+- **Check project learnings directories during genericization, not just CLAUDE.md.** Mature projects often have detailed learnings (e.g., `docs/claude-learnings/development-patterns.md`) that already capture project-specific content being removed from global files. The common outcome is "genericize in place, no migration needed" — saves the overhead of creating/updating project files that would be redundant.
 
 ## Classification Calibration
 

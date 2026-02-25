@@ -19,40 +19,6 @@ When a plan contains multiple independent suggestions of varying complexity, spl
 
 **When to split:** Items are both independent of each other AND different in complexity/discussion-worthiness. Trivial wins ship faster instead of being blocked by unrelated design discussions.
 
-## E2E Test Suites Are Ideal Fan-Out Candidates
-
-Adding a test suite (Playwright, Cypress, etc.) with N independent spec files is the best-case parallelization scenario. The structure is always:
-
-```
-A (foundation: config + helpers) ··→ B (page1.spec)
-                                 ··→ C (page2.spec)
-                                 ··→ D (page3.spec)
-                                 ··→ E (page4.spec)
-```
-
-**Why it works so well:**
-- Each spec creates a **single new file** — zero file conflicts between agents
-- Spec agents only import types/helpers from the foundation — **all deps are soft**
-- No integration agent needed — specs are leaf nodes verified by `tsc` + test runner
-- Orphaned agents (nothing depends on them) are acceptable because correctness is verified by running the actual test suite post-merge
-
-**Speedup profile:** For N spec agents, speedup ≈ N × 0.6-0.8x (diminishing returns from concurrency contention). A 5-spec suite achieves ~2.5-3x real-world speedup.
-
-**TDD approach:** E2e test agents should use `build-verify → "npx tsc --noEmit"` (or equivalent type-check), NOT TDD. E2e tests require a live running server and external services — they can't be RED/GREEN'd in isolation during agent execution. The actual e2e run is a post-merge verification step.
-
-## Parallel `tsc` on Shared Working Tree Causes Cross-Agent Noise
-
-When multiple agents run `npx tsc --noEmit` concurrently on the same working tree, each agent sees type errors from other agents' half-written files. Agent B reports "2 errors in transact.spec.ts" — those errors are from Agent C's in-progress work, not B's.
-
-**Why it happens:** `tsc --noEmit` checks ALL `.ts` files in the project (per `tsconfig.json` includes). When agents write files incrementally (create file → edit → fix types), a parallel agent running tsc at that moment sees the incomplete file.
-
-**Mitigations:**
-- Agents should only check their own file's errors: `npx tsc --noEmit 2>&1 | grep <my-file>` — but this risks missing real errors in their own imports
-- Use `isolation: "worktree"` so each agent has its own file tree — eliminates cross-contamination entirely
-- Accept the noise: instruct agents to ignore errors in files outside their scope (what we did in the e2e plan)
-
-**Best approach:** `isolation: "worktree"` eliminates this problem completely since each agent's tsc only sees its own files plus the base branch. When worktrees aren't feasible, add "ignore type errors from files outside your scope" to the prompt preamble.
-
 ## Progress Checklist for Refactoring Batches
 
 Add a markdown checkbox progress checklist to refactoring plans, grouped by batch with a build/test gate after each:
@@ -73,17 +39,6 @@ Changes to `settings.json` or `settings.local.json` mid-session are **not picked
 **Impact:** If you add `Edit(~/.claude/commands/**)` mid-session and then launch background agents, they silently fail on Edit with "Permission denied." No error propagates to the coordinator — the agent just reports it couldn't edit.
 
 **Fix:** Add all required permissions **before** starting the session. If you discover missing permissions mid-execution, add them and restart the session. The `/parallel-plan:execute` state file (`.parallel-plan-state.json`) enables seamless resumption after restart.
-
-## Pre-Register Edit/Write for Skill File Editing
-
-Before launching parallel agents that edit SKILL.md files under `~/.claude/commands/`, ensure these permissions exist in `settings.json`:
-
-```
-Edit(~/.claude/commands/**)
-Write(~/.claude/commands/**)
-```
-
-Without these, background agents silently fail — they can Read but not Edit/Write. The default settings only include `Read(~/.claude/commands/**)`. Also add `Edit(~/.claude/settings.local.json)` if any agent modifies the settings file.
 
 ## Worktree Isolation Creates Permission Mismatches
 
