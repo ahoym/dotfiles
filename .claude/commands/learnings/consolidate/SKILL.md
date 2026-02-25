@@ -485,6 +485,8 @@ Generate the final consolidation report:
 
 If the very first learnings sweep returns no HIGH or MEDIUM items, proceed to the skills sweep (Step 4) — don't stop the entire consolidation. **Lead with LOW items** — on a clean sweep, polish opportunities are the primary value. Don't bury them after a "no action needed" headline that signals completion.
 
+Polish Opportunities are populated from the curate sweep's **per-file quality scan** (step 5b). If the quality scan found no candidates, omit this section and use the shorter "no actionable recommendations" format.
+
 ```
 ## Learnings: Clean
 

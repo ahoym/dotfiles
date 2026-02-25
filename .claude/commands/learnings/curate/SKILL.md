@@ -100,6 +100,11 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–5a independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
 4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
 5. Run step 5a (persona detection) across all clusters simultaneously
+5b. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
+   - **Genericization candidates**: Extract domain terms from persona file names (e.g., "xrpl", "java", "spring"). Grep each learnings file for these terms. A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
+   - **Compression candidates**: Files with patterns that have high line-count relative to insight count (e.g., 30+ line patterns with large code blocks, multi-line JSON examples). Flag files where estimated compression >= 30%.
+
+   Store as `POLISH_CANDIDATES`. These are reported separately from HIGH/MEDIUM/LOW findings — they're quality signals, not classification changes.
 6. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
 7. Use the **broad sweep report format** (see step 6)
 
@@ -301,6 +306,15 @@ Display the full report inline in the CLI.
 |---|------|---------|--------|--------|
 | 1 | api-design | Consistent Response Shapes | Genericize | Keep (remove Python examples) |
 
+### Polish Opportunities
+
+| # | File | Type | Detail | Command |
+|---|------|------|--------|---------|
+| 1 | playwright-patterns.md | Genericize | XRPL-specific references (address regex, currency encoding) | `/learnings:curate learnings/playwright-patterns.md` |
+| 2 | api-design.md | Compress | 3 patterns with verbose code blocks (~35% compression achievable) | `/learnings:curate learnings/api-design.md` |
+
+Omit this section if no candidates found.
+
 ### Suggested Deep Dives
 
 | File | Why | Command |
@@ -360,7 +374,7 @@ For **content mode** actions:
 - Skill migrations: add pattern to target skill's reference files or instructions
 - Guideline migrations: add pattern as new section in target guideline
 - Outdated deletions: delete the section from source file (with approval). If all sections in a file are deleted or folded elsewhere, delete the entire file.
-- Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value.
+- Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value. When genericizing project-specific content, note in the report which project/domain the content originated from. If the project has a learnings directory (e.g., `docs/claude-learnings/`), suggest creating a project-specific instance there — the global file teaches the generic pattern, the project file preserves the concrete gotcha.
 - Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
