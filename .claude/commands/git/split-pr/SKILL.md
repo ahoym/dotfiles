@@ -97,6 +97,13 @@ Analyze a large PR and propose how to split it into smaller, reviewable PRs for 
 **Merge order:** PRs 1-2 can merge independently. After PR 2 merges, retarget PR 3 to main.
 ```
 
+## When to Use This vs `/git:repoint-branch`
+
+- **`/git:split-pr`** — You have a large PR and need help figuring out *how* to split it. This skill analyzes the diff, categorizes changes, identifies dependencies, and proposes a split strategy.
+- **`/git:repoint-branch`** — You already know which files to extract. This skill creates a new branch from main with those specific files and optionally opens a PR.
+
+Typical flow: `/git:split-pr` to plan → `/git:repoint-branch` to execute each proposed split.
+
 ## Important Notes
 
 - Use `/git:explore-pr` first if you need to understand the PR before splitting
