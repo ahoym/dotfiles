@@ -303,6 +303,10 @@ The spec-standard `compatibility:` frontmatter field (max 500 chars) signals int
 - Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
 - CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
 
+## Three-Level Skill Routing Works
+
+Claude Code supports three-level directory nesting for skills: `commands/a/b/c/SKILL.md` routes to `/a:b:c`. Confirmed working with `commands/ralph/consolidate/init/SKILL.md` → `/ralph:consolidate:init`. However, skills created mid-session aren't discoverable until a new session starts — the skill discovery cache is populated at session init. The `Skill` tool returns "Unknown skill" for mid-session additions, but invoking from a separate terminal works immediately.
+
 ## "Reduces Typing" Is Sufficient Justification for a Skill
 
 Don't overthink whether a repeated sequence "deserves" to be a skill. If the user types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.

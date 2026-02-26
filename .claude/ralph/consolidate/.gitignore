@@ -1,0 +1,2 @@
+# Ignore iteration logs (generated at runtime in worktrees)
+logs/

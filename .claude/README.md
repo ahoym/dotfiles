@@ -67,6 +67,8 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 | `/ralph:brief` | Load a research project's files into context and produce a concise brief for Q&A |
 | `/ralph:cleanup` | Clean up stale research worktrees whose branches have been merged or deleted |
 | `/ralph:compare` | Compare duplicate research directories to determine which is superseded |
+| `/ralph:consolidate:init` | Initialize an autonomous consolidation loop with worktree and pre-flight |
+| `/ralph:consolidate:resume` | Review consolidation loop state, handle blockers, and relaunch |
 
 ### Standalone
 
@@ -125,6 +127,32 @@ Distribute (push to a project):
 - `curate` — after compound adds content, or when a file feels bloated
 - `consolidate` — periodic deep clean (end of day), or after a burst of compound runs
 - `distribute` — when starting work in a project that should inherit global knowledge
+
+### Autonomous Consolidation: init → loop → resume
+
+Run learnings/skills/guidelines curation unattended in a worktree.
+
+```
+Initialize:
+  /ralph:consolidate:init        → creates worktree, scaffolds output files, runs pre-flight
+
+Launch (in terminal):
+  cd .claude/worktrees/consolidate-<date>
+  bash ~/.claude/ralph/consolidate/wiggum.sh 20
+                                  → runs claude --print in a loop, one sweep per iteration
+                                  → auto-applies HIGHs, judges MEDIUMs autonomously
+                                  → exits on completion (WOOT_COMPLETE_WOOT) or max iterations
+
+Review/resume:
+  /ralph:consolidate:resume      → reads loop state, handles open blockers,
+                                    prints relaunch command
+
+Merge results:
+  git diff main -- .claude/      → review all changes
+  git checkout main && git merge consolidate/<date>
+```
+
+**How it works:** Each iteration is stateless (`claude --print` with no conversation history). The spec file defines the methodology; `progress.md` tracks state between iterations. Security hooks block Bash, web access, and out-of-scope writes. Two passes (LEARNINGS → SKILLS → GUIDELINES × 2) catch cross-type regressions. Convergence requires 2 consecutive clean sweeps per content type.
 
 ### Explore Repo + Capture Learnings
 
