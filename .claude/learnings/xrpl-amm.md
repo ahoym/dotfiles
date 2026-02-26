@@ -28,3 +28,15 @@ The XRPL DEX engine routes through both CLOB and AMM, picking the better-priced 
 5. Track `clobFilled` and `ammFilled` separately for source breakdown display
 
 "Better" means: lower price for buys, higher price for sells.
+
+## `amm_info` Asset Order Normalization
+
+`amm_info` may return `amount`/`amount2` in a different order than the `asset`/`asset2` requested. Always match the response amounts by currency+issuer to determine which is base vs quote, rather than assuming positional correspondence.
+
+```ts
+const amount1IsBase =
+  amount1.currency === baseCurrency &&
+  (baseCurrency === "XRP" || amount1.issuer === baseIssuer);
+const base = amount1IsBase ? amount1 : amount2;
+const quote = amount1IsBase ? amount2 : amount1;
+```

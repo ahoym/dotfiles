@@ -211,14 +211,14 @@ Success messages that auto-clear after 2s can be missed by Playwright assertions
 
 ## 17. `.or()` for One-of-Many Terminal States
 
-When external state is unpredictable (e.g., testnet AMM pool may or may not exist), use `.or()` to assert that one of several valid outcomes is visible rather than branching with try/catch or conditional logic:
+When external state is unpredictable (e.g., a remote resource may or may not exist), use `.or()` to assert that one of several valid outcomes is visible rather than branching with try/catch or conditional logic:
 
 ```ts
-const poolData = page.getByText("Spot Price");
-const noPool = page.getByText("No AMM pool exists for this pair");
-const emptyPool = page.getByText("Pool is empty");
+const success = page.getByText("Success");
+const notFound = page.getByText("Resource not found");
+const empty = page.getByText("No data available");
 
-await expect(poolData.or(noPool).or(emptyPool)).toBeVisible({ timeout: 15_000 });
+await expect(success.or(notFound).or(empty)).toBeVisible({ timeout: 15_000 });
 ```
 
 This is cleaner than try/catch + `test.skip()` when all outcomes are valid — the test passes regardless of which state is reached, but still fails if the component is stuck loading or errors out.

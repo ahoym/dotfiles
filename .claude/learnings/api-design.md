@@ -25,21 +25,13 @@ Return an error response listing missing fields, or `null` if all present. Keep 
 - **Encode user-provided values in URL paths:** Prevent path traversal and injection when constructing API URLs
 - **`Cache-Control: no-store` for sensitive responses:** Prevent browser/proxy caching of secrets, keys, or tokens
 - **Validate domain-specific inputs with try-catch:** Return 400 for invalid inputs instead of unhandled 500
+- **Sanitize URIs before rendering as links:** Allowlist `http:`/`https:` protocols before passing user-controlled or external URIs into `<a href>`. A `javascript:` payload executes arbitrary JS on click — stored XSS vector when the URI persists in an external source (database, API, blockchain ledger). Render non-allowlisted URIs as inert text:
+  ```tsx
+  /^https?:\/\//i.test(uri) ? <a href={uri}>...</a> : <span>{uri}</span>
+  ```
 
 ## API Contract Audit Approach
 
 When building a shared API client utility, first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
 **Normalization strategy:** Start client-side only — build a typed fetch wrapper returning a discriminated union (`{ ok, data } | { ok, error }`). Zero server changes. Server-side envelope wrapping can come later as a separate refactor.
-
-## XRPL `amm_info` Asset Order Normalization
-
-`amm_info` may return `amount`/`amount2` in a different order than the `asset`/`asset2` requested. Always match the response amounts by currency+issuer to determine which is base vs quote, rather than assuming positional correspondence.
-
-```ts
-const amount1IsBase =
-  amount1.currency === baseCurrency &&
-  (baseCurrency === "XRP" || amount1.issuer === baseIssuer);
-const base = amount1IsBase ? amount1 : amount2;
-const quote = amount1IsBase ? amount2 : amount1;
-```
