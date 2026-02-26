@@ -22,6 +22,8 @@ inject_hooks() {
     --arg bash_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-bash.sh" \
     --arg web_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-web.sh" \
     --arg write_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-write-scope.sh $worktree_root" \
+    --arg read_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-read-scope.sh $worktree_root" \
+    --arg task_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-task.sh" \
     '{
       "PreToolUse": [
         {
@@ -43,6 +45,22 @@ inject_hooks() {
         {
           "matcher": "Edit",
           "hooks": [{"type": "command", "command": $write_cmd}]
+        },
+        {
+          "matcher": "Read",
+          "hooks": [{"type": "command", "command": $read_cmd}]
+        },
+        {
+          "matcher": "Glob",
+          "hooks": [{"type": "command", "command": $read_cmd}]
+        },
+        {
+          "matcher": "Grep",
+          "hooks": [{"type": "command", "command": $read_cmd}]
+        },
+        {
+          "matcher": "Task",
+          "hooks": [{"type": "command", "command": $task_cmd}]
         }
       ]
     }')
