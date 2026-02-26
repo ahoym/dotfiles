@@ -1,0 +1,11 @@
+All output files updated. 
+
+**Iter 3 complete — SKILLS sweep #1: clean.** 
+
+Summary:
+- Read all 27 SKILL.md files + ~20 skill-local references + 5 shared skill-references
+- 7 namespaces: git (9), learnings (4), ralph (5), parallel-plan (2), explore-repo (2), do-* (2), standalone (3)
+- All model strings current (Opus 4.6)
+- No overlaps >80%, no merge/split/prune candidates
+- Producer/consumer contracts validated
+- CLEAN_SWEEP_STREAK = 1 — one more clean sweep to converge SKILLS

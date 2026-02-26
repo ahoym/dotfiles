@@ -1,0 +1,5 @@
+✅ **Iter 6 complete** — GUIDELINES confirmation sweep, clean.
+
+**Pass 1 finished**: All 3 content types converged with 0 actions across 6 sweeps. Corpus was already clean from recent curation.
+
+**State**: Pass 2 LEARNINGS, SWEEP_COUNT=6, CLEAN_SWEEP_STREAK=0. Next invocation runs the first Pass 2 cross-regression sweep on learnings.
