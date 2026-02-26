@@ -5,12 +5,10 @@
 | Variable | Value |
 |----------|-------|
 | SWEEP_COUNT | 0 |
+| ROUND | 1 |
 | CONTENT_TYPE | LEARNINGS |
-| PHASE | HIGH_SWEEP |
-| PASS | 1 |
-| HIGH_SWEEP_COUNT | 0 |
-| DEEP_DIVE_SWEEP_COUNT | 0 |
-| CLEAN_SWEEP_STREAK | 0 |
+| ROUND_CLEAN | true |
+| CLEAN_ROUND_STREAK | 0 |
 
 ## Pre-Flight
 
@@ -22,38 +20,44 @@ Learnings files: (pending)
 Skills count: (pending)
 Guidelines files: (pending)
 Persona files: (pending)
+Cadence: (pending)
+Suggested iterations: (pending)
 ```
 
 ## Content Type Status
 
 ### LEARNINGS
-- **Status**: not started
 - **Sweeps**: 0
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Status**: not started
 - **Sweeps**: 0
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Status**: not started
 - **Sweeps**: 0
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
+## Round Summary
+
+<!-- Appended at the end of each round -->
+
+| Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
+|-------|---------|--------|---------|--------|---------|--------|--------|
+
 ## Iteration Log
 
-<!-- Each iteration appends: | N | CONTENT_TYPE | PHASE | HIGHs | MEDIUMs | LOWs | Actions | Notes | -->
+<!-- Each iteration appends: | N | Round | CONTENT_TYPE | HIGHs | MEDIUMs | LOWs | Actions | Notes | -->
 
-| Iter | Content Type | Phase | HIGHs | MEDIUMs | LOWs | Actions | Notes |
-|------|-------------|-------|-------|---------|------|---------|-------|
+| Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
+|------|-------|-------------|-------|---------|------|---------|-------|
 
 ## Notes for Next Iteration
 
-<!-- Updated each iteration with guidance for the next -->
+<!-- Appended each iteration with ### Iter N heading — do not overwrite -->

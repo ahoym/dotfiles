@@ -8,23 +8,24 @@
 | Branch | <!-- branch name --> |
 | Worktree | <!-- worktree path --> |
 | Iterations | 0 |
+| Rounds | 0 |
 | Status | IN_PROGRESS |
 
 ## Summary
 
-| Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Deep Dives | Personas Enriched |
-|-------------|--------|---------------|-----------------|-----------------|------------|-------------------|
-| Learnings | 0 | 0 | 0 | 0 | 0 | 0 |
-| Skills | 0 | 0 | 0 | 0 | — | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **0** | **0** | **0** | **0** | **0** | **0** |
+| Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
+|-------------|--------|---------------|-----------------|-----------------|-------------------|
+| Learnings | 0 | 0 | 0 | 0 | 0 |
+| Skills | 0 | 0 | 0 | 0 | 0 |
+| Guidelines | 0 | 0 | 0 | 0 | 0 |
+| **Total** | **0** | **0** | **0** | **0** | **0** |
 
 ## Actions (Chronological)
 
-<!-- Each action appended as: | Iter | Content Type | Action | Source | Target | Confidence | -->
+<!-- Each action appended as: | Iter | Round | Content Type | Action | Source | Target | Confidence | -->
 
-| Iter | Content Type | Action | Source | Target | Confidence |
-|------|-------------|--------|--------|--------|------------|
+| Iter | Round | Content Type | Action | Source | Target | Confidence |
+|------|-------|-------------|--------|--------|--------|------------|
 
 ## Blocked Items
 

@@ -19,7 +19,7 @@ You are a consolidation agent. Each invocation, you perform ONE sweep of ONE con
 |------|---------|
 | `.claude/learnings/*.md` | Learning files |
 | `.claude/guidelines/*.md` | Guideline files |
-| `.claude/commands/*/SKILL.md` | Skill definitions |
+| `.claude/commands/**/SKILL.md` | Skill definitions |
 | `.claude/commands/set-persona/*.md` | Persona files |
 | `.claude/skill-references/*.md` | Shared skill references |
 
@@ -34,6 +34,7 @@ All in `.claude/consolidate-output/`:
 | `blockers.md` | Items needing human review |
 | `report.md` | Cumulative summary |
 | `lows.md` | Low-confidence items for manual review |
+| `compounded-learnings.md` | Meta-insights about the corpus — feeds `/learnings:compound` post-loop |
 
 ### Methodology References
 
@@ -45,7 +46,7 @@ Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the
 - `.claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
 - `.claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
 
-After reading, record key classification criteria in `Notes for Next Iteration` so future invocations have a condensed reference.
+After reading, record key classification criteria in `Notes for Next Iteration` so future invocations have a condensed reference. Also log a summary of the methodology loaded in decisions.md (this preserves context that would otherwise be lost as Notes get appended to).
 
 ## Per-Invocation Workflow
 
@@ -56,9 +57,10 @@ Read `.claude/consolidate-output/progress.md`. Extract:
 | Variable | Purpose |
 |----------|---------|
 | `SWEEP_COUNT` | Total sweeps executed |
+| `ROUND` | Current round number (1, 2, 3, ...) |
 | `CONTENT_TYPE` | Current: LEARNINGS, SKILLS, or GUIDELINES |
-| `PASS` | Current pass: 1 or 2 |
-| `CLEAN_SWEEP_STREAK` | Consecutive clean sweeps for current content type |
+| `ROUND_CLEAN` | Whether the current round has been clean so far (true/false) |
+| `CLEAN_ROUND_STREAK` | Consecutive fully-clean rounds |
 
 Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
@@ -97,40 +99,68 @@ For each MEDIUM, apply the judgment criteria (see MEDIUM Judgment section):
 
 Append to lows.md following its format: iter, content type, file, pattern, possible classifications, why LOW.
 
-### 8. Update Output Files
+### 8. Compound Insights
+
+If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), append meta-insights to `.claude/consolidate-output/compounded-learnings.md`. These are NOT the actions themselves (those go in decisions.md) — they are **patterns about the corpus** discovered during analysis:
+
+- Domain clusters that are growing and may need personas
+- Personas with boundary overlap that keeps recurring
+- Learning files that are frequent merge targets (gravity wells)
+- Content types that drift toward staleness in specific areas
+- Structural patterns that predict future curation needs
+
+**Format**: Append under a `### Iter N — <CONTENT_TYPE>` heading. Write concise bullet points — these feed into `/learnings:compound` after the loop completes.
+
+**Skip if clean sweep** — nothing to learn from "no findings."
+
+### 9. Update Output Files
 
 Before exiting, update:
 
-- **progress.md**: Increment SWEEP_COUNT. Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <type> | <phase> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. Update CLEAN_SWEEP_STREAK. Write Notes for Next Iteration.
+- **compounded-learnings.md**: Only if findings were compounded in step 8.
+
+- **progress.md**: Increment SWEEP_COUNT. Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below). Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **blockers.md**: Only if new blockers added.
 - **lows.md**: Only if new LOWs found.
 
-### 9. Check Convergence + Transitions
+### 10. Transitions + Convergence
 
-**Clean sweep**: 0 HIGHs and 0 MEDIUMs found. LOWs do not break a clean streak.
+**Max rounds guard**: If `ROUND > 5` and not converged, stop the loop:
+1. Write `MAX_ROUNDS_HIT` as the first line of progress.md
+2. Update report.md status to `MAX_ROUNDS_HIT`
+3. Add a blocker to blockers.md: "Loop hit 5 rounds without converging — remaining findings may need human review"
+4. Do NOT continue sweeping — exit and let the resume skill surface the state
 
-- Found any HIGH or MEDIUM → reset CLEAN_SWEEP_STREAK to 0
-- Found only LOWs or nothing → increment CLEAN_SWEEP_STREAK
+**Round structure**: Each round sweeps all three content types in order: LEARNINGS → SKILLS → GUIDELINES. One sweep per invocation, one type per sweep.
 
-**Convergence**: CLEAN_SWEEP_STREAK >= 2 → content type converged for current pass.
+**After each sweep**:
+- If this sweep found any HIGH or MEDIUM → set `ROUND_CLEAN` to `false`
+- Advance `CONTENT_TYPE` to the next in sequence
 
-**Content type transition** (on convergence):
-1. Mark content type as `converged` in progress.md
-2. Reset CLEAN_SWEEP_STREAK to 0
-3. Advance to next content type in the progression sequence
+**Content type transition** (within a round):
+- LEARNINGS → SKILLS
+- SKILLS → GUIDELINES
+- GUIDELINES → end of round (see below)
 
-**Pass progression**:
-- Pass 1: LEARNINGS → SKILLS → GUIDELINES
-- Pass 2: LEARNINGS → SKILLS → GUIDELINES (catches cross-type regressions)
-- After GUIDELINES converges on Pass 2 → completion
+**End of round** (after GUIDELINES sweep completes):
+1. If `ROUND_CLEAN` is `true` → increment `CLEAN_ROUND_STREAK`
+2. If `ROUND_CLEAN` is `false` → reset `CLEAN_ROUND_STREAK` to 0
+3. Log round summary in progress.md
+4. Reset `ROUND_CLEAN` to `true`
+5. Increment `ROUND`
+6. Set `CONTENT_TYPE` back to LEARNINGS
+
+**Convergence**: `CLEAN_ROUND_STREAK >= 2` → two consecutive fully-clean rounds → completion.
+
+This means every type's "confirmation" sweep happens after all other types have been swept in the intervening round, catching cross-type regressions naturally.
 
 **Completion**:
 - Write `WOOT_COMPLETE_WOOT` as the first line of progress.md
 - Update report.md status to `COMPLETE`
 - Write final collection health metrics
 
-**Skip empty content types**: If a content type has 0 files, mark `converged (empty)` and advance.
+**Skip empty content types**: If a content type has 0 files, mark `skipped (empty)` and advance to the next type. An all-empty round still counts as clean.
 
 ## Sweep Methodology
 
@@ -155,7 +185,7 @@ Before exiting, update:
 
 ### SKILLS — Skill Mode
 
-1. **Read all skills**: Glob `.claude/commands/*/SKILL.md`, read each package (SKILL.md + reference files in same directory)
+1. **Read all skills**: Glob `.claude/commands/**/SKILL.md`, read each package (SKILL.md + reference files in same directory)
 2. **Cluster by namespace**: Group by prefix (`git:*`, `learnings:*`, `ralph:*`, `parallel-plan:*`, standalone)
 3. **Also read**: Persona files and shared skill-references
 4. **Per-skill evaluation**:

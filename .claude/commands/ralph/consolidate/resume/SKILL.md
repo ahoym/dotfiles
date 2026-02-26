@@ -29,10 +29,11 @@ Read from `<worktree>/.claude/consolidate-output/`:
 
 | File | What to extract |
 |------|-----------------|
-| `progress.md` | State variables (SWEEP_COUNT, CONTENT_TYPE, PASS, CLEAN_SWEEP_STREAK), iteration log, notes |
+| `progress.md` | State variables (SWEEP_COUNT, ROUND, CONTENT_TYPE, ROUND_CLEAN, CLEAN_ROUND_STREAK), iteration log, round summary, notes |
 | `report.md` | Summary table, total actions, status |
 | `blockers.md` | Any items with `Status: OPEN` |
 | `decisions.md` | Last 10 rows (recent actions for context) |
+| `compounded-learnings.md` | Meta-insights discovered during sweeps (if any) |
 
 ### 3. Present status
 
@@ -40,10 +41,10 @@ Read from `<worktree>/.claude/consolidate-output/`:
 # Resume: Consolidation <date>
 
 ## State
-- **Pass**: N/2
+- **Round**: N
 - **Content Type**: LEARNINGS / SKILLS / GUIDELINES
 - **Sweep Count**: N
-- **Clean Streak**: N/2
+- **Clean Round Streak**: N/2
 - **Status**: IN_PROGRESS / MAX_ITERATIONS_HIT / COMPLETE
 
 ## Summary
@@ -77,9 +78,12 @@ If the user wants to skip a blocker, leave it as OPEN.
 
 ### 5. Prepare for relaunch
 
-Calculate suggested iterations: `max(5, 20 - SWEEP_COUNT)`.
+Calculate suggested iterations based on pre-flight cadence (from progress.md) and remaining work:
+- Read `Cadence` and `Suggested iterations` from the Pre-Flight section
+- Base: `max(5, <init_suggested> - SWEEP_COUNT)` where `<init_suggested>` is the value from pre-flight (default 20 if not present)
 
-If COMPLETE signal is present in progress.md:
+If COMPLETE or MAX_ROUNDS_HIT signal is present in progress.md:
+- If `compounded-learnings.md` has content beyond the template header, present the insights and suggest: "Run `/learnings:compound` with these as source material to persist valuable insights."
 - Ask if the user wants to review the diff: `git diff main -- .claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
 - Do NOT suggest relaunching

@@ -35,13 +35,33 @@ When writing a spec for `claude --print` agents with no conversation history, em
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
 
 - **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
-- **Output files**: 6 files (spec, progress, decisions, blockers, report, lows) instead of 5 core research files
+- **Output files**: 7 files (spec, progress, decisions, blockers, report, lows, compounded-learnings) instead of 5 core research files
 - **Security hooks**: Bash, WebFetch, WebSearch blocked; writes scoped to `.claude/` only
-- **Two-pass progression**: LEARNINGS → SKILLS → GUIDELINES × 2 passes (catches cross-type regressions)
+- **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 2 consecutive clean rounds. Max 5 rounds before forced stop.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; only true blockers surface for human review via `blockers.md`
-- **Convergence**: 2 consecutive clean sweeps per content type (not task-based completion signal)
+- **Compounded learnings**: After sweeps with findings, agent appends corpus-level meta-insights to `compounded-learnings.md` (isolated from sweep corpus to prevent feedback loops). Resume skill surfaces these for `/learnings:compound` post-loop.
 - **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/lab/ralph/wiggum.sh`)
 - **Resume**: `/ralph:consolidate:resume` handles blocker resolution and relaunch (vs `/ralph:resume` for research question answering)
+
+## Round-Based vs Type-Blocked Convergence
+
+Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. Also halves the minimum iteration count for clean corpora (6 vs 12 for 3 types × 2 confirmations).
+
+## Compounded Learnings Isolation
+
+When an autonomous agent writes insights during curation, those files must live outside the sweep corpus to prevent feedback loops (new insight → next sweep finds it → generates more insights → ...). The `consolidate-output/` directory serves as this isolation boundary — the spec defines corpus paths that exclude it.
+
+## Pre-Flight Cadence Analysis
+
+Count curation-related commits in recent git history to right-size iteration counts. Recent curation (3+ of last 5 commits) → suggest fewer iterations (corpus likely clean). Stale (0 of last 5) → suggest full sweep. Avoids wasting iterations on corpora that were just curated.
+
+## Nested Skill Glob Pattern
+
+`commands/*/SKILL.md` only matches top-level skill directories. For repos with multi-level nesting (e.g., `commands/ralph/consolidate/init/SKILL.md`), use `commands/**/SKILL.md`. This applies anywhere skills are inventoried — init pre-flight, spec corpus definitions, sweep methodology.
+
+## Isolation Boundaries Enable Future Optionality
+
+Building passive output files outside the active corpus (e.g., `compounded-learnings.md` in `consolidate-output/`) creates zero-cost architecture for future feedback loops. The file is ignored during sweeps today but could become an input to a future generative stage without changing the plumbing. The gate between "passive capture" and "active feedback" is a decision, not a redesign. Pair with a circuit breaker (max rounds guard) so the gate can be opened safely.
 
 ## Brief as Pre-PR Workflow
 
