@@ -31,3 +31,15 @@ Return an error response listing missing fields, or `null` if all present. Keep 
 When building a shared API client utility, first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
 **Normalization strategy:** Start client-side only — build a typed fetch wrapper returning a discriminated union (`{ ok, data } | { ok, error }`). Zero server changes. Server-side envelope wrapping can come later as a separate refactor.
+
+## XRPL `amm_info` Asset Order Normalization
+
+`amm_info` may return `amount`/`amount2` in a different order than the `asset`/`asset2` requested. Always match the response amounts by currency+issuer to determine which is base vs quote, rather than assuming positional correspondence.
+
+```ts
+const amount1IsBase =
+  amount1.currency === baseCurrency &&
+  (baseCurrency === "XRP" || amount1.issuer === baseIssuer);
+const base = amount1IsBase ? amount1 : amount2;
+const quote = amount1IsBase ? amount2 : amount1;
+```

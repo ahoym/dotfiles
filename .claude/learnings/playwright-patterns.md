@@ -208,3 +208,17 @@ Success messages that auto-clear after 2s can be missed by Playwright assertions
 ## 16. `.filter({ has: getByText() }).first()` Matches Ancestor Divs
 
 `page.locator("div").filter({ has: getByText("Card Title") }).first()` can match a high-level ancestor div containing multiple cards. For tighter scoping, use the heading's parent: `page.getByRole("heading", { name: "Card Title" }).locator("..")`.
+
+## 17. `.or()` for One-of-Many Terminal States
+
+When external state is unpredictable (e.g., testnet AMM pool may or may not exist), use `.or()` to assert that one of several valid outcomes is visible rather than branching with try/catch or conditional logic:
+
+```ts
+const poolData = page.getByText("Spot Price");
+const noPool = page.getByText("No AMM pool exists for this pair");
+const emptyPool = page.getByText("Pool is empty");
+
+await expect(poolData.or(noPool).or(emptyPool)).toBeVisible({ timeout: 15_000 });
+```
+
+This is cleaner than try/catch + `test.skip()` when all outcomes are valid — the test passes regardless of which state is reached, but still fails if the component is stuck loading or errors out.

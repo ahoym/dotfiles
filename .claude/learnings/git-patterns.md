@@ -100,3 +100,7 @@ jq --argjson hooks "$HOOKS_JSON" '.hooks = $hooks' "$WORKTREE/.claude/settings.l
 # Remove on exit
 jq 'del(.hooks)' "$WORKTREE/.claude/settings.local.json" > tmp && mv tmp "$_"
 ```
+
+## Check Untracked Dependencies Before Committing
+
+When committing new modules, check `git status` untracked files for dependencies the new code imports. A file created in a prior session but never committed will break CI if a newly committed module imports it. Stage all untracked dependencies together with the new code.

@@ -49,29 +49,35 @@ Before creating the PR, verify these items are complete:
    - If there are uncommitted changes, ask user if they want to commit first
    - Do not proceed with PR creation if there are uncommitted changes
 
-3. **Check for existing PR**:
+3. **Run formatter on changed files**:
+   - Detect project formatter: check for `.prettierrc*`, `biome.json`, or formatter config in `package.json`
+   - Run the formatter in check mode on changed files: e.g., `npx prettier --check $(git diff --name-only origin/main -- '*.ts' '*.tsx' '*.js' '*.json' '*.css')`
+   - If formatting issues found, fix them (`npx prettier --write <files>`), stage, and commit before proceeding
+   - If no formatter config found, skip this step
+
+4. **Check for existing PR**:
    ```bash
    gh pr list --head <current-branch>
    ```
    - If a PR already exists, ask user: "PR #N already exists for this branch. Update its description instead of creating new?"
    - If yes, use `gh pr edit <number> --body "..."` instead of `gh pr create`
 
-4. **Infer Jira ticket** (if applicable):
+5. **Infer Jira ticket** (if applicable):
    - Extract Jira ticket ID from the branch name (common patterns: `feature/PROJ-123`, `bugfix/PROJ-456`, `PROJ-789-description`)
    - Look for Jira ticket references in commit messages
    - If no ticket can be inferred, leave the URL incomplete for the user to fill in
 
-5. **Determine base branch**:
+6. **Determine base branch**:
    - If `$ARGUMENTS` provided, use that as base
    - If branch name suggests a parent (e.g., `feature/foo-part2` might be based on `feature/foo`), ask user
    - Default to `main`
 
-6. **Check if push needed**:
+7. **Check if push needed**:
    - If local is ahead of remote, push first: `git push -u origin <branch>`
 
-7. **Create or update PR** using the template from pr-body-template.md
+8. **Create or update PR** using the template from pr-body-template.md
 
-8. **Run the gh command**:
+9. **Run the gh command**:
 
 For new PR:
 ```bash
@@ -89,4 +95,4 @@ EOF
 )"
 ```
 
-9. **Return the PR URL** to the user.
+10. **Return the PR URL** to the user.

@@ -1,6 +1,7 @@
 # Guidelines
 
 @.claude/guidelines/communication.md
+@.claude/guidelines/skill-invocation.md
 
 # Bash Tool
 
