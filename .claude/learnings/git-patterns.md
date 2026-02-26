@@ -104,3 +104,9 @@ jq 'del(.hooks)' "$WORKTREE/.claude/settings.local.json" > tmp && mv tmp "$_"
 ## Check Untracked Dependencies Before Committing
 
 When committing new modules, check `git status` untracked files for dependencies the new code imports. A file created in a prior session but never committed will break CI if a newly committed module imports it. Stage all untracked dependencies together with the new code.
+
+## Zsh Glob Expansion Breaks `git add` with Brackets
+
+Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.
+
+**Workarounds:** `git add -A` (if all changes are wanted), `git add -- 'app/api/accounts/\[address\]/**'` (escaped), or `noglob git add <path>`.
