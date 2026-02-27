@@ -190,17 +190,21 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 
 Flag these as `SKILL_REVIEW_CANDIDATES`.
 
-**Step 5a — Persona opportunities.** Check whether curated patterns cluster around a domain/stack that could benefit from a persona:
+**Step 5a — Domain organization & persona opportunities.** Check whether curated patterns are well-organized for dynamic pulling (per `context-aware-learnings` guideline) and whether a persona lens would add value:
 
 1. **Tag each pattern** with its domain and stack (e.g., "XRPL + TypeScript", "React + Next.js", "Java + Spring")
 2. **Count clusters**: Group patterns by domain/stack combination
-3. **Check existing personas**: Glob `~/.claude/commands/set-persona/*.md` and `.claude/personas/*.md`
-4. **Evaluate against criteria** (read `persona-design.md` for full criteria):
-   - **New persona**: 3+ learnings files with patterns for the same domain/stack, no matching persona exists, 8+ discrete gotchas/patterns
-   - **Enhance existing persona**: Patterns match an existing persona's domain but aren't covered in it yet
-   - **No action**: Patterns are too scattered across domains, or already covered by an existing persona
+3. **Check learnings organization first**:
+   - Does each domain cluster have a well-named learnings file that serves as a keyword index? (e.g., `aws-patterns.md` for AWS, `vercel-deployment.md` for Vercel)
+   - Are patterns in the right files for keyword-based discovery? A Fargate gotcha in a generic `deployment.md` is harder to find than in `aws-patterns.md`.
+   - **Suggest reorganization** when patterns would be more discoverable in a differently-named or split file.
+4. **Check existing personas**: Glob `~/.claude/commands/set-persona/*.md` and `.claude/personas/*.md`
+5. **Evaluate persona opportunity** (read `persona-design.md` for full criteria):
+   - **New persona**: Only when a domain cluster needs a distinct *lens* (tradeoff priorities, review posture) — not just factual knowledge. 3+ learnings files, 8+ patterns, AND identifiable judgment patterns (not just gotchas).
+   - **Enhance existing persona**: Only for lens-type content (priorities, tradeoffs, review heuristics). Factual gotchas should stay in or be moved to learnings files.
+   - **No action**: Patterns are purely factual (belong in learnings), too scattered, or already covered.
 
-Store matches as `PERSONA_SUGGESTIONS` (may be empty).
+Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SUGGESTIONS` (lens creation/enhancement). Both may be empty.
 
 **Skip this step** if curating a single small file with < 3 patterns.
 
@@ -268,12 +272,18 @@ Display the full report inline in the CLI.
 | 1 | Comparison Table Template | 21-32 | Template for skill | High | ralph:init |
 | 2 | Signs Directory Superseded | 34-40 | Context for skill | Medium | ralph:init |
 
+### Domain Organization (if any)
+
+| Suggestion | Action | Evidence |
+|------------|--------|----------|
+| Split `deployment.md` | Rename/split into `aws-patterns.md` + `vercel-deployment.md` | Mixed domains, poor keyword discoverability |
+
 ### Persona Suggestions (if any)
 
 | Suggestion | Action | Evidence |
 |------------|--------|----------|
-| Create `python-fastapi-backend` | New persona | 8 patterns across 3 files, no persona exists |
-| Enhance `xrpl-typescript-fullstack` | Add 2 gotchas | New Turbopack patterns not in existing persona |
+| Create `python-fastapi-backend` | New persona (lens) | Distinct tradeoff patterns across 3 files |
+| Enhance `xrpl-typescript-fullstack` | Add review heuristic | New code review pattern (lens, not factual) |
 
 ### Recommended Actions
 ...

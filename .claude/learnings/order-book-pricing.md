@@ -4,7 +4,7 @@
 
 - **Simple mid** `(bestAsk + bestBid) / 2` — industry standard for exchange UIs (Binance, Coinbase, CME). Use this for display.
 - **Micro-price** — weights top-of-book by opposite side's size: `(askPrice × bidSize + bidPrice × askSize) / (bidSize + askSize)`. Used internally by quant desks/market makers, not displayed on exchange UIs.
-- **Multi-level VWAP mid** — VWAP each side across all visible levels, then cross-weight. Non-standard; distorts mid by pulling in stale far-from-market orders. Avoid.
+- **Weighted mid (VWAP)** — `Σ(price × volume) / Σ(volume)` across all visible levels. Non-standard as a primary mid (distorts toward stale far-from-market orders), but useful as a **supplementary hover metric** alongside simple mid. Both xrpl-dex-portal and issued-currencies-manager use it this way — hover-only, never the default display.
 
 ## Slippage Estimation (Walk-the-Book)
 

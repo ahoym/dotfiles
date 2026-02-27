@@ -369,7 +369,7 @@ For each file in `~/.claude/guidelines/`, follow learnings:curate content mode (
 | **`@`-reference cost** | Is this guideline `@`-referenced in CLAUDE.md? If so, every token is always-on cost. Does all content need to be always-on, or could parts move to conditional references? |
 | **Wiring check** | Is this guideline referenced anywhere (CLAUDE.md, skills, other guidelines)? An unwired guideline may be dead weight. |
 | **Behavioral vs reference** | Does the guideline define behavior (how to communicate, code style) vs reference material (API patterns, framework specifics)? Reference material is often better as a conditional skill reference file. |
-| **Domain-specific → persona** | Does the guideline contain domain-specific patterns that belong in a persona instead? |
+| **Domain-specific → learnings or persona** | Does the guideline contain domain-specific knowledge (gotchas, facts) that belongs in a learnings file? Or domain-specific *judgment* (tradeoffs, review posture) that belongs in a persona? Knowledge → learnings (for dynamic pulling). Lens → persona. See `context-aware-learnings` guideline. |
 
 #### 5b–5c. HIGH/MEDIUM/VERIFICATION loop
 

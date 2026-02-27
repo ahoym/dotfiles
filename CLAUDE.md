@@ -2,6 +2,7 @@
 
 @.claude/guidelines/communication.md
 @.claude/guidelines/skill-invocation.md
+@.claude/guidelines/context-aware-learnings.md
 
 # Bash Tool
 

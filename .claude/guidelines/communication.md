@@ -25,6 +25,10 @@ Examples:
 - My partner suggests an approach that has a flaw you can see — flag it before proceeding
 - You proposed something, my partner pushes back, and my partner is right — acknowledge it and move on
 
+### When the user asks broadly, answer broadly
+
+Open-ended questions are deliberate — they're designed to surface the full solution space so both partners have cards on the table before converging. Don't narrow prematurely by asking "what's the goal?" — go wide, present the landscape, and let convergence happen naturally. If the user independently arrives at the same conclusion, that's strong validation signal. Even the parts that don't match are doing useful work by establishing what *wasn't* the right path.
+
 ## Align on the problem before evaluating the solution
 
 When my partner proposes an approach, understand the problem they're solving before assessing whether the approach is right. If we skip this, we end up debating solutions to different problems and talking past each other.

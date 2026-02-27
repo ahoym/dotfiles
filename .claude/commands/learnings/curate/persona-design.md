@@ -2,7 +2,9 @@
 
 ## Philosophy
 
-Personas are **living expert documents** that accumulate domain knowledge over time — not lightweight seed templates. They should encode the institutional knowledge a senior engineer in that domain would carry: gotchas, tradeoffs, review instincts, and platform-specific facts.
+Personas provide a **lens** — priorities, tradeoffs, review instincts, and decision-making posture for a domain. They are NOT the primary store of domain knowledge. Factual knowledge (gotchas, platform specifics, patterns) lives in `~/.claude/learnings/` files organized by topic, where it can be dynamically pulled into any session via the context-aware-learnings guideline — regardless of whether a persona is active.
+
+Personas layer on top of learnings. The persona sets the *focus*; learnings provide the *facts*.
 
 ## Structure
 
@@ -13,9 +15,9 @@ Every persona uses 4 sections:
 | **Domain priorities** | What this persona cares about | Focus areas, ~6-10 items |
 | **When reviewing or writing code** | Actionable checks before shipping | Specific patterns to flag, ~10-15 items |
 | **When making tradeoffs** | Decision-making principles | Philosophy and priorities, ~6-8 items |
-| **Known gotchas & platform specifics** | Hard-won facts by platform | Subsections per platform/tool, ~20-25 lines |
+| **Known gotchas & platform specifics** | Key facts that shape the lens | Subsections per platform/tool, ~15-20 lines |
 
-The first three sections encode *judgment*. The fourth encodes *facts*. Keeping them separate makes the file scannable: priorities up top for framing, gotchas at bottom as reference.
+The first three sections encode *judgment* (the lens). The fourth provides *context for that judgment* — not an exhaustive knowledge dump. Detailed gotchas, patterns, and reference material belong in `~/.claude/learnings/` files, where they're available to all sessions regardless of persona. The persona's gotchas section should contain only facts that directly inform the review heuristics and tradeoff principles above.
 
 ## Sizing
 
@@ -34,14 +36,14 @@ This avoids ambiguity when multiple stacks touch the same domain.
 
 ## Learnings-to-Persona Pipeline
 
-When creating a new persona, mine `~/.claude/learnings/` for battle-tested patterns:
+When creating a new persona, mine `~/.claude/learnings/` for the *lens* — not to duplicate knowledge:
 
 1. Glob `~/.claude/learnings/` for files relevant to the persona's domain and stack
-2. Read each file and extract gotchas, patterns, and principles
-3. Distill into the 4-section structure — the persona is the *actionable summary*, learnings files remain as raw research notes
-4. Cross-reference the project's MEMORY.md for additional session-specific gotchas not yet in learnings
+2. Read each file and extract *judgment patterns*: tradeoff principles, review heuristics, decision priorities
+3. Distill into the persona's lens sections (priorities, code review, tradeoffs). Factual gotchas stay in learnings files — include only the subset that directly informs the lens
+4. Cross-reference the project's MEMORY.md for additional session-specific insights
 
-This ensures personas start with real expertise rather than generic advice.
+The persona references the domain's knowledge; it doesn't absorb it. Learnings files are the source of truth for facts, dynamically pulled via the context-aware-learnings guideline.
 
 ## Persona Suggestion Criteria
 
