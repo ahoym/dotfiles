@@ -19,7 +19,7 @@ inject_hooks() {
   # Build hooks config via jq to ensure proper JSON escaping
   local hooks_json
   hooks_json=$(jq -n \
-    --arg bash_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-bash.sh" \
+    --arg bash_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-bash.sh $worktree_root" \
     --arg web_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-web.sh" \
     --arg write_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-write-scope.sh $worktree_root" \
     --arg read_cmd "bash ~/.claude/ralph/consolidate/hooks/guard-read-scope.sh $worktree_root" \
