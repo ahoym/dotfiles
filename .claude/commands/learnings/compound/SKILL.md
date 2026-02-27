@@ -115,4 +115,5 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 - Keep learnings atomic — one concept per section
 - **Write concisely** — every token in a learning/guideline/skill costs context budget when loaded. Express insights in the fewest tokens that preserve the teaching value. Prefer terse patterns over verbose explanations; code examples over prose when the code speaks for itself.
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
+- **Strip provenance before writing.** Remove "discovered while building X" / "learned during Y project" notes — they add no teaching value and leak project context into global learnings. The pattern itself is what matters. (See also: `learnings/guideline-authoring.md` → "Provenance vs structural content")
 - Be honest in utility self-assessments
