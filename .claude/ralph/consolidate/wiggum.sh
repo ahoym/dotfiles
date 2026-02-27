@@ -75,11 +75,23 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "Log file:   $LOG_FILE"
     echo ""
 
+    # Sweep count validation: capture before
+    SWEEP_BEFORE=$(awk -F'|' '/SWEEP_COUNT/{gsub(/[[:space:]]/, "", $3); print $3}' "$PROGRESS_FILE") || true
+    SWEEP_BEFORE=${SWEEP_BEFORE:-0}
+
     if cat "$SPEC_FILE" | $AI_COMMAND 2>&1 | tee "$LOG_FILE"; then
         ITER_STATUS="success"
     else
         ITER_STATUS="error"
         echo "Warning: Iteration $i exited with non-zero status" | tee -a "$LOG_FILE"
+    fi
+
+    # Sweep count validation: capture after and compare
+    SWEEP_AFTER=$(awk -F'|' '/SWEEP_COUNT/{gsub(/[[:space:]]/, "", $3); print $3}' "$PROGRESS_FILE") || true
+    SWEEP_AFTER=${SWEEP_AFTER:-0}
+    SWEEP_DELTA=$((SWEEP_AFTER - SWEEP_BEFORE))
+    if [ "$SWEEP_DELTA" -ne 1 ]; then
+        echo "WARNING: Sweep count changed by $SWEEP_DELTA (expected 1) in iteration $i" | tee -a "$LOG_FILE"
     fi
 
     ITER_END_TIME=$(date +%s)
