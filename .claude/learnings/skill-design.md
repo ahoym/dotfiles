@@ -318,6 +318,22 @@ A persona's value comes from changing how you *think* about a domain — priorit
 
 The test: "Would activating this persona before a task actually change what I do?" If the answer is just "load a gotcha list," it's not ready to be a persona yet.
 
+## Compose Personas from Shared Learnings
+
+Personas should reference shared learning files for cross-cutting instincts rather than inlining everything. Language-agnostic practices (no duplication, single source of truth, port intent not idioms) go in a shared learning file; language-specific patterns (no IIFEs, no `as` casts) stay inline in the persona. Multiple personas can reference the same learning file without duplication.
+
+Pattern:
+```markdown
+## Code style
+Enforce `learnings/code-quality-instincts.md` (generic instincts).
+
+Language-specific:
+- Avoid IIFEs — extract named helpers
+- Avoid `as` casts — fix the source type
+```
+
+This keeps persona files focused on domain judgment while inheriting shared quality instincts.
+
 ## Explore Agent Upfront for Large Implementation Tasks
 
 For implementation tasks touching 10+ reference files (existing infrastructure, patterns to follow, files to edit), launch a thorough Explore agent upfront before writing anything. The upfront cost (~2 min, 50+ tool calls) eliminates incremental back-and-forth during execution and enables writing all output files in parallel with full context. This is faster end-to-end than reading files incrementally as you discover you need them.

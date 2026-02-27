@@ -45,6 +45,20 @@ Always announce when learnings are loaded or searched. The user needs visibility
 
 No-match announcements are **mandatory** during calibration. They surface gaps in the learnings library and confirm the system is actually firing. Every search — keyword, just-in-time, or plan-mode gate — must announce its result, hit or miss.
 
+## Hard gate: Implementation start
+
+**Before beginning implementation of an approved plan, check if a persona is active.** If not, glob available personas (`~/.claude/commands/set-persona/` and `.claude/personas/`), identify the most relevant one for the task, and recommend it to the user via `AskUserQuestion`. The user can decline — this is a recommendation, not a blocker.
+
+Announce the check:
+```
+🎭 No persona active — recommending `xrpl-typescript-fullstack` for this task. Set it?
+```
+
+If a persona is already active:
+```
+🎭 Persona active: `xrpl-typescript-fullstack` — proceeding with implementation
+```
+
 ## Relationship to Personas
 
-Personas provide a **lens** (priorities, tradeoffs, posture). Learnings provide **knowledge** (gotchas, patterns, facts). This guideline makes knowledge active regardless of whether a persona is set. Personas remain optional.
+Personas provide a **lens** (priorities, tradeoffs, posture). Learnings provide **knowledge** (gotchas, patterns, facts). This guideline makes knowledge active regardless of whether a persona is set. Personas are recommended when relevant — the implementation gate above ensures they're considered before execution begins.

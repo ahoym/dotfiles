@@ -27,3 +27,17 @@ slippage = |avgPrice - midPrice| / midPrice × 100;
 - Track `fullFill` (remaining <= 0) and warn when book depth is insufficient
 - Most useful for market-style orders (IOC/FOK); for limit orders, show "X% immediately fillable at avg Y"
 - Best placement: on the order form after amount entry, not baked into the mid-price display
+
+## Midprice Module Design
+
+Separate raw BigNumber helpers from the serialized API wrapper:
+
+- `computeMicroPrice(bestAsk, bestBid, bestAskVol, bestBidVol): BigNumber | null` — UI uses directly
+- `computeVwap(levels): BigNumber | null` — UI uses directly
+- `computeMidpriceMetrics(asks, bids): MidpriceMetrics` — serializes to strings for API transport
+
+This avoids string→BigNumber round-tripping in the UI. The API route calls the serialized wrapper; the order book component calls the raw helpers.
+
+## OrderBookEntry.quality Is Optional
+
+xrpl.js `BookOffer.quality` is `string | undefined`. `OrderBookEntry.quality` must be optional to match — otherwise `normalizeOffer` output requires `as OrderBookEntry[]` casts. `buildAsks`/`buildBids` don't use `quality`, so the optionality is safe.

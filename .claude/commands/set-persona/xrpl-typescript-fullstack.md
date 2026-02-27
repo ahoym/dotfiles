@@ -24,6 +24,14 @@
 - Use render-time state sync (`if (prev !== current)` pattern) instead of `setState` inside `useEffect` (React 19)
 - Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 
+## Code style
+
+Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
+
+TypeScript-specific:
+- Prefer named functions over IIFEs (`(() => { ... })()`) — if logic needs a block, extract a helper
+- Avoid `as` casts — fix the type mismatch at the source (widen the source type, narrow the producer's return type, or add a type guard)
+
 ## When making tradeoffs
 - Correctness over convenience — XRPL transactions are irreversible, validate thoroughly before signing
 - Wallet adapters over raw seeds for any production path — localStorage encryption has marginal ROI when adapters exist
