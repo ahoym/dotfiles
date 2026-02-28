@@ -76,3 +76,11 @@ TypeScript-specific:
 - `Buffer` is Node-only; use `TextEncoder` + `Array.from` in client components for hex encoding
 - When server and client independently implement encoding (e.g., credential types), test both against shared canonical fixtures to catch drift
 - `decodeCurrency` has separate implementations: `currency.ts` (Node, uses Buffer) and `decode-currency-client.ts` (browser-safe)
+
+## Detailed references
+
+Load when working in the specific area:
+- `learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
+- `learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
+- `learnings/xrpl-dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes
+- `learnings/order-book-pricing.md` — Mid-price approaches, slippage estimation, midprice module design

@@ -85,3 +85,17 @@ On Vercel, each API route can run as a **separate serverless function instance**
 **The Problem:** XRPL public nodes enforce **IP-based connection limits**. When the client polls multiple API routes simultaneously, each route may spawn a separate serverless invocation, each opening its own WebSocket.
 
 **The Mitigation:** Combine multiple XRPL queries into a **single API route** to reduce the number of concurrent serverless invocations and WebSocket connections. Reducing the number of concurrent API calls is the primary lever for managing connection count on Vercel.
+
+## Crossing Offers for Trade/Fill Test Data
+
+To test endpoints that require actual trade data (`filled-orders`, `dex/trades`), you need crossing offers — two accounts placing opposite offers that match and execute:
+
+1. Issuer (with `isIssuer:true` for DefaultRipple) + Trader A + Trader B
+2. Trust lines: both traders -> issuer for the currency
+3. Issue currency to Trader A (the seller)
+4. Trader A places sell offer: `TakerGets=100 USD, TakerPays=50 XRP`
+5. Trader B places crossing buy offer: `TakerGets=50 XRP, TakerPays=100 USD`
+
+Step 5 auto-executes against step 4's resting offer, producing a fill visible to both `filled-orders` (per-account) and `dex/trades` (per-pair) endpoints.
+
+Key: Trader B needs XRP (from faucet) but only needs a trust line (not a balance) for USD, since `TakerPays` only requires a trust line.
