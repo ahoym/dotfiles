@@ -77,6 +77,19 @@ When multiple `PreToolUse` hooks match the same tool, **all** must allow for the
 
 Always check `stop_hook_active` field to allow stopping on re-check. Without this check, a Stop hook that blocks stopping will loop indefinitely.
 
+## Selective Allowlist: Middle Ground Between Blanket Block and Full Access
+
+When an unattended agent needs *some* Bash access (e.g., git commands for file management) but not arbitrary execution, use a selective allowlist guard instead of a blanket block:
+
+1. Case-match allowed command prefixes (`git rm *`, `git add *`, `git mv *`, etc.)
+2. For path-accepting commands, validate each path arg starts with an allowed prefix (`$WORKTREE_ROOT/.claude/`)
+3. Block compound commands (`&&`, `||`, `;`, `|`) via grep before the case statement — prevents chaining an allowed command with an arbitrary one
+4. Default case blocks everything not explicitly allowed
+
+This is narrower than full Bash access (small, enumerable allowlist of structured commands) but wider than blanket block (agent can perform git operations). Use when the agent's workflow genuinely requires shell commands that have no dedicated tool equivalent.
+
+The "blanket > pattern matching" principle still holds for *open-ended* pattern matching (trying to enumerate dangerous commands). A *closed* allowlist of specific command prefixes is fundamentally different — you're enumerating what's allowed, not what's dangerous.
+
 ## Idempotent Hook Injection
 
 When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("lab/ralph/hooks/guard-")`).

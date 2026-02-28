@@ -59,18 +59,18 @@ Save new patterns and learnings from the current session into global skills, gui
    - **Medium** - Useful reminder, but I could rediscover if needed
    - **Low** - Standard knowledge or already documented (shown for transparency)
 
-   **Auto-save High-utility learnings.** Learnings rated High are automatically included — they are novel patterns that would be lost without documenting.
+   **Auto-save High and Medium-utility learnings.** High and Medium learnings are automatically included — they represent patterns worth preserving without asking.
 
-   **Prompt for Medium/Low-utility learnings.** Use `AskUserQuestion` with multi-select to let the user choose which Medium/Low learnings to also capture (if any exist). If all learnings are High, skip the prompt entirely and proceed to writing. **Include the utility rating in each option's `description` field** (e.g., `"Utility: Medium — useful reminder, but could rediscover if needed"`).
+   **Prompt for Low-utility learnings.** Use `AskUserQuestion` with multi-select to let the user choose which Low learnings to also capture (if any exist). If no Low learnings exist, skip the prompt entirely and proceed to writing. **Include the utility rating in each option's `description` field** (e.g., `"Utility: Low — standard knowledge or already documented"`).
 
    After the table, clearly state which learnings will be auto-saved:
    ```
-   Auto-saving N High-utility learning(s). Select any Medium/Low learnings to also include:
+   Auto-saving N High/Medium-utility learning(s). Select any Low learnings to also include:
    ```
 
    Combine the auto-saved and user-selected items into `SELECTED_LEARNINGS`.
 
-   **Do NOT proceed until user selects (or all are auto-saved).** If no learnings selected and none are High, inform user and exit.
+   **Do NOT proceed until user selects (or all are auto-saved).** If no learnings selected and none are High/Medium, inform user and exit.
 
 3. **Write learnings to files**:
    - If any Skill-type learning is selected: read `skill-template.md`, `writing-best-practices.md`, and `skill-authoring.md` first
@@ -115,4 +115,5 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 - Keep learnings atomic — one concept per section
 - **Write concisely** — every token in a learning/guideline/skill costs context budget when loaded. Express insights in the fewest tokens that preserve the teaching value. Prefer terse patterns over verbose explanations; code examples over prose when the code speaks for itself.
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
+- **Strip provenance before writing.** Remove "discovered while building X" / "learned during Y project" notes — they add no teaching value and leak project context into global learnings. The pattern itself is what matters. (See also: `learnings/guideline-authoring.md` → "Provenance vs structural content")
 - Be honest in utility self-assessments
