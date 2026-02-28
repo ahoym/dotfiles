@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
 ## Pre-Flight
@@ -37,10 +37,10 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
-- **MEDIUMs blocked**: 0
+- **MEDIUMs blocked**: 1
 
 ## Round Summary
 
@@ -48,6 +48,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 4 | 2 | 0 | 1 | 0 | 1 (blocked) | No |
 
 ## Iteration Log
 
@@ -57,6 +58,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 4 | 2 | 0 | 6 | Deleted research-methodology.md (subsumed by skill-design.md), merged parallel-planning.md into parallel-plans.md, removed 2 duplicate sections from parallel-plans.md, folded xrpl-testing-patterns.md into xrpl-patterns.md, wired xrpl-typescript-fullstack persona references |
 | 2 | 1 | SKILLS | 0 | 1 | 1 | 1 | 29 skills across 5 namespaces evaluated. Fixed ambiguous reference path in do-refactor-code. 1 LOW: orphaned subagent-patterns.md. Cross-persona java-backend/java-devops clean. |
+| 3 | 1 | GUIDELINES | 0 | 1 | 0 | 0 | 4 guidelines evaluated. 3/4 @-referenced (always-on), 1 unreferenced (validation.md — blocked, needs CLAUDE.md edit outside write scope). No compression opportunities above 30% threshold. No domain-specific content requiring migration. |
 
 ## Notes for Next Iteration
 
@@ -106,3 +108,22 @@ Suggested iterations: 15
 - Check wiring: are any guidelines unreferenced (dead weight)?
 - Check if any behavioral content should be conditional or domain-specific content should move to learnings/personas
 - 4 guideline files to evaluate
+
+### Iter 3
+
+**Guidelines sweep results:**
+- 4 guidelines: communication.md (111 lines), context-aware-learnings.md (87 lines), skill-invocation.md (8 lines), validation.md (12 lines)
+- 3/4 are `@`-referenced in CLAUDE.md (always-on): communication, context-aware-learnings, skill-invocation
+- 1/4 unreferenced: validation.md — not wired from CLAUDE.md or any skill. Blocked (CLAUDE.md outside write scope). See blockers.md [B-1].
+- communication.md: ~10% compression possible but below 30% threshold. 11 behavioral sections, each concise and distinct.
+- context-aware-learnings.md: meta-guideline about learnings system, no overlap with learnings content itself.
+- No domain-specific content requiring migration to personas.
+- No behavioral content that should be conditional.
+
+**Round 1 complete**: ROUND_CLEAN = false (findings in all 3 sweeps). CLEAN_ROUND_STREAK remains 0. Advancing to Round 2 / LEARNINGS.
+
+**For next sweep (LEARNINGS, Round 2):**
+- Re-read all 32 learnings files — check if iter 1 changes (deletions, merges, folds) created any new issues
+- Pure-deletion sweep in iter 1 shouldn't create new overlaps, but the merge of parallel-planning.md → parallel-plans.md and fold of xrpl-testing-patterns.md → xrpl-patterns.md could have introduced duplicates within target files
+- Check reference wiring added to xrpl-typescript-fullstack persona is still accurate
+- The blocked validation.md finding can't be acted on until the user resolves [B-1] — don't re-flag it
