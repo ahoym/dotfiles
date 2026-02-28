@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -31,7 +31,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -60,6 +60,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 0 | 1 | 1 | 1 | 29 skills across 5 namespaces evaluated. Fixed ambiguous reference path in do-refactor-code. 1 LOW: orphaned subagent-patterns.md. Cross-persona java-backend/java-devops clean. |
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 0 | 4 guidelines evaluated. 3/4 @-referenced (always-on), 1 unreferenced (validation.md — blocked, needs CLAUDE.md edit outside write scope). No compression opportunities above 30% threshold. No domain-specific content requiring migration. |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files across 7 clusters verified. Iter 1 merges/folds introduced no internal duplicates. Reference wiring accurate. No new overlaps, thin-file issues, or de-enrichment opportunities above threshold. |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills re-evaluated. No stale model strings, no broken references to deleted learnings. do-refactor-code path fix intact. All @ and skill-reference wiring resolves. L-1 (orphaned subagent-patterns.md) unchanged. |
 
 ## Notes for Next Iteration
 
@@ -128,6 +129,23 @@ Suggested iterations: 15
 - Pure-deletion sweep in iter 1 shouldn't create new overlaps, but the merge of parallel-planning.md → parallel-plans.md and fold of xrpl-testing-patterns.md → xrpl-patterns.md could have introduced duplicates within target files
 - Check reference wiring added to xrpl-typescript-fullstack persona is still accurate
 - The blocked validation.md finding can't be acted on until the user resolves [B-1] — don't re-flag it
+
+### Iter 5
+
+**Skills Round 2 — clean sweep:**
+- 29 skills re-evaluated across 5 namespaces (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7)
+- No stale model version strings detected
+- No broken references to deleted learnings files (research-methodology, parallel-planning, xrpl-testing-patterns)
+- do-refactor-code path fix from iter 2 verified intact (`~/.claude/learnings/refactoring-patterns.md`)
+- All `@` references resolve (7 git skills → platform-detection.md, explore-repo → agent-prompts.md, ralph:init → 3 templates)
+- Skill-reference wiring: 4/5 referenced by skills; L-1 (subagent-patterns.md) remains orphaned — already in lows.md
+- No overlap, merge, split, or prune candidates
+
+**For next sweep (GUIDELINES, Round 2):**
+- Re-evaluate all 4 guidelines
+- B-1 (unreferenced validation.md) still open — can't resolve without CLAUDE.md write scope
+- Check if any guideline content has drifted since iter 3
+- Expect clean — no corpus changes since last guidelines sweep
 
 ### Iter 4
 
