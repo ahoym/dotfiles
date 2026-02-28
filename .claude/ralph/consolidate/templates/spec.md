@@ -280,7 +280,7 @@ All MEDIUMs are judged autonomously. The worktree diff + decisions.md provide fu
 | Deduplication | Same concept in multiple files — merge into authoritative location |
 | Fold thin file | < 20 lines of pointers → fold into target persona/skill |
 | Stale version update | Outdated model strings, deprecated tool references |
-| Reference wiring | Ensure persona has Detailed references section linking to relevant learnings |
+| Reference wiring | Ensure persona has Detailed references section linking to relevant learnings; ensure skill-reference files are wired into skills that would benefit |
 | Persona de-enrichment | Extract inline knowledge from persona to learning file, replace with reference |
 | Persona creation | 3+ files, 8+ patterns, no existing persona |
 | Merge for cohesion | 2+ files in same domain cluster, combined version more discoverable |
@@ -349,3 +349,4 @@ Personas sharing domain boundaries → check for duplicated gotchas at content l
 - **Partial overlap**: Decompose rather than downgrade. When a section has N concepts covered elsewhere and 1+ novel concepts, split into separate items — each individually unambiguous.
 - **MEMORY.md is not a safety net**: Don't keep a learning because MEMORY.md covers it. MEMORY.md is always-on cost; learnings are conditional. Prune the MEMORY.md entry, not the learning.
 - **Persona coverage is not learning obsolescence**: When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" Keep the learning if it prevents specific wrong approaches or provides recipes the rule alone can't trigger.
+- **Opportunity over cleanup as tiebreaker**: When a finding has both a cleanup option (delete orphan, remove dead weight) and an opportunity option (wire it, restructure it, merge it), prefer opportunity — it fixes the root cause and is reversible. Cleanup accepts the dysfunction. Only prefer cleanup when the content is stale, incorrect, or has no identifiable consumers.
