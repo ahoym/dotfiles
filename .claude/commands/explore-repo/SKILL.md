@@ -29,6 +29,7 @@ Operates in two modes based on file state — **scan mode** writes domain-specif
 ## Reference Files
 
 - @agent-prompts.md - Detailed prompts and mandates for each exploration agent
+- `~/.claude/skill-references/subagent-patterns.md` — Universal patterns for launching and orchestrating subagents
 
 ## Instructions
 

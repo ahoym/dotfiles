@@ -65,7 +65,6 @@ All in `.claude/consolidate-output/`:
 | `blockers.md` | Items needing human review |
 | `report.md` | Cumulative summary |
 | `lows.md` | Low-confidence items for manual review |
-| `compounded-learnings.md` | Meta-insights about the corpus — feeds `/learnings:compound` post-loop |
 
 ### Methodology References
 
@@ -135,7 +134,7 @@ Append to lows.md following its format: iter, content type, file, pattern, possi
 
 ### 8. Compound Insights
 
-If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), append meta-insights to `.claude/consolidate-output/compounded-learnings.md`. These are NOT the actions themselves (those go in decisions.md) — they are **patterns about the corpus** discovered during analysis:
+If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), persist meta-insights directly into the learnings system. These are NOT the actions themselves (those go in decisions.md) — they are **patterns about the corpus** discovered during analysis:
 
 - Domain clusters that are growing and may need personas
 - Personas with boundary overlap that keeps recurring
@@ -143,15 +142,47 @@ If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), append meta
 - Content types that drift toward staleness in specific areas
 - Structural patterns that predict future curation needs
 
-**Format**: Append under a `### Iter N — <CONTENT_TYPE>` heading. Write concise bullet points — these feed into `/learnings:compound` after the loop completes.
-
 **Skip if clean sweep** — nothing to learn from "no findings."
+
+#### Compound methodology
+
+Follow the `/learnings:compound` skill's methodology inline — no Skill tool invocation needed.
+
+1. **Identify insights** from the sweep just completed. List each with a brief description.
+
+2. **Categorize** each using the decision tree from `content-type-decisions.md` (loaded in first invocation):
+   - Command with clear, repeatable steps? → **Skill**
+   - Changes behavior or approach? → **Guideline**
+   - Reference info, patterns, or examples? → **Learning**
+
+3. **Assign utility**:
+   - **High** — novel pattern the agent wouldn't know without documenting
+   - **Medium** — useful reminder, but rediscoverable
+   - **Low** — standard knowledge or already documented
+
+4. **Persist High and Medium insights** to the appropriate path within the worktree:
+   - Learning → `.claude/learnings/<topic>.md`
+   - Guideline → `.claude/guidelines/<name>.md`
+   - Skill → `.claude/commands/<name>/SKILL.md`
+
+   For each insight:
+   - **Dedup check**: Glob + Grep the target directory for existing files matching the domain. Prefer updating an existing file over creating a new one.
+   - **Read** the target file. If it exists, Edit to append. If new, Write to create.
+   - **Strip provenance**: Remove "discovered during consolidation sweep N" — the pattern itself is what matters.
+   - `git add` the new/modified file (committed with everything else in step 10).
+   - Log to decisions.md: `| <iter> | <type> | compound | <insight summary> | <target file> | <utility> | applied | <rationale> |`
+
+5. **Low-utility insights** go to `lows.md` — consistent with existing LOW handling. Do not persist these to the learnings system.
+
+#### Constraints
+
+- **Worktree paths only**: Write to the worktree's `.claude/` paths, NOT `~/.claude/` (which resolves to the main repo via symlink). The write scope constraint from the spec header still applies.
+- **Concise**: Every token in a learning costs context budget when loaded. Express insights in the fewest tokens that preserve teaching value.
+- **Convergence impact**: Compounded files are corpus changes. They don't affect ROUND_CLEAN for the current sweep (which is already false since HIGHs/MEDIUMs were found), but the next LEARNINGS sweep will evaluate them. If they create issues, the loop catches them naturally.
 
 ### 9. Update Output Files
 
 Before exiting, update:
-
-- **compounded-learnings.md**: Only if findings were compounded in step 8.
 
 - **progress.md**: Increment SWEEP_COUNT. Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below). Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
@@ -280,7 +311,7 @@ All MEDIUMs are judged autonomously. The worktree diff + decisions.md provide fu
 | Deduplication | Same concept in multiple files — merge into authoritative location |
 | Fold thin file | < 20 lines of pointers → fold into target persona/skill |
 | Stale version update | Outdated model strings, deprecated tool references |
-| Reference wiring | Ensure persona has Detailed references section linking to relevant learnings |
+| Reference wiring | Ensure persona has Detailed references section linking to relevant learnings; ensure skill-reference files are wired into skills that would benefit |
 | Persona de-enrichment | Extract inline knowledge from persona to learning file, replace with reference |
 | Persona creation | 3+ files, 8+ patterns, no existing persona |
 | Merge for cohesion | 2+ files in same domain cluster, combined version more discoverable |
@@ -349,3 +380,4 @@ Personas sharing domain boundaries → check for duplicated gotchas at content l
 - **Partial overlap**: Decompose rather than downgrade. When a section has N concepts covered elsewhere and 1+ novel concepts, split into separate items — each individually unambiguous.
 - **MEMORY.md is not a safety net**: Don't keep a learning because MEMORY.md covers it. MEMORY.md is always-on cost; learnings are conditional. Prune the MEMORY.md entry, not the learning.
 - **Persona coverage is not learning obsolescence**: When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" Keep the learning if it prevents specific wrong approaches or provides recipes the rule alone can't trigger.
+- **Opportunity over cleanup as tiebreaker**: When a finding has both a cleanup option (delete orphan, remove dead weight) and an opportunity option (wire it, restructure it, merge it), prefer opportunity — it fixes the root cause and is reversible. Cleanup accepts the dysfunction. Only prefer cleanup when the content is stale, incorrect, or has no identifiable consumers.

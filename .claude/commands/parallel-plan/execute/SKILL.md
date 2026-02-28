@@ -17,6 +17,7 @@ Execute a structured parallel plan produced by `/parallel-plan:make`. Acts as a 
 
 - `~/.claude/skill-references/agent-prompting.md` — Read before crafting agent prompts for best practices on speed, landmarks, and boundaries
 - `~/.claude/skill-references/code-quality-checklist.md` — Include in agent prompts so implementations self-review for structural issues
+- `~/.claude/skill-references/subagent-patterns.md` — Universal patterns for launching and orchestrating subagents
 
 ## Role: Coordinator
 

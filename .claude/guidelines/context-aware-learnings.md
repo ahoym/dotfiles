@@ -8,7 +8,15 @@ Proactively search `~/.claude/learnings/` for relevant prior knowledge during co
 
 ## Hard gate: Session start
 
-**Before your first tool call in a session, search learnings based on the user's message.** This is not optional. Glob `~/.claude/learnings/` filenames + grep content for terms from the user's request. Load and announce matches. This ensures every session starts with relevant prior knowledge, regardless of whether specific keywords are noticed.
+**Before your first tool call in a session, search learnings.** This is not optional. One filename glob, no content grep — keep it cheap so narrow opening questions don't tempt you to skip it.
+
+**Derive search terms from ambient context first, then the user's message.** Ambient context is often a stronger domain signal than the opening question:
+- **Branch name**: `consolidate/2026-02-28` → search "consolidat", "ralph"
+- **CWD path**: `.claude/worktrees/consolidate-*` → same domain signal
+- **Git status snippet**: the session-start git status in the system prompt contains branch, recent commits, and changed files — scan for domain keywords
+- **User's message**: extract topic terms as before
+
+Glob `~/.claude/learnings/` filenames for terms derived from the above. Load matches and announce. If no ambient context is available (fresh repo, no git), fall back to message-only search.
 
 ## Soft layers
 
@@ -42,7 +50,7 @@ Always announce when learnings are loaded or searched. The user needs visibility
 
 **Session start:**
 ```
-📚 Session start — loaded `ralph-loop.md`, `claude-code-hooks.md` (matched "consolidation", "hooks")
+📚 Session start — loaded `ralph-loop.md` (branch: consolidate/2026-02-28), `claude-code.md` (message: "worktree")
 ```
 
 **Keyword trigger:**
