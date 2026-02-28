@@ -23,7 +23,7 @@ Analyze a file or class for refactoring opportunities including helper class ext
 ## Reference Files
 
 - `~/.claude/skill-references/code-quality-checklist.md` — Shared checklist of structural issues to look for
-- `refactoring-patterns.md` - Refactoring patterns with multi-language examples
+- `~/.claude/learnings/refactoring-patterns.md` — Refactoring patterns with multi-language examples
 
 ## Instructions
 
@@ -98,7 +98,7 @@ Analyze a file or class for refactoring opportunities including helper class ext
    - For helper method extraction: Add private method, replace duplicated code with calls
    - For nested function extraction: Move to module/class level with `_` prefix
    - For test factories: Add factory function at module level, update test usages
-   - For large file decomposition: Create package/directory, split into submodules, create barrel exports (see refactoring-patterns.md for language-specific patterns)
+   - For large file decomposition: Create package/directory, split into submodules, create barrel exports (see `~/.claude/learnings/refactoring-patterns.md` for language-specific patterns)
 
 5. **Run validation**:
    Execute the project's lint and test commands to verify correctness.

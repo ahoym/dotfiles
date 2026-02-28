@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -31,9 +31,9 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
-- **MEDIUMs applied**: 0
+- **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
@@ -56,6 +56,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 4 | 2 | 0 | 6 | Deleted research-methodology.md (subsumed by skill-design.md), merged parallel-planning.md into parallel-plans.md, removed 2 duplicate sections from parallel-plans.md, folded xrpl-testing-patterns.md into xrpl-patterns.md, wired xrpl-typescript-fullstack persona references |
+| 2 | 1 | SKILLS | 0 | 1 | 1 | 1 | 29 skills across 5 namespaces evaluated. Fixed ambiguous reference path in do-refactor-code. 1 LOW: orphaned subagent-patterns.md. Cross-persona java-backend/java-devops clean. |
 
 ## Notes for Next Iteration
 
@@ -88,3 +89,20 @@ Suggested iterations: 15
 - Check cross-persona gotcha dedup between java-backend and java-devops (shared Spring domain)
 - Verify skill reference files are current — stale paths are the primary maintenance issue (per curation-insights.md)
 - Check for skills overlapping significantly (merge candidates)
+
+### Iter 2
+
+**Skills sweep results:**
+- 29 skills clustered: git:* (9), learnings:* (4), ralph:* (7), parallel-plan:* (2), standalone (7)
+- All skills classified as Keep — no merge, split, or prune candidates
+- Cross-persona check (java-backend / java-devops): distinct gotchas, no duplication
+- Model version strings: all current (Opus 4.6 or `<model>` placeholder)
+- Shared skill-references properly centralized (5 files)
+- 1 MEDIUM applied: do-refactor-code had bare `refactoring-patterns.md` reference — no local file exists, fixed to `~/.claude/learnings/refactoring-patterns.md`
+- 1 LOW recorded: `subagent-patterns.md` in skill-references not referenced by any SKILL.md (but content already implemented inline in relevant skills)
+
+**For next sweep (GUIDELINES):**
+- Check @-reference cost: which guidelines are always-on via CLAUDE.md?
+- Check wiring: are any guidelines unreferenced (dead weight)?
+- Check if any behavioral content should be conditional or domain-specific content should move to learnings/personas
+- 4 guideline files to evaluate
