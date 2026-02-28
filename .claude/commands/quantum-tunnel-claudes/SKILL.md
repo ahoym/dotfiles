@@ -189,6 +189,10 @@ If `$ARGUMENTS` is "diff", display both tables and exit without prompting.
 
 ### 4. Execute sync
 
+**Route by divergence size.** For diverged items with >15 source-unique lines, use background agents for parallel merges. For ≤15 source-unique lines, triage directly from the inventory diff — many will be skips (terminology-only, target already evolved past source). This mirrors the analysis-phase threshold in step 2b.
+
+**Batch agents for large sets.** When launching >6 merge agents, batch in waves of 5-6 and wait for each wave's completions before launching the next. This keeps stragglers within the context window. If all must launch at once, record agent IDs in a tracking table so continuation sessions can check status via `TaskOutput`.
+
 For each selected item:
 
 **Copy items** (only in source):
@@ -221,7 +225,7 @@ For each selected item:
 
 ### 5. Verify and report
 
-Read back a sample of written/updated files to confirm content was saved correctly.
+Read back at least one file from each execution method used (copy, overwrite, agent-merge, direct-merge) to confirm content was saved correctly.
 
 ```
 ## Sync Complete: <SOURCE> → <TARGET>

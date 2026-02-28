@@ -131,3 +131,7 @@ Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files)
 When splitting work across parallel agents, balance by estimated complexity — not just file count. In a 30-file merge operation split 3/3/5/19, the 19-file agent (472s, 105 tool uses) was the bottleneck while others finished in 217-320s.
 
 **Complexity factors beyond count:** files needing fine-grained per-section merging (BOTH_UNIQUE) are ~3-5x more work than simple overwrites (SUPERSET:source) or copies (source-only). Weight distribution by merge type, not just file count.
+
+## Many-Agent Context Compaction Risk
+
+When launching 10+ background agents, some may complete after context compaction. The continuation session loses the original agent IDs and completion notifications. Mitigations: (1) batch agents in waves of 5-6 so each wave completes within the context window, (2) use a status tracking table updated after each completion notification, (3) if agents must all launch at once, record agent IDs in a file for the continuation session to check via `TaskOutput`.

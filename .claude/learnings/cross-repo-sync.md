@@ -37,3 +37,11 @@ When the source repo has done active curation (removing project-specific content
 ## Daily Sync Prevents Merge Debt
 
 Frequent quantum tunneling (daily) between repos keeps diffs small and genericization clean. Each sync's merged output becomes the base for the next sync, so genericization compounds — project-specific examples removed today won't reappear tomorrow. Infrequent syncs accumulate large diffs where the same genericization work must be repeated across many files.
+
+## Heading-Miss ≠ Content-Miss During Merges
+
+A source section heading absent from the target doesn't mean the content is missing. Multiple smaller target sections can cover the same content under different names (e.g., source "Modal Execution Ownership" fully covered by target's "Lift Execution State" + "Modal as Form-Only" sections). During content-aware merging, compare content semantics — not just heading presence — before adding source sections.
+
+## Execution-Phase Routing for Merge Scale
+
+Route merge execution by divergence size: large diverged files (>15 source-unique lines) → background agents for parallel merges. Small diverged files (≤15 lines) → direct inline triage from inventory diff. Small-file triage frequently results in skips (target already ahead, terminology-only diffs), saving agent spawn overhead. This mirrors the analysis-phase threshold in the skill's step 2b.
