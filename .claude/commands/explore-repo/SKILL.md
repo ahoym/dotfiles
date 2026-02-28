@@ -227,6 +227,13 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - **Cross-Cutting Patterns**: Shared patterns that span multiple domains — authentication, error handling, naming conventions, transaction management, retry strategies.
    - **Key Workflows End-to-End**: Trace the most important business flows through the full stack (API → service → data → integrations → events). Reference specific domain files for deeper detail.
    - **Critical Path to Productivity**: A recommended reading order for a developer new to the codebase. List 5-8 files/docs in priority order, with a one-line explanation of what each teaches you. Start with the highest-leverage context (e.g., "1. CLAUDE.md — project overview and essential commands") and end with deep-dives. This section answers: "If I only have 30 minutes, what should I read?"
+   - **Resilience Assessment**: Cross-reference the integrations domain file to produce a consolidated view of resilience coverage across all external services. For each integration, report:
+     - Retry logic: present/absent (and mechanism if present)
+     - Timeouts: configured/unconfigured
+     - Circuit breaker: present/absent
+     - Idempotency keys: used/not used
+     Format as a table for quick scanning. Flag the overall posture (e.g., "0 of 7 integrations have retry logic") and note any integrations that are outliers (better or worse than the norm).
+   - **Test Coverage Gaps**: Cross-reference the structure and testing domain files to identify source modules with no corresponding test file. List untested modules with a brief note on their risk level (e.g., "core business logic — high risk" vs "utility formatting — low risk"). This is structural coverage (test file exists), not line-level coverage.
    - **Documentation Gaps**: What's missing from existing docs, categorized by severity:
      - **Critical** — Missing documentation that blocks productivity
      - **Medium** — Missing but inferable from code
@@ -237,6 +244,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found — if there are no docs, skip it.
 
+   **Doc-vs-code inconsistencies:**
    - Find specific discrepancies: the doc says X but the code does Y
    - Categorize by severity:
      - **Critical** — Actively misleading (wrong commands, incorrect architecture)
@@ -247,6 +255,13 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
      - **What it claims:** the incorrect content
      - **What the code actually does:** the correct behavior with evidence (file path, line)
      - **Suggested fix:** the exact replacement text or edit needed to correct the documentation
+
+   **Config artifact drift** (separate section):
+   Cross-reference configuration templates and declarations against their canonical code sources. Common checks:
+   - `.env.template` / `.env.example` vs the canonical env var definitions in code (e.g., `env_vars.py`, `config.ts`, `application.properties`) — flag variables present in template but absent in code (dead), and variables in code but missing from template (undocumented)
+   - CI pipeline commands vs actual build system commands (e.g., CI runs `npm test` but `package.json` defines `yarn test`)
+   - Dockerfile base image versions vs project-level version declarations (e.g., `python:3.11` in Dockerfile vs `3.12` in `pyproject.toml`)
+   Only check artifacts that exist — skip silently if the project has no templates or CI config. Format findings the same way as doc inconsistencies (source, claim, reality, fix).
 
 5. **Add cross-references between domain files:**
 
@@ -324,8 +339,10 @@ Before printing the summary, scan the domain files and SYSTEM_OVERVIEW.md to ext
 - Count entities listed under `## Core Entities` in data-model.md
 - Count external services listed under `## External Services` in integrations.md
 - Count workflows listed under `## Core Workflows` in processing-flows.md
+- Count resilience coverage from the Resilience Assessment table in SYSTEM_OVERVIEW.md (e.g., "3/7 integrations have retries")
+- Count untested modules from Test Coverage Gaps in SYSTEM_OVERVIEW.md
 - Count documentation gaps listed in SYSTEM_OVERVIEW.md
-- Count inconsistencies listed in inconsistencies.md
+- Count inconsistencies listed in inconsistencies.md (doc-vs-code + config artifact drift separately)
 - Count auto-fixes applied vs. unfixed
 
 Use these actual counts in the summary below — do not estimate or approximate. If the SYSTEM_OVERVIEW.md says "15+ partner adapters" but structure.md lists 21 modules, flag the mismatch and fix it.
@@ -346,14 +363,18 @@ Key Findings:
 - [N] cross-cutting patterns identified
 - [N] end-to-end workflows traced
 
+Resilience: [N]/[N] integrations with retries | [N]/[N] with timeouts | [N]/[N] with circuit breakers
+Test Coverage: [N] source modules without test files ([list high-risk ones])
+
 Documentation Health:
 - [N] critical / [N] medium / [N] low gaps
-- [N] inconsistencies ([N] auto-fixed, [N] unfixed)
+- [N] doc inconsistencies ([N] auto-fixed, [N] unfixed)
+- [N] config artifact drift items
 
 Output:
 - docs/learnings/SYSTEM_OVERVIEW.md
 - docs/learnings/inconsistencies.md
-- CLAUDE.md (updated)
+- CLAUDE.md ([NEW — created from scratch] or [updated]). If new, add a 1-2 line synopsis: "Covers: [what sections were included, e.g., architecture, commands, patterns, gotchas, API surface]"
 - [list any subdirectory CLAUDE.md files created]
 - [list any auto-fixed files: CLAUDE.md, README.md]
 

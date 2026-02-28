@@ -16,6 +16,7 @@ RULES:
 - Include file paths when referencing specific code so the reader can navigate to it.
 - ONLY write to your assigned output file. Do not create any other files.
 - Stay within your domain boundaries (see Domain Boundaries table below). If you find something interesting outside your domain, mention it briefly but do not deep-dive — the responsible agent will cover it.
+- DEDUPLICATE cross-domain findings. When a finding spans multiple domains (e.g., security config, naming conventions), ONE agent should report the full analysis (whichever domain owns it per the boundaries table). All other agents should mention it in one sentence with a cross-reference: "Security configuration permits all endpoints — see `docs/learnings/config-ops.md` for full analysis."
 
 DO NOT DOCUMENT:
 - Dependency version numbers unless the specific version constrains behavior (e.g., "Java 17 specifically, not 21" is worth noting; "Guava 33.3.1-jre" is not)

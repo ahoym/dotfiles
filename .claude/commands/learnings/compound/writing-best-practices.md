@@ -48,6 +48,24 @@ Keep temp files within repo scope rather than system directories:
 
 This keeps operations contained to the repo context and avoids permission issues.
 
+## Numbered Instruction Sequencing
+
+Use proper integer steps (Step 0, 1, 2, 3...), not half-steps (Step 1.5). Half-steps signal unplanned structure, add ordering uncertainty, and complicate references. If inserting a new step, renumber all subsequent steps.
+
+## Verify Assumptions Before Documenting
+
+Test assumptions with a controlled experiment before writing them as facts. Before documenting a technical limitation, run a minimal reproducer. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.
+
+Common pattern: permission-denied errors in background agents are almost always missing allow patterns, not platform constraints.
+
+## Background Agent Permission Debugging
+
+When a background agent fails silently:
+
+1. Check if the specific command has a matching allow pattern in `.claude/settings.local.json`
+2. Test with a simple allowed command (e.g., `echo "test"`) to isolate permission vs platform issues
+3. If simple command works → missing allow pattern. If it also fails → platform issue
+
 ## Permissions
 
 When a skill requires Bash commands, update `.claude/settings.json`:
@@ -68,7 +86,7 @@ When a skill requires Bash commands, update `.claude/settings.json`:
 }
 ```
 
-**Why this matters:** Uncommitted permission changes may appear to work in the current session but won't persist or be available to other users/sessions.
+**Why this matters:** Without pre-approved permissions, users get prompted for every command, creating friction and defeating the purpose of automation. Uncommitted permission changes may appear to work in the current session but won't persist or be available to other users/sessions.
 
 ## Skill Naming Conventions
 
@@ -106,6 +124,12 @@ The `description:` field in SKILL.md frontmatter should be optimized for searcha
 | Extract changes from a compound branch... | Extract independent changes from a feature branch into a new PR... | Removed jargon, clarified output |
 | Initialize a new Ralph loop research project... | Initialize an iterative research project with spec and progress tracking | Removed internal jargon |
 
+**Why this matters:** Better descriptions help me recognize when a skill applies and help users find skills via search.
+
+### Routing Hints
+
+Add "Use when..." routing hints to the description only when the skill name + functional description isn't sufficient for agent inference — e.g., opaque names, overlapping skills needing disambiguation. Skip routing hints when the name already communicates intent (e.g., `git:create-pr`).
+
 ## Making Skills Portable
 
 Skills should work across different projects, not just the one where they were created. Periodically audit skills to remove project-specific content.
@@ -131,6 +155,8 @@ Skills should work across different projects, not just the one where they were c
 2. Check both SKILL.md and reference files (patterns, templates, examples)
 3. Replace with domain-neutral examples that illustrate the same concept
 4. Verify the examples still make sense in the generic context
+
+**Why this matters:** Portable skills can be copied to new projects or shared with others without modification.
 
 ## Cross-Referencing Between Reference Files
 

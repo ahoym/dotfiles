@@ -73,8 +73,10 @@ EXCLUDES=(
 Run the inventory script to get the full picture in one pass — file bucketing, classification, git history checks, and source-unique diffs:
 
 ```bash
-bash <TARGET>/.claude/commands/quantum-tunnel-claudes/inventory.sh "<SOURCE>" "<TARGET>"
+bash ~/.claude/commands/quantum-tunnel-claudes/inventory.sh "<SOURCE>" "<TARGET>"
 ```
+
+**Why `~/.claude/` not `<TARGET>`:** The skill is installed globally. Permission allowlists are configured for `~/.claude/commands/**`, so using the global path gets prompt-free execution. Using `<TARGET>` would require per-project permission entries.
 
 The script outputs structured sections that feed directly into step 2:
 - `=== ONLY IN SOURCE ===` / `=== ONLY IN TARGET ===` — file lists

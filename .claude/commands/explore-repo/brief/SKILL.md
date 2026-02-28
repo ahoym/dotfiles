@@ -45,7 +45,14 @@ Determine whether a usable scan exists.
 4. **Check freshness:**
    - Read the scan metadata from SYSTEM_OVERVIEW.md (first 10 lines) — extract `commit`, `branch`, and `date` fields
    - Run `git rev-parse --short HEAD` to get the current commit
-   - If they differ, mark as **stale** — this will be noted in the brief output
+   - If the commits differ, run a **source diff check** to see if anything meaningful changed:
+     ```bash
+     git diff --name-only <scan-commit>..HEAD -- ':!<artifact-path>/' ':!**/CLAUDE.md'
+     ```
+     where `<artifact-path>` is the artifact directory resolved in step 1 (e.g., `docs/learnings`).
+     - If the diff is **empty** — only scan artifacts and CLAUDE.md files changed since the scan → treat as **current** (the scan commit created these docs, not a code change)
+     - If the diff is **non-empty** — source code changed → mark as **stale** and save the list of changed files for the brief output
+   - If commits are identical → **current**
 
 ---
 
@@ -102,14 +109,23 @@ Output the following to the conversation (do NOT write to a file):
 *Context loaded. Ask me anything about this repository.*
 ```
 
-**Domain status logic:** For each domain file, check its `commit` field from the metadata header read in Phase 2. Compare against current HEAD:
-- Same commit → ✅ current
-- Different commit → ⚠️ stale
+**Domain status logic:** For each domain file:
 - File doesn't exist → ❌ missing
+- Domain's `commit` matches SYSTEM_OVERVIEW.md's `commit` → inherit overall scan freshness (✅ current or ⚠️ stale)
+- Domain's `commit` differs from SYSTEM_OVERVIEW.md's `commit` (partial rescan) → run the same source diff check independently for that domain's commit
 
 If any domains are missing or stale, add a note after the table: `Run \`/explore-repo\` to update missing or stale domains.`
 
-**Stale scan line:** Only include `[⚠️ stale — HEAD is <current>]` if the SYSTEM_OVERVIEW.md commit differs from current HEAD. Otherwise omit the bracketed portion.
+**Stale scan line:** Only include `[⚠️ stale — HEAD is <current>]` if the source diff check determined the scan is stale (meaningful source files changed). Omit it when the only changes since the scan commit are scan artifacts and CLAUDE.md files.
+
+**Changed files hint:** When the scan is stale, append a collapsed summary after the Domain Scan Summary table showing the changed source files:
+```markdown
+<details><summary>N source files changed since scan</summary>
+
+- path/to/changed/file1.kt
+- path/to/changed/file2.java
+</details>
+```
 
 ---
 

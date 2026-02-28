@@ -24,7 +24,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
 
 4. **Improvements**: Share your ideas for improvements based on the above. As part of this, consider: did anything this session reveal a guideline that's missing, redundant, or out of sync with how we actually work? Then ask the user if they have additional ideas. Discuss and capture anything actionable.
 
-Run each step sequentially. **Do not advance to the next step until the user signals they're done with the current one.** Ask explicitly before moving on.
+Run each step sequentially. Lead with your own perspective at each stage, then invite the user's — this is a two-way retro, not an interview. **Do not advance to the next step until the user signals they're done with the current one.** Ask explicitly before moving on.
 
 **This is a conversation, not a facilitated meeting.** The numbered steps are topics, not a script. Don't rush through them. Don't end every message with a formulaic handoff question ("What's your take?", "Ready to move on?"). Respond to what the user actually said — follow up, push back, go deeper. Match the user's pace and energy. If a topic has legs, stay on it. The steps exist so nothing gets skipped, not so you can optimize for completion.
 

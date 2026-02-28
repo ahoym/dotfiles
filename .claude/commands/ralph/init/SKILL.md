@@ -23,6 +23,7 @@ Create a new Ralph loop project in an isolated git worktree with customized spec
 
 - @spec-template.md - Template for spec.md with v2 features (dynamic tasks, deep research workflow)
 - @progress-template.md - Template for progress.md with questions section
+- @assumptions-template.md - Template and guidance for assumptions-and-questions.md
 
 ## Instructions
 
@@ -51,17 +52,18 @@ Create a new Ralph loop project in an isolated git worktree with customized spec
 
 5. **Create project directory inside worktree**:
    ```bash
-   mkdir -p .claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>
+   mkdir -p .claude/worktrees/ralph-<project-name>/docs/claude-learnings/<project-name>
    ```
 
 6. **Create spec.md** inside worktree using @spec-template.md:
-   - Write to `.claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>/spec.md`
+   - Write to `.claude/worktrees/ralph-<project-name>/docs/claude-learnings/<project-name>/spec.md`
    - Replace `<PROJECT_NAME>` with the topic (title case)
    - Replace `<TOPIC>` with the topic
+   - Replace `<output_file>` with `info.md`
    - Adjust References section to use correct relative path to repository root
 
 7. **Create progress.md** inside worktree using @progress-template.md:
-   - Write to `.claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>/progress.md`
+   - Write to `.claude/worktrees/ralph-<project-name>/docs/claude-learnings/<project-name>/progress.md`
    - Replace `<TOPIC>` with the topic
 
 8. **Confirm to user**:
@@ -70,11 +72,11 @@ Create a new Ralph loop project in an isolated git worktree with customized spec
 
    Worktree: .claude/worktrees/ralph-<project-name>/
    Branch:   research/<project-name>
-   Project:  docs/learnings/<project-name>/
+   Project:  docs/claude-learnings/<project-name>/
 
    Next steps:
    cd .claude/worktrees/ralph-<project-name>
-   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/<project-name>
+   bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/<project-name>
    ```
 
 ## Example
@@ -86,12 +88,53 @@ Created Ralph research project in worktree.
 
 Worktree: .claude/worktrees/ralph-options-pricing-models/
 Branch:   research/options-pricing-models
-Project:  docs/learnings/options-pricing-models/
+Project:  docs/claude-learnings/options-pricing-models/
 
 Next steps:
 cd .claude/worktrees/ralph-options-pricing-models
-bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models
+bash ~/.claude/lab/ralph/wiggum.sh docs/claude-learnings/options-pricing-models
 ```
+
+## Research Conventions
+
+### info.md as Investigation Tracker
+
+The "Areas for Deeper Investigation" section in info.md serves as the tracker for research progress. Use strikethrough + links to show completed investigations:
+
+```markdown
+## Areas for Deeper Investigation
+
+1. ~~Token optimization strategies~~ → See [token-optimization.md](./token-optimization.md)
+2. ~~CI/CD integration~~ → See [ci-cd-integration.md](./ci-cd-integration.md)
+3. Quality metrics - measuring output quality across iterations
+4. Context handoff patterns - efficient state transfer between iterations
+```
+
+**Why this format:**
+- Visual progress: Strikethrough shows what's done at a glance
+- Navigation: Links let readers jump to detailed research
+- Task generation: Remaining non-struck items drive new Deep Research tasks
+
+**Alternative for lighter investigations** (no separate file produced):
+```markdown
+- [x] Token optimization strategies
+- [ ] Quality metrics
+```
+
+### Deep Research: Separate Files vs. Consolidation
+
+**Create separate `<topic>.md` files when:**
+- Research exceeds ~200 lines
+- Topic is self-contained with its own sources
+- Content includes code samples, tables, or detailed specifications
+- Topic may be referenced independently
+
+**Append to info.md when:**
+- Research is brief (<100 lines)
+- Findings are closely tied to core research
+- Topic doesn't warrant standalone navigation
+
+The hybrid approach keeps info.md lean as a navigation hub while substantial research lives in dedicated files.
 
 ## Learnings
 

@@ -2,19 +2,42 @@
 
 See also: `~/.claude/skill-references/subagent-patterns.md` for universal patterns (output verification, intermediate files, structured templates).
 
-## Coordinating Prop Removal Across Parallel Subagents
+## Synthesis Should Run in a Separate Invocation
 
-When removing a prop from many components using parallel subagents, each agent must update **both** the component interface and any child component call sites within the same file.
+Combining outputs from multiple agents into a unified document should happen in a fresh context — not in the orchestrator that launched the agents. The orchestrator's context is already partially consumed; a fresh context gets full budget dedicated to reading output files and writing the final synthesis. If synthesis fails, it can be re-run without re-running all exploration agents.
 
-**The Problem:** Agent A removes `network` from `RecipientCard`'s props. Agent B removes `network` from `BalanceDisplay`'s props. But `RecipientCard` renders `<BalanceDisplay network={network} />` — if Agent A doesn't also remove that prop from the JSX, the build breaks because `BalanceDisplay` no longer accepts `network`.
+**Preferred — same skill, separate invocation:**
+1. Exploration agents write to output files
+2. Skill detects mode via file existence — first run scans, second run synthesizes (see Stateful Mode Detection in skill-design.md)
+3. Synthesis invocation reads each file with a fully clean context
 
-**The Rule:** Each subagent that modifies a component should:
-1. Remove the prop from the component's interface
-2. Remove the prop from the destructured parameters
-3. Add the replacement (e.g., `useAppState()`) inside the component
-4. **Remove the prop from all child component JSX within that file** where the child is also being refactored
+**Alternative — synthesis as sub-agent:** Orchestrator launches a synthesis agent with file paths and output format requirements. Works but the orchestrator still needs enough context to coordinate.
 
-**Execution Order:** Leaf components first (no children to update), then mid-level components (update own interface + remove prop from leaf children), then parent pages last (remove prop from all top-level component calls).
+These two patterns together (intermediate files + separate synthesis) break the "N agents → 1 orchestrator" bottleneck entirely.
+
+## Agent Output Files as First-Class Documentation
+
+When agents write intermediate files, design them as standalone documentation — not just pipeline artifacts to delete after synthesis.
+
+**Pattern:**
+- Name descriptively (e.g., `data-model.md`, not `_scan-data-model.md`)
+- Structure with a consistent template (sections, bullet points, file paths)
+- Include scan metadata in a header comment (agent name, commit, branch, date)
+- Git-track the files — enables staleness detection (commit hash comparison) and incremental re-scanning
+
+## Coordinating Interface Changes Across Parallel Subagents
+
+When removing a parameter/prop from many modules using parallel subagents, each agent must update **both** the module's interface and any call sites within the same file.
+
+**The Problem:** Agent A removes `config` from `ModuleX`'s interface. Agent B removes `config` from `ModuleY`'s interface. But `ModuleX` calls `ModuleY(config)` — if Agent A doesn't also update that call site, the build breaks because `ModuleY` no longer accepts `config`.
+
+**The Rule:** Each subagent should:
+1. Remove the parameter from the module's interface/signature
+2. Remove the parameter from internal destructuring/usage
+3. Add the replacement (e.g., context lookup, import) inside the module
+4. **Update all call sites within that file** where the callee is also being refactored
+
+**Execution Order:** Leaf modules first (no callees to update), then mid-level (update own interface + fix leaf call sites), then top-level entry points last.
 
 ## Group Parallel Refactoring by File Domain, Not Change Type
 
@@ -85,3 +108,26 @@ Example: agent can't `git rm` (Bash blocked) → writes `.claude/consolidate-out
 ## Front-Load Structural Context in Subagent Prompts
 
 When delegating classification or evaluation tasks to subagents, include structural context that prevents misclassification — don't assume the subagent will infer it. For example, when evaluating skills, tell the subagent that subdirectory skills (e.g., `explore-repo/brief/`) are already sub-commands of their parent, not independent skills to merge. Without this, subagents flag false positives based on surface-level overlap analysis.
+
+## Full Write > Incremental Edit for Content-Aware Merges
+
+When merging diverged files with many structural changes (new sections, reordered content, genericized examples), a full `Write` is more reliable than many incremental `Edit` calls. Incremental edits can create duplication artifacts — e.g., a section gets inserted inside an existing code block, or an edit's context match lands in the wrong location after prior edits shifted content.
+
+**Recovery pattern:** If an agent detects duplication after incremental edits (by reading the file back), it should abandon the edit approach and do a full `Write` with the correct merged content. This self-correction is cheaper than debugging cascading edit failures.
+
+## Multi-Agent Workflows Survive Context Compaction
+
+Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files) can exceed the orchestrator's context window. When context compaction occurs mid-execution, background agents continue running independently — they have their own context. On resumption:
+
+1. The compaction summary preserves agent IDs, completion statuses, and file-level progress
+2. Use `TaskOutput` with `block: false` to check running agents' status
+3. Use `TaskOutput` with `block: true` to wait for still-running agents
+4. Completed agents' results are available via their agent IDs
+
+**Key insight:** agents are decoupled from the orchestrator's context lifecycle. The orchestrator can be compacted, resumed, or even restarted — agents keep working.
+
+## Balance Agent Work Distribution by Complexity
+
+When splitting work across parallel agents, balance by estimated complexity — not just file count. In a 30-file merge operation split 3/3/5/19, the 19-file agent (472s, 105 tool uses) was the bottleneck while others finished in 217-320s.
+
+**Complexity factors beyond count:** files needing fine-grained per-section merging (BOTH_UNIQUE) are ~3-5x more work than simple overwrites (SUPERSET:source) or copies (source-only). Weight distribution by merge type, not just file count.

@@ -11,6 +11,8 @@ The `isolation: "worktree"` parameter on the Task tool creates a git worktree fr
 
 **Workaround for dependency files:** Agents can cherry-pick from a dependency's pushed branch as their first step: `git cherry-pick main..<dep-branch>`. This brings the dependency's commits into the isolated worktree. The agent can then rename its branch (`git branch -m <desired-name>`), commit its own work, and push.
 
+**Implication for parallel plans:** DAG-based workflows where dependent agents need worktrees based on a predecessor's branch require manual `git worktree add <path> -b <branch-name> <base-ref>`. This is why `parallel-plan/execute` uses manual worktree commands in Step 5 rather than `isolation: "worktree"`.
+
 ## No Mid-Flight Messaging to Background Agents
 
 There is no mechanism to send messages, corrections, or updates to a running background agent. The only interaction points are:
@@ -50,6 +52,22 @@ Glob/Grep operations show as `Search(...)` in prompts but the correct allow rule
 When using `Task` with `subagent_type: "Bash"` and `run_in_background: true`, the agent typically cannot execute file-writing commands (cp, mkdir, heredoc redirects) because Bash permissions aren't pre-configured for those patterns.
 
 **Workaround:** For file copy/create operations, do them directly in the main thread using Bash, Write, or Edit tools instead of delegating to background Bash agents. Background agents are better suited for long-running processes where the specific Bash commands have pre-configured allow patterns.
+
+## Permissions Are Cached at Session Start
+
+Changes to `settings.json` or `settings.local.json` mid-session are **not picked up** by background agents or the current session. This applies to both project-level and local settings files.
+
+**Impact:** Adding a permission mid-session then launching background agents → agents silently fail with "Permission denied."
+
+**Fix:** Add all required permissions **before** starting the session. If you discover missing permissions mid-execution, add them and restart the session.
+
+## Worktree Isolation Creates Permission Mismatches
+
+Edit/Write permission patterns like `Edit(~/.claude/commands/**)` resolve to absolute paths. Agents in worktrees edit files at `<worktree>/commands/...` — a different path that doesn't match.
+
+**When to skip worktrees:** Agents have disjoint file scopes (no conflict risk) and no build/test isolation needed. Especially mechanical edits (YAML, markdown).
+
+**When worktrees are needed:** Code tasks with `tsc --noEmit` or build steps where parallel agents would see each other's half-written files.
 
 ## Bash Permission Prefix Matching Gotchas
 
@@ -92,11 +110,24 @@ When a session is continued from a compacted conversation (context overflow), **
 
 `WebFetch` returns raw binary for PDFs — it can't extract text. The `Read` tool supports PDFs natively but requires `poppler-utils` (`brew install poppler`). If poppler isn't available, find text conversions via web search (gists, blog summaries, markdown conversions) as a fallback.
 
+## Always `Read` Before `Write`
+
+The Write tool requires a prior `Read` attempt on the target file — `Glob` doesn't satisfy this prerequisite. For new files: `Read` (gets "file does not exist" error) → `Write`. For existing files: `Read` → `Edit`.
+
+## Subagent Reads Don't Satisfy Main-Thread Edit Prerequisites
+
+When a Task subagent reads a file, that Read does NOT count for the main thread's Edit/Write prerequisite check. The main thread must `Read` the file itself before calling `Edit` — even if a subagent already read and analyzed the file's contents. This commonly surfaces when subagents evaluate skills/files in parallel and the orchestrator then tries to bulk-edit based on their findings.
+
+**Recovery:** After subagent analysis, batch the required `Read` calls for files you need to edit, then proceed with edits.
+
+## Parallel Tool Call Error Cascade
+
+When multiple tool calls are sent in a single batch and one fails, all sibling calls in the same batch fail with `"Sibling tool call errored"` — regardless of whether they would have succeeded independently. The failing call's error is reported normally; the siblings get a generic cascade error.
+
+**Recovery:** Identify which calls actually failed vs which were cascade victims. Retry the valid calls individually or in a new batch (without the failing call).
+
 ## `~/.claude` Symlink Structure
 
 `~/.claude` is a real directory on disk. Key subdirectories (`commands/`, `guidelines/`, `learnings/`, `lab/`) are **directory-level symlinks** to the dotfiles repo (e.g., `commands -> /Users/<user>/WORKSPACE/dotfiles/.claude/commands`). Edits to files under these paths land in the repo automatically — no separate copy step needed.
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
-
-
-

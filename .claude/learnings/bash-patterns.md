@@ -90,6 +90,22 @@ Arithmetic `((expr))` returns exit code 1 when the expression evaluates to 0, wh
 
 Under `set -euo pipefail`, any command that might legitimately fail in a `$()` assignment needs `|| true` to allow fallthrough to explicit error handling.
 
+## Teardown Must Precede Prerequisite Checks
+
+When a script has a `--clean` / teardown mode, skip or defer port/resource availability checks until after teardown runs. Otherwise `--clean` fails on the very ports it's about to free.
+
+```bash
+# Wrong: checks before clean → --clean always fails if previous run is up
+check_port 5432 "Postgres" || exit 1
+if $CLEAN; then docker rm -f postgres; fi
+
+# Right: skip checks when --clean will free them
+if ! $CLEAN; then
+  check_port 5432 "Postgres" || exit 1
+fi
+if $CLEAN; then docker rm -f postgres; fi
+```
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.

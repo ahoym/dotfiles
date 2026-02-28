@@ -1,5 +1,56 @@
 # Skill Design Patterns
 
+## Gap vs Inconsistency Boundary
+
+When a skill identifies documentation issues, define "gaps" and "inconsistencies" with a clear, non-overlapping boundary:
+
+- **Gap** — Docs don't mention something at all. The code has a pattern/feature/system completely absent from documentation.
+- **Inconsistency** — Docs exist but contradict the code. The doc says X, the code does Y.
+
+**Pattern:** In skill instructions, include a preamble for each category:
+- Gaps section: "Do NOT include items where docs exist but contradict the code; those belong in inconsistencies."
+- Inconsistencies section: "Do NOT duplicate items from the gaps section."
+
+## Exploration Skills Should Default to Report-Only
+
+Skills that analyze, explore, or audit a codebase should produce reports but NOT offer to apply fixes or edit documentation. Separating "understand" from "fix" keeps each phase focused, simplifies skill design (no edit logic or conflict handling), and lets users review findings before deciding what to act on.
+
+**Pattern:**
+- Skill produces output files and prints a console summary
+- Skill ends — no `AskUserQuestion` for "which fixes to apply"
+- If the user wants fixes, they initiate that as a separate task
+
+## Stateful Mode Detection via File Existence
+
+A single skill can operate in different modes across invocations by checking what output files already exist on disk, rather than requiring separate skills for each phase.
+
+**Pattern:**
+1. On invocation, glob for expected output files
+2. For each file found, read its metadata header (commit hash, date) to check staleness
+3. Determine mode based on file state:
+   - Missing files → run the scan/generation phase for those files
+   - All files present, no synthesized output → run synthesis
+   - All present + synthesized, but stale → re-scan stale files
+   - Everything current → nothing to do
+
+One command to remember, fresh context per invocation, graceful degradation (if 3 of 7 agents fail, next run picks up only the missing 3), and incremental updates. For staleness detection beyond naive commit comparison, see `explore-repo.md` § Diff-Based Staleness Detection.
+
+## Skills Should Self-Document Permission Needs
+
+Skills that read or write files outside the project directory should include a **Prerequisites** section listing the exact `permissions.allow` patterns needed for prompt-free execution. Permission rule syntax is non-obvious (see `claude-code.md` § "Permission Rules" for details like `Read()` covering Glob/Grep).
+
+**Pattern:** Add a `## Prerequisites` section to SKILL.md with a JSON snippet:
+```markdown
+## Prerequisites
+
+For prompt-free execution, add these allow patterns to `~/.claude/settings.json`:
+
+\```json
+"Read(~/.claude/learnings/**)",
+"Edit(~/.claude/learnings/**)"
+\```
+```
+
 ## Compose Skills, Don't Couple Them
 
 When two skills share setup (e.g., locating a project, reading files) but diverge in purpose (one exploratory, one operational), keep them separate and composable. Duplicate the shared setup in each skill (~10 lines of instructions is fine) rather than making one depend on the other. Add a hint in the operational skill pointing to the exploratory one for users who need context first. Example: `/ralph:resume` mentions `/ralph:brief` but doesn't invoke it — the user composes them when needed.
@@ -51,7 +102,7 @@ The official docs state both "work the same way" and "support the same frontmatt
 
 This repo's skills use only `description:` from SKILL.md frontmatter. Official features not yet adopted:
 
-- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken** (restriction not enforced, SDK ignores the field, piped commands bypass — multiple open issues). **Recommended syntax: YAML list.** Use bare tool names (not scoped `Bash(git:*)`). Add for intent-signaling (see "Add Broken/Experimental Features" below); defer reliance on enforcement.
+- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken** (restriction not enforced, SDK ignores the field, piped commands bypass — multiple open issues). **Recommended syntax: YAML list.** Use bare tool names (not scoped `Bash(git:*)`). Add for intent-signaling (see "Add Broken/Experimental Features for Intent-Signaling" below); defer reliance on enforcement.
 - **`context: fork` + `agent:`** — Run skill in isolated subagent. See "`context: fork` vs Task Subagents" section below.
 - **`model:`** — Override session model per skill (e.g., `haiku` for simple tasks, `opus` for complex reasoning).
 - **`disable-model-invocation: true`** — See "`disable-model-invocation` Removes Skill from Context" section below.
@@ -62,6 +113,10 @@ Gap identified comparing repo skills against official spec — none use these fe
 ## `disable-model-invocation` Removes Skill from Context
 
 Setting `disable-model-invocation: true` does more than prevent auto-invocation — it **completely removes the skill's description from Claude's context**. This means Claude won't know the skill exists until manually invoked. Trade-off: saves context budget but loses auto-discovery. Use for skills that are only invoked explicitly (e.g., `/ralph:init`, `/learnings:consolidate`).
+
+## Add Broken/Experimental Features for Intent-Signaling
+
+When an official frontmatter feature exists but enforcement is broken (e.g., `allowed-tools` restriction not enforced), it can still be worth adding — as documentation of design intent, not runtime enforcement. Criteria: (1) adding it costs nothing (no behavioral change while broken), (2) it communicates the skill's intended tool surface to human readers, (3) it future-proofs for when enforcement is fixed. Only do this for features where the *intended* behavior matches your *actual* intent — don't add `allowed-tools: Read, Glob` if the skill legitimately needs Write sometimes.
 
 ## Progressive Disclosure: Three Token-Cost Tiers
 
@@ -81,7 +136,7 @@ The `` !`command` `` syntax in SKILL.md runs shell commands as preprocessing —
 
 ### Evaluation Framework
 
-A good `!`command`` candidate must pass ALL five criteria:
+A good `` !`command` `` candidate must pass ALL five criteria:
 
 1. **Reliability** — Command rarely fails regardless of repo state
 2. **Output size** — Small, bounded (<5 lines ideal)
@@ -163,10 +218,6 @@ Source: [The Complete Guide to Building Skills for Claude (PDF)](https://resourc
 ## Skills Are Cross-Platform
 
 Skills work across **Claude.ai, Claude Code, and the API** — same folder, no modification needed. Distribution varies by surface: ZIP upload (Claude.ai Settings > Capabilities > Skills), directory placement (`~/.claude/commands/` or `~/.claude/skills/`), `/v1/skills` REST endpoint (CI/CD), org-level workspace deployment (teams, shipped Dec 2025).
-
-## Add Broken/Experimental Features for Intent-Signaling
-
-When an official frontmatter feature exists but enforcement is broken (e.g., `allowed-tools` restriction not enforced), it can still be worth adding — as documentation of design intent, not runtime enforcement. Criteria: (1) adding it costs nothing (no behavioral change while broken), (2) it communicates the skill's intended tool surface to human readers, (3) it future-proofs for when enforcement is fixed. Only do this for features where the *intended* behavior matches your *actual* intent — don't add `allowed-tools: Read, Glob` if the skill legitimately needs Write sometimes.
 
 ## Skill Description Context Budget
 
@@ -277,6 +328,10 @@ Plugin `settings.json` can set a default agent (`"agent": "agent-name"`) but **c
 
 When packaging skills from a nested directory structure (`git/create-pr/SKILL.md`) into a plugin whose name already provides namespace context (e.g., `acme-git`), flatten the subdirectory to avoid double-namespacing. Otherwise: `skills/git/create-pr/` → `/acme-git:git:create-pr` (redundant). Flattened: `skills/create-pr/` → `/acme-git:create-pr` (clean). **Verify empirically** — exact namespace resolution behavior with nested `skills/` subdirectories needs testing.
 
+## "Reduces Typing" Is Sufficient Justification for a Skill
+
+Don't overthink whether a repeated sequence "deserves" to be a skill. If the user types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.
+
 ## `skills-ref validate` Rejects Claude Code Extensions
 
 The Agent Skills spec validator ([`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)) only allows 6 fields: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`. Claude Code extension fields (`disable-model-invocation`, `argument-hint`, `hooks`, `context`, `agent`, `model`, `user-invocable`) all produce "Unexpected fields" errors. This means **any skill using Claude Code-specific features will fail spec validation**.
@@ -302,6 +357,52 @@ SkillPort uses `metadata.skillport.*` in YAML frontmatter for platform-specific 
 The spec-standard `compatibility:` frontmatter field (max 500 chars) signals intended platform and runtime requirements. Zero runtime cost, recognized by multiple platforms. Good practice for skills with varying portability levels:
 - Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
 - CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
+
+## `@` in SKILL.md Does NOT Auto-Load — Use Explicit Read Instructions
+
+`@` references in SKILL.md files are **hints**, not auto-load directives. Unlike CLAUDE.md (where `@path` injects file content into context), SKILL.md `@` references are not resolved by the framework — the content never appears in the loaded context.
+
+**Recurring failure pattern (observed 3 times with `git:create-mr`):**
+1. Skill declares `@./mr-body-template.md` in Reference Files section
+2. Content is NOT injected into context (expected behavior, not a bug)
+3. Instructions say "using the template from @./mr-body-template.md" — LLM assumes it was loaded, skips reading it
+
+**Fix:** Use the conditional reference pattern for ALL SKILL.md reference files:
+```markdown
+## Reference Files (conditional — read only when needed)
+- `template.md` — Read before step N. Located in the skill's base directory.
+```
+Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
+
+This also corrects the earlier learning about `@./file.md` vs `@file.md` — neither auto-loads in SKILL.md, so the distinction is moot. Use backtick paths with explicit read instructions instead.
+
+## Conditional vs Always-Loaded References
+
+When a reference file is only needed in certain scenarios, remove the `@` prefix and add a conditional read instruction. This saves context tokens when the file isn't relevant.
+
+```markdown
+# Always loaded (costs tokens every invocation)
+## Reference Files
+- @./reply-templates.md
+
+# Conditional (loaded only when needed)
+## Reference Files (conditional — read only when needed)
+- `reply-templates.md` — Read before composing replies (step 5)
+- `lgtm-verification.md` — Read only when LGTM comment detected
+```
+
+## Discoverability via Trigger Phrases
+
+Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.
+
+**Fix:** Add natural-language trigger phrases to the skill's `description` field in the YAML frontmatter. Cover common ways a user might express the intent without naming the skill directly.
+
+Example from `git:create-mr`:
+```
+description: Create a merge request [...]. Use when the user asks to push an MR, in any variation (e.g., "commit and push an MR", "branch and push a MR", "create a merge request", "push this as an MR").
+```
+
+The description field serves double duty — documentation for the user and a matching signal for the model. Optimizing for the latter prevents skill bypass.
 
 ## Three-Level Skill Routing Works
 
@@ -349,8 +450,3 @@ For implementation tasks touching 10+ reference files (existing infrastructure, 
 Skills follow a natural lifecycle: **tight feedback loop** (run, inspect output, fix design gaps) → **edge case discovery** (core works, boundary cases emerge) → **operational refinement** (retro shifts to "was it useful" not "did it work") → **folds into /session-retro** (just another tool, no special scrutiny).
 
 Maturity is per-capability, not per-skill. A fundamental change to one capability (e.g., adding a new content type to a curation loop) pulls that capability back to the tight-feedback stage while the rest of the skill remains mature. This is desirable — it means the system adapts rather than calcifying.
-
-## "Reduces Typing" Is Sufficient Justification for a Skill
-
-Don't overthink whether a repeated sequence "deserves" to be a skill. If the user types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.
-

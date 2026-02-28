@@ -2,7 +2,18 @@
 
 ## DAG Shape Bounds Speedup
 
-Parallel plan speedup is bounded by the **DAG shape** (critical path), not by tooling or agent speed. If actual wall-clock ≈ critical path time, the scheduler is already near-optimal — the speedup is a property of the work distribution, not a missed optimization.
+Parallel plan speedup is bounded by the **DAG shape** (critical path), not by tooling or agent speed. Before optimizing agent prompts or model selection, analyze the critical path to know the ceiling.
+
+**Example from credential management (4 agents):**
+```
+A (242s) ──→ B (77s)     ← off critical path (leaf)
+A (242s) ──┐
+            ├──→ D (117s) ← critical path: A→D = 359s
+C (235s) ──┘
+```
+- Critical path: 359s, actual: ~370s (near-optimal)
+- Sum of parts: 671s → speedup: 1.8x
+- The 1.8x is a property of the work distribution, not a missed optimization
 
 **Improving speedup:**
 - Split agents on the critical path so downstream agents start sooner

@@ -36,7 +36,7 @@ Launch parallel Explore subagents — one per project — with this checklist:
 - CSP and security headers
 - Rate limiting (implemented AND wired up?)
 - CORS / origin checks
-- Dependency versions (outdated or vulnerable)
+- Dependency versions (outdated or vulnerable) — use `WebFetch` to check CVE databases or advisory pages when specific versions are identified
 - Error message leakage (dev vs prod)
 
 Each agent should report findings per checklist item with severity (Critical / High / Medium / Low / Info).
