@@ -30,3 +30,4 @@ Items classified as LOW during autonomous consolidation. These need human judgme
   - **Move to learnings**: Content is more reference-knowledge than skill-infrastructure
 - **Why LOW**: Patterns are already implemented in the skills that launch subagents; wiring adds marginal value. File is only referenced by `learnings/multi-agent-patterns.md` and `README.md`, not by any SKILL.md.
 - **Curate command**: `/learnings:curate skill-references/subagent-patterns.md`
+- **Resolution**: Deleted — content already implemented inline in relevant skills, `multi-agent-patterns.md` has broader coverage

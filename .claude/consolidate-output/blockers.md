@@ -33,4 +33,4 @@ Items that require human review before proceeding. These are surfaced during `/r
   3. Move content into an existing learning file (e.g., `skill-design.md` which already has "Validate Factual Claims" section) — changes content type but makes it conditionally loadable
   4. Skip — leave as unreferenced dead weight
 
-**Status**: OPEN
+**Status**: RESOLVED (Option 3 — folded content into `learnings/skill-design.md` under new "Validate Means Run It" section, deleted `guidelines/validation.md`)

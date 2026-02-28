@@ -207,6 +207,12 @@ Don't rely on a single doc page. When researching a feature area, traverse **rel
 
 Research that asserts capability differences (e.g., "directory X supports feature Y but directory Z doesn't") should be validated empirically when possible, not just inferred from docs. If the research loop constraints prevent code execution, flag the claim as **low-confidence/unverified** and note that empirical testing is needed before acting on it.
 
+## "Validate" Means Run It
+
+When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the user says so.
+
+When creating docs that mirror code-defined data (enums, config, topology), run the source code to validate claims programmatically. Counting items, listing values, or computing derived facts via `poetry run python3 -c "..."` catches misclassifications that manual review misses.
+
 ## Skill Field Constraints (from Anthropic's Official Guide)
 
 - **`name`**: Max 64 characters, lowercase with hyphens. Must not contain "claude" or "anthropic".

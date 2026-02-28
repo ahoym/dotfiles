@@ -46,8 +46,8 @@
 See `blockers.md` for details.
 
 - Total: 1
-- Open: 1
-- Resolved: 0
+- Open: 0
+- Resolved: 1
 
 ## Collection Health
 
@@ -55,5 +55,6 @@ See `blockers.md` for details.
 |--------|--------|-------|
 | Learnings files | 35 | 32 |
 | Skills | 29 | 29 |
-| Guidelines files | 4 | 4 |
+| Guidelines files | 4 | 3 |
 | Persona files | 7 | 7 |
+| Skill-reference files | — | -1 (subagent-patterns.md deleted) |
