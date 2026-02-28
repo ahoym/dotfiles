@@ -36,7 +36,7 @@ The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous l
 
 - **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
 - **Output files**: 7 files (spec, progress, decisions, blockers, report, lows, compounded-learnings) instead of 5 core research files
-- **Security hooks**: Bash, WebFetch, WebSearch blocked; writes scoped to `.claude/` only
+- **Security hooks**: Bash restricted to selective git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta (expected 1) after each invocation.
 - **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 2 consecutive clean rounds. Max 5 rounds before forced stop.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; only true blockers surface for human review via `blockers.md`
 - **Compounded learnings**: After sweeps with findings, agent appends corpus-level meta-insights to `compounded-learnings.md` (isolated from sweep corpus to prevent feedback loops). Resume skill surfaces these for `/learnings:compound` post-loop.
@@ -62,6 +62,10 @@ Count curation-related commits in recent git history to right-size iteration cou
 ## Isolation Boundaries Enable Future Optionality
 
 Building passive output files outside the active corpus (e.g., `compounded-learnings.md` in `consolidate-output/`) creates zero-cost architecture for future feedback loops. The file is ignored during sweeps today but could become an input to a future generative stage without changing the plumbing. The gate between "passive capture" and "active feedback" is a decision, not a redesign. Pair with a circuit breaker (max rounds guard) so the gate can be opened safely.
+
+## Personas as Execution-Mode Learnings Conduit
+
+The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Detailed references" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
 
 ## Brief as Pre-PR Workflow
 

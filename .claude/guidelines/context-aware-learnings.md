@@ -47,7 +47,7 @@ No-match announcements are **mandatory** during calibration. They surface gaps i
 
 ## Hard gate: Implementation start
 
-**Before beginning implementation of an approved plan, check if a persona is active.** If not, glob available personas (`~/.claude/commands/set-persona/` and `.claude/personas/`), identify the most relevant one for the task, and recommend it to the user via `AskUserQuestion`. The user can decline — this is a recommendation, not a blocker.
+**Before beginning implementation of an approved plan, check if a persona is active.** If not, glob available personas (`~/.claude/commands/set-persona/` and `.claude/personas/`) and match by filename against the task domain — don't deep-read persona files just to decide which to recommend. Recommend via `AskUserQuestion`. The user can decline — this is a recommendation, not a blocker. The actual persona content is loaded when `/set-persona` runs.
 
 Announce the check:
 ```
@@ -57,6 +57,11 @@ Announce the check:
 If a persona is already active:
 ```
 🎭 Persona active: `xrpl-typescript-fullstack` — proceeding with implementation
+```
+
+If no persona is a strong fit for the task:
+```
+🎭 No persona active — none strongly relevant for <task domain>, proceeding without
 ```
 
 ## Relationship to Personas
