@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 
@@ -31,7 +31,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -64,6 +64,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills re-evaluated. No stale model strings, no broken references to deleted learnings. do-refactor-code path fix intact. All @ and skill-reference wiring resolves. L-1 (orphaned subagent-patterns.md) unchanged. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 4 guidelines re-evaluated. No content drift. B-1 (validation.md) still open. Round 2 complete — all 3 types clean. CLEAN_ROUND_STREAK → 1. |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files, 7 clusters. No concept-name collisions, no duplicates, no stale content. Thin files (3) reconfirmed substantive. Persona reference wiring intact. |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 5 namespaces. All Keep. Model strings current. do-refactor-code path fix intact. No broken learnings references. Cross-persona boundaries clean. L-1 unchanged. |
 
 ## Notes for Next Iteration
 
@@ -181,6 +182,24 @@ Suggested iterations: 15
 - Verify do-refactor-code path fix still intact
 - L-1 (orphaned subagent-patterns.md) still in lows.md — don't re-flag
 - No corpus changes since Round 2 skills sweep — expect clean
+
+### Iter 8
+
+**Skills Round 3 — clean sweep:**
+- 29 skills across 5 namespaces (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7)
+- All classified as Keep — no merge, split, or prune candidates
+- Model version strings: all current (Opus 4.6 or `<model>` placeholder)
+- do-refactor-code path fix verified intact (`~/.claude/learnings/refactoring-patterns.md`)
+- No broken references to deleted learnings (research-methodology, parallel-planning, xrpl-testing-patterns)
+- Cross-persona checks clean: java-backend/java-devops distinct, react-frontend/xrpl-typescript-fullstack no content-level duplication
+- Skill-reference wiring: 4/5 referenced; L-1 (subagent-patterns.md) remains orphaned
+- B-1 (validation.md wiring) and L-1 (orphaned subagent-patterns.md) remain open
+
+**For next sweep (GUIDELINES, Round 3):**
+- Re-evaluate all 4 guidelines
+- B-1 (unreferenced validation.md) still open — can't resolve without CLAUDE.md write scope
+- No corpus changes since Round 2 guidelines sweep — expect clean
+- If clean, Round 3 complete → CLEAN_ROUND_STREAK = 2 → CONVERGENCE
 
 ### Iter 4
 
