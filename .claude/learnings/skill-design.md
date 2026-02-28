@@ -84,6 +84,10 @@ When migrating file paths (e.g., relocating shared references), preserve each sk
 
 Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
 
+## Compound Skill: Grep Before Creating New Files
+
+When `/learnings:compound` creates a new learnings file, it should first grep `~/.claude/learnings/` for existing files matching the domain. Without this check, near-duplicate files accumulate (e.g., `parallel-planning.md` and `parallel-plans.md` about the same topic). Similarly, check if the insight already exists in a more authoritative location before creating a domain-specific copy — platform behavior patterns compounded from a parallel-plan session may already be covered in `claude-code.md`.
+
 ## "LLM Knows X" ≠ "LLM Consistently Applies X"
 
 When deciding whether to codify a pattern, the question isn't "can the model execute this when asked?" but "does it reliably do so unprompted?" Textbook patterns (extract class, DRY, factories) that the model knows but doesn't consistently apply during implementation still warrant codification — as a lightweight checklist reminder, not a tutorial. The correct form factor is a slim reference file (~15 lines) that reminds, not a 229-line reference file that teaches.
@@ -92,7 +96,13 @@ When deciding whether to codify a pattern, the question isn't "can the model exe
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
 
+**Use full paths for cross-directory references.** Bare filenames (e.g., `refactoring-patterns.md`) silently break when no local file exists — the intended target may be `~/.claude/learnings/refactoring-patterns.md`. Always use full `~/.claude/...` paths when referencing files outside the skill's own directory.
+
 **Symlink gotcha:** `~/.claude/` subdirectories are directory-level symlinks to the dotfiles repo. `Glob` doesn't reliably resolve paths through these symlinks — a file can exist but Glob reports "No files found." Always verify path existence with `Read` (which resolves symlinks correctly), not `Glob`.
+
+## Skill-Reference Files Can Become Orphaned Silently
+
+When skills implement reference-file patterns inline (directly in SKILL.md), the reference file becomes orphaned — still exists in `skill-references/` but no SKILL.md points to it. These add maintenance surface without discoverability benefit. The consolidation loop catches orphans, but they accumulate between runs.
 
 ## `commands/` and `skills/` Are Fully Feature-Equivalent
 
