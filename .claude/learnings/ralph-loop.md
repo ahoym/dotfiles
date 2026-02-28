@@ -67,6 +67,33 @@ Building passive output files outside the active corpus (e.g., `compounded-learn
 
 The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Detailed references" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
 
+## One-Action-Per-Invocation Violations
+
+Stateless agents may violate one-action-per-invocation constraints when the action is trivially clean — they "helpfully" continue to the next action in the same invocation. Observed in consolidation: agent did SKILLS sweep (clean), then immediately did GUIDELINES sweep instead of exiting. The spec said "one sweep per invocation" but it was a single bullet point — easy for the model to deprioritize when continuing seems efficient.
+
+**Fix: belt and suspenders.** Strengthen spec language (dedicated section with rationale, explicit "STOP" instruction) AND add outer-loop state validation (read SWEEP_COUNT before/after, assert delta = 1). Spec change reduces frequency; validation catches it when it happens anyway.
+
+## Post-Invocation State Validation
+
+The outer loop (wiggum.sh) should read agent state before and after each invocation and assert expected deltas. For consolidation: read SWEEP_COUNT from progress.md pre/post, verify it incremented by exactly 1.
+
+**Why**: Catches spec violations (double-sweep), provides infrastructure for future optimizations (e.g., fast-path skipping when no files changed), and maintains iteration-count parity between outer loop and agent. Without validation, numbering divergence is silent — only discoverable by reading log contents vs filenames.
+
+**On violation**: log WARNING but continue (don't abort — work is already done, aborting mid-loop leaves inconsistent state).
+
+## Diagnosing Iteration Count Divergence
+
+When outer-loop iteration count diverges from agent sweep count (e.g., 8 log files but agent reports 9 sweeps), check log *contents* against log *filenames*. The root cause is likely the agent doing multiple actions per invocation — not a missing log file or race condition. In the observed case, `iteration_2.log` contained "Iteration 3 complete" — the agent did sweeps 2+3 in wiggum's iteration 2.
+
+## Defect Mode vs Opportunity Mode in Curation
+
+Curation systems that only find defects (duplicates, staleness, project-specific content, broken references) miss optimization opportunities. The distinction:
+
+- **Defect mode**: "Is anything wrong here?" — duplicates, overlaps, stale content, misplaced files
+- **Opportunity mode**: "Could this be better?" — merges for cohesion, splits for discoverability, compression for token ROI, reference wiring, persona de-enrichment
+
+Both need explicit methodology in the spec. Defect mode has clear confidence levels (a duplicate is a duplicate). Opportunity mode is inherently more subjective — classify as MEDIUM auto-apply when reversible (content moves, not lost). Without explicit opportunity methodology, the agent concludes "clean" when nothing is broken, even when the corpus could be meaningfully improved.
+
 ## Brief as Pre-PR Workflow
 
 `/ralph:brief` naturally surfaces cleanup work before creating a PR for a research branch. Loading all core files into context reveals: superseded v1 directories to compare and clean up, unique content to port between versions, open questions to document in the PR. Use brief → compare → port → PR as a natural completion sequence.

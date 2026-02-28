@@ -6,7 +6,11 @@ Status: **Experimental** — testing across sessions. Iterate based on user feed
 
 Proactively search `~/.claude/learnings/` for relevant prior knowledge during conversations. Don't wait for the user to ask — detect when learnings would help and load them.
 
-## Two-Layer Trigger
+## Hard gate: Session start
+
+**Before your first tool call in a session, search learnings based on the user's message.** This is not optional. Glob `~/.claude/learnings/` filenames + grep content for terms from the user's request. Load and announce matches. This ensures every session starts with relevant prior knowledge, regardless of whether specific keywords are noticed.
+
+## Soft layers
 
 ### Layer 1: Keyword-based (proactive)
 
@@ -20,13 +24,26 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 
 Before committing to a recommendation or writing implementation code, do a broader search — scan filenames + grep content for relevant terms. Catches domains the keyword layer missed.
 
-### Hard gate: Plan mode entry
+## Hard gate: Plan mode entry
 
-**Before calling `EnterPlanMode`, you MUST search learnings.** This is not optional — it's a prerequisite to entering plan mode. Glob `~/.claude/learnings/` filenames + grep content for terms related to the task. Load and announce matches. This is the single most valuable checkpoint because plans lock in decisions that are expensive to reverse.
+**Before calling `EnterPlanMode`, you MUST search learnings.** This is not optional — it's a prerequisite to entering plan mode. This is the single most valuable checkpoint because plans lock in decisions that are expensive to reverse.
+
+**Search broadly, not just the obvious keywords.** Derive search terms from the *current task scope* (which may have evolved significantly from the opening message), not just the surface-level topic. Include:
+- Direct topic terms (e.g., "orderbook", "depth")
+- Technologies and libraries involved (e.g., "BigNumber", "xrpl", "Next.js")
+- Patterns being applied (e.g., "caching", "singleton", "API design")
+- Adjacent domains that might have relevant gotchas
+
+Glob `~/.claude/learnings/` filenames + grep content for all of the above. Load and announce matches.
 
 ## Observability
 
 Always announce when learnings are loaded or searched. The user needs visibility to iterate on this system.
+
+**Session start:**
+```
+📚 Session start — loaded `ralph-loop.md`, `claude-code-hooks.md` (matched "consolidation", "hooks")
+```
 
 **Keyword trigger:**
 ```

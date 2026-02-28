@@ -318,6 +318,12 @@ A persona's value comes from changing how you *think* about a domain — priorit
 
 The test: "Would activating this persona before a task actually change what I do?" If the answer is just "load a gotcha list," it's not ready to be a persona yet.
 
+## Tools Must Encode the Philosophy They Curate
+
+When a philosophy is established in learnings (e.g., "lean personas as judgment layers, rich learnings as knowledge") but the tools that maintain the corpus don't enforce it, the philosophy erodes. Example: the consolidation spec's Persona Handling section told the agent to "enrich" personas with knowledge content — directly contradicting the lean-persona principle in this very file. The spec was actively working against the philosophy it was supposed to maintain.
+
+**Check**: when updating a curation tool's methodology, cross-reference the principles in the learnings it curates. The tool's actions should reinforce the established philosophy, not contradict it.
+
 ## Compose Personas from Shared Learnings
 
 Personas should reference shared learning files for cross-cutting instincts rather than inlining everything. Language-agnostic practices (no duplication, single source of truth, port intent not idioms) go in a shared learning file; language-specific patterns (no IIFEs, no `as` casts) stay inline in the persona. Multiple personas can reference the same learning file without duplication.
