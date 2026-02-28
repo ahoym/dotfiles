@@ -69,6 +69,8 @@ Edit/Write permission patterns like `Edit(~/.claude/commands/**)` resolve to abs
 
 **When worktrees are needed:** Code tasks with `tsc --noEmit` or build steps where parallel agents would see each other's half-written files.
 
+**Skill tool in worktrees:** Skills write to `~/.claude/` paths by convention, which resolves to the main repo — not the worktree. Autonomous agents in worktrees that need compound-style behavior should inline the methodology (Read/Edit/Write directly) rather than invoke the Skill tool. This also avoids: hook restrictions on the Skill tool, AskUserQuestion calls with no user present, and ~120 lines of skill context loaded per invocation.
+
 ## Bash Permission Prefix Matching Gotchas
 
 Bash permission patterns match on the **literal command prefix**. Three common breaks:

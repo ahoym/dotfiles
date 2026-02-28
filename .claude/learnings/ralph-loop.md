@@ -69,6 +69,12 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 Building passive output files outside the active corpus (e.g., `compounded-learnings.md` in `consolidate-output/`) creates zero-cost architecture for future feedback loops. The file is ignored during sweeps today but could become an input to a future generative stage without changing the plumbing. The gate between "passive capture" and "active feedback" is a decision, not a redesign. Pair with a circuit breaker (max rounds guard) so the gate can be opened safely.
 
+## Inline Compounding Over Skill Invocation in Autonomous Loops
+
+When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
+
+The inline methodology: categorize insights using `content-type-decisions.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded. `compounded-learnings.md` becomes an audit log, not a staging file. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
+
 ## Personas as Execution-Mode Learnings Conduit
 
 The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Detailed references" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
