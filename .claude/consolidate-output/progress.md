@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 
@@ -25,7 +25,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 4
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files across 7 clusters verified. Iter 1 merges/folds introduced no internal duplicates. Reference wiring accurate. No new overlaps, thin-file issues, or de-enrichment opportunities above threshold. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills re-evaluated. No stale model strings, no broken references to deleted learnings. do-refactor-code path fix intact. All @ and skill-reference wiring resolves. L-1 (orphaned subagent-patterns.md) unchanged. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 4 guidelines re-evaluated. No content drift. B-1 (validation.md) still open. Round 2 complete — all 3 types clean. CLEAN_ROUND_STREAK → 1. |
+| 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files, 7 clusters. No concept-name collisions, no duplicates, no stale content. Thin files (3) reconfirmed substantive. Persona reference wiring intact. |
 
 ## Notes for Next Iteration
 
@@ -163,6 +164,23 @@ Suggested iterations: 15
 - No corpus changes since Round 2 learnings sweep — expect clean
 - 32 learnings files, same clusters as iter 4
 - B-1 (validation.md wiring) and L-1 (orphaned subagent-patterns.md) remain open — neither can be resolved autonomously
+
+### Iter 7
+
+**Learnings Round 3 — clean sweep:**
+- 32 files, 7 clusters — identical composition to iter 4
+- H2/H3 heading collision scan: no duplicates across files
+- Thin files (aws-patterns 14L, vercel-deployment 14L, code-quality-instincts 15L) reconfirmed as substantive unique content
+- xrpl-typescript-fullstack (4 refs) and react-frontend (5 refs) Detailed references resolve correctly
+- No stale content, no compression opportunities above 30%, no genericization issues
+- No de-enrichment candidates (no persona above ~100L with inline knowledge)
+- B-1 (validation.md wiring) and L-1 (orphaned subagent-patterns.md) remain open
+
+**For next sweep (SKILLS, Round 3):**
+- Re-evaluate 29 skills across 5 namespaces
+- Verify do-refactor-code path fix still intact
+- L-1 (orphaned subagent-patterns.md) still in lows.md — don't re-flag
+- No corpus changes since Round 2 skills sweep — expect clean
 
 ### Iter 4
 
