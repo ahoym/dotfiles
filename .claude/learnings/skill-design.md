@@ -100,10 +100,6 @@ Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnin
 
 **Symlink gotcha:** `~/.claude/` subdirectories are directory-level symlinks to the dotfiles repo. `Glob` doesn't reliably resolve paths through these symlinks — a file can exist but Glob reports "No files found." Always verify path existence with `Read` (which resolves symlinks correctly), not `Glob`.
 
-## Skill-Reference Files Can Become Orphaned Silently
-
-When skills implement reference-file patterns inline (directly in SKILL.md), the reference file becomes orphaned — still exists in `skill-references/` but no SKILL.md points to it. These add maintenance surface without discoverability benefit. The consolidation loop catches orphans, but they accumulate between runs.
-
 ## `commands/` and `skills/` Are Fully Feature-Equivalent
 
 The official docs state both "work the same way" and "support the same frontmatter." Every feature works in `commands/` — no directory rename needed. Previously assumed `skills/`-exclusive features (monorepo auto-discovery, `--add-dir` hot-reload, plugin packaging) were confirmed to work in `commands/` too — via user testing (auto-discovery, hot-reload) and the [plugin docs](https://code.claude.com/docs/en/plugins) explicitly listing both directories. The only difference is naming convention.

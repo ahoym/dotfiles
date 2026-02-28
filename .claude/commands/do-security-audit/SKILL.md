@@ -13,6 +13,10 @@ allowed-tools:
 
 Run a structured security audit on one or more projects. Uses parallel agents to check a standard security checklist, flags dead security code, and assesses the deployment risk profile.
 
+## Reference Files
+
+- `~/.claude/skill-references/subagent-patterns.md` — Universal patterns for launching and orchestrating subagents
+
 ## Usage
 
 - `/do-security-audit` - Audit the current project
