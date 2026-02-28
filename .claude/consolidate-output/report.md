@@ -7,8 +7,8 @@
 | Started | 2026-02-28 |
 | Branch | consolidate/2026-02-28 |
 | Worktree | .claude/worktrees/consolidate-2026-02-28 |
-| Iterations | 5 |
-| Rounds | 1 (complete), 2 (in progress) |
+| Iterations | 6 |
+| Rounds | 1 (complete), 2 (complete — clean) |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 2 | 4 | 2 | 0 | 1 |
 | Skills | 2 | 0 | 1 | 0 | 0 |
-| Guidelines | 1 | 0 | 0 | 1 | 0 |
-| **Total** | **5** | **4** | **3** | **1** | **1** |
+| Guidelines | 2 | 0 | 0 | 1 | 0 |
+| **Total** | **6** | **4** | **3** | **1** | **1** |
 
 ## Actions (Chronological)
 
@@ -36,6 +36,7 @@
 | 3 | 1 | GUIDELINES | Wire unreferenced guideline (blocked) | guidelines/validation.md | CLAUDE.md @-reference | MEDIUM |
 | 4 | 2 | LEARNINGS | (clean sweep) | — | — | — |
 | 5 | 2 | SKILLS | (clean sweep) | — | — | — |
+| 6 | 2 | GUIDELINES | (clean sweep) | — | — | — |
 
 ## Blocked Items
 

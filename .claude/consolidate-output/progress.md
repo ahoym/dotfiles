@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 
 ## Pre-Flight
 
@@ -37,7 +37,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 1
@@ -49,6 +49,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 4 | 2 | 0 | 1 | 0 | 1 (blocked) | No |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -61,6 +62,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 0 | 4 guidelines evaluated. 3/4 @-referenced (always-on), 1 unreferenced (validation.md — blocked, needs CLAUDE.md edit outside write scope). No compression opportunities above 30% threshold. No domain-specific content requiring migration. |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files across 7 clusters verified. Iter 1 merges/folds introduced no internal duplicates. Reference wiring accurate. No new overlaps, thin-file issues, or de-enrichment opportunities above threshold. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills re-evaluated. No stale model strings, no broken references to deleted learnings. do-refactor-code path fix intact. All @ and skill-reference wiring resolves. L-1 (orphaned subagent-patterns.md) unchanged. |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 4 guidelines re-evaluated. No content drift. B-1 (validation.md) still open. Round 2 complete — all 3 types clean. CLEAN_ROUND_STREAK → 1. |
 
 ## Notes for Next Iteration
 
@@ -146,6 +148,21 @@ Suggested iterations: 15
 - B-1 (unreferenced validation.md) still open — can't resolve without CLAUDE.md write scope
 - Check if any guideline content has drifted since iter 3
 - Expect clean — no corpus changes since last guidelines sweep
+
+### Iter 6
+
+**Guidelines Round 2 — clean sweep:**
+- All 4 guidelines re-evaluated: communication.md (111L), context-aware-learnings.md (87L), skill-invocation.md (8L), validation.md (12L)
+- @-reference status unchanged: 3/4 always-on, validation.md still unreferenced (B-1 open)
+- No content drift, no compression opportunities above threshold, no domain-specific content requiring migration
+- Cross-reference: guidelines referenced in learnings/guideline-authoring.md and learnings/claude-code.md are structural, not content overlaps
+- Round 2 complete: LEARNINGS (clean), SKILLS (clean), GUIDELINES (clean). CLEAN_ROUND_STREAK → 1.
+
+**For next sweep (LEARNINGS, Round 3):**
+- One more clean round needed for convergence (CLEAN_ROUND_STREAK must reach 2)
+- No corpus changes since Round 2 learnings sweep — expect clean
+- 32 learnings files, same clusters as iter 4
+- B-1 (validation.md wiring) and L-1 (orphaned subagent-patterns.md) remain open — neither can be resolved autonomously
 
 ### Iter 4
 
