@@ -93,6 +93,10 @@ The outer loop (wiggum.sh) should read agent state before and after each invocat
 
 **On violation**: log WARNING but continue (don't abort — work is already done, aborting mid-loop leaves inconsistent state).
 
+## Worktree-Aware File Editing
+
+When editing files from a worktree context, use the worktree's absolute path (e.g., `.claude/worktrees/consolidate-2026-02-28/.claude/learnings/foo.md`), not the main repo path that `~/.claude/` symlinks resolve to. Both are valid filesystem paths on disk, but they target different git branches. Editing via `~/.claude/learnings/foo.md` modifies main's copy; editing via the worktree path modifies the branch's copy. The Edit/Write tools won't warn you — the file exists at both paths.
+
 ## Diagnosing Iteration Count Divergence
 
 When outer-loop iteration count diverges from agent sweep count (e.g., 8 log files but agent reports 9 sweeps), check log *contents* against log *filenames*. The root cause is likely the agent doing multiple actions per invocation — not a missing log file or race condition. In the observed case, `iteration_2.log` contained "Iteration 3 complete" — the agent did sweeps 2+3 in wiggum's iteration 2.

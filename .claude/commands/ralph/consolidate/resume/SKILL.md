@@ -76,6 +76,8 @@ If there are OPEN blockers:
 
 If the user wants to skip a blocker, leave it as OPEN.
 
+**Recommendation framing**: When presenting options, prefer recommending the option that fixes root cause (wire, restructure, merge) over the option that accepts dysfunction (delete, skip). Deletion is irreversible; wiring is reversible. Only recommend cleanup when the content is stale, incorrect, or has no identifiable consumers. This applies equally to LOWs surfaced from `lows.md`.
+
 ### 5. Prepare for relaunch
 
 Calculate suggested iterations based on pre-flight cadence (from progress.md) and remaining work:
@@ -83,7 +85,8 @@ Calculate suggested iterations based on pre-flight cadence (from progress.md) an
 - Base: `max(5, <init_suggested> - SWEEP_COUNT)` where `<init_suggested>` is the value from pre-flight (default 20 if not present)
 
 If COMPLETE or MAX_ROUNDS_HIT signal is present in progress.md:
-- If `compounded-learnings.md` has content beyond the template header, present the insights and suggest: "Run `/learnings:compound` with these as source material to persist valuable insights."
+- **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r .claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
+- If `compounded-learnings.md` had content beyond the template header (check before removing), present the insights and suggest: "Run `/learnings:compound` with these as source material to persist valuable insights."
 - Ask if the user wants to review the diff: `git diff main -- .claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
 - Do NOT suggest relaunching
