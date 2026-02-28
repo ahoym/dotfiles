@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -25,7 +25,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 4
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 4 | 2 | 0 | 6 | Deleted research-methodology.md (subsumed by skill-design.md), merged parallel-planning.md into parallel-plans.md, removed 2 duplicate sections from parallel-plans.md, folded xrpl-testing-patterns.md into xrpl-patterns.md, wired xrpl-typescript-fullstack persona references |
 | 2 | 1 | SKILLS | 0 | 1 | 1 | 1 | 29 skills across 5 namespaces evaluated. Fixed ambiguous reference path in do-refactor-code. 1 LOW: orphaned subagent-patterns.md. Cross-persona java-backend/java-devops clean. |
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 0 | 4 guidelines evaluated. 3/4 @-referenced (always-on), 1 unreferenced (validation.md — blocked, needs CLAUDE.md edit outside write scope). No compression opportunities above 30% threshold. No domain-specific content requiring migration. |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 32 files across 7 clusters verified. Iter 1 merges/folds introduced no internal duplicates. Reference wiring accurate. No new overlaps, thin-file issues, or de-enrichment opportunities above threshold. |
 
 ## Notes for Next Iteration
 
@@ -127,3 +128,21 @@ Suggested iterations: 15
 - Pure-deletion sweep in iter 1 shouldn't create new overlaps, but the merge of parallel-planning.md → parallel-plans.md and fold of xrpl-testing-patterns.md → xrpl-patterns.md could have introduced duplicates within target files
 - Check reference wiring added to xrpl-typescript-fullstack persona is still accurate
 - The blocked validation.md finding can't be acted on until the user resolves [B-1] — don't re-flag it
+
+### Iter 4
+
+**Learnings Round 2 — clean sweep:**
+- All 32 files re-read and analyzed across 7 clusters
+- Iter 1 merge targets verified clean: parallel-plans.md (7 distinct sections), xrpl-patterns.md (10 distinct sections)
+- xrpl-typescript-fullstack Detailed references: all 4 paths resolve correctly
+- Thin files (code-quality-instincts 15L, aws-patterns 14L, vercel-deployment 14L) all have substantive unique content — not fold candidates
+- xrpl-typescript-fullstack persona at 87 lines (under ~100 target) — inline compressed recipes overlap with learnings but serve as quick-reference index; de-enrichment not warranted at this size
+- One line of provenance in xrpl-patterns.md (line 24) — below 30% compression threshold
+- No concept-name collisions detected across files
+
+**For next sweep (SKILLS, Round 2):**
+- Skills were clean in iter 2 (0 HIGHs, 1 MEDIUM applied, 1 LOW recorded)
+- The MEDIUM applied was a path fix — verify it's still correct
+- L-1 (orphaned subagent-patterns.md) still open — don't re-flag, it's already in lows.md
+- Check if iter 1 learnings changes (deleted files, renamed content) broke any skill references to learnings
+- Expect clean — no corpus changes between sweeps that would create new skill issues
