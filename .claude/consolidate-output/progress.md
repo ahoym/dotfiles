@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 1 |
 
@@ -32,7 +32,7 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -67,6 +67,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; shared references centralized; producer/consumer contracts valid |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 3; resume commit (L-2) did not affect guidelines |
 | 7 | 3 | LEARNINGS | 0 | 1 | 0 | L-2 extraction: expand nextjs.md, slim 2 personas, wire ref | Applied L-2 (cross-persona dedup): added Turbopack + dynamic params to nextjs.md, slimmed both persona gotcha sections to pointers, wired nextjs.md into xrpl-typescript-fullstack refs |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; model versions current; nextjs.md expansion no overlap with skill refs |
 
 ## Notes for Next Iteration
 
@@ -175,3 +176,16 @@ SKILLS sweep should verify:
 - All 29 skills remain stable from prior sweeps
 
 No compound insights this sweep — the L-2 extraction was a pre-approved human decision, not a novel corpus pattern discovery.
+
+### After Iter 8
+
+**Next: GUIDELINES sweep (Round 3, Sweep 9)**
+
+Round 3 SKILLS sweep was clean. All 29 skills verified across 5 clusters (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7). No changes since iter 7's L-2 extraction affected skills. All model version strings current (Claude Opus 4.6). Shared references properly centralized in `skill-references/`. Producer/consumer contracts validated.
+
+GUIDELINES sweep should verify:
+- The 3 guideline files remain stable (communication.md, context-aware-learnings.md, skill-invocation.md)
+- No impact from iter 7's persona slimming on guideline content (unlikely — guidelines are behavior, not domain knowledge)
+- All @-references from CLAUDE.md still valid
+
+This is the final sweep of Round 3. Since ROUND_CLEAN is already false (iter 7 had 1 MEDIUM), CLEAN_ROUND_STREAK will reset to 0 at end of Round 3. Round 4 will be needed to check convergence.
