@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 10
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 2 | 0 | 0 | 0 | 0 | false |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | true |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 10
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, all @-referenced |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, R1 wiring verified |
 | 5 | 2 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R1 |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged since R1 |
 
 ## Deep Dive Status
 
@@ -142,3 +144,14 @@ Suggested iterations: 10
 - Model version strings: current (Claude Opus 4.6 or generic).
 - Cross-persona LOW (react-frontend + xrpl-typescript-fullstack React/Next.js overlap): unchanged from iter 2.
 - No compoundable meta-insights (clean sweep).
+
+### Iter 6
+
+**Sweep notes (GUIDELINES, Round 2):**
+- 3 files re-read: communication.md (111 lines, 11 patterns), skill-invocation.md (7 lines, 1 pattern), context-aware-learnings.md (95 lines, 7 patterns).
+- All 3 @-referenced from CLAUDE.md. All behavioral. All universally needed.
+- No corpus changes since R1 GUIDELINES sweep (iter 3). Confirmed: no duplicates, no compression targets, no domain-specific content, no dead weight.
+- Cross-reference against learnings/skills/personas: no content overlap.
+- No compoundable meta-insights (clean sweep).
+
+**Round 2 complete**: L=0H/0M, S=0H/0M, G=0H/0M. Clean. CLEAN_ROUND_STREAK=1. Advancing to Round 3.
