@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 10
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -66,6 +66,7 @@ Suggested iterations: 10
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, R1 wiring verified |
 | 5 | 2 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R1 |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged since R1 |
+| 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, unchanged since R2 |
 
 ## Deep Dive Status
 
@@ -155,3 +156,15 @@ Suggested iterations: 10
 - No compoundable meta-insights (clean sweep).
 
 **Round 2 complete**: L=0H/0M, S=0H/0M, G=0H/0M. Clean. CLEAN_ROUND_STREAK=1. Advancing to Round 3.
+
+### Iter 7
+
+**Sweep notes (LEARNINGS, Round 3):**
+- 33 files across 8 clusters re-analyzed. Full cross-reference corpus loaded (7 personas, 3 guidelines, 5 skill-references).
+- No corpus changes since R2 LEARNINGS sweep (iters 5-6 were both clean).
+- Concept-name collision scan: no duplicate H2/H3 headings.
+- No duplicates, overlaps, genericization issues, thin fold candidates, stale content, or new merge/split/compression candidates.
+- All persona reference wiring confirmed stable: react-frontend (6 refs), xrpl-typescript-fullstack (6 refs), platform-engineer (1 ref), typescript-devops (1 ref).
+- Deep dive candidates confirmed: skill-design.md (246 lines, 20+ patterns, compression — Polish Opportunity + curate criteria), skill-platform-portability.md (220 lines, 17 patterns, compression — Polish Opportunity + curate criteria).
+- DEEP_DIVE_CANDIDATES: [skill-design.md, skill-platform-portability.md]
+- No compoundable meta-insights (clean sweep).
