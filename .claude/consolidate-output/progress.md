@@ -135,7 +135,7 @@ No new findings. If SKILLS and GUIDELINES are also clean, CLEAN_ROUND_STREAK wil
 
 Round 2 SKILLS sweep was clean. All 29 skills verified across 5 clusters (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7). No changes since Round 1 SKILLS sweep. All shared reference files properly centralized in `skill-references/`. Producer/consumer contracts validated (make→execute, explore-repo→brief, init→resume, curate→consolidate).
 
-If GUIDELINES is also clean, Round 2 will be fully clean → CLEAN_ROUND_STREAK increments to 1. Round 3 would then be the convergence check — if that round is also clean, CLEAN_ROUND_STREAK reaches 2 → WOOT_COMPLETE_WOOT.
+If GUIDELINES is also clean, Round 2 will be fully clean → CLEAN_ROUND_STREAK increments to 1. Round 3 would then be the convergence check — if that round is also clean, CLEAN_ROUND_STREAK reaches 2 and the loop converges.
 
 ### Resume Decisions (human review)
 
@@ -152,7 +152,7 @@ If GUIDELINES is also clean, Round 2 will be fully clean → CLEAN_ROUND_STREAK 
 Round 3 is the potential convergence round. If all 3 sweeps are clean, CLEAN_ROUND_STREAK reaches 2 and the loop converges.
 
 Key items for Round 3 LEARNINGS sweep:
-- The resume commit (824fffe) applied L-2: extracted shared Next.js/React gotchas from both personas. Verify the new/modified learning file and the persona modifications are stable.
+- The resume commit (824fffe) recorded the L-2 decision but did NOT apply it. The extraction still needs to happen: create a learning file with shared Next.js 16 / React 19 gotchas, remove shared content from both `react-frontend.md` and `xrpl-typescript-fullstack.md`, add references. See "Resume Decisions" notes above for full instructions. This is a MEDIUM auto-apply action.
 - Current learnings count observed: 33 files (report previously said 34 after sweep 1 split — verify whether resume changed the count).
 - All prior changes from Round 1 (skill-design split, 2 persona ref wirings) remain stable through Round 2.
 - No new compound insights were generated in Round 2 (all sweeps clean).
