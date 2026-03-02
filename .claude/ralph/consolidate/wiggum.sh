@@ -105,14 +105,28 @@ for i in $(seq 1 $MAX_ITERATIONS); do
         LAST_ACTIONS_ITER=$i
     fi
 
-    # Check for completion signal
-    if grep -q "$COMPLETION_SIGNAL" "$PROGRESS_FILE"; then
+    # Check for stop signals (exact line match — prevents false positives from prose mentions)
+    STOP_SIGNAL=""
+    if grep -qx "$COMPLETION_SIGNAL" "$PROGRESS_FILE"; then
+        STOP_SIGNAL="$COMPLETION_SIGNAL"
+    elif grep -qx "MAX_ROUNDS_HIT" "$PROGRESS_FILE"; then
+        STOP_SIGNAL="MAX_ROUNDS_HIT"
+    elif grep -qx "MAX_DEEP_DIVES_HIT" "$PROGRESS_FILE"; then
+        STOP_SIGNAL="MAX_DEEP_DIVES_HIT"
+    fi
+
+    if [ -n "$STOP_SIGNAL" ]; then
         LOOP_END_TIME=$(date +%s)
         LOOP_DURATION=$((LOOP_END_TIME - LOOP_START_TIME))
 
         echo ""
         echo ════════════════════════════════════════════════════════════
-        echo "Done! Consolidation complete."
+        if [ "$STOP_SIGNAL" = "$COMPLETION_SIGNAL" ]; then
+            echo "Done! Consolidation complete."
+        else
+            echo "Stopped: $STOP_SIGNAL"
+            echo "Check blockers.md for details."
+        fi
         echo "Total iterations: $i"
         echo "Total duration:   ${LOOP_DURATION}s"
         echo "Completed at:     $(date)"
@@ -130,7 +144,11 @@ for i in $(seq 1 $MAX_ITERATIONS); do
         echo "  $PROJECT_DIR/decisions.md  - Full decision log"
         echo "  $PROJECT_DIR/blockers.md   - Items needing human review"
         echo "  $PROJECT_DIR/lows.md       - Items for /learnings:curate"
-        exit 0
+        if [ "$STOP_SIGNAL" = "$COMPLETION_SIGNAL" ]; then
+            exit 0
+        else
+            exit 1
+        fi
     fi
 
     sleep 2

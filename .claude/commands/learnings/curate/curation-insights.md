@@ -58,6 +58,7 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 ## Phase 2 Patterns
 
 - **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
+- **Consolidation deep dives are bounded and non-cascading.** When the consolidation loop enters deep dive phase (after broad sweep convergence), per-file cross-referencing may surface duplicates or overlaps that touch other files. These cross-file effects are logged in decisions.md but do NOT cascade back to broad sweeps — the loop completes after processing all candidates (max 5 invocations). Rationale: broad sweeps already confirmed cluster-level health; deep dive findings are pattern-level and small. Cross-file effects are picked up by the next consolidation run.
 
 ## Report Formatting
 

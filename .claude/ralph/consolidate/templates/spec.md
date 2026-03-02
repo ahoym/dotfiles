@@ -91,6 +91,9 @@ Read `.claude/consolidate-output/progress.md`. Extract:
 | `CONTENT_TYPE` | Current: LEARNINGS, SKILLS, or GUIDELINES |
 | `ROUND_CLEAN` | Whether the current round has been clean so far (true/false) |
 | `CLEAN_ROUND_STREAK` | Consecutive fully-clean rounds |
+| `PHASE` | `BROAD_SWEEP` (default) or `DEEP_DIVE` |
+| `DEEP_DIVE_CANDIDATES` | Ordered list of files to deep-dive (populated at convergence) |
+| `DEEP_DIVE_COMPLETED` | Files already processed in deep dive phase |
 
 Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
@@ -100,9 +103,11 @@ If SWEEP_COUNT = 0:
 1. Read all methodology reference files listed above
 2. Record condensed classification criteria and key operational patterns in `Notes for Next Iteration`
 
-### 3. Execute Sweep
+### 3. Execute Sweep or Deep Dive
 
-Run the sweep methodology for the current CONTENT_TYPE (see Sweep Methodology below). Use parallel Read calls aggressively — batch all file reads in a single tool call set.
+If `PHASE` is `BROAD_SWEEP`: Run the sweep methodology for the current CONTENT_TYPE (see Sweep Methodology below). Use parallel Read calls aggressively — batch all file reads in a single tool call set.
+
+If `PHASE` is `DEEP_DIVE`: Execute the next unprocessed file from DEEP_DIVE_CANDIDATES (see Deep Dive Phase below). Skip steps 4-8 — deep dive execution handles classification and application internally.
 
 ### 4. Classify Findings
 
@@ -191,7 +196,9 @@ Follow the `/learnings:compound` skill's methodology inline — no Skill tool in
 
 Before exiting, update:
 
-- **progress.md**: Increment SWEEP_COUNT. Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below). Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
+- **progress.md**: Increment SWEEP_COUNT. Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
+  - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below).
+  - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 5 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **blockers.md**: Only if new blockers added.
 - **lows.md**: Only if new LOWs found.
@@ -202,7 +209,9 @@ Stage all changes from this sweep and commit:
 
 1. `git add` each file you created or modified in `.claude/` (corpus files AND output files)
 2. `git rm` was already run for any deleted files during step 5/6
-3. `git commit -m "consolidate: sweep <N> — <CONTENT_TYPE> (<summary>)"`
+3. Commit with phase-appropriate message:
+   - **BROAD_SWEEP**: `git commit -m "consolidate: sweep <N> — <CONTENT_TYPE> (<summary>)"`
+   - **DEEP_DIVE**: `git commit -m "consolidate: deep-dive <N> — <filename> (<summary>)"`
 
 One git command per Bash call. Verify with `git status` before committing if uncertain about staging state.
 
@@ -233,9 +242,14 @@ One git command per Bash call. Verify with `git status` before committing if unc
 5. Increment `ROUND`
 6. Set `CONTENT_TYPE` back to LEARNINGS
 
-**Convergence**: `CLEAN_ROUND_STREAK >= 2` → two consecutive fully-clean rounds → completion.
+**Convergence**: `CLEAN_ROUND_STREAK >= 2` → two consecutive fully-clean rounds → broad sweeps converged.
 
 This means every type's "confirmation" sweep happens after all other types have been swept in the intervening round, catching cross-type regressions naturally.
+
+**After broad sweep convergence** (check deep dive candidacy):
+1. Review the most recent LEARNINGS broad sweep's per-file quality scan for Polish Opportunity files and cross-reference hub files (see Deep Dive Phase below)
+2. If candidates exist → set `PHASE` to `DEEP_DIVE`, populate `DEEP_DIVE_CANDIDATES`, continue to deep dive phase
+3. If no candidates → completion (below)
 
 **Completion**:
 - Write `WOOT_COMPLETE_WOOT` as the first line of progress.md
@@ -243,6 +257,54 @@ This means every type's "confirmation" sweep happens after all other types have 
 - Write final collection health metrics
 
 **Skip empty content types**: If a content type has 0 files, mark `skipped (empty)` and advance to the next type. An all-empty round still counts as clean.
+
+## Deep Dive Phase
+
+Deep dives run **after broad sweeps converge** (`CLEAN_ROUND_STREAK >= 2`). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
+
+### Candidacy
+
+A file is a deep dive candidate if it meets ANY of:
+
+1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, content-type-decisions.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
+2. **Polish Opportunity file**: Flagged in the broad sweep's per-file quality scan (genericization candidates, compression candidates). These were already identified but had no execution path in the broad sweep.
+3. **Curate skill criteria**: 5+ patterns AND an action signal (stale content, domain overlap, compression opportunity).
+
+Candidacy is determined during the final LEARNINGS broad sweep. The agent records candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+
+### Per-File Execution
+
+Each deep dive invocation processes ONE file (preserves the one-sweep-per-invocation model):
+
+1. **Read the target file** and parse into discrete patterns (H2/H3 sections)
+2. **Cross-reference each pattern** against the full corpus: all learnings, guidelines, skills, skill-references, and personas
+3. **Classify each pattern** using the 6-bucket model (loaded during first invocation)
+4. **Apply findings** with same HIGH/MEDIUM/LOW handling as broad sweeps:
+   - Auto-apply HIGHs (duplicates, stale content, fully-covered patterns)
+   - Judge MEDIUMs autonomously (compression, reference wiring, partial overlaps)
+   - Record LOWs in lows.md
+5. **Compound insights** if findings were applied (same methodology as broad sweep step 8)
+6. **Update output files** — increment SWEEP_COUNT, append iteration log, move file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED
+7. **Commit**: `consolidate: deep-dive N — <filename> (<summary>)`
+
+### Bounded — No Re-Convergence
+
+Deep dives do NOT cascade back to broad sweeps. Rationale:
+- Broad sweeps already confirmed no cross-file regressions exist
+- Deep dive changes are small (pattern-level, not file-level)
+- Cross-file effects are logged in decisions.md for the next consolidation run
+
+After all candidates processed → completion (`WOOT_COMPLETE_WOOT`).
+
+### Max Guard
+
+If deep dives exceed 5 invocations without completing all candidates, stop with `MAX_DEEP_DIVES_HIT`:
+1. Write `MAX_DEEP_DIVES_HIT` as the first line of progress.md
+2. Update report.md status to `MAX_DEEP_DIVES_HIT`
+3. Add a blocker to blockers.md: "Deep dive phase hit 5-invocation limit — remaining candidates need manual curation"
+4. List remaining unprocessed candidates in the blocker
+
+Typical runs should have 2-4 candidates. The 5-invocation limit is a safety net.
 
 ## Sweep Methodology
 
@@ -270,6 +332,8 @@ This means every type's "confirmation" sweep happens after all other types have 
 - **Split for discoverability**: >150 lines AND 3+ distinct sub-topics with independent lookup value. MEDIUM. (A large but thematically unified file should NOT be split — the filename is a natural index.)
 - **Compression for token ROI**: Files where insight-to-token ratio could improve. MEDIUM.
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
+
+**Deep dive candidate recording** (when `CLEAN_ROUND_STREAK >= 1`, i.e., this could be the final LEARNINGS sweep): Record files meeting deep dive candidacy criteria (see Deep Dive Phase) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. This costs nothing on non-final sweeps and ensures candidates are ready if this round completes clean.
 
 ### SKILLS — Skill Mode
 

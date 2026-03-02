@@ -9,6 +9,9 @@
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
+| PHASE | BROAD_SWEEP |
+| DEEP_DIVE_CANDIDATES | — |
+| DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
 
@@ -57,6 +60,13 @@ Suggested iterations: (pending)
 
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
+
+## Deep Dive Status
+
+<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweep convergence -->
+
+| File | Status | Iter | Summary |
+|------|--------|------|---------|
 
 ## Notes for Next Iteration
 
