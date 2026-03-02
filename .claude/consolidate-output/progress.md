@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -25,7 +25,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 3
 - **MEDIUMs blocked**: 0
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 0 | 3 | 1 | Split skill-design.md, wire 2 persona refs | Broad sweep — no duplicates found, 1 split, 2 ref wirings, 1 thin-file LOW |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | none | Clean sweep — 29 skills evaluated across 5 clusters, all keep, 1 LOW (cross-persona overlap) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no overlap/compression/wiring issues |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files verified; Round 1 split + wirings stable; no duplicates, overlaps, or opportunities |
 
 ## Notes for Next Iteration
 
@@ -116,3 +117,11 @@ From GUIDELINES sweep:
 - No inter-guideline overlap, no overlap with learnings, no domain-specific content, no stale references
 - Compression checked: communication.md ~10% compressible, well below 30% MEDIUM threshold
 - `guideline-authoring.md` (learning) is meta content about writing guidelines — correctly placed as a learning, no overlap with guideline content
+
+### After Iter 4
+
+**Next: SKILLS sweep (Round 2, Sweep 5)**
+
+Round 2 LEARNINGS sweep was clean. All 33 files verified — Round 1's split (`skill-design.md` / `skill-platform-portability.md`) is stable, both persona reference wirings (`react-frontend` → `reactive-data-patterns.md`, `xrpl-typescript-fullstack` → `bignumber-financial-arithmetic.md`) are correct.
+
+No new findings. If SKILLS and GUIDELINES are also clean, CLEAN_ROUND_STREAK will increment to 1, and Round 3 will be the potential convergence round.
