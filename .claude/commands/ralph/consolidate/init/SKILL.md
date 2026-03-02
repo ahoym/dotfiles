@@ -56,7 +56,6 @@ Read each template from `~/.claude/ralph/consolidate/templates/` and write to th
 | `blockers.md` | `.claude/consolidate-output/blockers.md` |
 | `report.md` | `.claude/consolidate-output/report.md` |
 | `lows.md` | `.claude/consolidate-output/lows.md` |
-| `compounded-learnings.md` | `.claude/consolidate-output/compounded-learnings.md` |
 
 Copy each template as-is first. Pre-flight data is populated next.
 

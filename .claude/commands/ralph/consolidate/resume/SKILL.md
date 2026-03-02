@@ -33,7 +33,6 @@ Read from `<worktree>/.claude/consolidate-output/`:
 | `report.md` | Summary table, total actions, status |
 | `blockers.md` | Any items with `Status: OPEN` |
 | `decisions.md` | Last 10 rows (recent actions for context) |
-| `compounded-learnings.md` | Meta-insights discovered during sweeps (if any) |
 
 ### 3. Present status
 
@@ -86,7 +85,6 @@ Calculate suggested iterations based on pre-flight cadence (from progress.md) an
 
 If COMPLETE or MAX_ROUNDS_HIT signal is present in progress.md:
 - **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r .claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
-- If `compounded-learnings.md` had content beyond the template header (check before removing), present the insights and suggest: "Run `/learnings:compound` with these as source material to persist valuable insights."
 - Ask if the user wants to review the diff: `git diff main -- .claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
 - Do NOT suggest relaunching

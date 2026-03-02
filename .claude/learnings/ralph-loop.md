@@ -35,11 +35,11 @@ When writing a spec for `claude --print` agents with no conversation history, em
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
 
 - **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
-- **Output files**: 7 files (spec, progress, decisions, blockers, report, lows, compounded-learnings) instead of 5 core research files
+- **Output files**: 6 files (spec, progress, decisions, blockers, report, lows) instead of 5 core research files
 - **Security hooks**: Bash restricted to selective git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta (expected 1) after each invocation.
 - **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 2 consecutive clean rounds. Max 5 rounds before forced stop.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; only true blockers surface for human review via `blockers.md`
-- **Compounded learnings**: After sweeps with findings, agent appends corpus-level meta-insights to `compounded-learnings.md` (isolated from sweep corpus to prevent feedback loops). Resume skill surfaces these for `/learnings:compound` post-loop.
+- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by subsequent sweeps via the convergence mechanism.
 - **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/lab/ralph/wiggum.sh`)
 - **Resume**: `/ralph:consolidate:resume` handles blocker resolution and relaunch (vs `/ralph:resume` for research question answering)
 
@@ -47,9 +47,9 @@ The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous l
 
 Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. Also halves the minimum iteration count for clean corpora (6 vs 12 for 3 types × 2 confirmations).
 
-## Compounded Learnings Isolation
+## Compounded Learnings as Corpus Changes
 
-When an autonomous agent writes insights during curation, those files must live outside the sweep corpus to prevent feedback loops (new insight → next sweep finds it → generates more insights → ...). The `consolidate-output/` directory serves as this isolation boundary — the spec defines corpus paths that exclude it.
+When an autonomous agent compounds insights during curation, it writes directly into the worktree's `.claude/learnings/` (or guidelines/skills). These are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism. If a compounded insight creates issues (overlap, duplication), the loop catches it. The round-based convergence design provides the safety net that the old isolation boundary provided.
 
 ## Pre-Flight Cadence Analysis
 
@@ -65,15 +65,15 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 `commands/*/SKILL.md` only matches top-level skill directories. For repos with multi-level nesting (e.g., `commands/ralph/consolidate/init/SKILL.md`), use `commands/**/SKILL.md`. This applies anywhere skills are inventoried — init pre-flight, spec corpus definitions, sweep methodology.
 
-## Isolation Boundaries Enable Future Optionality
+## Convergence as Safety Net for Compounding
 
-Building passive output files outside the active corpus (e.g., `compounded-learnings.md` in `consolidate-output/`) creates zero-cost architecture for future feedback loops. The file is ignored during sweeps today but could become an input to a future generative stage without changing the plumbing. The gate between "passive capture" and "active feedback" is a decision, not a redesign. Pair with a circuit breaker (max rounds guard) so the gate can be opened safely.
+Compounded insights go directly into the sweep corpus rather than a staging file. The round-based convergence mechanism (2 consecutive clean rounds) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
 
 ## Inline Compounding Over Skill Invocation in Autonomous Loops
 
 When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
 
-The inline methodology: categorize insights using `content-type-decisions.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded. `compounded-learnings.md` becomes an audit log, not a staging file. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
+The inline methodology: categorize insights using `content-type-decisions.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
 
 ## Personas as Execution-Mode Learnings Conduit
 
