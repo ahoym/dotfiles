@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 10
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -62,6 +62,7 @@ Suggested iterations: 10
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: platform-engineer + typescript-devops |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, 1 LOW (cross-persona dedup) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, all @-referenced |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, R1 wiring verified |
 
 ## Deep Dive Status
 
@@ -116,3 +117,15 @@ Suggested iterations: 10
 - No compoundable meta-insights (clean sweep).
 
 **Round 1 complete**: L=0H/2M, S=0H/0M, G=0H/0M. Not clean. CLEAN_ROUND_STREAK=0. Advancing to Round 2.
+
+### Iter 4
+
+**Sweep notes (LEARNINGS, Round 2):**
+- 33 files across 8 clusters re-analyzed. Full cross-reference corpus loaded (8 personas, 3 guidelines, 5 skill-references).
+- R1 reference wiring verified: platform-engineer.md now has Detailed references → aws-patterns.md. typescript-devops.md now has Detailed references → vercel-deployment.md. Both correctly formatted, no issues introduced.
+- Concept-name collision scan: no duplicate H2/H3 headings across learnings files.
+- No new duplicates, overlaps, genericization issues, thin fold candidates, or stale content.
+- No new merge/split/compression candidates at broad sweep level.
+- All persona reference wiring complete — react-frontend (6 refs), xrpl-typescript-fullstack (6 refs), platform-engineer (1 ref), typescript-devops (1 ref). Java personas have inline knowledge (no learnings files in Java cluster). python-specific.md has no persona (below 8-pattern threshold).
+- Deep dive candidates (recording for convergence check): skill-design.md (246 lines, compression), skill-platform-portability.md (220 lines, compression). Both previously flagged in Iter 1.
+- No compoundable meta-insights (clean sweep).
