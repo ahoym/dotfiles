@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md |
+| DEEP_DIVE_CANDIDATES | refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md |
 
 ## Pre-Flight
 
@@ -75,6 +75,7 @@ Suggested iterations: 15
 | 12 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: clean. 11 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical with recipes/code the persona can't replace. |
 | 13 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | playwright-patterns.md: 1 HIGH (§18 internal dup of §7 — identical workaround code, compound encoding already in §7's Note). 18→17 patterns, ~11 lines reduced. All other 17 patterns canonical. |
 | 14 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | ralph-loop.md: 1 HIGH (merge §8 "Compounded Learnings as Corpus Changes" into §12 "Convergence as Safety Net" — same concept, §12 more detailed). 32→31 patterns, ~4 lines reduced. All other 31 patterns canonical. |
+| 15 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | multi-agent-patterns.md: clean. 20 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical. |
 
 ## Deep Dive Status
 
@@ -87,7 +88,7 @@ Suggested iterations: 15
 | react-patterns.md | completed | 12 | Clean — 11 patterns, all canonical recipes. Persona covers conclusions; learning provides code examples and rationale. No duplicates, no compression/genericization/wiring opportunities. |
 | playwright-patterns.md | completed | 13 | 1 HIGH (delete §18 internal dup of §7). 18→17 patterns. ~11 lines reduced. |
 | ralph-loop.md | completed | 14 | 1 HIGH (merge §8 into §12 — internal dup on convergence/compounding). 32→31 patterns. ~4 lines reduced. |
-| multi-agent-patterns.md | pending | — | Fill slot: untracked, 154 lines |
+| multi-agent-patterns.md | completed | 15 | Clean — 20 patterns, all canonical. Key cross-refs: subagent-patterns.md (complementary), claude-code.md (complementary), guideline-authoring.md (complementary). No duplicates, no compression/genericization/wiring opportunities. |
 | refactoring-patterns.md | pending | — | Fill slot: untracked, 150 lines |
 | xrpl-patterns.md | pending | — | Fill slot: untracked, 170 lines |
 | bash-patterns.md | pending | — | Fill slot: untracked, 112 lines |
@@ -264,3 +265,21 @@ Suggested iterations: 15
 - No compound insights — the convergence/compounding overlap is a specific instance of internal duplication within a single file, not a novel pattern beyond existing "Broad Sweep Per-Pattern Blind Spot" observation
 - Tracker updated: ralph-loop.md last_deep_dive_run=3
 - Next candidate: multi-agent-patterns.md (fill slot, untracked, 154 lines)
+
+### Iter 15
+
+- Deep dive 6: multi-agent-patterns.md (fill slot, untracked, 154 lines)
+- 20 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas, 5 skill-references
+- All 20 patterns confirmed canonical — no duplicates, no stale content, no compression candidates, no genericization issues
+- Key cross-reference observations (no action needed):
+  - §1 (Synthesis in Separate Invocation) complementary to subagent-patterns.md "Write Output to Intermediate Files" — different angle (how vs why)
+  - §5 (Sandbox Workaround) builds on claude-code.md "Scoping Bash Permissions: Helper Scripts" — sandbox escape vs general permission scoping
+  - §9 (Verify Research Sources) complementary to subagent-patterns.md "Verify Output Before Acting" — method verification vs claim verification
+  - §10 (Three-Branch Gates) complementary to guideline-authoring.md "Hard Gates Need Tool-Call Triggers" and ralph-loop.md "Stacked Gate Diagnosis" — observability templates vs enforcement mechanism vs diagnosis
+  - §14+§16 (Context Compaction pair) complementary perspectives on same topic (agents survive vs orchestrator loses IDs at scale) — below merge threshold
+  - §4 (File Domain) vs §20 (Structural Shape) — different contexts (refactoring vs generation), not contradictory
+- Genericization: clean — no project-specific names, paths, or routes
+- Compression: 154 lines / 20 patterns = 7.7 lines/pattern avg — already terse, no section meets 30% threshold
+- Reference wiring: no persona covers meta/tooling domain — no wiring needed
+- Tracker updated: multi-agent-patterns.md last_deep_dive_run=3
+- Next candidate: refactoring-patterns.md (fill slot, untracked, 150 lines)

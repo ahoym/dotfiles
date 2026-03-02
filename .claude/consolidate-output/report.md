@@ -7,7 +7,7 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 14 |
+| Iterations | 15 |
 | Rounds | 3 (converged) |
 | Status | DEEP_DIVE |
 
@@ -47,6 +47,7 @@
 | 12 | 4 | DEEP_DIVE | (clean — all patterns canonical) | react-patterns.md | — | — |
 | 13 | 4 | DEEP_DIVE | Delete §18 internal duplicate (covered by §7) | playwright-patterns.md | playwright-patterns.md | HIGH |
 | 14 | 4 | DEEP_DIVE | Merge §8 into §12 (internal dup on convergence/compounding) | ralph-loop.md | ralph-loop.md | HIGH |
+| 15 | 4 | DEEP_DIVE | (clean — all patterns canonical) | multi-agent-patterns.md | — | — |
 
 ## Blocked Items
 
@@ -64,7 +65,7 @@ See `blockers.md` for details.
 | Skills | 29 | 29 |
 | Guidelines files | 6 | 3 |
 | Broad sweep rounds | — | 3 (converged at round 2, confirmed round 3) |
-| Deep dive candidates | — | 10 (5 completed, 5 remaining) |
+| Deep dive candidates | — | 10 (6 completed, 4 remaining) |
 | Persona files | 8 | 8 |
 | skill-design.md lines | 454 | ~223 |
 | nextjs.md lines | 108 | ~100 |
