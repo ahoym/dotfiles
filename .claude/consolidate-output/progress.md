@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md |
+| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 15
 | 11 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean. 16 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns unique canonical platform behavior. |
 | 12 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: clean. 11 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical with recipes/code the persona can't replace. |
 | 13 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | playwright-patterns.md: 1 HIGH (§18 internal dup of §7 — identical workaround code, compound encoding already in §7's Note). 18→17 patterns, ~11 lines reduced. All other 17 patterns canonical. |
+| 14 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | ralph-loop.md: 1 HIGH (merge §8 "Compounded Learnings as Corpus Changes" into §12 "Convergence as Safety Net" — same concept, §12 more detailed). 32→31 patterns, ~4 lines reduced. All other 31 patterns canonical. |
 
 ## Deep Dive Status
 
@@ -85,7 +86,7 @@ Suggested iterations: 15
 | claude-code.md | completed | 11 | Clean — 16 patterns, all unique canonical platform behavior. No duplicates, no compression/genericization/wiring opportunities. |
 | react-patterns.md | completed | 12 | Clean — 11 patterns, all canonical recipes. Persona covers conclusions; learning provides code examples and rationale. No duplicates, no compression/genericization/wiring opportunities. |
 | playwright-patterns.md | completed | 13 | 1 HIGH (delete §18 internal dup of §7). 18→17 patterns. ~11 lines reduced. |
-| ralph-loop.md | pending | — | Fill slot: untracked, ~150 lines |
+| ralph-loop.md | completed | 14 | 1 HIGH (merge §8 into §12 — internal dup on convergence/compounding). 32→31 patterns. ~4 lines reduced. |
 | multi-agent-patterns.md | pending | — | Fill slot: untracked, 154 lines |
 | refactoring-patterns.md | pending | — | Fill slot: untracked, 150 lines |
 | xrpl-patterns.md | pending | — | Fill slot: untracked, 170 lines |
@@ -244,3 +245,22 @@ Suggested iterations: 15
 - Tracker updated: playwright-patterns.md last_deep_dive_run=3
 - No compound insights — the internal duplicate pattern (selectOption workaround repeated with different heading) is already well-documented in the corpus
 - Next candidate: ralph-loop.md (fill slot, modified iter 10)
+
+### Iter 14
+
+- Deep dive 5: ralph-loop.md (fill slot, modified iter 10 — received 5 research patterns from skill-design.md)
+- 32 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas, 5 skill-references
+- HIGH: Merged §8 "Compounded Learnings as Corpus Changes" into §12 "Convergence as Safety Net for Compounding" — both describe the same concept (convergence mechanism catches compounding issues). §12 was more detailed (specifies "2 consecutive clean rounds", names the tradeoff "trades isolation for directness", mentions practical benefit and cost). Folded §8's unique content (worktree path detail: `.claude/learnings/`, guidelines, or skills) into §12, deleted §8 entirely.
+- 31 remaining patterns all confirmed canonical:
+  - §6 (Consolidation Loop Variant) summarizes key differences from research loop — complements but doesn't duplicate the consolidation spec itself
+  - §13 (Inline Compounding) complements claude-code.md § "Skill tool in worktrees" — same conclusion, different angle (autonomous loop rationale vs platform behavior)
+  - §14 (Personas as Execution-Mode Learnings Conduit) provides design rationale for context-aware-learnings.md guideline's implementation gate — not duplicated
+  - §17 (Worktree-Aware File Editing) complements claude-code.md § "Worktree Isolation Creates Permission Mismatches" — different consequences of same root cause
+  - §25 (Stacked Gate Diagnosis) complements guideline-authoring.md § "Hard Gates Need Tool-Call Triggers" and multi-agent-patterns.md § "Three-Branch Gate Announcements" — different angles on agent gate design
+  - §28-32 (research patterns from iter 10 move) integrate well — research methodology patterns in their correct domain file
+- Genericization: clean — no project-specific names
+- Compression: ~170 lines / 31 patterns = 5.5 lines/pattern avg — already terse, no section meets 30% threshold
+- Reference wiring: no persona covers meta/tooling domain — no wiring needed
+- No compound insights — the convergence/compounding overlap is a specific instance of internal duplication within a single file, not a novel pattern beyond existing "Broad Sweep Per-Pattern Blind Spot" observation
+- Tracker updated: ralph-loop.md last_deep_dive_run=3
+- Next candidate: multi-agent-patterns.md (fill slot, untracked, 154 lines)

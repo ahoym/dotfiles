@@ -47,10 +47,6 @@ The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous l
 
 Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. Also halves the minimum iteration count for clean corpora (6 vs 12 for 3 types × 2 confirmations).
 
-## Compounded Learnings as Corpus Changes
-
-When an autonomous agent compounds insights during curation, it writes directly into the worktree's `.claude/learnings/` (or guidelines/skills). These are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism. If a compounded insight creates issues (overlap, duplication), the loop catches it. The round-based convergence design provides the safety net that the old isolation boundary provided.
-
 ## Pre-Flight Cadence Analysis
 
 Count curation-related commits in recent git history to right-size iteration counts. Recent curation (3+ of last 5 commits) → suggest fewer iterations (corpus likely clean). Stale (0 of last 5) → suggest full sweep. Avoids wasting iterations on corpora that were just curated.
@@ -67,7 +63,7 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 ## Convergence as Safety Net for Compounding
 
-Compounded insights go directly into the sweep corpus rather than a staging file. The round-based convergence mechanism (2 consecutive clean rounds) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
+Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (2 consecutive clean rounds) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
 
 ## Inline Compounding Over Skill Invocation in Autonomous Loops
 
