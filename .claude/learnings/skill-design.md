@@ -328,23 +328,35 @@ Default to `command` hooks (shell scripts). Only escalate when shell logic can't
 
 See also: `~/.claude/learnings/claude-code-hooks.md` for PostToolUse limitations, stop hook looping, and other hooks mechanics.
 
-## `@` in SKILL.md Does NOT Auto-Load — Use Explicit Read Instructions
+## `@` References in SKILL.md Eagerly Load — Use Conditional References for Large Files
 
-`@` references in SKILL.md files are **hints**, not auto-load directives. Unlike CLAUDE.md (where `@path` injects file content into context), SKILL.md `@` references are not resolved by the framework — the content never appears in the loaded context.
+`@` references in SKILL.md eagerly load content into context when the skill is invoked, same as in CLAUDE.md. Every `@` reference adds to the skill's token cost on every invocation.
 
-**Recurring failure pattern (observed 3 times with `git:create-mr`):**
-1. Skill declares `@./mr-body-template.md` in Reference Files section
-2. Content is NOT injected into context (expected behavior, not a bug)
-3. Instructions say "using the template from @./mr-body-template.md" — LLM assumes it was loaded, skips reading it
+**When to use `@`**: Small, always-needed references (< 50 lines) used on every invocation.
 
-**Fix:** Use the conditional reference pattern for ALL SKILL.md reference files:
+**When to use conditional (backtick) references**: Larger files or files only needed in specific branches of the skill's logic:
 ```markdown
 ## Reference Files (conditional — read only when needed)
 - `template.md` — Read before step N. Located in the skill's base directory.
 ```
 Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
 
-This also corrects the earlier learning about `@./file.md` vs `@file.md` — neither auto-loads in SKILL.md, so the distinction is moot. Use backtick paths with explicit read instructions instead.
+**Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
+
+## Conditional vs Always-Loaded References
+
+When a reference file is only needed in certain scenarios, remove the `@` prefix and add a conditional read instruction. This saves context tokens when the file isn't relevant.
+
+```markdown
+# Always loaded (costs tokens every invocation)
+## Reference Files
+- @./reply-templates.md
+
+# Conditional (loaded only when needed)
+## Reference Files (conditional — read only when needed)
+- `reply-templates.md` — Read before composing replies (step 5)
+- `lgtm-verification.md` — Read only when LGTM comment detected
+```
 
 ## Discoverability via Trigger Phrases
 

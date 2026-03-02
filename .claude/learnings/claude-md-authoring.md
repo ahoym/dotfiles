@@ -20,7 +20,7 @@ Patterns for writing effective CLAUDE.md files that help AI agents navigate code
 @test/utils/CLAUDE.md - Test infrastructure and shared helpers
 ```
 
-**Key insight:** The `@` syntax is lightweight — it signals "this context exists and is loadable" without dumping the full content. This keeps root CLAUDE.md as a navigational hub rather than a monolithic knowledge dump.
+**Key insight:** `@` references eagerly load the referenced file's content into every conversation. This makes root CLAUDE.md a navigational hub, but each `@` reference has a real token cost. Use this pattern to organize context into focused subdirectory files — the agent pays only for the subset relevant to its task when entering a directory directly, rather than loading everything from a monolithic root file.
 
 ## Subdirectory CLAUDE.md Criteria
 
