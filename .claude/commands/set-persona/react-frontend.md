@@ -50,6 +50,7 @@
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 
 - `learnings/react-patterns.md` — React 19 patterns, hook extraction, component decomposition
+- `learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
 - `learnings/nextjs.md` — Next.js 16 proxy.ts, rate limiter wiring
 - `learnings/accessibility-patterns.md` — ARIA attribute patterns with code examples
 - `learnings/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
