@@ -269,8 +269,10 @@ A file is a deep dive candidate if it meets ANY of:
 1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, content-type-decisions.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
 2. **Polish Opportunity file**: Flagged in the broad sweep's per-file quality scan (genericization candidates, compression candidates). These were already identified but had no execution path in the broad sweep.
 3. **Curate skill criteria**: 5+ patterns AND an action signal (stale content, domain overlap, compression opportunity).
+4. **Modified guideline file**: Any `.claude/guidelines/*.md` file that received a HIGH or MEDIUM action during broad sweeps. Guidelines are always-loaded context (`@`-referenced in CLAUDE.md) — every token costs context budget in every session, so changes warrant per-pattern verification.
+5. **Modified skill file**: Any `.claude/commands/**/SKILL.md` file that received a HIGH or MEDIUM action during broad sweeps. Skills define repeatable agent workflows — changes warrant per-pattern verification to catch downstream breakage.
 
-Candidacy is determined during the final LEARNINGS broad sweep. The agent records candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+Candidacy is determined incrementally: learnings candidates during the final LEARNINGS broad sweep, guideline candidates during any GUIDELINES sweep that applies changes, skill candidates during any SKILLS sweep that applies changes. The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
 ### Per-File Execution
 
