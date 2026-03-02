@@ -104,30 +104,6 @@ Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnin
 
 **Symlink gotcha:** `~/.claude/` subdirectories are directory-level symlinks to the dotfiles repo. `Glob` doesn't reliably resolve paths through these symlinks — a file can exist but Glob reports "No files found." Always verify path existence with `Read` (which resolves symlinks correctly), not `Glob`.
 
-## Track Assumptions with Confidence Levels in Iterative Research
-
-When running multi-iteration research (ralph loops, deep dives), explicitly log assumptions with confidence ratings (High/Medium/Low) and a validation tracker table. This prevents later iterations from re-investigating settled questions or proceeding on shaky foundations. Format: assumption statement, confidence level, whether validated, and resolution. Cross-reference assumptions from the ID (A1, A2...) in other documents.
-
-## Absence of Documentation ≠ Absence of Feature
-
-When docs describe a feature only in the context of X (e.g., "auto-discovery works with `skills/`"), do NOT conclude that Y (e.g., `commands/`) lacks the feature. Silence is not exclusion. Require **explicit** evidence — a statement like "X does not support Y" — before claiming a capability difference. If the docs also contain a general equivalence statement (e.g., "both work the same way"), that should be the default position until contradicted.
-
-**When asserting "X can't do Y":** actively search for evidence that X *can* do Y before committing to the claim. This is the adversarial/red-team step that catches false negatives.
-
-## Broaden Primary Source Coverage in Research
-
-Don't rely on a single doc page. When researching a feature area, traverse **related** official pages (e.g., researching skills? also read plugins, settings, reference docs). Key findings often live on adjacent pages — e.g., the plugin structure table that confirmed `commands/` support was on the plugins page, not the skills page.
-
-## Validate Factual Claims About Runtime Behavior
-
-Research that asserts capability differences (e.g., "directory X supports feature Y but directory Z doesn't") should be validated empirically when possible, not just inferred from docs. If the research loop constraints prevent code execution, flag the claim as **low-confidence/unverified** and note that empirical testing is needed before acting on it.
-
-## "Validate" Means Run It
-
-When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the user says so.
-
-When creating docs that mirror code-defined data (enums, config, topology), run the source code to validate claims programmatically. Counting items, listing values, or computing derived facts via `poetry run python3 -c "..."` catches misclassifications that manual review misses.
-
 ## Verify Producer-Consumer Wiring Across Skills
 
 When a skill produces structured output intended for another workflow (e.g., curate skill's "Suggested Deep Dives" section), verify the consuming workflow actually reads it. A capability defined in a component skill but not wired into the orchestrating spec is a silent no-op — the output exists but nothing acts on it. Check this especially for skills that generate report sections, candidate lists, or action items meant to feed into autonomous loops.
@@ -162,18 +138,7 @@ See also: `~/.claude/learnings/claude-code-hooks.md` for PostToolUse limitations
 
 **When to use `@`**: Small, always-needed references (< 50 lines) used on every invocation.
 
-**When to use conditional (backtick) references**: Larger files or files only needed in specific branches of the skill's logic:
-```markdown
-## Reference Files (conditional — read only when needed)
-- `template.md` — Read before step N. Located in the skill's base directory.
-```
-Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
-
-**Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
-
-## Conditional vs Always-Loaded References
-
-When a reference file is only needed in certain scenarios, remove the `@` prefix and add a conditional read instruction. This saves context tokens when the file isn't relevant.
+**When to use conditional (backtick) references**: Larger files or files only needed in specific branches of the skill's logic. Remove the `@` prefix and add a conditional read instruction:
 
 ```markdown
 # Always loaded (costs tokens every invocation)
@@ -185,6 +150,10 @@ When a reference file is only needed in certain scenarios, remove the `@` prefix
 - `reply-templates.md` — Read before composing replies (step 5)
 - `lgtm-verification.md` — Read only when LGTM comment detected
 ```
+
+Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
+
+**Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
 
 ## Discoverability via Trigger Phrases
 

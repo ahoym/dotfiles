@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. No concept-name collisions, no genericization issues, all persona wiring intact. Opportunity scan: no merge/split/compression candidates. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. Iter 7 opportunity candidates don't affect skills. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. End of Round 3: ROUND_CLEAN=true, CLEAN_ROUND_STREAK=2 → CONVERGENCE. Deep dive phase begins with 10 candidates. |
+| 10 | 4 | DEEP_DIVE | 1 | 1 | 0 | 2 | skill-design.md: merge §20+21 (internal dup on conditional refs), move §13-17 research patterns → ralph-loop.md (wrong domain file). 25 patterns cross-referenced against full corpus. |
 
 ## Deep Dive Status
 
@@ -77,7 +78,7 @@ Suggested iterations: 15
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
-| skill-design.md | pending | — | Hub file (criteria 1): referenced by 2+ files as canonical source |
+| skill-design.md | completed | 10 | 1 HIGH (merge §20+21 dup), 1 MEDIUM (move §13-17 research patterns → ralph-loop.md). ~35 lines reduced. |
 | claude-code.md | pending | — | Hub file (criteria 1): referenced by 2+ files as canonical source |
 | react-patterns.md | pending | — | Fill slot: untracked, 228 lines |
 | playwright-patterns.md | pending | — | Fill slot: untracked, 236 lines |
@@ -180,3 +181,15 @@ Suggested iterations: 15
 - Fill slot priority: largest untracked learnings files for maximum per-pattern coverage
 - PHASE → DEEP_DIVE. Next invocation processes first candidate: skill-design.md
 - Deep dive execution: read target, parse H2/H3 patterns, cross-reference full corpus, classify per 6-bucket model, apply HIGH/MEDIUM/LOW
+
+### Iter 10
+
+- Deep dive 1: skill-design.md (hub file, criteria 1)
+- 25 H2 patterns parsed and cross-referenced against: 33 other learnings files, 3 guidelines, 8 personas, 5 skill-references, cross-repo-sync.md
+- HIGH: Merged §20 "@` References in SKILL.md Eagerly Load" + §21 "Conditional vs Always-Loaded References" — Section 21 duplicated Section 20's concept (eager vs conditional loading) with no additional unique insight. Kept Section 20 as base, folded Section 21's side-by-side code example in, removed Section 21 entirely
+- MEDIUM auto-applied: Moved 5 research methodology patterns (§13-17: Track Assumptions, Absence≠Feature, Broaden Sources, Validate Claims, Validate Means Run It) from skill-design.md to ralph-loop.md. Pattern 13 explicitly references "ralph loops, deep dives" — research methodology is ralph-loop.md's domain. skill-design.md is for skill design patterns
+- Compound: No high/medium utility insights. One low-utility observation: research patterns gravitate to discovery-provenance files rather than domain-appropriate files — variant of existing "Small Files Gravitate" pattern in ralph-loop.md. Not worth context budget
+- skill-design.md: ~258 → ~223 lines after edits (merge saved ~10, move removed ~25)
+- ralph-loop.md: ~150 → ~175 lines after receiving research patterns
+- Tracker updated: skill-design.md last_deep_dive_run=3, ralph-loop.md added at last_deep_dive_run=0 (modified)
+- Next candidate: claude-code.md (hub file, criteria 1)

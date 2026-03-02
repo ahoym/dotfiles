@@ -1,13 +1,14 @@
 {
-  "run_count": 2,
+  "run_count": 3,
   "threshold": 3,
   "min_deep_dives": 10,
   "files": {
-    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 2 },
+    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 3 },
     ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 },
     ".claude/learnings/nextjs.md": { "last_deep_dive_run": 2 },
     ".claude/learnings/web-session-sync.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/guideline-authoring.md": { "last_deep_dive_run": 0 },
-    ".claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 0 }
+    ".claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/ralph-loop.md": { "last_deep_dive_run": 0 }
   }
 }
