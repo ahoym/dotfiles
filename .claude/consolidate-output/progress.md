@@ -134,3 +134,9 @@ No new findings. If SKILLS and GUIDELINES are also clean, CLEAN_ROUND_STREAK wil
 Round 2 SKILLS sweep was clean. All 29 skills verified across 5 clusters (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7). No changes since Round 1 SKILLS sweep. All shared reference files properly centralized in `skill-references/`. Producer/consumer contracts validated (make→execute, explore-repo→brief, init→resume, curate→consolidate).
 
 If GUIDELINES is also clean, Round 2 will be fully clean → CLEAN_ROUND_STREAK increments to 1. Round 3 would then be the convergence check — if that round is also clean, CLEAN_ROUND_STREAK reaches 2 → WOOT_COMPLETE_WOOT.
+
+### Resume Decisions (human review)
+
+**[L-1] code-quality-instincts.md**: RESOLVED — keep as-is. Shared cross-persona reference, thin is correct for this role. No action needed.
+
+**[L-2] Cross-persona Next.js/React overlap**: RESOLVED — **extract shared gotchas**. Create a learning file (e.g., `nextjs-react-patterns.md`) with the shared Next.js 16 / React 19 gotchas (async component patterns, `use()` hook, metadata API changes). Remove the shared content from both `react-frontend.md` and `xrpl-typescript-fullstack.md`, keeping only persona-specific contextualizations. Add reference to the new learning in both personas' Detailed references sections. This is a MEDIUM auto-apply action (reversible, no content lost).

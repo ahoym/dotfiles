@@ -30,6 +30,8 @@ Items classified as LOW during autonomous consolidation. These need human judgme
 - **Why LOW**: File is thin (16 lines) which normally triggers fold consideration, but it serves as a shared cross-persona reference point. The content is correct and actively wired. Not enough signal to justify action — leave for human review.
 - **Curate command**: `/learnings:curate code-quality-instincts.md`
 
+**Status**: RESOLVED (keep as-is — shared cross-persona reference, thin is correct for this role)
+
 ## [L-2] Cross-persona gotcha overlap: react-frontend ↔ xrpl-typescript-fullstack
 
 - **Iter**: 2
@@ -41,3 +43,5 @@ Items classified as LOW during autonomous consolidation. These need human judgme
   - Extract shared Next.js 16 / React 19 gotchas into a learning file and reference from both — reduces duplication but adds indirection for always-loaded persona content.
 - **Why LOW**: The overlap is real but contextually justified. Each persona adds unique detail around the shared framework gotchas. Extracting would save ~15 lines per persona but add a conditional reference hop. Not enough signal to justify action autonomously — leave for human judgment on whether the duplication cost outweighs the context benefit.
 - **Curate command**: `/learnings:curate` (manual review of both persona files)
+
+**Status**: RESOLVED (extract shared Next.js 16 / React 19 gotchas into a learning file, reference from both personas)
