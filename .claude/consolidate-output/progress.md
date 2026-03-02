@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
-| ROUND_CLEAN | true |
+| CONTENT_TYPE | SKILLS |
+| ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 1 |
 
 ## Pre-Flight
@@ -25,9 +25,9 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
-- **MEDIUMs applied**: 3
+- **MEDIUMs applied**: 4
 - **MEDIUMs blocked**: 0
 - **LOWs recorded**: 1
 
@@ -66,6 +66,7 @@ Suggested iterations: 15
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files verified; Round 1 split + wirings stable; no duplicates, overlaps, or opportunities |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; shared references centralized; producer/consumer contracts valid |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 3; resume commit (L-2) did not affect guidelines |
+| 7 | 3 | LEARNINGS | 0 | 1 | 0 | L-2 extraction: expand nextjs.md, slim 2 personas, wire ref | Applied L-2 (cross-persona dedup): added Turbopack + dynamic params to nextjs.md, slimmed both persona gotcha sections to pointers, wired nextjs.md into xrpl-typescript-fullstack refs |
 
 ## Notes for Next Iteration
 
@@ -156,3 +157,21 @@ Key items for Round 3 LEARNINGS sweep:
 - Current learnings count observed: 33 files (report previously said 34 after sweep 1 split — verify whether resume changed the count).
 - All prior changes from Round 1 (skill-design split, 2 persona ref wirings) remain stable through Round 2.
 - No new compound insights were generated in Round 2 (all sweeps clean).
+
+### After Iter 7
+
+**Next: SKILLS sweep (Round 3, Sweep 8)**
+
+L-2 extraction applied this sweep (1 MEDIUM). ROUND_CLEAN is now false — convergence not possible this round. CLEAN_ROUND_STREAK stays at 1 (will reset to 0 at end of Round 3).
+
+Changes made:
+- `nextjs.md`: Added 3 new sections (Dynamic Route Params, Turbopack Gotchas with 3 subsections). File grew from 46 to ~70 lines.
+- `react-frontend.md`: Slimmed Next.js 16 gotchas from 4 bullet points to 1-line pointer. Updated Detailed references description for nextjs.md.
+- `xrpl-typescript-fullstack.md`: Slimmed Next.js 16 + Turbopack gotchas from 7 bullet points (2 sections) to 1-line pointer. Added nextjs.md to Detailed references.
+
+SKILLS sweep should verify:
+- No skills directly reference the persona Next.js/Turbopack sections (unlikely — skills reference learnings, not persona content)
+- The nextjs.md expansion didn't create overlap with any existing skill reference files
+- All 29 skills remain stable from prior sweeps
+
+No compound insights this sweep — the L-2 extraction was a pre-approved human decision, not a novel corpus pattern discovery.

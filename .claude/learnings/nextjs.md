@@ -25,6 +25,30 @@ export const config = {
 };
 ```
 
+## Dynamic Route Params Are Async
+
+In Next.js 16, dynamic route params are `Promise<{...}>` — they must be `await`ed. Forgetting `await` causes a runtime error (not always a type error).
+
+```typescript
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+}
+```
+
+## Turbopack Gotchas
+
+### JSX requires `.tsx` extension
+
+Turbopack rejects JSX in `.ts` files with a misleading parse error. Rename to `.tsx`.
+
+### React 19 Context shorthand not supported
+
+`<Context value={}>` shorthand fails under Turbopack with "Expected '>', got 'ident'" — use `<Context.Provider value={}>`.
+
+### Dev server may miss new API routes
+
+New API route files added while the dev server is running may not be detected — results in a Next.js 404 (HTML response instead of JSON). Fix by clearing `.next` and restarting.
+
 ## Rate Limiter Wiring Pattern via `proxy.ts`
 
 Pattern for wiring a token-bucket rate limiter through the Next.js 16 proxy:

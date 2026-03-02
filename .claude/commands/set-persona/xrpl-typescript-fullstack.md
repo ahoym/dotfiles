@@ -58,15 +58,8 @@ TypeScript-specific:
 - `RippleState` balance sign: positive = low account holds the IOU, negative = high account — common mistake is assuming positive means "your" side
 - Detecting fills from `account_tx`: (1) filter `OfferCreate` with `tesSUCCESS`, (2) parse `AffectedNodes` — `AccountRoot` mods for XRP (drops ÷ 1M), `RippleState` mods for tokens (positive balance = low account holds IOU), (3) compute per-account deltas for the wallet, (4) a fill = opposite signs on base/quote deltas, (5) filter fee-only: unfilled offers still modify AccountRoot by ~12 drops — threshold < 0.001 on both amounts, (6) positive base delta = buy, negative = sell
 
-### Next.js 16
-- `proxy.ts` replaces `middleware.ts` — exported function must be named `proxy()`, runs on Node runtime (not Edge)
-- Dynamic route params are `Promise<{...}>` — forgetting `await` causes a runtime error, not a type error in all cases
-- Rate limiter wiring: bucket key pattern `${ip}:${method}:${pathname}` keeps GET/POST limits independent per route
-
-### Turbopack
-- Files containing JSX must use `.tsx` extension — Turbopack rejects JSX in `.ts` files with a misleading parse error
-- React 19 `<Context value={}>` shorthand is not supported — must use `<Context.Provider value={}>` or build fails with "Expected '>', got 'ident'"
-- Dev server may not detect new API route files added while running — results in Next.js 404 (HTML, not JSON); fix by clearing `.next` and restarting
+### Next.js 16 / Turbopack
+- Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `learnings/nextjs.md`
 
 ### Vercel / Serverless
 - XRPL WebSocket client singleton persists within a serverless isolate but not across cold starts — don't assume persistent connections
@@ -80,6 +73,7 @@ TypeScript-specific:
 ## Detailed references
 
 Load when working in the specific area:
+- `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
 - `learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
 - `learnings/xrpl-dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes
