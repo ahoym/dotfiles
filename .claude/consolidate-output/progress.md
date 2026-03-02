@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -32,10 +32,11 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
+- **LOWs recorded**: 1
 
 ### GUIDELINES
 - **Sweeps**: 0
@@ -57,6 +58,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 3 | 1 | Split skill-design.md, wire 2 persona refs | Broad sweep — no duplicates found, 1 split, 2 ref wirings, 1 thin-file LOW |
+| 2 | 1 | SKILLS | 0 | 0 | 1 | none | Clean sweep — 29 skills evaluated across 5 clusters, all keep, 1 LOW (cross-persona overlap) |
 
 ## Notes for Next Iteration
 
@@ -78,3 +80,21 @@ From this sweep:
 - `skill-design.md` split into core (28 sections, ~250 lines) + `skill-platform-portability.md` (22 sections, ~220 lines) — SKILLS sweep should verify skill SKILL.md files reference the correct learning file
 - No concept-name collisions detected across 33 learnings files
 - Thin files: `aws-patterns.md` (14 lines), `vercel-deployment.md` (14 lines), `code-quality-instincts.md` (16 lines) — first two not flagged because they're domain-isolated; third recorded as LOW because it's a cross-persona reference target
+
+### After Iter 2
+
+**Next: GUIDELINES sweep (Round 1, Sweep 3)**
+
+Key methodology for GUIDELINES:
+- Read all 7 guideline files
+- Check: overlap/duplication between guidelines, consistency with learnings and skills
+- Check: actionability — are guidelines specific enough to change behavior?
+- Check: cross-references to learnings/skills are valid
+- Check: guideline scope — too broad (should split) or too narrow (should fold)?
+
+From SKILLS sweep:
+- 29 skills evaluated across 5 clusters (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7)
+- No stale path references found — all verifiable paths resolve
+- No duplicate/mergeable skills found — clear differentiation across all pairs
+- No skill-design.md or skill-platform-portability.md references in SKILL.md files (loaded via context-aware learnings system, not direct skill references)
+- 1 LOW: cross-persona gotcha overlap (react-frontend ↔ xrpl-typescript-fullstack on Next.js 16 / React 19)

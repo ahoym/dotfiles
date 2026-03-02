@@ -7,7 +7,7 @@
 | Started | 2026-03-01 |
 | Branch | consolidate/2026-03-01 |
 | Worktree | .claude/worktrees/consolidate-2026-03-01 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 1 (in progress) |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 0 | 3 | 0 | 2 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **0** | **3** | **0** | **2** |
+| **Total** | **2** | **0** | **3** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -40,8 +40,9 @@ See `blockers.md` for details.
 
 ## LOWs Deferred
 
-- Total: 1
+- Total: 2
 - [L-1] `code-quality-instincts.md` thin file — see `lows.md`
+- [L-2] Cross-persona gotcha overlap (react-frontend ↔ xrpl-typescript-fullstack) — see `lows.md`
 
 ## Collection Health
 
