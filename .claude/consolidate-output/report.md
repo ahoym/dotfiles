@@ -7,18 +7,18 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 3 |
-| Rounds | 1 |
+| Iterations | 4 |
+| Rounds | 2 |
 | Status | IN_PROGRESS |
 
 ## Summary
 
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
-| Learnings | 1 | 2 | 1 | 0 | 0 |
+| Learnings | 2 | 2 | 1 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 2 | 1 | 0 | 0 |
-| **Total** | **3** | **4** | **2** | **0** | **0** |
+| **Total** | **4** | **4** | **2** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -35,6 +35,7 @@
 | 3 | 1 | GUIDELINES | Fold novel content + delete mistyped guideline | web-session-pr-creation.md | web-session-sync.md | HIGH |
 | 3 | 1 | GUIDELINES | Move debugging heuristic to persona gotcha | troubleshooting.md | typescript-devops.md | MEDIUM |
 | 3 | 1 | GUIDELINES | Compound: unreferenced guideline pattern | guideline-authoring.md | guideline-authoring.md | — |
+| 4 | 2 | LEARNINGS | (clean sweep) | — | — | — |
 
 ## Blocked Items
 

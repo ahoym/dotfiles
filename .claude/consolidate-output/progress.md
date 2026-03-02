@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 2
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 2 | 1 | 0 | 3 | Dedup skill-design↔portability (~200 lines removed), merge nextjs.md dup sections, wire xrpl-permissioned-domains ref |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. |
 | 3 | 1 | GUIDELINES | 2 | 1 | 0 | 4 | Delete component-architecture.md (dup in react-patterns.md), fold+delete web-session-pr-creation.md (ref info → learning), move troubleshooting.md → ts-devops persona. Compound: unreferenced guideline pattern → guideline-authoring.md |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files across 8 clusters. Iter 3 additions (web-session-sync.md, guideline-authoring.md) integrate without overlap. Concept-name collision check clear. |
 
 ## Deep Dive Status
 
@@ -102,3 +103,12 @@ Suggested iterations: 15
 - Round 2 starts at LEARNINGS — will re-evaluate after guideline deletions and learnings modifications
 - Pure-deletion note: component-architecture.md and troubleshooting.md were pure deletes; web-session-pr-creation.md was fold+delete. The web-session-sync.md and guideline-authoring.md additions could create new overlap targets in next LEARNINGS sweep
 - Next content type: LEARNINGS (Round 2)
+
+### Iter 4
+
+- Clean LEARNINGS sweep — 34 files, 8 domain clusters, no findings
+- Clusters: XRPL (6 files, 566 lines), React/Frontend (6 files, 743 lines), Meta/Tooling (10 files, 1171 lines), Infra (3 files), Python (1 file), Testing (2 files), Misc (4 files), Thin (2 files <20 lines: code-quality-instincts.md, aws-patterns.md — both have active consumers, not fold candidates)
+- Iter 3 additions verified clean: web-session-sync.md branch naming convention unique, guideline-authoring.md unreferenced guidelines pattern unique
+- Concept-name collision check: "Testing Route Handlers" appears in both nextjs.md and testing-patterns.md but with complementary content (insight vs mock setup) — not duplicative
+- Deep dive candidates for future reference: skill-design.md (hub + modified iter 1), claude-code.md (hub), nextjs.md (modified iter 1), web-session-sync.md (modified iter 3), guideline-authoring.md (modified iter 3)
+- Next content type: SKILLS (Round 2)
