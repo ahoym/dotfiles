@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. |
 | 3 | 1 | GUIDELINES | 2 | 1 | 0 | 4 | Delete component-architecture.md (dup in react-patterns.md), fold+delete web-session-pr-creation.md (ref info → learning), move troubleshooting.md → ts-devops persona. Compound: unreferenced guideline pattern → guideline-authoring.md |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files across 8 clusters. Iter 3 additions (web-session-sync.md, guideline-authoring.md) integrate without overlap. Concept-name collision check clear. |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No broken refs from iter 3 guideline deletions. Model strings current. Persona extensions clean. |
 
 ## Deep Dive Status
 
@@ -112,3 +113,12 @@ Suggested iterations: 15
 - Concept-name collision check: "Testing Route Handlers" appears in both nextjs.md and testing-patterns.md but with complementary content (insight vs mock setup) — not duplicative
 - Deep dive candidates for future reference: skill-design.md (hub + modified iter 1), claude-code.md (hub), nextjs.md (modified iter 1), web-session-sync.md (modified iter 3), guideline-authoring.md (modified iter 3)
 - Next content type: SKILLS (Round 2)
+
+### Iter 5
+
+- Clean SKILLS sweep — 29 skills, 5 namespaces, 7 personas, 5 skill-references
+- Verified no skill referenced any of the 3 guidelines deleted in iter 3 (component-architecture, web-session-pr-creation, troubleshooting) — no broken references
+- New learnings from iter 3 (web-session-sync.md, guideline-authoring.md) are meta/tooling — no skills-relevant reference wiring needed
+- Model strings all current (Opus 4.6), cross-skill overlap <80% in all namespaces, producer/consumer contracts valid
+- Persona modifications from iter 3 (typescript-devops received troubleshooting gotcha) don't affect skill evaluation
+- Next content type: GUIDELINES (Round 2)
