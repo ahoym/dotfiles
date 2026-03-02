@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | ROUND | 3 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | skill-design.md, skill-platform-portability.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 10
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 2 | 0 | 0 | 0 | 0 | false |
 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | true |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | true |
 
 ## Iteration Log
 
@@ -68,6 +69,7 @@ Suggested iterations: 10
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged since R1 |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, unchanged since R2 |
 | 8 | 3 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R2 |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged. R3 clean → CONVERGED |
 
 ## Deep Dive Status
 
@@ -75,6 +77,8 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| skill-design.md | pending | — | 246 lines, 20+ patterns, compression candidate |
+| skill-platform-portability.md | pending | — | 220 lines, 17 patterns, compression candidate |
 
 ## Notes for Next Iteration
 
@@ -181,3 +185,16 @@ Suggested iterations: 10
 - Model version strings: current (Claude Opus 4.6 or generic).
 - Cross-persona LOW (react-frontend + xrpl-typescript-fullstack React/Next.js overlap): unchanged from iter 2.
 - No compoundable meta-insights (clean sweep).
+
+### Iter 9
+
+**Sweep notes (GUIDELINES, Round 3):**
+- 3 files re-read: communication.md (111 lines, 11 patterns), skill-invocation.md (7 lines, 1 pattern), context-aware-learnings.md (95 lines, 7 patterns).
+- No corpus changes since iter 6 (iters 7-8 were both clean).
+- All 3 @-referenced from CLAUDE.md. All behavioral. All universally needed.
+- Cross-reference against learnings/skills/personas: no content overlap.
+- No compoundable meta-insights (clean sweep).
+
+**Round 3 complete**: L=0H/0M, S=0H/0M, G=0H/0M. Clean. CLEAN_ROUND_STREAK=2. **BROAD SWEEP CONVERGED.**
+
+**Deep dive transition**: 2 candidates from iter 7 — skill-design.md (246 lines, compression), skill-platform-portability.md (220 lines, compression). Both meet Polish Opportunity + curate criteria (5+ patterns, compression action signal). PHASE set to DEEP_DIVE.
