@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
 ## Pre-Flight
@@ -39,10 +39,11 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
+- **LOWs recorded**: 0
 
 ## Round Summary
 
@@ -50,6 +51,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 0 | 3 | 0 | 0 | 0 | 0 | no |
 
 ## Iteration Log
 
@@ -59,6 +61,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 3 | 1 | Split skill-design.md, wire 2 persona refs | Broad sweep — no duplicates found, 1 split, 2 ref wirings, 1 thin-file LOW |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | none | Clean sweep — 29 skills evaluated across 5 clusters, all keep, 1 LOW (cross-persona overlap) |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no overlap/compression/wiring issues |
 
 ## Notes for Next Iteration
 
@@ -98,3 +101,18 @@ From SKILLS sweep:
 - No duplicate/mergeable skills found — clear differentiation across all pairs
 - No skill-design.md or skill-platform-portability.md references in SKILL.md files (loaded via context-aware learnings system, not direct skill references)
 - 1 LOW: cross-persona gotcha overlap (react-frontend ↔ xrpl-typescript-fullstack on Next.js 16 / React 19)
+
+### After Iter 3
+
+**End of Round 1** — ROUND_CLEAN=false (learnings sweep had 3 MEDIUMs). CLEAN_ROUND_STREAK stays 0. Starting Round 2.
+
+**Next: LEARNINGS sweep (Round 2, Sweep 4)**
+
+Round 1 summary: 3 MEDIUMs applied (all in LEARNINGS — 1 split, 2 ref wirings), 0 HIGHs, 2 LOWs deferred. SKILLS and GUIDELINES were clean. Round 2 should check whether the split `skill-design.md` / `skill-platform-portability.md` files are stable and whether the new reference wirings in personas are correct.
+
+From GUIDELINES sweep:
+- Only 3 guideline files (not 7 as pre-flight counted — pre-flight may have used a different scope)
+- All 3 @-referenced from CLAUDE.md: communication.md (111 lines), context-aware-learnings.md (95 lines), skill-invocation.md (8 lines)
+- No inter-guideline overlap, no overlap with learnings, no domain-specific content, no stale references
+- Compression checked: communication.md ~10% compressible, well below 30% MEDIUM threshold
+- `guideline-authoring.md` (learning) is meta content about writing guidelines — correctly placed as a learning, no overlap with guideline content
