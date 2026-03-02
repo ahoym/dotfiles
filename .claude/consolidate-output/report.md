@@ -7,8 +7,8 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 2 |
-| Rounds | 0 |
+| Iterations | 3 |
+| Rounds | 1 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 2 | 1 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **2** | **2** | **1** | **0** | **0** |
+| Guidelines | 1 | 2 | 1 | 0 | 0 |
+| **Total** | **3** | **4** | **2** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -31,6 +31,10 @@
 | 1 | 1 | LEARNINGS | Merge duplicate Dynamic Route Params sections | nextjs.md | nextjs.md | HIGH |
 | 1 | 1 | LEARNINGS | Wire xrpl-permissioned-domains.md reference | xrpl-permissioned-domains.md | xrpl-typescript-fullstack.md | MEDIUM |
 | 1 | 1 | LEARNINGS | Compound: persona wiring check for compound skill | skill-design.md | skill-design.md | — |
+| 3 | 1 | GUIDELINES | Delete duplicate guideline (core in react-patterns.md) | component-architecture.md | — | HIGH |
+| 3 | 1 | GUIDELINES | Fold novel content + delete mistyped guideline | web-session-pr-creation.md | web-session-sync.md | HIGH |
+| 3 | 1 | GUIDELINES | Move debugging heuristic to persona gotcha | troubleshooting.md | typescript-devops.md | MEDIUM |
+| 3 | 1 | GUIDELINES | Compound: unreferenced guideline pattern | guideline-authoring.md | guideline-authoring.md | — |
 
 ## Blocked Items
 
@@ -46,7 +50,7 @@ See `blockers.md` for details.
 |--------|--------|-------|
 | Learnings files | 34 | 34 |
 | Skills | 29 | 29 |
-| Guidelines files | 6 | — |
-| Persona files | 8 | — |
+| Guidelines files | 6 | 3 |
+| Persona files | 8 | 8 |
 | skill-design.md lines | 454 | ~260 |
 | nextjs.md lines | 108 | ~100 |

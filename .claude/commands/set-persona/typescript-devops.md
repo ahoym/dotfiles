@@ -24,6 +24,9 @@
 - Shared install job: use `actions/cache/save` in a dedicated `install` job, then `actions/cache/restore` in parallel downstream jobs — avoids N redundant `pnpm install` calls. Downstream jobs still need `pnpm/action-setup` + `actions/setup-node` for binaries but skip `cache: pnpm`
 - Playwright browser caching: cache `~/.cache/ms-playwright` keyed on `@playwright/test` version (~30-40s saved). On cache hit, run `playwright install-deps chromium` (system deps only); on miss, run `playwright install --with-deps chromium` (browsers + system deps)
 
+### TypeScript Build
+- When `tsc` fails on missing module imports, check `node_modules` freshness (`npm install` / `pnpm install`) before restructuring `tsconfig.json` — stale dependencies are a more common root cause than misconfigured includes
+
 ### Vercel / Serverless
 - Per-isolate state (in-memory Maps, singletons) doesn't persist across cold starts — meaningful first layer but not globally distributed
 - Missing lockfile commits cause deploy failures — `--frozen-lockfile` passes locally because `pnpm install` silently updates; check `git diff --stat pnpm-lock.yaml`
