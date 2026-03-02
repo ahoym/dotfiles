@@ -283,7 +283,13 @@ A file is a deep dive candidate if it meets ANY of:
 
 Candidacy is determined incrementally: learnings candidates during the final LEARNINGS broad sweep, guideline candidates during any GUIDELINES sweep that applies changes, skill candidates during any SKILLS sweep that applies changes, staleness candidates at convergence (check tracker). The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
-**Prioritization** (when candidates exceed the max guard): modification-triggered candidates first (criteria 1–5), then staleness candidates sorted by most overdue (`run_count - last_deep_dive_run`, descending). Unprocessed staleness candidates carry over to the next run — their staleness naturally increases.
+**Minimum deep dives per run**: Read `min_deep_dives` from the tracker (default 10). After collecting all criteria 1–6 candidates, if the count is below the minimum, fill remaining slots:
+1. **Untracked corpus files** (not in tracker at all) — glob the full corpus, diff against tracker keys. Priority 1.
+2. **Stalest tracked files** (highest `run_count - last_deep_dive_run`, even if below threshold) — Priority 2.
+
+This ensures idle capacity is used productively. With 70+ corpus files and a minimum of 10 per run, the full corpus cycles through deep dives in ~7 runs.
+
+**Prioritization** (when candidates exceed the max guard): modification-triggered candidates first (criteria 1–5), then staleness candidates sorted by most overdue (`run_count - last_deep_dive_run`, descending), then fill candidates in the order above. Unprocessed candidates carry over to the next run — their staleness naturally increases.
 
 ### Per-File Execution
 
@@ -312,13 +318,13 @@ After all candidates processed → completion (`WOOT_COMPLETE_WOOT`).
 
 ### Max Guard
 
-If deep dives exceed 5 invocations without completing all candidates, stop with `MAX_DEEP_DIVES_HIT`:
+If deep dives exceed 15 invocations without completing all candidates, stop with `MAX_DEEP_DIVES_HIT`:
 1. Write `MAX_DEEP_DIVES_HIT` as the first line of progress.md
 2. Update report.md status to `MAX_DEEP_DIVES_HIT`
-3. Add a blocker to blockers.md: "Deep dive phase hit 5-invocation limit — remaining candidates need manual curation"
+3. Add a blocker to blockers.md: "Deep dive phase hit 15-invocation limit — remaining candidates need manual curation"
 4. List remaining unprocessed candidates in the blocker
 
-Typical runs should have 2-4 candidates. The 5-invocation limit is a safety net.
+Typical runs should have 10–15 candidates (minimum floor + organic). The 15-invocation limit is a safety net.
 
 ## Sweep Methodology
 
