@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 2 | 1 | 0 | 3 | Dedup skill-design↔portability (~200 lines removed), merge nextjs.md dup sections, wire xrpl-permissioned-domains ref |
+| 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. |
 
 ## Deep Dive Status
 
@@ -78,3 +79,13 @@ Suggested iterations: 15
 - xrpl-typescript-fullstack persona now wires xrpl-permissioned-domains.md in Detailed references
 - Compound insight: `/learnings:compound` should check personas for reference wiring when creating new files
 - Next content type: SKILLS
+
+### Iter 2
+
+- Skills sweep clean across all 29 skills in 5 namespaces: git:*(9), learnings:*(4), ralph:*(7), parallel-plan:*(2), standalone(7)
+- All Co-Authored-By/Co-authored-with model references are current (Opus 4.6)
+- No cross-skill overlap exceeding 80% threshold within any namespace
+- Persona extension pattern (platform-engineer → java-devops, typescript-devops) well-structured — no content duplication between parent/child
+- All personas with relevant learnings files have Detailed references sections wired
+- Skill reference files (5) all have active consumers — no orphaned references
+- Next content type: GUIDELINES

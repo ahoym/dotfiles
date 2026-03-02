@@ -7,7 +7,7 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 0 |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 2 | 1 | 0 | 0 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **2** | **1** | **0** | **0** |
+| **Total** | **2** | **2** | **1** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -45,7 +45,7 @@ See `blockers.md` for details.
 | Metric | Before | After |
 |--------|--------|-------|
 | Learnings files | 34 | 34 |
-| Skills | 29 | — |
+| Skills | 29 | 29 |
 | Guidelines files | 6 | — |
 | Persona files | 8 | — |
 | skill-design.md lines | 454 | ~260 |
