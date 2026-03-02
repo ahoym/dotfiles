@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -67,6 +67,7 @@ Suggested iterations: 10
 | 5 | 2 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R1 |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged since R1 |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, unchanged since R2 |
+| 8 | 3 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R2 |
 
 ## Deep Dive Status
 
@@ -167,4 +168,16 @@ Suggested iterations: 10
 - All persona reference wiring confirmed stable: react-frontend (6 refs), xrpl-typescript-fullstack (6 refs), platform-engineer (1 ref), typescript-devops (1 ref).
 - Deep dive candidates confirmed: skill-design.md (246 lines, 20+ patterns, compression — Polish Opportunity + curate criteria), skill-platform-portability.md (220 lines, 17 patterns, compression — Polish Opportunity + curate criteria).
 - DEEP_DIVE_CANDIDATES: [skill-design.md, skill-platform-portability.md]
+- No compoundable meta-insights (clean sweep).
+
+### Iter 8
+
+**Sweep notes (SKILLS, Round 3):**
+- 29 skills, 7 personas, 5 skill-references re-read. Same counts as iter 5.
+- No corpus changes since last SKILLS sweep (iters 5-7 were all clean).
+- All 29 skills: Keep. No new overlap, staleness, or scope issues.
+- Shared skill-references: 5 files, all correctly wired (unchanged).
+- Producer/consumer pairs: all valid (unchanged).
+- Model version strings: current (Claude Opus 4.6 or generic).
+- Cross-persona LOW (react-frontend + xrpl-typescript-fullstack React/Next.js overlap): unchanged from iter 2.
 - No compoundable meta-insights (clean sweep).
