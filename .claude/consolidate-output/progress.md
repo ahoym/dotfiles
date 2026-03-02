@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md |
+| DEEP_DIVE_CANDIDATES | playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md |
 
 ## Pre-Flight
 
@@ -72,6 +72,7 @@ Suggested iterations: 15
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. End of Round 3: ROUND_CLEAN=true, CLEAN_ROUND_STREAK=2 → CONVERGENCE. Deep dive phase begins with 10 candidates. |
 | 10 | 4 | DEEP_DIVE | 1 | 1 | 0 | 2 | skill-design.md: merge §20+21 (internal dup on conditional refs), move §13-17 research patterns → ralph-loop.md (wrong domain file). 25 patterns cross-referenced against full corpus. |
 | 11 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean. 16 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns unique canonical platform behavior. |
+| 12 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: clean. 11 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical with recipes/code the persona can't replace. |
 
 ## Deep Dive Status
 
@@ -81,7 +82,7 @@ Suggested iterations: 15
 |------|--------|------|---------|
 | skill-design.md | completed | 10 | 1 HIGH (merge §20+21 dup), 1 MEDIUM (move §13-17 research patterns → ralph-loop.md). ~35 lines reduced. |
 | claude-code.md | completed | 11 | Clean — 16 patterns, all unique canonical platform behavior. No duplicates, no compression/genericization/wiring opportunities. |
-| react-patterns.md | pending | — | Fill slot: untracked, 228 lines |
+| react-patterns.md | completed | 12 | Clean — 11 patterns, all canonical recipes. Persona covers conclusions; learning provides code examples and rationale. No duplicates, no compression/genericization/wiring opportunities. |
 | playwright-patterns.md | pending | — | Fill slot: untracked, 236 lines |
 | ralph-loop.md | pending | — | Fill slot: untracked, ~150 lines |
 | multi-agent-patterns.md | pending | — | Fill slot: untracked, 154 lines |
@@ -208,3 +209,20 @@ Suggested iterations: 15
 - File is 136 lines, 16 patterns = 8.5 lines/pattern avg — good density, no compression opportunity
 - Tracker updated: claude-code.md last_deep_dive_run=3
 - Next candidate: react-patterns.md (fill slot, untracked, 228 lines)
+
+### Iter 12
+
+- Deep dive 3: react-patterns.md (fill slot, untracked, 228 lines)
+- 11 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas (react-frontend.md, xrpl-typescript-fullstack.md primary), 5 skill-references
+- All 11 patterns confirmed canonical — persona covers conclusions but learning provides the recipes, code examples, and "why" explanations that persona one-liners can't
+- Key cross-reference observations (no action needed):
+  - §1 (React 19 setState) well-covered in react-frontend.md persona lines 5-6, 12, 31-33 — persona has the rule, learning has the 3 code recipes
+  - §4 (Modal unmount timing) not in persona gotchas but unique React timing insight; playwright-patterns.md §15 covers the testing symptom, this covers the React cause
+  - §5+§6 (Modal execution ownership) describe same pattern from two angles — combined 8 lines, merge savings ~3 lines, below 30% threshold
+  - §9 (Audit before abstracting) React-specific instantiation of refactoring-patterns.md "Survey Before Acting" — complementary, not duplicative
+  - §10 (Polling + Page Visibility) not in reactive-data-patterns.md — unique pattern
+- Genericization: clean — no project-specific names, paths, or routes
+- Compression: 228 lines / 11 patterns = 21 lines/pattern avg, no section meets 30% threshold
+- Reference wiring: react-frontend.md and xrpl-typescript-fullstack.md both reference react-patterns.md in Detailed references
+- Tracker updated: react-patterns.md last_deep_dive_run=3
+- Next candidate: playwright-patterns.md (fill slot, untracked, 236 lines)
