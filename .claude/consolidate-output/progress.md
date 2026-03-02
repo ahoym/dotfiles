@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
-| ROUND | 4 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 12 |
+| ROUND | 5 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 
 ## Pre-Flight
 
@@ -39,7 +39,7 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### GUIDELINES
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | 1 | 0 | 3 | 0 | 0 | 0 | 0 | no |
 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
 | 3 | 0 | 1 | 0 | 0 | 0 | 0 | no |
+| 4 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
 
 ## Iteration Log
 
@@ -72,6 +73,7 @@ Suggested iterations: 15
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced; no impact from iter 7 persona changes; end of Round 3 |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files, 7 clusters verified; iter 7 L-2 extraction stable (nextjs.md, 2 persona slimmings, ref wirings all correct); no new overlaps or opportunities |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; no corpus changes since iter 8; model versions current; shared references centralized; producer/consumer contracts valid |
+| 12 | 4 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 9; end of Round 4 (clean, streak→1) |
 
 ## Notes for Next Iteration
 
@@ -229,3 +231,17 @@ Round 4 SKILLS sweep was clean. All 29 skills verified across 5 clusters (git:9,
 GUIDELINES sweep should confirm the 3 guideline files (communication.md, context-aware-learnings.md, skill-invocation.md) remain clean. No corpus changes have occurred that would affect guidelines since iter 9.
 
 This is the final sweep of Round 4. If clean, ROUND_CLEAN stays true → CLEAN_ROUND_STREAK increments to 1 at end of round. Round 5 would then be the convergence round.
+
+### After Iter 12
+
+**End of Round 4** — all 3 sweeps clean (LEARNINGS iter 10, SKILLS iter 11, GUIDELINES iter 12). ROUND_CLEAN=true. CLEAN_ROUND_STREAK increments from 0 to 1.
+
+**Next: LEARNINGS sweep (Round 5, Sweep 13)**
+
+Round 5 is the convergence round. If all 3 sweeps are clean, CLEAN_ROUND_STREAK reaches 2 → WOOT_COMPLETE_WOOT.
+
+Key items for Round 5 LEARNINGS sweep:
+- All 33 learnings files should be unchanged from iter 10's verification
+- No corpus changes have occurred since iter 7's L-2 extraction (which has been verified stable across 3 subsequent LEARNINGS sweeps: iters 4, 7, 10)
+- All persona reference wirings confirmed stable across rounds 2-4
+- Expect clean result — this is a confirmation sweep
