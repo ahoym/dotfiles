@@ -7,9 +7,9 @@
 | Started | 2026-03-01 |
 | Branch | consolidate/2026-03-01 |
 | Worktree | .claude/worktrees/consolidate-2026-03-01 |
-| Iterations | 14 |
-| Rounds | 4 complete, 5 in progress |
-| Status | IN_PROGRESS |
+| Iterations | 15 |
+| Rounds | 5 complete |
+| Status | COMPLETE |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 5 | 0 | 4 | 0 | 2 |
 | Skills | 5 | 0 | 0 | 0 | 0 |
-| Guidelines | 4 | 0 | 0 | 0 | 0 |
-| **Total** | **14** | **0** | **4** | **0** | **2** |
+| Guidelines | 5 | 0 | 0 | 0 | 0 |
+| **Total** | **15** | **0** | **4** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -33,6 +33,7 @@
 | 12 | 4 | GUIDELINES | (clean) | — | — | — |
 | 13 | 5 | LEARNINGS | (clean) | — | — | — |
 | 14 | 5 | SKILLS | (clean) | — | — | — |
+| 15 | 5 | GUIDELINES | (clean) | — | — | — |
 
 ## Blocked Items
 
@@ -52,7 +53,8 @@ See `blockers.md` for details.
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Learnings files | 33 | 33 (nextjs.md expanded, no new files) |
+| Learnings files | 33 | 33 (1 split iter 1, 1 expanded iter 7, net unchanged) |
 | Skills | 29 | 29 |
 | Guidelines files | 3 | 3 |
-| Persona files | 7 | 7 (2 edited: react-frontend, xrpl-typescript-fullstack — both slimmed + ref wired) |
+| Persona files | 7 | 7 (2 slimmed + ref wired: react-frontend, xrpl-typescript-fullstack) |
+| Skill references | 4 | 4 |
