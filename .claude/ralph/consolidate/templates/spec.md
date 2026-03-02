@@ -142,6 +142,8 @@ If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), persist met
 - Content types that drift toward staleness in specific areas
 - Structural patterns that predict future curation needs
 
+**The analysis behind your action is the insight.** When you split a file, the heuristic you used (e.g., "6+ independent subsections with distinct lookup keywords") is a compoundable pattern. When you wired a reference, the gap-detection method (e.g., "persona had no pointer to a directly relevant learning") is the pattern. Don't treat compounding as a separate discovery step — extract the decision criteria you already applied.
+
 **Skip if clean sweep** — nothing to learn from "no findings."
 
 #### Compound methodology
@@ -149,6 +151,11 @@ If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), persist met
 Follow the `/learnings:compound` skill's methodology inline — no Skill tool invocation needed.
 
 1. **Identify insights** from the sweep just completed. List each with a brief description.
+
+   Examples from a LEARNINGS sweep that split a file and wired references:
+   - "Large learning files (400+ lines) with 6+ independent subsections and distinct keyword domains benefit from splits — file size alone is a weak signal, subsection independence is the indicator"
+   - "Persona reference gaps are systematic — learnings exist but personas don't point to them. A reference audit checklist could catch these earlier"
+   - "Thin files (< 20 lines) that serve as shared cross-persona references are correctly sized — thinness is only a merge signal when the file has a single consumer"
 
 2. **Categorize** each using the decision tree from `content-type-decisions.md` (loaded in first invocation):
    - Command with clear, repeatable steps? → **Skill**

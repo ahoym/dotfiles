@@ -32,11 +32,8 @@
 - `suppressHydrationWarning` suppresses the warning but the user still sees a flash of the wrong value — gate rendering on hydration state instead
 - Data-fetching effects: move synchronous `setLoading(true)` to render-time via prev-key pattern; only async callbacks belong in the effect body
 
-### Next.js 16
-- `middleware.ts` → `proxy.ts`: exported function must be named `proxy()`, runs on Node runtime (not Edge)
-- Dynamic route params are `Promise<{...}>` — must `await` them
-- Turbopack rejects JSX in `.ts` files — must use `.tsx` extension
-- React 19 `<Context value={}>` shorthand not supported under Turbopack — use `<Context.Provider value={}>`
+### Next.js 16 / Turbopack
+- Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements) — see `learnings/nextjs.md`
 
 ### Playwright
 - `getByRole` matches accessible name (`aria-label`) over visible text — if aria-label differs from button text, `getByRole` uses the label
@@ -50,7 +47,8 @@
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 
 - `learnings/react-patterns.md` — React 19 patterns, hook extraction, component decomposition
-- `learnings/nextjs.md` — Next.js 16 proxy.ts, rate limiter wiring
+- `learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
+- `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `learnings/accessibility-patterns.md` — ARIA attribute patterns with code examples
 - `learnings/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
 - `learnings/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions
