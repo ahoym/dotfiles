@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
-| ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
-| CLEAN_ROUND_STREAK | 1 |
+| SWEEP_COUNT | 9 |
+| ROUND | 4 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
+| CLEAN_ROUND_STREAK | 0 |
 
 ## Pre-Flight
 
@@ -39,7 +39,7 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 15
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 3 | 0 | 0 | 0 | 0 | no |
 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
+| 3 | 0 | 1 | 0 | 0 | 0 | 0 | no |
 
 ## Iteration Log
 
@@ -68,6 +69,7 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 3; resume commit (L-2) did not affect guidelines |
 | 7 | 3 | LEARNINGS | 0 | 1 | 0 | L-2 extraction: expand nextjs.md, slim 2 personas, wire ref | Applied L-2 (cross-persona dedup): added Turbopack + dynamic params to nextjs.md, slimmed both persona gotcha sections to pointers, wired nextjs.md into xrpl-typescript-fullstack refs |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; model versions current; nextjs.md expansion no overlap with skill refs |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced; no impact from iter 7 persona changes; end of Round 3 |
 
 ## Notes for Next Iteration
 
@@ -189,3 +191,19 @@ GUIDELINES sweep should verify:
 - All @-references from CLAUDE.md still valid
 
 This is the final sweep of Round 3. Since ROUND_CLEAN is already false (iter 7 had 1 MEDIUM), CLEAN_ROUND_STREAK will reset to 0 at end of Round 3. Round 4 will be needed to check convergence.
+
+### After Iter 9
+
+**End of Round 3** — ROUND_CLEAN=false (iter 7 had 1 MEDIUM). CLEAN_ROUND_STREAK resets from 1 to 0. Starting Round 4.
+
+**Next: LEARNINGS sweep (Round 4, Sweep 10)**
+
+Round 3 summary: 1 MEDIUM applied (L-2 extraction in LEARNINGS iter 7), SKILLS and GUIDELINES clean. The only change was the pre-approved L-2 extraction (nextjs.md expansion, 2 persona slimmings). No new findings in SKILLS or GUIDELINES.
+
+Round 4 is the new convergence check. If all 3 sweeps are clean, CLEAN_ROUND_STREAK reaches 1. Then Round 5 would need to also be clean for convergence (streak=2).
+
+Key items for Round 4 LEARNINGS sweep:
+- Verify nextjs.md expansion from iter 7 is stable (grew from 46 to ~70 lines with Dynamic Route Params + Turbopack Gotchas)
+- Verify persona slimmings are stable (react-frontend.md and xrpl-typescript-fullstack.md both have pointer-only Next.js sections)
+- Check that no new duplicates/overlaps were introduced by the L-2 extraction
+- All other learnings should be unchanged from iter 7's verification (33 files total)
