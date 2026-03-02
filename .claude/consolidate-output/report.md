@@ -7,7 +7,7 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 10 |
+| Iterations | 11 |
 | Rounds | 3 (converged) |
 | Status | DEEP_DIVE |
 
@@ -43,6 +43,7 @@
 | 9 | 3 | GUIDELINES | (clean sweep — CONVERGENCE) | — | — | — |
 | 10 | 4 | DEEP_DIVE | Merge §20+21 internal duplicate (conditional refs) | skill-design.md | skill-design.md | HIGH |
 | 10 | 4 | DEEP_DIVE | Move 5 research methodology patterns to domain file | skill-design.md §13-17 | ralph-loop.md | MEDIUM |
+| 11 | 4 | DEEP_DIVE | (clean — all patterns unique) | claude-code.md | — | — |
 
 ## Blocked Items
 
@@ -60,7 +61,7 @@ See `blockers.md` for details.
 | Skills | 29 | 29 |
 | Guidelines files | 6 | 3 |
 | Broad sweep rounds | — | 3 (converged at round 2, confirmed round 3) |
-| Deep dive candidates | — | 10 (1 completed, 9 remaining) |
+| Deep dive candidates | — | 10 (2 completed, 8 remaining) |
 | Persona files | 8 | 8 |
 | skill-design.md lines | 454 | ~223 |
 | nextjs.md lines | 108 | ~100 |

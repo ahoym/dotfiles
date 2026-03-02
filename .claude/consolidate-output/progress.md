@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md |
+| DEEP_DIVE_CANDIDATES | react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md |
 
 ## Pre-Flight
 
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. Iter 7 opportunity candidates don't affect skills. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. End of Round 3: ROUND_CLEAN=true, CLEAN_ROUND_STREAK=2 → CONVERGENCE. Deep dive phase begins with 10 candidates. |
 | 10 | 4 | DEEP_DIVE | 1 | 1 | 0 | 2 | skill-design.md: merge §20+21 (internal dup on conditional refs), move §13-17 research patterns → ralph-loop.md (wrong domain file). 25 patterns cross-referenced against full corpus. |
+| 11 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean. 16 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns unique canonical platform behavior. |
 
 ## Deep Dive Status
 
@@ -79,7 +80,7 @@ Suggested iterations: 15
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | skill-design.md | completed | 10 | 1 HIGH (merge §20+21 dup), 1 MEDIUM (move §13-17 research patterns → ralph-loop.md). ~35 lines reduced. |
-| claude-code.md | pending | — | Hub file (criteria 1): referenced by 2+ files as canonical source |
+| claude-code.md | completed | 11 | Clean — 16 patterns, all unique canonical platform behavior. No duplicates, no compression/genericization/wiring opportunities. |
 | react-patterns.md | pending | — | Fill slot: untracked, 228 lines |
 | playwright-patterns.md | pending | — | Fill slot: untracked, 236 lines |
 | ralph-loop.md | pending | — | Fill slot: untracked, ~150 lines |
@@ -193,3 +194,17 @@ Suggested iterations: 15
 - ralph-loop.md: ~150 → ~175 lines after receiving research patterns
 - Tracker updated: skill-design.md last_deep_dive_run=3, ralph-loop.md added at last_deep_dive_run=0 (modified)
 - Next candidate: claude-code.md (hub file, criteria 1)
+
+### Iter 11
+
+- Deep dive 2: claude-code.md (hub file, criteria 1)
+- 16 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas, 5 skill-references
+- All 16 patterns confirmed unique canonical platform behavior — no duplicates, no stale content, no compression candidates
+- Key cross-reference observations (no action needed):
+  - §4 (Permission Rules) correctly cited as canonical by skill-design.md § "Skills Should Self-Document Permission Needs"
+  - §7 (Worktree Permission Mismatches) complements ralph-loop.md § "Worktree-Aware File Editing" and skill-design.md § "Skill tool in worktrees" — each describes a different consequence of worktree path divergence
+  - §9 (Helper Scripts) shares pattern with multi-agent-patterns.md § "Sandbox Workaround" — same technique, different entry points (permission scoping vs sandbox escape)
+  - §16 (~/.claude Symlink Structure) is the structural doc; skill-design.md § "Stale Path References" derives Glob gotcha from it
+- File is 136 lines, 16 patterns = 8.5 lines/pattern avg — good density, no compression opportunity
+- Tracker updated: claude-code.md last_deep_dive_run=3
+- Next candidate: react-patterns.md (fill slot, untracked, 228 lines)
