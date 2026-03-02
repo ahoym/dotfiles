@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md |
+| DEEP_DIVE_CANDIDATES | bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md |
 
 ## Pre-Flight
 
@@ -77,6 +77,7 @@ Suggested iterations: 15
 | 14 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | ralph-loop.md: 1 HIGH (merge §8 "Compounded Learnings as Corpus Changes" into §12 "Convergence as Safety Net" — same concept, §12 more detailed). 32→31 patterns, ~4 lines reduced. All other 31 patterns canonical. |
 | 15 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | multi-agent-patterns.md: clean. 20 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical. |
 | 16 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | refactoring-patterns.md: 1 HIGH (delete §11 "Build Test Infrastructure First" — cross-file dup of testing-patterns.md §8 "Shared Test Helpers Design"). 13→12 patterns, ~11 lines reduced. All other 12 patterns canonical. |
+| 17 | 4 | DEEP_DIVE | 1 | 2 | 0 | 3 | xrpl-patterns.md: 1 HIGH (merge §16 into §1 — internal dup on getOrderbook domain param), 2 MEDIUMs (genericize §4 project names, de-enrich persona fill detection recipe). 17→16 patterns. Also slimmed xrpl-typescript-fullstack.md line 55. |
 
 ## Deep Dive Status
 
@@ -91,7 +92,7 @@ Suggested iterations: 15
 | ralph-loop.md | completed | 14 | 1 HIGH (merge §8 into §12 — internal dup on convergence/compounding). 32→31 patterns. ~4 lines reduced. |
 | multi-agent-patterns.md | completed | 15 | Clean — 20 patterns, all canonical. Key cross-refs: subagent-patterns.md (complementary), claude-code.md (complementary), guideline-authoring.md (complementary). No duplicates, no compression/genericization/wiring opportunities. |
 | refactoring-patterns.md | completed | 16 | 1 HIGH (delete §11 cross-file dup of testing-patterns.md §8). 13→12 patterns, ~11 lines reduced. |
-| xrpl-patterns.md | pending | — | Fill slot: untracked, 170 lines |
+| xrpl-patterns.md | completed | 17 | 1 HIGH (merge §16 into §1 — getOrderbook dup), 2 MEDIUMs (genericize §4 project names, de-enrich persona fill detection). 17→16 patterns. |
 | bash-patterns.md | pending | — | Fill slot: untracked, 112 lines |
 | testing-patterns.md | pending | — | Fill slot: untracked, 142 lines |
 
@@ -302,3 +303,24 @@ Suggested iterations: 15
 - Tracker updated: refactoring-patterns.md last_deep_dive_run=3
 - No compound insights — the cross-file duplicate pattern (test infrastructure listed in both refactoring and testing files) is a specific instance of the general "content migrates to domain-appropriate files" pattern already documented in ralph-loop.md
 - Next candidate: xrpl-patterns.md (fill slot, untracked, 170 lines)
+
+### Iter 17
+
+- Deep dive 8: xrpl-patterns.md (fill slot, untracked, 170 lines)
+- 17 H2 patterns parsed and cross-referenced against: 33 other learnings (including 5 XRPL-domain: xrpl-amm.md, xrpl-dex-data.md, xrpl-permissioned-domains.md, order-book-pricing.md, bignumber-financial-arithmetic.md), 3 guidelines, 8 personas (xrpl-typescript-fullstack.md primary), 5 skill-references
+- HIGH: Merged §16 "getOrderbook() Doesn't Support All Parameters" into §1 "getOrderbook() vs raw book_offers". §1 already says "prefer getOrderbook unless you need params it doesn't support (e.g., domain)." §16 repeated this, then added unique detail about raw requests needing two calls and manual normalization. Folded unique detail into §1, deleted §16. 17→16 patterns.
+- MEDIUM auto-applied (genericization): Removed project-specific provenance line from §4 ("Pattern used in both xrpl-dex-portal and xrpl-issued-currencies-manager"). Pure provenance, no insight lost.
+- MEDIUM auto-applied (de-enrichment): xrpl-typescript-fullstack.md line 55 inlined the complete 6-step fill detection algorithm (~62 words) already canonical in learning §8. Slimmed to lean gotcha pointer. Persona's Detailed references already links xrpl-patterns.md. No content lost.
+- 15 remaining patterns all confirmed canonical:
+  - §6 (Funded Offer Fields) has detailed C++ source evidence (NetworkOPs.cpp) that persona one-liners can't replace
+  - §7 (RippleState Balance Sign) provides delta interpretation detail beyond persona's one-liner
+  - §8 (Detecting Filled Orders) is the canonical 6-step recipe now referenced by the slimmed persona
+  - §9 (Vercel Serverless + XRPL WS) adds IP-based connection limits and mitigation beyond persona's general serverless principle
+  - §10 (Crossing Offers) is unique testing methodology with no cross-reference in any other file
+  - §11 (xrpl.js Type Gaps) and §15 (TransactionMetadata Double Cast) cover different xrpl.js type system limitations
+  - §17 (Credential Type Encoding != Currency Encoding) is unique comparison table not in xrpl-permissioned-domains.md
+- Genericization: clean after §4 fix — no other project-specific names
+- Compression: ~165 lines / 16 patterns = 10.3 lines/pattern avg, no section meets 30% threshold
+- Reference wiring: xrpl-typescript-fullstack.md line 74 references xrpl-patterns.md — confirmed accurate
+- Tracker updated: xrpl-patterns.md last_deep_dive_run=3, xrpl-typescript-fullstack.md added at last_deep_dive_run=0 (modified)
+- Next candidate: bash-patterns.md (fill slot, untracked, 112 lines)
