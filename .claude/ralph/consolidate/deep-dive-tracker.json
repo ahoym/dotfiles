@@ -1,9 +1,10 @@
 {
-  "run_count": 1,
+  "run_count": 2,
   "threshold": 3,
   "min_deep_dives": 10,
   "files": {
-    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 1 },
-    ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 }
+    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 2 },
+    ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 },
+    ".claude/learnings/nextjs.md": { "last_deep_dive_run": 2 }
   }
 }

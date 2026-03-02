@@ -74,5 +74,6 @@ Load when working in the specific area:
 - `learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
 - `learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
 - `learnings/xrpl-dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes
+- `learnings/xrpl-permissioned-domains.md` — XLS-70/80/81 permissioned domains, credentials, permissioned DEX
 - `learnings/bignumber-financial-arithmetic.md` — BigNumber.js rules for financial arithmetic, comparison traps, display rounding
 - `learnings/order-book-pricing.md` — Mid-price approaches, slippage estimation, midprice module design

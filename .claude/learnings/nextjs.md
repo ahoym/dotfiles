@@ -27,11 +27,22 @@ export const config = {
 
 ## Dynamic Route Params Are Async
 
-In Next.js 16, dynamic route params are `Promise<{...}>` — they must be `await`ed. Forgetting `await` causes a runtime error (not always a type error).
+In Next.js 16, dynamic route params are `Promise<{...}>` — they must be `await`ed. Breaking change from earlier App Router versions where params were synchronous objects. Forgetting `await` causes a runtime error (not always a type error).
 
+Page component:
 ```typescript
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+}
+```
+
+Route handler:
+```ts
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ address: string }> },
+) {
+  const { address } = await params;
 }
 ```
 
@@ -67,21 +78,6 @@ function getTier(pathname: string, method: string) {
   return RELAXED;
 }
 ```
-
-## Next.js 16: Dynamic Route Params are Promises
-
-In Next.js 16 (App Router), dynamic route handler params are `Promise<{...}>` — they must be awaited before accessing values:
-
-```ts
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ address: string }> },
-) {
-  const { address } = await params;
-}
-```
-
-Breaking change from earlier App Router versions where params were synchronous objects.
 
 ## Testing Route Handlers Directly (No Server Required)
 
