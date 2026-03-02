@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,6 +51,7 @@ Suggested iterations: 10
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 0 | 2 | 0 | 0 | 0 | 0 | false |
 
 ## Iteration Log
 
@@ -60,6 +61,7 @@ Suggested iterations: 10
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: platform-engineer + typescript-devops |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, 1 LOW (cross-persona dedup) |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, all @-referenced |
 
 ## Deep Dive Status
 
@@ -101,3 +103,16 @@ Suggested iterations: 10
 - Cross-persona check: react-frontend + xrpl-typescript-fullstack share ~15 lines of React/Next.js gotchas (setState/useEffect, localStorage hydration, Next.js 16 mentions). Could resolve via extension. Classified LOW — structural change risk, multiple valid approaches.
 - No reference wiring opportunities (skills don't contain inline knowledge that should point to learnings).
 - No compoundable meta-insights (clean sweep).
+
+### Iter 3
+
+**Sweep notes (GUIDELINES):**
+- 3 files, all @-referenced from CLAUDE.md (always-on). 19 discrete patterns total.
+- communication.md (111 lines, 11 patterns): well-structured behavioral guideline. Each section makes a distinct actionable point. High insight-per-token ratio. No compression targets.
+- skill-invocation.md (7 lines, 1 pattern): minimal, focused. No issues.
+- context-aware-learnings.md (95 lines, 7 patterns): protocol specification. Templates in Observability section justify their length.
+- Cross-references clean: no concept-name collisions, no content duplicated in learnings/skills/personas, no dead weight (all @-referenced), all behavioral (correct type), none domain-specific.
+- CLAUDE.md inline sections (Bash Tool, Glob/Grep, Repo Context, Sync) observable from system prompt — short, universally needed. Outside `.claude/` write scope, no action possible.
+- No compoundable meta-insights (clean sweep).
+
+**Round 1 complete**: L=0H/2M, S=0H/0M, G=0H/0M. Not clean. CLEAN_ROUND_STREAK=0. Advancing to Round 2.
