@@ -97,6 +97,10 @@ The outer loop (wiggum.sh) should read agent state before and after each invocat
 
 When editing files from a worktree context, use the worktree's absolute path (e.g., `.claude/worktrees/consolidate-2026-02-28/.claude/learnings/foo.md`), not the main repo path that `~/.claude/` symlinks resolve to. Both are valid filesystem paths on disk, but they target different git branches. Editing via `~/.claude/learnings/foo.md` modifies main's copy; editing via the worktree path modifies the branch's copy. The Edit/Write tools won't warn you — the file exists at both paths.
 
+## Worktree Commit-to-Main Workflow
+
+When working in a worktree and the user wants changes on main, apply directly to the main repo (`git -C <main-repo-path>`) rather than commit-on-branch then cherry-pick. Cherry-picking requires stashing main's uncommitted changes first, and stash-pop conflicts are likely when main has dirty state on the same files. Direct application avoids the stash/cherry-pick/conflict-resolution chain entirely.
+
 ## Diagnosing Iteration Count Divergence
 
 When outer-loop iteration count diverges from agent sweep count (e.g., 8 log files but agent reports 9 sweeps), check log *contents* against log *filenames*. The root cause is likely the agent doing multiple actions per invocation — not a missing log file or race condition. In the observed case, `iteration_2.log` contained "Iteration 3 complete" — the agent did sweeps 2+3 in wiggum's iteration 2.
@@ -113,3 +117,33 @@ Both need explicit methodology in the spec. Defect mode has clear confidence lev
 ## Brief as Pre-PR Workflow
 
 `/ralph:brief` naturally surfaces cleanup work before creating a PR for a research branch. Loading all core files into context reveals: superseded v1 directories to compare and clean up, unique content to port between versions, open questions to document in the PR. Use brief → compare → port → PR as a natural completion sequence.
+
+## Sentinel Value False Positives in Signal Detection
+
+`grep -q` matches a sentinel value (e.g., `WOOT_COMPLETE_WOOT`) anywhere in the file — including prose mentions in Notes for Next Iteration. Agents naturally write sentinels speculatively ("if clean, streak reaches 2 → WOOT_COMPLETE_WOOT"), triggering premature loop exit.
+
+**Fix**: Use `grep -qx` (exact line match) instead of `grep -q`. This matches only when the sentinel is the entire content of a line, rejecting it when embedded in prose. Same applies to `MAX_ROUNDS_HIT` or any signal checked by the outer loop.
+
+**Root cause is predictable**: stateless agents have no memory that their prose will be `grep`'d by the runner. Any sentinel value used as a signal by the outer loop will eventually appear in agent notes.
+
+## Spec-Runner Signal Coherence
+
+When adding stop signals to a spec (e.g., `MAX_DEEP_DIVES_HIT`), verify the runner script checks for all signals. The spec defines agent behavior (write signal, stop sweeping); the runner defines loop termination (grep for signal, exit). If the runner only checks the original signal (`WOOT_COMPLETE_WOOT`), new signals cause the agent to stop but the runner to keep launching iterations until the stalled detector kicks in.
+
+## Resume Decision vs Action Ambiguity
+
+The consolidation agent misinterpreted a resume commit (which recorded human decisions in progress.md notes) as having already applied the L-2 extraction. This caused it to verify stability of changes that never happened, then report "clean."
+
+**Fix**: Notes for resume decisions must clearly distinguish state. Use explicit phrasing like "decision recorded, action pending — apply during next LEARNINGS sweep" rather than just stating the resolution. The agent reads Notes literally and will treat "RESOLVED — extract shared gotchas" as "already extracted."
+
+## Stacked Gate Diagnosis for Autonomous Agent Output
+
+When an autonomous agent fails to produce expected output despite qualifying conditions, diagnose which gate blocked: structural (spec rules) vs behavioral (agent judgment/prompting). Example: compounding produced zero insights even on action sweeps — the spec gate (only after HIGHs/MEDIUMs) was correct, but the agent's judgment gate (novelty threshold for what counts as an insight) was too high. Fix was prompting within the gate, not changing the gate itself.
+
+## Broad Sweep Per-Pattern Blind Spot
+
+Cluster-level analysis can't catch per-pattern duplicates when: (a) headings use different wording for the same concept (no collision), (b) the duplicate lives in a different cluster's file, and (c) the source file is medium-sized (not thin enough to fold, not large enough to auto-flag). This is the gap that per-file content-mode curation (deep dives) fills — it cross-references each pattern against the full corpus, catching duplicates that cluster-level thematic matching misses.
+
+## Failure Diagnostics in Outer Loops
+
+When an outer-loop iteration produces a 0 sweep-count delta, the log should capture the agent's stdout, not just the post-hoc validation warning. Without this, post-run analysis identifies *that* failures occurred (via log timestamps and delta checks) but not *why*. Current `wiggum.sh` logs only the warning line — the agent's actual output is lost.

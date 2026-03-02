@@ -35,3 +35,50 @@ Return an error response listing missing fields, or `null` if all present. Keep 
 When building a shared API client utility, first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
 **Normalization strategy:** Start client-side only — build a typed fetch wrapper returning a discriminated union (`{ ok, data } | { ok, error }`). Zero server changes. Server-side envelope wrapping can come later as a separate refactor.
+
+## Validator Return Types: T | Response over Discriminated Unions
+
+For functions that either succeed with a value or fail with an HTTP Response, return `T | Response` directly instead of wrapping in a discriminated union like `{ value: T } | { error: Response }`.
+
+```ts
+// Before (3 lines per call site):
+const result = walletFromSeed(body.seed);
+if ("error" in result) return result.error;
+const wallet = result.wallet;
+
+// After (2 lines per call site):
+const wallet = walletFromSeed(body.seed);
+if (wallet instanceof Response) return wallet;
+```
+
+`instanceof Response` is reliable in server-side code. Saves one line per call site and eliminates wrapping/unwrapping ceremony. Works when the success type is a class instance clearly distinguishable from Response.
+
+## Extract Validators Before Extracting Logic
+
+When refactoring route handlers, extract **validation helpers** first. Validation is the most duplicated code across routes, has clear input/output contracts, and is trivially unit-testable. Logic helpers vary more per-route and benefit less from extraction.
+
+Priority order:
+1. Shared validators (highest duplication, easiest to test)
+2. Response/metadata helpers (e.g., `txFailureResponse`)
+3. Transaction-building helpers (most route-specific, extract only when truly duplicated)
+
+## Signature Widening for Validator Inputs
+
+When a validator only reads properties from its input (doesn't need full type safety), accept `unknown` instead of a specific type. Eliminates cast noise at every call site:
+
+```ts
+// Before: every caller must cast
+validateRequired(body as unknown as Record<string, unknown>, ["seed", "amount"]);
+
+// After: validator handles the cast internally once
+export function validateRequired(data: unknown, fields: readonly string[]): Response | null {
+  const record = data as Record<string, unknown>;
+  // ...
+}
+```
+
+Only do this for functions that immediately cast internally.
+
+## Centralize Error Maps Near Their Domain
+
+When multiple routes share the same error code → message mapping, extract them into a domain-specific module rather than inlining in each route or dumping into a generic utils file. Keeps error messages consistent and easy to update.

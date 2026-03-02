@@ -7,7 +7,7 @@ How to decide whether content should be a skill, guideline, or learning.
 | Type | Purpose | Location | When to use |
 |------|---------|----------|-------------|
 | **Skill** | Actionable, repeatable task | `.claude/commands/` | Multi-step procedures invoked via `/skill-name` |
-| **Guideline** | Rules that shape behavior | `.claude/guidelines/` | Practices loaded via CLAUDE.md that affect how work is done |
+| **Guideline** | Universal rules that shape behavior | `.claude/guidelines/` | Stack/language/project-agnostic practices that apply to all agents |
 | **Learning** | Reference knowledge | `~/.claude/learnings/` | Patterns, examples, or info useful for context but not behavioral |
 
 ### Quick Decision Tree
@@ -64,10 +64,13 @@ Prefer conditional or persona scoping over always-on when the content is only re
 
 ### Evaluating Existing Guidelines
 
-Periodically review guidelines for continued utility:
+Guidelines must be universal — applicable to any agent regardless of stack, language, or project. During curation, actively look for content to migrate out:
 
-| Sign of Low Utility | Action |
-|---------------------|--------|
+| Sign of Wrong Placement | Action |
+|------------------------|--------|
+| References a specific stack/framework (Vitest, React, Spring) | Migrate to `learnings/<domain>.md` |
+| Contains project-specific paths or config | Migrate to learnings or project CLAUDE.md |
+| Documents language-specific patterns or gotchas | Migrate to `learnings/<language>-patterns.md` |
 | Documents a past bug fix | Move to code comment at the fix location |
 | Describes an existing utility function | Remove; discoverable via code search |
 | The "wrong" pattern only exists in the guideline | The bug is fixed; remove the guideline |

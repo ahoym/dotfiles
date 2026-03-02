@@ -222,3 +222,15 @@ await expect(success.or(notFound).or(empty)).toBeVisible({ timeout: 15_000 });
 ```
 
 This is cleaner than try/catch + `test.skip()` when all outcomes are valid — the test passes regardless of which state is reached, but still fails if the component is stuck loading or errors out.
+
+## 18. `<select>` Option Values May Use Compound Encodings
+
+`<select>` options may encode values as compound keys (e.g., `"currency|issuer"`, `"id|category"`). `selectOption({ label })` requires exact string match. When the label includes dynamic content, use:
+
+```ts
+const option = page.locator("option").filter({ hasText: "USD" });
+const value = await option.getAttribute("value");
+await page.locator("select").selectOption(value!);
+```
+
+Always inspect actual DOM values — they may not match visible text.

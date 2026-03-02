@@ -135,3 +135,19 @@ When splitting work across parallel agents, balance by estimated complexity — 
 ## Many-Agent Context Compaction Risk
 
 When launching 10+ background agents, some may complete after context compaction. The continuation session loses the original agent IDs and completion notifications. Mitigations: (1) batch agents in waves of 5-6 so each wave completes within the context window, (2) use a status tracking table updated after each completion notification, (3) if agents must all launch at once, record agent IDs in a file for the continuation session to check via `TaskOutput`.
+
+## Write One, Validate, Then Parallelize
+
+When generating N similar files (e.g., test files, config files), write **one** first, run it, fix issues, then use the validated version as a template for parallel generation. Avoids mass-failure scenarios where the same bug hits all N files simultaneously.
+
+## Simple Multi-File Patterns: Inline over Agent
+
+For mechanical substitutions across many files (e.g., changing a 3-line pattern to 2 lines in 13 files), inline editing with `replace_all` or sequential Edit calls is faster and more reliable than launching an agent. Agents are better for files requiring judgment or different logic per file.
+
+## Context Budget: Delegate Bulk Generation Early
+
+When a task involves both bulk file creation (tests) and iterative refactoring, delegate the bulk creation to agents early to preserve main context for the refactoring phase where judgment and iteration matter more.
+
+## Categorize Parallel Work by Shared Structure
+
+When generating many similar files via parallel agents, group them by structural shape — not alphabetically. For example, test files for GET routes share mock patterns distinct from POST mutation routes. Each category shares templates, making them ideal for parallel agents with distinct instructions.

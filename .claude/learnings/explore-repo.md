@@ -72,3 +72,15 @@ When no CLAUDE.md exists, the 7 domain scan files provide enough structured inpu
 ## Greenfield CLAUDE.md Deserves Prominent Summary Treatment
 
 When synthesis creates a CLAUDE.md where none existed, this is the single highest-impact output. The synthesis summary should call it out beyond a one-liner — e.g., "Created CLAUDE.md (new — no previous project guide existed)" with a 2-3 line synopsis of what it covers (architecture, commands, patterns, gotchas). Distinguishes it from a routine update.
+
+## Auto-Fix Strategy for Doc-vs-Code Inconsistencies
+
+For doc-vs-code inconsistencies found during scanning:
+- **Critical** (actively misleading): Always auto-fix. Example: wrong package version.
+- **Medium** (partially wrong): Auto-fix. Example: missing commands, incomplete module lists.
+- **Low** (minor): Auto-fix if simple text replacement; skip if requires judgment. Example: cosmetic version pinning.
+- **Judgment calls**: Mark as `[UNFIXED]` with reason. Example: README may intentionally show a simplified view.
+
+## Cross-Reference Sections Create a Documentation Graph
+
+Adding `## Cross-references` sections to domain scan files creates a navigable documentation graph. Only add genuine relationships — don't cross-reference everything to everything. Place the section before `## Scan Limitations`.

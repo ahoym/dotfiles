@@ -49,11 +49,11 @@ This skill has several steps that can run concurrently. **Use parallel tool call
 
 | Opportunity | When | How |
 |---|---|---|
-| **Pre-load + parse** | Always (content mode) | Steps 2 + 3-reads: parse target files AND bulk-read all skill/guideline files in the same tool-call batch |
-| **Multi-file pipelines** | 2+ target files in content mode | Launch one Task subagent per file for steps 2→5a, merge results at step 6 |
-| **Steps 5 + 5a** | Single-file content mode | Run underutilized-skill check and persona detection as parallel tool calls after step 4 |
+| **Pre-load + parse** | Always (content mode) | Step 2: parse target files AND bulk-read all skill/guideline files in the same tool-call batch |
+| **Multi-file pipelines** | 2+ target files in content mode | Launch one Task subagent per file for steps 2→6, merge results at step 7 |
+| **Step 6** | Single-file content mode | Run underutilized-skill check and persona detection as parallel tool calls after step 5 |
 | **Broad sweep clusters** | "All learnings" mode | After clustering (step 2), launch one Task subagent per domain/stack cluster for analysis |
-| **Apply actions** | Step 7, after user approval | Execute independent file writes (different target files) as parallel tool calls |
+| **Apply actions** | Step 8, after user approval | Execute independent file writes (different target files) as parallel tool calls |
 
 Detailed instructions for each opportunity are inline in the relevant steps below (marked with **⚡ Parallel**).
 
@@ -97,16 +97,16 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 
 1. Read all learnings files (use parallel Read calls for all files in one batch)
 2. Cluster files by domain/stack (e.g., "XRPL + TypeScript", "Java + Spring", "Python", "Meta/tooling")
-3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–5a independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
+3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
 4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
-5. Run step 5a (persona detection) across all clusters simultaneously
-5b. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
+5. Run persona detection (step 6) across all clusters simultaneously
+6. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
    - **Genericization candidates**: Extract domain terms from persona file names (e.g., "xrpl", "java", "spring"). Grep each learnings file for these terms. A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
    - **Compression candidates**: Files with patterns that have high line-count relative to insight count (e.g., 30+ line patterns with large code blocks, multi-line JSON examples). Flag files where estimated compression >= 30%.
 
    Store as `POLISH_CANDIDATES`. These are reported separately from HIGH/MEDIUM/LOW findings — they're quality signals, not classification changes.
-6. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
-7. Use the **broad sweep report format** (see step 6)
+7. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
+8. Use the **broad sweep report format** (see step 7)
 
 **Why cluster-first:** Classifying all ~50 patterns individually produces an unreadable table. Most are "standalone reference / keep." Clustering surfaces the high-value actions (persona enhancements, thin file cleanup, staleness) without the noise.
 
@@ -116,11 +116,11 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 
 ## Content Mode (learnings & guidelines)
 
-### 2 + 3. Parse files and pre-load reference corpus
+### 2. Parse files and pre-load reference corpus
 
 **⚡ Parallel: pre-load + parse.** These two activities are independent — run them in the same batch of parallel tool calls:
 
-**Parse (step 2)** — For each file in `TARGET_FILES`:
+**Parse** — For each file in `TARGET_FILES`:
 1. Read the file content
 2. Identify discrete patterns/sections (typically H2 or H3 headers)
 3. For each pattern, extract:
@@ -131,16 +131,16 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
    - **Has templates**: Yes/No (tables, checklists, structured formats)
 4. Store as `PATTERNS` list
 
-**Pre-load (step 3 reads)** — In the same parallel batch as the parse reads above:
+**Pre-load** — In the same parallel batch as the parse reads above:
 1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
-2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 5a)
-3. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 4)
+2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
+3. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 5)
 
 Store all pre-loaded content for use in subsequent steps.
 
-**⚡ Parallel: multi-file pipelines.** When `TARGET_FILES` contains 2+ content-mode files, launch one **Task subagent per file** to run steps 2→5a independently. Each subagent receives the full pre-loaded reference corpus. Merge all subagent results at step 6.
+**⚡ Parallel: multi-file pipelines.** When `TARGET_FILES` contains 2+ content-mode files, launch one **Task subagent per file** to run steps 2→6 independently. Each subagent receives the full pre-loaded reference corpus. Merge all subagent results at step 7.
 
-### 3 (cont). Cross-reference patterns against corpus
+### 3. Cross-reference patterns against corpus
 
 **Grep scope:** When grepping for pattern terms, scope to content directories only: `~/.claude/learnings/`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
 
@@ -150,9 +150,22 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Thematic match**: Related concept in the same domain but different specific insight → LOW confidence
 - **No match**: Novel pattern not covered elsewhere
 
-**Do NOT present the classification table (step 6) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
+**Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
 
-### 4. Classify each pattern
+### 4. File-level gate (guidelines only)
+
+**Before pattern-level classification**, check whether the guideline belongs in `guidelines/` at all. Guidelines must be universal — applicable to any agent regardless of stack, language, or project.
+
+**Test:** Does every pattern in this file apply equally to a Java agent, a Python agent, and a TypeScript agent? If any pattern references a specific framework, library, language feature, or project path, the file contains content that belongs in `learnings/`, not `guidelines/`.
+
+**Actions:**
+- **All patterns are stack-specific** → Merge useful content into the domain's existing learning file (e.g., `learnings/testing-patterns.md`), delete the guideline. Skip step 5 entirely.
+- **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
+- **All patterns are universal** → Proceed to step 5 normally.
+
+See `content-type-decisions.md` → "Evaluating Existing Guidelines" for the full migration signal table.
+
+### 5. Classify each pattern
 
 Using the criteria in classification-model.md, classify each pattern into one of:
 
@@ -179,18 +192,18 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 
 **Project CLAUDE.md redundancy check:** For any learning file named after a specific project (e.g., `payment-service-setup.md`), check if that project has a CLAUDE.md. If so, compare each pattern against the project CLAUDE.md — content already covered there is an outdated (migrated) candidate.
 
-### 5 + 5a. Check underutilized skills AND detect persona opportunities
+### 6. Check underutilized skills and detect persona opportunities
 
-**⚡ Parallel: steps 5 + 5a.** These two analyses are independent — run them as parallel tool calls after step 4.
+**⚡ Parallel.** These two analyses are independent — run them as parallel tool calls after step 5.
 
-**Step 5 — Underutilized skills.** Using the pre-loaded skill corpus, note any skills that:
+**Underutilized skills.** Using the pre-loaded skill corpus, note any skills that:
 - Have no corresponding usage in learnings or guidelines
 - Overlap significantly with another skill
 - Reference patterns that no longer exist in the codebase
 
 Flag these as `SKILL_REVIEW_CANDIDATES`.
 
-**Step 5a — Domain organization & persona opportunities.** Check whether curated patterns are well-organized for dynamic pulling (per `context-aware-learnings` guideline) and whether a persona lens would add value:
+**Domain organization & persona opportunities.** Check whether curated patterns are well-organized for dynamic pulling (per `context-aware-learnings` guideline) and whether a persona lens would add value:
 
 1. **Tag each pattern** with its domain and stack (e.g., "XRPL + TypeScript", "React + Next.js", "Java + Spring")
 2. **Count clusters**: Group patterns by domain/stack combination
@@ -212,14 +225,14 @@ Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SU
 
 ## Skill Mode (commands)
 
-### 2s. Read the skill package
+### 2. Read the skill package
 
 For the target skill directory:
 1. Read `SKILL.md` (main instructions)
 2. List and read all reference files in the skill directory
 3. Note the skill's description, usage patterns, and reference file count
 
-### 3s. Evaluate the skill
+### 3. Evaluate the skill
 
 Using the Skill Pruning Criteria in classification-model.md, evaluate:
 
@@ -238,7 +251,7 @@ Also check:
 - **Cross-skill reference deduplication:** Compare reference files against companion skills — especially producer/consumer pairs. Check for >80% content overlap. The superset version is usually in the skill that uses the content more heavily. Resolution: move the superset to `skill-reference/` and update both skills to reference the shared path.
 - **Producer/consumer contract validation:** When two skills form a producer/consumer pair, validate that the producer generates every section the consumer expects. A term appearing in the consumer doesn't mean the producer actually generates it.
 
-### 4s. Classify the skill
+### 4. Classify the skill
 
 | Classification | Description |
 |----------------|-------------|
@@ -257,7 +270,7 @@ For each classification, note:
 
 ## Shared Steps (both modes)
 
-### 6. Generate recommendations
+### 7. Generate recommendations
 
 Display the full report inline in the CLI.
 
@@ -374,7 +387,7 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - [ ] Action 2
 ```
 
-### 7. Apply changes (with approval)
+### 8. Apply changes (with approval)
 
 For each recommended action, use `AskUserQuestion` with **multi-select** to let the user pick which actions to apply. Each action should be a separate selectable option (not a table followed by a generic "apply?" prompt). Always include a **Discuss** option as one of the choices, especially for medium-confidence items.
 
@@ -398,7 +411,7 @@ For **skill mode** actions:
 - Split: create new skill directories, distribute content
 - Prune: delete the skill directory (with approval)
 
-### 8. Report results
+### 9. Report results
 
 ```
 ## Curation Complete

@@ -61,3 +61,36 @@ Fields: `t` (unix timestamp), `o/h/l/c` (prices), `vb` (base volume), `vq` (quot
   }]
 }
 ```
+
+## XRPL Native DEX — Protocol Reference
+
+The XRP Ledger has a built-in DEX since 2012 using a **Central Limit Order Book (CLOB)**, with hybrid CLOB + AMM routing available. Trades execute when ledgers close (every 3-5 seconds). Transaction execution order is intentionally unpredictable to discourage front-running. No native market orders, stop orders, or leverage.
+
+### Offers (Limit Orders)
+
+An **Offer** is a limit order created via `OfferCreate`. Key fields: `TakerPays` (what creator wants to receive), `TakerGets` (what creator will give up), optional `Expiration` and `OfferSequence`.
+
+**OfferCreate flags:**
+
+| Flag | Hex | Effect |
+|---|---|---|
+| `tfPassive` | 0x00010000 | Don't consume at exact same rate |
+| `tfImmediateOrCancel` | 0x00020000 | Execute what's possible, never rest |
+| `tfFillOrKill` | 0x00040000 | Cancel if can't fill entirely |
+| `tfSell` | 0x00080000 | Spend entire TakerGets even if receiving more than TakerPays |
+
+**Funding rules:** Placing an offer does NOT lock up funds — you can place multiple offers against the same balance. Unfunded offers stay in the ledger until a transaction encounters and removes them (lazy cleanup).
+
+**Trust lines and offers:** Offers can exceed trust line limits (explicit trade intent overrides). Executing an offer auto-creates a trust line (with limit 0) if needed.
+
+### Auto-Bridging
+
+Any token-to-token trade can automatically use **XRP as an intermediary** when it produces a better rate. Creates a synthetic order book by composing two order books. Happens at the protocol level — no trader action required.
+
+### Tick Size
+
+Issuers can set `TickSize` (3-15, or 0 to disable) via `AccountSet`. Truncates exchange rates to that many significant digits. Does not affect the immediately-executed portion. `tfImmediateOrCancel` offers are unaffected.
+
+### Cross-Currency Payments
+
+`Payment` transactions can consume DEX offers to convert currencies. The protocol finds payment paths through intermediary accounts and order books. Payments can use multiple paths simultaneously. Auto-bridging through XRP also applies.

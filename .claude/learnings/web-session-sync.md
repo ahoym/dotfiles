@@ -29,3 +29,34 @@ Lives in `.claude/web-skills/web-create-pr/SKILL.md`. When invoked from a web se
 2. Rebases `--onto origin/main` to drop it
 3. Prompts user on conflicts (no auto-resolve)
 4. Pushes with `--force-with-lease` and creates a clean PR against main
+
+## Future Simplification
+
+`/web-create-pr` is fully repo-agnostic — no project-specific references. Candidate for promotion to dotfiles (`~/.claude/commands/`), which would reduce per-project setup from 3 files to 2 (just the workflows). Deferred until the pattern is validated across multiple repos.
+
+## Build Verification in Web Sessions
+
+`pnpm build` may fail in sandboxed web environments when the build process fetches external resources (e.g., Google Fonts). Use `pnpm typecheck` instead to verify compilation:
+
+```bash
+pnpm typecheck   # works in sandbox — runs tsc --noEmit
+pnpm build       # may fail — external resource fetches blocked
+```
+
+## Context Window Management for Large Sessions
+
+For large refactoring sessions that touch 10+ files:
+- Commit frequently (every logical unit of work) so progress isn't lost if the session hits context limits
+- If the session is compacted mid-edit, the continuation summary preserves enough detail to resume, but partially-edited files are the main risk
+- Use `pnpm typecheck && pnpm test` after each commit to catch issues early
+
+## Available Tools in Web Sessions
+
+| Tool | Available | Notes |
+|---|---|---|
+| `git` | Yes | Via local proxy, push/pull work |
+| `gh` | Installable | `apt-get install gh`, but no auth token |
+| `pnpm` / `npm` | Yes | npm registry access may be limited |
+| `node` / `npx` | Yes | |
+| `curl` | Yes | Outbound via egress proxy, rate-limited for GitHub API |
+| `apt-get` | Yes | Can install system packages |

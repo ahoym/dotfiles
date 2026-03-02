@@ -65,6 +65,10 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 - **Keep full classification tables even when uniform.** When all patterns get the same classification (e.g., "standalone reference / keep"), still show the full table — the user reviews the reasoning per pattern, not just the action items. Don't collapse to "all 16: keep."
 - **Front-load the recommendation.** When the report has a clear opinion (e.g., "only pattern 4 really needs genericizing, the rest are cosmetic"), lead with that instead of presenting equal-weight options and walking it back during discussion. The full table provides visibility; the recommendation provides direction.
 
+## Classification Calibration (cont.)
+
+- **Guidelines must be universal — actively migrate stack/language/project-specific content to learnings.** See `content-type-decisions.md` → "Evaluating Existing Guidelines" for the full migration table. During guideline curation, this is the first check before pattern-level classification.
+
 ## Execution Strategy
 
 - **Single-file curation: targeted reads over bulk agents.** For content-mode curation of 1-2 files, read the most-likely-overlapping files directly (same-domain learnings, relevant personas) + grep for key terms. A bulk-read agent for the full corpus is slower and may not return usable content. Reserve corpus-wide agents for broad sweeps.

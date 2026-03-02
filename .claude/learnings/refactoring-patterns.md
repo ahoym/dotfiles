@@ -1,5 +1,28 @@
 # Refactoring Guidelines
 
+## Survey Before Acting
+
+Before proposing any refactoring changes, do a full survey:
+
+1. **Count instances** — grep for the pattern across the codebase, not just spot-check. You'll often find more instances than initially visible.
+2. **Categorize variants** — not all instances of a "similar" pattern are identical. An audit may reveal distinct variants where only one is worth extracting.
+3. **Check existing abstractions** — before creating a new hook/component, verify one doesn't already exist.
+4. **Size the work** — count files touched, lines changed, and test coverage gaps before committing.
+
+## Commit Granularity for Refactoring
+
+One logical unit per commit — the new abstraction + all its consumers + its tests belong together. This makes each commit independently reviewable and revertable.
+
+| Good | Bad |
+|---|---|
+| "Extract useFormSubmit hook and refactor 7 components" | "Create use-form-submit.ts" then "Update component-a" then "Update component-b" ... |
+
+## When to Use a Factory vs Individual Hooks
+
+**Use a factory** when 3+ hooks follow an identical pattern with only 1-2 parameters varying and have no extra logic beyond what the factory provides.
+
+**Keep individual hooks** when the hook has extra parameters, custom logic beyond fetch-and-extract, or only 1-2 instances exist (wait for a third before abstracting).
+
 ## Assess Before Adding React Context
 
 Before replacing prop drilling with React Context, measure these three factors:
@@ -70,3 +93,58 @@ When a refactoring plan includes both "add tests" and "split/extract" phases, us
 - Phase 1 tests verify the Phase 2 fix without a separate "fix" commit
 
 **Why this beats patching first:** The patch may be thrown away during the split, the extracted API naturally prevents the bug class, and tests from Phase 1 serve as regression tests for Phase 2.
+
+## Deciding What NOT to Refactor
+
+Some identified opportunities aren't worth pursuing. Skip when:
+- Only 2 instances exist and they serve different purposes
+- The "refactor" would add a feature rather than deduplicate existing code
+- The change would require judgment calls about behavior, not just mechanical cleanup
+
+Document skipped items and why — it shows thoroughness without wasted effort.
+
+## Build Test Infrastructure First
+
+Before writing any test, create shared helpers that all tests will use. This prevents divergent test patterns across files:
+
+- **Stable test fixtures**: Generated once at module level, reusable across all test files
+- **Mock factory**: Returns object matching the service interface with all methods as `vi.fn()`
+- **Request/response factories**: Wrapping framework request objects and mock returns
+- **Route param helpers**: For framework-specific param wrapping
+
+This upfront investment pays off immediately — many test files all share the same helpers without drift.
+
+## Test Layering Strategy
+
+Build tests in layers, each adding confidence before the next:
+
+**Layer 1: Pure function unit tests** — validators, parsers, encoders. No mocking, run instantly.
+
+**Layer 2: Handler/route tests** — colocated test files. Mock external services and test the full request→response flow. Cover: missing required fields → 400, invalid values → 400, happy path → 2xx, service failure → 422, server error → 500.
+
+**Layer 3: Integration error-path tests** — hit the running server. Catch issues that unit tests miss (middleware, serialization, actual HTTP behavior).
+
+**Critical step:** Run the full suite *before any refactoring*. All green = tests correctly describe current behavior. Some failures = you've found bugs — decide per failure whether to fix code or fix test.
+
+## Refactoring Order: Dependencies First
+
+When applying multiple refactors that depend on each other:
+
+1. **Shared helpers first** (add validators, parsers to shared modules)
+2. **Consumer changes second** (update routes/components to use new helpers)
+3. **Test updates last** (adjust tests for changed status codes or response shapes)
+
+Reversing this order causes intermediate failures that waste debugging time.
+
+## Map Refactoring Targets to Test Coverage
+
+Before starting any refactoring, build a coverage map:
+
+| Refactor | Files Affected | Existing Tests? | Action |
+|---|---|---|---|
+| Extract shared helper | N routes | No tests | Write tests first |
+| Refactor complex parser | 1 lib file | No unit tests | Write unit tests first |
+| Fix status codes | 2 routes | No tests | Write tests — they'll reveal the bug |
+| Change validator signature | 16 routes | Has lib test | Safe to refactor immediately |
+
+Items with no tests get tests first; items with existing coverage can be refactored immediately.

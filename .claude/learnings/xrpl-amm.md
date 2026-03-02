@@ -40,3 +40,78 @@ const amount1IsBase =
 const base = amount1IsBase ? amount1 : amount2;
 const quote = amount1IsBase ? amount2 : amount1;
 ```
+
+## AMM Overview (XLS-30)
+
+Native AMM support via the XLS-30 amendment, enabled on mainnet 2024-03-22. Key properties:
+- **Constant product formula**: `x * y = k` with equal weights (W=0.5)
+- **One AMM per pair**: Each unique asset pair can have exactly one AMM
+- **LP tokens**: Liquidity providers receive LP tokens proportional to pool share
+- **Votable trading fee**: 0-1% in units of 1/100,000
+- **Auction slot**: 24-hour trading advantage slot that mitigates impermanent loss
+- **Special AMM account**: Dedicated AccountRoot, not subject to reserve, cannot sign transactions
+
+### LP Token Currency Codes
+
+LP tokens use a special 160-bit hex currency code: first 8 bits are `0x03`, remainder is a truncated SHA-512 hash of the two asset currency codes and issuers. Initial LP issuance: `sqrt(Amount1 * Amount2)`. Returning all LP tokens triggers auto-deletion of the AMM.
+
+### AMM Account
+
+Each AMM has a pseudo-random address AccountRoot that holds assets and issues LP tokens. Regular key set to account zero, master key disabled. Not subject to XRP reserve.
+
+## AMM Transaction Types
+
+### AMMCreate
+
+Creates AMM and provides initial funding. **Special cost**: destroys at least the incremental owner reserve (0.2 XRP on mainnet after 2024 reserve reduction), not the standard ~0.00001 XRP fee. Use xrpl.js autofill for dynamic fee calculation.
+
+Prerequisites: at most one asset can be XRP, cannot use LP tokens, creator must hold both assets, DefaultRipple must be enabled on issuer.
+
+### AMMDeposit
+
+Two categories: **double-asset** (proportional, no fee): `tfTwoAsset`, `tfTwoAssetIfEmpty`. **Single-asset** (subject to trading fee): `tfSingleAsset`, `tfOneAssetLPToken`, `tfLimitLPToken`, `tfLPToken`.
+
+### AMMWithdraw
+
+Auto-deletion: if last LP tokens returned and pool has ≤512 trust lines, AMM auto-deletes. If >512 trust lines remain, `AMMDelete` must be called.
+
+### AMMVote
+
+Up to 8 LP holders can vote on trading fee. Effective fee is weighted average by LP token balance.
+
+### AMMBid
+
+24-hour auction slot for discounted trading (1/10 of normal fee). Proceeds partially burned (reducing total LP supply, increasing remaining holders' share).
+
+## AMM + CLOB Integration
+
+The AMM's offer is injected into the liquidity stream alongside order book offers during trade execution. **Critical: `book_offers` does NOT include AMM liquidity** — AMM synthetic offers are injected only at the tx execution layer, not the API query layer. Must separately query `amm_info` for pool depth.
+
+## AMM-Specific Error Codes
+
+| Code | Applies To | Description |
+|------|-----------|-------------|
+| `tecAMM_UNFUNDED` (162) | AMMCreate | Insufficient assets to fund pool |
+| `tecAMM_BALANCE` (163) | Deposit/Withdraw | Would drain one side or rounding error |
+| `tecAMM_FAILED` (164) | Deposit/Withdraw | Conditions not satisfied (e.g., EPrice too low) |
+| `tecAMM_INVALID_TOKENS` (165) | Create/Withdraw | LP token conflicts or withdrawal rounds to zero |
+| `tecAMM_EMPTY` (166) | Deposit/Withdraw | Pool has no assets; must use `tfTwoAssetIfEmpty` |
+| `tecAMM_NOT_EMPTY` (167) | Deposit | Used `tfTwoAssetIfEmpty` on non-empty pool |
+| `tecAMM_ACCOUNT` (168) | General | Operation not allowed on AMM accounts |
+| `tecDUPLICATE` | AMMCreate | AMM already exists for this pair |
+| `tecFROZEN` | All | Frozen token involved |
+| `terNO_RIPPLE` | AMMCreate | Issuer hasn't enabled DefaultRipple |
+
+### Frozen Asset Edge Case
+
+When an issuer freezes a token in an AMM pool: LP tokens also freeze (can receive but not send/sell), deposits and withdrawals fail with `tecFROZEN`. `amm_info` response includes `asset_frozen` / `asset2_frozen` boolean fields.
+
+### Empty Pool State
+
+When all LP tokens are redeemed: if ≤512 trust lines, AMM auto-deletes. If >512, AMM enters "empty" state — only `tfTwoAssetIfEmpty` deposit or `AMMDelete` can proceed. Normal deposits fail with `tecAMM_EMPTY`.
+
+## Impermanent Loss Mitigation
+
+1. **Auction slot**: Near-zero-fee arbitrage rebalances pool immediately when prices diverge
+2. **Fee accumulation**: Trading fees distributed proportionally to LP holders on withdrawal
+3. **Auction proceeds burned**: Increases remaining holders' proportional share

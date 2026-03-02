@@ -117,6 +117,28 @@ function useComboData({ selectedValue }: { selectedValue: string }) {
 
 **When this applies:** Extracting data-fetching hooks that also build option lists, or any hook that derives state and then uses that derived state for side effects (fetches, subscriptions).
 
+## Don't Unmount Modals Immediately After Success
+
+When a modal calls `onClose()` immediately after a successful API call, the component unmounts before the success message renders — making the confirmation invisible to both users and Playwright tests.
+
+```tsx
+// BAD — modal unmounts before success banner is visible
+if (result) {
+  onSuccess();
+  onClose(); // unmounts component, success state destroyed
+}
+
+// GOOD — delay close so user sees confirmation
+if (result) {
+  onSuccess();
+  setTimeout(() => onClose(), 1000);
+}
+```
+
+**Why it happens:** `useFormSubmit` sets `success = true` and schedules a 2s auto-clear timer. But `onClose()` fires synchronously after `setSuccess(true)`, causing the parent to set `showModal = false`, unmounting the modal before React re-renders with the success banner. The auto-clear timer is cleaned up by the unmount effect and never fires.
+
+**Symptoms:** E2E tests time out waiting for success text; screenshots show the page with no modal open and no error visible. Users see a flash (or nothing) before the modal disappears.
+
 ## Lift Execution State to Parent for Non-Blocking UI
 
 When a modal triggers a long-running async operation (e.g., placing multiple orders sequentially), lift the execution state (`progress`, `results`) to the parent component. This lets the modal close immediately after confirmation while the parent continues running the operation and reflects progress in its own UI.
@@ -159,3 +181,48 @@ When extracting a "repeated pattern" across N components into a shared abstracti
 4. Design tiered abstractions covering the real groups — don't force outliers
 
 **Key insight:** Two focused tiers covering 6 of 8 components is better than one over-generalized abstraction that awkwardly handles all 8.
+
+## Polling with Page Visibility Gating
+
+Silent polling (e.g., every 3 seconds) should be gated on the Page Visibility API to prevent background tabs from wasting bandwidth and server resources:
+
+```ts
+function usePageVisible(): boolean {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const handler = () => setVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, []);
+  return visible;
+}
+
+function usePollInterval(callback: () => void, intervalMs: number) {
+  const isVisible = usePageVisible();
+  useEffect(() => {
+    if (!isVisible) return;
+    const id = setInterval(callback, intervalMs);
+    return () => clearInterval(id);
+  }, [isVisible, callback, intervalMs]);
+}
+```
+
+Prevents background tabs from hammering the server and avoids stale data issues when the tab becomes visible again (the interval restarts cleanly).
+
+## Per-Environment Frontend State with Migration
+
+When an app supports multiple environments (testnet/devnet, staging/production), store client-side state as separate keys per environment:
+
+```ts
+// Separate keys prevent cross-environment contamination
+localStorage.getItem("app-state-testnet")
+localStorage.getItem("app-state-devnet")
+```
+
+When migrating from a legacy single-key format, perform a one-time migration on app initialization:
+1. Check if legacy key exists
+2. Read and parse legacy data
+3. Write to new per-environment key
+4. Delete legacy key
+
+This pattern is transparent to users and prevents data loss during schema evolution.

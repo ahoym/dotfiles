@@ -1,5 +1,13 @@
 # Testing Patterns
 
+## Vitest + React Testing Library Stack
+
+- **Vitest** with `jsdom` environment (`vitest.config.ts`)
+- **@testing-library/react** v16 — includes `renderHook` natively. Do NOT install `@testing-library/react-hooks` (incompatible with React 19)
+- **@testing-library/jest-dom** via `vitest.setup.ts`
+
+**What to test:** Pure functions (easiest, highest value) → custom hooks via `renderHook` (state transitions, fetch, cleanup) → factory functions (test returned hook). Don't unit-test trivial wrappers or JSX-heavy components — use E2E for those.
+
 ## Cross-Implementation Test Fixtures
 
 When server and client independently implement the same encoding (e.g., server uses `Buffer.from().toString("hex")`, client uses `TextEncoder` + `Array.from`), test both against **shared known input/output pairs** to catch drift.
@@ -67,3 +75,68 @@ const d = new Date(iso);
 if (isNaN(d.getTime())) return fallback;
 return d.toLocaleTimeString(...);
 ```
+
+## jsdom Provides localStorage
+
+No need to mock `localStorage` in jsdom — it's available natively. Just call `localStorage.clear()` in `beforeEach`.
+
+## vi.mock() Hoisting and vi.hoisted()
+
+`vi.mock()` factory functions are **hoisted above all imports and variable declarations**. A mock factory cannot reference variables declared at module scope.
+
+**Fix — use `vi.hoisted()`:**
+```ts
+const mockClient = vi.hoisted(() => ({
+  request: vi.fn(),
+  submitAndWait: vi.fn(),
+}));
+
+vi.mock("@/lib/some-module", () => ({
+  getClient: vi.fn().mockResolvedValue(mockClient),
+}));
+```
+
+`vi.hoisted()` runs its callback at the hoisted level (before imports), so the variable is available inside `vi.mock()` factories.
+
+## Route Handler Test Structure (Next.js App Router)
+
+Pattern for testing Next.js route handlers that depend on external service singletons:
+
+```ts
+// 1. Hoist the mock BEFORE vi.mock
+const mockClient = vi.hoisted(() => ({ request: vi.fn(), submitAndWait: vi.fn() }));
+
+// 2. Mock the module
+vi.mock("@/lib/client", () => ({ getClient: vi.fn().mockResolvedValue(mockClient) }));
+
+// 3. Import handler AFTER mocks
+import { POST } from "./route";
+
+describe("POST /api/...", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns 201 on success", async () => {
+    const res = await POST(postRequest("/api/...", { /* body */ }));
+    expect(res.status).toBe(201);
+  });
+});
+```
+
+For dynamic routes, wrap params in a resolved Promise: `{ params: Promise.resolve({ address: "..." }) }`.
+
+## Shared Test Helpers Design
+
+A single `test-helpers.ts` file should provide:
+- **Stable test fixtures**: Generated once at module level (not per test)
+- **Mock factory**: Returns object matching the service interface with all methods as `vi.fn()`
+- **Request factories**: `postRequest(path, body)` and `getRequest(path, params?)` wrapping framework request objects
+- **Response factories**: `successResult()` and `failedResult(code)` for mock returns
+- **Route param helper**: For framework-specific param wrapping
+
+Note: Factory functions from test-helpers can't be used inside `vi.hoisted()` (circular issues). Inline the mock object in `vi.hoisted()` and use factories only in non-hoisted contexts.
+
+## Test Isolation: Mock Data Must Match Runtime Encoding
+
+When mocking responses that contain encoded fields (e.g., hex-encoded currency codes), the mock value must match the encoding the code under test will compare against. If the code encodes `"USD"` as a 3-char passthrough, the mock must also use `"USD"` — not the 40-char hex form.
+
+This causes tests that pass in isolation to fail in the full suite when encoding comparison logic doesn't match mock data.
