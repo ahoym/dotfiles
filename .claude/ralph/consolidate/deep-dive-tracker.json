@@ -11,6 +11,7 @@
     ".claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/ralph-loop.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/claude-code.md": { "last_deep_dive_run": 3 },
-    ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 3 }
+    ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/playwright-patterns.md": { "last_deep_dive_run": 3 }
   }
 }

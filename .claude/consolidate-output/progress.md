@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md |
+| DEEP_DIVE_CANDIDATES | ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md |
 
 ## Pre-Flight
 
@@ -73,6 +73,7 @@ Suggested iterations: 15
 | 10 | 4 | DEEP_DIVE | 1 | 1 | 0 | 2 | skill-design.md: merge §20+21 (internal dup on conditional refs), move §13-17 research patterns → ralph-loop.md (wrong domain file). 25 patterns cross-referenced against full corpus. |
 | 11 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean. 16 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns unique canonical platform behavior. |
 | 12 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: clean. 11 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical with recipes/code the persona can't replace. |
+| 13 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | playwright-patterns.md: 1 HIGH (§18 internal dup of §7 — identical workaround code, compound encoding already in §7's Note). 18→17 patterns, ~11 lines reduced. All other 17 patterns canonical. |
 
 ## Deep Dive Status
 
@@ -83,7 +84,7 @@ Suggested iterations: 15
 | skill-design.md | completed | 10 | 1 HIGH (merge §20+21 dup), 1 MEDIUM (move §13-17 research patterns → ralph-loop.md). ~35 lines reduced. |
 | claude-code.md | completed | 11 | Clean — 16 patterns, all unique canonical platform behavior. No duplicates, no compression/genericization/wiring opportunities. |
 | react-patterns.md | completed | 12 | Clean — 11 patterns, all canonical recipes. Persona covers conclusions; learning provides code examples and rationale. No duplicates, no compression/genericization/wiring opportunities. |
-| playwright-patterns.md | pending | — | Fill slot: untracked, 236 lines |
+| playwright-patterns.md | completed | 13 | 1 HIGH (delete §18 internal dup of §7). 18→17 patterns. ~11 lines reduced. |
 | ralph-loop.md | pending | — | Fill slot: untracked, ~150 lines |
 | multi-agent-patterns.md | pending | — | Fill slot: untracked, 154 lines |
 | refactoring-patterns.md | pending | — | Fill slot: untracked, 150 lines |
@@ -226,3 +227,20 @@ Suggested iterations: 15
 - Reference wiring: react-frontend.md and xrpl-typescript-fullstack.md both reference react-patterns.md in Detailed references
 - Tracker updated: react-patterns.md last_deep_dive_run=3
 - Next candidate: playwright-patterns.md (fill slot, untracked, 236 lines)
+
+### Iter 13
+
+- Deep dive 4: playwright-patterns.md (fill slot, untracked, 236 lines)
+- 18 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas (react-frontend.md primary), 5 skill-references
+- HIGH: Deleted §18 ("select Option Values May Use Compound Encodings") — fully covered by §7 ("selectOption Only Accepts string for label"). §7's Note (line 156) already describes compound encodings ("id|category"), workaround code identical (lines 150-153 vs 230-233), "inspect DOM" advice duplicated. Zero unique content in §18.
+- 17 remaining patterns all confirmed canonical:
+  - 6 patterns have one-liner summaries in react-frontend.md persona (§2, §3, §5, §13, §15 + dialog handler §2) — learning provides full recipes/code
+  - §6 (StorageState) complements react-patterns.md §2 (Hydration) — testing infra vs React cause
+  - §15 (Transient Banners) complements react-patterns.md §4 (Modal unmount) — testing symptom vs React cause
+  - Brief patterns (§9, §10, §11, §12, §16: 3 lines each) appropriately terse — unique gotchas
+- Genericization: clean — no project-specific names, paths, or routes
+- Compression: 225 lines / 17 patterns = 13.2 lines/pattern avg, no section meets 30% threshold
+- Reference wiring: react-frontend.md line 54 references playwright-patterns.md with "17 testing patterns" — now accurate after §18 deletion
+- Tracker updated: playwright-patterns.md last_deep_dive_run=3
+- No compound insights — the internal duplicate pattern (selectOption workaround repeated with different heading) is already well-documented in the corpus
+- Next candidate: ralph-loop.md (fill slot, modified iter 10)
