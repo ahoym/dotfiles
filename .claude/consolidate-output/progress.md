@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 2
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -66,6 +66,7 @@ Suggested iterations: 15
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files across 8 clusters. Iter 3 additions (web-session-sync.md, guideline-authoring.md) integrate without overlap. Concept-name collision check clear. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No broken refs from iter 3 guideline deletions. Model strings current. Persona extensions clean. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap, no compression opportunity. End of Round 2: all types clean, CLEAN_ROUND_STREAK → 1 |
+| 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. No concept-name collisions, no genericization issues, all persona wiring intact. Opportunity scan: no merge/split/compression candidates. |
 
 ## Deep Dive Status
 
@@ -136,3 +137,12 @@ Suggested iterations: 15
 - End of Round 2: ROUND_CLEAN=true, CLEAN_ROUND_STREAK → 1. Round 3 starts at LEARNINGS
 - Deep dive candidates from iter 4 notes still valid: skill-design.md (hub + modified), claude-code.md (hub), nextjs.md (modified), web-session-sync.md (modified), guideline-authoring.md (modified)
 - Next content type: LEARNINGS (Round 3)
+
+### Iter 7
+
+- Clean LEARNINGS sweep — 34 files, 8 domain clusters, no findings
+- Full re-read and analysis: concept-name collision check clear, genericization scan clean (xrpl-patterns.md project names serve cross-project validation), all model refs current, all persona Detailed references complete
+- Opportunity scan: no merge candidates (clusters well-separated), no split candidates (no >150-line file with 3+ independent sub-topics), no compression candidates, no wiring gaps
+- DEEP_DIVE_CANDIDATES (for convergence): skill-design.md (hub, criteria 1), claude-code.md (hub, criteria 1), plus 8 fill slots from untracked corpus: react-patterns.md (228 lines), playwright-patterns.md (236 lines), ralph-loop.md (~150 lines), multi-agent-patterns.md (154 lines), refactoring-patterns.md (150 lines), xrpl-patterns.md (170 lines), bash-patterns.md (112 lines), testing-patterns.md (142 lines)
+- Staleness check: run_count=2, threshold=3. No tracked files meet staleness threshold (max gap=2 for web-session-sync.md, guideline-authoring.md, typescript-devops.md)
+- Next content type: SKILLS (Round 3)
