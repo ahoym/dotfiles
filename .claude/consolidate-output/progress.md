@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 4 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -32,7 +32,7 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### SKILLS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 8 | 3 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; model versions current; nextjs.md expansion no overlap with skill refs |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced; no impact from iter 7 persona changes; end of Round 3 |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files, 7 clusters verified; iter 7 L-2 extraction stable (nextjs.md, 2 persona slimmings, ref wirings all correct); no new overlaps or opportunities |
+| 11 | 4 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; no corpus changes since iter 8; model versions current; shared references centralized; producer/consumer contracts valid |
 
 ## Notes for Next Iteration
 
@@ -218,3 +219,13 @@ Round 4 LEARNINGS sweep was clean. All 33 files verified across 7 clusters (XRPL
 SKILLS sweep should confirm the same 29 skills across 5 clusters remain clean. No corpus changes since iter 8's SKILLS sweep — the only intervening change was iter 7's LEARNINGS action (nextjs.md/persona edits), which iter 8 already verified had no SKILLS impact.
 
 If SKILLS and GUIDELINES are also clean this round, CLEAN_ROUND_STREAK increments to 1. Round 5 would then be the convergence round (streak=2 if also clean).
+
+### After Iter 11
+
+**Next: GUIDELINES sweep (Round 4, Sweep 12)**
+
+Round 4 SKILLS sweep was clean. All 29 skills verified across 5 clusters (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:7). No changes since iter 8. Model versions current (Claude Opus 4.6). Shared references properly centralized in `skill-references/`. Producer/consumer contracts validated (make→execute, explore-repo→brief, init→resume, curate→consolidate). Cross-persona pointers from iter 7 L-2 stable.
+
+GUIDELINES sweep should confirm the 3 guideline files (communication.md, context-aware-learnings.md, skill-invocation.md) remain clean. No corpus changes have occurred that would affect guidelines since iter 9.
+
+This is the final sweep of Round 4. If clean, ROUND_CLEAN stays true → CLEAN_ROUND_STREAK increments to 1 at end of round. Round 5 would then be the convergence round.
