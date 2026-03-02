@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -67,6 +67,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No broken refs from iter 3 guideline deletions. Model strings current. Persona extensions clean. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap, no compression opportunity. End of Round 2: all types clean, CLEAN_ROUND_STREAK → 1 |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. No concept-name collisions, no genericization issues, all persona wiring intact. Opportunity scan: no merge/split/compression candidates. |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. Iter 7 opportunity candidates don't affect skills. |
 
 ## Deep Dive Status
 
@@ -146,3 +147,13 @@ Suggested iterations: 15
 - DEEP_DIVE_CANDIDATES (for convergence): skill-design.md (hub, criteria 1), claude-code.md (hub, criteria 1), plus 8 fill slots from untracked corpus: react-patterns.md (228 lines), playwright-patterns.md (236 lines), ralph-loop.md (~150 lines), multi-agent-patterns.md (154 lines), refactoring-patterns.md (150 lines), xrpl-patterns.md (170 lines), bash-patterns.md (112 lines), testing-patterns.md (142 lines)
 - Staleness check: run_count=2, threshold=3. No tracked files meet staleness threshold (max gap=2 for web-session-sync.md, guideline-authoring.md, typescript-devops.md)
 - Next content type: SKILLS (Round 3)
+
+### Iter 8
+
+- Clean SKILLS sweep — 29 skills (5 namespaces), 7 personas, 5 skill-references
+- All model strings current (Opus 4.6), cross-skill overlap <80% in all namespaces, producer/consumer contracts valid
+- No skills reference any deep dive candidates from iter 7 — no wiring impact from potential future deep dive edits
+- Persona extensions clean: java-devops → platform-engineer, typescript-devops → platform-engineer — no content duplication between parent/child
+- All skill-reference files (5) have active consumers — no orphaned references
+- Staleness: no skill or persona file modified since iter 3 (typescript-devops.md received troubleshooting gotcha) — stable corpus
+- Next content type: GUIDELINES (Round 3). If clean → CLEAN_ROUND_STREAK=2 → convergence → deep dive phase

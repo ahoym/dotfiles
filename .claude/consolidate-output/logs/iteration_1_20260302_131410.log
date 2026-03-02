@@ -1,0 +1,17 @@
+✅ **Sweep 1 complete — LEARNINGS broad sweep.**
+
+### Summary
+
+| Finding | Confidence | Action |
+|---------|-----------|--------|
+| skill-design.md ↔ skill-platform-portability.md: 19 duplicate sections (~200 lines) | HIGH | Removed from skill-design.md, kept in portability file, added cross-reference header |
+| skill-design.md internal: 5-section block appeared twice | HIGH | Removed second occurrence |
+| nextjs.md: two "Dynamic Route Params" sections (page vs route handler) | HIGH | Merged into one section with both examples |
+| xrpl-permissioned-domains.md not wired into xrpl-typescript-fullstack persona | MEDIUM | Added to Detailed references section |
+| Compound: `/learnings:compound` should check persona refs when creating files | — | Extended existing guidance in skill-design.md |
+
+**Net reduction:** skill-design.md 454 → ~260 lines. nextjs.md 108 → ~100 lines.
+
+**Next invocation:** SKILLS sweep (SWEEP_COUNT=1, CONTENT_TYPE advances to SKILLS).
+
+**STOP** — one sweep per invocation, as specified.
