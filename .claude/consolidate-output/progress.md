@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 10
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, 1 LOW (cross-persona dedup) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, all @-referenced |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, R1 wiring verified |
+| 5 | 2 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R1 |
 
 ## Deep Dive Status
 
@@ -128,4 +129,16 @@ Suggested iterations: 10
 - No new merge/split/compression candidates at broad sweep level.
 - All persona reference wiring complete — react-frontend (6 refs), xrpl-typescript-fullstack (6 refs), platform-engineer (1 ref), typescript-devops (1 ref). Java personas have inline knowledge (no learnings files in Java cluster). python-specific.md has no persona (below 8-pattern threshold).
 - Deep dive candidates (recording for convergence check): skill-design.md (246 lines, compression), skill-platform-portability.md (220 lines, compression). Both previously flagged in Iter 1.
+- No compoundable meta-insights (clean sweep).
+
+### Iter 5
+
+**Sweep notes (SKILLS, Round 2):**
+- 29 skills, 7 personas, 5 skill-references re-read. Same counts as iter 2.
+- No corpus changes since last SKILLS sweep (iters 3-4 were both clean).
+- All 29 skills: Keep. No new overlap, staleness, or scope issues.
+- Shared skill-references: 5 files, all correctly wired (unchanged).
+- Producer/consumer pairs: all valid (unchanged).
+- Model version strings: current (Claude Opus 4.6 or generic).
+- Cross-persona LOW (react-frontend + xrpl-typescript-fullstack React/Next.js overlap): unchanged from iter 2.
 - No compoundable meta-insights (clean sweep).
