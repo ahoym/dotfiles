@@ -26,7 +26,8 @@ Create a worktree for autonomous consolidation, scaffold output files from templ
 If `.claude/worktrees/consolidate-<date>/` already exists, offer:
 1. **Reuse** — keep existing worktree, skip creation
 2. **Remove and recreate** — `git worktree remove` then create fresh
-3. **Abort** — do nothing
+3. **New with timestamp** — append `-HHMM` (24h hour+minute) to create `.claude/worktrees/consolidate-<date>-<HHMM>` with branch `consolidate/<date>-<HHMM>`
+4. **Abort** — do nothing
 
 ### 3. Create worktree
 
