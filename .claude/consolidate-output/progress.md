@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -59,6 +59,7 @@ Suggested iterations: 10
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: platform-engineer + typescript-devops |
+| 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, 1 LOW (cross-persona dedup) |
 
 ## Deep Dive Status
 
@@ -88,3 +89,15 @@ Suggested iterations: 10
 - No concept-name collisions, no duplicates, no genericization issues, no thin fold candidates.
 - Polish opportunities: skill-design.md (246 lines, compression), skill-platform-portability.md (220 lines, compression). Both thematically unified — NOT split candidates.
 - No compoundable meta-insights (finding was straightforward reference wiring, methodology already covers this).
+
+### Iter 2
+
+**Sweep notes (SKILLS):**
+- 29 skills across 5 namespaces: git:* (9), learnings:* (4), ralph:* (7), parallel-plan:* (2), standalone (6).
+- All 29 skills evaluated as Keep. No overlap, staleness, or scope issues.
+- Shared skill-references (5) correctly wired — platform-detection.md used by 7 git skills, agent-prompting.md by parallel-plan:*, subagent-patterns.md by orchestrator skills.
+- Producer/consumer pairs validated: parallel-plan make→execute, explore-repo→brief, ralph init→resume, consolidate→curate, split-pr→repoint-branch.
+- Model version strings current: `Claude Opus 4.6` or generic `Claude <model>`.
+- Cross-persona check: react-frontend + xrpl-typescript-fullstack share ~15 lines of React/Next.js gotchas (setState/useEffect, localStorage hydration, Next.js 16 mentions). Could resolve via extension. Classified LOW — structural change risk, multiple valid approaches.
+- No reference wiring opportunities (skills don't contain inline knowledge that should point to learnings).
+- No compoundable meta-insights (clean sweep).
