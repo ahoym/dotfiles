@@ -13,6 +13,7 @@
     ".claude/learnings/claude-code.md": { "last_deep_dive_run": 3 },
     ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 3 },
     ".claude/learnings/playwright-patterns.md": { "last_deep_dive_run": 3 },
-    ".claude/learnings/multi-agent-patterns.md": { "last_deep_dive_run": 3 }
+    ".claude/learnings/multi-agent-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/refactoring-patterns.md": { "last_deep_dive_run": 3 }
   }
 }

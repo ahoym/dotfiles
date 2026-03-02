@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md |
+| DEEP_DIVE_CANDIDATES | xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md |
 
 ## Pre-Flight
 
@@ -76,6 +76,7 @@ Suggested iterations: 15
 | 13 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | playwright-patterns.md: 1 HIGH (§18 internal dup of §7 — identical workaround code, compound encoding already in §7's Note). 18→17 patterns, ~11 lines reduced. All other 17 patterns canonical. |
 | 14 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | ralph-loop.md: 1 HIGH (merge §8 "Compounded Learnings as Corpus Changes" into §12 "Convergence as Safety Net" — same concept, §12 more detailed). 32→31 patterns, ~4 lines reduced. All other 31 patterns canonical. |
 | 15 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | multi-agent-patterns.md: clean. 20 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical. |
+| 16 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | refactoring-patterns.md: 1 HIGH (delete §11 "Build Test Infrastructure First" — cross-file dup of testing-patterns.md §8 "Shared Test Helpers Design"). 13→12 patterns, ~11 lines reduced. All other 12 patterns canonical. |
 
 ## Deep Dive Status
 
@@ -89,7 +90,7 @@ Suggested iterations: 15
 | playwright-patterns.md | completed | 13 | 1 HIGH (delete §18 internal dup of §7). 18→17 patterns. ~11 lines reduced. |
 | ralph-loop.md | completed | 14 | 1 HIGH (merge §8 into §12 — internal dup on convergence/compounding). 32→31 patterns. ~4 lines reduced. |
 | multi-agent-patterns.md | completed | 15 | Clean — 20 patterns, all canonical. Key cross-refs: subagent-patterns.md (complementary), claude-code.md (complementary), guideline-authoring.md (complementary). No duplicates, no compression/genericization/wiring opportunities. |
-| refactoring-patterns.md | pending | — | Fill slot: untracked, 150 lines |
+| refactoring-patterns.md | completed | 16 | 1 HIGH (delete §11 cross-file dup of testing-patterns.md §8). 13→12 patterns, ~11 lines reduced. |
 | xrpl-patterns.md | pending | — | Fill slot: untracked, 170 lines |
 | bash-patterns.md | pending | — | Fill slot: untracked, 112 lines |
 | testing-patterns.md | pending | — | Fill slot: untracked, 142 lines |
@@ -283,3 +284,21 @@ Suggested iterations: 15
 - Reference wiring: no persona covers meta/tooling domain — no wiring needed
 - Tracker updated: multi-agent-patterns.md last_deep_dive_run=3
 - Next candidate: refactoring-patterns.md (fill slot, untracked, 150 lines)
+
+### Iter 16
+
+- Deep dive 7: refactoring-patterns.md (fill slot, untracked, 150 lines)
+- 13 H2 patterns parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas (react-frontend.md, xrpl-typescript-fullstack.md checked), 5 skill-references, code-quality-checklist.md
+- HIGH: Deleted §11 "Build Test Infrastructure First" — near-identical bullet points to testing-patterns.md §8 "Shared Test Helpers Design" (stable test fixtures, mock factory, request/response factories, route param helpers). testing-patterns.md is canonical (adds vi.hoisted() caveat, more implementation detail). The ordering advice ("build first") is covered by §8 "Phased Refactoring Approach" (Phase 2 follows Phase 1 cleanup).
+- 12 remaining patterns all confirmed canonical:
+  - §1 (Survey Before Acting) complementary to react-patterns.md §9 (Audit Before Abstracting) — general vs React-specific instantiation
+  - §5 (Split PRs by Risk Profile) complementary to parallel-plans.md §2 (Fast/Slow Track) — risk vs complexity split
+  - §6 (Parallel Batch Failure Handling) unique — no multi-agent-patterns.md equivalent for failure recovery
+  - §10 (Deciding What NOT to Refactor) complementary to code-quality-checklist.md extraction thresholds — refactoring scope vs code extraction
+  - §13 (Refactoring Order: Dependencies First) complementary to multi-agent-patterns.md §3 (Coordinating Interface Changes) — solo vs parallel agent context
+- Genericization: clean — no project-specific names, paths, or routes
+- Compression: 140 lines / 12 patterns = 11.7 lines/pattern avg — no section meets 30% threshold
+- Reference wiring: no persona covers refactoring methodology — domain-generic file, no wiring needed
+- Tracker updated: refactoring-patterns.md last_deep_dive_run=3
+- No compound insights — the cross-file duplicate pattern (test infrastructure listed in both refactoring and testing files) is a specific instance of the general "content migrates to domain-appropriate files" pattern already documented in ralph-loop.md
+- Next candidate: xrpl-patterns.md (fill slot, untracked, 170 lines)

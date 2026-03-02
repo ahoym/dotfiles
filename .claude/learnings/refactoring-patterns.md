@@ -103,17 +103,6 @@ Some identified opportunities aren't worth pursuing. Skip when:
 
 Document skipped items and why — it shows thoroughness without wasted effort.
 
-## Build Test Infrastructure First
-
-Before writing any test, create shared helpers that all tests will use. This prevents divergent test patterns across files:
-
-- **Stable test fixtures**: Generated once at module level, reusable across all test files
-- **Mock factory**: Returns object matching the service interface with all methods as `vi.fn()`
-- **Request/response factories**: Wrapping framework request objects and mock returns
-- **Route param helpers**: For framework-specific param wrapping
-
-This upfront investment pays off immediately — many test files all share the same helpers without drift.
-
 ## Test Layering Strategy
 
 Build tests in layers, each adding confidence before the next:
