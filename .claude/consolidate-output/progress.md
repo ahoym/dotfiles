@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 2
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 2 | 1 | 0 | 0 | 2 | 1 | No |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 2 | 1 | 0 | 4 | Delete component-architecture.md (dup in react-patterns.md), fold+delete web-session-pr-creation.md (ref info → learning), move troubleshooting.md → ts-devops persona. Compound: unreferenced guideline pattern → guideline-authoring.md |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files across 8 clusters. Iter 3 additions (web-session-sync.md, guideline-authoring.md) integrate without overlap. Concept-name collision check clear. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No broken refs from iter 3 guideline deletions. Model strings current. Persona extensions clean. |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap, no compression opportunity. End of Round 2: all types clean, CLEAN_ROUND_STREAK → 1 |
 
 ## Deep Dive Status
 
@@ -122,3 +124,15 @@ Suggested iterations: 15
 - Model strings all current (Opus 4.6), cross-skill overlap <80% in all namespaces, producer/consumer contracts valid
 - Persona modifications from iter 3 (typescript-devops received troubleshooting gotcha) don't affect skill evaluation
 - Next content type: GUIDELINES (Round 2)
+
+### Iter 6
+
+- Clean GUIDELINES sweep — 3 files (communication.md 115 lines, context-aware-learnings.md 95 lines, skill-invocation.md 8 lines), all @-referenced from CLAUDE.md
+- No content overlap with learnings corpus — guideline-authoring.md (learning) is meta-knowledge about writing guidelines, not a duplicate
+- No domain-specific patterns requiring persona migration — all 3 are universally applicable
+- 218 lines total always-on context — reasonable for behavioral guidelines that affect every session
+- No compression candidates (all sections have high insight-to-token ratio)
+- No dead-weight guidelines (all @-referenced, all behavioral)
+- End of Round 2: ROUND_CLEAN=true, CLEAN_ROUND_STREAK → 1. Round 3 starts at LEARNINGS
+- Deep dive candidates from iter 4 notes still valid: skill-design.md (hub + modified), claude-code.md (hub), nextjs.md (modified), web-session-sync.md (modified), guideline-authoring.md (modified)
+- Next content type: LEARNINGS (Round 3)
