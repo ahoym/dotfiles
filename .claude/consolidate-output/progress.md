@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
-| ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 9 |
+| ROUND | 4 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 2
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 15
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 2 | 1 | 0 | 0 | 2 | 1 | No |
 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -68,6 +69,7 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap, no compression opportunity. End of Round 2: all types clean, CLEAN_ROUND_STREAK → 1 |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. No concept-name collisions, no genericization issues, all persona wiring intact. Opportunity scan: no merge/split/compression candidates. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills (5 namespaces), 7 personas, 5 skill-refs. No stale models, no cross-skill overlap, persona extensions clean. Iter 7 opportunity candidates don't affect skills. |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. End of Round 3: ROUND_CLEAN=true, CLEAN_ROUND_STREAK=2 → CONVERGENCE. Deep dive phase begins with 10 candidates. |
 
 ## Deep Dive Status
 
@@ -75,6 +77,16 @@ Suggested iterations: 15
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| skill-design.md | pending | — | Hub file (criteria 1): referenced by 2+ files as canonical source |
+| claude-code.md | pending | — | Hub file (criteria 1): referenced by 2+ files as canonical source |
+| react-patterns.md | pending | — | Fill slot: untracked, 228 lines |
+| playwright-patterns.md | pending | — | Fill slot: untracked, 236 lines |
+| ralph-loop.md | pending | — | Fill slot: untracked, ~150 lines |
+| multi-agent-patterns.md | pending | — | Fill slot: untracked, 154 lines |
+| refactoring-patterns.md | pending | — | Fill slot: untracked, 150 lines |
+| xrpl-patterns.md | pending | — | Fill slot: untracked, 170 lines |
+| bash-patterns.md | pending | — | Fill slot: untracked, 112 lines |
+| testing-patterns.md | pending | — | Fill slot: untracked, 142 lines |
 
 ## Notes for Next Iteration
 
@@ -157,3 +169,14 @@ Suggested iterations: 15
 - All skill-reference files (5) have active consumers — no orphaned references
 - Staleness: no skill or persona file modified since iter 3 (typescript-devops.md received troubleshooting gotcha) — stable corpus
 - Next content type: GUIDELINES (Round 3). If clean → CLEAN_ROUND_STREAK=2 → convergence → deep dive phase
+
+### Iter 9
+
+- Clean GUIDELINES sweep — 3 files (communication.md 115 lines, context-aware-learnings.md 95 lines, skill-invocation.md 8 lines), all @-referenced from CLAUDE.md
+- No content overlap, no compression candidates, no domain-specific patterns, no dead weight — identical to iter 6 assessment
+- End of Round 3: ROUND_CLEAN=true, CLEAN_ROUND_STREAK → 2 → **BROAD SWEEP CONVERGENCE**
+- Round 3 summary: L=clean, S=clean, G=clean — third consecutive clean round (first was partial: Round 1 had findings)
+- Deep dive candidacy assessed: 2 criteria-based (skill-design.md hub, claude-code.md hub) + 8 fill slots (untracked, largest files) = 10 candidates (meets min_deep_dives=10)
+- Fill slot priority: largest untracked learnings files for maximum per-pattern coverage
+- PHASE → DEEP_DIVE. Next invocation processes first candidate: skill-design.md
+- Deep dive execution: read target, parse H2/H3 patterns, cross-reference full corpus, classify per 6-bucket model, apply HIGH/MEDIUM/LOW
