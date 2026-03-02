@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | ROUND | 4 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md |
+| DEEP_DIVE_CANDIDATES | testing-patterns.md |
+| DEEP_DIVE_COMPLETED | skill-design.md, claude-code.md, react-patterns.md, playwright-patterns.md, ralph-loop.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md |
 
 ## Pre-Flight
 
@@ -78,6 +78,7 @@ Suggested iterations: 15
 | 15 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | multi-agent-patterns.md: clean. 20 H2 patterns cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical. |
 | 16 | 4 | DEEP_DIVE | 1 | 0 | 0 | 1 | refactoring-patterns.md: 1 HIGH (delete §11 "Build Test Infrastructure First" — cross-file dup of testing-patterns.md §8 "Shared Test Helpers Design"). 13→12 patterns, ~11 lines reduced. All other 12 patterns canonical. |
 | 17 | 4 | DEEP_DIVE | 1 | 2 | 0 | 3 | xrpl-patterns.md: 1 HIGH (merge §16 into §1 — internal dup on getOrderbook domain param), 2 MEDIUMs (genericize §4 project names, de-enrich persona fill detection recipe). 17→16 patterns. Also slimmed xrpl-typescript-fullstack.md line 55. |
+| 18 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | bash-patterns.md: clean. 5 H2 patterns (7 incl sub-patterns) cross-referenced against 33 learnings, 3 guidelines, 8 personas, 5 skill-refs. All patterns canonical. |
 
 ## Deep Dive Status
 
@@ -93,7 +94,7 @@ Suggested iterations: 15
 | multi-agent-patterns.md | completed | 15 | Clean — 20 patterns, all canonical. Key cross-refs: subagent-patterns.md (complementary), claude-code.md (complementary), guideline-authoring.md (complementary). No duplicates, no compression/genericization/wiring opportunities. |
 | refactoring-patterns.md | completed | 16 | 1 HIGH (delete §11 cross-file dup of testing-patterns.md §8). 13→12 patterns, ~11 lines reduced. |
 | xrpl-patterns.md | completed | 17 | 1 HIGH (merge §16 into §1 — getOrderbook dup), 2 MEDIUMs (genericize §4 project names, de-enrich persona fill detection). 17→16 patterns. |
-| bash-patterns.md | pending | — | Fill slot: untracked, 112 lines |
+| bash-patterns.md | completed | 18 | Clean — 5 H2 patterns (7 incl sub-patterns), all unique canonical bash scripting knowledge. §2 complementary to testing-patterns.md §8 (bash vs TypeScript ecosystems). No duplicates, no compression/genericization/wiring opportunities. |
 | testing-patterns.md | pending | — | Fill slot: untracked, 142 lines |
 
 ## Notes for Next Iteration
@@ -324,3 +325,16 @@ Suggested iterations: 15
 - Reference wiring: xrpl-typescript-fullstack.md line 74 references xrpl-patterns.md — confirmed accurate
 - Tracker updated: xrpl-patterns.md last_deep_dive_run=3, xrpl-typescript-fullstack.md added at last_deep_dive_run=0 (modified)
 - Next candidate: bash-patterns.md (fill slot, untracked, 112 lines)
+
+### Iter 18
+
+- Deep dive 9: bash-patterns.md (fill slot, untracked, 112 lines)
+- 5 H2 patterns (7 including sub-patterns under §3) parsed and cross-referenced against: 33 other learnings, 3 guidelines, 8 personas (platform-engineer.md, typescript-devops.md checked), 5 skill-references
+- All patterns confirmed canonical — no duplicates, no stale content, no compression candidates, no genericization issues
+- Key cross-reference observations (no action needed):
+  - §2 (Shared Test Helper Library — bash) complementary to testing-patterns.md §8 (Shared Test Helpers Design — TypeScript/Vitest). Same concept, different ecosystems. bash version: curl response parsing, exit-code assertions. TypeScript version: vi.fn() mocks, request/response factories.
+  - §3 (set -e and pipefail) — no coverage elsewhere in corpus. Fundamental bash gotchas unique to this file.
+  - §5 (rsync --delete) — cross-repo-sync.md covers sync patterns (quantum-tunnel, git fetch/show) but not rsync behavior. Complementary.
+- Reference wiring: No persona covers bash scripting as primary domain. platform-engineer.md covers CI/CD; typescript-devops.md covers Node/pnpm. Neither warrants bash-patterns.md in Detailed references.
+- Tracker updated: bash-patterns.md last_deep_dive_run=3
+- Next candidate: testing-patterns.md (fill slot, untracked, 142 lines) — final deep dive candidate
