@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 4 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 
@@ -25,7 +25,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 4
 - **MEDIUMs blocked**: 0
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 7 | 3 | LEARNINGS | 0 | 1 | 0 | L-2 extraction: expand nextjs.md, slim 2 personas, wire ref | Applied L-2 (cross-persona dedup): added Turbopack + dynamic params to nextjs.md, slimmed both persona gotcha sections to pointers, wired nextjs.md into xrpl-typescript-fullstack refs |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; model versions current; nextjs.md expansion no overlap with skill refs |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced; no impact from iter 7 persona changes; end of Round 3 |
+| 10 | 4 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files, 7 clusters verified; iter 7 L-2 extraction stable (nextjs.md, 2 persona slimmings, ref wirings all correct); no new overlaps or opportunities |
 
 ## Notes for Next Iteration
 
@@ -207,3 +208,13 @@ Key items for Round 4 LEARNINGS sweep:
 - Verify persona slimmings are stable (react-frontend.md and xrpl-typescript-fullstack.md both have pointer-only Next.js sections)
 - Check that no new duplicates/overlaps were introduced by the L-2 extraction
 - All other learnings should be unchanged from iter 7's verification (33 files total)
+
+### After Iter 10
+
+**Next: SKILLS sweep (Round 4, Sweep 11)**
+
+Round 4 LEARNINGS sweep was clean. All 33 files verified across 7 clusters (XRPL+TS:5, React/Frontend:5, Testing:2, Meta/Tooling:11, Infra/DevOps:4, Python:1, General:5). Iter 7's L-2 extraction (nextjs.md expansion, 2 persona slimmings, ref wirings) confirmed stable. No concept-name collisions, no new overlaps, no compression/merge/split opportunities.
+
+SKILLS sweep should confirm the same 29 skills across 5 clusters remain clean. No corpus changes since iter 8's SKILLS sweep — the only intervening change was iter 7's LEARNINGS action (nextjs.md/persona edits), which iter 8 already verified had no SKILLS impact.
+
+If SKILLS and GUIDELINES are also clean this round, CLEAN_ROUND_STREAK increments to 1. Round 5 would then be the convergence round (streak=2 if also clean).
