@@ -1,0 +1,8 @@
+{
+  "run_count": 1,
+  "threshold": 3,
+  "files": {
+    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 1 },
+    ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 }
+  }
+}

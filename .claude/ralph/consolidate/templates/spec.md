@@ -66,6 +66,12 @@ All in `.claude/consolidate-output/`:
 | `report.md` | Cumulative summary |
 | `lows.md` | Low-confidence items for manual review |
 
+### Infrastructure
+
+| File | Purpose |
+|------|---------|
+| `.claude/ralph/consolidate/deep-dive-tracker.json` | Tracks when each corpus file was last deep-dived (by run count). Used for forced periodic deep dives. |
+
 ### Methodology References
 
 Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the analytical framework — classification model, persona criteria, and operational calibration:
@@ -101,7 +107,8 @@ Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
 If SWEEP_COUNT = 0:
 1. Read all methodology reference files listed above
-2. Record condensed classification criteria and key operational patterns in `Notes for Next Iteration`
+2. Read `.claude/ralph/consolidate/deep-dive-tracker.json` — extract `run_count` and `threshold`. Increment `run_count` by 1 for this run.
+3. Record condensed classification criteria and key operational patterns in `Notes for Next Iteration`
 
 ### 3. Execute Sweep or Deep Dive
 
@@ -126,11 +133,12 @@ Execute all HIGH-confidence actions:
 - When creating new files (e.g., extracting knowledge into a new learning), use Write to create, then `git add` to stage.
 - When renaming/moving a file, use `git mv` to preserve history.
 - Log each to decisions.md: `| <iter> | <type> | <action> | <source> | <target> | HIGH | applied | <rationale> |`
+- **Track touched files**: For each corpus file modified by a HIGH action, add or update its entry in the deep-dive tracker (set `last_deep_dive_run` to 0 — it's been modified but not yet deep-dived). Write the updated tracker to disk.
 
 ### 6. Judge MEDIUMs
 
 For each MEDIUM, apply the judgment criteria (see MEDIUM Judgment section):
-- **Auto-apply**: Execute the action. Log to decisions.md with `applied` and detailed rationale.
+- **Auto-apply**: Execute the action. Log to decisions.md with `applied` and detailed rationale. Track touched files in deep-dive tracker (same as step 5).
 - **Block**: Do NOT execute. Log to decisions.md with `blocked`. Add to blockers.md with options.
 
 ### 7. Record LOWs
@@ -269,8 +277,13 @@ A file is a deep dive candidate if it meets ANY of:
 1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, content-type-decisions.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
 2. **Polish Opportunity file**: Flagged in the broad sweep's per-file quality scan (genericization candidates, compression candidates). These were already identified but had no execution path in the broad sweep.
 3. **Curate skill criteria**: 5+ patterns AND an action signal (stale content, domain overlap, compression opportunity).
+4. **Modified guideline file**: Any `.claude/guidelines/*.md` file that received a HIGH or MEDIUM action during broad sweeps. Guidelines are always-loaded context (`@`-referenced in CLAUDE.md) — every token costs context budget in every session, so changes warrant per-pattern verification.
+5. **Modified skill file**: Any `.claude/commands/**/SKILL.md` file that received a HIGH or MEDIUM action during broad sweeps. Skills define repeatable agent workflows — changes warrant per-pattern verification to catch downstream breakage.
+6. **Stale tracked file**: Any file in `deep-dive-tracker.json` where `run_count - last_deep_dive_run >= threshold`. Files enter the tracker organically when touched by broad sweep actions (steps 5/6) or deep dives — no file is tracked until the loop first modifies or deep-dives it.
 
-Candidacy is determined during the final LEARNINGS broad sweep. The agent records candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+Candidacy is determined incrementally: learnings candidates during the final LEARNINGS broad sweep, guideline candidates during any GUIDELINES sweep that applies changes, skill candidates during any SKILLS sweep that applies changes, staleness candidates at convergence (check tracker). The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+
+**Prioritization** (when candidates exceed the max guard): modification-triggered candidates first (criteria 1–5), then staleness candidates sorted by most overdue (`run_count - last_deep_dive_run`, descending). Unprocessed staleness candidates carry over to the next run — their staleness naturally increases.
 
 ### Per-File Execution
 
@@ -285,7 +298,8 @@ Each deep dive invocation processes ONE file (preserves the one-sweep-per-invoca
    - Record LOWs in lows.md
 5. **Compound insights** if findings were applied (same methodology as broad sweep step 8)
 6. **Update output files** — increment SWEEP_COUNT, append iteration log, move file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED
-7. **Commit**: `consolidate: deep-dive N — <filename> (<summary>)`
+7. **Update tracker** — set the deep-dived file's `last_deep_dive_run` to current `run_count` in `deep-dive-tracker.json`. Write the updated tracker to disk.
+8. **Commit**: `consolidate: deep-dive N — <filename> (<summary>)`
 
 ### Bounded — No Re-Convergence
 

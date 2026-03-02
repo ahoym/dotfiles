@@ -55,3 +55,8 @@
 
 ### CI guards
 - Lightweight CI guard (no checkout): use API calls + `jq` to check for blocked file paths in MR/PR — runs in seconds with no dependencies beyond `curl` and `jq`
+
+## Detailed references
+
+Load when working in the specific area:
+- `learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults

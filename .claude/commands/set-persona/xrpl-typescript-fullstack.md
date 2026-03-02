@@ -18,11 +18,7 @@
 - Ensure `account_lines` hex currency codes are decoded to ASCII before any user-facing comparison or display
 - Verify `getOrderbook` results are re-categorized by checking `TakerGets`/`TakerPays` currencies — xrpl.js splits by `lsfSell` flag, not by book side
 - Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads
-- Ensure dynamic route params are `await`ed (Next.js 16 returns `Promise<{...}>`)
-- Gate localStorage-derived renders on hydration state to prevent SSR mismatches
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
-- Use render-time state sync (`if (prev !== current)` pattern) instead of `setState` inside `useEffect` (React 19)
-- Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 
 ## Code style
 
@@ -73,6 +69,7 @@ TypeScript-specific:
 ## Detailed references
 
 Load when working in the specific area:
+- `learnings/react-patterns.md` — React 19 patterns (setState/useEffect, hydration gating, hook extraction, component decomposition)
 - `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
 - `learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
