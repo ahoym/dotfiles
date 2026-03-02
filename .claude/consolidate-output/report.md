@@ -7,8 +7,8 @@
 | Started | 2026-03-01 |
 | Branch | consolidate/2026-03-01 |
 | Worktree | .claude/worktrees/consolidate-2026-03-01 |
-| Iterations | 5 |
-| Rounds | 1 complete, 2 in progress |
+| Iterations | 6 |
+| Rounds | 2 complete, 3 in progress |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
-| Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **5** | **0** | **3** | **0** | **2** |
+| Guidelines | 2 | 0 | 0 | 0 | 0 |
+| **Total** | **6** | **0** | **3** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -48,7 +48,7 @@ See `blockers.md` for details.
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Learnings files | 33 | 34 (+1: skill-platform-portability.md) |
+| Learnings files | 33 | 33 (split +1, resume may have merged into existing) |
 | Skills | 29 | 29 |
 | Guidelines files | 3 | 3 |
 | Persona files | 7 | 7 (2 edited: react-frontend, xrpl-typescript-fullstack) |

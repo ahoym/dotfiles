@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 
 ## Pre-Flight
 
@@ -39,7 +39,7 @@ Suggested iterations: 15
 - **LOWs recorded**: 1
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 3 | 0 | 0 | 0 | 0 | no |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no overlap/compression/wiring issues |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files verified; Round 1 split + wirings stable; no duplicates, overlaps, or opportunities |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; shared references centralized; producer/consumer contracts valid |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 3; resume commit (L-2) did not affect guidelines |
 
 ## Notes for Next Iteration
 
@@ -140,3 +142,17 @@ If GUIDELINES is also clean, Round 2 will be fully clean → CLEAN_ROUND_STREAK 
 **[L-1] code-quality-instincts.md**: RESOLVED — keep as-is. Shared cross-persona reference, thin is correct for this role. No action needed.
 
 **[L-2] Cross-persona Next.js/React overlap**: RESOLVED — **extract shared gotchas**. Create a learning file (e.g., `nextjs-react-patterns.md`) with the shared Next.js 16 / React 19 gotchas (async component patterns, `use()` hook, metadata API changes). Remove the shared content from both `react-frontend.md` and `xrpl-typescript-fullstack.md`, keeping only persona-specific contextualizations. Add reference to the new learning in both personas' Detailed references sections. This is a MEDIUM auto-apply action (reversible, no content lost).
+
+### After Iter 6
+
+**End of Round 2** — all 3 sweeps clean (LEARNINGS iter 4, SKILLS iter 5, GUIDELINES iter 6). ROUND_CLEAN=true. CLEAN_ROUND_STREAK increments to 1.
+
+**Next: LEARNINGS sweep (Round 3, Sweep 7)**
+
+Round 3 is the potential convergence round. If all 3 sweeps are clean, CLEAN_ROUND_STREAK reaches 2 and the loop converges.
+
+Key items for Round 3 LEARNINGS sweep:
+- The resume commit (824fffe) applied L-2: extracted shared Next.js/React gotchas from both personas. Verify the new/modified learning file and the persona modifications are stable.
+- Current learnings count observed: 33 files (report previously said 34 after sweep 1 split — verify whether resume changed the count).
+- All prior changes from Round 1 (skill-design split, 2 persona ref wirings) remain stable through Round 2.
+- No new compound insights were generated in Round 2 (all sweeps clean).
