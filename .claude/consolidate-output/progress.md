@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 3 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | skill-design.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | skill-design.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 10
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 33 files, 8 clusters, unchanged since R2 |
 | 8 | 3 | SKILLS | 0 | 0 | 1 | 0 | Clean — 29 skills, 5 namespaces, no changes since R2 |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 files, 19 patterns, unchanged. R3 clean → CONVERGED |
+| 10 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | skill-design.md: deleted #15 (contradicts #14 + redundant w/ claude-md-authoring.md) |
 
 ## Deep Dive Status
 
@@ -77,7 +78,7 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
-| skill-design.md | pending | — | 246 lines, 20+ patterns, compression candidate |
+| skill-design.md | done | 10 | 1 HIGH: deleted contradictory/redundant section (#15). 232→ lines, 26 patterns. |
 | skill-platform-portability.md | pending | — | 220 lines, 17 patterns, compression candidate |
 
 ## Notes for Next Iteration
@@ -198,3 +199,13 @@ Suggested iterations: 10
 **Round 3 complete**: L=0H/0M, S=0H/0M, G=0H/0M. Clean. CLEAN_ROUND_STREAK=2. **BROAD SWEEP CONVERGED.**
 
 **Deep dive transition**: 2 candidates from iter 7 — skill-design.md (246 lines, compression), skill-platform-portability.md (220 lines, compression). Both meet Polish Opportunity + curate criteria (5+ patterns, compression action signal). PHASE set to DEEP_DIVE.
+
+### Iter 10
+
+**Deep dive: skill-design.md (27 patterns, 246 lines)**
+- Cross-referenced all 27 patterns against: 33 learnings, 7 personas, 3 guidelines, 5 skill-references, claude-code.md, claude-code-hooks.md, claude-md-authoring.md, multi-agent-patterns.md, explore-repo.md
+- 1 HIGH found: Pattern #15 "Conditional vs Always-Loaded References" contradicts Pattern #14 ("@ in SKILL.md Does NOT Auto-Load") — #14 explicitly states neither auto-loads, making #15's "always loaded" @-reference framing incorrect. Also redundant with claude-md-authoring.md's "Conditional @ Reference Pattern" for CLAUDE.md context. Deleted #15.
+- 26 remaining patterns verified as standalone/correctly placed. No other overlaps, stale content, or compression opportunities meeting 30% threshold.
+- multi-agent-patterns.md correctly cross-references skill-design.md § Stateful Mode Detection (verified, no action needed).
+- Research methodology cluster (#19-23, ~22 lines) noted as mild domain mismatch with "Skill Design" title, but too thin for standalone file — keeping in place.
+- No compoundable meta-insights (finding was a straightforward internal contradiction, not a novel corpus pattern).

@@ -346,21 +346,6 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 This also corrects the earlier learning about `@./file.md` vs `@file.md` — neither auto-loads in SKILL.md, so the distinction is moot. Use backtick paths with explicit read instructions instead.
 
-## Conditional vs Always-Loaded References
-
-When a reference file is only needed in certain scenarios, remove the `@` prefix and add a conditional read instruction. This saves context tokens when the file isn't relevant.
-
-```markdown
-# Always loaded (costs tokens every invocation)
-## Reference Files
-- @./reply-templates.md
-
-# Conditional (loaded only when needed)
-## Reference Files (conditional — read only when needed)
-- `reply-templates.md` — Read before composing replies (step 5)
-- `lgtm-verification.md` — Read only when LGTM comment detected
-```
-
 ## Discoverability via Trigger Phrases
 
 Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.
