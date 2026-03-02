@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 5 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 
@@ -25,7 +25,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 4
+- **Sweeps**: 5
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 4
 - **MEDIUMs blocked**: 0
@@ -74,6 +74,7 @@ Suggested iterations: 15
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files, 7 clusters verified; iter 7 L-2 extraction stable (nextjs.md, 2 persona slimmings, ref wirings all correct); no new overlaps or opportunities |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | none | Clean — 29 skills, 5 clusters, all Keep; no corpus changes since iter 8; model versions current; shared references centralized; producer/consumer contracts valid |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | none | Clean — 3 files (214 lines), all @-referenced, no changes since iter 9; end of Round 4 (clean, streak→1) |
+| 13 | 5 | LEARNINGS | 0 | 0 | 0 | none | Clean — 33 files, 7 clusters verified; all stable since iter 10; L-2 extraction confirmed stable for 4th consecutive LEARNINGS sweep |
 
 ## Notes for Next Iteration
 
@@ -245,3 +246,13 @@ Key items for Round 5 LEARNINGS sweep:
 - No corpus changes have occurred since iter 7's L-2 extraction (which has been verified stable across 3 subsequent LEARNINGS sweeps: iters 4, 7, 10)
 - All persona reference wirings confirmed stable across rounds 2-4
 - Expect clean result — this is a confirmation sweep
+
+### After Iter 13
+
+**Next: SKILLS sweep (Round 5, Sweep 14)**
+
+Round 5 LEARNINGS sweep was clean. All 33 files verified across 7 clusters (XRPL+TS:5, React/Frontend:5, Testing:2, Meta/Tooling:11, Infra/DevOps:4, Python:1, General:5). L-2 extraction confirmed stable for 4th consecutive LEARNINGS sweep. No concept-name collisions, no duplicates, no overlaps, no compression/merge/split/wiring opportunities.
+
+SKILLS sweep should confirm the same 29 skills across 5 clusters remain clean. No corpus changes since iter 11's SKILLS sweep — no intervening changes at all.
+
+If SKILLS and GUIDELINES are also clean this round, CLEAN_ROUND_STREAK reaches 2 → WOOT_COMPLETE_WOOT.
