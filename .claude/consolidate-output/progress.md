@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 4 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 10
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 3
 - **MEDIUMs blocked**: 0
@@ -70,6 +70,7 @@ Suggested iterations: 10
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes verified stable. No heading collisions, no duplicates, no genericization or wiring gaps. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No changes since iter 5. All references current, model strings current, no overlap or staleness. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary (ralph-loop.md, claude-code.md). End of Round 3 — CLEAN_ROUND_STREAK → 1. |
+| 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes stable. No collisions, duplicates, genericization, compression, or wiring gaps. Deep dive candidates confirmed (11). |
 
 ## Deep Dive Status
 
@@ -212,3 +213,19 @@ Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 
 **Deep dive candidates** (carried from iter 7): api-design.md (hub), nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md (11 total, stale-tracked).
 
 **Next content type:** LEARNINGS (round 4 begins)
+
+### Iter 10
+
+**LEARNINGS broad sweep — Round 4 — clean.**
+
+Re-read all 34 learnings + 7 personas + 5 skill-references. All iter 1/4 changes verified stable (ralph-loop.md merge resolved, api-design.md wired to xrpl-typescript-fullstack, explore-repo.md genericized, git-patterns.md wired to platform-engineer).
+
+**Clusters analyzed:** XRPL (6), React/Frontend (5), Testing (2), Meta/tooling (12), General programming (4), Python (1), Infrastructure (2), Other (2). No heading collisions. No duplicates, overlaps, genericization candidates, compression opportunities, or reference wiring gaps.
+
+**Thin file assessment:** code-quality-instincts.md (16 lines), aws-patterns.md (14 lines), vercel-deployment.md (14 lines) — all substantive content, not cross-reference pointers. Correctly sized for scope.
+
+**Deep dive candidates** (confirmed from iter 7/9 — 11 total, meets min_deep_dives=10):
+- Criteria 1 (hub): api-design.md
+- Criteria 6 (stale): nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md
+
+**Next content type:** SKILLS (round 4 continues)
