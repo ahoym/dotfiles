@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 10
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 3
 - **MEDIUMs blocked**: 0
@@ -66,6 +66,7 @@ Suggested iterations: 10
 | 4 | 2 | LEARNINGS | 0 | 2 | 0 | 2 | Genericized 3 project-specific names in explore-repo.md; wired git-patterns.md to platform-engineer persona |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. Iter 3-4 changes don't affect skills |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Iter 4-5 changes don't affect guidelines. End of Round 2. |
+| 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes verified stable. No heading collisions, no duplicates, no genericization or wiring gaps. |
 
 ## Deep Dive Status
 
@@ -166,3 +167,23 @@ Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 
 **Round 3 begins with LEARNINGS.** This is the second confirmation sweep for LEARNINGS. If rounds 3 sweeps all come back clean, CLEAN_ROUND_STREAK will reach 1. Need one more clean round (4) after that for convergence (streak >= 2).
 
 **Next content type:** LEARNINGS (round 3 begins)
+
+### Iter 7
+
+**LEARNINGS broad sweep — Round 3 — clean.**
+
+Re-read all 34 learnings + 7 personas + 5 skill-references. Verified all iter 1/4 changes held:
+- ralph-loop.md: merge conflict resolved ✅
+- api-design.md → xrpl-typescript-fullstack wiring ✅
+- explore-repo.md: genericized ✅
+- git-patterns.md → platform-engineer wiring ✅
+
+**Clusters analyzed:** XRPL (6), React/Frontend (5), Testing (2), Meta/tooling (12), General programming (4), Python (1), Infrastructure (2), Other (2). No heading collisions. No duplicates, overlaps, genericization candidates, or reference wiring gaps.
+
+**Deep dive candidate recording** (CLEAN_ROUND_STREAK could reach 1 after R3):
+
+DEEP_DIVE_CANDIDATES (11 files):
+- Criteria 1 (hub): api-design.md (referenced by python-specific.md + xrpl-typescript-fullstack persona)
+- Criteria 6 (stale, run_count=4, threshold=3): nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md
+
+**Next content type:** SKILLS (round 3 continues)
