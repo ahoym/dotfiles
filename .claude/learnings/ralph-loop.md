@@ -144,6 +144,7 @@ Cluster-level analysis can't catch per-pattern duplicates when: (a) headings use
 
 When an outer-loop iteration produces a 0 sweep-count delta, the log should capture the agent's stdout, not just the post-hoc validation warning. Without this, post-run analysis identifies *that* failures occurred (via log timestamps and delta checks) but not *why*. Current `wiggum.sh` logs only the warning line — the agent's actual output is lost.
 
+<<<<<<< Updated upstream
 ## Track Assumptions with Confidence Levels in Iterative Research
 
 When running multi-iteration research (ralph loops, deep dives), explicitly log assumptions with confidence ratings (High/Medium/Low) and a validation tracker table. This prevents later iterations from re-investigating settled questions or proceeding on shaky foundations. Format: assumption statement, confidence level, whether validated, and resolution. Cross-reference assumptions from the ID (A1, A2...) in other documents.
@@ -175,3 +176,10 @@ When an autonomous loop produces zero items at a classification level (e.g., zer
 1. **Audit the level above**: Check MEDIUM decisions for borderline calls that should have been LOWs. Were any "auto-applied" where the rationale required non-trivial judgment?
 2. **Check the classification funnel**: Count action types per level. If the auto-apply bucket has 14 action types and the block/escalate bucket has 4, the funnel structurally prevents items from reaching the lower level.
 3. **Spot-check "clean" items**: Pick 2-3 files the agent called clean and review manually. If a human finds things the agent missed, the agent is resolving ambiguity silently rather than surfacing it.
+=======
+## Strip Consolidate-Output from PR Branches
+
+`.claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.
+
+Before creating a PR, strip working state from the branch while preserving local copies: `git rm --cached -r .claude/consolidate-output/` (removes from git index, keeps on disk). Add `.claude/consolidate-output/` to `.gitignore` to prevent re-staging. For untracked logs (iterations after last commit), no git action needed — they're already local-only.
+>>>>>>> Stashed changes
