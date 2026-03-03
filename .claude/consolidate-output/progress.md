@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md |
+| DEEP_DIVE_CANDIDATES | typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md |
 
 ## Pre-Flight
 
@@ -77,6 +77,7 @@ Suggested iterations: 10
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — api-design.md (hub). 8 patterns cross-referenced against full corpus. All standalone references with unique content. Hub refs verified. No findings. |
 | 14 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | nextjs.md (stale). 6 patterns cross-referenced. 1 MEDIUM genericization applied (pattern 6: "NetworkId" → generic union type). 5 patterns clean — standalone references with correct persona pointers (react-frontend, xrpl-typescript-fullstack). No compression above 30%. |
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — web-session-sync.md (stale). 8 patterns cross-referenced against full corpus. All standalone references with unique content. No persona wiring gap (meta/tooling). Pattern 7 complementary to claude-code.md "Context Continuation". |
+| 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — guideline-authoring.md (stale). 7 patterns cross-referenced against full corpus. Hub pattern 3 verified (2 consumers). All patterns standalone with unique content. No genericization, compression, or wiring gaps. |
 
 ## Deep Dive Status
 
@@ -87,7 +88,7 @@ Suggested iterations: 10
 | api-design.md | done | 13 | Clean — 8 patterns, all standalone references with unique content. Hub refs verified (python-specific.md, xrpl-typescript-fullstack.md). No duplicates, overlaps, genericization, or compression above threshold. |
 | nextjs.md | done | 14 | 1 MEDIUM applied (genericized pattern 6 heading/body — "NetworkId" → generic union type). 5 other patterns clean: all standalone references with correct persona pointers. No compression above 30%. No wiring gaps. |
 | web-session-sync.md | done | 15 | Clean — 8 patterns, all standalone references with unique content. No duplicates, overlaps, genericization, or compression above 30%. No persona wiring gap (meta/tooling domain). Pattern 7 complementary to claude-code.md "Context Continuation". |
-| guideline-authoring.md | pending | — | Stale (criteria 6, delta=4) |
+| guideline-authoring.md | done | 16 | Clean — 7 patterns, all standalone references with unique content. Hub status verified for pattern 3 (compound SKILL.md + content-type-decisions.md reference it). Pattern 4 complementary to skill-design.md "Persona Value". Pattern 5 complementary to context-aware-learnings.md gates. No duplicates, genericization, or compression above 30% (77 lines). No persona wiring gap (meta/tooling domain). |
 | typescript-devops.md | pending | — | Stale (criteria 6, delta=4) |
 | ralph-loop.md | pending | — | Stale (criteria 6, delta=4) |
 | xrpl-typescript-fullstack.md | pending | — | Stale (criteria 6, delta=4) |
@@ -327,3 +328,21 @@ Cross-referenced all 8 patterns against full corpus (34 learnings, 7 personas, 5
 No genericization (no project-specific names). No compression above 30% (66 lines). No persona wiring gap (meta/tooling domain, no persona strongly owns). Tracker updated (last_deep_dive_run=4).
 
 **Next invocation:** Deep dive guideline-authoring.md (stale, criteria 6, delta=4).
+
+### Iter 16
+
+**DEEP_DIVE — guideline-authoring.md (stale, criteria 6) — clean.**
+
+Cross-referenced all 7 H2 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+1. **Merging overlapping guidelines** — Unique curation technique. Example (communication.md "Be honest...") verified. No duplication.
+2. **Avoid Nesting Subdirectories Inside learnings/** — Unique filesystem org rule. Not in claude-md-authoring.md.
+3. **Genericize Project-Specific Content** — **Hub pattern**: referenced by compound SKILL.md (L118, provenance stripping) and content-type-decisions.md (L97, tool genericization). Authoritative source. cross-repo-sync.md and multi-agent-patterns.md mention genericization in complementary contexts only.
+4. **Persona-Learning Boundary Test** — Complementary to skill-design.md L179-188 "Persona Value: Judgment Layer" (philosophy vs operational heuristic). Not duplicated.
+5. **Hard Gates Need Tool-Call Triggers** — Unique meta-insight about enforcement architecture. context-aware-learnings.md demonstrates the principle. multi-agent-patterns.md L98 covers gate observability (different concern).
+6. **Unreferenced Guidelines Are Dead Weight** — Unique meta-insight. Consolidation spec implements this as "Wiring check" — this file is the source principle.
+7. **Don't Create Guidelines That Restate Skill Defaults** — Unique guideline-skill boundary insight. Not in skill-design.md or skill-invocation.md.
+
+No genericization (examples in pattern 3 table are teaching examples, not leaked project names). No compression above 30% (77 lines, all substantive). No persona wiring gap (meta/tooling/authoring domain — no persona owns this). Tracker updated (last_deep_dive_run=4).
+
+**Next invocation:** Deep dive typescript-devops.md (persona, stale, criteria 6, delta=4).
