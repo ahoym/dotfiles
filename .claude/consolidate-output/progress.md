@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -67,6 +67,7 @@ Suggested iterations: 10
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. Iter 3-4 changes don't affect skills |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Iter 4-5 changes don't affect guidelines. End of Round 2. |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes verified stable. No heading collisions, no duplicates, no genericization or wiring gaps. |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No changes since iter 5. All references current, model strings current, no overlap or staleness. |
 
 ## Deep Dive Status
 
@@ -187,3 +188,13 @@ DEEP_DIVE_CANDIDATES (11 files):
 - Criteria 6 (stale, run_count=4, threshold=3): nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md
 
 **Next content type:** SKILLS (round 3 continues)
+
+### Iter 8
+
+**SKILLS broad sweep — Round 3 — clean.**
+
+Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7, parallel-plan:* 2, standalone 7). No corpus changes since iter 5 (iters 6-7 were both clean).
+
+**Verified:** Co-Authored-By strings all "Claude Opus 4.6" (current). All reference files exist. No cross-skill overlap >80%. Producer/consumer pairs intact (split-pr↔repoint-branch, curate→consolidate, make→execute). All 5 skill-references wired. Cross-persona inheritance correct (java-devops→platform-engineer, typescript-devops→platform-engineer). No content-level duplication between xrpl-typescript-fullstack and react-frontend.
+
+**Next content type:** GUIDELINES (round 3 continues)
