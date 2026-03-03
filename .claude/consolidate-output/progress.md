@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 10
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes stable. No collisions, duplicates, genericization, compression, or wiring gaps. Deep dive candidates confirmed (11). |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No corpus changes since iter 8. All model strings current (Opus 4.6), references intact, no overlap, producer/consumer pairs correct. |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary. End of Round 4 — CLEAN_ROUND_STREAK → 2. BROAD SWEEPS CONVERGED. Transitioning to DEEP_DIVE with 11 candidates. |
+| 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — api-design.md (hub). 8 patterns cross-referenced against full corpus. All standalone references with unique content. Hub refs verified. No findings. |
 
 ## Deep Dive Status
 
@@ -81,7 +82,7 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
-| api-design.md | pending | — | Hub file (criteria 1) |
+| api-design.md | done | 13 | Clean — 8 patterns, all standalone references with unique content. Hub refs verified (python-specific.md, xrpl-typescript-fullstack.md). No duplicates, overlaps, genericization, or compression above threshold. |
 | nextjs.md | pending | — | Stale (criteria 6, delta=4) |
 | web-session-sync.md | pending | — | Stale (criteria 6, delta=4) |
 | guideline-authoring.md | pending | — | Stale (criteria 6, delta=4) |
@@ -267,3 +268,24 @@ Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 
 - All candidates populated in Deep Dive Status table above
 
 **Next invocation:** Begin DEEP_DIVE — first candidate is api-design.md (hub file referenced by python-specific.md + xrpl-typescript-fullstack persona). Cross-reference each pattern against full corpus.
+
+### Iter 13
+
+**DEEP_DIVE — api-design.md (hub file) — clean.**
+
+Cross-referenced all 8 H2 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+1. **Consistent Response Shapes** — referenced by python-specific.md (explicit cross-ref) and xrpl-typescript-fullstack persona (inline + Detailed refs). No content duplication.
+2. **DRY Field Validation** — referenced by persona. refactoring-patterns.md mentions validators in refactoring context (complementary).
+3. **Security Hardening Patterns** — URI sanitization overlaps with persona line 46 — correct layering (generic here, domain-specific in persona).
+4. **API Contract Audit Approach** — unique, properly referenced.
+5. **Validator Return Types** — testing-patterns.md tests this pattern (complementary).
+6. **Extract Validators Before Logic** — refactoring-patterns.md has general refactoring order; api-design.md adds API-specific priority (complementary).
+7. **Signature Widening** — unique TypeScript pattern.
+8. **Centralize Error Maps** — unique guidance.
+
+Hub status verified: python-specific.md + xrpl-typescript-fullstack persona both reference correctly. No additional wiring needed.
+
+No genericization (no project-specific names). No compression above 30% (84 lines, code examples are the teaching value).
+
+**Next invocation:** Deep dive nextjs.md (stale, criteria 6, delta=4).
