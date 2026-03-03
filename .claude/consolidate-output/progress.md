@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 4 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -71,6 +71,7 @@ Suggested iterations: 10
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No changes since iter 5. All references current, model strings current, no overlap or staleness. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary (ralph-loop.md, claude-code.md). End of Round 3 — CLEAN_ROUND_STREAK → 1. |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes stable. No collisions, duplicates, genericization, compression, or wiring gaps. Deep dive candidates confirmed (11). |
+| 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No corpus changes since iter 8. All model strings current (Opus 4.6), references intact, no overlap, producer/consumer pairs correct. |
 
 ## Deep Dive Status
 
@@ -229,3 +230,13 @@ Re-read all 34 learnings + 7 personas + 5 skill-references. All iter 1/4 changes
 - Criteria 6 (stale): nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md
 
 **Next content type:** SKILLS (round 4 continues)
+
+### Iter 11
+
+**SKILLS broad sweep — Round 4 — clean.**
+
+Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7, parallel-plan:* 2, standalone 7). No corpus changes since iter 8 (iters 9-10 both clean).
+
+**Verified:** Co-Authored-By strings all "Claude Opus 4.6" (current). All reference files exist. No cross-skill overlap >80%. Producer/consumer pairs intact (split-pr↔repoint-branch, curate→consolidate, make→execute). All 5 skill-references wired. Cross-persona inheritance correct (java-devops→platform-engineer, typescript-devops→platform-engineer). No content-level duplication between personas sharing domain boundaries.
+
+**Next content type:** GUIDELINES (round 4 continues). If GUIDELINES is also clean, Round 4 is fully clean → CLEAN_ROUND_STREAK reaches 2 → broad sweeps converge → transition to DEEP_DIVE phase with 11 candidates.
