@@ -77,3 +77,4 @@ Load when working in the specific area:
 - `learnings/xrpl-permissioned-domains.md` — XLS-70/80/81 permissioned domains, credentials, permissioned DEX
 - `learnings/bignumber-financial-arithmetic.md` — BigNumber.js rules for financial arithmetic, comparison traps, display rounding
 - `learnings/order-book-pricing.md` — Mid-price approaches, slippage estimation, midprice module design
+- `learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
