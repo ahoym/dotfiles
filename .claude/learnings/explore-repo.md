@@ -2,7 +2,7 @@
 
 ## Synthesis Phase Context Budget
 
-The synthesis phase reads all 7 domain scan files + existing docs into a single context window. For freac-server (~100 source files), the scan files alone consumed ~15k tokens — manageable but substantial. For larger repos (500+ source files), the domain files could easily exceed 50k tokens, leaving insufficient budget for the synthesis writing itself.
+The synthesis phase reads all 7 domain scan files + existing docs into a single context window. For a medium-sized server (~100 source files), the scan files alone consumed ~15k tokens — manageable but substantial. For larger repos (500+ source files), the domain files could easily exceed 50k tokens, leaving insufficient budget for the synthesis writing itself.
 
 **Mitigation options for large repos:**
 - Run synthesis as a Task subagent with its own context budget
@@ -15,10 +15,10 @@ The skill's checklist for subdirectory CLAUDE.md candidates (complex state machi
 
 Prioritize directories where mistakes produce **silently incorrect results** over directories where mistakes produce **visible errors** (exceptions, connection failures, deserialization errors).
 
-Example from freac-server `pricing/`:
+Example from a financial calculations directory:
 - Reciprocal currency inversion (`1/stableOffer × fiatBid` vs `fiatBid × stableOffer`) — wrong choice produces plausible but incorrect prices
 - Forward points subtract not add — "fixing" to addition silently breaks all tenor prices
-- Two divergent code paths for Monex vs Refinitiv — changing one without knowing the other exists
+- Two divergent code paths for different upstream data providers — changing one without knowing the other exists
 
 Directories skipped (mistakes are visible):
 - WebSocket clients → connection/deserialization errors surface immediately
@@ -27,7 +27,7 @@ Directories skipped (mistakes are visible):
 
 ## Cross-Domain Finding Deduplication
 
-When 7 agents scan independently, cross-cutting findings (e.g., security issues, naming conventions) get repeated in multiple domain files. In ledger-service-server, the `permitAll()` security finding appeared in 5 of 7 files.
+When 7 agents scan independently, cross-cutting findings (e.g., security issues, naming conventions) get repeated in multiple domain files. In one project, the `permitAll()` security finding appeared in 5 of 7 files.
 
 **Rule for agents:** When a finding spans multiple domains, report the full analysis in the most relevant domain file. In other domains, mention it briefly with a cross-reference: *"Security configuration permits all endpoints — see `config-ops.md` § Security for full analysis."*
 

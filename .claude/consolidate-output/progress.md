@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
-| ROUND_CLEAN | true |
+| CONTENT_TYPE | SKILLS |
+| ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -28,9 +28,9 @@ Suggested iterations: 10
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 1
-- **MEDIUMs applied**: 1
+- **MEDIUMs applied**: 3
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
@@ -62,6 +62,7 @@ Suggested iterations: 10
 | 1 | 1 | LEARNINGS | 1 | 1 | 0 | 2 | Resolved merge conflict in ralph-loop.md; wired api-design.md to xrpl-typescript-fullstack persona |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills across 5 clusters, all references current, no overlap or staleness |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines all @-referenced, no duplication or compression opportunity |
+| 4 | 2 | LEARNINGS | 0 | 2 | 0 | 2 | Genericized 3 project-specific names in explore-repo.md; wired git-patterns.md to platform-engineer persona |
 
 ## Deep Dive Status
 
@@ -121,3 +122,20 @@ Cross-references verified: guideline-authoring.md (merge pattern), ralph-loop.md
 **End of Round 1**: ROUND_CLEAN was false (LEARNINGS sweep had 1 HIGH + 1 MEDIUM). CLEAN_ROUND_STREAK stays 0. Round 2 begins with LEARNINGS.
 
 **Next content type:** LEARNINGS (round 2 begins)
+
+### Iter 4
+
+**LEARNINGS broad sweep — Round 2.**
+
+Verified iter 1 changes held (ralph-loop.md merge conflict resolved, api-design.md reference in xrpl-typescript-fullstack present). Re-read all 34 learnings + 7 personas + 5 skill-references.
+
+**Clusters analyzed:** XRPL (6 files), React/Frontend (5), Testing (2), Meta/tooling (12), General programming (4), Python (1), Infrastructure (2), Other (2). No heading collisions detected.
+
+**Findings:**
+- MEDIUM: explore-repo.md had 3 project-specific references (freac-server, ledger-service-server, Monex/Refinitiv) that don't add teaching value. Genericized while preserving patterns.
+- MEDIUM: git-patterns.md relevant to platform-engineer domain (Git workflows, worktree patterns, rebase strategies) but not in Detailed references. Wired it.
+- Compounding: 2 candidate insights evaluated, both LOW utility (restate existing methodology). Skipped.
+
+**Deep-dive tracker:** Added explore-repo.md and platform-engineer.md with last_deep_dive_run=0.
+
+**Next content type:** SKILLS (round 2 continues)
