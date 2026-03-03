@@ -64,7 +64,7 @@ TypeScript-specific:
 ### TypeScript / Browser Boundaries
 - `Buffer` is Node-only; use `TextEncoder` + `Array.from` in client components for hex encoding
 - When server and client independently implement encoding (e.g., credential types), test both against shared canonical fixtures to catch drift
-- `decodeCurrency` has separate implementations: `currency.ts` (Node, uses Buffer) and `decode-currency-client.ts` (browser-safe)
+- XRPL currency code decoding (hex ↔ ASCII) requires separate server-side (Node, `Buffer`) and browser-safe implementations — keep in distinct files to avoid Node API bundling into client code
 
 ## Detailed references
 
