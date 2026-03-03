@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md |
+| DEEP_DIVE_CANDIDATES | ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md |
 
 ## Pre-Flight
 
@@ -78,6 +78,7 @@ Suggested iterations: 10
 | 14 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | nextjs.md (stale). 6 patterns cross-referenced. 1 MEDIUM genericization applied (pattern 6: "NetworkId" → generic union type). 5 patterns clean — standalone references with correct persona pointers (react-frontend, xrpl-typescript-fullstack). No compression above 30%. |
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — web-session-sync.md (stale). 8 patterns cross-referenced against full corpus. All standalone references with unique content. No persona wiring gap (meta/tooling). Pattern 7 complementary to claude-code.md "Context Continuation". |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — guideline-authoring.md (stale). 7 patterns cross-referenced against full corpus. Hub pattern 3 verified (2 consumers). All patterns standalone with unique content. No genericization, compression, or wiring gaps. |
+| 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — typescript-devops.md (persona, stale). 7 patterns cross-referenced against full corpus. Parent inheritance clean (no duplication with platform-engineer). Cross-persona layering correct (infra vs app perspective on Vercel/serverless with xrpl-typescript-fullstack). Detailed references adequate. No genericization, compression, or wiring gaps. |
 
 ## Deep Dive Status
 
@@ -89,7 +90,7 @@ Suggested iterations: 10
 | nextjs.md | done | 14 | 1 MEDIUM applied (genericized pattern 6 heading/body — "NetworkId" → generic union type). 5 other patterns clean: all standalone references with correct persona pointers. No compression above 30%. No wiring gaps. |
 | web-session-sync.md | done | 15 | Clean — 8 patterns, all standalone references with unique content. No duplicates, overlaps, genericization, or compression above 30%. No persona wiring gap (meta/tooling domain). Pattern 7 complementary to claude-code.md "Context Continuation". |
 | guideline-authoring.md | done | 16 | Clean — 7 patterns, all standalone references with unique content. Hub status verified for pattern 3 (compound SKILL.md + content-type-decisions.md reference it). Pattern 4 complementary to skill-design.md "Persona Value". Pattern 5 complementary to context-aware-learnings.md gates. No duplicates, genericization, or compression above 30% (77 lines). No persona wiring gap (meta/tooling domain). |
-| typescript-devops.md | pending | — | Stale (criteria 6, delta=4) |
+| typescript-devops.md | done | 17 | Clean — 7 patterns (inheritance, 4 domain priorities, 3 review checks, 8 GH Actions pnpm/Node gotchas, 1 TypeScript build gotcha, 2 Vercel/serverless gotchas, 1 reference). All unique or correctly layered with parent (platform-engineer). No duplication with xrpl-typescript-fullstack (infra vs app perspective on serverless). Detailed references adequate (vercel-deployment.md; Playwright/testing learnings owned by react-frontend). No genericization, no compression (37 lines). |
 | ralph-loop.md | pending | — | Stale (criteria 6, delta=4) |
 | xrpl-typescript-fullstack.md | pending | — | Stale (criteria 6, delta=4) |
 | explore-repo.md | pending | — | Stale (criteria 6, delta=4) |
@@ -346,3 +347,21 @@ Cross-referenced all 7 H2 patterns against full corpus (34 learnings, 7 personas
 No genericization (examples in pattern 3 table are teaching examples, not leaked project names). No compression above 30% (77 lines, all substantive). No persona wiring gap (meta/tooling/authoring domain — no persona owns this). Tracker updated (last_deep_dive_run=4).
 
 **Next invocation:** Deep dive typescript-devops.md (persona, stale, criteria 6, delta=4).
+
+### Iter 17
+
+**DEEP_DIVE — typescript-devops.md (persona, stale, criteria 6) — clean.**
+
+Cross-referenced all 7 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+1. **Extends: platform-engineer** — Inheritance verified. No duplicated gotchas between parent (generic GH Actions, GitLab, Git workflows, CI guards) and child (pnpm/Node-specific GH Actions, TypeScript build, Vercel).
+2. **Domain priorities** (4 items) — All scoped to DevOps/infra angle. react-frontend covers testing authoring (different). xrpl-typescript-fullstack covers Vercel from app perspective (different).
+3. **When reviewing** (3 checks) — pnpm-lock.yaml, ESLint/Prettier, E2E non-blocking. Each complements (not duplicates) related content in patterns 4/6. E2E check adds stabilization condition beyond platform-engineer's generic `continue-on-error`.
+4. **GitHub Actions pnpm/Node** (8 gotchas) — All unique. pnpm/action-setup, --frozen-lockfile CI, changed-files Prettier, dependency-review-action, ESLint config, shared install job, Playwright browser caching. git-patterns.md pnpm lockfile = rebase conflicts (different). playwright-patterns.md = test authoring (different).
+5. **TypeScript Build** (1 gotcha) — Unique (check node_modules before tsconfig).
+6. **Vercel / Serverless** (2 gotchas) — Per-isolate state: correct layering with xrpl-typescript-fullstack (general infra here, XRPL WebSocket-specific there). Missing lockfile: internal consistency with patterns 3/4 (different usage contexts).
+7. **Detailed references** — Only vercel-deployment.md. Playwright/testing learnings owned by react-frontend (test authoring, not CI infra). git-patterns.md inherited from parent. Adequate.
+
+No genericization (no project-specific names). No compression (37 lines, all actionable). No wiring gaps. Tracker updated (last_deep_dive_run=4).
+
+**Next invocation:** Deep dive ralph-loop.md (learnings, stale, criteria 6, delta=4).
