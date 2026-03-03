@@ -81,20 +81,7 @@ function getTier(pathname: string, method: string) {
 
 ## Testing Route Handlers Directly (No Server Required)
 
-Route handlers exported from `app/api/**/route.ts` are plain async functions — import and call directly in vitest without spinning up the server:
-
-```ts
-import { POST } from "./route";
-const res = await POST(new NextRequest(...));
-expect(res.status).toBe(201);
-```
-
-For dynamic routes with `[address]` segments, wrap params in a Promise:
-```ts
-const res = await GET(request, { params: Promise.resolve({ address: "rXYZ..." }) });
-```
-
-Much faster than HTTP-based integration tests and allows mocking dependencies via `vi.mock()`.
+Route handlers are plain async functions — import and call directly in Vitest without spinning up the server. See `testing-patterns.md` § "Route Handler Test Structure" for the full pattern including `vi.hoisted()` mock setup, import ordering, and dynamic route `Promise.resolve()` params.
 
 ## Adding a Network ID Requires Updating All Network-Keyed Maps
 

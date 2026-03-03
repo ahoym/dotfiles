@@ -7,9 +7,9 @@
 | Started | 2026-03-02T11:28 |
 | Branch | consolidate/2026-03-02-11 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-11 |
-| Iterations | 18 |
+| Iterations | 19 |
 | Rounds | 3 (converged) |
-| Status | DEEP_DIVE |
+| Status | COMPLETE |
 
 ## Summary
 
@@ -53,6 +53,8 @@
 | 17 | 4 | DEEP_DIVE | Genericize §4 (remove project names) | xrpl-patterns.md | xrpl-patterns.md | MEDIUM |
 | 17 | 4 | DEEP_DIVE | De-enrich persona fill detection (slim to pointer) | xrpl-typescript-fullstack.md | xrpl-patterns.md §8 | MEDIUM |
 | 18 | 4 | DEEP_DIVE | (clean — all patterns canonical) | bash-patterns.md | — | — |
+| 19 | 4 | DEEP_DIVE | Compress nextjs.md route handler section → pointer | nextjs.md | testing-patterns.md §8 | MEDIUM |
+| 19 | 4 | DEEP_DIVE | Wire testing-patterns.md into react-frontend.md refs | testing-patterns.md | react-frontend.md | MEDIUM |
 
 ## Blocked Items
 
@@ -70,7 +72,7 @@ See `blockers.md` for details.
 | Skills | 29 | 29 |
 | Guidelines files | 6 | 3 |
 | Broad sweep rounds | — | 3 (converged at round 2, confirmed round 3) |
-| Deep dive candidates | — | 10 (9 completed, 1 remaining) |
+| Deep dive candidates | — | 10 (10 completed) |
 | Persona files | 8 | 8 |
 | skill-design.md lines | 454 | ~223 |
 | nextjs.md lines | 108 | ~100 |
