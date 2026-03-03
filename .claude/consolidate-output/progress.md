@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md |
+| DEEP_DIVE_CANDIDATES | guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md |
 
 ## Pre-Flight
 
@@ -76,6 +76,7 @@ Suggested iterations: 10
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary. End of Round 4 — CLEAN_ROUND_STREAK → 2. BROAD SWEEPS CONVERGED. Transitioning to DEEP_DIVE with 11 candidates. |
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — api-design.md (hub). 8 patterns cross-referenced against full corpus. All standalone references with unique content. Hub refs verified. No findings. |
 | 14 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | nextjs.md (stale). 6 patterns cross-referenced. 1 MEDIUM genericization applied (pattern 6: "NetworkId" → generic union type). 5 patterns clean — standalone references with correct persona pointers (react-frontend, xrpl-typescript-fullstack). No compression above 30%. |
+| 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — web-session-sync.md (stale). 8 patterns cross-referenced against full corpus. All standalone references with unique content. No persona wiring gap (meta/tooling). Pattern 7 complementary to claude-code.md "Context Continuation". |
 
 ## Deep Dive Status
 
@@ -85,7 +86,7 @@ Suggested iterations: 10
 |------|--------|------|---------|
 | api-design.md | done | 13 | Clean — 8 patterns, all standalone references with unique content. Hub refs verified (python-specific.md, xrpl-typescript-fullstack.md). No duplicates, overlaps, genericization, or compression above threshold. |
 | nextjs.md | done | 14 | 1 MEDIUM applied (genericized pattern 6 heading/body — "NetworkId" → generic union type). 5 other patterns clean: all standalone references with correct persona pointers. No compression above 30%. No wiring gaps. |
-| web-session-sync.md | pending | — | Stale (criteria 6, delta=4) |
+| web-session-sync.md | done | 15 | Clean — 8 patterns, all standalone references with unique content. No duplicates, overlaps, genericization, or compression above 30%. No persona wiring gap (meta/tooling domain). Pattern 7 complementary to claude-code.md "Context Continuation". |
 | guideline-authoring.md | pending | — | Stale (criteria 6, delta=4) |
 | typescript-devops.md | pending | — | Stale (criteria 6, delta=4) |
 | ralph-loop.md | pending | — | Stale (criteria 6, delta=4) |
@@ -307,3 +308,22 @@ Cross-referenced all 6 H2 patterns against full corpus (34 learnings, 7 personas
 No compression above 30% (91 lines, code examples carry teaching value). Both personas already reference nextjs.md in Detailed references — no wiring gaps. Tracker updated (last_deep_dive_run=4).
 
 **Next invocation:** Deep dive web-session-sync.md (stale, criteria 6, delta=4).
+
+### Iter 15
+
+**DEEP_DIVE — web-session-sync.md (stale, criteria 6) — clean.**
+
+Cross-referenced all 8 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+1. **When Sync Is Needed vs. Not** — Decision framework. claude-code.md covers symlink structure but not sync decisions. Clean.
+2. **`.claude/web-skills/` Pattern** — Unique architecture (sync workflow + guard workflow + web-skills dir). cross-repo-sync.md is different domain (GitHub/GitLab quantum tunneling). Clean.
+3. **`/web-create-pr` Skill** — Unique workflow (identify sync commit by message, rebase --onto origin/main). Not in git-patterns.md. Clean.
+4. **Future Simplification** — 2-line roadmap note. Already minimal. Clean.
+5. **Branch Naming Convention** — Unique. Not covered by git-patterns.md. Clean.
+6. **Build Verification in Web Sessions** — `pnpm typecheck` over `pnpm build` in sandbox. typescript-devops.md covers TypeScript build but not sandbox limitations. Clean.
+7. **Context Window Management for Large Sessions** — Partial overlap with claude-code.md "Context Continuation Loses File Contents" — complementary (general risk vs web-session-specific mitigation). Clean.
+8. **Available Tools in Web Sessions** — Unique tool availability table. Clean.
+
+No genericization (no project-specific names). No compression above 30% (66 lines). No persona wiring gap (meta/tooling domain, no persona strongly owns). Tracker updated (last_deep_dive_run=4).
+
+**Next invocation:** Deep dive guideline-authoring.md (stale, criteria 6, delta=4).
