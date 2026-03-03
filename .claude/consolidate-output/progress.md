@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 10
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills across 5 clusters, all references current, no overlap or staleness |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines all @-referenced, no duplication or compression opportunity |
 | 4 | 2 | LEARNINGS | 0 | 2 | 0 | 2 | Genericized 3 project-specific names in explore-repo.md; wired git-patterns.md to platform-engineer persona |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. Iter 3-4 changes don't affect skills |
 
 ## Deep Dive Status
 
@@ -139,3 +140,15 @@ Verified iter 1 changes held (ralph-loop.md merge conflict resolved, api-design.
 **Deep-dive tracker:** Added explore-repo.md and platform-engineer.md with last_deep_dive_run=0.
 
 **Next content type:** SKILLS (round 2 continues)
+
+### Iter 5
+
+**SKILLS broad sweep — Round 2 — clean.**
+
+Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7, parallel-plan:* 2, standalone 7).
+
+**Changes since iter 2 evaluated:** explore-repo.md (learnings) genericized and platform-engineer.md gained git-patterns.md reference. Neither affects skill evaluation — learnings genericization doesn't change skill references, and persona reference wiring doesn't alter skill scope or contracts.
+
+**Verified:** Model strings current, all reference files exist, no new cross-skill overlap, producer/consumer pairs intact, cross-persona inheritance correct.
+
+**Next content type:** GUIDELINES (round 2 continues)
