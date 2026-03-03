@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md |
+| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md |
 
 ## Pre-Flight
 
@@ -79,6 +79,7 @@ Suggested iterations: 10
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — web-session-sync.md (stale). 8 patterns cross-referenced against full corpus. All standalone references with unique content. No persona wiring gap (meta/tooling). Pattern 7 complementary to claude-code.md "Context Continuation". |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — guideline-authoring.md (stale). 7 patterns cross-referenced against full corpus. Hub pattern 3 verified (2 consumers). All patterns standalone with unique content. No genericization, compression, or wiring gaps. |
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — typescript-devops.md (persona, stale). 7 patterns cross-referenced against full corpus. Parent inheritance clean (no duplication with platform-engineer). Cross-persona layering correct (infra vs app perspective on Vercel/serverless with xrpl-typescript-fullstack). Detailed references adequate. No genericization, compression, or wiring gaps. |
+| 18 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — ralph-loop.md (learnings, stale). 33 patterns cross-referenced against full corpus. 1 observed overlap (pattern 12 "Inline Compounding" ↔ claude-code.md "Skill tool in worktrees" — same 4 reasons) below 30% compression threshold. All other patterns standalone with unique content. No genericization (no project-specific names). No compression above 30% (184 lines, high insight-to-token ratio). No persona wiring gap (meta/tooling domain). |
 
 ## Deep Dive Status
 
@@ -91,7 +92,7 @@ Suggested iterations: 10
 | web-session-sync.md | done | 15 | Clean — 8 patterns, all standalone references with unique content. No duplicates, overlaps, genericization, or compression above 30%. No persona wiring gap (meta/tooling domain). Pattern 7 complementary to claude-code.md "Context Continuation". |
 | guideline-authoring.md | done | 16 | Clean — 7 patterns, all standalone references with unique content. Hub status verified for pattern 3 (compound SKILL.md + content-type-decisions.md reference it). Pattern 4 complementary to skill-design.md "Persona Value". Pattern 5 complementary to context-aware-learnings.md gates. No duplicates, genericization, or compression above 30% (77 lines). No persona wiring gap (meta/tooling domain). |
 | typescript-devops.md | done | 17 | Clean — 7 patterns (inheritance, 4 domain priorities, 3 review checks, 8 GH Actions pnpm/Node gotchas, 1 TypeScript build gotcha, 2 Vercel/serverless gotchas, 1 reference). All unique or correctly layered with parent (platform-engineer). No duplication with xrpl-typescript-fullstack (infra vs app perspective on serverless). Detailed references adequate (vercel-deployment.md; Playwright/testing learnings owned by react-frontend). No genericization, no compression (37 lines). |
-| ralph-loop.md | pending | — | Stale (criteria 6, delta=4) |
+| ralph-loop.md | done | 18 | Clean — 33 patterns, all standalone with unique content. 1 observed overlap (pattern 12 ↔ claude-code.md "Skill tool in worktrees") below compression threshold. No genericization, no compression above 30% (184 lines). No persona wiring gap (meta/tooling domain). |
 | xrpl-typescript-fullstack.md | pending | — | Stale (criteria 6, delta=4) |
 | explore-repo.md | pending | — | Stale (criteria 6, delta=4) |
 | platform-engineer.md | pending | — | Stale (criteria 6, delta=4) |
@@ -365,3 +366,21 @@ Cross-referenced all 7 patterns against full corpus (34 learnings, 7 personas, 5
 No genericization (no project-specific names). No compression (37 lines, all actionable). No wiring gaps. Tracker updated (last_deep_dive_run=4).
 
 **Next invocation:** Deep dive ralph-loop.md (learnings, stale, criteria 6, delta=4).
+
+### Iter 18
+
+**DEEP_DIVE — ralph-loop.md (learnings, stale, criteria 6) — clean.**
+
+Cross-referenced all 33 H2 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+**Observed overlap (not actionable):** Pattern 12 "Inline Compounding Over Skill Invocation in Autonomous Loops" shares 4 reasoning points with claude-code.md § "Skill tool in worktrees" (hook restrictions, `~/.claude/` path assumptions, AskUserQuestion absence, context cost). However, ralph-loop.md adds consolidation-specific inline methodology (categorize, assign utility, dedup-grep, write to worktree paths, log in decisions.md). The overlap is ~2 lines within a 5-line pattern — below 30% compression threshold.
+
+**Key complementary relationships verified:**
+- Pattern 5 (Stateless Spec Design) — complements multi-agent-patterns.md (inter-agent vs inter-iteration communication) and agent-prompting.md (subagent prompts vs loop specs)
+- Pattern 13 (Personas as Execution-Mode Learnings Conduit) — explains the *why* behind context-aware-learnings.md's implementation-start gate
+- Pattern 16 (Worktree-Aware File Editing) — complements claude-code.md "Worktree Isolation" (permissions vs edit targeting)
+- Pattern 24 (Stacked Gate Diagnosis) — complements guideline-authoring.md "Hard Gates Need Tool-Call Triggers" (design vs debugging)
+
+No genericization (no project-specific names). No compression above 30% (184 lines, 33 patterns, avg 5.5 lines/pattern — already concise). No persona wiring gap (meta/tooling domain, no persona strongly owns). Tracker updated (last_deep_dive_run=4).
+
+**Next invocation:** Deep dive xrpl-typescript-fullstack.md (persona, stale, criteria 6, delta=4).
