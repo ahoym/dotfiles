@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 10
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | No |
+| 2 | 0 | 2 | 0 | 0 | 0 | 0 | No |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 10
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines all @-referenced, no duplication or compression opportunity |
 | 4 | 2 | LEARNINGS | 0 | 2 | 0 | 2 | Genericized 3 project-specific names in explore-repo.md; wired git-patterns.md to platform-engineer persona |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. Iter 3-4 changes don't affect skills |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Iter 4-5 changes don't affect guidelines. End of Round 2. |
 
 ## Deep Dive Status
 
@@ -152,3 +154,15 @@ Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7,
 **Verified:** Model strings current, all reference files exist, no new cross-skill overlap, producer/consumer pairs intact, cross-persona inheritance correct.
 
 **Next content type:** GUIDELINES (round 2 continues)
+
+### Iter 6
+
+**GUIDELINES broad sweep — Round 2 — clean.**
+
+Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 lines, context-aware-learnings.md 95 lines). Cross-references against 34 learnings and 7 personas all complementary. No duplication, no compression above threshold, all @-referenced and universally needed.
+
+**End of Round 2**: ROUND_CLEAN = false (iter 4 found 2 MEDIUMs). CLEAN_ROUND_STREAK stays 0.
+
+**Round 3 begins with LEARNINGS.** This is the second confirmation sweep for LEARNINGS. If rounds 3 sweeps all come back clean, CLEAN_ROUND_STREAK will reach 1. Need one more clean round (4) after that for convergence (streak >= 2).
+
+**Next content type:** LEARNINGS (round 3 begins)
