@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 4 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
-| DEEP_DIVE_COMPLETED | api-design.md |
+| DEEP_DIVE_CANDIDATES | web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | api-design.md, nextjs.md |
 
 ## Pre-Flight
 
@@ -75,6 +75,7 @@ Suggested iterations: 10
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No corpus changes since iter 8. All model strings current (Opus 4.6), references intact, no overlap, producer/consumer pairs correct. |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary. End of Round 4 — CLEAN_ROUND_STREAK → 2. BROAD SWEEPS CONVERGED. Transitioning to DEEP_DIVE with 11 candidates. |
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | Clean — api-design.md (hub). 8 patterns cross-referenced against full corpus. All standalone references with unique content. Hub refs verified. No findings. |
+| 14 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | nextjs.md (stale). 6 patterns cross-referenced. 1 MEDIUM genericization applied (pattern 6: "NetworkId" → generic union type). 5 patterns clean — standalone references with correct persona pointers (react-frontend, xrpl-typescript-fullstack). No compression above 30%. |
 
 ## Deep Dive Status
 
@@ -83,7 +84,7 @@ Suggested iterations: 10
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | api-design.md | done | 13 | Clean — 8 patterns, all standalone references with unique content. Hub refs verified (python-specific.md, xrpl-typescript-fullstack.md). No duplicates, overlaps, genericization, or compression above threshold. |
-| nextjs.md | pending | — | Stale (criteria 6, delta=4) |
+| nextjs.md | done | 14 | 1 MEDIUM applied (genericized pattern 6 heading/body — "NetworkId" → generic union type). 5 other patterns clean: all standalone references with correct persona pointers. No compression above 30%. No wiring gaps. |
 | web-session-sync.md | pending | — | Stale (criteria 6, delta=4) |
 | guideline-authoring.md | pending | — | Stale (criteria 6, delta=4) |
 | typescript-devops.md | pending | — | Stale (criteria 6, delta=4) |
@@ -289,3 +290,20 @@ Hub status verified: python-specific.md + xrpl-typescript-fullstack persona both
 No genericization (no project-specific names). No compression above 30% (84 lines, code examples are the teaching value).
 
 **Next invocation:** Deep dive nextjs.md (stale, criteria 6, delta=4).
+
+### Iter 14
+
+**DEEP_DIVE — nextjs.md (stale, criteria 6) — 1 MEDIUM applied.**
+
+Cross-referenced all 6 H2 patterns against full corpus (34 learnings, 7 personas, 5 skill-references, 3 guidelines):
+
+1. **Next.js 16: middleware → proxy** — standalone, both personas reference via pointer. Clean.
+2. **Dynamic Route Params Are Async** — standalone, testing-patterns.md L125 has complementary testing guidance. Clean.
+3. **Turbopack Gotchas** (3 sub-patterns) — standalone, both personas reference. Clean.
+4. **Rate Limiter Wiring via proxy.ts** — standalone, xrpl-typescript-fullstack has complementary serverless caveat. Clean.
+5. **Testing Route Handlers Directly** — correct pointer to testing-patterns.md. Clean.
+6. **Extending a Union Type Used in Record Keys** (was "Adding a Network ID") — MEDIUM genericization applied. Project-specific "NetworkId" type name replaced with generic framing. Pattern is TypeScript union/Record exhaustiveness, not Next.js-specific.
+
+No compression above 30% (91 lines, code examples carry teaching value). Both personas already reference nextjs.md in Detailed references — no wiring gaps. Tracker updated (last_deep_dive_run=4).
+
+**Next invocation:** Deep dive web-session-sync.md (stale, criteria 6, delta=4).
