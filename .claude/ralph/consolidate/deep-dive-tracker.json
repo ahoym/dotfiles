@@ -1,9 +1,24 @@
 {
-  "run_count": 1,
+  "run_count": 3,
   "threshold": 3,
   "min_deep_dives": 10,
   "files": {
-    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 1 },
-    ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 }
+    ".claude/learnings/skill-design.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/skill-platform-portability.md": { "last_deep_dive_run": 1 },
+    ".claude/learnings/nextjs.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/web-session-sync.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/guideline-authoring.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/ralph-loop.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/claude-code.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/playwright-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/multi-agent-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/refactoring-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/xrpl-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/commands/set-persona/xrpl-typescript-fullstack.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/bash-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/learnings/testing-patterns.md": { "last_deep_dive_run": 3 },
+    ".claude/commands/set-persona/react-frontend.md": { "last_deep_dive_run": 0 }
   }
 }

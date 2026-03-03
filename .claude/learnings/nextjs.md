@@ -27,11 +27,22 @@ export const config = {
 
 ## Dynamic Route Params Are Async
 
-In Next.js 16, dynamic route params are `Promise<{...}>` — they must be `await`ed. Forgetting `await` causes a runtime error (not always a type error).
+In Next.js 16, dynamic route params are `Promise<{...}>` — they must be `await`ed. Breaking change from earlier App Router versions where params were synchronous objects. Forgetting `await` causes a runtime error (not always a type error).
 
+Page component:
 ```typescript
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+}
+```
+
+Route handler:
+```ts
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ address: string }> },
+) {
+  const { address } = await params;
 }
 ```
 
@@ -68,37 +79,9 @@ function getTier(pathname: string, method: string) {
 }
 ```
 
-## Next.js 16: Dynamic Route Params are Promises
-
-In Next.js 16 (App Router), dynamic route handler params are `Promise<{...}>` — they must be awaited before accessing values:
-
-```ts
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ address: string }> },
-) {
-  const { address } = await params;
-}
-```
-
-Breaking change from earlier App Router versions where params were synchronous objects.
-
 ## Testing Route Handlers Directly (No Server Required)
 
-Route handlers exported from `app/api/**/route.ts` are plain async functions — import and call directly in vitest without spinning up the server:
-
-```ts
-import { POST } from "./route";
-const res = await POST(new NextRequest(...));
-expect(res.status).toBe(201);
-```
-
-For dynamic routes with `[address]` segments, wrap params in a Promise:
-```ts
-const res = await GET(request, { params: Promise.resolve({ address: "rXYZ..." }) });
-```
-
-Much faster than HTTP-based integration tests and allows mocking dependencies via `vi.mock()`.
+Route handlers are plain async functions — import and call directly in Vitest without spinning up the server. See `testing-patterns.md` § "Route Handler Test Structure" for the full pattern including `vi.hoisted()` mock setup, import ordering, and dynamic route `Promise.resolve()` params.
 
 ## Adding a Network ID Requires Updating All Network-Keyed Maps
 

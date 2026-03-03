@@ -51,4 +51,5 @@ These learning files contain full recipes, code examples, and edge cases for eac
 - `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `learnings/accessibility-patterns.md` — ARIA attribute patterns with code examples
 - `learnings/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
+- `learnings/testing-patterns.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
 - `learnings/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions

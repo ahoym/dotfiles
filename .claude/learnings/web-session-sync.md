@@ -34,6 +34,10 @@ Lives in `.claude/web-skills/web-create-pr/SKILL.md`. When invoked from a web se
 
 `/web-create-pr` is fully repo-agnostic — no project-specific references. Candidate for promotion to dotfiles (`~/.claude/commands/`), which would reduce per-project setup from 3 files to 2 (just the workflows). Deferred until the pattern is validated across multiple repos.
 
+## Branch Naming Convention
+
+Web session branches follow the pattern: `claude/branch-off-web-session-<sessionId>`. The branch name must start with `claude/` and end with a matching session ID, otherwise pushes will fail with 403.
+
 ## Build Verification in Web Sessions
 
 `pnpm build` may fail in sandboxed web environments when the build process fetches external resources (e.g., Google Fonts). Use `pnpm typecheck` instead to verify compilation:

@@ -57,6 +57,14 @@ Enforcement gates for agent self-discipline are only "hard" when tied to discret
 
 When designing enforcement for agent behavior, ask: "What tool call triggers this check?" If there's no tool call, it's a soft layer regardless of how mandatory the language sounds. Soft layers are still valuable (they fire sometimes), but don't count on them for critical checks.
 
+## Unreferenced Guidelines Are Dead Weight
+
+A guideline not `@`-referenced from CLAUDE.md and not referenced by any skill or persona has no delivery mechanism. The content may be valid but it never loads — making it invisible to the agent.
+
+**During curation**: Grep the corpus for the guideline filename. If nothing references it, the content needs to either earn an `@`-reference (if universal) or move to the correct content type (learning for reference info, persona gotcha for domain-specific patterns).
+
+**Common pattern**: Domain-specific debugging heuristics and operational procedures get created as guidelines because they contain prescriptive language ("do X before Y"). But prescriptive ≠ behavioral. The test: does it change behavior universally, or provide knowledge conditionally? If conditional → learning or persona, not guideline.
+
 ## Don't Create Guidelines That Restate Skill Defaults
 
 A guideline is redundant when skills already handle the behavior as part of their instructions. It's counterproductive when it overrides explicit user intent.
