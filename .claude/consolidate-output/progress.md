@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 4 |
-| CONTENT_TYPE | GUIDELINES |
+| CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | api-design.md, nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, react-frontend.md, skill-platform-portability.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -54,6 +54,7 @@ Suggested iterations: 10
 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | No |
 | 2 | 0 | 2 | 0 | 0 | 0 | 0 | No |
 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
+| 4 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -72,6 +73,7 @@ Suggested iterations: 10
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary (ralph-loop.md, claude-code.md). End of Round 3 — CLEAN_ROUND_STREAK → 1. |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes stable. No collisions, duplicates, genericization, compression, or wiring gaps. Deep dive candidates confirmed (11). |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No corpus changes since iter 8. All model strings current (Opus 4.6), references intact, no overlap, producer/consumer pairs correct. |
+| 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary. End of Round 4 — CLEAN_ROUND_STREAK → 2. BROAD SWEEPS CONVERGED. Transitioning to DEEP_DIVE with 11 candidates. |
 
 ## Deep Dive Status
 
@@ -79,6 +81,17 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| api-design.md | pending | — | Hub file (criteria 1) |
+| nextjs.md | pending | — | Stale (criteria 6, delta=4) |
+| web-session-sync.md | pending | — | Stale (criteria 6, delta=4) |
+| guideline-authoring.md | pending | — | Stale (criteria 6, delta=4) |
+| typescript-devops.md | pending | — | Stale (criteria 6, delta=4) |
+| ralph-loop.md | pending | — | Stale (criteria 6, delta=4) |
+| xrpl-typescript-fullstack.md | pending | — | Stale (criteria 6, delta=4) |
+| explore-repo.md | pending | — | Stale (criteria 6, delta=4) |
+| platform-engineer.md | pending | — | Stale (criteria 6, delta=4) |
+| react-frontend.md | pending | — | Stale (criteria 6, delta=4) |
+| skill-platform-portability.md | pending | — | Stale (criteria 6, delta=3) |
 
 ## Notes for Next Iteration
 
@@ -240,3 +253,17 @@ Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7,
 **Verified:** Co-Authored-By strings all "Claude Opus 4.6" (current). All reference files exist. No cross-skill overlap >80%. Producer/consumer pairs intact (split-pr↔repoint-branch, curate→consolidate, make→execute). All 5 skill-references wired. Cross-persona inheritance correct (java-devops→platform-engineer, typescript-devops→platform-engineer). No content-level duplication between personas sharing domain boundaries.
 
 **Next content type:** GUIDELINES (round 4 continues). If GUIDELINES is also clean, Round 4 is fully clean → CLEAN_ROUND_STREAK reaches 2 → broad sweeps converge → transition to DEEP_DIVE phase with 11 candidates.
+
+### Iter 12
+
+**GUIDELINES broad sweep — Round 4 — clean.**
+
+Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 lines, context-aware-learnings.md 95 lines). Cross-referenced against 34 learnings + 7 personas + 5 skill-references. All complementary — guideline-authoring.md (merge pattern), ralph-loop.md (skill invocation exception + confidence), multi-agent-patterns.md (gate announcements), skill-design.md (philosophy enforcement). No duplication, no compression above 30%, all universally needed and @-referenced.
+
+**End of Round 4**: ROUND_CLEAN = true (iters 10, 11, 12 all clean). CLEAN_ROUND_STREAK → 2. **BROAD SWEEPS CONVERGED.**
+
+**Transition to DEEP_DIVE phase.** 11 candidates (1 hub + 10 stale):
+- Prioritized: api-design.md (hub, criteria 1) first, then stale files sorted by delta (all delta=4 except skill-platform-portability.md delta=3)
+- All candidates populated in Deep Dive Status table above
+
+**Next invocation:** Begin DEEP_DIVE — first candidate is api-design.md (hub file referenced by python-specific.md + xrpl-typescript-fullstack persona). Cross-reference each pattern against full corpus.
