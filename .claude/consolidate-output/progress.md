@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
-| ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 9 |
+| ROUND | 4 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,7 +40,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 10
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | No |
 | 2 | 0 | 2 | 0 | 0 | 0 | 0 | No |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -68,6 +69,7 @@ Suggested iterations: 10
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Iter 4-5 changes don't affect guidelines. End of Round 2. |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 34 files, 8 clusters. All iter 1/4 changes verified stable. No heading collisions, no duplicates, no genericization or wiring gaps. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 clusters. No changes since iter 5. All references current, model strings current, no overlap or staleness. |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. Cross-refs complementary (ralph-loop.md, claude-code.md). End of Round 3 — CLEAN_ROUND_STREAK → 1. |
 
 ## Deep Dive Status
 
@@ -198,3 +200,15 @@ Re-evaluated all 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7,
 **Verified:** Co-Authored-By strings all "Claude Opus 4.6" (current). All reference files exist. No cross-skill overlap >80%. Producer/consumer pairs intact (split-pr↔repoint-branch, curate→consolidate, make→execute). All 5 skill-references wired. Cross-persona inheritance correct (java-devops→platform-engineer, typescript-devops→platform-engineer). No content-level duplication between xrpl-typescript-fullstack and react-frontend.
 
 **Next content type:** GUIDELINES (round 3 continues)
+
+### Iter 9
+
+**GUIDELINES broad sweep — Round 3 — clean.**
+
+Re-verified all 3 guidelines (communication.md 115 lines, skill-invocation.md 8 lines, context-aware-learnings.md 95 lines). Cross-referenced against 34 learnings + 7 personas + 5 skill-references. All complementary — ralph-loop.md has documented exception to skill-invocation, claude-code.md has worktree-specific extension, guideline-authoring.md has meta-insights on guideline design. No duplication, no compression above 30%, all universally needed and @-referenced.
+
+**End of Round 3**: ROUND_CLEAN = true (iters 7, 8, 9 all clean). CLEAN_ROUND_STREAK increments from 0 to 1. Round 4 begins with LEARNINGS. One more clean round needed for convergence (streak ≥ 2).
+
+**Deep dive candidates** (carried from iter 7): api-design.md (hub), nextjs.md, web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, xrpl-typescript-fullstack.md, explore-repo.md, platform-engineer.md, skill-platform-portability.md, react-frontend.md (11 total, stale-tracked).
+
+**Next content type:** LEARNINGS (round 4 begins)
