@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -59,6 +59,7 @@ Suggested iterations: 10
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 1 | 1 | 0 | 2 | Resolved merge conflict in ralph-loop.md; wired api-design.md to xrpl-typescript-fullstack persona |
+| 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills across 5 clusters, all references current, no overlap or staleness |
 
 ## Deep Dive Status
 
@@ -88,3 +89,18 @@ Suggested iterations: 10
 - No LOWs, no blockers. Corpus is in good shape post-recent curation commits.
 
 **Next content type:** SKILLS (round 1 continues)
+
+### Iter 2
+
+**SKILLS broad sweep — clean.**
+
+Evaluated 29 skills across 5 clusters (git:* 9, learnings:* 4, ralph:* 7, parallel-plan:* 2, standalone 7).
+
+**Key checks performed:**
+- Co-Authored-By strings: all reference "Claude Opus 4.6" (current)
+- Reference files: all exist (reply-templates.md, rebase-patterns.md, agent-prompts.md, classification-model.md, etc.)
+- Cross-skill overlap: no 80%+ overlap. Producer/consumer pairs documented (split-pr↔repoint-branch, curate→consolidate, make→execute)
+- Skill-references: all 5 shared references wired to consumers
+- Cross-persona: inheritance (java-devops→platform-engineer, typescript-devops→platform-engineer) correct. No content-level duplication between xrpl-typescript-fullstack and react-frontend (both reference same learnings files)
+
+**Next content type:** GUIDELINES (round 1 continues)

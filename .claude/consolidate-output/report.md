@@ -7,7 +7,7 @@
 | Started | 2026-03-02 18:06 |
 | Branch | consolidate/2026-03-02-1806 |
 | Worktree | .claude/worktrees/consolidate-2026-03-02-1806 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 0 |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 1 | 1 | 0 | 1 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **1** | **1** | **0** | **1** |
+| **Total** | **2** | **1** | **1** | **0** | **1** |
 
 ## Actions (Chronological)
 
