@@ -32,6 +32,8 @@ Save new patterns and learnings from the current session into global skills, gui
 
 1. **Identify learnings from current session**:
    - Review the conversation for new patterns, processes, or guidelines discovered
+   - Review for approaches or decisions that worked well — patterns worth reinforcing or expanding
+   - Review for existing learnings that proved valuable (validates the learning, may suggest broadening scope)
    - List each learning with a brief description
    - Categorize using this decision tree:
      - Command with clear, repeatable steps? → **Skill**
@@ -55,7 +57,7 @@ Save new patterns and learnings from the current session into global skills, gui
    Target files are relative to `~/.claude/`.
 
    **Utility ratings** (self-assessment of value to Claude):
-   - **High** - Novel pattern I wouldn't know without documenting
+   - **High** - Novel pattern I wouldn't know without documenting, OR proven pattern worth reinforcing/expanding
    - **Medium** - Useful reminder, but I could rediscover if needed
    - **Low** - Standard knowledge or already documented (shown for transparency)
 

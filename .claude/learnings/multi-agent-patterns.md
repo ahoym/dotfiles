@@ -151,3 +151,7 @@ When a task involves both bulk file creation (tests) and iterative refactoring, 
 ## Categorize Parallel Work by Shared Structure
 
 When generating many similar files via parallel agents, group them by structural shape — not alphabetically. For example, test files for GET routes share mock patterns distinct from POST mutation routes. Each category shares templates, making them ideal for parallel agents with distinct instructions.
+
+## Trust-Building Arc as Human-Agent Collaboration Model
+
+The manager-report trust pattern maps directly to human-agent autonomy calibration: small scoped tasks with close review → demonstrate good judgment → gradually expand scope → occasional mistakes that are caught and learned from. Learnings, guidelines, and personas are trust artifacts — accumulated evidence of calibration, not just rules for an agent. This frame is useful for evaluating system changes: does this change help build trust (positive signals, outcome tracking) or just constrain behavior (more rules)?
