@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md |
 
 ## Pre-Flight
 
@@ -69,12 +69,13 @@ Suggested iterations: 15
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 5. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 6. Round 3 clean → CLEAN_ROUND_STREAK=2 → CONVERGENCE. Transitioning to DEEP_DIVE. |
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-instincts.md: Clean. 3 patterns (no-dup, SSOT, port-intent), 2 persona refs verified, no cross-corpus duplicates. |
+| 11 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: Clean. 11 patterns, 2 persona refs verified (react-frontend:50, xrpl-typescript-fullstack:72), no duplicates/stale/compression. |
 
 ## Deep Dive Status
 
 | File | Status | Iter | Summary |
 | code-quality-instincts.md | done | 10 | Clean. 3 patterns, 2 persona refs verified, no duplicates/stale/compression. |
-| react-patterns.md | pending | — | hub: 2 persona refs |
+| react-patterns.md | done | 11 | Clean. 11 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | nextjs.md | pending | — | hub: 2 persona refs |
 | skill-platform-portability.md | pending | — | stale: run 5 - last 1 = 4 >= 3 |
 | xrpl-typescript-fullstack.md | pending | — | tracker: last=0, stale |
@@ -214,4 +215,18 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - skill-design.md (line 198) documents the architectural pattern (meta, not duplication)
 - Other corpus mentions of "duplication"/"single source of truth" are domain-specific contexts, not restated principles
 - No additional persona wiring needed — remaining personas are infra/devops/security, not application code
+- Clean deep dive — no actions taken
+
+### Iter 11
+
+**Deep dive: react-patterns.md (hub: 2 persona refs)**
+- 11 H2 patterns parsed: setState/useEffect (3 sub-patterns), hydration mismatch, circular dependency hooks, modal unmount timing, lift execution state, modal form-only, refreshKey bump, page decomposition, audit before abstracting, polling visibility gating, per-environment state
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- react-frontend.md (line 50) correctly references — verified. Persona covers patterns 1-6, 8-9 as judgment summaries
+- xrpl-typescript-fullstack.md (line 72) correctly references — verified
+- Patterns 7 (refreshKey), 10 (visibility gating), 11 (per-environment state) are learning-only — appropriately specific, adding to persona would bloat it
+- reactive-data-patterns.md covers complementary polling strategies (reactive refresh, client-side expiration) — no overlap with visibility gating pattern
+- playwright-patterns.md (line 134) mentions hydration flag gating from test perspective — complementary, not duplicative
+- No cross-corpus duplicates at pattern level (grep-verified: modal unmount, circular dependency, refreshKey, visibility, per-environment all unique to this file)
+- No compression candidates (229 lines, 11 patterns — good density)
 - Clean deep dive — no actions taken
