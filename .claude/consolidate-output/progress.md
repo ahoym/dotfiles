@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
@@ -76,6 +76,7 @@ Suggested iterations: 15
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-frontend.md: Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas (3 React 19 + 1 Next.js pointer + 5 Playwright), 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (GH Actions 6, GitLab 12, Git 3, CI guards 1), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | explore-repo.md: Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, claude-md-authoring.md overlap assessed complementary. No duplicates/stale/compression. |
+| 18 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | cross-repo-sync.md: 10 patterns, no persona refs (meta-tooling). 1 MEDIUM applied (reference-wiring: cross-repo-sync.md→quantum-tunnel-claudes SKILL.md). No duplicates/stale/compression. |
 
 ## Deep Dive Status
 
@@ -88,7 +89,7 @@ Suggested iterations: 15
 | react-frontend.md | done | 15 | Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas, 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 | platform-engineer.md | done | 16 | Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (4 subsections), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
 | explore-repo.md | done | 17 | Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, partial overlap with claude-md-authoring.md assessed complementary. No duplicates/stale/compression. |
-| cross-repo-sync.md | pending | — | fill: untracked |
+| cross-repo-sync.md | done | 18 | 10 patterns, no persona refs (meta-tooling). 1 MEDIUM (reference-wiring: →quantum-tunnel-claudes SKILL.md). No duplicates/stale/compression. |
 | git-patterns.md | pending | — | fill: untracked |
 |------|--------|------|---------|
 
@@ -322,3 +323,16 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - No stale content, no compression candidates (87 lines / 11 patterns = good density), no genericization
 - Clean deep dive — no actions taken
 - Next candidate: cross-repo-sync.md (fill: untracked)
+
+### Iter 18
+
+**Deep dive: cross-repo-sync.md (fill: untracked)**
+- 10 H2 patterns: path-mismatch gap, platform-detection dual-platform, example table adaptation, grep-verify terminology, PR→MR dominates BOTH_UNIQUE, invoke via ~/.claude/, SUPERSET:target curation, daily sync prevents merge debt, heading-miss ≠ content-miss, execution-phase routing
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- No persona references needed (meta-tooling — no persona covers cross-repo sync)
+- multi-agent-patterns.md:133 mentions BOTH_UNIQUE in agent work distribution context — complementary, not duplicative
+- All 10 patterns unique to this file (grep-verified)
+- quantum-tunnel-claudes SKILL.md is the primary consumer but had no reference to this learning
+- 1 MEDIUM applied: reference-wiring cross-repo-sync.md→quantum-tunnel-claudes SKILL.md Reference Files (conditional) section
+- No stale content, no compression candidates (48 lines / 10 patterns = excellent density), no genericization
+- Next candidate: git-patterns.md (fill: untracked)

@@ -23,6 +23,8 @@
     ".claude/learnings/explore-repo.md": { "last_deep_dive_run": 5 },
     ".claude/commands/set-persona/platform-engineer.md": { "last_deep_dive_run": 5 },
     ".claude/learnings/api-design.md": { "last_deep_dive_run": 4 },
-    ".claude/learnings/code-quality-instincts.md": { "last_deep_dive_run": 5 }
+    ".claude/learnings/code-quality-instincts.md": { "last_deep_dive_run": 5 },
+    ".claude/learnings/cross-repo-sync.md": { "last_deep_dive_run": 5 },
+    ".claude/commands/quantum-tunnel-claudes/SKILL.md": { "last_deep_dive_run": 0 }
   }
 }
