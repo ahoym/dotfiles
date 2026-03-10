@@ -17,3 +17,15 @@ Items classified as LOW during autonomous consolidation. These need human judgme
 - **Curate command**: `/learnings:curate <file>`
 
 -->
+
+## [L-1] Next.js 16 pointer overlap between personas
+
+- **Iter**: 2
+- **Content Type**: SKILLS
+- **File**: `commands/set-persona/xrpl-typescript-fullstack.md` + `commands/set-persona/react-frontend.md`
+- **Pattern**: Both have `### Next.js 16 / Turbopack` subsection pointing to `learnings/nextjs.md`
+- **Possible classifications**:
+  1. Deduplicate — remove from one persona (but which? both domains use Next.js)
+  2. Keep as-is — both are thin pointers, xrpl adds "rate limiter wiring" which is domain-specific
+- **Why LOW**: Both pointers are intentional and serve different personas. The xrpl version includes a domain-specific detail. Removing either could reduce discoverability for that persona's users.
+- **Curate command**: `/learnings:curate commands/set-persona/xrpl-typescript-fullstack.md`

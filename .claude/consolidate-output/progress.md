@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -57,6 +57,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: bash-patterns→platform-engineer, code-quality-instincts→react-frontend |
+| 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. All refs exist, model versions current. 1 LOW: Next.js pointer overlap (intentional) |
 
 ## Deep Dive Status
 
@@ -92,3 +93,12 @@ Suggested iterations: 15
 - skill-design.md (231L) and skill-platform-portability.md (220L) are the largest files but both thematically unified with explicit navigation header.
 - ralph-loop.md (184L, ~25 patterns) — large but single-topic, correctly sized.
 - playwright-patterns.md (225L, 17 patterns) — large but thematically unified with numbered patterns.
+
+### Iter 2
+
+**SKILLS sweep findings:**
+- 29 skills across 5 namespace clusters + standalone. 7 personas (3 extend platform-engineer). 5 shared skill-references.
+- All reference files verified present. All Co-Authored-By strings use current model (Claude Opus 4.6).
+- No overlap, merge, split, or prune candidates. No stale references.
+- Cross-persona check: xrpl-typescript-fullstack + react-frontend share Next.js 16 pointer — intentional (different detail levels, same target learning). LOW.
+- Clean sweep — no actions taken.
