@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 2 | 0 | 0 | 0 | 0 | no |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
 
 ## Iteration Log
 
@@ -62,6 +63,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, all @-referenced, all universal behavioral content. No overlap, no compression opportunity. |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~14 clusters. Sweep 1 wiring verified. No findings. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 2. |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 3. Round 2 complete (clean). |
 
 ## Deep Dive Status
 
@@ -144,3 +146,12 @@ Fill needed: 2 more to reach min_deep_dives=10. Priority: untracked corpus files
 - Cross-persona content-level dedup: java-backend/java-devops/java-infosec clearly distinct domains. Extension pattern (java-devops→platform-engineer, typescript-devops→platform-engineer) clean, no duplicated gotchas.
 - xrpl-typescript-fullstack + react-frontend Next.js pointer overlap confirmed intentional (same LOW from sweep 2).
 - Clean sweep — no actions taken.
+
+### Iter 6
+
+**GUIDELINES sweep (Round 2) findings:**
+- 3 files (communication.md 115L, context-aware-learnings.md 82L, skill-invocation.md 8L), all @-referenced.
+- No corpus changes since iter 3's clean GUIDELINES sweep. No learnings/skills/persona changes creating new overlaps (iters 4-5 clean).
+- Clean sweep — no actions taken.
+
+**Round 2 complete**: L(0H/0M) + S(0H/0M) + G(0H/0M) = clean → CLEAN_ROUND_STREAK 0→1. Starting Round 3.

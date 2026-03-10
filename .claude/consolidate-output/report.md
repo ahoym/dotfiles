@@ -7,8 +7,8 @@
 | Started | 2026-03-10 |
 | Branch | consolidate/2026-03-10 |
 | Worktree | .claude/worktrees/consolidate-2026-03-10 |
-| Iterations | 5 |
-| Rounds | 2 (in progress) |
+| Iterations | 6 |
+| Rounds | 3 (in progress) |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 2 | 0 | 2 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
-| Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **5** | **0** | **2** | **0** | **2** |
+| Guidelines | 2 | 0 | 0 | 0 | 0 |
+| **Total** | **6** | **0** | **2** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -29,6 +29,7 @@
 | 3 | 1 | GUIDELINES | — (clean) | — | — | — |
 | 4 | 2 | LEARNINGS | — (clean) | — | — | — |
 | 5 | 2 | SKILLS | — (clean) | — | — | — |
+| 6 | 2 | GUIDELINES | — (clean) | — | — | — |
 
 ## Blocked Items
 
