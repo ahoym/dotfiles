@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md |
 
 ## Pre-Flight
 
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-instincts.md: Clean. 3 patterns (no-dup, SSOT, port-intent), 2 persona refs verified, no cross-corpus duplicates. |
 | 11 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: Clean. 11 patterns, 2 persona refs verified (react-frontend:50, xrpl-typescript-fullstack:72), no duplicates/stale/compression. |
 | 12 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | nextjs.md: Clean. 6 patterns, 2 persona refs verified (react-frontend:52, xrpl-typescript-fullstack:73), no duplicates/stale/compression. |
+| 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-platform-portability.md: Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (correct — meta-tooling), no duplicates/stale/compression. |
 
 ## Deep Dive Status
 
@@ -78,7 +79,7 @@ Suggested iterations: 15
 | code-quality-instincts.md | done | 10 | Clean. 3 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | react-patterns.md | done | 11 | Clean. 11 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | nextjs.md | done | 12 | Clean. 6 patterns, 2 persona refs verified, no duplicates/stale/compression. |
-| skill-platform-portability.md | pending | — | stale: run 5 - last 1 = 4 >= 3 |
+| skill-platform-portability.md | done | 13 | Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (meta-tooling), no duplicates/stale/compression. |
 | xrpl-typescript-fullstack.md | pending | — | tracker: last=0, stale |
 | react-frontend.md | pending | — | tracker: last=0, stale |
 | platform-engineer.md | pending | — | tracker: last=0, stale |
@@ -244,3 +245,17 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - Rate limiter pattern unique to nextjs.md — other "rate limit" mentions (xrpl-dex-data, web-session-sync) are unrelated
 - No duplicates, no stale content, no compression candidates (91 lines, 6 patterns — good density)
 - Clean deep dive — no actions taken
+
+### Iter 13
+
+**Deep dive: skill-platform-portability.md (stale: run 5 - last 1 = 4 >= 3)**
+- 22 H2 patterns parsed covering: commands/skills equivalence, frontmatter features (allowed-tools, context:fork, disable-model-invocation, model, baseDir), progressive disclosure tiers, shell preprocessing/dynamic injection, context:fork vs Task subagents, field constraints, cross-platform support, description budget, built-in skills, custom agents, agent memory, skill↔agent integration, plugin caching/settings/namespacing, skills-ref validation, cross-platform extension handling, $ARGUMENTS portability, metadata namespace, compatibility field
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- skill-design.md (line 3) correctly cross-references with navigation pointer — verified
+- No persona references (correct — meta-tooling knowledge about the skill platform, not domain-specific)
+- "No nesting" constraint appears 3× internally (lines 82, 90, 151) in different contexts — acceptable internal repetition
+- Complementary with claude-code.md (runtime), multi-agent-patterns.md (orchestration), skill-design.md (authoring heuristics) — no overlap
+- No stale content (allowed-tools "broken" is factual + "defer reliance" still sound; Feb 2026 platform data recent)
+- No compression candidates ≥30% (220 lines, 22 patterns — good density ~10 lines/pattern)
+- Clean deep dive — no actions taken
+- Next candidate: xrpl-typescript-fullstack.md (persona, tracker: last=0)
