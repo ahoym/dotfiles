@@ -29,3 +29,15 @@ Items classified as LOW during autonomous consolidation. These need human judgme
   2. Keep as-is — both are thin pointers, xrpl adds "rate limiter wiring" which is domain-specific
 - **Why LOW**: Both pointers are intentional and serve different personas. The xrpl version includes a domain-specific detail. Removing either could reduce discoverability for that persona's users.
 - **Curate command**: `/learnings:curate commands/set-persona/xrpl-typescript-fullstack.md`
+
+## [L-2] vercel-deployment.md not in xrpl-typescript-fullstack Detailed references
+
+- **Iter**: 14
+- **Content Type**: DEEP_DIVE
+- **File**: `commands/set-persona/xrpl-typescript-fullstack.md`
+- **Pattern**: Detailed references section missing vercel-deployment.md
+- **Possible classifications**:
+  1. Wire reference — vercel-deployment.md has Postgres patterns and cron limits relevant to fullstack XRPL on Vercel
+  2. Keep as-is — persona already covers critical Vercel gotchas (WebSocket, rate limiter), and vercel-deployment.md is discoverable via keyword search
+- **Why LOW**: Marginal value — persona's Vercel section already has the most critical gotchas, and the deployment file is general platform knowledge rather than XRPL-specific. Discoverable without explicit wiring.
+- **Curate command**: `/learnings:curate commands/set-persona/xrpl-typescript-fullstack.md`

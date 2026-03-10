@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md |
 
 ## Pre-Flight
 
@@ -72,6 +72,7 @@ Suggested iterations: 15
 | 11 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: Clean. 11 patterns, 2 persona refs verified (react-frontend:50, xrpl-typescript-fullstack:72), no duplicates/stale/compression. |
 | 12 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | nextjs.md: Clean. 6 patterns, 2 persona refs verified (react-frontend:52, xrpl-typescript-fullstack:73), no duplicates/stale/compression. |
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-platform-portability.md: Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (correct — meta-tooling), no duplicates/stale/compression. |
+| 14 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | xrpl-typescript-fullstack.md: 6 H2 sections, 20 gotchas, 9 refs. 1 MEDIUM applied (reference-wiring: reactive-data-patterns.md). 1 LOW (vercel-deployment.md ref). |
 
 ## Deep Dive Status
 
@@ -80,7 +81,7 @@ Suggested iterations: 15
 | react-patterns.md | done | 11 | Clean. 11 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | nextjs.md | done | 12 | Clean. 6 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | skill-platform-portability.md | done | 13 | Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (meta-tooling), no duplicates/stale/compression. |
-| xrpl-typescript-fullstack.md | pending | — | tracker: last=0, stale |
+| xrpl-typescript-fullstack.md | done | 14 | 6 H2 sections, 20 gotchas, 9→10 refs. 1 MEDIUM (reactive-data-patterns.md wiring). 1 LOW (vercel-deployment.md). |
 | react-frontend.md | pending | — | tracker: last=0, stale |
 | platform-engineer.md | pending | — | tracker: last=0, stale |
 | explore-repo.md | pending | — | tracker: last=0, stale |
@@ -259,3 +260,18 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - No compression candidates ≥30% (220 lines, 22 patterns — good density ~10 lines/pattern)
 - Clean deep dive — no actions taken
 - Next candidate: xrpl-typescript-fullstack.md (persona, tracker: last=0)
+
+### Iter 14
+
+**Deep dive: xrpl-typescript-fullstack.md (persona, tracker: last=0, stale)**
+- 6 H2 sections: Domain priorities (6), When reviewing (11 checks), Code style (3), Tradeoffs (6), Gotchas (4 H3s, 20 items), Detailed references (9→10)
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- All 9 Detailed reference files verified present and correctly described
+- XRPL gotchas correctly summarize xrpl-patterns.md (funded offers, RippleState, fills), xrpl-amm.md (AMMCreate fee, asset order), xrpl-dex-data.md (offer semantics)
+- Next.js pointer matches react-frontend.md's pointer — known intentional overlap (L-1)
+- No inline knowledge heavy enough to warrant de-enrichment (all gotchas are judgment-grade)
+- No cross-persona duplication with react-frontend.md at content level
+- No stale content, no compression candidates ≥30%
+- 1 MEDIUM applied: reference-wiring reactive-data-patterns.md (exchange-specific patterns: balance validation, reactive refresh, expiration tracking)
+- 1 LOW recorded: vercel-deployment.md reference (marginal value, persona already covers critical Vercel gotchas)
+- Next candidate: react-frontend.md (persona, tracker: last=0)
