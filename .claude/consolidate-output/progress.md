@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md |
 
 ## Pre-Flight
 
@@ -70,13 +70,14 @@ Suggested iterations: 15
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 6. Round 3 clean → CLEAN_ROUND_STREAK=2 → CONVERGENCE. Transitioning to DEEP_DIVE. |
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-instincts.md: Clean. 3 patterns (no-dup, SSOT, port-intent), 2 persona refs verified, no cross-corpus duplicates. |
 | 11 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-patterns.md: Clean. 11 patterns, 2 persona refs verified (react-frontend:50, xrpl-typescript-fullstack:72), no duplicates/stale/compression. |
+| 12 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | nextjs.md: Clean. 6 patterns, 2 persona refs verified (react-frontend:52, xrpl-typescript-fullstack:73), no duplicates/stale/compression. |
 
 ## Deep Dive Status
 
 | File | Status | Iter | Summary |
 | code-quality-instincts.md | done | 10 | Clean. 3 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | react-patterns.md | done | 11 | Clean. 11 patterns, 2 persona refs verified, no duplicates/stale/compression. |
-| nextjs.md | pending | — | hub: 2 persona refs |
+| nextjs.md | done | 12 | Clean. 6 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | skill-platform-portability.md | pending | — | stale: run 5 - last 1 = 4 >= 3 |
 | xrpl-typescript-fullstack.md | pending | — | tracker: last=0, stale |
 | react-frontend.md | pending | — | tracker: last=0, stale |
@@ -229,4 +230,17 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - playwright-patterns.md (line 134) mentions hydration flag gating from test perspective — complementary, not duplicative
 - No cross-corpus duplicates at pattern level (grep-verified: modal unmount, circular dependency, refreshKey, visibility, per-environment all unique to this file)
 - No compression candidates (229 lines, 11 patterns — good density)
+- Clean deep dive — no actions taken
+
+### Iter 12
+
+**Deep dive: nextjs.md (hub: 2 persona refs)**
+- 6 H2 patterns parsed: proxy.ts rename, async dynamic params, Turbopack gotchas (3 sub), rate limiter wiring, route handler testing pointer, union Record keys
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- react-frontend.md (line 52) correctly references — verified. Gotchas section (line 36) correctly summarizes
+- xrpl-typescript-fullstack.md (line 73) correctly references — verified. Gotchas section (line 58) correctly summarizes, includes "rate limiter wiring"
+- Pattern 5 (testing route handlers) is a cross-reference pointer to testing-patterns.md:101 — verified present
+- Pattern 6 (union Record keys) is unique to nextjs.md — general TypeScript pattern but contextually relevant
+- Rate limiter pattern unique to nextjs.md — other "rate limit" mentions (xrpl-dex-data, web-session-sync) are unrelated
+- No duplicates, no stale content, no compression candidates (91 lines, 6 patterns — good density)
 - Clean deep dive — no actions taken
