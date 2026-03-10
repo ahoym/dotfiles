@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -65,6 +65,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 2. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 3. Round 2 complete (clean). |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~325 H2 sections, ~14 clusters. No changes since Round 2. |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 5. |
 
 ## Deep Dive Status
 
@@ -169,3 +170,10 @@ Fill needed: 2 more to reach min_deep_dives=10. Priority: untracked corpus files
 
 **Deep dive candidates confirmed (same as iter 4):**
 DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-patterns.md (hub: 2 persona refs), nextjs.md (hub: 2 persona refs), skill-platform-portability.md (stale: 5-1=4>=3), xrpl-typescript-fullstack.md (tracker: last=0), react-frontend.md (tracker: last=0), platform-engineer.md (tracker: last=0), explore-repo.md (tracker: last=0), cross-repo-sync.md (fill: untracked), git-patterns.md (fill: untracked)]
+
+### Iter 8
+
+**SKILLS sweep (Round 3) findings:**
+- 29 skills, 7 personas, 5 skill-references. Same counts as sweep 5.
+- No corpus changes since sweep 5 (iters 6-7 were clean GUIDELINES and LEARNINGS sweeps).
+- Clean sweep — no actions taken.
