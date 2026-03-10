@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -60,6 +60,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: bash-patterns→platform-engineer, code-quality-instincts→react-frontend |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. All refs exist, model versions current. 1 LOW: Next.js pointer overlap (intentional) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, all @-referenced, all universal behavioral content. No overlap, no compression opportunity. |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~14 clusters. Sweep 1 wiring verified. No findings. |
 
 ## Deep Dive Status
 
@@ -116,3 +117,19 @@ Suggested iterations: 15
 - Clean sweep — no actions taken.
 
 **Round 1 complete**: L(0H/2M) + S(0H/0M) + G(0H/0M) = not clean → CLEAN_ROUND_STREAK stays 0. Starting Round 2.
+
+### Iter 4
+
+**LEARNINGS sweep (Round 2) findings:**
+- 34 files, ~14 clusters. Same file count as sweep 1.
+- H2/H3 heading collision check: no duplicates across files.
+- Sweep 1 reference wiring verified: bash-patterns→platform-engineer (line 64), code-quality-instincts→react-frontend (line 49) both present and correct.
+- No exact duplicates, no partial overlaps, no thin fold candidates, no stale content, no genericization candidates, no compression candidates ≥30%.
+- Unreferenced learnings (18 files) are all meta-tooling without matching personas — no wiring opportunity.
+- code-quality-instincts.md (15L) confirmed correctly sized as shared cross-persona reference.
+- No merge/split opportunities (large files are thematically unified).
+- Clean sweep — no actions taken.
+
+**Deep dive candidates (recording for convergence)**:
+DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-patterns.md (hub: 2 persona refs), nextjs.md (hub: 2 persona refs), xrpl-typescript-fullstack.md (tracker: last=0), react-frontend.md (tracker: last=0), platform-engineer.md (tracker: last=0), explore-repo.md (tracker: last=0), skill-platform-portability.md (stale: 5-1=4≥3)]
+Fill needed: 2 more to reach min_deep_dives=10. Priority: untracked corpus files (18 learnings untracked).
