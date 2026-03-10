@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md |
 
 ## Pre-Flight
 
@@ -73,6 +73,7 @@ Suggested iterations: 15
 | 12 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | nextjs.md: Clean. 6 patterns, 2 persona refs verified (react-frontend:52, xrpl-typescript-fullstack:73), no duplicates/stale/compression. |
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-platform-portability.md: Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (correct — meta-tooling), no duplicates/stale/compression. |
 | 14 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | xrpl-typescript-fullstack.md: 6 H2 sections, 20 gotchas, 9 refs. 1 MEDIUM applied (reference-wiring: reactive-data-patterns.md). 1 LOW (vercel-deployment.md ref). |
+| 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-frontend.md: Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas (3 React 19 + 1 Next.js pointer + 5 Playwright), 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 
 ## Deep Dive Status
 
@@ -82,7 +83,7 @@ Suggested iterations: 15
 | nextjs.md | done | 12 | Clean. 6 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | skill-platform-portability.md | done | 13 | Clean. 22 patterns, skill-design.md cross-ref verified, no persona refs (meta-tooling), no duplicates/stale/compression. |
 | xrpl-typescript-fullstack.md | done | 14 | 6 H2 sections, 20 gotchas, 9→10 refs. 1 MEDIUM (reactive-data-patterns.md wiring). 1 LOW (vercel-deployment.md). |
-| react-frontend.md | pending | — | tracker: last=0, stale |
+| react-frontend.md | done | 15 | Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas, 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 | platform-engineer.md | pending | — | tracker: last=0, stale |
 | explore-repo.md | pending | — | tracker: last=0, stale |
 | cross-repo-sync.md | pending | — | fill: untracked |
@@ -275,3 +276,18 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - 1 MEDIUM applied: reference-wiring reactive-data-patterns.md (exchange-specific patterns: balance validation, reactive refresh, expiration tracking)
 - 1 LOW recorded: vercel-deployment.md reference (marginal value, persona already covers critical Vercel gotchas)
 - Next candidate: react-frontend.md (persona, tracker: last=0)
+
+### Iter 15
+
+**Deep dive: react-frontend.md (persona, tracker: last=0, stale)**
+- 5 H2 sections: Domain priorities (6), When reviewing (10 checks), Tradeoffs (4), Gotchas (3 H3s: React 19 with 3 items, Next.js 16 pointer, Playwright with 5 items), Detailed references (8)
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- All 8 Detailed reference files verified present and correctly described
+- React 19 gotchas correctly summarize react-patterns.md §1-3 (setState alternatives, hydration mismatch, data-fetching effects)
+- Playwright gotchas correctly summarize playwright-patterns.md §3 (getByRole), §4 (textContent), §13 (.first()), §2 (page.once), §15 (transient banners)
+- Review checks map to learning patterns: hook extraction (react-patterns.md §3), modals (§5-6), decomposition (§8), abstraction audit (§9), accessibility (accessibility-patterns.md §5-6)
+- Cross-persona with xrpl-typescript-fullstack.md: Next.js pointer overlap (L-1, already logged), both reference react-patterns.md and nextjs.md — intentional, different domain lenses. No content-level duplication beyond this.
+- No inline knowledge warranting de-enrichment — all gotchas are judgment-grade summaries
+- No stale content, no compression candidates (57 lines is lean), no genericization candidates
+- Clean deep dive — no actions taken
+- Next candidate: platform-engineer.md (persona, tracker: last=0)
