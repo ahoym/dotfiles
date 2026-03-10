@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
+| CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 15
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 2 | 0 | 0 | 0 | 0 | no |
 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | yes |
 
 ## Iteration Log
 
@@ -66,12 +67,21 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 3. Round 2 complete (clean). |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~325 H2 sections, ~14 clusters. No changes since Round 2. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 5. |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 6. Round 3 clean → CLEAN_ROUND_STREAK=2 → CONVERGENCE. Transitioning to DEEP_DIVE. |
 
 ## Deep Dive Status
 
-<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweep convergence -->
-
 | File | Status | Iter | Summary |
+| code-quality-instincts.md | pending | — | hub: 2 persona refs |
+| react-patterns.md | pending | — | hub: 2 persona refs |
+| nextjs.md | pending | — | hub: 2 persona refs |
+| skill-platform-portability.md | pending | — | stale: run 5 - last 1 = 4 >= 3 |
+| xrpl-typescript-fullstack.md | pending | — | tracker: last=0, stale |
+| react-frontend.md | pending | — | tracker: last=0, stale |
+| platform-engineer.md | pending | — | tracker: last=0, stale |
+| explore-repo.md | pending | — | tracker: last=0, stale |
+| cross-repo-sync.md | pending | — | fill: untracked |
+| git-patterns.md | pending | — | fill: untracked |
 |------|--------|------|---------|
 
 ## Notes for Next Iteration
@@ -177,3 +187,19 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - 29 skills, 7 personas, 5 skill-references. Same counts as sweep 5.
 - No corpus changes since sweep 5 (iters 6-7 were clean GUIDELINES and LEARNINGS sweeps).
 - Clean sweep — no actions taken.
+
+### Iter 9
+
+**GUIDELINES sweep (Round 3) findings:**
+- 3 files (communication.md 115L, context-aware-learnings.md 82L, skill-invocation.md 8L), all @-referenced.
+- No corpus changes since iter 6's clean GUIDELINES sweep (iters 7-8 clean).
+- Clean sweep — no actions taken.
+
+**Round 3 complete**: L(0H/0M) + S(0H/0M) + G(0H/0M) = clean → CLEAN_ROUND_STREAK 1→2 → **CONVERGENCE REACHED**.
+
+**Transitioning to DEEP_DIVE phase.** 10 candidates (= min_deep_dives):
+- Hub files (3): code-quality-instincts.md, react-patterns.md, nextjs.md
+- Stale tracked (4): skill-platform-portability.md (4 runs overdue), xrpl-typescript-fullstack.md (5), react-frontend.md (5), platform-engineer.md (5), explore-repo.md (5)
+- Fill (2): cross-repo-sync.md, git-patterns.md (untracked)
+
+**Prioritization**: Hub files first (cross-reference verification most valuable), then stale tracked by overdue count descending, then fill.
