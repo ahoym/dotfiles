@@ -22,6 +22,7 @@
     ".claude/commands/set-persona/react-frontend.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/explore-repo.md": { "last_deep_dive_run": 0 },
     ".claude/commands/set-persona/platform-engineer.md": { "last_deep_dive_run": 0 },
-    ".claude/learnings/api-design.md": { "last_deep_dive_run": 4 }
+    ".claude/learnings/api-design.md": { "last_deep_dive_run": 4 },
+    ".claude/learnings/code-quality-instincts.md": { "last_deep_dive_run": 5 }
   }
 }

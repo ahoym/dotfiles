@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md |
 
 ## Pre-Flight
 
@@ -68,11 +68,12 @@ Suggested iterations: 15
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~325 H2 sections, ~14 clusters. No changes since Round 2. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 5. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 6. Round 3 clean → CLEAN_ROUND_STREAK=2 → CONVERGENCE. Transitioning to DEEP_DIVE. |
+| 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-instincts.md: Clean. 3 patterns (no-dup, SSOT, port-intent), 2 persona refs verified, no cross-corpus duplicates. |
 
 ## Deep Dive Status
 
 | File | Status | Iter | Summary |
-| code-quality-instincts.md | pending | — | hub: 2 persona refs |
+| code-quality-instincts.md | done | 10 | Clean. 3 patterns, 2 persona refs verified, no duplicates/stale/compression. |
 | react-patterns.md | pending | — | hub: 2 persona refs |
 | nextjs.md | pending | — | hub: 2 persona refs |
 | skill-platform-portability.md | pending | — | stale: run 5 - last 1 = 4 >= 3 |
@@ -203,3 +204,14 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - Fill (2): cross-repo-sync.md, git-patterns.md (untracked)
 
 **Prioritization**: Hub files first (cross-reference verification most valuable), then stale tracked by overdue count descending, then fill.
+
+### Iter 10
+
+**Deep dive: code-quality-instincts.md (hub: 2 persona refs)**
+- 3 H2 patterns: "Don't duplicate logic across modules", "Single source of truth for definitions", "Port intent, not implementation"
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- react-frontend.md (line 49) and xrpl-typescript-fullstack.md (line 25) both correctly reference — verified
+- skill-design.md (line 198) documents the architectural pattern (meta, not duplication)
+- Other corpus mentions of "duplication"/"single source of truth" are domain-specific contexts, not restated principles
+- No additional persona wiring needed — remaining personas are infra/devops/security, not application code
+- Clean deep dive — no actions taken
