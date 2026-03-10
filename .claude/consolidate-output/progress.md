@@ -1,17 +1,18 @@
+WOOT_COMPLETE_WOOT
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | code-quality-instincts.md, react-patterns.md, nextjs.md, skill-platform-portability.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md, explore-repo.md, cross-repo-sync.md, git-patterns.md |
 
 ## Pre-Flight
 
@@ -77,6 +78,7 @@ Suggested iterations: 15
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (GH Actions 6, GitLab 12, Git 3, CI guards 1), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | explore-repo.md: Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, claude-md-authoring.md overlap assessed complementary. No duplicates/stale/compression. |
 | 18 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | cross-repo-sync.md: 10 patterns, no persona refs (meta-tooling). 1 MEDIUM applied (reference-wiring: cross-repo-sync.md→quantum-tunnel-claudes SKILL.md). No duplicates/stale/compression. |
+| 19 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | git-patterns.md: Clean. 11 patterns (commit-msg rebase, stacked PR fix, verify commit state, parallel rebase, bulk PR extraction, pnpm lockfile, git add gotchas×2, worktree isolation, untracked deps, zsh glob). 1 persona ref verified (platform-engineer:63). All patterns unique (grep-verified). **ALL DEEP DIVES COMPLETE → WOOT_COMPLETE_WOOT** |
 
 ## Deep Dive Status
 
@@ -90,7 +92,7 @@ Suggested iterations: 15
 | platform-engineer.md | done | 16 | Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (4 subsections), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
 | explore-repo.md | done | 17 | Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, partial overlap with claude-md-authoring.md assessed complementary. No duplicates/stale/compression. |
 | cross-repo-sync.md | done | 18 | 10 patterns, no persona refs (meta-tooling). 1 MEDIUM (reference-wiring: →quantum-tunnel-claudes SKILL.md). No duplicates/stale/compression. |
-| git-patterns.md | pending | — | fill: untracked |
+| git-patterns.md | done | 19 | Clean. 11 patterns, 1 persona ref verified (platform-engineer:63), no duplicates/stale/compression. Worktree patterns complementary with ralph-loop.md and claude-code.md. |
 |------|--------|------|---------|
 
 ## Notes for Next Iteration
@@ -336,3 +338,18 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - 1 MEDIUM applied: reference-wiring cross-repo-sync.md→quantum-tunnel-claudes SKILL.md Reference Files (conditional) section
 - No stale content, no compression candidates (48 lines / 10 patterns = excellent density), no genericization
 - Next candidate: git-patterns.md (fill: untracked)
+
+### Iter 19
+
+**Deep dive: git-patterns.md (fill: untracked) — FINAL CANDIDATE**
+- 11 H2 patterns: Commit-Message-Based Identification for Rebase, Fixing Misordered Stacked PR Branches, Verify Commit State Before Committing, Parallel Branch Rebase with Worktree Isolation, Bulk PR Content Extraction Without Checkout, pnpm Lockfile Rebase Conflicts, `git add <file>` Can Commit Unintended Files, Pre-Commit Hooks Can Alter Commits Silently, Worktrees for Claude Code Settings Isolation, Check Untracked Dependencies Before Committing, Zsh Glob Expansion Breaks `git add` with Brackets
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- platform-engineer.md (line 63) correctly references with 4-pattern summary — verified
+- Worktree patterns (§4 parallel rebase, §9 settings isolation) assessed complementary with ralph-loop.md (path gotcha, commit-to-main workflow), claude-code.md (isolation limitations, permission mismatches), and claude-code-hooks.md (hook perf in worktrees) — different aspects of worktree usage, not duplicative
+- §2 (misordered stacked PR fix) assessed complementary with cascade-rebase skill (ongoing rebase workflow vs one-time repair)
+- §6 (pnpm lockfile) assessed complementary with typescript-devops (CI --frozen-lockfile vs rebase conflict resolution)
+- All 11 patterns unique to this file (grep-verified across full corpus)
+- No stale content, no compression candidates (113 lines / 11 patterns = ~10 lines/pattern), no genericization
+- Clean deep dive — no actions taken
+
+**ALL DEEP DIVE CANDIDATES PROCESSED → WOOT_COMPLETE_WOOT**
