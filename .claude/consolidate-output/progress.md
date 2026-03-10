@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,6 +51,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 0 | 2 | 0 | 0 | 0 | 0 | no |
 
 ## Iteration Log
 
@@ -58,6 +59,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 2 | 0 | 2 | Reference wiring: bash-patterns→platform-engineer, code-quality-instincts→react-frontend |
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. All refs exist, model versions current. 1 LOW: Next.js pointer overlap (intentional) |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, all @-referenced, all universal behavioral content. No overlap, no compression opportunity. |
 
 ## Deep Dive Status
 
@@ -102,3 +104,15 @@ Suggested iterations: 15
 - No overlap, merge, split, or prune candidates. No stale references.
 - Cross-persona check: xrpl-typescript-fullstack + react-frontend share Next.js 16 pointer — intentional (different detail levels, same target learning). LOW.
 - Clean sweep — no actions taken.
+
+### Iter 3
+
+**GUIDELINES sweep findings:**
+- 3 files (communication.md 115L, context-aware-learnings.md 82L, skill-invocation.md 8L), all @-referenced in CLAUDE.md.
+- All universally applicable behavioral guidelines — correct content type, appropriate for always-on.
+- No overlap with learnings, personas, or skill-references (grep-verified).
+- No compression opportunity ≥30% threshold.
+- No unreferenced guidelines, no domain-specific content to migrate, no reference material misplaced as guideline.
+- Clean sweep — no actions taken.
+
+**Round 1 complete**: L(0H/2M) + S(0H/0M) + G(0H/0M) = not clean → CLEAN_ROUND_STREAK stays 0. Starting Round 2.
