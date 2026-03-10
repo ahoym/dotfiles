@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -61,6 +61,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 0 | 0 | 1 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. All refs exist, model versions current. 1 LOW: Next.js pointer overlap (intentional) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, all @-referenced, all universal behavioral content. No overlap, no compression opportunity. |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~14 clusters. Sweep 1 wiring verified. No findings. |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 2. |
 
 ## Deep Dive Status
 
@@ -133,3 +134,13 @@ Suggested iterations: 15
 **Deep dive candidates (recording for convergence)**:
 DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-patterns.md (hub: 2 persona refs), nextjs.md (hub: 2 persona refs), xrpl-typescript-fullstack.md (tracker: last=0), react-frontend.md (tracker: last=0), platform-engineer.md (tracker: last=0), explore-repo.md (tracker: last=0), skill-platform-portability.md (stale: 5-1=4≥3)]
 Fill needed: 2 more to reach min_deep_dives=10. Priority: untracked corpus files (18 learnings untracked).
+
+### Iter 5
+
+**SKILLS sweep (Round 2) findings:**
+- 29 skills, 5 namespace clusters + standalone. 7 personas (3 extend platform-engineer). 5 shared skill-references.
+- All Co-Authored-By strings verified current (Claude Opus 4.6). No stale model references.
+- No changes to skills corpus since sweep 2 — no new overlap, merge, split, or prune candidates.
+- Cross-persona content-level dedup: java-backend/java-devops/java-infosec clearly distinct domains. Extension pattern (java-devops→platform-engineer, typescript-devops→platform-engineer) clean, no duplicated gotchas.
+- xrpl-typescript-fullstack + react-frontend Next.js pointer overlap confirmed intentional (same LOW from sweep 2).
+- Clean sweep — no actions taken.
