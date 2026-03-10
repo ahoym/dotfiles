@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | ROUND | 3 |
 | CONTENT_TYPE | — (converged) |
 | ROUND_CLEAN | true |
@@ -75,6 +75,7 @@ Suggested iterations: 15
 | 14 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | xrpl-typescript-fullstack.md: 6 H2 sections, 20 gotchas, 9 refs. 1 MEDIUM applied (reference-wiring: reactive-data-patterns.md). 1 LOW (vercel-deployment.md ref). |
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | react-frontend.md: Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas (3 React 19 + 1 Next.js pointer + 5 Playwright), 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (GH Actions 6, GitLab 12, Git 3, CI guards 1), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
+| 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | explore-repo.md: Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, claude-md-authoring.md overlap assessed complementary. No duplicates/stale/compression. |
 
 ## Deep Dive Status
 
@@ -86,7 +87,7 @@ Suggested iterations: 15
 | xrpl-typescript-fullstack.md | done | 14 | 6 H2 sections, 20 gotchas, 9→10 refs. 1 MEDIUM (reactive-data-patterns.md wiring). 1 LOW (vercel-deployment.md). |
 | react-frontend.md | done | 15 | Clean. 6 priorities, 10 review checks, 4 tradeoffs, 9 gotchas, 8 refs verified. No duplicates/stale/compression/de-enrichment. |
 | platform-engineer.md | done | 16 | Clean. 7 priorities, 7 review checks, 4 tradeoffs, 22 gotchas (4 subsections), 3 refs verified. No duplicates/stale/compression/de-enrichment. |
-| explore-repo.md | pending | — | tracker: last=0, stale |
+| explore-repo.md | done | 17 | Clean. 11 patterns, no persona refs (meta-tooling), skill-design.md cross-ref verified, partial overlap with claude-md-authoring.md assessed complementary. No duplicates/stale/compression. |
 | cross-repo-sync.md | pending | — | fill: untracked |
 | git-patterns.md | pending | — | fill: untracked |
 |------|--------|------|---------|
@@ -306,3 +307,18 @@ DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-pa
 - No stale content, no compression candidates (65 lines is lean), no genericization candidates
 - Clean deep dive — no actions taken
 - Next candidate: explore-repo.md (learnings, tracker: last=0)
+
+### Iter 17
+
+**Deep dive: explore-repo.md (learnings, tracker: last=0, stale)**
+- 11 H2 patterns: Synthesis Phase Context Budget, Subdirectory CLAUDE.md Decision Heuristic, Cross-Domain Finding Deduplication, Diff-Based Staleness Detection, CLAUDE.md Should Not @-Include Scan Artifacts, Tailor PROJECT_CONTEXT Hints Per Agent Domain, Inconsistencies.md Is Thin Without Existing CLAUDE.md, Single-Pass CLAUDE.md Creation, Greenfield CLAUDE.md Prominent Treatment, Auto-Fix Strategy for Doc-vs-Code Inconsistencies, Cross-Reference Sections Create a Documentation Graph
+- Cross-referenced against all 7 personas, 34 learnings, 3 guidelines, 5 skill-references
+- No persona references needed (meta-tooling knowledge — no persona covers repo exploration tooling)
+- skill-design.md (line 38) cross-references § Diff-Based Staleness Detection — verified present and correct
+- Subdirectory CLAUDE.md heuristic vs claude-md-authoring.md §2: assessed complementary, not duplicative. explore-repo provides execution-time "silent vs visible error" heuristic; claude-md-authoring provides general criteria table. Different usage contexts.
+- Synthesis patterns vs multi-agent-patterns.md §1-2: complementary (token budget vs invocation pattern)
+- CLAUDE.md @-include pattern vs claude-md-authoring.md §1: complementary (scan artifacts specifically vs general @-ref pattern)
+- No cross-corpus duplicates at pattern level (grep-verified: PROJECT_CONTEXT, inconsistencies.md, greenfield, auto-fix, cross-reference sections all unique to this file)
+- No stale content, no compression candidates (87 lines / 11 patterns = good density), no genericization
+- Clean deep dive — no actions taken
+- Next candidate: cross-repo-sync.md (fill: untracked)
