@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -64,6 +64,7 @@ Suggested iterations: 15
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~14 clusters. Sweep 1 wiring verified. No findings. |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean. 29 skills, 7 personas, 5 skill-refs. No changes since sweep 2. |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean. 3 files, no changes since sweep 3. Round 2 complete (clean). |
+| 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean. 34 files, ~325 H2 sections, ~14 clusters. No changes since Round 2. |
 
 ## Deep Dive Status
 
@@ -155,3 +156,16 @@ Fill needed: 2 more to reach min_deep_dives=10. Priority: untracked corpus files
 - Clean sweep — no actions taken.
 
 **Round 2 complete**: L(0H/0M) + S(0H/0M) + G(0H/0M) = clean → CLEAN_ROUND_STREAK 0→1. Starting Round 3.
+
+### Iter 7
+
+**LEARNINGS sweep (Round 3) findings:**
+- 34 files, ~325 H2 sections, ~14 clusters. Same file count and structure as Round 2.
+- H2/H3 heading collision check: no duplicates across files.
+- All persona Detailed references verified intact (bash-patterns→platform-engineer, code-quality-instincts→react-frontend+xrpl-typescript-fullstack).
+- No duplicates, partial overlaps, thin fold candidates, stale content, genericization candidates, or compression candidates.
+- Unreferenced learnings (18 files) remain meta-tooling without matching personas.
+- Clean sweep — no actions taken.
+
+**Deep dive candidates confirmed (same as iter 4):**
+DEEP_DIVE_CANDIDATES: [code-quality-instincts.md (hub: 2 persona refs), react-patterns.md (hub: 2 persona refs), nextjs.md (hub: 2 persona refs), skill-platform-portability.md (stale: 5-1=4>=3), xrpl-typescript-fullstack.md (tracker: last=0), react-frontend.md (tracker: last=0), platform-engineer.md (tracker: last=0), explore-repo.md (tracker: last=0), cross-repo-sync.md (fill: untracked), git-patterns.md (fill: untracked)]
