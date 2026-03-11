@@ -61,3 +61,4 @@
 Load when working in the specific area:
 - `learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
 - `learnings/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
+- `learnings/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering

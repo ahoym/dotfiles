@@ -46,6 +46,7 @@
 
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 
+- `learnings/code-quality-instincts.md` — Universal code quality instincts (no duplication, single source of truth, port intent)
 - `learnings/react-patterns.md` — React 19 patterns, hook extraction, component decomposition
 - `learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
 - `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
