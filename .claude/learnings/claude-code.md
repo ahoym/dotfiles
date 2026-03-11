@@ -141,3 +141,7 @@ Glob tool may silently return empty for files that exist (observed with untracke
 ## Glob Fails Through Symlinked Directories
 
 Glob cannot traverse directory symlinks — even with absolute paths. `~/.claude` is symlinked, so `Glob(pattern: "commands/set-persona/*.md", path: "/Users/<user>/.claude")` returns empty while `ls /Users/<user>/.claude/commands/set-persona/*.md` finds files. Fall back to `Bash` `ls` when searching inside symlinked directory trees like `~/.claude/commands/` or `~/.claude/learnings/`.
+
+## Sanitizing Examples: Preserve Pedagogical Intent
+
+When scrubbing personal details from learning examples, use generic placeholders (`/Users/<user>/`) rather than replacing with the "correct" form (`~/.claude`). If the learning demonstrates that absolute paths fail, replacing the example with a tilde path removes the demonstration of the failure. Match the placeholder to the role the value plays in the example.
