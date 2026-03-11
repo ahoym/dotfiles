@@ -22,7 +22,12 @@
 ## Known gotchas & platform specifics
 
 ### Metrics & Observability
-- Metrics discussion process: (1) gather context, (2) map existing metrics, (3) analyze gaps against operational questions, (4) propose additions with names/types/tags, (5) iterate to prune, (6) cardinality check before implementing
+- Metrics discussion process: (1) gather context — read code, MR, existing metrics surface; (2) map existing metrics — full inventory with tags; (3) analyze gaps — compare against operational questions (alerting, debugging, capacity); (4) propose additions with names/types/tags/SLO buckets; (5) iterate to prune — remove anything that doesn't earn its cardinality cost; (6) cardinality check — estimate worst-case series count before implementing
 - `DistributionSummary.builder()` and `Timer.builder()` respect `application.properties` SLO bucket config; the shorthand `meterRegistry.summary()`/`meterRegistry.timer()` bypasses it entirely
 - Timer try/finally pattern: use an `outcome` variable with try/finally instead of duplicating `sample.stop()` at each exit path. Skip timing for no-op runs (place `Timer.start()` after early return) to keep latency percentiles clean.
 - Testing: use `SimpleMeterRegistry` (in-memory, records real values) not mocked `MeterRegistry` + stubbed `Counter` — assertions on actual recorded values are simpler and more readable
+
+## Detailed references
+
+Load when working in the specific area:
+- `learnings/java-observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC

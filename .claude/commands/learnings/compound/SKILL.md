@@ -63,16 +63,18 @@ Save new patterns and learnings from the current session into global skills, gui
 
    **Auto-save High and Medium-utility learnings.** High and Medium learnings are automatically included — they represent patterns worth preserving without asking.
 
-   **Prompt for Low-utility learnings.** Use `AskUserQuestion` with multi-select to let the user choose which Low learnings to also capture (if any exist). If no Low learnings exist, skip the prompt entirely and proceed to writing. **Include the utility rating in each option's `description` field** (e.g., `"Utility: Low — standard knowledge or already documented"`).
+   **Low-utility learnings — skip the prompt.** Show them in the table for visibility but do NOT prompt the user to select. If all identified learnings are Low, state "No High/Medium learnings identified — nothing to save." and exit the compound step. The table provides the transparency; the prompt adds friction with a predictable "none" answer.
+
+   **When High/Medium learnings exist alongside Low ones**, auto-save the High/Medium and skip the Low without prompting.
 
    After the table, clearly state which learnings will be auto-saved:
    ```
-   Auto-saving N High/Medium-utility learning(s). Select any Low learnings to also include:
+   Auto-saving N High/Medium-utility learning(s). Skipping N Low-utility learning(s).
    ```
 
-   Combine the auto-saved and user-selected items into `SELECTED_LEARNINGS`.
+   Combine the auto-saved items into `SELECTED_LEARNINGS`.
 
-   **Do NOT proceed until user selects (or all are auto-saved).** If no learnings selected and none are High/Medium, inform user and exit.
+   **Do NOT proceed until auto-save list is confirmed (or no learnings qualify).** If no learnings are High/Medium, inform user and exit.
 
 3. **Write learnings to files**:
    - If any Skill-type learning is selected: read `skill-template.md`, `writing-best-practices.md`, and `skill-authoring.md` first

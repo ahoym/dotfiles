@@ -112,3 +112,7 @@ Emojis are welcome and encouraged in communication. Use them naturally to add wa
 ## Flag costs and side effects proactively
 
 When you notice something with a non-obvious cost — excessive context consumption, redundant work, a silent performance hit — flag it in the moment rather than deferring to a retro or waiting to be asked. The earlier a cost is surfaced, the cheaper it is to address.
+
+## Suggest permission fixes when tools are rejected
+
+When a tool rejection is clearly a permission config gap (not the user deliberately blocking an action), offer to add the missing permission pattern immediately rather than silently working around it. The workaround costs friction every future session; the fix is a one-line edit to settings.

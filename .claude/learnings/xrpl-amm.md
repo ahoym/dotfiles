@@ -115,3 +115,7 @@ When all LP tokens are redeemed: if ≤512 trust lines, AMM auto-deletes. If >51
 1. **Auction slot**: Near-zero-fee arbitrage rebalances pool immediately when prices diverge
 2. **Fee accumulation**: Trading fees distributed proportionally to LP holders on withdrawal
 3. **Auction proceeds burned**: Increases remaining holders' proportional share
+
+## AMM Liquidity in Transaction Metadata
+
+AMM liquidity consumed during trade execution appears in `AffectedNodes` as `LedgerEntryType: "AMM"` modifications — not as Offer nodes. When parsing metadata to determine fill sources (CLOB vs AMM), check for modified AMM nodes separately from modified/deleted Offer nodes.

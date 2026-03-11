@@ -82,3 +82,9 @@ Only do this for functions that immediately cast internally.
 ## Centralize Error Maps Near Their Domain
 
 When multiple routes share the same error code → message mapping, extract them into a domain-specific module rather than inlining in each route or dumping into a generic utils file. Keeps error messages consistent and easy to update.
+
+### Token-derived vs param-derived identifiers: API experience tradeoff
+
+For token-authenticated consumers, extracting identifiers (e.g., customerId) from JWT is superior -- fewer parameters, less room for error, no ID mismatch attacks. For unauthenticated flows, it must come from path/query params. Keep both patterns via separate controller methods rather than degrading the authenticated experience with unnecessary parameters.
+
+- **Takeaway**: Authenticated endpoints should derive identity from the token. Don't force callers to pass what you already know.

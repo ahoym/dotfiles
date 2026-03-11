@@ -76,13 +76,14 @@ This step has two phases: **strategic review** (do we understand what we're buil
 8. **Check agent scope balance** — flag agents that seem too large (> 200s estimated, touching 5+ files) or too small (< 30 lines of changes). Suggest splits or merges.
 9. **Review the Review Notes** — if the planner included a **Review Notes** section, examine each flagged uncertainty and form your own judgment.
 10. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the user — agents will silently fail without these permissions.
-11. **Present technical findings** — report your review to the user:
-   - Issues found (stale landmarks, wrong dependencies, scope imbalances)
+11. **Verify persona assignments** — for each agent with a `persona` field, check that the assigned persona matches the agent's actual scope (file paths, technologies, domain). Flag mismatches (e.g., a `react-frontend` persona on an agent that only writes backend API routes). Verify the persona file exists in `~/.claude/commands/set-persona/` or `.claude/personas/`. For agents with `persona: none`, confirm no available persona would be a strong fit.
+12. **Present technical findings** — report your review to the user:
+   - Issues found (stale landmarks, wrong dependencies, scope imbalances, persona mismatches)
    - Proposed adjustments (with rationale)
    - Planner's flagged uncertainties and your assessment
    - Permission gaps (if any)
    - Or: "Plan looks good, no issues found" — don't invent problems
-12. **Get final approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
+13. **Get final approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
 
 Do NOT skip this step. The value of a fresh session is the fresh perspective — use it.
 
@@ -219,10 +220,11 @@ Don't treat discovery propagation as a blocking step. If all dependent agents ar
 **Prompt construction:** For each agent, build the full prompt by concatenating:
 1. **Shared Contract** — the full Shared Contract section from the plan (types, API contracts, import paths)
 2. **Prompt Preamble** — the Prompt Preamble section from the plan (TDD workflow, project commands, completion report format), if present
-3. **Agent prompt** — the agent's `prompt` field from the plan
-4. **Code quality checklist** — append the contents of `~/.claude/skill-references/code-quality-checklist.md` as a final self-review step (read the file once and reuse for all agents)
+3. **Persona** — if the agent has a `persona` field (not `none`), read the persona file from `~/.claude/commands/set-persona/<persona-name>.md` (or `.claude/personas/<persona-name>.md`) and include its content. This gives the agent domain-specific priorities, tradeoffs, and gotchas. Read each distinct persona file once and reuse across agents that share it.
+4. **Agent prompt** — the agent's `prompt` field from the plan
+5. **Code quality checklist** — append the contents of `~/.claude/skill-references/code-quality-checklist.md` as a final self-review step (read the file once and reuse for all agents)
 
-This ensures every agent sees the shared contract and common instructions without the planner having to duplicate them in each agent's prompt. The agent's `prompt` field focuses on agent-specific work: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
+This ensures every agent sees the shared contract, common instructions, and domain-specific persona without the planner having to duplicate them in each agent's prompt. The agent's `prompt` field focuses on agent-specific work: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
 
 If the plan has no Prompt Preamble section, fall back to the previous behavior: each agent's prompt must be self-contained with all necessary context.
 

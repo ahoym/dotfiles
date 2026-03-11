@@ -153,6 +153,8 @@ See also: `~/.claude/learnings/claude-code-hooks.md` for PostToolUse limitations
 
 Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
 
+**Path resolution gotcha**: `@./` relative paths may have resolution issues — the 3 observed failures with `git:create-mr` where `@./mr-body-template.md` wasn't loaded were likely path resolution bugs, not evidence that `@` doesn't work in SKILL.md. Use `@filename.md` (skill-directory-relative) or `@~/.claude/...` (absolute-ish) paths for reliability. Always add explicit read instructions as a defensive backup regardless of `@` vs backtick style.
+
 **Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
 
 ## Discoverability via Trigger Phrases

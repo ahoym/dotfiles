@@ -170,3 +170,35 @@ const created = nodes.find(
 | Helper | `encodeCredentialType()` | `encodeXrplCurrency()` |
 
 Using the wrong encoder produces valid-looking hex that silently fails on the ledger. Keep in separate utility files.
+
+## `getBalanceChanges()` Built-in Utility
+
+xrpl.js provides `getBalanceChanges(metadata)` that handles all AffectedNodes parsing, RippleState sign conventions, and BigNumber arithmetic. Returns per-account balance deltas. Use this instead of manual AffectedNodes iteration — it covers AccountRoot (XRP) and RippleState (tokens) uniformly.
+
+## mduo13.github.io XRPL Dev Portal Mirror
+
+`mduo13.github.io/xrpl-dev-portal/` is a server-rendered mirror of xrpl.org docs. Useful for WebFetch in automated research — the main xrpl.org site is client-rendered (returns empty shells). Confirmed working for pages like `rippling.html`, `ripplestate.html`.
+
+## `simulate` API (rippled 2.4.0+, XLS-69)
+
+Dry-run transaction validation without committing fees or sequence numbers. Submit a transaction with `simulate: true` to get the full result (including metadata) without ledger changes. Requires rippled 2.4.0+; not all public nodes support it. Useful for pre-flight validation of cross-currency payments (verify paths, check delivered_amount).
+
+## xrpl.js `submitAndWait` Error Behavior
+
+`submitAndWait` returns normally for `tec` codes (result available in response). Throws for `tef`, `ter`, `tem` codes. This means:
+- `tec` → check `result.meta.TransactionResult`
+- `tef`/`ter`/`tem` → catch the thrown error
+
+## Transaction Result Code Fee Behavior
+
+| Code prefix | Fee consumed? | Sequence consumed? | On-ledger? |
+|---|---|---|---|
+| `tes` | Yes | Yes | Yes |
+| `tec` | Yes | Yes | Yes (failed) |
+| `tef` | No | No | No |
+| `ter` | No | No | No |
+| `tem` | No | No | No |
+| `tel` | No | No | No |
+
+Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`tem`/`tel`, reuse the same sequence number.
+

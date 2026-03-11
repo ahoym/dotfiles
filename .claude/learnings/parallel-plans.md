@@ -70,6 +70,18 @@ haiku handles multi-file mechanical edits well when instructions are explicit (e
 
 Use haiku for pattern-following edits across many files. Use sonnet when the agent needs judgment (e.g., description quality review, diverse context injection templates).
 
+## Single Branch for Strict-Ownership Plans
+
+When a parallel plan has strict file ownership (no file touched by two agents), use a single feature branch instead of per-agent branches. The multi-branch rebase chain (A → B → C → E, plus D) adds overhead with zero benefit — conflicts are impossible by construction. All agents commit sequentially to one branch, one MR at the end.
+
+**When to use multi-branch:** Only when agents modify overlapping files or when independent review/merge per agent is required.
+
+## Assign Integration Tests to the Wiring Agent
+
+Integration tests (orchestrator-level, router-level) should be explicitly assigned to the last agent in the DAG (typically the wiring agent), not left as unassigned "post-execution" items. Unassigned tests create ambiguous ownership — they either get skipped or require a manual follow-up step that breaks the automated execution flow.
+
+The wiring agent is the natural owner: it has all prior agents' work available and its job is verifying the connections between components.
+
 ## Adapting Parallel Plans for Non-Code Tasks
 
 The parallel-plan format (designed for code with TDD) adapts to mechanical editing tasks (YAML frontmatter, markdown sections):

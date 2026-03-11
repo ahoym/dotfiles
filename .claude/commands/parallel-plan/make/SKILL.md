@@ -80,7 +80,18 @@ Before agents can work independently, they must agree on interfaces. The contrac
 
 The contract should be concrete enough that all agents can write compatible code without seeing each other's output.
 
-### Step 8: Design the branch strategy
+### Step 8: Assign personas per-agent
+
+Glob available personas from `~/.claude/commands/set-persona/` and `.claude/personas/` (project-local). Match each agent to a persona by comparing the agent's domain (file paths, description, technologies involved) against persona filenames. Don't deep-read persona files to decide — filenames are the index (e.g., `react-frontend.md`, `java-backend.md`, `xrpl-typescript-fullstack.md`).
+
+- Agents working on frontend components → frontend persona
+- Agents working on API routes / backend logic → backend persona
+- Agents working on shared types / foundation → the persona closest to the dominant consumer, or none
+- If no persona is a strong fit for an agent, omit it — not every agent needs one
+
+Add an optional `persona` field to each agent definition with the persona filename (without extension). The executor will read and include the persona content in the agent's prompt at launch time.
+
+### Step 9: Design the branch strategy
 
 Derive the branch strategy from the DAG:
 - **Root agents** (no dependencies) → branch from `main`
@@ -91,7 +102,7 @@ Derive the branch strategy from the DAG:
 
 For agents with multiple dependencies, branch from the dependency that is on the critical path (longest estimated duration).
 
-### Step 9: Self-review checklist
+### Step 10: Self-review checklist
 
 Run through `analysis-guide.md` → "Self-Review Checklist" before writing the final plan. Key checks:
 - No orphaned agents
@@ -102,11 +113,12 @@ Run through `analysis-guide.md` → "Self-Review Checklist" before writing the f
 - All prompts have concrete landmarks
 - Required Bash Permissions section populated
 - Branch Strategy section populated with per-agent branch names, merge order
+- Persona assignments match agent domains (or explicitly omitted with reason)
 - Review Notes populated for uncertain decisions (or section omitted if none)
 
 Fix any failures before proceeding.
 
-### Step 10: Write the parallel plan
+### Step 11: Write the parallel plan
 
 Read `~/.claude/skill-references/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
 
@@ -158,6 +170,7 @@ completion report format, and general rules.>
 - **creates**: [<file-paths>]
 - **modifies**: [<file-paths>]
 - **deletes**: [<file-paths>]
+- **persona**: <persona-name> | none (e.g., "react-frontend", "java-backend")
 - **estimated_duration**: <Xs> (e.g., "60s", "120s")
 - **description**: <what this agent does, 1-2 sentences>
 - **tdd_steps**:
@@ -312,6 +325,7 @@ Build: not yet run
 20. **`Required Bash Permissions` section is required** — lists every distinct Bash command pattern agents will need, using the same `Bash(...)` syntax as `.claude/settings.local.json` allow patterns. The executor verifies these against settings before launching agents.
 21. **`Branch Strategy` section is required** — defines per-agent branch names, branch-from sources, PR targets, and merge order. All PRs target `main`. Root agents (no deps) branch from `main`. Dependent agents branch from their dependency's branch (so they have upstream code). Merge order is derived from topological sort of the DAG. After upstream PRs merge, downstream branches rebase onto main. The executor uses this section to mechanically create branches, commits, and PRs as agents complete.
 22. **`Review Notes` section is optional but encouraged** — the planner flags decisions they were uncertain about (dependency classifications, agent scope, landmark accuracy). The executor's fresh-eyes review examines each item. Omit the section entirely if there are no uncertainties.
+23. **`persona` field is optional per-agent** — the planner assigns a persona from `~/.claude/commands/set-persona/` or `.claude/personas/` based on the agent's domain. Use the persona filename without extension (e.g., `react-frontend`, `java-backend`). Set to `none` if no persona is a strong fit. The executor reads the persona file and includes its content in the agent's prompt at launch time. Different agents in the same plan can have different personas.
 
 ## Important Notes
 

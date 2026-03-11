@@ -140,3 +140,37 @@ Note: Factory functions from test-helpers can't be used inside `vi.hoisted()` (c
 When mocking responses that contain encoded fields (e.g., hex-encoded currency codes), the mock value must match the encoding the code under test will compare against. If the code encodes `"USD"` as a 3-char passthrough, the mock must also use `"USD"` — not the 40-char hex form.
 
 This causes tests that pass in isolation to fail in the full suite when encoding comparison logic doesn't match mock data.
+
+## Python Module-Level Singletons Poison Test Suite via Import Side Effects
+
+When a Python module creates singletons at import time (e.g., `coordinators.py` instantiating coordinator objects using env vars), and a test file imports modules in that chain at collection time, the singletons get initialized with unpatched env var values. Later tests that patch env vars via fixtures see the cached module — not fresh values.
+
+**Symptoms:** Tests pass in isolation but fail in the full suite. The failure pattern depends on test collection order (alphabetical by file).
+
+**Root cause chain:**
+1. pytest collects `test_foo.py` → imports `SomeClass` from `some_module.py`
+2. `some_module.py` imports from `client.py` which has module-level `os.getenv()` calls
+3. `conftest.py::load_env` (session-scoped autouse fixture) hasn't run yet → defaults used
+4. Module is cached with default values; `load_dotenv()` runs later but doesn't re-execute the module
+
+**Fix — defer heavy imports:**
+```python
+# BAD — triggers import chain at collection time
+from app.orchestrator import Orchestrator
+
+@pytest.fixture
+def orch():
+    return Orchestrator(coordinator=MagicMock(spec=Coordinator))
+
+# GOOD — defers import to fixture execution (after load_env)
+@pytest.fixture
+def orch():
+    from app.orchestrator import Orchestrator
+    return Orchestrator(coordinator=MagicMock())
+```
+
+**Corollary:** Router/integration tests that use `TestClient(app)` should use default env var values (e.g., `"local_fireblocks_source_vault"`) in mock expectations — not `.env.tests` values — because module-level singletons may already be initialized with defaults by the time the test runs.
+
+## Plan Docs Should Specify Mock Expectation Values
+
+When writing plan docs that include integration/router-level tests, explicitly state which env var values mocks should match — default values from `os.getenv("X", "default")` or values from `.env.tests`. This prevents a debugging round where tests fail because mock expectations use `.env.tests` values but the code under test reads module-level singletons initialized with defaults.

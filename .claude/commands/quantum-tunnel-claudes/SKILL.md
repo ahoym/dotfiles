@@ -190,6 +190,8 @@ If `$ARGUMENTS` is "diff", display both tables and exit without prompting.
 
 ### 4. Execute sync
 
+**Verify agent write permissions before launching.** Before spawning any background merge agents, grep `<TARGET>/.claude/settings.local.json` (or the project's settings file) for `Write(.claude/**)` and `Edit(.claude/**)` allow patterns. Background agents can't prompt for permissions — missing patterns cause silent failures where the agent completes analysis but can't write results. If patterns are missing, either add them (with user confirmation) or fall back to coordinator-managed merges (agents analyze, coordinator applies edits).
+
 **Route by divergence size.** For diverged items with >15 source-unique lines, use background agents for parallel merges. For ≤15 source-unique lines, triage directly from the inventory diff — many will be skips (terminology-only, target already evolved past source). This mirrors the analysis-phase threshold in step 2b.
 
 **Batch agents for large sets.** When launching >6 merge agents, batch in waves of 5-6 and wait for each wave's completions before launching the next. This keeps stragglers within the context window. If all must launch at once, record agent IDs in a tracking table so continuation sessions can check status via `TaskOutput`.

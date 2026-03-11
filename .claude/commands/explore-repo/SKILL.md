@@ -55,7 +55,20 @@ Determine what work needs to be done by checking existing output files.
    - A scan file is **missing** if it doesn't exist at all
 
 3. **Smart staleness — identify affected domains:**
-   - If any scan files are stale, run `git diff --stat <stale-commit>..HEAD` to see which files changed
+   - If any scan files are stale, run `git diff --stat <stale-commit>..HEAD` to see which files changed, **excluding the skill's own output files** from the diff using git pathspec exclusions:
+     ```
+     git diff --stat <stale-commit>..HEAD \
+       ':!docs/learnings/structure.md' \
+       ':!docs/learnings/api-surface.md' \
+       ':!docs/learnings/data-model.md' \
+       ':!docs/learnings/integrations.md' \
+       ':!docs/learnings/processing-flows.md' \
+       ':!docs/learnings/config-ops.md' \
+       ':!docs/learnings/testing.md' \
+       ':!docs/learnings/SYSTEM_OVERVIEW.md' \
+       ':!docs/learnings/inconsistencies.md'
+     ```
+     This prevents the synthesis phase's own writes from triggering re-scans on the next run.
    - Map changed file paths to affected domains using this table:
 
      | Changed path pattern | Affected domain(s) |
@@ -205,7 +218,14 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - Read CLAUDE.md at the repo root (if it exists)
    - Read README.md at the repo root (if it exists)
 
-3. **Synthesize SYSTEM_OVERVIEW.md:**
+3. **Cross-check domain files for contradictions:**
+
+   Before synthesizing, scan all 7 domain files' `## Gotchas` sections for claims about the same code or behavior. Independent agents can report contradictory findings (e.g., one says a bug exists, another says it was fixed). When two files make conflicting claims:
+   - Determine the correct state from evidence (git history, actual code)
+   - Fix the incorrect domain file in place
+   - Note the correction in `inconsistencies.md` under a "Cross-agent contradictions" section
+
+4. **Synthesize SYSTEM_OVERVIEW.md:**
 
    Write a **cross-domain overview** — this is the unique value that individual domain files cannot provide on their own. Do NOT simply concatenate the domain files.
 
@@ -241,7 +261,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
      - **Low** — Nice-to-have improvements
    - For each gap: what's missing, where it should be documented, suggested content
 
-4. **Synthesize inconsistencies.md:**
+5. **Synthesize inconsistencies.md:**
 
    Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found — if there are no docs, skip it.
 
@@ -264,7 +284,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - Dockerfile base image versions vs project-level version declarations (e.g., `python:3.11` in Dockerfile vs `3.12` in `pyproject.toml`)
    Only check artifacts that exist — skip silently if the project has no templates or CI config. Format findings the same way as doc inconsistencies (source, claim, reality, fix).
 
-5. **Add cross-references between domain files:**
+6. **Add cross-references between domain files:**
 
    After synthesizing, go back and add a `## Cross-references` section at the bottom of each domain file (before `## Scan Limitations`) with links to related content in other domain files. The goal is to make each domain file navigable to its neighbors. Example:
    ```
@@ -275,15 +295,15 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    ```
    Only add cross-references where there's a genuine relationship — don't cross-reference everything to everything.
 
-6. **Auto-fix outdated documentation:**
+7. **Auto-fix outdated documentation:**
 
-   Using the inconsistencies found in step 4, automatically apply fixes to CLAUDE.md and README.md:
+   Using the inconsistencies found in step 5, automatically apply fixes to CLAUDE.md and README.md:
    - For **Critical** inconsistencies: apply the fix directly — these are actively misleading
    - For **Medium** inconsistencies: apply the fix directly — partial accuracy is still harmful
    - For **Low** inconsistencies: apply the fix if it's a simple text replacement; skip if it requires judgment calls
    - Record what was fixed in the inconsistencies.md file (mark each as `[FIXED]` or `[UNFIXED]` with reason)
 
-7. **Update CLAUDE.md files:**
+8. **Update CLAUDE.md files:**
 
    Based on the synthesized understanding, update documentation for better agent traversal:
 
@@ -315,16 +335,16 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    - Keep CLAUDE.md content concise and navigational — deep detail belongs in the domain files under `docs/learnings/`.
 
-8. **Write output files:**
+9. **Write output files:**
    ```bash
    mkdir -p docs/learnings
    ```
    - Write `docs/learnings/SYSTEM_OVERVIEW.md`
    - Write `docs/learnings/inconsistencies.md` (skip if no existing docs)
-   - Update root CLAUDE.md (including auto-fixes from step 6)
-   - Update README.md (if auto-fixes from step 6 apply)
+   - Update root CLAUDE.md (including auto-fixes from step 7)
+   - Update README.md (if auto-fixes from step 7 apply)
    - Create subdirectory CLAUDE.md files as needed
-   - Update domain files with cross-references (from step 5)
+   - Update domain files with cross-references (from step 6)
 
 ---
 

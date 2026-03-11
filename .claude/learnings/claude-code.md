@@ -133,3 +133,11 @@ When multiple tool calls are sent in a single batch and one fails, all sibling c
 `~/.claude` is a real directory on disk. Key subdirectories (`commands/`, `guidelines/`, `learnings/`, `lab/`) are **directory-level symlinks** to the dotfiles repo (e.g., `commands -> /Users/<user>/WORKSPACE/dotfiles/.claude/commands`). Edits to files under these paths land in the repo automatically — no separate copy step needed.
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
+
+## Glob Can Miss Files — Verify with ls/Bash
+
+Glob tool may silently return empty for files that exist (observed with untracked files in `docs/learnings/`). When making claims about file existence/absence, verify with `ls` or `Bash` before stating files don't exist. Getting this wrong (claiming a directory is empty when it has 5 files) erodes trust quickly.
+
+## Glob Fails Through Symlinked Directories
+
+Glob cannot traverse directory symlinks — even with absolute paths. `~/.claude` is symlinked, so `Glob(pattern: "commands/set-persona/*.md", path: "/Users/<user>/.claude")` returns empty while `ls /Users/<user>/.claude/commands/set-persona/*.md` finds files. Fall back to `Bash` `ls` when searching inside symlinked directory trees like `~/.claude/commands/` or `~/.claude/learnings/`.

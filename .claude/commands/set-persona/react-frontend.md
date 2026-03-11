@@ -25,6 +25,10 @@
 - Design tokens over per-component styling — upfront centralization cost compounds as the system grows
 - Composition over premature abstraction — three similar lines is better than a shared helper with one caller
 
+## Code style
+
+Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
+
 ## Known gotchas & platform specifics
 
 ### React 19

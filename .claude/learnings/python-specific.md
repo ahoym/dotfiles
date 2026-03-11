@@ -45,6 +45,20 @@ payment.get("referenceId")  # OK - returns str | None
 
 Even if you know the key was set, pyright can't verify it. Use `.get()` for `NotRequired` keys.
 
+## Env Var Empty-String-to-None Conversion
+
+When an env var semantically represents "absent" via empty string, convert at the source with `os.getenv("KEY") or None` rather than relying on downstream `or None` at usage sites. This avoids implicit contracts where multiple consumers must each remember to handle `""`:
+
+```python
+# GOOD — single conversion point
+DESTINATION_TAG = os.getenv("DESTINATION_TAG") or None
+
+# BAD — implicit contract at every usage site
+DESTINATION_TAG = os.getenv("DESTINATION_TAG", "")
+# ... later in wiring code:
+config = Config(destination_tag=DESTINATION_TAG or None)  # easy to forget
+```
+
 ## Custom matcher objects can't be used as Pydantic model field values
 
 Custom test matcher objects (e.g., `IsInstanceOf(str)`, `AnyString()`) cannot be passed as Pydantic model field values — Pydantic validates the input and rejects non-matching types for typed fields. Use `response.<field>` instead:

@@ -45,3 +45,29 @@ A source section heading absent from the target doesn't mean the content is miss
 ## Execution-Phase Routing for Merge Scale
 
 Route merge execution by divergence size: large diverged files (>15 source-unique lines) → background agents for parallel merges. Small diverged files (≤15 lines) → direct inline triage from inventory diff. Small-file triage frequently results in skips (target already ahead, terminology-only diffs), saving agent spawn overhead. This mirrors the analysis-phase threshold in the skill's step 2b.
+
+## Background Merge Agents Need Pre-Registered Write Permissions
+
+Background agents launched for parallel merges can't prompt for tool permissions — they silently fail when Write/Edit aren't pre-registered in `.claude/settings.local.json`. The agents complete their analysis correctly (reading both files, producing merge instructions) but can't apply the results.
+
+**Coordinator fallback:** When an agent completes analysis but couldn't write, read its output for the merge instructions and apply edits directly from the main session. The analysis is the expensive part; applying it is mechanical.
+
+**Prevention:** Before launching merge agents, verify that `Write(.claude/**)` and `Edit(.claude/**)` appear in the target repo's settings. The quantum-tunnel SKILL.md Prerequisites section documents the needed patterns, but the coordinator should verify at runtime — missing patterns cause silent failures that aren't discovered until agent completion.
+
+## Context Continuation Can Produce Inaccurate File Paths
+
+When a session is compacted and continued, the summary may record file paths inaccurately (e.g., `learnings/persona-design.md` instead of actual `commands/learnings/curate/persona-design.md`). The summary captures the *concept* of what was being worked on but may simplify or misremember the exact path.
+
+**Fix:** At the start of a continuation session, re-verify paths with `Glob` or `find` before attempting reads. Don't trust summary paths verbatim — treat them as hints, not sources of truth.
+
+## Large Inventory Output Handling
+
+When inventory scripts produce 60KB+ output, both Bash and Read persist the output to files. Reading a persisted file can itself produce another persisted file (output still too large), creating an access loop. Pattern: (1) `grep -n '==='` on the persisted file to find section boundaries, (2) `sed -n 'start,endp'` to extract sections to `/tmp`, (3) Read with offset/limit on the extracted file. Alternatively, use Read with offset/limit directly on the persisted file if you know the line ranges.
+
+## Bulk Sync: cp for Copies, Read+Edit for Merges
+
+For quantum-tunnel syncs with 20+ items, use `bash cp` in batch commands for straightforward copies and superset:source overwrites (1-2 tool calls total). Reserve Read+Edit/Write only for BOTH_UNIQUE files needing content-aware merges. The skill's Read+Write instruction ensures correctness; `cp` achieves the same with dramatically fewer tool calls.
+
+## Style Divergence: Keep Target's Evolved Phrasing
+
+When source and target guidelines diverge on voice/style (e.g., first-person "I" vs third-person "my partner"), the target's evolution is intentional. During merges, keep target's phrasing for shared sections and only pull substantively new sections from source. Don't let style diffs inflate the BOTH_UNIQUE assessment — they're cosmetic, not content.
