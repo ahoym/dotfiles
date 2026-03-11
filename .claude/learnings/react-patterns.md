@@ -139,13 +139,9 @@ if (result) {
 
 **Symptoms:** E2E tests time out waiting for success text; screenshots show the page with no modal open and no error visible. Users see a flash (or nothing) before the modal disappears.
 
-## Lift Execution State to Parent for Non-Blocking UI
+## Modal Execution Ownership
 
-When a modal triggers a long-running async operation (e.g., placing multiple orders sequentially), lift the execution state (`progress`, `results`) to the parent component. This lets the modal close immediately after confirmation while the parent continues running the operation and reflects progress in its own UI.
-
-## Modal as Form-Only with Parent-Owned Execution
-
-Design modals to handle only form input and preview, then call an `onExecute(data)` callback instead of running async operations internally. The parent owns the execution loop and state. Pattern: Modal exposes `onExecute` prop (not `onComplete`). Parent closes modal on execute and runs work independently.
+Design modals to handle only form input and preview, then call an `onExecute(data)` callback — not `onComplete`. The parent owns the execution loop: it closes the modal immediately on execute, runs the async operation (e.g., sequential API calls), and reflects progress in its own UI. Lifting execution state (`progress`, `results`) to the parent means the modal doesn't block while work continues.
 
 ## Per-Iteration refreshKey Bump for Live Updates
 

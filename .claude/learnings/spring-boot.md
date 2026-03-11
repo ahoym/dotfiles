@@ -152,6 +152,12 @@ H2 does not support PostgreSQL's `CREATE TYPE name AS ENUM (...)` syntax. When u
 
 - **Takeaway**: If you use PG enum types, commit to Testcontainers for all DB tests. There's no H2 workaround.
 
+### VARCHAR + CHECK Constraint > PG ENUM Type for Migration Safety
+
+`ALTER TYPE ... ADD VALUE` cannot run inside a transaction in PostgreSQL, making enum evolution painful — especially with Flyway which wraps each migration in a transaction by default. Using `VARCHAR` columns with `CHECK (column IN ('VAL1', 'VAL2'))` constraints provides equivalent DB-level validation without the migration headache. Adding a new value is a simple `ALTER TABLE ... DROP CONSTRAINT ... ADD CONSTRAINT` which is fully transactional.
+
+- **Takeaway**: Prefer VARCHAR + CHECK constraint over PG ENUM types when enum values are expected to evolve. Reserve PG ENUM for truly stable value sets.
+
 ### Enum.valueOf() is unsafe for DB-sourced values
 
 Database values may not match Java enum constants (case differences, new values added to DB but not code, typos). Use a safe lookup pattern -- `Arrays.stream(values()).filter(...)` with a fallback or `Optional` -- instead of raw `Enum.valueOf()` which throws `IllegalArgumentException` with no context.

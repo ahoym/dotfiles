@@ -105,6 +105,24 @@ jq 'del(.hooks)' "$WORKTREE/.claude/settings.local.json" > tmp && mv tmp "$_"
 
 When committing new modules, check `git status` untracked files for dependencies the new code imports. A file created in a prior session but never committed will break CI if a newly committed module imports it. Stage all untracked dependencies together with the new code.
 
+## Split Mixed-Concern Branch via Soft Reset
+
+When a branch has commits mixing two concerns (e.g., docs + implementation plans), split them without cherry-pick surgery:
+
+1. Create new branch from base, `git checkout <source> -- <paths>` to grab the subset, commit
+2. On original branch: `git reset --soft <base>` to collapse all commits into staged changes
+3. `git reset HEAD -- <unwanted-paths>` to unstage the files that moved to the new branch
+4. Commit the remaining staged files — clean single commit with only the wanted content
+5. Clean up untracked files, force-push-with-lease
+
+**Why soft-reset over interactive rebase:** When the concern boundary doesn't align with commit boundaries (e.g., first commit has files from both concerns), `reset --soft` + selective unstage is simpler than splitting commits during rebase.
+
+## Verify Remote/Project Identity Before Cross-Repo Work
+
+When working across repos with similar names (e.g., `foo-service` vs `foo-service-v2`), verify `git remote -v` and the project path match before committing or pushing. A wrong-repo push wastes a commit cycle and may create orphan branches/PRs on the wrong project.
+
+**Quick check:** `git remote -v | head -1` before any push to a repo you didn't clone yourself in this session.
+
 ## Zsh Glob Expansion Breaks `git add` with Brackets
 
 Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.

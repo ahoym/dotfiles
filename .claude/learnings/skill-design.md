@@ -157,6 +157,10 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 **Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
 
+## Update Producer and Consumer Skills Together
+
+When changing a contract between two skills (e.g., the parallel plan format consumed by `/parallel-plan:execute` and produced by `/parallel-plan:make`), update both skills in the same commit. A broken intermediate state — where the producer writes a new format but the consumer still expects the old one — causes silent failures in automated workflows. Add legacy support in the consumer if backwards compatibility is needed.
+
 ## Discoverability via Trigger Phrases
 
 Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.

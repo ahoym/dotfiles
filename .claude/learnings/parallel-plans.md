@@ -91,3 +91,51 @@ The parallel-plan format (designed for code with TDD) adapts to mechanical editi
 - **Integration tests** → structural checks (field ordering, count verification) instead of cross-module data flow
 - **Pre-execution verification** → "no commands needed" (all tools are built-in)
 - **Required Bash Permissions** → often none (Read/Edit/Glob/Write only)
+
+## Import Dependencies Force Agent Merges
+
+When Class A imports from Class B's module (e.g., `OrderCommand` imports `ServiceConfig`), those classes cannot live in separate worktree-isolated agents — the importing class won't compile without the imported class. This forces merging the two agents even if their file lists don't overlap.
+
+**Detection:** During DAG design, trace import chains across agent boundaries. Any cross-agent import where the imported type doesn't exist in the base branch requires merging the agents or restructuring to break the dependency (e.g., extract shared types into a foundation agent that runs first).
+
+**Example:** Agent B (domain model) creates `OrderCommand` which imports `ServiceConfig` from Agent C (config). Neither file exists in the base branch → Agent B's worktree can't compile → merge B and C into one agent.
+
+## Front-Load Shared Config to One Early Agent
+
+When multiple agents need to add entries to a shared file (e.g., `application.properties`, `pom.xml`), assign ALL writes to a single early agent rather than splitting ownership. Later agents reference the config but don't modify it — they use alternative access patterns (e.g., `@Value` annotation instead of `@ConfigurationProperties` class) if their ideal approach would require modifying the shared file.
+
+**Why:** Parallel plans require strict file ownership (no file touched by two agents). Shared config files are the most common violation. Front-loading eliminates the conflict entirely.
+
+## Fan-In Cherry-Pick: Parallel Siblings Miss Each Other's Work
+
+When an agent depends on two parallel siblings (e.g., H depends on F and G, where F∥G), cherry-picking one dependency's branch misses the other's commits — each sibling only has its own work plus shared ancestors.
+
+**Fix:** Cherry-pick the dependency whose branch has the most cumulative DAG history, then separately cherry-pick the other sibling's unique commits. For H depending on F and G (both depending on D): cherry-pick `main..feat/schedulers` (includes A→B→C→D→G), then cherry-pick `feat/service-layer..feat/rest-api` (F's unique commits beyond D).
+
+**Detection:** Any agent with 2+ dependencies where those dependencies are not in a chain (i.e., neither depends on the other). The executor skill's prompt construction should include cherry-pick commands for all dependency branches, not just one.
+
+## Background Agent CLI Permission Gotcha
+
+`Bash(gh *)` / `Bash(glab *)` permission allows PR/MR creation interactively, but background agents hit a secondary permission prompt on quoted string content within the command. The agent silently blocks waiting for approval that never comes.
+
+**Workaround:** Coordinator creates PRs/MRs on behalf of blocked agents using the agent's worktree path and branch. Budget time for this fallback — observed hitting 6/8 agents in a large parallel execution.
+
+**Potential fix:** Use `--no-editor` flag and avoid HEREDOC/quoted descriptions, or pre-register more specific CLI permission patterns.
+
+## Context Compaction Loses Agent Task References
+
+When the coordinator session compacts (context limit), background agent task IDs are lost. The state file (`.parallel-plan-state.json`) preserves agent status but not the runtime task handle needed for `TaskOutput`.
+
+**Recovery:** Check `git worktree list` for active worktrees, `git ls-remote origin <branch>` for pushed branches. Cross-reference with state file to identify which agents completed. Resume orchestration from state file — treat agents with pushed branches as completed.
+
+## Two-File Split: Plan + Prompts
+
+Split monolithic parallel plans into two sibling files:
+- **`<name>.plan.md`** — Review surface + status tracking (~300 lines). Contains: Context, Shared Contract, Agent summary table, DAG, Critical Path, Integration Tests, Verification, Branch Strategy, Review Notes, Execution State. This is the only file that changes after creation (Execution State updates).
+- **`<name>.prompts.md`** — Execution manifest (~1000+ lines). Contains: Prompt Preamble, full agent definitions (metadata + prompts). Immutable after creation.
+
+**Key properties:**
+- Cross-references link the two files (`**Prompts:** ./name.prompts.md` / `**Plan:** ./name.plan.md`)
+- Executor reads Shared Contract from plan file + Preamble from prompts file, prepends both to each agent's prompt
+- Reviewers only need the plan file; the prompts file is rarely read by humans
+- Shared Contract stays in plan file (single source of truth, not duplicated in preamble)

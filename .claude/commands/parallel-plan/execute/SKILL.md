@@ -126,20 +126,30 @@ If any command fails or permissions are missing, stop and report to the user —
 
 ### Step 2: Parse the plan
 
-Read the parallel plan file. It must follow the structured format from `/parallel-plan:make`:
+The parallel plan consists of **two files** produced by `/parallel-plan:make`:
+
+**Plan file** (`.plan.md`) — contains:
 - **Shared Contract** section with types, API contracts, import paths
-- **Prompt Preamble** section (optional) with process instructions common to all agents (TDD workflow, project commands, completion report format, general rules). This does NOT contain the shared contract — the contract is a separate section.
-- **Agents** section with lettered agents, each having `depends_on`, `soft_depends_on`, file lists, descriptions, and prompts
+- **Agents** summary table (letter, name, depends_on, description)
+- **DAG Visualization**
 - **Pre-Execution Verification** section
 - **Integration Tests** section
-- **DAG Visualization**
 - **Required Bash Permissions** section
 - **Review Notes** section (optional — planner's flagged uncertainties)
-- **Branch Strategy** section (optional) with per-agent branch names, branch-from sources, MR/PR targets, and merge order
+- **Branch Strategy** section (optional) with per-agent branch names, branch-from sources, PR targets, and merge order
+- **Execution State** section
 
-Extract and store the **Shared Contract** and **Prompt Preamble** sections — you will prepend these to every agent prompt in Step 5. If a **Branch Strategy** section exists, extract the per-agent branch configuration — you will use it in Step 6 to create branches, commits, and PRs/MRs as agents complete.
+**Prompts file** (`.prompts.md`) — contains:
+- **Prompt Preamble** section with process instructions common to all agents (TDD workflow, project commands, completion report format, general rules). This does NOT contain the shared contract — the contract lives in the plan file.
+- **Agent definitions** — full agent metadata (depends_on, soft_depends_on, persona, creates/modifies/deletes, estimated_duration, tdd_steps) and prompts
 
-If the plan doesn't follow this format, ask the user to run `/parallel-plan:make` first.
+Read the plan file first. Locate the prompts file via the `**Prompts:**` reference in the Context section. Read both files.
+
+Extract and store the **Shared Contract** (from plan file) and **Prompt Preamble** (from prompts file) — you will prepend these to every agent prompt in Step 5. Extract agent definitions from the prompts file. If a **Branch Strategy** section exists in the plan file, extract the per-agent branch configuration for Step 6.
+
+If the files don't follow this format, ask the user to run `/parallel-plan:make` first.
+
+**Legacy support:** If a single `.md` file is provided (not `.plan.md`), treat it as a combined plan — all sections are in one file. This handles plans created before the two-file split.
 
 ### Step 3: Check for existing execution state
 
@@ -218,15 +228,15 @@ Don't treat discovery propagation as a blocking step. If all dependent agents ar
 **Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 8 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
 
 **Prompt construction:** For each agent, build the full prompt by concatenating:
-1. **Shared Contract** — the full Shared Contract section from the plan (types, API contracts, import paths)
-2. **Prompt Preamble** — the Prompt Preamble section from the plan (TDD workflow, project commands, completion report format), if present
+1. **Shared Contract** — the full Shared Contract section from the **plan file** (types, API contracts, import paths)
+2. **Prompt Preamble** — the Prompt Preamble section from the **prompts file** (TDD workflow, project commands, completion report format), if present
 3. **Persona** — if the agent has a `persona` field (not `none`), read the persona file from `~/.claude/commands/set-persona/<persona-name>.md` (or `.claude/personas/<persona-name>.md`) and include its content. This gives the agent domain-specific priorities, tradeoffs, and gotchas. Read each distinct persona file once and reuse across agents that share it.
-4. **Agent prompt** — the agent's `prompt` field from the plan
+4. **Agent prompt** — the agent's `prompt` field from the **prompts file**
 5. **Code quality checklist** — append the contents of `~/.claude/skill-references/code-quality-checklist.md` as a final self-review step (read the file once and reuse for all agents)
 
 This ensures every agent sees the shared contract, common instructions, and domain-specific persona without the planner having to duplicate them in each agent's prompt. The agent's `prompt` field focuses on agent-specific work: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
 
-If the plan has no Prompt Preamble section, fall back to the previous behavior: each agent's prompt must be self-contained with all necessary context.
+If there is no Prompt Preamble section (in either file), fall back to the previous behavior: each agent's prompt must be self-contained with all necessary context.
 
 **Agent isolation and git workflow (when Branch Strategy exists):** Launch agents with `isolation: "worktree"` so each agent works in its own git worktree. Agents are responsible for their own branch management, commits, and PR creation — the coordinator does NOT create PRs on the agents' behalf.
 
@@ -396,6 +406,6 @@ After all agents complete:
 - **Agents own their PRs** — when Branch Strategy exists, agents commit, push, and create PRs themselves. The coordinator verifies and captures the PR URL. This parallelizes PR creation naturally (each agent handles its own) instead of bottlenecking on the coordinator.
 - **Never use `cd <dir> && git`** — permission patterns match on command prefix. Use `git -C <dir>` for all worktree operations so commands match `Bash(git -C:*)`.
 - **Pre-register all permissions** — during Step 1, audit and add ALL Bash permissions the coordinator and agents will need. A single batch prompt at the start is far better than repeated interruptions during execution.
-- **Prompts are self-contained** — each agent receives `Shared Contract + Prompt Preamble + Agent Prompt`, which together include everything the agent needs. Don't assume agents can read the plan file or see other agents' work.
+- **Prompts are self-contained** — each agent receives `Shared Contract (from plan file) + Prompt Preamble (from prompts file) + Persona + Agent Prompt (from prompts file)`, which together include everything the agent needs. Don't assume agents can read the plan files or see other agents' work.
 - **Use haiku model** for simple agents (single file, small edit, < 30 lines changed) to minimize cost and latency
 - **Branch Strategy is optional** — if the plan has no Branch Strategy section, skip all branch/commit/PR operations. The executor works the same as before, just without git integration.

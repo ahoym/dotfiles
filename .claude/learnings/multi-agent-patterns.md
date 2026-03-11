@@ -204,9 +204,12 @@ cd $MAIN_REPO && git cherry-pick <commit-sha>
 The Write tool blocks documentation file creation (`.md`, `README`) unless explicitly requested by the user. Background agents can't get user approval, so they silently fail. This is a systemic blocker for skills like `explore-repo` where agents produce `.md` output files.
 
 **Workarounds (in preference order):**
-1. Have the orchestrator write files instead of delegating writes to subagents
-2. Use Bash (`cat <<'EOF' > file.md`) in the agent — may also be blocked but worth trying
-3. **Transcript extraction pattern**: after blocked agents complete, launch extraction agents that read the transcript output files (chunked `Read` with offset/limit) and write the actual files from orchestrator context
+1. **Pre-create directories + resume pattern**: Orchestrator creates output directories (`mkdir -p docs/learnings`) *before* launching agents. If agents still fail on Write (permission prompt they can't answer), resume them after the user approves the first write — agents retain their full analysis context, so the resume only costs 1 tool call per agent. This avoids re-doing all analysis work.
+2. Have the orchestrator write files instead of delegating writes to subagents
+3. Use Bash (`cat <<'EOF' > file.md`) in the agent — may also be blocked but worth trying
+4. **Transcript extraction pattern**: after blocked agents complete, launch extraction agents that read the transcript output files (chunked `Read` with offset/limit) and write the actual files from orchestrator context
+
+**Resume pattern details**: When N agents all fail on Write, resume all N in parallel in a single message. Each agent's context already contains the complete analysis — the resume prompt just says "directory exists now, write your file." Cost: N×1 Write calls vs N×(full re-scan). Observed: 7 agents resumed and wrote files in ~60-90s each, vs ~200-370s for the original scans.
 
 The transcript extraction pattern doubles agent count but recovers from permission failures. Launch extraction agents in parallel (one per blocked file) to minimize wall-clock time.
 

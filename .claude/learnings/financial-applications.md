@@ -43,3 +43,13 @@ Maintain a domain `Currency` enum that's vendor-agnostic. Map to vendor-specific
 Settlement cutoff used `.minusDays(1).withHour(6)` instead of `.withHour(6)`, shifting the window by 24 hours. Date arithmetic off-by-ones are a recurring pattern in financial systems -- always trace through concrete examples with real dates to verify the window boundaries.
 
 - **Takeaway**: Date/time cutoff logic needs concrete example walk-throughs. Off-by-one in time windows can silently include/exclude a full day of transactions.
+
+### DECIMAL precision for financial schemas: use (38, 18)
+
+`DECIMAL(38, 18)` is the standard for financial systems handling crypto assets:
+- **38 total digits** — max portable precision across SQL Server, Oracle, and PostgreSQL
+- **18 decimal places** — covers the most demanding case (ERC-20 tokens), with 20 integer digits (quadrillions)
+- **Java BigDecimal** — JDBC/Hibernate map `DECIMAL(38, x)` cleanly; larger precisions work but are non-standard ORM territory
+- **Storage** — PostgreSQL uses ~2 bytes per 4 decimal digits; `(80, 30)` roughly doubles per-row cost with no practical benefit
+
+No currency standard requires >18 decimals (XRP=6, fiat=2-4, Ethereum=18). For intermediate FX rate calculations, compute in BigDecimal and persist only the final amount.
