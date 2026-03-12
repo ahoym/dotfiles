@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md |
 
 ## Pre-Flight
 
@@ -76,6 +76,7 @@ Suggested iterations: 15
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. CONVERGENCE: CLEAN_ROUND_STREAK=2. Transitioning to DEEP_DIVE (11 candidates). |
+| 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | xrpl-typescript-fullstack.md: de-enriched Known gotchas (35→10 lines, ~31% file reduction) |
 
 ## Deep Dive Status
 
@@ -83,6 +84,7 @@ Suggested iterations: 15
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| xrpl-typescript-fullstack.md | done | 13 | De-enriched Known gotchas — 35→10 lines, all content in proactive loads/detailed refs |
 
 ## Notes for Next Iteration
 
@@ -166,3 +168,11 @@ Suggested iterations: 15
 - **Stale (staleness=3, at threshold)**: skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md
 
 11 candidates >= min_deep_dives (10), no fill needed.
+
+### Iter 13
+
+**Deep dive 1 — xrpl-typescript-fullstack.md: 1 HIGH applied.** Parsed persona into 7 sections, cross-referenced each pattern against 16 learnings files (all XRPL, React, Next.js, API design learnings), 7 personas, 5 skill-references. Found the "Known gotchas & platform specifics" section (35 lines, 5 subsections) was near-verbatim duplicate of content already in Proactive loads (xrpl-gotchas.md, react-frontend-gotchas.md) and Detailed references (nextjs.md, xrpl-patterns.md). Replaced with compressed reference pointers (~10 lines), following react-frontend.md lean persona pattern.
+
+**No compound insights** — the de-enrichment pattern (personas duplicating proactive loads) was already identified in iter 1. No novel corpus pattern discovered.
+
+**Next candidate**: agent-prompting.md (skill-reference, modified iter 3 when multi-agent-orchestration.md was folded in).

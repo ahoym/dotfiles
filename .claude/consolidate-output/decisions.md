@@ -18,3 +18,4 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 8 | SKILLS | (clean) | — | — | — | — | 29 skills, 5 namespaces — all relevant, no overlap, refs fresh |
 | 9 | GUIDELINES | (clean) | — | — | — | — | 3 guidelines, all @-referenced, no overlap, no findings |
 | 12 | GUIDELINES | (clean) | — | — | — | — | 3 guidelines, all @-referenced, no overlap. CONVERGENCE — transitioning to DEEP_DIVE phase (11 candidates) |
+| 13 | DEEP_DIVE | De-enrich Known gotchas | xrpl-typescript-fullstack.md | (self — compressed inline) | HIGH | applied | 35 lines of Known gotchas (XRPL, Next.js, Turbopack, Vercel, TS/Browser) were near-verbatim duplicates of Proactive loads (xrpl-gotchas.md, react-frontend-gotchas.md) and Detailed references (nextjs.md, xrpl-patterns.md). Replaced with compressed reference pointers (~10 lines). Follows react-frontend.md lean persona pattern. ~31% token reduction, zero content loss. |
