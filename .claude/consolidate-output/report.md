@@ -7,9 +7,9 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 13 |
+| Iterations | 14 |
 | Rounds | 4 (converged) |
-| Status | DEEP_DIVE (10 remaining, 1 done) |
+| Status | DEEP_DIVE (9 remaining, 2 done) |
 
 ## Summary
 
@@ -44,6 +44,7 @@
 | 11 | 4 | SKILLS | (clean) | — | — | — |
 | 12 | 4 | GUIDELINES | (clean) | — | — | — |
 | 13 | — | DEEP_DIVE | De-enrich Known gotchas | xrpl-typescript-fullstack.md | (self) | HIGH |
+| 14 | — | DEEP_DIVE | (clean) | agent-prompting.md | — | — |
 
 ## Blocked Items
 

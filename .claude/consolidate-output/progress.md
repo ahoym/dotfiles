@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md |
+| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md |
 
 ## Pre-Flight
 
@@ -77,6 +77,7 @@ Suggested iterations: 15
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. CONVERGENCE: CLEAN_ROUND_STREAK=2. Transitioning to DEEP_DIVE (11 candidates). |
 | 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | xrpl-typescript-fullstack.md: de-enriched Known gotchas (35→10 lines, ~31% file reduction) |
+| 14 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | agent-prompting.md: clean — 15 sections, all unique, no overlap with multi-agent-patterns/parallel-plans/subagent-patterns |
 
 ## Deep Dive Status
 
@@ -85,6 +86,7 @@ Suggested iterations: 15
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | xrpl-typescript-fullstack.md | done | 13 | De-enriched Known gotchas — 35→10 lines, all content in proactive loads/detailed refs |
+| agent-prompting.md | done | 14 | Clean — 15 sections, all unique, no overlap with corpus |
 
 ## Notes for Next Iteration
 
@@ -176,3 +178,9 @@ Suggested iterations: 15
 **No compound insights** — the de-enrichment pattern (personas duplicating proactive loads) was already identified in iter 1. No novel corpus pattern discovered.
 
 **Next candidate**: agent-prompting.md (skill-reference, modified iter 3 when multi-agent-orchestration.md was folded in).
+
+### Iter 14
+
+**Deep dive 2 — agent-prompting.md: clean.** Parsed 15 H2 sections (Verbatim Templates, Prompt Structure, Fast/Slow Agent, Scaling by File Size, Code Landmarks, TDD Workflow, Code Formatting, Boundary Constraints, Shared Contract, Model Selection, Completion Report, Git Workflow, Interface-First, Integration Agent). Cross-referenced against multi-agent-patterns.md (253 lines), parallel-plans.md (142 lines), skill-design.md (266 lines), claude-code.md (148 lines), subagent-patterns.md (41 lines), bash-patterns.md (143 lines). All 15 sections unique — conceptually adjacent topics in multi-agent-patterns and parallel-plans are complementary, not overlapping. Consumers verified: parallel-plan/execute (3 refs) and parallel-plan/make (1 ref).
+
+**Next candidate**: quantum-tunnel-claudes/SKILL.md (tracked, never deep-dived).
