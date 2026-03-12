@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -36,7 +36,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 1
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -61,6 +61,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 4 | 2 (1 applied, 1 skipped) | 2 | 7 | Broad sweep: fix broken ref, merge 2 thin files, wire orphaned learnings |
+| 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 
 ## Deep Dive Status
 
@@ -83,3 +84,7 @@ Suggested iterations: 15
 **Meta-insight:** Gotchas files systematically duplicate into persona "Known gotchas" sections. This violates lean persona philosophy but is widespread (ci-cd-gotchas, react-frontend-gotchas, xrpl-gotchas, spring-boot-gotchas, java-observability-gotchas). A future round should systematically de-enrich personas — extract inlined knowledge to learnings, keep personas as judgment lenses.
 
 **Methodology logged:** Read all 50 learnings, 7 personas, 5 skill-references. Clustered by domain (XRPL/6, React-Next/6, Java-Spring/8, TS-API/4, AWS-Infra/4, Claude-Meta/11, General/5, Web-Data/4, Niche/3). Collision detection via H2/H3 grep found no exact heading duplicates. Per-file quality scan by line count identified thin files. Cross-referenced persona "Proactive loads" and "Detailed references" against learnings inventory.
+
+### Iter 2
+
+**SKILLS sweep — clean.** Read all 30 SKILL.md files, 7 personas, 5 skill-references. Clustered by namespace (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). Per-skill evaluation: all relevant, no 80%+ overlap, no stale references, scopes well-defined. Cross-skill checks: all Related Skills tables valid, shared references already deduplicated into skill-references/. Cross-persona gotcha overlap (xrpl-typescript-fullstack vs react-frontend) is a known pattern from iter 1 — not a skills issue. No stale model version strings found. Note: CONTENT_TYPE was LEARNINGS in progress.md but should have been SKILLS after iter 1; corrected and advanced to GUIDELINES for next sweep.

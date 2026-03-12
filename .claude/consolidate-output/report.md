@@ -7,7 +7,7 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 0 |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 4 | 1 | 1 | 0 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **4** | **1** | **1** | **0** |
+| **Total** | **2** | **4** | **1** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -32,6 +32,7 @@
 | 1 | 1 | LEARNINGS | Merge | spring-boot-gotchas.md | spring-boot.md | HIGH |
 | 1 | 1 | LEARNINGS | Update refs | java-devops.md, java-backend.md | — | HIGH |
 | 1 | 1 | LEARNINGS | Wire refs | newman-postman.md, local-dev-seeding.md | java-backend.md | MEDIUM |
+| 2 | 1 | SKILLS | (clean) | — | — | — |
 
 ## Blocked Items
 
