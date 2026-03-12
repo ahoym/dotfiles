@@ -4,6 +4,10 @@ description: "Internal reference — best practices for crafting subagent prompt
 
 # Agent Prompting Best Practices
 
+## Verbatim Templates for Same-Type Subagents
+
+When spawning multiple subagents for the same task type (e.g., per-item extractors), use the prompt template **verbatim** — fill in placeholders only. Do not abbreviate, paraphrase, or add ad-hoc per-instance instructions. Orchestrators drift when given freedom to rephrase, leading to inconsistent data fetching, output formats, and coverage depth.
+
 ## Prompt Structure
 
 The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.

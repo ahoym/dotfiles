@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -42,9 +42,9 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
-- **MEDIUMs applied**: 0
+- **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
 
 ## Round Summary
@@ -53,6 +53,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 4 | 2 | 0 | 0 | 0 | 1 | false |
 
 ## Iteration Log
 
@@ -62,6 +63,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 4 | 2 (1 applied, 1 skipped) | 2 | 7 | Broad sweep: fix broken ref, merge 2 thin files, wire orphaned learnings |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
+| 3 | 1 | GUIDELINES | 0 | 1 | 0 | 1 | Folded unreferenced multi-agent-orchestration.md into agent-prompting.md |
 
 ## Deep Dive Status
 
@@ -88,3 +90,11 @@ Suggested iterations: 15
 ### Iter 2
 
 **SKILLS sweep — clean.** Read all 30 SKILL.md files, 7 personas, 5 skill-references. Clustered by namespace (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). Per-skill evaluation: all relevant, no 80%+ overlap, no stale references, scopes well-defined. Cross-skill checks: all Related Skills tables valid, shared references already deduplicated into skill-references/. Cross-persona gotcha overlap (xrpl-typescript-fullstack vs react-frontend) is a known pattern from iter 1 — not a skills issue. No stale model version strings found. Note: CONTENT_TYPE was LEARNINGS in progress.md but should have been SKILLS after iter 1; corrected and advanced to GUIDELINES for next sweep.
+
+### Iter 3
+
+**GUIDELINES sweep — 1 MEDIUM applied.** Read all 4 guidelines, cross-referenced against 7 personas, 5 skill-references, CLAUDE.md @-references. 3 of 4 guidelines are @-referenced (always-on, universal behavioral guidance). `multi-agent-orchestration.md` was NOT @-referenced and had zero consumers anywhere in `.claude/` — folded its "verbatim templates" rule into `skill-references/agent-prompting.md` where it's loaded contextually by multi-agent skills.
+
+**End of Round 1**: ROUND_CLEAN = false (LEARNINGS had HIGHs, GUIDELINES had a MEDIUM). CLEAN_ROUND_STREAK remains 0. Starting Round 2 with LEARNINGS.
+
+**No compound insights this sweep** — the single finding was a structural wiring issue, not a pattern about the corpus.

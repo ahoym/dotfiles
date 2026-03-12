@@ -7,8 +7,8 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 2 |
-| Rounds | 0 |
+| Iterations | 3 |
+| Rounds | 1 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 4 | 1 | 1 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **2** | **4** | **1** | **1** | **0** |
+| Guidelines | 1 | 0 | 1 | 0 | 0 |
+| **Total** | **3** | **4** | **2** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -33,6 +33,7 @@
 | 1 | 1 | LEARNINGS | Update refs | java-devops.md, java-backend.md | — | HIGH |
 | 1 | 1 | LEARNINGS | Wire refs | newman-postman.md, local-dev-seeding.md | java-backend.md | MEDIUM |
 | 2 | 1 | SKILLS | (clean) | — | — | — |
+| 3 | 1 | GUIDELINES | Fold unreferenced guideline | multi-agent-orchestration.md | agent-prompting.md | MEDIUM |
 
 ## Blocked Items
 
@@ -50,5 +51,5 @@ See `blockers.md` for details.
 |--------|--------|-------|
 | Learnings files | 50 | 48 |
 | Skills | 30 | — |
-| Guidelines files | 4 | — |
+| Guidelines files | 4 | 3 |
 | Persona files | 7 | — |
