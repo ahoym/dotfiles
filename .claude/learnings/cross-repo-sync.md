@@ -87,3 +87,17 @@ For **export** (working repo → dotfiles), `--delete` is correct — dotfiles s
 ## PR↔MR Skill Names Are Invisible to rsync
 
 Skill directories named differently across repos (`git/create-pr/` ↔ `git/create-mr/`) are unrelated paths to rsync. A sync in either direction will add the "other" variant without removing or reconciling the original. Options: standardize on one naming convention across repos, maintain a name-mapping table in the sync script, or accept both coexisting and handle via quantum-tunnel for the rare reconciliation.
+
+## Within-File Section Removals Are Invisible to PREVIOUSLY_REMOVED
+
+The `PREVIOUSLY_REMOVED` git history check only catches whole-file deletions — it looks for files that once existed in the target's git history but were later removed. It does NOT detect sections removed *within* a file by a prior commit. When the source still has that section, the content-aware merge re-introduces it.
+
+**Example:** Target intentionally removed a "Just-in-time Layer" section from `context-aware-learnings.md` (commit b8d250b with explicit rationale: "unreliable across sessions"). Source still had it. Merge re-added it. User had to catch it manually.
+
+**Mitigation:** After merging BOTH_UNIQUE files, check `git log --oneline -5 -- <file>` for recent commits touching that file. If any exist, `git show <commit> -- <file>` to verify no intentionally-removed sections were re-introduced. This is especially important for files with recent curation commits.
+
+## Producer-Consumer Skill Pair Check During Sync
+
+When a sync updates a producer skill (e.g., `parallel-plan/make`), check whether its consumer (`parallel-plan/execute`) needs corresponding updates. The two files form a contract — changes to output format, section names, or file structure in the producer may break the consumer's parsing.
+
+**Quick check:** Read both files and verify the consumer's parsing references (section names, file extensions, expected fields) match what the producer now generates. In this session, execute was already ahead (the two-file format originated there), so no update was needed — but the check itself prevents silent contract drift.
