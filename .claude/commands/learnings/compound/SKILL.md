@@ -39,6 +39,10 @@ Save new patterns and learnings from the current session into global skills, gui
      - Command with clear, repeatable steps? → **Skill**
      - Changes behavior or approach? → **Guideline**
      - Reference info, patterns, or examples? → **Learning**
+   - Assess scope for each learning:
+     - References project-specific entities (table names, API endpoints, service names, config values, internal tooling) → **Project-local**
+     - Broadly reusable pattern, no context-specific details → **Global**
+     - Useful across projects but too specific to share (internal tool names, team conventions, proprietary domain details) → **Private**
 
 2. **Display learnings for selection**:
 
@@ -47,14 +51,17 @@ Save new patterns and learnings from the current session into global skills, gui
    ```
    Identified learnings from this session:
 
-   | # | Learning | Type | Target File | Utility |
-   |---|----------|------|-------------|---------|
-   | 1 | LGTM verification process | Skill | commands/address-pr-review/SKILL.md | High - novel project pattern |
-   | 2 | Co-authorship in PR replies | Guideline | guidelines/git-workflow.md | Low - already documented |
-   | 3 | SessionEnd hook configuration | Learning | learnings/ci-cd.md | High - useful reference |
+   | # | Learning | Type | Scope | Target File | Utility |
+   |---|----------|------|-------|-------------|---------|
+   | 1 | LGTM verification process | Skill | Global | ~/.claude/commands/address-pr-review/SKILL.md | High - novel project pattern |
+   | 2 | Co-authorship in PR replies | Guideline | Global | ~/.claude/guidelines/git-workflow.md | Low - already documented |
+   | 3 | SessionEnd hook configuration | Learning | Global | ~/.claude/learnings/ci-cd.md | High - useful reference |
    ```
 
-   Target files are relative to `~/.claude/`.
+   **Target file paths:**
+   - **Global** → `~/.claude/learnings/` (patterns that apply across projects)
+   - **Private** → `~/.claude/learnings-private/` (useful across projects but too specific to share)
+   - **Project-local** → `docs/learnings/` in the current project repo
 
    **Utility ratings** (self-assessment of value to Claude):
    - **High** - Novel pattern I wouldn't know without documenting, OR proven pattern worth reinforcing/expanding
@@ -85,7 +92,9 @@ Save new patterns and learnings from the current session into global skills, gui
    - File placement rules:
      - **Skills** → `~/.claude/commands/<skill-name>/SKILL.md`
      - **Guidelines** → `~/.claude/guidelines/<guideline-name>.md`
-     - **Learnings** → `~/.claude/learnings/<topic>.md`
+     - **Global learnings** → `~/.claude/learnings/<topic>.md`
+     - **Private learnings** → `~/.claude/learnings-private/<topic>.md`
+     - **Project-local learnings** → `docs/learnings/<topic>.md` (relative to project root)
 
 4. **Verify and report**:
    - Read back each written file to confirm content was saved correctly
@@ -104,11 +113,14 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 ```json
 "Read(~/.claude/commands/**)",
 "Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/learnings/**)",
+"Write(~/.claude/learnings-private/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/guidelines/**)",
 "Edit(~/.claude/learnings/**)",
+"Edit(~/.claude/learnings-private/**)",
 "Edit(~/.claude/commands/**)",
 "Edit(~/.claude/guidelines/**)"
 ```

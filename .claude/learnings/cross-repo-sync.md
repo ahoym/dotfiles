@@ -71,3 +71,19 @@ For quantum-tunnel syncs with 20+ items, use `bash cp` in batch commands for str
 ## Style Divergence: Keep Target's Evolved Phrasing
 
 When source and target guidelines diverge on voice/style (e.g., first-person "I" vs third-person "my partner"), the target's evolution is intentional. During merges, keep target's phrasing for shared sections and only pull substantively new sections from source. Don't let style diffs inflate the BOTH_UNIQUE assessment — they're cosmetic, not content.
+
+## Write-Time Separation Eliminates AI Merge for Sync
+
+Instead of filtering content at sync-time (which requires token-expensive AI to distinguish shareable from non-shareable learnings), separate at write-time into `~/.claude/learnings/` (global, syncs to dotfiles) and `~/.claude/learnings-private/` (stays local). The routing question in `learnings:compound` is "broadly reusable?" vs "useful but too specific to share?" — one decision at write-time replaces an entire quantum-tunnel session at sync-time. Syncing to dotfiles becomes a simple rsync of `learnings/`, `guidelines/`, `commands/` — no AI needed.
+
+## Label Non-Shared Content as "Private", Not "Company-Specific"
+
+Use neutral labels like "private" for content that shouldn't be shared externally. Terms like "company-specific" signal to anyone reading the skill that there's sensitive content nearby worth hunting for if the filter misses something. "Private" is semantically accurate (doesn't leave this machine) and security-neutral — consistent with established conventions like `settings.local.json` and `.local` env files.
+
+## Bidirectional rsync: `--delete` Is Asymmetric
+
+For **export** (working repo → dotfiles), `--delete` is correct — dotfiles should mirror the shareable subset exactly. For **import** (dotfiles → working repo), `--delete` is dangerous — the working repo may have files the source doesn't (extra learnings, MR-named skills that differ from PR-named counterparts). Default import to additive (no `--delete`), with an explicit opt-in flag for destructive sync.
+
+## PR↔MR Skill Names Are Invisible to rsync
+
+Skill directories named differently across repos (`git/create-pr/` ↔ `git/create-mr/`) are unrelated paths to rsync. A sync in either direction will add the "other" variant without removing or reconciling the original. Options: standardize on one naming convention across repos, maintain a name-mapping table in the sync script, or accept both coexisting and handle via quantum-tunnel for the rare reconciliation.

@@ -31,6 +31,10 @@
 - Per-isolate state (in-memory Maps, singletons) doesn't persist across cold starts — meaningful first layer but not globally distributed
 - Missing lockfile commits cause deploy failures — `--frozen-lockfile` passes locally because `pnpm install` silently updates; check `git diff --stat pnpm-lock.yaml`
 
+## Proactive loads
+
+- `learnings/typescript-ci-gotchas.md`
+
 ## Detailed references
 
 Load when working in the specific area:

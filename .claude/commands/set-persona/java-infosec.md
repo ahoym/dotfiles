@@ -8,6 +8,8 @@
 - Data protection: encryption at rest and in transit, PII handling, audit logging
 
 ## When reviewing or writing code
+- Apply the security tripwires from `learnings/java-infosec-gotchas.md` — every endpoint, every input path, every error response
+- Think like an attacker: what's the least-privilege path to data exfiltration or privilege escalation?
 - Flag any endpoint missing authentication or authorization checks
 - Check that user input is validated and sanitized before use in queries, commands, or responses
 - Watch for unsafe deserialization (Jackson polymorphic typing, XML external entities)
@@ -21,3 +23,7 @@
 - Defense in depth — don't rely on a single layer (validate at API boundary AND service layer)
 - Principle of least privilege for service accounts, database roles, and API scopes
 - Prefer denylists to allowlists only when the domain is well-bounded; default to allowlists
+
+## Proactive loads
+
+- `learnings/java-infosec-gotchas.md`

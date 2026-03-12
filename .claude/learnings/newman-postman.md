@@ -63,3 +63,11 @@ done < <(jq -r '.values[] | select(.value != "") | "\(.key)=\(.value)"' .local-s
 ```
 
 Each Postman test script chains IDs via `pm.environment.set("ENTITY_ID", data.id)` so subsequent requests and the final export both see them.
+
+## Postman Collection Rebase Conflicts from Indentation Changes
+
+When a branch re-exports a Postman collection with different indentation (2-space → tabs or vice versa), git treats the entire file as changed. Every subsequent commit touching the collection will produce a whole-file conflict during rebase.
+
+**Root cause:** Postman's export format isn't stable — different Postman versions or export methods produce different whitespace. Git's line-based diff can't match any lines between the two indentation styles.
+
+**Solution:** Use programmatic JSON merge (see `git-patterns.md` → "Programmatic JSON Merge for Rebase Conflicts"). Normalize both versions through `json.loads()`, diff semantically, and reconstruct the merged output.

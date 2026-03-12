@@ -123,6 +123,32 @@ When working across repos with similar names (e.g., `foo-service` vs `foo-servic
 
 **Quick check:** `git remote -v | head -1` before any push to a repo you didn't clone yourself in this session.
 
+## Programmatic JSON Merge for Rebase Conflicts
+
+When rebasing a branch that reformats a large JSON file (e.g., Postman collection re-exported with different indentation), git can't match lines and produces whole-file conflicts on every commit. Manual resolution is impractical for 3000+ line files.
+
+**Strategy:** Parse both versions as JSON, take the incoming commit's version as base, then programmatically graft HEAD's additions:
+
+```python
+import json, subprocess
+
+def get_json(ref):
+    r = subprocess.run(['git', 'show', f'{ref}:path/to/file.json'], capture_output=True, text=True)
+    return json.loads(r.stdout)
+
+stopped = open('.git/rebase-merge/stopped-sha').read().strip()
+child = get_json(stopped)   # incoming commit's version
+head = get_json('HEAD')      # our version with additions
+
+# Programmatically find and transplant additions from HEAD into child
+# ... (domain-specific logic)
+
+with open('path/to/file.json', 'w') as f:
+    json.dump(child, f, indent='\t')
+```
+
+**Key insight:** When the same file conflicts on multiple rebase steps, extract the merge logic into a reusable function. Each step: take commit's version → apply HEAD additions → validate JSON → stage → continue.
+
 ## Zsh Glob Expansion Breaks `git add` with Brackets
 
 Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.

@@ -38,7 +38,7 @@ Copy or merge global learnings and guidelines from `~/.claude/` into the current
    - Store this as `PROJECT_CONTEXT` — used for relevance assessment in the next step
 
 3. **Inventory and assess global items**:
-   - Use Glob to list all files in `~/.claude/guidelines/**` and `~/.claude/learnings/**`
+   - Use Glob to list all files in `~/.claude/guidelines/**`, `~/.claude/learnings/**`, and `~/.claude/learnings-private/**`
    - Use Glob to list all files in `<PROJECT_ROOT>/.claude/guidelines/**` and `<PROJECT_ROOT>/.claude/learnings/**`
    - For each global file:
      - Determine its relative path (e.g., `guidelines/git-workflow.md`, `learnings/ci-cd.md`)
@@ -117,7 +117,8 @@ And ensure these are in your **user-level** `~/.claude/settings.local.json`:
 
 ```json
 "Read(~/.claude/guidelines/**)",
-"Read(~/.claude/learnings/**)"
+"Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)"
 ```
 
 ## Important Notes

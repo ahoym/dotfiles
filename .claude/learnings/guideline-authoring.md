@@ -74,3 +74,7 @@ A guideline is redundant when skills already handle the behavior as part of thei
 **Example:** A "store learnings in `~/.claude/`, not repo branches" guideline was redundant because `learnings:compound` already writes to `~/.claude/learnings/` by default. Worse, it intercepted explicit requests like "save these learnings to the repo" — overriding the user's stated intent to put project-specific content in the project.
 
 **Rule:** Guidelines should shape ambiguous situations, not override explicit instructions. If a skill handles the default and the user explicitly asks for something different, honor the user.
+
+## Uniform Convention Over Case-by-Case Optimization
+
+When a structural pattern applies to a category (e.g., "every persona gets a gotcha file"), apply it uniformly — even when a specific instance doesn't strictly need it (e.g., a gotcha file with a single consumer). Predictability of the convention matters more than minimizing artifact count. Case-by-case exceptions erode the pattern and force future decisions that the uniform rule would have automated.

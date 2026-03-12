@@ -8,7 +8,7 @@ Proactively search `~/.claude/learnings/` for relevant prior knowledge during co
 
 **Before your first tool call in a session, search learnings.** This is not optional. One filename glob, no content grep — keep it cheap so narrow opening questions don't tempt you to skip it.
 
-**Step 1: Glob all filenames.** Run `*.md` globs on both `~/.claude/learnings/` (global) and `docs/learnings/` (project-local, if it exists) to get the full inventory. This is the index — filenames are designed to be scannable.
+**Step 1: Glob all filenames.** Run `*.md` globs on `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local, if it exists) to get the full inventory. This is the index — filenames are designed to be scannable.
 
 **Step 2: Derive search terms from ambient context + user message.** Ambient context is often a stronger domain signal than the opening question:
 - **Branch name**: `consolidate/2026-02-28` → "consolidat", "ralph"
@@ -23,7 +23,7 @@ Load matches and announce. If no ambient context is available (fresh repo, no gi
 
 ## Keyword-based (proactive)
 
-When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/` and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
+When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
 
 - Learnings filenames are the index — `aws-patterns.md`, `vercel-deployment.md`, `bignumber-financial-arithmetic.md`
 - Works with or without an active persona
@@ -39,7 +39,7 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 - Patterns being applied (e.g., "caching", "singleton", "API design")
 - Adjacent domains that might have relevant gotchas
 
-Glob `~/.claude/learnings/` and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
+Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
 
 ## Observability
 

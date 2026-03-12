@@ -46,6 +46,10 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 - `page.on("dialog")` stacks handlers across serial tests on a shared page — use `page.once()` for one-time handling
 - Transient success banners (auto-clear after N seconds) are unreliable assertions even with long timeouts — assert the side effect instead
 
+## Proactive loads
+
+- `learnings/react-frontend-gotchas.md`
+
 ## Detailed references
 
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:

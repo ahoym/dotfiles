@@ -19,7 +19,10 @@ Analyze a plan for parallelization opportunities, build a dependency DAG, and ou
 
 ## Output
 
-Writes a structured parallel plan to the plan file. The output follows the format defined in the **Parallel Plan Format** section below — this is the contract between this skill and `/parallel-plan:execute`.
+Writes **two files** — a plan file (`.plan.md`) for review and status tracking, and a prompts file (`.prompts.md`) as the execution manifest. Together they form the contract between this skill and `/parallel-plan:execute`.
+
+- **Plan file** (`<name>.plan.md`) — decisions and structure: context, shared contract, agent summary table, DAG, estimates, verification, branch strategy, review notes, execution state. This is what the user reviews and what tracks execution progress.
+- **Prompts file** (`<name>.prompts.md`) — execution manifest: prompt preamble, full agent definitions (metadata + prompts). This is what the executor consumes to launch agents. Immutable after creation.
 
 ## Instructions
 
@@ -120,19 +123,29 @@ Fix any failures before proceeding.
 
 ### Step 11: Write the parallel plan
 
-Read `~/.claude/skill-references/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write the structured plan to the plan file following the format below. Present it to the user for review.
+Read `~/.claude/skill-references/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write **two files** following the formats below. Present the plan file to the user for review.
+
+**File naming:** If the input plan is `my-plan.md`, write:
+- `my-plan.plan.md` — the plan file
+- `my-plan.prompts.md` — the prompts file
+
+Both files include a cross-reference to each other.
 
 ---
 
 ## Parallel Plan Format
 
-This is the contract between `/parallel-plan:make` (producer) and `/parallel-plan:execute` (consumer).
+This is the contract between `/parallel-plan:make` (producer) and `/parallel-plan:execute` (consumer). The plan is split into two files: a **plan file** for review and status tracking, and a **prompts file** as the execution manifest.
+
+### Plan File (`.plan.md`)
 
 ````markdown
 # Parallel Plan: <title>
 
 ## Context
 <Why this change is being made — the problem, what prompted it, intended outcome>
+
+**Prompts:** `./<name>.prompts.md`
 
 ## Shared Contract
 
@@ -153,65 +166,14 @@ FooType → import from "@/lib/types"
 barUtil → import from "@/lib/utils/bar"
 ```
 
-## Prompt Preamble
-
-<Process instructions prepended to every agent prompt by the executor.
-DO NOT duplicate the Shared Contract here — the executor automatically
-prepends the Shared Contract section followed by this Prompt Preamble
-to each agent's prompt. This section should only contain process
-instructions that apply to all agents: TDD workflow, project commands,
-completion report format, and general rules.>
-
 ## Agents
 
-### <letter>: <short-name>
-- **depends_on**: [] | [<agent-letters>]
-- **soft_depends_on**: [] | [<agent-letters>]
-- **creates**: [<file-paths>]
-- **modifies**: [<file-paths>]
-- **deletes**: [<file-paths>]
-- **persona**: <persona-name> | none (e.g., "react-frontend", "java-backend")
-- **estimated_duration**: <Xs> (e.g., "60s", "120s")
-- **description**: <what this agent does, 1-2 sentences>
-- **tdd_steps**:
-    1. "<test description>" → `<test-file-path>::<test_name>`
-    2. "<test description>" → `<test-file-path>::<test_name>`
-    3. build-verify → "pnpm build" (use when TDD is impractical — see format rules)
-- **prompt**: |
-    <Full prompt to give the subagent. Include TDD workflow,
-    file scope, shared contract excerpt, code landmarks for edits,
-    and explicit DO NOT MODIFY boundaries.
-
-    ## TDD Workflow (mandatory)
-
-    For each change, follow RED → GREEN → REFACTOR:
-
-    **Step 1: <description>**
-    - RED: Write `<test_name>` in `<test-file>` that tests <behavior>. Run it — it MUST fail.
-    - GREEN: Implement the minimal code in `<source-file>` to make the test pass.
-    - REFACTOR: Clean up while tests stay green.
-
-    **Step 2: <description>**
-    ...
-
-    Run tests after each phase to verify:
-    - RED: test fails (function/class doesn't exist yet)
-    - GREEN: test passes
-    - REFACTOR: test still passes
-
-    Before finishing, run the full test suite to catch regressions.
-
-    ## Completion Report
-
-    When done, end your output with a brief report:
-    - Files created/modified
-    - TDD steps completed (N/N)
-    - Checkpoint: last completed step
-    - Discoveries: any gotchas, surprises, or learnings that other agents
-      or future work should know about>
-
-### <letter>: <short-name>
-...
+| Agent | Depends On | Description |
+|-------|-----------|-------------|
+| A: <short-name> | — | <1-sentence description> |
+| B: <short-name> | A | <1-sentence description> |
+| C: <short-name> | A | <1-sentence description> |
+| D: <short-name> | B, C | <1-sentence description> |
 
 ## DAG Visualization
 
@@ -301,35 +263,120 @@ Last updated: —
 Build: not yet run
 ````
 
+### Prompts File (`.prompts.md`)
+
+````markdown
+# Agent Prompts: <title>
+
+**Plan:** `./<name>.plan.md`
+
+## Prompt Preamble
+
+<Process instructions prepended to every agent prompt by the executor.
+DO NOT duplicate the Shared Contract here — the executor automatically
+prepends the Shared Contract section (from the plan file) followed by
+this Prompt Preamble to each agent's prompt. This section should only
+contain process instructions that apply to all agents: TDD workflow,
+project commands, completion report format, and general rules.>
+
+---
+
+## <letter>: <short-name>
+
+- **depends_on**: [] | [<agent-letters>]
+- **soft_depends_on**: [] | [<agent-letters>]
+- **persona**: <persona-name> | none (e.g., "react-frontend", "java-backend")
+- **creates**: [<file-paths>]
+- **modifies**: [<file-paths>]
+- **deletes**: [<file-paths>]
+- **estimated_duration**: <Xs> (e.g., "60s", "120s")
+- **description**: <what this agent does, 1-2 sentences>
+- **tdd_steps**:
+    1. "<test description>" → `<test-file-path>::<test_name>`
+    2. "<test description>" → `<test-file-path>::<test_name>`
+    3. build-verify → "pnpm build" (use when TDD is impractical — see format rules)
+- **prompt**: |
+    <Full prompt to give the subagent. Include TDD workflow,
+    file scope, shared contract excerpt, code landmarks for edits,
+    and explicit DO NOT MODIFY boundaries.
+
+    ## TDD Workflow (mandatory)
+
+    For each change, follow RED → GREEN → REFACTOR:
+
+    **Step 1: <description>**
+    - RED: Write `<test_name>` in `<test-file>` that tests <behavior>. Run it — it MUST fail.
+    - GREEN: Implement the minimal code in `<source-file>` to make the test pass.
+    - REFACTOR: Clean up while tests stay green.
+
+    **Step 2: <description>**
+    ...
+
+    Run tests after each phase to verify:
+    - RED: test fails (function/class doesn't exist yet)
+    - GREEN: test passes
+    - REFACTOR: test still passes
+
+    Before finishing, run the full test suite to catch regressions.
+
+    ## Completion Report
+
+    When done, end your output with a brief report:
+    - Files created/modified
+    - TDD steps completed (N/N)
+    - Checkpoint: last completed step
+    - Discoveries: any gotchas, surprises, or learnings that other agents
+      or future work should know about>
+
+---
+
+## <letter>: <short-name>
+...
+````
+
 ### Format Rules
 
-1. **Agents are lettered A-Z** — short identifiers for the DAG
-2. **`depends_on`** lists hard dependencies (agent letters). Agent cannot start until these are fully completed and verified.
+#### General (both files)
+
+1. **Agents are lettered A-Z** — short identifiers for the DAG. Letters and names must match across both files.
+2. **`depends_on`** lists hard dependencies (agent letters). Agent cannot start until these are fully completed and verified. Present in both files — the plan's agent summary table shows depends_on for DAG readability; the prompts file includes it for executor parsing.
 3. **`soft_depends_on`** lists soft dependencies (agent letters). Agent can start as soon as the dependency's files exist on disk — it only needs the interface contract, not full verification. Omit if empty.
-4. **File lists are exhaustive** — every file an agent touches must be listed, including test files
-5. **No two agents share a file** in their creates/modifies/deletes lists
-6. **Prompts are complete** — the executor prepends `Shared Contract + Prompt Preamble` automatically, then appends the agent's `prompt` field. Agent prompts should NOT duplicate the shared contract or preamble content.
-7. **Prompts include agent-specific context** — landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries. The shared contract is already provided via the preamble; agent prompts can reference it (e.g., "see Shared Contract above") instead of repeating it.
-8. **Prompts include explicit boundaries** — "DO NOT modify X" for files owned by other agents
-9. **Prompts include TDD workflow** — every agent prompt must specify RED → GREEN → REFACTOR steps with concrete test names and file paths
-10. **`tdd_steps` field is required** — lists each TDD cycle with the test name and path, giving reviewers a quick summary without reading the full prompt
-11. **`build-verify` is a valid tdd_steps entry** — use it when a function is impractical to unit-test (e.g., API route handlers that need a running server, UI wiring that only adds prop-threading). The agent must include an explicit justification in its prompt explaining why TDD is skipped for that step, and must run a type-check/build command instead. Format: `build-verify → "<build command>"` with a parenthetical reason, e.g., `build-verify → "pnpm build" (API route handler — tested via integration)`
-12. **`estimated_duration` is required** — use the time estimates from analysis-guide.md. This enables the Critical Path Estimate section.
-13. **Prompts end with a Completion Report section** — agents must report files changed, TDD steps completed, checkpoint, and discoveries
-14. **Pre-Execution Verification section is required** — lists commands to validate the toolchain before any agents run
-15. **Integration Tests section is required** — must include 2-3 specific cross-cutting scenarios that name the concrete data flow being tested. Generic commands like "run all tests" are insufficient — each scenario should describe what crosses agent boundaries and how to verify it.
-16. **Critical Path Estimate section is required** — shows the longest path through the DAG with estimated wall-clock time, enabling reviewers to evaluate whether the parallelization is worthwhile
-17. **DAG visualization must match declarations** — every arrow in the visualization must correspond to a `depends_on` or `soft_depends_on` entry, and vice versa. Use `──→` for hard dependencies and `··→` (dotted) for soft dependencies.
-18. **Prompt Preamble contains only process instructions** — TDD workflow template, project commands, completion report format, and general rules. DO NOT include the Shared Contract in the preamble — the executor prepends `Shared Contract + Prompt Preamble` automatically. This avoids markdown code-fence nesting issues and keeps the contract as a single source of truth.
-19. **`Execution State` is initialized by the executor** — the planner includes the section template with one row per agent (all `pending`), but the executor fills in actual status, agent IDs, and timestamps during execution. The executor tracks live state in a `.parallel-plan-state.json` file alongside the plan (lightweight, avoids repeated plan edits) and syncs results back to the plan's Execution State section at completion for archival.
-20. **`Required Bash Permissions` section is required** — lists every distinct Bash command pattern agents will need, using the same `Bash(...)` syntax as `.claude/settings.local.json` allow patterns. The executor verifies these against settings before launching agents.
-21. **`Branch Strategy` section is required** — defines per-agent branch names, branch-from sources, PR targets, and merge order. All PRs target `main`. Root agents (no deps) branch from `main`. Dependent agents branch from their dependency's branch (so they have upstream code). Merge order is derived from topological sort of the DAG. After upstream PRs merge, downstream branches rebase onto main. The executor uses this section to mechanically create branches, commits, and PRs as agents complete.
-22. **`Review Notes` section is optional but encouraged** — the planner flags decisions they were uncertain about (dependency classifications, agent scope, landmark accuracy). The executor's fresh-eyes review examines each item. Omit the section entirely if there are no uncertainties.
-23. **`persona` field is optional per-agent** — the planner assigns a persona from `~/.claude/commands/set-persona/` or `.claude/personas/` based on the agent's domain. Use the persona filename without extension (e.g., `react-frontend`, `java-backend`). Set to `none` if no persona is a strong fit. The executor reads the persona file and includes its content in the agent's prompt at launch time. Different agents in the same plan can have different personas.
+4. **No two agents share a file** in their creates/modifies/deletes lists.
+5. **DAG visualization must match declarations** — every arrow in the visualization must correspond to a `depends_on` or `soft_depends_on` entry, and vice versa. Use `──→` for hard dependencies and `··→` (dotted) for soft dependencies.
+6. **Cross-references are required** — the plan file includes `**Prompts:** ./<name>.prompts.md` in its Context section; the prompts file includes `**Plan:** ./<name>.plan.md` in its header.
+
+#### Plan file (`.plan.md`)
+
+7. **Agent summary table** — one row per agent with letter, name, depends_on, and a 1-sentence description. This is the reviewer's at-a-glance view of the DAG.
+8. **Shared Contract is the single source of truth** — types, API shapes, import paths. The executor reads this from the plan file and prepends it to every agent prompt.
+9. **Pre-Execution Verification section is required** — lists commands to validate the toolchain before any agents run.
+10. **Integration Tests section is required** — must include 2-3 specific cross-cutting scenarios that name the concrete data flow being tested. Generic commands like "run all tests" are insufficient.
+11. **Critical Path Estimate section is required** — shows the longest path through the DAG with estimated wall-clock time.
+12. **Required Bash Permissions section is required** — lists every distinct Bash command pattern agents will need.
+13. **Branch Strategy section is required** — defines per-agent branch names, branch-from sources, PR targets, and merge order.
+14. **Review Notes section is optional but encouraged** — flags uncertain decisions for the executor's fresh-eyes review.
+15. **Execution State is initialized by the executor** — the planner includes the template with one row per agent (all `pending`); the executor fills in runtime state. The executor also tracks live state in a `.parallel-plan-state.json` file alongside the plan.
+
+#### Prompts file (`.prompts.md`)
+
+16. **Prompt Preamble contains only process instructions** — TDD workflow template, project commands, completion report format, and general rules. DO NOT include the Shared Contract — the executor prepends it automatically from the plan file.
+17. **File lists are exhaustive** — every file an agent touches must be listed in its creates/modifies/deletes, including test files.
+18. **`estimated_duration` is required** — use the time estimates from analysis-guide.md.
+19. **`tdd_steps` field is required** — lists each TDD cycle with the test name and path.
+20. **`build-verify` is a valid tdd_steps entry** — use when TDD is impractical. Format: `build-verify → "<build command>"` with a parenthetical reason.
+21. **Prompts are complete** — the executor prepends `Shared Contract + Prompt Preamble` automatically, then appends the agent's `prompt` field. Agent prompts should NOT duplicate the shared contract or preamble content.
+22. **Prompts include agent-specific context** — landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
+23. **Prompts include explicit boundaries** — "DO NOT modify X" for files owned by other agents.
+24. **Prompts include TDD workflow** — every agent prompt must specify RED → GREEN → REFACTOR steps with concrete test names and file paths.
+25. **Prompts end with a Completion Report section** — agents must report files changed, TDD steps completed, checkpoint, and discoveries.
+26. **`persona` field is optional per-agent** — assigned from `~/.claude/commands/set-persona/` or `.claude/personas/`. Set to `none` if no persona fits. The executor reads the persona file and includes its content at launch time.
+27. **The prompts file is immutable after creation** — the executor never writes to it. All runtime state goes in the plan file's Execution State section or the `.parallel-plan-state.json` state file.
 
 ## Important Notes
 
-- The goal is a plan that `/parallel-plan:execute` can run mechanically — no interpretation needed
+- The goal is two files that `/parallel-plan:execute` can run mechanically — no interpretation needed
+- The plan file is the **review surface** (~200-400 lines) — everything the user needs to approve the architecture
+- The prompts file is the **execution manifest** (~500-1000+ lines) — consumed by the executor, rarely read by humans
 - If a step is too small for a subagent (< 5 lines changed), merge it into an adjacent agent that touches related files
 - Shared utility files (`types.ts`, `constants.ts`) should have all changes consolidated into a single early agent
 - The DAG visualization helps the user understand the parallelism at a glance

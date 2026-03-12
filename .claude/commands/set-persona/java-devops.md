@@ -27,6 +27,10 @@
 - Timer try/finally pattern: use an `outcome` variable with try/finally instead of duplicating `sample.stop()` at each exit path. Skip timing for no-op runs (place `Timer.start()` after early return) to keep latency percentiles clean.
 - Testing: use `SimpleMeterRegistry` (in-memory, records real values) not mocked `MeterRegistry` + stubbed `Counter` — assertions on actual recorded values are simpler and more readable
 
+## Proactive loads
+
+- `learnings/java-observability-gotchas.md`
+
 ## Detailed references
 
 Load when working in the specific area:

@@ -77,6 +77,11 @@ TypeScript-specific:
 - When server and client independently implement encoding (e.g., credential types), test both against shared canonical fixtures to catch drift
 - `decodeCurrency` has separate implementations: `currency.ts` (Node, uses Buffer) and `decode-currency-client.ts` (browser-safe) — keep in distinct files to avoid Node API bundling into client code
 
+## Proactive loads
+
+- `learnings/xrpl-gotchas.md`
+- `learnings/react-frontend-gotchas.md`
+
 ## Detailed references
 
 Load when working in the specific area:

@@ -71,7 +71,7 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/`, `~/.claude/guidelines/`, and skill directories under `~/.claude/commands/`
+- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, and skill directories under `~/.claude/commands/`
 - Use `AskUserQuestion` to prompt user:
   ```
   What would you like to curate?
@@ -132,7 +132,7 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 4. Store as `PATTERNS` list
 
 **Pre-load** — In the same parallel batch as the parse reads above:
-1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
+1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
 3. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 5)
 
@@ -142,7 +142,7 @@ Store all pre-loaded content for use in subsequent steps.
 
 ### 3. Cross-reference patterns against corpus
 
-**Grep scope:** When grepping for pattern terms, scope to content directories only: `~/.claude/learnings/`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
+**Grep scope:** When grepping for pattern terms, scope to content directories only: `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
 
 For each pattern, check against the pre-loaded corpus for matches:
 - **Exact match**: Same concept with same or very similar wording in another file → HIGH confidence
@@ -477,12 +477,15 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 ```json
 "Read(~/.claude/commands/**)",
 "Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/learnings/**)",
+"Write(~/.claude/learnings-private/**)",
 "Write(~/.claude/guidelines/**)",
 "Edit(~/.claude/commands/**)",
 "Edit(~/.claude/learnings/**)",
+"Edit(~/.claude/learnings-private/**)",
 "Edit(~/.claude/guidelines/**)"
 ```
 

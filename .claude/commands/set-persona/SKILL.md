@@ -41,13 +41,21 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - If the persona extends a parent, mention both: "Activated **child** (extends **parent**)"
    - Apply the priorities and focus areas from that point forward in the session
 
+5. **Load proactive knowledge**:
+   - Scan adopted persona (and parent if extended) for `## Proactive loads` sections
+   - Read each listed file (resolve relative to `~/.claude/`)
+   - If a file doesn't exist, warn but don't fail
+   - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`, `react-frontend-gotchas.md`"
+   - Keep this content active throughout the session
+
 ## Prerequisites
 
 For prompt-free execution, add these allow patterns to `~/.claude/settings.local.json`:
 
 ```json
 "Read(~/.claude/commands/set-persona/**)",
-"Read(.claude/personas/**)"
+"Read(.claude/personas/**)",
+"Read(~/.claude/learnings/**)"
 ```
 
 ## Important Notes

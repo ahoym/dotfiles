@@ -30,6 +30,10 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 - `@Scheduled` + `@SchedulerLock` (ShedLock): swallow exceptions in the top-level method — Spring's TaskScheduler catches/logs anyway, ShedLock releases the lock regardless, and the job retries on next cron tick. Rethrowing just produces duplicate error logs.
 - Inner loops processing independent items should catch per-item to prevent one failure from killing the batch
 
+## Proactive loads
+
+- `learnings/spring-boot-gotchas.md`
+
 ## Detailed references
 
 Load when working in the specific area:

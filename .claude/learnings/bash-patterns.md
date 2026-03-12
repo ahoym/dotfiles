@@ -110,6 +110,33 @@ if $CLEAN; then docker rm -f postgres; fi
 
 `python3 -c "import json; ..."` in bash commands triggers permission prompts because quoted strings match differently. `jq` is auto-permitted and handles the same JSON parsing tasks. When passing API output to subagents, prefer passing raw JSON directly rather than parsing in the main context at all.
 
+## `glab api` Does Not Support `--jq` Flag
+
+Unlike `gh api --jq`, `glab api` has no built-in `--jq` flag. Pipe through `jq` instead:
+
+```bash
+# Wrong — errors with "Unknown flag: --jq"
+glab api projects/:id/merge_requests/2/notes --jq '.[] | {id, body}'
+
+# Right
+glab api projects/:id/merge_requests/2/notes | jq '.[] | {id, body}'
+```
+
+## Empty Array Expansion Under `set -u`
+
+`${arr[@]}` fails with "unbound variable" under `set -u` when the array is empty. Use the `${arr[@]+"${arr[@]}"}` pattern:
+
+```bash
+local args=()
+$FLAG && args+=(--flag)
+# Wrong: fails when args is empty
+echo "${args[@]}"
+# Right: expands to nothing when empty
+echo ${args[@]+"${args[@]}"}
+```
+
+This uses parameter alternate value syntax: if `arr[@]` is unset/empty, expand to nothing; otherwise expand normally. Common in functions that conditionally build argument lists.
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.
