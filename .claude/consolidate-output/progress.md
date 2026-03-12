@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md |
+| DEEP_DIVE_CANDIDATES | refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md |
 
 ## Pre-Flight
 
@@ -82,6 +82,7 @@ Suggested iterations: 15
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-design.md: clean — 28 sections, all unique, no overlap with corpus |
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean — 19 sections, all unique, no overlap with corpus |
 | 18 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | playwright-patterns.md: clean — 17 sections, all unique, 5 correctly summarized in react-frontend-gotchas + persona |
+| 19 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | multi-agent-patterns.md: clean — 32 sections, all unique. 2 LOWs: misplaced gate-announcements section, TaskOutput contradiction with claude-code.md |
 
 ## Deep Dive Status
 
@@ -95,6 +96,7 @@ Suggested iterations: 15
 | skill-design.md | done | 16 | Clean — 28 sections, all unique, cross-refs correct, no persona wiring needed (meta/tooling domain) |
 | claude-code.md | done | 17 | Clean — 19 sections, all unique, no overlap. Cross-referenced against 10 corpus files. |
 | playwright-patterns.md | done | 18 | Clean — 17 sections, all unique. 5 have correct one-liner summaries in react-frontend-gotchas + persona. Already wired in persona Detailed references. |
+| multi-agent-patterns.md | done | 19 | Clean — 32 sections, all unique. 2 LOWs recorded (gate-announcements misplacement, TaskOutput contradiction). See-also ref to subagent-patterns.md valid. |
 
 ## Notes for Next Iteration
 
@@ -216,3 +218,9 @@ Suggested iterations: 15
 **Deep dive 6 — playwright-patterns.md: clean.** Parsed 17 H2 sections (Shared BrowserContext, page.once Dialog, getByRole Accessible Name, textContent Concatenation, Scope Selectors, StorageState localStorage, selectOption string-only, exact:true, Option Visibility, getByLabel Association, Modal role="dialog", Strict Mode getByText, .first() Dynamic, Dynamic File Inputs, Transient Banners, .filter().first() Ancestors, .or() Terminal States). Cross-referenced against testing-patterns.md (10 sections — Vitest/RTL, no overlap), react-frontend-gotchas.md (5 Playwright one-liners — correct summaries), react-frontend persona (5 Playwright gotchas — same summaries), accessibility-patterns.md (6 sections — complementary ARIA patterns, no overlap), ui-patterns.md (3 sections — CSS/design, no overlap), xrpl-typescript-fullstack persona (no Playwright section — Playwright flows transitively via react-frontend-gotchas proactive load), typescript-devops persona (Playwright browser caching — CI-level, not test-writing overlap). All 17 sections unique at recipe level. Reference wiring complete (react-frontend persona L64).
 
 **Next candidate**: multi-agent-patterns.md (staleness=3, at threshold).
+
+### Iter 19
+
+**Deep dive 7 — multi-agent-patterns.md: clean.** Parsed 32 H2 sections (Synthesis Separate Invocation, Agent Output Files, Coordinating Interface Changes, Group by File Domain, Sandbox Workaround Lifecycle Scripts, Codebase Comparison, Port/Migrate Full Source, Three-Phase Refactoring, Project Adaptation Workflow, Verify Web Sources, Three-Branch Gate Announcements, Delegated Intent Files, Front-Load Structural Context, Full Write > Incremental Edit, Workflows Survive Compaction, Balance by Complexity, Many-Agent Compaction Risk, Write One Validate Parallelize, Cross-Agent File References, Simple Inline over Agent, Context Budget Delegate Early, Categorize by Shared Structure, Standardize Worktree Commit, Worktree Full Lint Stack, Worktree Merge Check Commit State, Subagents Cannot Write .md, Extractor-Writer Pattern, Session-Resumable Workflows, TaskOutput Background Bash Only, Split Writers by Location, Targeted Grep Verification, Trust-Building Arc). Cross-referenced against parallel-plans.md (17 sections), agent-prompting.md (skill-ref, 15 sections), subagent-patterns.md (skill-ref, 3 sections), skill-design.md (28 sections), claude-code.md (19 sections), bash-patterns.md (7 sections), ralph-loop.md (22 sections), cross-repo-sync.md (16 sections), 3 personas (xrpl-typescript-fullstack, react-frontend, platform-engineer). All 32 sections unique at pattern level. See-also ref to subagent-patterns.md (line 3) valid. 2 LOWs: (1) "Three-Branch Gate Announcements" is about learnings-system gate observability, not multi-agent patterns — borderline misplacement but too thin (4 lines) to warrant moving; (2) "TaskOutput Only Works for Background Bash Tasks" contradicts claude-code.md § "Use TaskOutput Not Bash" which says TaskOutput works for Task agents — needs empirical verification.
+
+**Next candidate**: refactoring-patterns.md (staleness=3, at threshold).
