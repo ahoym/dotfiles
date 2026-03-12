@@ -4,6 +4,10 @@
 @.claude/guidelines/skill-invocation.md
 @.claude/guidelines/context-aware-learnings.md
 
+## Lazy-loaded references (read when relevant)
+
+.claude/guidelines/lazy-load-test.md - Test guideline for verifying signpost-based lazy loading
+
 # Bash Tool
 
 Avoid quoted strings in Bash commands (e.g., `echo "---"`, `echo "DONE"`). Quoted characters trigger permission prompts, forcing the user to manually approve. Use unquoted alternatives or separate tool calls instead.
