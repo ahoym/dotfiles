@@ -98,6 +98,7 @@ A pattern is **outdated** when ANY of these apply:
 - References old file paths but pattern is sound (update paths, keep pattern)
 - Partially migrated (only the migrated portions are outdated)
 - Niche/rarely used (low usage ≠ outdated)
+- Content duplicated in a consuming skill, but the file is in `skill-references/` (the reference is authoritative; the skill's copy is the redundant one — see curate step 4a)
 
 ## Migration Litmus Test
 

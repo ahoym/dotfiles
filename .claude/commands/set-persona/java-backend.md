@@ -44,3 +44,4 @@ Load when working in the specific area:
 - `learnings/code-review-general.md` — Broad Java/Spring code review patterns: null safety, enum design, test structure, naming conventions
 - `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
+- `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge

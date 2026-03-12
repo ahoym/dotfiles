@@ -197,3 +197,11 @@ Before creating a PR, strip working state from the branch while preserving local
 ## Resume Should Check for Uncommitted Deep-Dive Changes
 
 The resume skill should run `git status` before cleanup and check for uncommitted modifications from the deep-dive phase. Deep-dive iterations may leave changes that weren't committed by the autonomous agent (e.g., agent-prompting compression, new learnings sections). These need to be committed before `git rm -r consolidate-output/` to avoid losing work or creating a confusing commit history.
+
+## Unreferenced Learnings Are Not Orphans
+
+Not every learning file needs a persona Detailed reference. Context-aware learnings (`context-aware-learnings.md` guideline) discovers files by filename matching at session start and on keyword triggers — no persona wiring required. Only add a learning to a persona's Detailed references when it's highly correlated with the domain (most sessions with that persona would benefit). Niche learnings (e.g., `local-dev-seeding.md`) work better as context-aware discoveries — they get loaded when the topic actually comes up, not on every persona activation. During consolidation sweeps, do NOT wire learnings into personas just because they're unreferenced.
+
+## Consolidation Worktree Hooks Auto-Commit and Can Revert
+
+The consolidation worktree has guard hooks that auto-commit changes and can revert uncommitted modifications to match the last committed state. When making multiple sequential changes in an interactive session, commit after each logical change — don't batch. Uncommitted changes between tool calls may be silently reverted by hooks, requiring the work to be redone.

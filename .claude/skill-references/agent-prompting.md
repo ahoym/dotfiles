@@ -4,11 +4,15 @@ description: "Internal reference — best practices for crafting subagent prompt
 
 # Agent Prompting Best Practices
 
+## Verbatim Templates for Same-Type Subagents
+
+When spawning multiple subagents for the same task type (e.g., per-item extractors), use the prompt template **verbatim** — fill in placeholders only. Do not abbreviate, paraphrase, or add ad-hoc per-instance instructions. Orchestrators drift when given freedom to rephrase, leading to inconsistent data fetching, output formats, and coverage depth.
+
 ## Prompt Structure
 
 The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.
 
-The **Shared Contract** and **Prompt Preamble** are prepended automatically (see SKILL.md Step 5). The agent's own `prompt` field should contain:
+The **Shared Contract** and **Prompt Preamble** are prepended automatically (see execute SKILL.md Step 5). The agent's own `prompt` field should contain:
 
 ```
 1. Role and scope declaration (task description)
@@ -180,12 +184,6 @@ Report anything surprising, unexpected, or useful for other agents:
 ### PR
 - URL: [the PR URL from `gh pr create` output]
 ```
-
-**Why this matters:**
-- Agent sessions are isolated — the orchestrator only sees the final output message and the files on disk
-- Checkpoints enable resumption from the right step if the agent fails and needs to be re-launched
-- Discoveries are collected by the orchestrator and surfaced to the user as post-execution documentation — in fan-out DAGs, discoveries arrive too late to help parallel agents, but they're valuable for project learnings and future plans
-- PR URLs let the coordinator update state without re-running git commands
 
 ## Git Workflow in Prompts (when Branch Strategy exists)
 

@@ -145,3 +145,7 @@ Glob cannot traverse directory symlinks — even with absolute paths. `~/.claude
 ## Sanitizing Examples: Preserve Pedagogical Intent
 
 When scrubbing personal details from learning examples, use generic placeholders (`/Users/<user>/`) rather than replacing with the "correct" form (`~/.claude`). If the learning demonstrates that absolute paths fail, replacing the example with a tilde path removes the demonstration of the failure. Match the placeholder to the role the value plays in the example.
+
+## @ References Only Resolve in CLAUDE.md and SKILL.md
+
+`@path/to/file.md` references are resolved by the CLI at load time — not by the agent or the Read tool. They work in CLAUDE.md (expanded at session start) and SKILL.md (expanded when the skill is invoked). They do NOT resolve in arbitrary `.md` files read via the Read tool at runtime. This means data files (personas, reference docs, learnings) cannot use `@` to pull in other files — the agent must explicitly read them.
