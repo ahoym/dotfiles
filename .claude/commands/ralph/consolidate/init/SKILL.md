@@ -52,6 +52,8 @@ Read each template from `~/.claude/ralph/consolidate/templates/` and write to th
 | Template | Destination |
 |----------|-------------|
 | `spec.md` | `.claude/consolidate-output/spec.md` |
+| `broad-sweep-methodology.md` | `.claude/consolidate-output/broad-sweep-methodology.md` |
+| `deep-dive-methodology.md` | `.claude/consolidate-output/deep-dive-methodology.md` |
 | `progress.md` | `.claude/consolidate-output/progress.md` |
 | `decisions.md` | `.claude/consolidate-output/decisions.md` |
 | `blockers.md` | `.claude/consolidate-output/blockers.md` |
