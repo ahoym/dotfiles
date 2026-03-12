@@ -154,3 +154,7 @@ with open('path/to/file.json', 'w') as f:
 Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.
 
 **Workarounds:** `git add -A` (if all changes are wanted), `git add -- 'app/api/accounts/\[address\]/**'` (escaped), or `noglob git add <path>`.
+
+## Merge Over Rebase for Ephemeral-File Conflicts
+
+When rebasing N commits onto a branch where ephemeral files (build output, logs, tracking files) were deleted, each commit that touched those files produces a separate modify/delete conflict — identical resolution repeated N times. Use `git merge` instead: one resolution pass regardless of commit count. The tradeoff (merge commit vs linear history) is worth it when N > ~5.
