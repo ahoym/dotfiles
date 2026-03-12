@@ -7,7 +7,7 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 3 |
+| Iterations | 4 |
 | Rounds | 1 |
 | Status | IN_PROGRESS |
 
@@ -15,10 +15,10 @@
 
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
-| Learnings | 1 | 4 | 1 | 1 | 0 |
+| Learnings | 2 | 4 | 2 | 1 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 1 | 0 | 0 |
-| **Total** | **3** | **4** | **2** | **1** | **0** |
+| **Total** | **4** | **4** | **3** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -34,6 +34,7 @@
 | 1 | 1 | LEARNINGS | Wire refs | newman-postman.md, local-dev-seeding.md | java-backend.md | MEDIUM |
 | 2 | 1 | SKILLS | (clean) | — | — | — |
 | 3 | 1 | GUIDELINES | Fold unreferenced guideline | multi-agent-orchestration.md | agent-prompting.md | MEDIUM |
+| 4 | 2 | LEARNINGS | Wire ref | xrpl-cross-currency-payments.md | xrpl-typescript-fullstack.md | MEDIUM |
 
 ## Blocked Items
 
@@ -50,6 +51,7 @@ See `blockers.md` for details.
 | Metric | Before | After |
 |--------|--------|-------|
 | Learnings files | 50 | 48 |
+| Learnings files (R2) | 48 | 48 |
 | Skills | 30 | — |
 | Guidelines files | 4 | 3 |
 | Persona files | 7 | — |

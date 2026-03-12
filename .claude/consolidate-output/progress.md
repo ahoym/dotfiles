@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
-| ROUND_CLEAN | true |
+| CONTENT_TYPE | SKILLS |
+| ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -30,9 +30,9 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 4
-- **MEDIUMs applied**: 1
+- **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 1
 
 ### SKILLS
@@ -64,6 +64,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 4 | 2 (1 applied, 1 skipped) | 2 | 7 | Broad sweep: fix broken ref, merge 2 thin files, wire orphaned learnings |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 1 | Folded unreferenced multi-agent-orchestration.md into agent-prompting.md |
+| 4 | 2 | LEARNINGS | 0 | 1 | 0 | 1 | Wire xrpl-cross-currency-payments.md ref into xrpl-typescript-fullstack persona |
 
 ## Deep Dive Status
 
@@ -98,3 +99,9 @@ Suggested iterations: 15
 **End of Round 1**: ROUND_CLEAN = false (LEARNINGS had HIGHs, GUIDELINES had a MEDIUM). CLEAN_ROUND_STREAK remains 0. Starting Round 2 with LEARNINGS.
 
 **No compound insights this sweep** — the single finding was a structural wiring issue, not a pattern about the corpus.
+
+### Iter 4
+
+**Round 2 LEARNINGS sweep — 1 MEDIUM applied.** Re-read all 48 learnings (down from 50 after Round 1 merges), 7 personas, 3 guidelines (down from 4 after Round 1 fold), 5 skill-references. Corpus significantly cleaner after Round 1 — broken refs fixed, thin files merged, orphans wired. Single finding: `xrpl-cross-currency-payments.md` missing from `xrpl-typescript-fullstack` persona's Detailed references despite covering directly relevant XRPL payment engine patterns. Wired it in.
+
+**ROUND_CLEAN set to false** — the MEDIUM means this round can't be clean, CLEAN_ROUND_STREAK will reset at end of round.
