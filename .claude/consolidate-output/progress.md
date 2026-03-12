@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 4 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -36,7 +36,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 1
 
 ### SKILLS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -73,6 +73,7 @@ Suggested iterations: 15
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 namespaces, all refs valid |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
+| 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 
 ## Deep Dive Status
 
@@ -147,3 +148,7 @@ Suggested iterations: 15
 - **Stale (staleness >= 3)**: skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md
 - **At threshold (staleness = 3)**: web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, api-design.md
 - **Untracked**: ~35 corpus files not yet in deep-dive-tracker — will be added on phase transition
+
+### Iter 11
+
+**Round 4 SKILLS sweep — clean.** Re-read all 30 SKILL.md files, 5 skill-references, 7 personas. Clustered by namespace (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). All skills relevant, no 80%+ overlap, references fresh, scopes well-defined. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). Corpus unchanged since iter 8 — identical clean result. Advancing to GUIDELINES.
