@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 19 |
+| SWEEP_COUNT | 20 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md |
+| DEEP_DIVE_CANDIDATES | xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md |
 
 ## Pre-Flight
 
@@ -83,6 +83,7 @@ Suggested iterations: 15
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean — 19 sections, all unique, no overlap with corpus |
 | 18 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | playwright-patterns.md: clean — 17 sections, all unique, 5 correctly summarized in react-frontend-gotchas + persona |
 | 19 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | multi-agent-patterns.md: clean — 32 sections, all unique. 2 LOWs: misplaced gate-announcements section, TaskOutput contradiction with claude-code.md |
+| 20 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | refactoring-patterns.md: clean — 13 sections, all unique. Cross-referenced against 10 corpus files + 7 personas. Consumer: do-refactor-code skill. |
 
 ## Deep Dive Status
 
@@ -97,6 +98,7 @@ Suggested iterations: 15
 | claude-code.md | done | 17 | Clean — 19 sections, all unique, no overlap. Cross-referenced against 10 corpus files. |
 | playwright-patterns.md | done | 18 | Clean — 17 sections, all unique. 5 have correct one-liner summaries in react-frontend-gotchas + persona. Already wired in persona Detailed references. |
 | multi-agent-patterns.md | done | 19 | Clean — 32 sections, all unique. 2 LOWs recorded (gate-announcements misplacement, TaskOutput contradiction). See-also ref to subagent-patterns.md valid. |
+| refactoring-patterns.md | done | 20 | Clean — 13 sections, all unique. Cross-referenced against code-quality-instincts, code-review-general, react-patterns, react-frontend-gotchas, testing-patterns, multi-agent-patterns, parallel-plans, skill-design, bash-patterns, claude-code. Consumer: do-refactor-code (2 refs). No persona wiring needed. |
 
 ## Notes for Next Iteration
 
@@ -224,3 +226,9 @@ Suggested iterations: 15
 **Deep dive 7 — multi-agent-patterns.md: clean.** Parsed 32 H2 sections (Synthesis Separate Invocation, Agent Output Files, Coordinating Interface Changes, Group by File Domain, Sandbox Workaround Lifecycle Scripts, Codebase Comparison, Port/Migrate Full Source, Three-Phase Refactoring, Project Adaptation Workflow, Verify Web Sources, Three-Branch Gate Announcements, Delegated Intent Files, Front-Load Structural Context, Full Write > Incremental Edit, Workflows Survive Compaction, Balance by Complexity, Many-Agent Compaction Risk, Write One Validate Parallelize, Cross-Agent File References, Simple Inline over Agent, Context Budget Delegate Early, Categorize by Shared Structure, Standardize Worktree Commit, Worktree Full Lint Stack, Worktree Merge Check Commit State, Subagents Cannot Write .md, Extractor-Writer Pattern, Session-Resumable Workflows, TaskOutput Background Bash Only, Split Writers by Location, Targeted Grep Verification, Trust-Building Arc). Cross-referenced against parallel-plans.md (17 sections), agent-prompting.md (skill-ref, 15 sections), subagent-patterns.md (skill-ref, 3 sections), skill-design.md (28 sections), claude-code.md (19 sections), bash-patterns.md (7 sections), ralph-loop.md (22 sections), cross-repo-sync.md (16 sections), 3 personas (xrpl-typescript-fullstack, react-frontend, platform-engineer). All 32 sections unique at pattern level. See-also ref to subagent-patterns.md (line 3) valid. 2 LOWs: (1) "Three-Branch Gate Announcements" is about learnings-system gate observability, not multi-agent patterns — borderline misplacement but too thin (4 lines) to warrant moving; (2) "TaskOutput Only Works for Background Bash Tasks" contradicts claude-code.md § "Use TaskOutput Not Bash" which says TaskOutput works for Task agents — needs empirical verification.
 
 **Next candidate**: refactoring-patterns.md (staleness=3, at threshold).
+
+### Iter 20
+
+**Deep dive 8 — refactoring-patterns.md: clean.** Parsed 13 H2 sections (Survey Before Acting, Commit Granularity, Factory vs Individual Hooks, React Context Assessment, Split PRs by Risk Profile, Parallel Batch Failure Handling, Gate Strategy, Phased Refactoring Approach, Fix Bugs Structurally, Deciding What NOT to Refactor, Test Layering Strategy, Refactoring Order Dependencies First, Map Refactoring Targets to Test Coverage). Cross-referenced against code-quality-instincts (3 sections), code-review-general (40+ sections), react-patterns (11 sections), react-frontend-gotchas (5 sections), testing-patterns (10 sections), multi-agent-patterns (32 sections), parallel-plans (17 sections), skill-design (28 sections), bash-patterns (7 sections), claude-code (19 sections). All 13 sections unique — conceptual adjacencies exist (code-review-general "Scope MRs tightly" vs "Split PRs by Risk Profile", react-patterns "Audit Before Abstracting" vs "Factory vs Individual Hooks") but are complementary, not overlapping. Consumer verified: do-refactor-code/SKILL.md (L26, L101). No persona references — cross-cutting domain, keyword-discoverable.
+
+**Next candidate**: xrpl-patterns.md (staleness=3, at threshold).
