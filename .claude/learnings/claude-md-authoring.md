@@ -108,3 +108,23 @@ Key insight: CLAUDE.md content is already human-readable — the split is about 
 When two or more CLAUDE.md facts must be combined to produce correct behavior, state the actionable conclusion explicitly at the point of use — don't rely on the agent to infer it.
 
 **Example:** "Repo is symlinked to `~/.claude`" + "Glob/Read don't resolve `~`" independently are clear, but neither states the conclusion: "use `.claude/` relative paths for Read/Glob." Adding the conclusion inline prevents repeated inference failures across sessions.
+
+## Signpost Pattern: Non-`@` Lazy-Loaded References
+
+File paths listed in CLAUDE.md **without** the `@` prefix are not eagerly inlined — they're plain text. But proactive agents notice these paths and read them on demand when the topic becomes relevant. This creates a lightweight lazy-loading mechanism.
+
+**Format:**
+```markdown
+## Lazy-loaded references (read when relevant)
+
+.claude/guidelines/deployment.md - Production deployment checklist
+docs/architecture/auth-flow.md - Authentication sequence and token lifecycle
+```
+
+**Behavior contrast:**
+- `@path` → eagerly inlined, always costs tokens
+- `path` (no `@`) → visible as text, read by agent judgment when relevant
+
+**When to use signposts over `@`:** Context that's useful but not universally needed — domain-specific guidelines, deep-dive references, or situational checklists. Reserve `@` for context every session needs.
+
+**Validation method:** Add a unique marker string to the signposted file, start a fresh session, and check whether the agent (a) ignores it, (b) reads it proactively via a Read tool call, or (c) reports the marker without a Read call (indicating eager inlining — a failure). Success = (b).
