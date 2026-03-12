@@ -162,6 +162,14 @@ Don't rely on a single doc page. When researching a feature area, traverse **rel
 
 Research that asserts capability differences (e.g., "directory X supports feature Y but directory Z doesn't") should be validated empirically when possible, not just inferred from docs. If the research loop constraints prevent code execution, flag the claim as **low-confidence/unverified** and note that empirical testing is needed before acting on it.
 
+## Skill-as-Methodology for Autonomous Agents
+
+Autonomous agents (`claude --print`) can't invoke the Skill tool, but they can read a SKILL.md file and follow its steps as inline methodology. Override only the interactive steps (AskUserQuestion → auto-apply, report generation → skip, results → skip). The skill drives classification, cross-referencing, and analysis; the spec provides the autonomous overrides. When the skill evolves, the agent gets improvements for free.
+
+## Lazy-Load Phase-Specific Methodology in Specs
+
+Stateless agent specs benefit from splitting phase-specific methodology into separate files loaded on-demand. The core spec (constraints, workflow, transitions) stays as the prompt; the agent reads the relevant methodology file only when entering that phase. Keep shared decision criteria (e.g., candidacy rules referenced by multiple phases) in core — only extract sections used exclusively by one phase.
+
 ## "Validate" Means Run It
 
 When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the user says so.
@@ -181,3 +189,11 @@ When an autonomous loop produces zero items at a classification level (e.g., zer
 `.claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.
 
 Before creating a PR, strip working state from the branch while preserving local copies: `git rm --cached -r .claude/consolidate-output/` (removes from git index, keeps on disk). Add `.claude/consolidate-output/` to `.gitignore` to prevent re-staging. For untracked logs (iterations after last commit), no git action needed — they're already local-only.
+
+## Gotchas Files Are Not Thin Files
+
+`*-gotchas.md` files must never be merged into their parent domain files (e.g., `spring-boot-gotchas.md` → `spring-boot.md`) during consolidation sweeps. They serve different architectural roles: gotchas files are small, cheap proactive-load files loaded on every persona activation; parent learnings files are larger detailed references loaded on-demand. A thin gotchas file (2-4 bullets) is working as designed, not a merge candidate. The consolidation spec's thin-file heuristic must explicitly exclude `*-gotchas.md` files.
+
+## Resume Should Check for Uncommitted Deep-Dive Changes
+
+The resume skill should run `git status` before cleanup and check for uncommitted modifications from the deep-dive phase. Deep-dive iterations may leave changes that weren't committed by the autonomous agent (e.g., agent-prompting compression, new learnings sections). These need to be committed before `git rm -r consolidate-output/` to avoid losing work or creating a confusing commit history.
