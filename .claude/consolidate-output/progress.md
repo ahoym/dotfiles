@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -36,7 +36,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 1
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -69,6 +69,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid, no stale model strings |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap with learnings/skills/personas |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 namespaces, all refs valid |
 
 ## Deep Dive Status
 
@@ -123,3 +124,7 @@ Suggested iterations: 15
 ### Iter 7
 
 **Round 3 LEARNINGS sweep — clean.** Re-read all 48 learnings, 7 personas, 3 guidelines, 5 skill-references. Corpus stable since Round 2 — no new files, no content changes outside consolidation. Clustered by domain (XRPL/6, React-Next/6, Java-Spring/8, TS-API/4, AWS-Infra/4, Claude-Meta/11, General/5, Web-Data/2, Niche/3). H2/H3 collision detection: no exact heading duplicates. Per-file quality: no thin files needing merge (all standalone and substantive). All persona Detailed references complete — every relevant learning wired. No orphaned learnings, no stale refs, no broken links. Third consecutive clean LEARNINGS sweep (iters 4 was MEDIUM, but iters 5-7 pattern shows corpus has converged for this content type).
+
+### Iter 8
+
+**Round 3 SKILLS sweep — clean.** Read all 29 SKILL.md files, 5 skill-references. Clustered by namespace (git:9, ralph:7, learnings:4, parallel-plan:2, standalone:7). All skills relevant, no 80%+ overlap, references fresh, scopes well-defined. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). No corpus changes since iter 5 — identical clean result. Advancing to GUIDELINES.
