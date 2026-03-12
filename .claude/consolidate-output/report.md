@@ -7,9 +7,9 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 21 |
+| Iterations | 22 |
 | Rounds | 4 (converged) |
-| Status | DEEP_DIVE (2 remaining, 9 done) |
+| Status | DEEP_DIVE (1 remaining, 10 done) |
 
 ## Summary
 
@@ -52,6 +52,7 @@
 | 19 | — | DEEP_DIVE | (clean) | multi-agent-patterns.md | — | — |
 | 20 | — | DEEP_DIVE | (clean) | refactoring-patterns.md | — | — |
 | 21 | — | DEEP_DIVE | (clean) | xrpl-patterns.md | — | — |
+| 22 | — | DEEP_DIVE | (clean) | bash-patterns.md | — | — |
 
 ## Blocked Items
 

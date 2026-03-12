@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 21 |
+| SWEEP_COUNT | 22 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md |
+| DEEP_DIVE_CANDIDATES | testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md |
 
 ## Pre-Flight
 
@@ -85,6 +85,7 @@ Suggested iterations: 15
 | 19 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | multi-agent-patterns.md: clean — 32 sections, all unique. 2 LOWs: misplaced gate-announcements section, TaskOutput contradiction with claude-code.md |
 | 20 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | refactoring-patterns.md: clean — 13 sections, all unique. Cross-referenced against 10 corpus files + 7 personas. Consumer: do-refactor-code skill. |
 | 21 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | xrpl-patterns.md: clean — 21 sections, all unique. Cross-referenced against 10 corpus files + 1 persona. Wired correctly in xrpl-typescript-fullstack Detailed references. |
+| 22 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | bash-patterns.md: clean — 8 sections, all unique. Cross-referenced against 8 corpus files + 1 persona. Wired correctly in platform-engineer Detailed references (L68). |
 
 ## Deep Dive Status
 
@@ -101,6 +102,7 @@ Suggested iterations: 15
 | multi-agent-patterns.md | done | 19 | Clean — 32 sections, all unique. 2 LOWs recorded (gate-announcements misplacement, TaskOutput contradiction). See-also ref to subagent-patterns.md valid. |
 | refactoring-patterns.md | done | 20 | Clean — 13 sections, all unique. Cross-referenced against code-quality-instincts, code-review-general, react-patterns, react-frontend-gotchas, testing-patterns, multi-agent-patterns, parallel-plans, skill-design, bash-patterns, claude-code. Consumer: do-refactor-code (2 refs). No persona wiring needed. |
 | xrpl-patterns.md | done | 21 | Clean — 21 sections, all unique. Cross-referenced against xrpl-gotchas, xrpl-amm, xrpl-dex-data, xrpl-cross-currency-payments, xrpl-permissioned-domains, bignumber-financial-arithmetic, order-book-pricing, financial-applications, testing-patterns, vercel-deployment + xrpl-typescript-fullstack persona. Correctly wired in persona Detailed references (L67). |
+| bash-patterns.md | done | 22 | Clean — 8 sections, all unique. Cross-referenced against claude-code, claude-code-hooks, multi-agent-patterns, skill-design, ralph-loop, testing-patterns, skill-platform-portability, agent-prompting + platform-engineer persona. Wired in persona Detailed references (L68). |
 
 ## Notes for Next Iteration
 
@@ -240,3 +242,9 @@ Suggested iterations: 15
 **Deep dive 9 — xrpl-patterns.md: clean.** Parsed 21 H2 sections (getOrderbook vs raw book_offers, Route-scoped singleton client, XRPL mainnet WebSocket endpoint, Orderbook always fetch full book, DepthSummary use string for volumes, Funded Offer Fields in book_offers, RippleState Balance Sign Convention, Detecting Filled Orders from account_tx, Vercel Serverless + XRPL WebSocket, Crossing Offers for Test Data, xrpl.js Type Gaps v4.6.0, Currency Code Encoding Rules, Define Typed Interfaces, Extract Fee Adjustment, TransactionMetadata Double Cast, Credential Type Encoding != Currency Encoding, getBalanceChanges Built-in, mduo13 Dev Portal Mirror, simulate API, submitAndWait Error Behavior, Transaction Result Code Fee Behavior). Cross-referenced against xrpl-gotchas.md (9 sections), xrpl-amm.md (12 sections), xrpl-dex-data.md (8 sections), xrpl-cross-currency-payments.md (8 sections), xrpl-permissioned-domains.md (8 sections), bignumber-financial-arithmetic.md (5 sections), order-book-pricing.md (4 sections), financial-applications.md (9 sections), testing-patterns.md (12 sections), vercel-deployment.md (2 sections), + xrpl-typescript-fullstack persona. All 21 sections unique — complementary relationships with xrpl-gotchas (gotchas has tripwires, patterns has depth/recipes) confirmed correct. Persona Detailed references L67 correctly describes file scope.
 
 **Next candidate**: bash-patterns.md (staleness=3, at threshold).
+
+### Iter 22
+
+**Deep dive 10 — bash-patterns.md: clean.** Parsed 8 H2 sections (Shell Env Default Ordering Gotcha, Shared Test Helper Library Pattern, `set -e` and `pipefail` Traps [4 H3 subsections], Teardown Must Precede Prerequisite Checks, Use `jq` Instead of `python3`, `glab api` Does Not Support `--jq` Flag, Empty Array Expansion Under `set -u`, rsync --delete Auto-Removes Renamed Directories). Cross-referenced against claude-code.md (19 sections), claude-code-hooks.md (10 sections), multi-agent-patterns.md (32 sections), skill-design.md (28 sections), ralph-loop.md (30 sections), testing-patterns.md (12 sections), skill-platform-portability.md (20 sections), agent-prompting.md (15 sections), platform-engineer persona. All 8 sections unique. testing-patterns.md "Shared Test Helpers Design" (TypeScript/Vitest) is complementary, not overlapping with bash lib.sh pattern. Correctly wired in platform-engineer.md Detailed references (L68).
+
+**Next candidate**: testing-patterns.md (staleness=3, at threshold).
