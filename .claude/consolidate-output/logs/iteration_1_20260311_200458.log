@@ -1,9 +1,0 @@
-Sweep 1 complete. **STOPPING** — one sweep per invocation as required.
-
-**Summary:**
-- 🔧 **4 HIGHs applied**: Fixed broken `ci-cd.md` reference in platform-engineer persona, removed stale companion ref in ci-cd-gotchas, merged `java-observability-gotchas.md` (6 lines) and `spring-boot-gotchas.md` (4 lines) into their parent files
-- ✅ **1 MEDIUM applied**: Wired `newman-postman.md` and `local-dev-seeding.md` to java-backend persona references
-- ⏭️ **1 MEDIUM skipped**: Systematic persona de-enrichment (gotchas content inlined in personas) — too large for one sweep
-- 📋 **2 LOWs recorded**: `quarkus-kotlin.md` (thin/niche), `python-specific.md` (orphaned from persona system)
-- 📉 **Learnings files**: 50 → 48
-- 🔍 **Meta-insight**: Gotchas files systematically duplicate into persona "Known gotchas" sections — future de-enrichment candidate
