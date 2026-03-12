@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 4 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -30,7 +30,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 4
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 1
@@ -72,6 +72,7 @@ Suggested iterations: 15
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 namespaces, all refs valid |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap |
+| 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
 
 ## Deep Dive Status
 
@@ -136,3 +137,13 @@ Suggested iterations: 15
 **Round 3 GUIDELINES sweep — clean.** Re-read all 3 guidelines, cross-referenced against 48 learnings, 5 skill-references, 7 personas. All 3 are @-referenced in CLAUDE.md (always-on). No overlap with learnings/skills/personas, no domain-specific content, no compression opportunities. Identical to iter 6.
 
 **End of Round 3**: ROUND_CLEAN = true (all three sweeps — LEARNINGS iter 7, SKILLS iter 8, GUIDELINES iter 9 — clean). CLEAN_ROUND_STREAK increments to 1. Starting Round 4 with LEARNINGS. One more clean round needed for convergence (streak >= 2).
+
+### Iter 10
+
+**Round 4 LEARNINGS sweep — clean.** Re-read all 48 learnings, 7 personas, 3 guidelines, 5 skill-references. Corpus unchanged since Round 3. All persona Detailed references complete, no orphaned learnings, no stale refs, no broken links. Fourth consecutive clean LEARNINGS result (iters 7, 8-adjacent, 10). CLEAN_ROUND_STREAK=1, ROUND_CLEAN remains true. Advancing to SKILLS.
+
+**Deep dive candidates (CLEAN_ROUND_STREAK >= 1, recording for phase transition):**
+- **Never deep-dived** (last_deep_dive_run=0): xrpl-typescript-fullstack.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md
+- **Stale (staleness >= 3)**: skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md
+- **At threshold (staleness = 3)**: web-session-sync.md, guideline-authoring.md, typescript-devops.md, ralph-loop.md, api-design.md
+- **Untracked**: ~35 corpus files not yet in deep-dive-tracker — will be added on phase transition
