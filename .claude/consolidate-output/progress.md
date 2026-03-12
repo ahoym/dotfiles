@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -42,7 +42,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -56,6 +56,7 @@ Suggested iterations: 15
 | 1 | 4 | 2 | 0 | 0 | 0 | 1 | false |
 | 2 | 0 | 1 | 0 | 0 | 0 | 0 | false |
 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | true |
+| 4 | 0 | 0 | 0 | 0 | 0 | 0 | true |
 
 ## Iteration Log
 
@@ -74,6 +75,7 @@ Suggested iterations: 15
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
+| 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. CONVERGENCE: CLEAN_ROUND_STREAK=2. Transitioning to DEEP_DIVE (11 candidates). |
 
 ## Deep Dive Status
 
@@ -152,3 +154,15 @@ Suggested iterations: 15
 ### Iter 11
 
 **Round 4 SKILLS sweep — clean.** Re-read all 30 SKILL.md files, 5 skill-references, 7 personas. Clustered by namespace (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). All skills relevant, no 80%+ overlap, references fresh, scopes well-defined. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). Corpus unchanged since iter 8 — identical clean result. Advancing to GUIDELINES.
+
+### Iter 12
+
+**Round 4 GUIDELINES sweep — clean. CONVERGENCE!** Re-read all 3 guidelines, cross-referenced against 48 learnings, 5 skill-references, 7 personas. All 3 @-referenced in CLAUDE.md (always-on). No overlap, no dead weight, no domain-specific content, no compression opportunities. Identical to iter 9.
+
+**End of Round 4**: ROUND_CLEAN = true (all three sweeps — LEARNINGS iter 10, SKILLS iter 11, GUIDELINES iter 12 — clean). CLEAN_ROUND_STREAK = 2 → **BROAD SWEEP CONVERGENCE**.
+
+**Phase transition to DEEP_DIVE.** 11 candidates identified:
+- **Never deep-dived (modification-triggered)**: xrpl-typescript-fullstack.md (modified iter 4), agent-prompting.md (modified iter 3), quantum-tunnel-claudes/SKILL.md (tracked, never dived)
+- **Stale (staleness=3, at threshold)**: skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md
+
+11 candidates >= min_deep_dives (10), no fill needed.

@@ -17,3 +17,4 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 4 | LEARNINGS | Wire reference | xrpl-cross-currency-payments.md | xrpl-typescript-fullstack.md | MEDIUM | applied | Learning covers XRPL payment engine (two-pass algorithm, pathfinding, TransferRate, SendMax, NoRipple) — directly relevant to XRPL fullstack persona but missing from Detailed references. Added between xrpl-permissioned-domains and api-design entries. |
 | 8 | SKILLS | (clean) | — | — | — | — | 29 skills, 5 namespaces — all relevant, no overlap, refs fresh |
 | 9 | GUIDELINES | (clean) | — | — | — | — | 3 guidelines, all @-referenced, no overlap, no findings |
+| 12 | GUIDELINES | (clean) | — | — | — | — | 3 guidelines, all @-referenced, no overlap. CONVERGENCE — transitioning to DEEP_DIVE phase (11 candidates) |
