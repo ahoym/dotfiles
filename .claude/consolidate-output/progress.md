@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md |
+| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md |
 
 ## Pre-Flight
 
@@ -81,6 +81,7 @@ Suggested iterations: 15
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | quantum-tunnel-claudes/SKILL.md: clean — 13 sections, all refs verified, correct lean architecture |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-design.md: clean — 28 sections, all unique, no overlap with corpus |
 | 17 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-code.md: clean — 19 sections, all unique, no overlap with corpus |
+| 18 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | playwright-patterns.md: clean — 17 sections, all unique, 5 correctly summarized in react-frontend-gotchas + persona |
 
 ## Deep Dive Status
 
@@ -93,6 +94,7 @@ Suggested iterations: 15
 | quantum-tunnel-claudes/SKILL.md | done | 15 | Clean — 13 sections, 3 conditional refs verified, inventory.sh verified, correct lean architecture |
 | skill-design.md | done | 16 | Clean — 28 sections, all unique, cross-refs correct, no persona wiring needed (meta/tooling domain) |
 | claude-code.md | done | 17 | Clean — 19 sections, all unique, no overlap. Cross-referenced against 10 corpus files. |
+| playwright-patterns.md | done | 18 | Clean — 17 sections, all unique. 5 have correct one-liner summaries in react-frontend-gotchas + persona. Already wired in persona Detailed references. |
 
 ## Notes for Next Iteration
 
@@ -208,3 +210,9 @@ Suggested iterations: 15
 **Deep dive 5 — claude-code.md: clean.** Parsed 19 H2 sections (Task Tool worktree limitations, No Mid-Flight Messaging, Skill Discovery sibling vs subdirectory, Permission Rules Read covers Glob/Grep, Background Bash Agents permissions, Permissions Cached at Session Start, Worktree Isolation permission mismatches, Bash Permission Prefix Matching, Scoping Bash Permissions helper scripts, Use TaskOutput not Bash, Context Continuation loses file contents, WebFetch cannot parse PDF, Always Read Before Write, Subagent Reads prerequisite, Parallel Tool Call Error Cascade, ~/.claude Symlink Structure, Glob Can Miss Files, Glob Fails Through Symlinks, Sanitizing Examples). Cross-referenced against skill-design.md (28 sections), skill-platform-portability.md (20 sections), claude-code-hooks.md (10 sections), multi-agent-patterns.md (25 sections), bash-patterns.md (7 sections), ralph-loop.md (22 sections), agent-prompting.md (15 sections), subagent-patterns.md (3 sections), claude-md-authoring.md (6 sections), and all 3 guidelines. All 19 sections unique — no exact or near duplicates. Symlink Structure overlap with skill-design.md L105 noted in iter 16 still holds as too minor.
 
 **Next candidate**: playwright-patterns.md (staleness=3, at threshold).
+
+### Iter 18
+
+**Deep dive 6 — playwright-patterns.md: clean.** Parsed 17 H2 sections (Shared BrowserContext, page.once Dialog, getByRole Accessible Name, textContent Concatenation, Scope Selectors, StorageState localStorage, selectOption string-only, exact:true, Option Visibility, getByLabel Association, Modal role="dialog", Strict Mode getByText, .first() Dynamic, Dynamic File Inputs, Transient Banners, .filter().first() Ancestors, .or() Terminal States). Cross-referenced against testing-patterns.md (10 sections — Vitest/RTL, no overlap), react-frontend-gotchas.md (5 Playwright one-liners — correct summaries), react-frontend persona (5 Playwright gotchas — same summaries), accessibility-patterns.md (6 sections — complementary ARIA patterns, no overlap), ui-patterns.md (3 sections — CSS/design, no overlap), xrpl-typescript-fullstack persona (no Playwright section — Playwright flows transitively via react-frontend-gotchas proactive load), typescript-devops persona (Playwright browser caching — CI-level, not test-writing overlap). All 17 sections unique at recipe level. Reference wiring complete (react-frontend persona L64).
+
+**Next candidate**: multi-agent-patterns.md (staleness=3, at threshold).
