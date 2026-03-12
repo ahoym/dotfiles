@@ -66,5 +66,4 @@ Load when working in the specific area:
 - `learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
 - `learnings/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
 - `learnings/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
-- `learnings/ci-cd-gotchas.md` — GitHub Actions/GitLab CI tripwires, CI guard patterns, git workflow patterns for stacked branches
 - `learnings/ci-cd.md` — GitLab CI debugging with glab API, Docker build/push stage rules, build-only vs Docker-capable CI stages

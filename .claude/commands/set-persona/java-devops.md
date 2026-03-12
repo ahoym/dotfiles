@@ -35,4 +35,3 @@
 
 Load when working in the specific area:
 - `learnings/java-observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC
-- `learnings/ci-cd.md` — GitLab CI debugging with glab API, Docker build/push stage rules, Testcontainers in build-only vs Docker-capable stages
