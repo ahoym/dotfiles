@@ -10,6 +10,10 @@ Avoid quoted strings in Bash commands (e.g., `echo "---"`, `echo "DONE"`). Quote
 
 Don't use `git -C <path>` when already in the working directory. Permission patterns match `git status`, not `git -C /path status`. Using `-C` forces manual approval for commands that would otherwise be auto-permitted. Only use `git -C` when operating on a different repository than CWD (e.g., a worktree in another location).
 
+# Read Tool
+
+Prefer offset + limit over full re-reads. After reading a file once, note line numbers for sections you'll need later. Don't re-read to verify an Edit — trust the success message or use a 5-line targeted read. Avoid reading a file in full right before a Write when you already have the content in context.
+
 # Glob and Grep Tools
 
 The `path` parameter does not resolve `~`. Always use the actual filesystem path (e.g. from CWD or absolute). Since this repo is symlinked to `~/.claude/`, use `.claude/` relative paths (e.g., `.claude/learnings/foo.md`) for Read/Glob — not `~/.claude/learnings/foo.md`. Note: permission rules DO support `~` — these are different contexts.
