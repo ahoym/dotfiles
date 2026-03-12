@@ -68,10 +68,11 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
   - `learnings/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
   - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
   - `commands/*` reference files (e.g., `writing-best-practices.md`, `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
+  - `skill-references/*` → **Content mode** with **reference-file gate** (step 4a). These are authoritative shared references — duplication is removed from consuming skills, not from the reference.
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, and skill directories under `~/.claude/commands/`
+- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
 - Use `AskUserQuestion` to prompt user:
   ```
   What would you like to curate?
@@ -82,6 +83,10 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 
   Guidelines:
   - guidelines/communication.md
+  - ...
+
+  Skill References:
+  - skill-references/agent-prompting.md
   - ...
 
   Skills:
@@ -152,7 +157,20 @@ For each pattern, check against the pre-loaded corpus for matches:
 
 **Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
 
-### 4. File-level gate (guidelines only)
+### 4. File-level gates
+
+#### 4a. Reference-file gate (`skill-references/*` only)
+
+**Before pattern-level classification**, identify which skills consume this file — grep for the filename across `~/.claude/commands/`. Reference files are authoritative: they are the single source of truth for shared patterns consumed by multiple skills.
+
+**When cross-referencing (step 3) finds duplicated content in a consuming skill**, the classification must be **"Standalone reference (keep) — deduplicate consumer"**, not "Outdated (duplicated)." The recommended action is to replace the skill's inline content with a pointer back to this reference file (e.g., "See `agent-prompting.md` § Git Workflow").
+
+**Actions:**
+- **Pattern duplicated in consumer skill** → Classify as standalone reference. Recommended action: trim the skill's inline copy, add a reference pointer.
+- **Pattern not found in any consumer** → Classify normally (may be standalone, outdated, etc.).
+- **Pattern partially covered in consumer** → The reference version is authoritative. Flag the consumer's partial copy for alignment.
+
+#### 4b. Guideline gate (`guidelines/*` only)
 
 **Before pattern-level classification**, check whether the guideline belongs in `guidelines/` at all. Guidelines must be universal — applicable to any agent regardless of stack, language, or project.
 
