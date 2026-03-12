@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | ROUND | 4 |
 | CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
-| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md |
+| DEEP_DIVE_CANDIDATES | skill-design.md, claude-code.md, playwright-patterns.md, multi-agent-patterns.md, refactoring-patterns.md, xrpl-patterns.md, bash-patterns.md, testing-patterns.md |
+| DEEP_DIVE_COMPLETED | xrpl-typescript-fullstack.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md |
 
 ## Pre-Flight
 
@@ -78,6 +78,7 @@ Suggested iterations: 15
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced. CONVERGENCE: CLEAN_ROUND_STREAK=2. Transitioning to DEEP_DIVE (11 candidates). |
 | 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | xrpl-typescript-fullstack.md: de-enriched Known gotchas (35→10 lines, ~31% file reduction) |
 | 14 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | agent-prompting.md: clean — 15 sections, all unique, no overlap with multi-agent-patterns/parallel-plans/subagent-patterns |
+| 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | quantum-tunnel-claudes/SKILL.md: clean — 13 sections, all refs verified, correct lean architecture |
 
 ## Deep Dive Status
 
@@ -87,6 +88,7 @@ Suggested iterations: 15
 |------|--------|------|---------|
 | xrpl-typescript-fullstack.md | done | 13 | De-enriched Known gotchas — 35→10 lines, all content in proactive loads/detailed refs |
 | agent-prompting.md | done | 14 | Clean — 15 sections, all unique, no overlap with corpus |
+| quantum-tunnel-claudes/SKILL.md | done | 15 | Clean — 13 sections, 3 conditional refs verified, inventory.sh verified, correct lean architecture |
 
 ## Notes for Next Iteration
 
@@ -184,3 +186,9 @@ Suggested iterations: 15
 **Deep dive 2 — agent-prompting.md: clean.** Parsed 15 H2 sections (Verbatim Templates, Prompt Structure, Fast/Slow Agent, Scaling by File Size, Code Landmarks, TDD Workflow, Code Formatting, Boundary Constraints, Shared Contract, Model Selection, Completion Report, Git Workflow, Interface-First, Integration Agent). Cross-referenced against multi-agent-patterns.md (253 lines), parallel-plans.md (142 lines), skill-design.md (266 lines), claude-code.md (148 lines), subagent-patterns.md (41 lines), bash-patterns.md (143 lines). All 15 sections unique — conceptually adjacent topics in multi-agent-patterns and parallel-plans are complementary, not overlapping. Consumers verified: parallel-plan/execute (3 refs) and parallel-plan/make (1 ref).
 
 **Next candidate**: quantum-tunnel-claudes/SKILL.md (tracked, never deep-dived).
+
+### Iter 15
+
+**Deep dive 3 — quantum-tunnel-claudes/SKILL.md: clean.** Parsed 13 sections (frontmatter, usage, configuration, reference files, parallel execution, steps 0-5, prerequisites, important notes). Cross-referenced against cross-repo-sync.md (16 sections), multi-agent-patterns.md (25 sections), skill-design.md (22 sections), claude-code.md (17 sections), agent-prompting.md (15 sections), corpus-cross-reference.md, classification-model.md. All 3 conditional reference paths verified (corpus-cross-reference.md, classification-model.md, cross-repo-sync.md). inventory.sh companion script verified. No duplications, no stale references. Skill is a lean operational procedure with knowledge delegated to reference files — correct architecture.
+
+**Next candidate**: skill-design.md (staleness=3, at threshold).
