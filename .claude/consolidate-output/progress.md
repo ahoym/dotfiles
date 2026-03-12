@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -36,7 +36,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 1
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -65,6 +65,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid |
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 1 | Folded unreferenced multi-agent-orchestration.md into agent-prompting.md |
 | 4 | 2 | LEARNINGS | 0 | 1 | 0 | 1 | Wire xrpl-cross-currency-payments.md ref into xrpl-typescript-fullstack persona |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid, no stale model strings |
 
 ## Deep Dive Status
 
@@ -105,3 +106,7 @@ Suggested iterations: 15
 **Round 2 LEARNINGS sweep — 1 MEDIUM applied.** Re-read all 48 learnings (down from 50 after Round 1 merges), 7 personas, 3 guidelines (down from 4 after Round 1 fold), 5 skill-references. Corpus significantly cleaner after Round 1 — broken refs fixed, thin files merged, orphans wired. Single finding: `xrpl-cross-currency-payments.md` missing from `xrpl-typescript-fullstack` persona's Detailed references despite covering directly relevant XRPL payment engine patterns. Wired it in.
 
 **ROUND_CLEAN set to false** — the MEDIUM means this round can't be clean, CLEAN_ROUND_STREAK will reset at end of round.
+
+### Iter 5
+
+**Round 2 SKILLS sweep — clean.** Re-read all 30 SKILL.md files, 7 personas, 5 skill-references. Same 5 namespaces (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). All skills relevant, no 80%+ overlap, references fresh, scopes appropriate. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). Identical result to iter 2 — skills are stable. Advancing to GUIDELINES.
