@@ -32,7 +32,7 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 
 ## Proactive loads
 
-- `learnings/spring-boot-gotchas.md`
+- `learnings/spring-boot.md`
 
 ## Detailed references
 
@@ -44,3 +44,5 @@ Load when working in the specific area:
 - `learnings/code-review-general.md` — Broad Java/Spring code review patterns: null safety, enum design, test structure, naming conventions
 - `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
+- `learnings/local-dev-seeding.md` — Hybrid API+SQL seeding architecture, schema drift detection, deterministic seed UUIDs
+- `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge

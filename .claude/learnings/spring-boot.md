@@ -163,3 +163,7 @@ H2 does not support PostgreSQL's `CREATE TYPE name AS ENUM (...)` syntax. When u
 Database values may not match Java enum constants (case differences, new values added to DB but not code, typos). Use a safe lookup pattern -- `Arrays.stream(values()).filter(...)` with a fallback or `Optional` -- instead of raw `Enum.valueOf()` which throws `IllegalArgumentException` with no context.
 
 - **Takeaway**: Never use raw Enum.valueOf() for externally-sourced values. Use safe lookup patterns with meaningful error messages.
+
+### @Scheduled + @SchedulerLock: swallow exceptions
+
+Spring catches/logs scheduled task exceptions and ShedLock releases the lock — job retries next tick. Rethrowing produces duplicate error logs. Inner loops processing independent items: catch per-item to prevent one failure from killing the batch.

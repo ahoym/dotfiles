@@ -1,6 +1,6 @@
 # CI/CD Gotchas
 
-Companion to `ci-cd.md`. GitHub Actions and GitLab CI tripwires.
+GitHub Actions and GitLab CI tripwires.
 
 ## GitHub Actions
 
