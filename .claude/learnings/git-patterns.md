@@ -157,4 +157,6 @@ Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address
 
 ## Merge Over Rebase for Ephemeral-File Conflicts
 
+**Pre-flight:** Before choosing rebase vs merge, check divergence: `git fetch origin && git log --oneline HEAD..origin/main | wc -l`. High commit count + known deleted files = skip rebase entirely.
+
 When rebasing N commits onto a branch where ephemeral files (build output, logs, tracking files) were deleted, each commit that touched those files produces a separate modify/delete conflict — identical resolution repeated N times. Use `git merge` instead: one resolution pass regardless of commit count. The tradeoff (merge commit vs linear history) is worth it when N > ~5.
