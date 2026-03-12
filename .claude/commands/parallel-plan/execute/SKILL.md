@@ -225,7 +225,7 @@ Don't treat discovery propagation as a blocking step. If all dependent agents ar
 
 **Parallel `tsc` on shared working tree:** When multiple agents run `npx tsc --noEmit` concurrently on the same working tree, each agent sees type errors from other agents' half-written files. Best fix: use `isolation: "worktree"` so each agent's tsc only sees its own files. When worktrees aren't feasible, add "ignore type errors from files outside your scope" to the prompt preamble.
 
-**Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt as a final step before the test suite. Alternatively, you may run formatting once as a post-completion step in Step 8 — but per-agent is preferred because it catches issues earlier and keeps each agent's output clean.
+**Formatting:** If a project formatter was detected in Step 1, include the format command in each agent's prompt (see `~/.claude/skill-references/agent-prompting.md` § "Code Formatting"). Per-agent formatting is preferred over a single post-completion pass because it catches issues earlier.
 
 **Prompt construction:** For each agent, build the full prompt by concatenating:
 1. **Shared Contract** — the full Shared Contract section from the **plan file** (types, API contracts, import paths)
@@ -240,41 +240,11 @@ If there is no Prompt Preamble section (in either file), fall back to the previo
 
 **Agent isolation and git workflow (when Branch Strategy exists):** Launch agents with `isolation: "worktree"` so each agent works in its own git worktree. Agents are responsible for their own branch management, commits, and PR creation — the coordinator does NOT create PRs on the agents' behalf.
 
-For each agent, append a **Git Workflow** section to its prompt:
-
-```
-## Git Workflow
-
-Your branch name: `<branch-name-from-plan>`
-PR base: `<target-branch>`
-<cherry-pick line if agent has dependencies, omitted for root agents>
-
-After completing your implementation:
-1. Rename your branch: `git branch -m <branch-name>`
-2. Stage and commit your changes (include `Co-Authored-By: Claude <model> <noreply@anthropic.com>`)
-3. Push: `git push -u origin <branch-name>`
-4. Create PR: `gh pr create --base <target> --title "<title>" --body "<body>"`
-5. Include the PR URL in your Completion Report
-```
-
-For agents with dependencies, add a cherry-pick step **before** implementation:
-
-```
-Before starting your implementation, pull in dependency files:
-git cherry-pick main..<dependency-branch>
-```
-
-This brings in all commits from the dependency's branch that aren't on main. For deeper DAGs (C depends on B depends on A), cherry-pick the immediate dependency's branch — it already includes its own dependencies' commits.
+For each agent, append a **Git Workflow** section to its prompt using the templates in `~/.claude/skill-references/agent-prompting.md` § "Git Workflow in Prompts". Use the root agent template (no cherry-pick) or the dependent agent template (with cherry-pick) based on the agent's dependencies. Fill in branch names from the plan's Branch Strategy section.
 
 **Dependency ordering for cherry-pick:** An agent can only cherry-pick a dependency's branch if that branch has been pushed. This means agents with dependencies can only be launched after their dependency agent has completed, committed, and pushed. In practice, this makes `soft_depends_on` behave like `depends_on` when Branch Strategy is active — the coordinator must wait for the dependency to complete before launching.
 
-**Coordinator permissions for agent git workflow:** When agents handle their own PRs, they need these Bash permissions pre-registered in `.claude/settings.local.json`:
-- `Bash(git cherry-pick:*)` — for pulling in dependency commits
-- `Bash(git branch:*)` — for renaming the auto-generated worktree branch
-- `Bash(git add:*)`, `Bash(git commit:*)`, `Bash(git push:*)` — for committing and pushing
-- `Bash(gh pr create:*)` or `Bash(glab mr create:*)` — for creating PRs
-
-Verify these are present during Step 1 (pre-execution verification).
+**Coordinator permissions for agent git workflow:** Verified during Step 1 (pre-execution verification). See the agent permissions audit in Step 1 for the full list.
 
 ### Step 6: Monitor and advance (the scheduling loop)
 
