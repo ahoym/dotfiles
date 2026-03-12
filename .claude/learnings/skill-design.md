@@ -263,3 +263,7 @@ Personas reference gotcha files via a `## Proactive loads` section — loaded de
 **Every persona's gotchas get a file, even with a single consumer.** Uniform convention over case-by-case optimization — predictability of the pattern matters more than minimizing file count.
 
 This resolves the proactive/shared/lean trilemma: gotcha files are cheap to load (small), single source of truth (shared across personas), and loaded at persona activation (proactive).
+
+## Skill Reference Files Drift into Redundancy
+
+As consuming skills mature, they absorb detail that originally lived only in shared reference files (`skill-references/*.md`). The reference file becomes partially redundant — sections duplicated verbatim in the skill's SKILL.md. During curation of reference files, cross-check each section against the skills that reference the file. If the skill now contains equivalent content, compress the reference section to a cross-reference pointer. The skill is the authoritative version once it has absorbed the detail.

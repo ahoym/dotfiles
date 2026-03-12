@@ -12,7 +12,7 @@ When spawning multiple subagents for the same task type (e.g., per-item extracto
 
 The executor builds each agent's full prompt as: `Shared Contract + Prompt Preamble + Agent Prompt`.
 
-The **Shared Contract** and **Prompt Preamble** are prepended automatically (see SKILL.md Step 5). The agent's own `prompt` field should contain:
+The **Shared Contract** and **Prompt Preamble** are prepended automatically (see execute SKILL.md Step 5). The agent's own `prompt` field should contain:
 
 ```
 1. Role and scope declaration (task description)
@@ -72,55 +72,15 @@ The more specific the landmark, the fewer reads the agent needs.
 
 ## TDD Workflow in Prompts
 
-Every agent prompt must include a TDD section. The planner defines the TDD steps; the executor copies them verbatim into the prompt.
+Every agent prompt must include TDD steps with RED → GREEN → REFACTOR cycles. Use concrete test names and file paths — never "find the appropriate test file." Target the specific test in RED phase commands for faster feedback.
 
-**Important:** Background agents can use Bash but cannot prompt for permissions. The project's test/build/lint commands must have matching allow patterns in `.claude/settings.local.json` before launching agents. The executor verifies this in Step 0 (pre-execution verification).
+Background agents cannot prompt for permissions — verify test/build/lint commands have matching allow patterns in `.claude/settings.local.json` before launching.
 
-**Structure:**
-```
-## TDD Workflow (mandatory)
-
-For each change, follow RED → GREEN → REFACTOR:
-
-**Step 1: <description>**
-- RED: Write `<test_name>` in `<test-file-path>` that tests <behavior>.
-  Run it — it MUST fail (the implementation doesn't exist yet).
-  ```bash
-  <project's test command targeting the specific test>
-  ```
-- GREEN: Implement the minimal code in `<source-file>` to make the test pass.
-  Run it — it MUST pass now.
-- REFACTOR: Clean up while keeping tests green.
-
-**Step 2: <description>**
-...
-
-Before finishing, run the full test suite:
-```bash
-<project's full test command>
-```
-```
-
-**Key points:**
-- Use the project's actual test commands (e.g., `uv run pytest`, `npm test`, `go test ./...`, `cargo test`) — never hardcode a specific tool
-- Test file paths must be concrete, not "find the appropriate test file"
-- Test names must be specific and descriptive, not generic like `test_it_works`
-- The RED phase run command should target the specific test, not the full suite (faster feedback)
-- If the agent needs shared fixtures from another agent, the dependency must be declared in `depends_on`
+See `parallel-plan:execute` SKILL.md format rules 19-20, 24 and the Prompts File format for the full TDD template structure.
 
 ## Code Formatting
 
-If the project uses a code formatter (prettier, biome, dprint, etc.), every agent must run it on its files before the final test suite. Look for formatter config files (`.prettierrc`, `.prettierrc.json`, `biome.json`, `.editorconfig`) or format scripts in `package.json` during pre-execution verification.
-
-Include the format command in the agent prompt's final steps:
-```
-Before finishing, format your files:
-<project's format command, e.g., `npx prettier --write <files>`>
-
-Then run the full test suite to verify nothing broke.
-```
-
-If the project has a `format:fix` or equivalent script, prefer that over raw `npx prettier --write`.
+Include the project's formatter in each agent's final steps (before the test suite). The executor detects formatters during pre-execution verification — see `parallel-plan:execute` Step 1 and Step 5 "Formatting" for details.
 
 ## Boundary Constraints
 
@@ -130,20 +90,7 @@ Always include explicit boundaries:
 DO NOT modify `trade-grid.tsx` or any other file — Agent D handles that.
 ```
 
-This prevents:
-- Agents "helpfully" updating parent components
-- File conflicts between parallel agents
-- Scope creep that breaks the DAG
-
-## Shared Contract in Prompts
-
-The executor automatically prepends the plan's **Shared Contract** section to every agent prompt (see SKILL.md Step 5). Agent prompts do NOT need to duplicate the shared contract — they can reference it (e.g., "see Shared Contract above").
-
-If the plan has a **Prompt Preamble** section, that is also prepended (after the Shared Contract, before the agent's own prompt). The preamble contains process instructions (TDD workflow, project commands, completion report format) that apply to all agents.
-
-The full prompt sent to each agent is: `Shared Contract + Prompt Preamble + Agent Prompt`.
-
-This ensures all agents agree on interfaces without the planner duplicating the contract in every agent prompt. Agent-specific prompts focus on: task description, landmarks, TDD steps, file scope, and DO NOT MODIFY boundaries.
+This prevents agents from "helpfully" updating files owned by other agents, which would break the DAG's file-ownership invariant.
 
 ## Model Selection
 
@@ -155,7 +102,7 @@ The **coordinator** makes the final model decision for each agent, overriding an
 
 ## Completion Report in Prompts
 
-Every agent prompt must end with instructions to produce a **Completion Report**. This is how the orchestrator captures checkpoints, discoveries, and status from agents whose sessions are otherwise lost.
+Every agent prompt must end with instructions to produce a **Completion Report** — the orchestrator's only window into agent sessions.
 
 **Include this section in every prompt:**
 ```
@@ -184,53 +131,6 @@ Report anything surprising, unexpected, or useful for other agents:
 ### PR
 - URL: [the PR URL from `gh pr create` output]
 ```
-
-**Why this matters:**
-- Agent sessions are isolated — the orchestrator only sees the final output message and the files on disk
-- Checkpoints enable resumption from the right step if the agent fails and needs to be re-launched
-- Discoveries are collected by the orchestrator and surfaced to the user as post-execution documentation — in fan-out DAGs, discoveries arrive too late to help parallel agents, but they're valuable for project learnings and future plans
-- PR URLs let the coordinator update state without re-running git commands
-
-## Git Workflow in Prompts (when Branch Strategy exists)
-
-When the plan has a Branch Strategy, agents run in isolated worktrees (`isolation: "worktree"`) and handle their own git workflow. The coordinator appends a **Git Workflow** section to each agent's prompt.
-
-**For root agents (no dependencies):**
-```
-## Git Workflow
-
-Your branch name: `feat/add-e2e/foundation`
-PR base: `main`
-
-After completing your implementation:
-1. Rename your branch: `git branch -m feat/add-e2e/foundation`
-2. Stage and commit: `git add <files> && git commit -m "<message>\n\nCo-Authored-By: Claude <model> <noreply@anthropic.com>"`
-3. Push: `git push -u origin feat/add-e2e/foundation`
-4. Create PR: `gh pr create --base main --title "..." --body "..."`
-5. Include the PR URL in your Completion Report
-```
-
-**For agents with dependencies:**
-```
-## Git Workflow
-
-Your branch name: `feat/add-e2e/setup-spec`
-PR base: `main`
-
-Before starting your implementation, pull in dependency files:
-git cherry-pick main..feat/add-e2e/foundation
-
-After completing your implementation:
-1. Rename your branch: `git branch -m feat/add-e2e/setup-spec`
-2. Stage and commit (only your new files, not cherry-picked ones — they're already committed)
-3. Push: `git push -u origin feat/add-e2e/setup-spec`
-4. Create PR: `gh pr create --base main --title "..." --body "..."`
-5. Include the PR URL in your Completion Report
-```
-
-The cherry-pick range `main..<dep-branch>` brings in all commits from the dependency that aren't on main. For deeper chains (C depends on B depends on A), cherry-pick the immediate dependency — it already includes its own ancestors' commits.
-
-**Key:** The coordinator must wait for a dependency to complete and push before launching any agent that cherry-picks from it. This means `soft_depends_on` effectively becomes `depends_on` when Branch Strategy is active.
 
 ## Interface-First Agent Prompts
 
