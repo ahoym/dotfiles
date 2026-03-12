@@ -28,7 +28,7 @@ Spring Boot will merge both formats if both exist, but precedence rules are non-
 
 ### JPA @CreationTimestamp/@UpdateTimestamp as Timestamp Source of Truth
 
-Team consensus (transfer-server MR !38) settled on JPA annotations as the authoritative timestamp management layer, removing DB triggers. JPA annotations are testable and visible in application code. DB triggers were tried (!25) but created confusion about which layer "owns" timestamps.
+Team consensus settled on JPA annotations as the authoritative timestamp management layer, removing DB triggers. JPA annotations are testable and visible in application code. DB triggers were tried but created confusion about which layer "owns" timestamps.
 
 - **Takeaway**: Use JPA lifecycle annotations for timestamp management. If DB triggers exist for defense-in-depth, document clearly which layer is authoritative.
 

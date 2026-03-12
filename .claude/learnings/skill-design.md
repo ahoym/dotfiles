@@ -277,3 +277,7 @@ Child personas that declare `## Extends: <parent>` inherit the parent's Detailed
 ## Proactive Loads Require Agent Behavior, Not @ References
 
 Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
+
+## /loop Supersedes Purpose-Built Monitor Skills
+
+When a domain skill (e.g., `/git:address-pr-review`) fetches fresh state each invocation, pairing it with `/loop` replaces purpose-built monitor skills that maintain their own state tracking. The monitor skill's state management adds complexity without value — the domain skill's stateless design means every invocation is self-contained. Delete the monitor skill; keep the domain skill + `/loop`.

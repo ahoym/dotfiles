@@ -29,4 +29,4 @@ Companion to `ci-cd.md` and `gitlab-ci-cd.md`. GitHub Actions and GitLab CI trip
 
 ## CI Guards
 
-- Lightweight CI guard (no checkout): API calls + `jq` to check blocked file paths — runs in seconds with no dependencies beyond `curl` and `jq`
+- Lightweight CI guard (no checkout): see `ci-cd.md` for full YAML examples (GitLab + GitHub)
