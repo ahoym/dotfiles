@@ -431,3 +431,9 @@ When a reviewer identifies work they can do to unblock or improve the MR, they c
 Avoid leaking which specific field caused a uniqueness violation in error responses. Generic messages like "duplicate entry" reduce enumeration attack surface compared to "email already exists."
 
 - **Takeaway**: Uniqueness violation error messages should not reveal which field conflicted. Reduces enumeration risk.
+
+### Sensitive data audit checklist for shared dotfiles/config repos
+
+Beyond secrets and tokens, audit for: internal project/repo names, MR/PR numbers that identify specific work, absolute paths with usernames, internal tool names, team names, and org-specific identifiers. These leak context about employer and work even without credentials.
+
+- **Takeaway**: Scrub provenance markers (project names, MR refs) from learnings before publishing. `settings.local.json` is gitignored — focus effort on tracked files.
