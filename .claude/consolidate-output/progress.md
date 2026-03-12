@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -42,7 +42,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 4 | 2 | 0 | 0 | 0 | 1 | false |
+| 2 | 0 | 1 | 0 | 0 | 0 | 0 | false |
 
 ## Iteration Log
 
@@ -66,6 +67,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 1 | 0 | 1 | Folded unreferenced multi-agent-orchestration.md into agent-prompting.md |
 | 4 | 2 | LEARNINGS | 0 | 1 | 0 | 1 | Wire xrpl-cross-currency-payments.md ref into xrpl-typescript-fullstack persona |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 30 skills, 5 namespaces, all refs valid, no stale model strings |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap with learnings/skills/personas |
 
 ## Deep Dive Status
 
@@ -110,3 +112,9 @@ Suggested iterations: 15
 ### Iter 5
 
 **Round 2 SKILLS sweep — clean.** Re-read all 30 SKILL.md files, 7 personas, 5 skill-references. Same 5 namespaces (git:9, learnings:4, ralph:7, parallel-plan:2, standalone:8). All skills relevant, no 80%+ overlap, references fresh, scopes appropriate. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). Identical result to iter 2 — skills are stable. Advancing to GUIDELINES.
+
+### Iter 6
+
+**Round 2 GUIDELINES sweep — clean.** Re-read all 3 guidelines, cross-referenced against 48 learnings, 5 skill-references, 7 personas. All 3 are @-referenced in CLAUDE.md (always-on). No overlap, no dead weight, no domain-specific content that should migrate to personas. `communication.md` (123 lines) has good insight-to-token ratio — examples provide teaching value. `skill-invocation.md` (7 lines) lean and focused. `context-aware-learnings.md` (87 lines) defines unique system with no duplication elsewhere.
+
+**End of Round 2**: ROUND_CLEAN = false (LEARNINGS iter 4 had a MEDIUM). CLEAN_ROUND_STREAK remains 0. Starting Round 3 with LEARNINGS.

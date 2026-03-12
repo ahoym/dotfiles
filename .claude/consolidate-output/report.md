@@ -7,8 +7,8 @@
 | Started | 2026-03-11T19:59 |
 | Branch | consolidate/2026-03-11-1959 |
 | Worktree | .claude/worktrees/consolidate-2026-03-11-1959 |
-| Iterations | 5 |
-| Rounds | 2 (in progress) |
+| Iterations | 6 |
+| Rounds | 3 (in progress) |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,8 +17,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 2 | 4 | 2 | 1 | 0 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
-| Guidelines | 1 | 0 | 1 | 0 | 0 |
-| **Total** | **5** | **4** | **3** | **1** | **0** |
+| Guidelines | 2 | 0 | 1 | 0 | 0 |
+| **Total** | **6** | **4** | **3** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -36,6 +36,7 @@
 | 3 | 1 | GUIDELINES | Fold unreferenced guideline | multi-agent-orchestration.md | agent-prompting.md | MEDIUM |
 | 4 | 2 | LEARNINGS | Wire ref | xrpl-cross-currency-payments.md | xrpl-typescript-fullstack.md | MEDIUM |
 | 5 | 2 | SKILLS | (clean) | — | — | — |
+| 6 | 2 | GUIDELINES | (clean) | — | — | — |
 
 ## Blocked Items
 
