@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
-| ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 9 |
+| ROUND | 4 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -42,7 +42,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -55,6 +55,7 @@ Suggested iterations: 15
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 4 | 2 | 0 | 0 | 0 | 1 | false |
 | 2 | 0 | 1 | 0 | 0 | 0 | 0 | false |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | true |
 
 ## Iteration Log
 
@@ -70,6 +71,7 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap with learnings/skills/personas |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 48 learnings, 7 personas, all refs valid |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 29 skills, 5 namespaces, all refs valid |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 3 guidelines, all @-referenced, no overlap |
 
 ## Deep Dive Status
 
@@ -128,3 +130,9 @@ Suggested iterations: 15
 ### Iter 8
 
 **Round 3 SKILLS sweep — clean.** Read all 29 SKILL.md files, 5 skill-references. Clustered by namespace (git:9, ralph:7, learnings:4, parallel-plan:2, standalone:7). All skills relevant, no 80%+ overlap, references fresh, scopes well-defined. Cross-skill and cross-persona checks clean. All Co-Authored-By strings current (Opus 4.6). No corpus changes since iter 5 — identical clean result. Advancing to GUIDELINES.
+
+### Iter 9
+
+**Round 3 GUIDELINES sweep — clean.** Re-read all 3 guidelines, cross-referenced against 48 learnings, 5 skill-references, 7 personas. All 3 are @-referenced in CLAUDE.md (always-on). No overlap with learnings/skills/personas, no domain-specific content, no compression opportunities. Identical to iter 6.
+
+**End of Round 3**: ROUND_CLEAN = true (all three sweeps — LEARNINGS iter 7, SKILLS iter 8, GUIDELINES iter 9 — clean). CLEAN_ROUND_STREAK increments to 1. Starting Round 4 with LEARNINGS. One more clean round needed for convergence (streak >= 2).
