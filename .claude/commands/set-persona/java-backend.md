@@ -32,7 +32,7 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 
 ## Proactive loads
 
-- `learnings/spring-boot.md`
+- `learnings/spring-boot-gotchas.md`
 
 ## Detailed references
 

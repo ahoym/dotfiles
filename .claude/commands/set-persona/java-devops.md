@@ -29,9 +29,9 @@
 
 ## Proactive loads
 
-- `learnings/java-observability.md`
+- `learnings/java-observability-gotchas.md`
 
 ## Detailed references
 
 Load when working in the specific area:
-- `learnings/java-observability.md` — Grafana dashboard PromQL patterns, Micrometer gotchas (builder vs shorthand, timer try/finally, SimpleMeterRegistry testing)
+- `learnings/java-observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC
