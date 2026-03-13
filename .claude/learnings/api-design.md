@@ -88,3 +88,23 @@ When multiple routes share the same error code → message mapping, extract them
 For token-authenticated consumers, extracting identifiers (e.g., customerId) from JWT is superior -- fewer parameters, less room for error, no ID mismatch attacks. For unauthenticated flows, it must come from path/query params. Keep both patterns via separate controller methods rather than degrading the authenticated experience with unnecessary parameters.
 
 - **Takeaway**: Authenticated endpoints should derive identity from the token. Don't force callers to pass what you already know.
+
+### REST endpoint paths should be specific and self-describing
+
+Generic paths like `/address` are ambiguous. Use `/wallet-address` to make the resource type obvious.
+
+### Integration clients should throw on error, not return empty
+
+Returning `Optional.empty()` or null on errors silently swallows failures. The caller loses the ability to distinguish "not found" from "service error." Throw exceptions; return Optional only for legitimate "not found."
+
+### API response completeness against published docs
+
+Cross-reference response DTOs against published API documentation during review. Missing fields are a common silent gap.
+
+### Pass idempotency keys as arguments rather than generating inside clients
+
+Generating `UUID.randomUUID()` inside a client prevents the orchestration layer from reusing the key across correlated operations. Generate at the orchestration layer; clients accept as parameters.
+
+### Log correlation/request IDs in integration client operations
+
+Include correlation/request IDs in all log statements for integration operations. Without this, debugging requires correlating logs by timestamp alone.

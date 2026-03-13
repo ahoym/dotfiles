@@ -163,3 +163,39 @@ H2 does not support PostgreSQL's `CREATE TYPE name AS ENUM (...)` syntax. When u
 Database values may not match Java enum constants (case differences, new values added to DB but not code, typos). Use a safe lookup pattern -- `Arrays.stream(values()).filter(...)` with a fallback or `Optional` -- instead of raw `Enum.valueOf()` which throws `IllegalArgumentException` with no context.
 
 - **Takeaway**: Never use raw Enum.valueOf() for externally-sourced values. Use safe lookup patterns with meaningful error messages.
+
+### Mutable Domain Entities Should Be Classes, Not Records
+
+Records/data classes are for immutable value objects. Domain entities with changing state (status transitions, accumulated collections) should be regular classes.
+
+### Secrets in Properties Files
+
+Hardcoded tokens/secrets in `application.properties` are a recurring review issue. Use `${ENV_VAR}` syntax in committed files and `application-local.properties` (gitignored) for actual values. Consider pre-commit hooks or CI checks for literal tokens.
+
+### Cross-Reference JPA and DTO Constraints Against Migration Columns
+
+Missing `nullable=false` on JPA annotations should mirror DB NOT NULL constraints. Similarly, `@Size(max=N)` on DTOs should match `VARCHAR(N)` column constraints. Mismatches cause confusing errors at the wrong layer.
+
+### Flyway Migration Files Must End With a Trailing Newline
+
+Missing trailing newlines cause diff noise and compatibility issues. Consistently enforced in review.
+
+### Extract Validation Into Dedicated Validator Classes
+
+Validation logic in standalone classes (e.g., `RawCustodyTransactionValidator`) keeps processors focused on orchestration while rules become independently testable.
+
+### Test Naming Convention: method_when_should
+
+`getTransfer_whenIdNotFound_shouldReturn404` — encodes what's tested, the condition, and expected behavior. Makes test failures self-documenting.
+
+### Validation Failure Tests Should Verify Service Layer Never Called
+
+For 400-level validation failures, assert `verify(service, never()).method(any(), any())`. Confirms validation short-circuits before business logic.
+
+### Correct Enum Types in Test Data — Copy-Paste Risk
+
+Tests may compile with the wrong enum type if both are structurally compatible. Review test data for semantic correctness, not just compilation. Copy-paste bugs span enums, Javadoc, assertions, and test data values.
+
+### Entity ID Strategy Must Match Usage Site
+
+When modifying `@Id` generation annotations, grep for all entity creation sites to verify alignment. See also: `@UuidGenerator` silently overwrites application-assigned IDs (above).
