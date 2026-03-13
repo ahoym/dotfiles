@@ -19,7 +19,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-references/platform-detection.md - Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/platform-detection.md
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 - `request-reply-templates.md` — Read before composing replies to review comments (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
@@ -92,23 +92,20 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") before implementing suggestions. Do NOT prompt in CLI.
 
 8. **Implement approved changes** (only after partner approval):
-   a. For partner-approved suggestions and auto-approved typo/bug fixes:
-      - Make the change
-      - Stage the file: `git add <path>`
-   b. Track which comments will be addressed by the commit
+   a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
+   b. For each group:
+      - Make the changes
+      - Stage the relevant files: `git add <paths>`
+      - Commit with a message describing the specific concern:
+        ```bash
+        git commit -m "$(cat <<'EOF'
+        <descriptive message for this group>
 
-9. **Create commit** for changes (if any):
-   ```bash
-   git commit -m "$(cat <<'EOF'
-   Address $REVIEW_UNIT review comments
-
-   - <summary of changes made>
-
-   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-   EOF
-   )"
-   ```
-   Store commit hash as `COMMIT_HASH`.
+        Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+        EOF
+        )"
+        ```
+   c. Track which comments are addressed by each commit hash.
 
 10. **Push changes**:
     ```bash
@@ -117,7 +114,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 11. **Reply to comments with commit reference** (after implementation):
 
-    Follow **Reply to Inline Comment** in the platform commands file. Include `Fixed in <COMMIT_HASH>` in the body for comments addressed by code changes.
+    Follow **Reply to Inline Comment** in the platform commands file. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically

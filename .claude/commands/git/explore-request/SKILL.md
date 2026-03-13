@@ -24,7 +24,7 @@ Pull down a review to understand its changes, get context, and ask questions.
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/platform-detection.md
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 
 ## Instructions
