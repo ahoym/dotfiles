@@ -26,46 +26,18 @@ Verdict: LGTM understanding matches main features.
 
 ## Responding to Mismatched LGTM
 
-When a reviewer's LGTM summary doesn't match the implementation, reply back politely indicating the mismatch. **Do not reveal the actual implementation** - instead, hint at where they should focus.
+When a reviewer's LGTM summary doesn't match the implementation, reply back politely indicating the mismatch. **Do not reveal the actual implementation** — instead, hint at where they should focus.
 
-**GitHub:**
-```bash
-gh api repos/{owner}/{repo}/issues/{review}/comments \
-  -f body="Thanks for the review! However, that summary doesn't quite match what this PR implements.
+Post via **Post Top-Level Comment** in the platform commands file:
 
-I'd suggest taking a closer look at the changes in \`path/to/main/file.py\` and the new \`path/to/new/module.py\` to see what's actually being added here.
-
----
-*Co-authored with Claude Opus 4.6*"
-```
-
-**GitLab:**
-```bash
-glab mr comment <review> --message "Thanks for the review! However, that summary doesn't quite match what this MR implements.
-
-I'd suggest taking a closer look at the changes in \`path/to/main/file.py\` and the new \`path/to/new/module.py\` to see what's actually being added here.
-
----
-*Co-authored with Claude Opus 4.6*"
-```
+> Thanks for the review! However, that summary doesn't quite match what this PR/MR implements.
+>
+> I'd suggest taking a closer look at the changes in `path/to/main/file.py` and the new `path/to/new/module.py` to see what's actually being added here.
 
 ## Confirming Valid LGTM
 
 When a reviewer's LGTM summary accurately reflects the implementation, reply back confirming.
 
-**GitHub:**
-```bash
-gh api repos/{owner}/{repo}/issues/{review}/comments \
-  -f body="Thanks! That summary accurately reflects the PR.
+Post via **Post Top-Level Comment** in the platform commands file:
 
----
-*Co-authored with Claude Opus 4.6*"
-```
-
-**GitLab:**
-```bash
-glab mr comment <review> --message "Thanks! That summary accurately reflects the MR.
-
----
-*Co-authored with Claude Opus 4.6*"
-```
+> Thanks! That summary accurately reflects the PR/MR.
