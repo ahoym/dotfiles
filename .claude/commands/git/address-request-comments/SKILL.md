@@ -47,6 +47,11 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - **Fetch General Review Comments** — comments not tied to specific lines
    - **Fetch Issue/Top-Level Comments** — includes LGTM comments
 
+   **Quiet no-op (incremental only):** If both inline and top-level comment counts are 0, emit a single line and stop — do not proceed to step 3+:
+   ```
+   <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
+   ```
+
 3. **Display comments summary**:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
@@ -225,3 +230,7 @@ git checkout <original_branch>
 ```
 
 This keeps the review focused on its intended scope and makes reviews easier.
+
+### After LGTM Verification
+
+After verifying and confirming an LGTM, note to the user that the review is approved and further comment monitoring is unlikely to be needed. An approved review rarely receives new comments.
