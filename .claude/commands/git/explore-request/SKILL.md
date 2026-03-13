@@ -25,6 +25,7 @@ Pull down a review to understand its changes, get context, and ask questions.
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/git-platform-commands.md — Platform-specific command templates
 
 ## Instructions
 
@@ -47,33 +48,10 @@ Pull down a review to understand its changes, get context, and ask questions.
 
 3. **Fetch review metadata** (run in parallel):
 
-   **GitHub:**
-   - Get review details:
-     ```bash
-     gh pr view <number> --json number,title,body,author,headRefName,baseRefName,state,createdAt,updatedAt
-     ```
-   - Get files changed:
-     ```bash
-     gh pr view <number> --json files --jq '.files[].path'
-     ```
-   - Get commits:
-     ```bash
-     gh pr view <number> --json commits --jq '.commits[] | {sha: .oid[0:7], message: .messageHeadline}'
-     ```
-
-   **GitLab:**
-   - Get review details:
-     ```bash
-     glab mr view <number> --output json
-     ```
-   - Get files changed:
-     ```bash
-     glab mr diff <number> --name-only
-     ```
-   - Get commits:
-     ```bash
-     glab api projects/:id/merge_requests/<number>/commits --jq '.[] | {sha: .short_id, message: .title}'
-     ```
+   Use the commands from `@~/.claude/skill-references/git-platform-commands.md`:
+   - **Fetch Review Details** — get number, title, body, author, branches, state, timestamps
+   - **Fetch Files Changed** — get list of modified file paths
+   - **Fetch Commits** — get short SHAs and commit messages
 
 4. **Display review summary** (store as `REVIEW_CONTEXT`):
    ```

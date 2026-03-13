@@ -14,6 +14,7 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/git-platform-commands.md — Platform-specific command templates
 - extractor-prompt.md — Read when spawning extractor subagents
 - writer-prompt.md — Read when spawning the writer subagent
 - plan-template.md — Read when initializing a new extraction plan
@@ -32,29 +33,9 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
    | `ID_FIELD` | `number` | `iid` |
    | `PLAN_FILENAME` | `pr-learnings-extraction.md` | `mr-learnings-extraction.md` |
 
-2. **Verify platform access**:
+2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from `git-platform-commands.md`, substituting `$API_CMD`.
 
-   **GitHub:**
-   ```bash
-   gh api "repos/{owner}/{repo}/pulls?state=all&per_page=1" | jq length
-   ```
-
-   **GitLab:**
-   ```bash
-   glab api "projects/:id/merge_requests?state=all&per_page=1" | jq length
-   ```
-
-3. **Count total reviews**:
-
-   **GitHub:**
-   ```bash
-   gh api "repos/{owner}/{repo}/pulls?state=all&per_page=1" -i 2>&1 | grep -i 'link:'
-   ```
-
-   **GitLab:**
-   ```bash
-   glab api "projects/:id/merge_requests?state=all&per_page=1" --include 2>&1 | grep -i x-total
-   ```
+3. **Count total reviews** — use **"Count Total Reviews"** from `git-platform-commands.md`, substituting `$API_CMD`.
 
 4. **Create plan file** at `docs/plans/$PLAN_FILENAME`:
    - Use the template in `plan-template.md`
@@ -73,19 +54,7 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 
 4. **Glob existing learnings files** in all output locations to build `EXISTING_CATEGORIES` for subagent prompts.
 
-5. **Fetch metadata** (1 bash call):
-
-   **GitHub:**
-   ```bash
-   gh api "repos/{owner}/{repo}/pulls?state=all&sort=created&direction=asc&per_page=BATCH_SIZE&page=NEXT_PAGE" | jq -c '.[] | {number, title, state, comments, user: .user.login, head_branch: .head.ref, requested_reviewers: [.requested_reviewers[].login], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], body: (.body // "(none)")[:400]}'
-   ```
-
-   **GitLab:**
-   ```bash
-   glab api "projects/:id/merge_requests?state=all&sort=asc&order_by=created_at&per_page=BATCH_SIZE&page=NEXT_PAGE" | jq -c '.[] | {iid, title, state, user_notes_count, author: .author.username, source_branch, reviewers: [.reviewers[].username], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], description: (.description // "(none)")[:400]}'
-   ```
-
-   Store as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
+5. **Fetch metadata** (1 bash call) — use **"Fetch Review Metadata (Batch)"** from `git-platform-commands.md`, substituting `$API_CMD`, `BATCH_SIZE`, and `NEXT_PAGE`. Store result as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
 
 6. **Spawn extractor subagents** in parallel — one per review. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every review gets the identical template structure. **Research only — no file writes.**
 

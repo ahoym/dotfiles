@@ -20,6 +20,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md - Platform detection for GitHub/GitLab
+- @~/.claude/skill-references/git-platform-commands.md - Platform-specific command templates
 - `request-reply-templates.md` — Read before composing replies to review comments (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
 
@@ -51,68 +52,18 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Full fetch — first review of $REVIEW_UNIT <number>
    ```
 
-   **GitHub:**
-   - Get review details:
-     ```bash
-     gh pr view <review> --json number,title,headRefName,baseRefName
-     ```
-   - Get inline review comments:
-     ```bash
-     # Full fetch
-     gh api repos/{owner}/{repo}/pulls/{review}/comments --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
-
-     # Incremental fetch
-     gh api "repos/{owner}/{repo}/pulls/{review}/comments?since=<LAST_FETCH_TS>" --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
-     ```
-   - Get general review comments (not tied to specific lines):
-     ```bash
-     gh pr view <review> --json reviews --jq '.reviews[] | select(.body != "") | {author: .author.login, state: .state, body}'
-     ```
-   - Get issue/review comments (includes LGTM comments):
-     ```bash
-     gh api repos/{owner}/{repo}/issues/{review}/comments --jq '.[] | {id, body, user: .user.login, created_at}'
-     ```
-
-   **GitLab:**
-   - Get review details:
-     ```bash
-     glab mr view <review> --output json
-     ```
-   - Get review notes/comments:
-     ```bash
-     # Full fetch
-     glab api projects/:id/merge_requests/<review>/notes | jq '.[] | {id, body, author: .author.username, created_at, position}'
-
-     # Incremental fetch
-     glab api "projects/:id/merge_requests/<review>/notes?updated_after=<LAST_FETCH_TS>" | jq '.[] | {id, body, author: .author.username, created_at, position}'
-     ```
-   - Get review discussions (threaded):
-     ```bash
-     # Full fetch
-     glab api projects/:id/merge_requests/<review>/discussions | jq '.[] | {id, notes: [.notes[] | {id, body, author: .author.username, position}]}'
-
-     # Incremental fetch
-     glab api "projects/:id/merge_requests/<review>/discussions?updated_after=<LAST_FETCH_TS>" | jq '.[] | {id, notes: [.notes[] | {id, body, author: .author.username, position}]}'
-     ```
+   Follow patterns in `git-platform-commands.md`:
+   - **Fetch Review Details** — get number, title, branch names
+   - **Fetch Inline/Review Comments** — use full or incremental fetch as appropriate
+   - **Fetch General Review Comments** — comments not tied to specific lines
+   - **Fetch Issue/Top-Level Comments** — includes LGTM comments
 
 3. **Display comments summary**:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-4. **Checkout the review branch** if not already on it:
-
-   **GitHub:**
-   ```bash
-   gh pr checkout <review>
-   git pull origin <headRefName>
-   ```
-
-   **GitLab:**
-   ```bash
-   glab mr checkout <review>
-   git pull origin <source_branch>
-   ```
+4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in `git-platform-commands.md`.
 
 5. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
@@ -131,24 +82,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
-   **GitHub:**
-   ```bash
-   gh api repos/{owner}/{repo}/pulls/{review}/comments \
-     -f body="Good point - I'll update this to use bcrypt instead. The current sha256 approach is less secure for password hashing.
-
-   ---
-   *Co-authored with Claude Opus 4.6*" \
-     -F in_reply_to=<comment_id>
-   ```
-
-   **GitLab:**
-   ```bash
-   glab api projects/:id/merge_requests/<review>/discussions/<discussion_id>/notes \
-     -X POST -f body="Good point - I'll update this to use bcrypt instead. The current sha256 approach is less secure for password hashing.
-
-   ---
-   *Co-authored with Claude Opus 4.6*"
-   ```
+   Follow **Reply to Inline Comment** in `git-platform-commands.md`.
 
 7. **Present suggestions for partner approval**:
    After replying to all comments on the platform, present actionable suggestions to your partner (the user in CLI) for approval:
@@ -190,45 +124,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 11. **Reply to comments with commit reference** (after implementation):
 
-    **GitHub:**
-    For comments addressed by code changes:
-    ```bash
-    gh api repos/{owner}/{repo}/pulls/{review}/comments \
-      -f body="<brief explanation>. Fixed in <COMMIT_HASH>.
-
-    ---
-    *Co-authored with Claude Opus 4.6*" \
-      -F in_reply_to=<comment_id>
-    ```
-
-    For comments needing clarification only:
-    ```bash
-    gh api repos/{owner}/{repo}/pulls/{review}/comments \
-      -f body="<explanation or response>
-
-    ---
-    *Co-authored with Claude Opus 4.6*" \
-      -F in_reply_to=<comment_id>
-    ```
-
-    **GitLab:**
-    For comments addressed by code changes:
-    ```bash
-    glab api projects/:id/merge_requests/<review>/discussions/<discussion_id>/notes \
-      -X POST -f body="<brief explanation>. Fixed in <COMMIT_HASH>.
-
-    ---
-    *Co-authored with Claude Opus 4.6*"
-    ```
-
-    For comments needing clarification only:
-    ```bash
-    glab api projects/:id/merge_requests/<review>/discussions/<discussion_id>/notes \
-      -X POST -f body="<explanation or response>
-
-    ---
-    *Co-authored with Claude Opus 4.6*"
-    ```
+    Follow **Reply to Inline Comment** in `git-platform-commands.md`. Include `Fixed in <COMMIT_HASH>` in the body for comments addressed by code changes.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically
@@ -363,55 +259,13 @@ For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, o
 
 Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level review comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
 
-**GitHub:**
-```bash
-gh pr comment <NUMBER> --body "## Summary of Changes Since Last Update
-
-- <change 1>
-- <change 2>
-
----
-_Co-authored by Claude Code (Claude Opus 4.6)_"
-```
-
-**GitLab:**
-```bash
-glab mr comment <NUMBER> --message "## Summary of Changes Since Last Update
-
-- <change 1>
-- <change 2>
-
----
-_Co-authored by Claude Code (Claude Opus 4.6)_"
-```
+Follow **Post Top-Level Comment** in `git-platform-commands.md`.
 
 ### Re-review Requests
 
 After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review.
 
-**GitHub:**
-```bash
-# Find all unique reviewers who approved
-gh api repos/{owner}/{repo}/pulls/<NUMBER>/reviews --jq '[.[] | select(.state == "APPROVED") | .user.login] | unique | .[]'
-
-# Post re-review request
-gh pr comment <NUMBER> --body "@<reviewer> New changes have been pushed - could you please re-review?
-
----
-_Co-authored by Claude Code (Claude Opus 4.6)_"
-```
-
-**GitLab:**
-```bash
-# Find all unique reviewers who gave LGTM comments
-glab api "projects/:id/merge_requests/<NUMBER>/notes?sort=desc&per_page=100" | jq -r '[.[] | select(.body | test("LGTM"; "i"))] | [.[].author.username] | unique | .[]'
-
-# Post re-review request
-glab mr comment <NUMBER> --message "@<reviewer> New changes have been pushed - could you please re-review?
-
----
-_Co-authored by Claude Code (Claude Opus 4.6)_"
-```
+Follow **Find Approved Reviewers** in `git-platform-commands.md` to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
 
 **Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
 
