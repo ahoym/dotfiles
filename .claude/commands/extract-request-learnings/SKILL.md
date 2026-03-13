@@ -38,16 +38,12 @@ Writer subagents run in the background and cannot prompt for permissions. Add th
     "Edit(docs/learnings/**)",
     "Edit(docs/plans/**)",
     "Read(~/.claude/learnings/**)",
-    "Read(~/.claude/learnings-private/**)",
-    "Write(~/.claude/learnings/**)",
-    "Write(~/.claude/learnings-private/**)",
-    "Edit(~/.claude/learnings/**)",
-    "Edit(~/.claude/learnings-private/**)"
+    "Read(~/.claude/learnings-private/**)"
   ]
 }
 ```
 
-Without these, writer subagents will fail silently and the orchestrator must do writes in foreground.
+General/private writers use staging directories inside the project (`docs/learnings/_staging/`) to avoid background agent write restrictions on `~/.claude/`. The orchestrator copies staged files to final locations in step 8.
 
 ## Instructions
 
@@ -81,13 +77,29 @@ Without these, writer subagents will fail silently and the orchestrator must do 
 6. **Spawn extractor subagents** in parallel — one per review. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every review gets the identical template structure. **Research only — no file writes.**
 
 7. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. Read `writer-prompt.md` and use it as a **verbatim template** — fill in placeholders per writer:
-   - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `LEARNINGS_PATH=docs/learnings/`, files from step 4
-   - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `LEARNINGS_PATH=~/.claude/learnings/`, files from step 4
-   - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `LEARNINGS_PATH=~/.claude/learnings-private/`, files from step 4
+   - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `READ_PATH=docs/learnings/`, `WRITE_PATH=docs/learnings/`, files from step 4
+   - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `READ_PATH=~/.claude/learnings/`, `WRITE_PATH=docs/learnings/_staging/general/`, files from step 4
+   - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `READ_PATH=~/.claude/learnings-private/`, `WRITE_PATH=docs/learnings/_staging/private/`, files from step 4
    - **DEDUP_GUIDANCE**: pull from the plan file's progress tracker notes (recurring pattern mentions). Do not improvise — use what's written.
    Each writer independently deduplicates against its own file set.
+   Create staging directories before spawning: `mkdir -p docs/learnings/_staging/general docs/learnings/_staging/private`
 
-8. **Verify writes** — after writers complete, run targeted checks (not full file reads):
+8. **Finalize staged files** — copy staged files to their final locations, then clean up:
+   ```bash
+   # Copy general learnings
+   for f in docs/learnings/_staging/general/*.md; do
+     [ -f "$f" ] && cp "$f" ~/.claude/learnings/
+   done
+   # Copy private learnings
+   for f in docs/learnings/_staging/private/*.md; do
+     [ -f "$f" ] && cp "$f" ~/.claude/learnings-private/
+   done
+   # Clean up staging
+   rm -rf docs/learnings/_staging/
+   ```
+   This runs in the orchestrator's foreground context where `~/.claude/` is writable.
+
+9. **Verify writes** — after finalization, run targeted checks (not full file reads):
 
    **GitHub:**
    ```bash
@@ -111,9 +123,9 @@ Without these, writer subagents will fail silently and the orchestrator must do 
 
    Report any discrepancies before updating progress. Do NOT read full files — use grep for targeted checks only.
 
-9. **Update progress tracker** — edit the plan file's progress table. This is the only write the main context performs. Include a brief note on key findings.
+10. **Update progress tracker** — edit the plan file's progress table. Include a brief note on key findings.
 
-10. **Report batch summary** — 2-3 sentences on signal level, recurring patterns, and new categories. Keep it brief to preserve context.
+11. **Report batch summary** — 2-3 sentences on signal level, recurring patterns, and new categories. Keep it brief to preserve context.
 
 ## Important Notes
 
