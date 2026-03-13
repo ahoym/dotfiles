@@ -36,12 +36,6 @@ if git diff --cached --quiet; then
 fi
 git commit -m "batch import $DATE"
 
-# Merge into main
-git checkout main
-git merge "$BRANCH" -m "merge batch import $DATE"
-
-# Clean up
-git branch -d "$BRANCH"
-
-echo "Batch import merged. Review with: git log --oneline -5"
-echo "Push when ready: git push"
+echo "Import committed on branch: $BRANCH"
+echo "Review with: git diff main...$BRANCH"
+echo "Merge when ready: git checkout main && git merge $BRANCH"
