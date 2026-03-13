@@ -37,6 +37,30 @@ Search broadly, not just the obvious keywords. Derive search terms from the *cur
 
 Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
 
+## Confidence-level gate (soft — experimental)
+
+Before drafting any substantial domain-specific content (20+ lines), ask: **"Am I working from loaded knowledge or from training memory?"**
+
+- **Loaded knowledge**: I've read learnings files in this domain during this session → proceed
+- **Training memory**: I *think* I know about this topic but haven't verified against the user's corpus → search learnings first
+
+The distinction matters because training knowledge is generic. The user's learnings contain calibrated gotchas, conventions, and decisions that generic knowledge misses. A persona built from training alone would be dramatically thinner than one informed by the user's actual `claude-authoring-skills.md`, `curation-insights.md`, etc.
+
+**The self-check is binary**: "Have I loaded files in this domain? Yes/no." Not "did I notice a keyword? Maybe." This makes it stickier than keyword matching — it's tied to a specific moment (about to produce substantial output) and a checkable condition.
+
+**When this fires:**
+- Creating or modifying a skill, guideline, learning, persona, or CLAUDE.md
+- Writing an architecture doc, design proposal, or review
+- Synthesizing domain knowledge into any structured artifact
+- Producing a detailed analysis or recommendation in a specialized domain
+
+**Announce when it fires:**
+```
+📚 Confidence check — working from training, not loaded knowledge. Searching learnings for "<domain>"...
+```
+
+**Why soft, not hard:** There's no tool-call trigger to hook this to. It relies on self-awareness at the moment of drafting, not a mechanical gate. Soft gates fire sometimes, not always — but when they do fire, the quality improvement is substantial.
+
 ## Keyword-based (proactive)
 
 When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.

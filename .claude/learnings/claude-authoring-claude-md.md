@@ -128,3 +128,15 @@ docs/architecture/auth-flow.md - Authentication sequence and token lifecycle
 **When to use signposts over `@`:** Context that's useful but not universally needed — domain-specific guidelines, deep-dive references, or situational checklists. Reserve `@` for context every session needs.
 
 **Validation method:** Add a unique marker string to the signposted file, start a fresh session, and check whether the agent (a) ignores it, (b) reads it proactively via a Read tool call, or (c) reports the marker without a Read call (indicating eager inlining — a failure). Success = (b).
+
+## Refactor Monolithic CLAUDE.md into Modular Guideline Includes
+
+A monolithic CLAUDE.md (130+ lines) can be refactored into modular files under `.claude/guidelines/` using `@` includes. The root file shrinks to a navigational hub (~8 lines of `@` references). Refactoring into modules creates a natural affordance for content expansion — sections that felt too bulky for a monolithic file grow organically when they have their own file. Expect new content to emerge during the extraction, not just a pure move.
+
+- **Takeaway**: Modularize large CLAUDE.md files into `@`-referenced guideline files; expect content expansion as a bonus.
+
+## Document Conflict Resolution Strategy Alongside Structural Changes
+
+When introducing structural changes that will cause merge conflicts (e.g., switching from inline content to `@` includes), document the conflict resolution strategy in the same PR. Forward-looking documentation prevents confusion when conflicts inevitably arise. Example: "check inline version for NEW additions not yet in modular files, incorporate into the appropriate module, resolve main file to keep `@` includes."
+
+- **Takeaway**: Ship conflict resolution docs with the structural change that causes those conflicts.

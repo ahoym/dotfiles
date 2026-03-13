@@ -23,7 +23,7 @@ This skill delegates analysis methodology to learnings:curate. Read these files 
 - `../curate/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology (learnings), skill mode methodology (2s–4s), and content mode methodology (2–5a). Follow its analysis steps for each sweep, but replace its approval flow (step 7) with the loop defined below.
 - `../curate/classification-model.md` — Read via learnings:curate step 4. Contains the 6-bucket classification model and confidence level definitions.
 - `../curate/persona-design.md` — Read when persona clusters are detected during a sweep (via learnings:curate step 5a).
-- `~/.claude/commands/learnings/compound/content-type-decisions.md` — Read via learnings:curate step 4. Skill vs guideline vs learning decision tree.
+- `~/.claude/learnings/claude-authoring-content-types.md` — Read via learnings:curate step 4. Content type routing table.
 
 ## State Variables
 
@@ -219,7 +219,7 @@ Set `PHASE` to `DEEP_DIVE`.
    | # | File | Patterns | Reason |
    |---|------|----------|--------|
    | 1 | parallel-plans.md | 8 | 2 medium-confidence items, 3 new sections |
-   | 2 | skill-design.md | 11 | Several skill-context candidates |
+   | 2 | claude-authoring-skills.md | 11 | Several skill-context candidates |
    ```
 
 3. **Safety cap budget check** — if `SWEEP_COUNT` >= 13 before launching, warn and use `AskUserQuestion`:
@@ -253,7 +253,7 @@ Set `PHASE` to `DEEP_DIVE`.
 
    | # | File | Pattern | Action | Target | Rationale | Concern |
    |---|------|---------|--------|--------|-----------|---------|
-   | 1 | skill-design.md | Naming Conventions | Genericize | Keep | Hardcoded project names | Context may aid recall |
+   | 1 | claude-authoring-skills.md | Naming Conventions | Genericize | Keep | Hardcoded project names | Context may aid recall |
    | 2 | parallel-plans.md | DAG Scheduling | Compress | Keep | 40% compression achievable | May lose edge case detail |
    ```
 

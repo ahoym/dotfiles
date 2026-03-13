@@ -95,4 +95,4 @@ done
 ## Related References
 
 - skill-template.md - Template and file organization for skills
-- writing-best-practices.md - General skill writing conventions
+- `~/.claude/learnings/claude-authoring-skills.md` - Skill writing conventions and design patterns

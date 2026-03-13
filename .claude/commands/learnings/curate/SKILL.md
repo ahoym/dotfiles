@@ -39,7 +39,7 @@ Curation serves a dual purpose: organizing content AND minimizing baseline conte
 ## Reference Files (conditional)
 
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
-- `~/.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree (for reorganization) — read in step 4
+- `~/.claude/learnings/claude-authoring-content-types.md` — Content type routing table (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
 - curation-insights.md — Operational calibration and phase-specific patterns from prior consolidation runs — read in step 4
 
@@ -67,7 +67,7 @@ Detailed instructions for each opportunity are inline in the relevant steps belo
 - Determine the **curation mode** per file:
   - `learnings/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
   - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
-  - `commands/*` reference files (e.g., `writing-best-practices.md`, `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
+  - `commands/*` reference files (e.g., `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
   - `skill-references/*` → **Content mode** with **reference-file gate** (step 4a). These are authoritative shared references — duplication is removed from consuming skills, not from the reference.
 - Store as `TARGET_FILES`
 
@@ -139,7 +139,7 @@ Broad sweep uses a **cluster-first approach** instead of per-file pattern analys
 **Pre-load** — In the same parallel batch as the parse reads above:
 1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
-3. Read classification-model.md and `~/.claude/commands/learnings/compound/content-type-decisions.md` (needed for step 5)
+3. Read classification-model.md and `~/.claude/learnings/claude-authoring-content-types.md` (needed for step 5)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -181,7 +181,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
 - **All patterns are universal** → Proceed to step 5 normally.
 
-See `content-type-decisions.md` → "Evaluating Existing Guidelines" for the full migration signal table.
+See `claude-authoring-content-types.md` → "Evaluating Existing Guidelines" for the full migration signal table.
 
 ### 5. Classify each pattern
 
@@ -363,7 +363,7 @@ Omit this section if no candidates found.
 | File | Why | Command |
 |------|-----|---------|
 | `parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/learnings:curate learnings/parallel-plans.md` |
-| `skill-design.md` | 11 patterns, several skill-context candidates | `/learnings:curate learnings/skill-design.md` |
+| `claude-authoring-skills.md` | 11 patterns, several skill-context candidates | `/learnings:curate learnings/claude-authoring-skills.md` |
 
 ### Recommended Actions
 ...

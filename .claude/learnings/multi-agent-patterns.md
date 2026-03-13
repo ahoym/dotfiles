@@ -8,7 +8,7 @@ Combining outputs from multiple agents into a unified document should happen in 
 
 **Preferred — same skill, separate invocation:**
 1. Exploration agents write to output files
-2. Skill detects mode via file existence — first run scans, second run synthesizes (see Stateful Mode Detection in skill-design.md)
+2. Skill detects mode via file existence — first run scans, second run synthesizes (see Stateful Mode Detection in claude-authoring-skills.md)
 3. Synthesis invocation reads each file with a fully clean context
 
 **Alternative — synthesis as sub-agent:** Orchestrator launches a synthesis agent with file paths and output format requirements. Works but the orchestrator still needs enough context to coordinate.
