@@ -101,3 +101,17 @@ The `PREVIOUSLY_REMOVED` git history check only catches whole-file deletions —
 When a sync updates a producer skill (e.g., `parallel-plan/make`), check whether its consumer (`parallel-plan/execute`) needs corresponding updates. The two files form a contract — changes to output format, section names, or file structure in the producer may break the consumer's parsing.
 
 **Quick check:** Read both files and verify the consumer's parsing references (section names, file extensions, expected fields) match what the producer now generates. In this session, execute was already ahead (the two-file format originated there), so no update was needed — but the check itself prevents silent contract drift.
+
+## Branch-Based Batch Import for Bidirectional Sync
+
+When two repos evolve independently and sync via tarball (e.g., one side can't push to the other's remote), extract the tarball onto a temporary branch and merge into main instead of overwriting the working tree. Git's 3-way merge uses the previous import commit as the merge base, so files changed on only one side merge cleanly and conflicts surface naturally.
+
+```bash
+git checkout -b batch-import
+tar xzf <tarball> -C .
+git add -A && git commit -m "batch import $(date +%Y-%m-%d)"
+git checkout main && git merge batch-import
+git branch -d batch-import
+```
+
+**Why branch+merge over direct extraction:** Direct `tar xzf` into the working tree clobbers local changes to shared files. The branch approach preserves both sides' edits and only requires manual resolution when both sides touched the same file.
