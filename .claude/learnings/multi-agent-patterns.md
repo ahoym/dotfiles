@@ -250,3 +250,11 @@ After subagent writes, verify with `wc -l`, `grep -c`, and a 5-line spot-check �
 ## Trust-Building Arc as Human-Agent Collaboration Model
 
 The manager-report trust pattern maps directly to human-agent autonomy calibration: small scoped tasks with close review → demonstrate good judgment → gradually expand scope → occasional mistakes that are caught and learned from. Learnings, guidelines, and personas are trust artifacts — accumulated evidence of calibration, not just rules for an agent. This frame is useful for evaluating system changes: does this change help build trust (positive signals, outcome tracking) or just constrain behavior (more rules)?
+
+## Explore Agent Upfront for Large Implementation Tasks
+
+For implementation tasks touching 10+ reference files (existing infrastructure, patterns to follow, files to edit), launch a thorough Explore agent upfront before writing anything. The upfront cost (~2 min, 50+ tool calls) eliminates incremental back-and-forth during execution and enables writing all output files in parallel with full context. This is faster end-to-end than reading files incrementally as you discover you need them.
+
+## Pre-Read External Files Before Launching Agents
+
+Agents inherit the parent session's permission scope. Files outside permissioned directories (e.g., `~/Downloads/`) cause silent failures — agents complete analysis but can't read the inputs. When launching agents that need files from outside the workspace, read the files yourself first and pass the content in the agent prompt. The analysis is the expensive part; providing input content is cheap.

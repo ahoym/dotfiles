@@ -2,7 +2,7 @@
 
 ## Quantum-tunnel-claudes path-mismatch gap
 
-The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. Content drift between these pairs requires either name-mapped equivalents in the inventory logic or a manual comparison pass after the automated sync.
+The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. **Largely solved:** unified platform-neutral skills (`create-request`, `address-request-comments`, `explore-request`, `split-request`, `extract-request-learnings`) replace the divergent pairs. Old `-pr`/`-mr` variants still exist during transition — delete after testing confirms the unified versions work.
 
 ## Platform-detection.md is intentionally dual-platform
 
@@ -10,7 +10,7 @@ The inventory script compares files by relative path. Skills that exist in both 
 
 ## Example tables inside skills need adaptation too
 
-When porting skills between GitHub/GitLab repos, it's not enough to adapt command references and skill name fields. Example tables embedded in skill instructions (like cluster examples showing `git:split-pr, git:create-pr, ...`) also contain skill names that need PR→MR adaptation. These are easy to miss because they look like illustrative content rather than functional references.
+When porting skills between GitHub/GitLab repos, it's not enough to adapt command references and skill name fields. Example tables embedded in skill instructions (like cluster examples showing `git:split-pr, git:create-pr, ...`) also contain skill names that need PR→MR adaptation. These are easy to miss because they look like illustrative content rather than functional references. **Note:** unified `-request` skills eliminate this class of problem for the git skills — but the pattern still applies to any future platform-divergent skills.
 
 ## Grep-Verify Terminology After Cross-Platform Sync
 
@@ -84,9 +84,13 @@ Use neutral labels like "private" for content that shouldn't be shared externall
 
 For **export** (working repo → dotfiles), `--delete` is correct — dotfiles should mirror the shareable subset exactly. For **import** (dotfiles → working repo), `--delete` is dangerous — the working repo may have files the source doesn't (extra learnings, MR-named skills that differ from PR-named counterparts). Default import to additive (no `--delete`), with an explicit opt-in flag for destructive sync.
 
-## PR↔MR Skill Names Are Invisible to rsync
+## PR↔MR Skill Names Are Invisible to rsync — Solved by Unification
 
-Skill directories named differently across repos (`git/create-pr/` ↔ `git/create-mr/`) are unrelated paths to rsync. A sync in either direction will add the "other" variant without removing or reconciling the original. Options: standardize on one naming convention across repos, maintain a name-mapping table in the sync script, or accept both coexisting and handle via quantum-tunnel for the rare reconciliation.
+Skill directories named differently across repos (`git/create-pr/` ↔ `git/create-mr/`) are unrelated paths to rsync. **Solved:** unify into platform-neutral names (`create-request`, `explore-request`, etc.) with runtime platform detection via `skill-references/platform-detection.md`. Same file, same path, same content — rsync/tar just works. The detection (`git remote get-url origin`) is a local file read, not a network call — sub-millisecond, no caching needed.
+
+**Naming convention:** Use "request" — the shared root of "pull request" and "merge request." Avoid "review" as the noun — it means the act of code review, creating ambiguity (e.g., "address review comments on a review"). Good: `create-request`, `explore-request`, `split-request`, `address-request-comments`.
+
+**Pressure-test unified names before writing.** Naming propagates fast — once a name lands in a SKILL.md, it cascades into cross-references, template filenames, descriptions, and related skills tables. Check the candidate noun against all contexts it'll appear in.
 
 ## Within-File Section Removals Are Invisible to PREVIOUSLY_REMOVED
 
