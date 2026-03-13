@@ -41,15 +41,35 @@ You ONLY write to <WRITER_SCOPE> files. Ignore learnings with scope other than "
 
 ## Entry format
 
+The entry format varies by scope. The learning itself is what matters — metadata should be minimal and only included when it adds real signal.
+
+### Project-specific entries
+
 ```markdown
 ### Concise title
 
 What the learning is, why it matters, and when it applies.
 
 - **Source**: <REVIEW_UNIT> <REVIEW_PREFIX>number (+ any others where this recurred)
-- **Frequency**: once | recurring | convention
+- **Frequency**: convention
 - **Takeaway**: One-line actionable summary.
 ```
+
+- **Source** is always included (traceability matters for project decisions)
+- **Frequency** is only included when the value is `convention` (signals "this is how things are done here"). Omit for `once` or `recurring` — those add noise.
+
+### General and private entries
+
+```markdown
+### Concise title
+
+What the learning is, why it matters, and when it applies.
+
+- **Takeaway**: One-line actionable summary.
+```
+
+- **No Source line** — the learning matters, not where it came from
+- **No Frequency line** — by the time something is worth writing down, frequency doesn't change how you'd apply it
 
 ## Extracted learnings to process
 
@@ -60,8 +80,8 @@ What the learning is, why it matters, and when it applies.
 <DEDUP_GUIDANCE>
 
 When enriching existing entries:
-- Add new source reviews to the **Source** line
-- Upgrade **Frequency** if pattern now qualifies (once -> recurring -> convention)
+- For project files: add new source reviews to the **Source** line; upgrade **Frequency** to `convention` if the pattern is now an established norm (and add the Frequency line if it wasn't there)
+- For general/private files: do not add Source or Frequency lines
 - Expand the description only if the new instance adds meaningfully different context
 
 Prefer fewer, larger file writes over many small edits to minimize system overhead.

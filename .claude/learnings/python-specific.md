@@ -59,6 +59,12 @@ DESTINATION_TAG = os.getenv("DESTINATION_TAG", "")
 config = Config(destination_tag=DESTINATION_TAG or None)  # easy to forget
 ```
 
+## Use `__post_init__` for derived fields in dataclasses
+
+Dataclasses auto-generate `__init__`, so `__post_init__` is the standard hook for computing derived/calculated fields from the initialized values. Don't override `__init__` — use `__post_init__` to keep the dataclass contract intact.
+
+- **Takeaway**: Derived dataclass fields belong in `__post_init__`, not a custom `__init__`.
+
 ## Custom matcher objects can't be used as Pydantic model field values
 
 Custom test matcher objects (e.g., `IsInstanceOf(str)`, `AnyString()`) cannot be passed as Pydantic model field values — Pydantic validates the input and rejects non-matching types for typed fields. Use `response.<field>` instead:

@@ -154,3 +154,15 @@ with open('path/to/file.json', 'w') as f:
 Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.
 
 **Workarounds:** `git add -A` (if all changes are wanted), `git add -- 'app/api/accounts/\[address\]/**'` (escaped), or `noglob git add <path>`.
+
+## Dependent PR Chains Risk Abandonment When Order Is Violated
+
+When PRs declare dependencies on other PRs, parallel work can make the dependent PR redundant before its dependency chain resolves.
+
+- **Takeaway**: Stacked PRs compound risk — parallel work can invalidate the entire chain.
+
+## Stacked Branch Dependency Model Risks
+
+When a branch carries both its dependency's changes and its own, the dependent branch becomes stale if the dependency is merged separately with a different implementation. Deep copies of parent changes in child branches create divergence risk.
+
+- **Takeaway**: Keep stacked branches minimal — don't carry parent changes forward.

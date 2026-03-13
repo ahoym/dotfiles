@@ -437,3 +437,33 @@ Avoid leaking which specific field caused a uniqueness violation in error respon
 Beyond secrets and tokens, audit for: internal project/repo names, MR/PR numbers that identify specific work, absolute paths with usernames, internal tool names, team names, and org-specific identifiers. These leak context about employer and work even without credentials.
 
 - **Takeaway**: Scrub provenance markers (project names, MR refs) from learnings before publishing. `settings.local.json` is gitignored — focus effort on tracked files.
+
+### Prefer exceptions over Optional returns for fatal errors
+
+When an error is fatal and the caller can't meaningfully continue, raise an exception instead of returning `Optional`/`None`. Eliminates defensive null checks downstream and makes the return type non-optional.
+
+- **Takeaway**: Fatal errors → exceptions. Reserve Optional/None for legitimate absence.
+
+### Review summaries must accurately reflect changes
+
+Superficial LGTMs with inaccurate summaries of what the PR actually implements are worse than no summary. Review summaries should describe the actual changes, not a paraphrase of the title.
+
+- **Takeaway**: Verify your review summary matches the actual diff, not just the PR title.
+
+### Two-step review: question placement, then request extraction
+
+When reviewing code placement, first ask "does this need to be here?" with a concrete test (e.g., "does the added code use enough of ClassX to justify living there?"). Get analysis back, then decide whether to request extraction. Avoids premature refactoring requests.
+
+- **Takeaway**: Question rationale before requesting architectural changes.
+
+### Name features for what they actually do
+
+If the implementation is a single train/test split (holdout validation), don't call it "walk-forward analysis." Aspirational naming creates confusion and technical debt. Name things for current behavior, not future intent.
+
+- **Takeaway**: Feature names should describe current implementation, not aspirational scope.
+
+### Remove cross-cutting concerns to separate PRs
+
+When a tangential change (e.g., CLAUDE.md update) appears in a feature PR, split it out. Keep PRs scoped to their stated purpose.
+
+- **Takeaway**: Tangential changes get their own PR, even if they're small.

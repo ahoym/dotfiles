@@ -22,13 +22,25 @@ Systematically extract learnings from all <REVIEW_COUNT> reviews in the <REPO_NA
 
 ## Learnings Entry Format
 
+Metadata is minimal — the learning itself is what matters. Format varies by scope:
+
+**Project-specific** (include Source for traceability; Frequency only when `convention`):
 ```markdown
 ### Concise title
 
 What the learning is, why it matters, and when it applies.
 
 - **Source**: <REVIEW_UNIT> <REVIEW_PREFIX>number (+ any others where this recurred)
-- **Frequency**: once | recurring | convention
+- **Frequency**: convention
+- **Takeaway**: One-line actionable summary.
+```
+
+**General / private** (no Source, no Frequency — just the learning and takeaway):
+```markdown
+### Concise title
+
+What the learning is, why it matters, and when it applies.
+
 - **Takeaway**: One-line actionable summary.
 ```
 
