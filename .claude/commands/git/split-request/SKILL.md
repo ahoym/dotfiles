@@ -27,15 +27,7 @@ Analyze a large review and propose how to split it into smaller, reviewable unit
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set variables for the rest of the skill:
-
-   | Variable | GitHub | GitLab |
-   |----------|--------|--------|
-   | `CLI` | `gh` | `glab` |
-   | `REVIEW_UNIT` | PR | MR |
-   | `VIEW_CMD` | `gh pr view` | `glab mr view` |
-   | `CHECKOUT_CMD` | `gh pr checkout` | `glab mr checkout` |
-   | `VIEW_JSON_FLAGS` | `--json title,body,additions,deletions,changedFiles,files` | `--output json` |
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
 2. **Fetch review details**:
    ```bash

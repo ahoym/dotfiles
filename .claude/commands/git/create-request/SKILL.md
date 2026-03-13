@@ -35,17 +35,7 @@ Before creating the review, verify these items are complete:
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set variables for the rest of the skill:
-
-   | Variable | GitHub | GitLab |
-   |----------|--------|--------|
-   | `CLI` | `gh` | `glab` |
-   | `REVIEW_UNIT` | PR | MR |
-   | `CREATE_CMD` | `gh pr create` | `glab mr create` |
-   | `LIST_CMD` | `gh pr list --head` | `glab mr list --source-branch` |
-   | `EDIT_CMD` | `gh pr edit` | `glab mr update` |
-   | `BASE_FLAG` | `--base` | `--target-branch` |
-   | `BODY_FLAG` | `--body` | `--description` |
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
 2. **Gather context** (run in parallel):
    - `git status` - Check for uncommitted changes

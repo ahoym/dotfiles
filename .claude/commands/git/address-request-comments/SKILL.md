@@ -26,18 +26,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set variables for the rest of the skill:
-
-   | Variable | GitHub | GitLab |
-   |----------|--------|--------|
-   | `CLI` | `gh` | `glab` |
-   | `REVIEW_UNIT` | PR | MR |
-   | `REVIEW_UNIT_LOWER` | pr | mr |
-   | `VIEW_CMD` | `gh pr view` | `glab mr view` |
-   | `COMMENT_CMD` | `gh pr comment` | `glab mr comment` |
-   | `CHECKOUT_CMD` | `gh pr checkout` | `glab mr checkout` |
-   | `API_CMD` | `gh api` | `glab api` |
-   | `AUTH_CMD` | `gh auth status` | `glab auth status` |
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
 2. **Fetch review and comments** (run in parallel):
 
@@ -139,63 +128,6 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification
     - Number of suggestions skipped (awaiting user decision)
-
-## Example Output
-
-```
-PR #42: Add user authentication
-
-Found 4 review comments:
-
-1. [src/auth.py:25] @reviewer1
-   "Consider using bcrypt instead of sha256 for password hashing"
-
-2. [src/auth.py:48] @reviewer1
-   "Missing error handling for invalid tokens"
-
-3. [src/models/user.py:12] @reviewer2
-   "Typo: 'pasword' should be 'password'"
-
-4. [General] @reviewer2
-   "Great work overall! Just minor fixes needed."
-
----
-
-Categorized comments:
-
-| # | Type | Comment |
-|---|------|---------|
-| 1 | Suggestion | Use bcrypt instead of sha256 |
-| 2 | Suggestion | Add error handling for invalid tokens |
-| 3 | Typo/Bug fix | Fix 'pasword' typo |
-| 4 | General feedback | No action needed |
-
----
-
-The following suggestions require your approval:
-
-| # | File | Suggestion | Recommendation |
-|---|------|------------|----------------|
-| 1 | src/auth.py:25 | Use bcrypt instead of sha256 | Agree - bcrypt is more secure |
-| 2 | src/auth.py:48 | Add error handling for invalid tokens | Agree - improves robustness |
-
-Which suggestions should I implement? (all / none / 1,2 / skip)
-> all
-
----
-
-Implementing approved changes...
-
-- Comment 1: Updated to use bcrypt
-- Comment 2: Added try/except with proper error response
-- Comment 3: Fixed typo (auto-approved as typo fix)
-
-Created commit: abc1234
-Pushed to origin/feature/auth
-
-Replied to 3 comments with commit reference.
-Comment 4 was general feedback - no action needed.
-```
 
 ## Important Notes
 

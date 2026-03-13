@@ -19,19 +19,41 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 - writer-prompt.md — Read when spawning the writer subagent
 - plan-template.md — Read when initializing a new extraction plan
 
+## Prerequisites
+
+Writer subagents run in the background and cannot prompt for permissions. Add these allow patterns to **project-level** `.claude/settings.local.json`:
+
+```json
+"permissions": {
+  "allow": [
+    "Bash(gh api:*)",
+    "Bash(glab api:*)",
+    "Bash(jq:*)",
+    "Bash(wc:*)",
+    "Bash(grep:*)",
+    "Read(docs/learnings/**)",
+    "Read(docs/plans/**)",
+    "Write(docs/learnings/**)",
+    "Write(docs/plans/**)",
+    "Edit(docs/learnings/**)",
+    "Edit(docs/plans/**)",
+    "Read(~/.claude/learnings/**)",
+    "Read(~/.claude/learnings-private/**)",
+    "Write(~/.claude/learnings/**)",
+    "Write(~/.claude/learnings-private/**)",
+    "Edit(~/.claude/learnings/**)",
+    "Edit(~/.claude/learnings-private/**)"
+  ]
+}
+```
+
+Without these, writer subagents will fail silently and the orchestrator must do writes in foreground.
+
 ## Instructions
 
 ### Init mode (`init` arg)
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set variables for the rest of the skill:
-
-   | Variable | GitHub | GitLab |
-   |----------|--------|--------|
-   | `CLI` | `gh` | `glab` |
-   | `REVIEW_UNIT` | PR | MR |
-   | `REVIEW_PREFIX` | `#` | `!` |
-   | `ID_FIELD` | `number` | `iid` |
-   | `PLAN_FILENAME` | `pr-learnings-extraction.md` | `mr-learnings-extraction.md` |
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
 2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from the platform commands file, substituting `$API_CMD`.
 
@@ -92,36 +114,6 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 9. **Update progress tracker** — edit the plan file's progress table. This is the only write the main context performs. Include a brief note on key findings.
 
 10. **Report batch summary** — 2-3 sentences on signal level, recurring patterns, and new categories. Keep it brief to preserve context.
-
-## Prerequisites
-
-Writer subagents run in the background and cannot prompt for permissions. Add these allow patterns to **project-level** `.claude/settings.local.json`:
-
-```json
-"permissions": {
-  "allow": [
-    "Bash(gh api:*)",
-    "Bash(glab api:*)",
-    "Bash(jq:*)",
-    "Bash(wc:*)",
-    "Bash(grep:*)",
-    "Read(docs/learnings/**)",
-    "Read(docs/plans/**)",
-    "Write(docs/learnings/**)",
-    "Write(docs/plans/**)",
-    "Edit(docs/learnings/**)",
-    "Edit(docs/plans/**)",
-    "Read(~/.claude/learnings/**)",
-    "Read(~/.claude/learnings-private/**)",
-    "Write(~/.claude/learnings/**)",
-    "Write(~/.claude/learnings-private/**)",
-    "Edit(~/.claude/learnings/**)",
-    "Edit(~/.claude/learnings-private/**)"
-  ]
-}
-```
-
-Without these, writer subagents will fail silently and the orchestrator must do writes in foreground.
 
 ## Important Notes
 

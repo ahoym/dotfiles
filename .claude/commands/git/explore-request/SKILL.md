@@ -29,17 +29,7 @@ Pull down a review to understand its changes, get context, and ask questions.
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set variables for the rest of the skill:
-
-   | Variable | GitHub | GitLab |
-   |----------|--------|--------|
-   | `CLI` | `gh` | `glab` |
-   | `REVIEW_UNIT` | PR | MR |
-   | `REVIEW_PREFIX` | `#` | `!` |
-   | `VIEW_CMD` | `gh pr view` | `glab mr view` |
-   | `DIFF_CMD` | `gh pr diff` | `glab mr diff` |
-   | `CHECKOUT_CMD` | `gh pr checkout` | `glab mr checkout` |
-   | `URL_PATTERN` | `github.com` | `gitlab.com` |
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
 2. **Parse review identifier** from `$ARGUMENTS`:
    - If empty, use current branch's review
