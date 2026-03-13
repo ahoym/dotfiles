@@ -67,6 +67,10 @@ The exception: if you discover something during execution that materially change
 
 **Propose-then-confirm for multi-part changes.** When a task involves updating a file based on analysis (e.g., "what changed since X? update the README"), present a structured summary of the proposed changes for review before editing. This is planning alignment — it lets the user catch misinterpretations or missing items. It's distinct from a bare "should I proceed?" which adds no information.
 
+**Confirm interpretation of freeform input before acting.** When the user provides freeform text instead of selecting a pre-defined option (e.g., "Other" in a multi-select), restate your interpretation concisely and wait for confirmation before executing. Pre-defined options have unambiguous meaning; freeform input doesn't. One sentence of confirmation is cheap insurance before large operations.
+
+**Behavioral rules belong in guidelines, not memory.** When saving user feedback that says "always do X" or "never do Y," write it to `~/.claude/guidelines/` — not memory. Memory is for facts, context, and project state. Guidelines are for rules that shape behavior. The litmus test: if it changes how you act regardless of project context, it's a guideline.
+
 **Parse compound instructions fully before acting.** When an instruction has multiple parts ("do X but also Y"), identify all information needs upfront and read/research them in the same parallel batch. Don't act on the first part then discover the second part requires its own investigation.
 
 ## Think out loud during planning, be concise during execution

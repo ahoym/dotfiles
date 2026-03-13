@@ -292,7 +292,7 @@ For each classification, note:
 
 Display the full report inline in the CLI.
 
-**Content mode report:**
+**Content mode report (≤20 patterns):**
 ```
 ## Curation Summary: <filename>
 
@@ -319,6 +319,52 @@ Display the full report inline in the CLI.
 ### Recommended Actions
 ...
 ```
+
+**Content mode report (20+ patterns — decomposition format):**
+
+When a single file has 20+ patterns, the flat classification table becomes unreadable. Switch to a **destination-grouped format** that organizes patterns by where they should go:
+
+```
+## Curation Summary: <filename>
+
+### Overview
+**<size>, ~N patterns — <diagnosis>.** <1-2 sentence summary of why the file needs decomposition and what domains it spans.>
+
+**Core recommendation:** <high-level action>
+
+### DELETE — Already Covered Elsewhere (N patterns)
+
+| # | Pattern | Lines | Covered By | Confidence |
+|---|---------|-------|------------|------------|
+| 1 | ... | ... | `file.md` line N: "..." | HIGH |
+
+### MIGRATE — By Destination (~N patterns)
+
+#### → `target-file.md` (N patterns)
+
+| Pattern | Lines | Note |
+|---------|-------|------|
+| ... | ... | ... |
+
+#### → `other-file.md` (N patterns)
+...
+
+### KEEP — Truly Cross-Cutting (~N patterns)
+
+| Pattern | Lines | Note |
+|---------|-------|------|
+| ... | ... | ... |
+
+### Compression Opportunities
+...
+
+### Recommended Actions
+...
+```
+
+The destination grouping makes the actual decision ("where does this go?") the organizing principle instead of the classification taxonomy. Each destination group is self-contained and actionable.
+
+**Confirmation checkpoint:** When the approved actions will touch 10+ files, confirm interpretation of user selections before executing — especially when the user provided freeform input rather than selecting a pre-defined option.
 
 **Broad sweep report** (when curating all learnings):
 ```

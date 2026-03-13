@@ -16,9 +16,9 @@ PRs that include a plan document alongside implementation code serve as design a
 
 ### Closing PRs cleanly with cherry-pick intent
 
-Rather than silently abandoning a PR, explicitly note that unique content will be cherry-picked into a follow-up. Makes the closed PR a discoverable record of what was tried and what content is still pending.
+Rather than silently abandoning a PR, explicitly note that unique content will be cherry-picked into a follow-up. Makes the closed PR a discoverable record of what was tried and what content is still pending. Tactical approach: when a "lite" version gets merged first, close the redundant PR, create a new branch from main, manually add only the unique content (don't cherry-pick commits if files diverged), and open a focused PR.
 
-- **Takeaway**: Close PRs with documented intent — what's abandoned vs. what's being carried forward.
+- **Takeaway**: Close PRs with documented intent — what's abandoned vs. what's being carried forward. Use fresh branches for cherry-picked content to avoid merge conflicts.
 
 ### Scope MRs tightly — one concern per merge request
 
@@ -87,3 +87,21 @@ Users need to know what to install before following setup steps. Structure: prer
 ### Sensitive data audit checklist for shared dotfiles
 
 Audit for: internal project/repo names, MR/PR numbers, absolute paths with usernames, internal tool names, team names, org-specific identifiers. Focus effort on tracked files; `settings.local.json` is gitignored.
+
+### PR review response etiquette: reference fixing commit hash
+
+When addressing PR review feedback, reply to each comment with the commit hash that fixes it (e.g., "Fixed in abc123"). Use an appreciative tone ("Thanks for catching this!"). When unclear, state your understanding then ask rather than guessing. When pushing back, explain context and ask for clarification rather than dismissing.
+
+- **Takeaway**: Reply to review comments with the fixing commit hash; be appreciative and specific.
+
+### Codify review feedback as reusable guidelines
+
+Treat review feedback as a source of reusable guidelines rather than one-off corrections. After a review cycle, capture patterns into the project's guideline files (e.g., `.claude/guidelines/`) while context is fresh. Ship via lightweight docs-only PRs with zero-discussion, same-day merge.
+
+- **Takeaway**: Review sessions produce guidelines — capture them immediately while context is fresh.
+
+### LGTM response patterns
+
+When addressing PR reviews that include "LGTM" summaries: (1) When the reviewer's summary doesn't match the actual implementation, reply politely indicating the mismatch and hint at where to look — don't reveal implementation details. (2) When the summary is accurate, confirm with a short acknowledgment.
+
+- **Takeaway**: Match LGTM summaries against actual changes; politely redirect when they diverge.
