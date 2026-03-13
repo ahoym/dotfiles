@@ -76,10 +76,6 @@ Infrastructure changes should include screenshots and DB query results before me
 
 When changes affect data model relationships, reviewers should independently trace the full data flow to verify no regressions.
 
-### Update tests when API contract changes
-
-When switching identity sources (e.g., request-param to JWT), tests must stop passing the old parameter. Stale test params are false documentation.
-
 ### Commented-out code in migrations needs context
 
 Migrations are immutable after deployment. Commented-out SQL needs context about why and whether it should be re-enabled.

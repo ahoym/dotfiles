@@ -86,6 +86,10 @@ When a field represents a fixed set of values, use an enum or equivalent. Makes 
 
 Constants that encode business rules (terminal status sets, cutoff values) need inline documentation explaining the "why" behind the value set.
 
+## Update tests when API contract changes
+
+When switching identity sources (e.g., request-param to JWT), tests must stop passing the old parameter. Stale test params are false documentation of the API surface.
+
 ## Log level demotion requires justifying where signal is preserved
 
 When downgrading log levels, identify the alternative location where the information is still logged appropriately. Without justification, important signals disappear from production logs.
