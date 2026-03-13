@@ -3,8 +3,8 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TARBALL="${1:?Usage: import-batch.sh <tarball-path>}"
-BRANCH="batch-import"
 DATE=$(date +%Y-%m-%d)
+BRANCH="batch-import-$DATE-$$"
 
 cd "$REPO_DIR"
 
@@ -16,6 +16,12 @@ fi
 
 # Create import branch from current main
 git checkout -b "$BRANCH"
+
+# Safety: verify we're on the import branch before continuing
+if [ "$(git branch --show-current)" != "$BRANCH" ]; then
+  echo "Failed to checkout branch $BRANCH. Aborting."
+  exit 1
+fi
 
 # Extract tarball (overwrites shared content, learnings-private excluded at export time)
 tar xzf "$TARBALL" -C .
