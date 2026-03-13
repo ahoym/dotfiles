@@ -18,9 +18,9 @@ Create a pull request (GitHub) or merge request (GitLab), or update an existing 
 
 ## Reference Files (conditional — read only when needed)
 
-- `request-body-template.md` — Read before composing review body (step 9). Located in the skill's base directory.
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
+- `request-body-template.md` — Read before composing review body (step 9). Located in the skill's base directory.
 
 ## Pre-Review Checklist
 
