@@ -1,12 +1,18 @@
-# Context-Aware Learnings Pulling
+# Learnings Search Protocol
 
-## Behavior
+## Hard Gates (non-negotiable — do not skip under any circumstances)
 
-Proactively search `~/.claude/learnings/` for relevant prior knowledge during conversations. Don't wait for the user to ask — detect when learnings would help and load them.
+1. **Session start**: Before your FIRST tool call, glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for `*.md`. Match filenames against ambient context + user message. Announce results (including no-matches).
+2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). This is the most valuable checkpoint — plans lock in decisions that are expensive to reverse.
+3. **Implementation start**: Before executing an approved plan, check if a persona is active. If not, recommend one by matching `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task domain. Announce the check.
 
-## Hard gate: Session start
+These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, or the task feels urgent. No exceptions.
 
-**Before your first tool call in a session, search learnings.** This is not optional. One filename glob, no content grep — keep it cheap so narrow opening questions don't tempt you to skip it.
+---
+
+## How to search (session start)
+
+One filename glob, no content grep — keep it cheap so narrow opening questions don't tempt you to skip it.
 
 **Step 1: Glob all filenames.** Run `*.md` globs on `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local, if it exists) to get the full inventory. This is the index — filenames are designed to be scannable.
 
@@ -21,6 +27,16 @@ Proactively search `~/.claude/learnings/` for relevant prior knowledge during co
 
 Load matches and announce. If no ambient context is available (fresh repo, no git), fall back to message-only matching.
 
+## How to search (plan mode entry)
+
+Search broadly, not just the obvious keywords. Derive search terms from the *current task scope* (which may have evolved significantly from the opening message), not just the surface-level topic. Include:
+- Direct topic terms (e.g., "orderbook", "depth")
+- Technologies and libraries involved (e.g., "BigNumber", "xrpl", "Next.js")
+- Patterns being applied (e.g., "caching", "singleton", "API design")
+- Adjacent domains that might have relevant gotchas
+
+Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
+
 ## Keyword-based (proactive)
 
 When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
@@ -28,18 +44,6 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 - Learnings filenames are the index — `aws-patterns.md`, `vercel-deployment.md`, `bignumber-financial-arithmetic.md`
 - Works with or without an active persona
 - Cost: low (reading a file). Upside: shapes thinking before decisions are made.
-
-## Hard gate: Plan mode entry
-
-**Before calling `EnterPlanMode`, you MUST search learnings.** This is not optional — it's a prerequisite to entering plan mode. This is the single most valuable checkpoint because plans lock in decisions that are expensive to reverse.
-
-**Search broadly, not just the obvious keywords.** Derive search terms from the *current task scope* (which may have evolved significantly from the opening message), not just the surface-level topic. Include:
-- Direct topic terms (e.g., "orderbook", "depth")
-- Technologies and libraries involved (e.g., "BigNumber", "xrpl", "Next.js")
-- Patterns being applied (e.g., "caching", "singleton", "API design")
-- Adjacent domains that might have relevant gotchas
-
-Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
 
 ## Observability
 
@@ -60,23 +64,18 @@ Always announce when learnings are loaded or searched. The user needs visibility
 📚 Searched learnings for "Kubernetes" — no matches
 ```
 
-No-match announcements are **mandatory** during calibration. They surface gaps in the learnings library and confirm the system is actually firing. Every search — keyword or hard gate — must announce its result, hit or miss.
+No-match announcements are **mandatory**. They surface gaps in the learnings library and confirm the system is actually firing. Every search — keyword or hard gate — must announce its result, hit or miss.
 
-## Hard gate: Implementation start
+## Persona check announcements
 
-**Before beginning implementation of an approved plan, check if a persona is active.** If not, glob available personas (`~/.claude/commands/set-persona/` and `.claude/personas/`) and match by filename against the task domain — don't deep-read persona files just to decide which to recommend. Recommend via `AskUserQuestion`. The user can decline — this is a recommendation, not a blocker. The actual persona content is loaded when `/set-persona` runs.
-
-Announce the check:
 ```
 🎭 No persona active — recommending `xrpl-typescript-fullstack` for this task. Set it?
 ```
 
-If a persona is already active:
 ```
 🎭 Persona active: `xrpl-typescript-fullstack` — proceeding with implementation
 ```
 
-If no persona is a strong fit for the task:
 ```
 🎭 No persona active — none strongly relevant for <task domain>, proceeding without
 ```

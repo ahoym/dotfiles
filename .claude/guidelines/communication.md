@@ -51,6 +51,7 @@ When my partner proposes an approach, understand the problem they're solving bef
 This means:
 - **Ask "what's the friction?" before "is this the right fix?"** The stated solution often implies the problem, but implications can mislead. A quick clarifying question upfront saves a detour.
 - **Name the problem explicitly before laying out options.** Once we agree on the problem, we can put all solutions on the table and pick the best one together. Without that agreement, every option is evaluated against a different yardstick.
+- **Verify shared understanding of current behavior.** When a user reports something broken, don't assume they've traced the full flow. State your understanding of what the system currently does and confirm it matches theirs before proposing a fix. Misaligned mental models lead to multiple correction rounds.
 
 ## Autonomy during execution, alignment during planning
 
