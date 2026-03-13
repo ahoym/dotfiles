@@ -109,3 +109,13 @@ For detailed authoring craft, see the spoke file for the relevant type:
 - `claude-authoring-learnings.md` — genericization, scope classification, boundary tests
 - `claude-authoring-personas.md` — judgment vs recipes, proactive loads, gotcha files, composition
 - `claude-authoring-claude-md.md` — conditional references, relationships, subdirectory criteria
+
+## Converting Guidelines to Skills
+
+A guideline is a candidate for skill conversion when it describes an actionable, repeatable process with clear inputs.
+
+**Process:**
+1. Create skill folder: `.claude/commands/<skill-name>/`
+2. Move detailed patterns to a reference file in the skill folder
+3. Replace guideline content with: "Use `/<skill-name>` to..."
+4. Keep the guideline header for discoverability

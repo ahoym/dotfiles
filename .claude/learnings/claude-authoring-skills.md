@@ -388,3 +388,45 @@ Split SKILL.md into two files when a skill has a multi-step background workflow:
 
 1. **Orchestrator (SKILL.md)** — User interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines. List reference files as conditional (no eager `@`).
 2. **Background agent steps (separate .md)** — Autonomous workflow executed by a Task agent. Use aliases at top, decision tables for branching, inline warnings at point of use, error recovery at bottom.
+
+## Platform-Neutral Skill Naming: Use "Request", Not "Review"
+
+When unifying GitHub PR and GitLab MR skills, name them with "request" — the shared root of "pull request" and "merge request." Avoid "review" as the noun — it means the act of code review, creating ambiguity (e.g., "address review comments on a review"). Good: `create-request`, `explore-request`, `split-request`, `address-request-comments`. The `-comments` suffix on address disambiguates what's being addressed.
+
+**Pressure-test unified names before writing.** Naming propagates fast — once a name lands in a SKILL.md, it cascades into cross-references, template filenames, descriptions, and related skills tables. Check the candidate noun against all contexts it'll appear in: does it collide with an existing domain term? Does it read clearly when combined with action verbs (`address-X`, `explore-X`, `split-X`)? The `address-review` collision (addressing review comments on a review) would have surfaced immediately with this check. Renaming after the fact works but is mechanical overhead across every file that adopted the name.
+
+## Keep Approval Flows On-Platform
+
+When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified in one place and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
+
+## Explore Agent Upfront for Large Implementation Tasks
+
+For implementation tasks touching 10+ reference files (existing infrastructure, patterns to follow, files to edit), launch a thorough Explore agent upfront before writing anything. The upfront cost (~2 min, 50+ tool calls) eliminates incremental back-and-forth during execution and enables writing all output files in parallel with full context. This is faster end-to-end than reading files incrementally as you discover you need them.
+
+## No Half-Steps in Numbered Instructions
+
+When writing numbered steps in skills or protocols, use proper integer steps (Step 0, 1, 2, 3...), not half-steps (Step 1.5). Half-steps signal the structure wasn't planned upfront, add uncertainty about ordering, and make the sequence harder to reference. If a new step needs to be inserted, renumber all subsequent steps.
+
+## Verify Assumptions Before Documenting
+
+Always test assumptions with a controlled experiment before writing them as facts across multiple files. Before documenting a technical limitation, run a minimal reproducer that isolates the specific claim. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.
+
+Common pattern: permission-denied errors in background agents are almost always missing allow patterns, not platform constraints. Test with a command known to be allowed before escalating.
+
+## Cross-Referencing Between Reference Files
+
+When splitting a large file into multiple focused reference files, add a "Related References" section at the bottom of each to help navigate between related content:
+
+```markdown
+## Related References
+
+- other-file.md - Brief description of what it covers
+- another-file.md - Brief description of what it covers
+```
+
+## Skill Composition
+
+When skills can be used together, add cross-references to help users discover related workflows:
+
+1. **Add "Related Skills" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
+2. **Reference prerequisite skills** in Important Notes (e.g., "Use `/git:explore-pr` first if you need to understand the PR before splitting")
