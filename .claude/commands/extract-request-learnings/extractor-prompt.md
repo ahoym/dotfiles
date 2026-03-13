@@ -7,7 +7,7 @@ Fill in `<placeholders>` before passing to each subagent.
 - Fill in ALL placeholders from the batch metadata JSON
 - The template already handles closed reviews, zero-discussion reviews, and high-discussion reviews — do not add ad-hoc instructions per review
 - The only per-review variation is the placeholder values themselves
-- Use the GitHub or GitLab section below based on the detected platform
+- Set `<PLATFORM>` to `github` or `gitlab` based on the detected platform before injecting
 
 ---
 
@@ -23,44 +23,17 @@ Review metadata:
 
 ## Data fetching
 
-Run these commands in this order. Do NOT use any other CLI commands or endpoints.
+Read `~/.claude/skill-references/<PLATFORM>-commands.md` (where `<PLATFORM>` is `github` or `gitlab`) for exact command templates. Use these sections from that file:
 
-### GitHub
+**Step 1 (always run):**
+- **Fetch Inline/Review Comments** — use the full fetch variant
+- **Fetch Issue/Top-Level Comments**
 
-**Step 1 — Fetch review comments and issue comments (always run):**
-```bash
-gh api "repos/{owner}/{repo}/pulls/<ID>/comments" | jq '[.[] | {author: .user.login, body: .body, created_at: .created_at[:10], path: .path}]'
-gh api "repos/{owner}/{repo}/issues/<ID>/comments" | jq '[.[] | {author: .user.login, body: .body, created_at: .created_at[:10]}]'
-```
+**Step 2 (always run):**
+- **Fetch Review Details**
 
-**Step 2 — Fetch review detail for file/commit counts (always run):**
-```bash
-gh api "repos/{owner}/{repo}/pulls/<ID>" | jq '{changed_files: .changed_files, additions: .additions, deletions: .deletions, labels: [.labels[]?.name], html_url: .html_url}'
-```
-
-**Step 3 — Fetch diff file list (only if discussion count > 10 or state is closed):**
-```bash
-gh api "repos/{owner}/{repo}/pulls/<ID>/files" | jq '[.[] | {file: .filename, additions: .additions, deletions: .deletions}]'
-```
-
-### GitLab
-
-**Step 1 — Fetch non-system discussion notes (always run):**
-```bash
-glab api "projects/:id/merge_requests/<ID>/discussions" | jq '[.[] | .notes[] | select(.system == false) | {author: .author.username, body: .body, created_at: .created_at[:10], position: (.position.new_path // null)}]'
-```
-
-**Step 2 — Fetch review detail for file/commit counts (always run):**
-```bash
-glab api "projects/:id/merge_requests/<ID>" | jq '{changes_count: .changes_count, labels: [.labels[]?.name], web_url: .web_url}'
-```
-
-**Step 3 — Fetch diff file list (only if discussion count > 10 or state is closed):**
-```bash
-glab api "projects/:id/merge_requests/<ID>/changes" | jq '[.changes[] | {file: .new_path, added: (.diff | split("\n") | map(select(startswith("+"))) | length), removed: (.diff | split("\n") | map(select(startswith("-"))) | length)}]'
-```
-
----
+**Step 3 (only if discussion count > 10 or state is closed):**
+- **Fetch Files Changed**
 
 Do not fetch any other endpoints. These commands provide all the signal needed.
 
