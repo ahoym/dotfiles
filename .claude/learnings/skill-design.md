@@ -61,6 +61,8 @@ When two skills share setup (e.g., locating a project, reading files) but diverg
 
 When two repos have independently evolved the same skill, merge by keeping unique features from both sides. Use the more complete version as the base, append unique sections from the other. For platform-specific commands (gh vs glab), parameterize via a shared reference file with detection logic and a mapping table. One codebase to maintain means no future drift.
 
+**When to unify vs keep separate:** Unify when the workflow is shared and only the plumbing differs (CLI commands, API field names, terminology). Keep separate when the workflows themselves diverge — different steps, decision points, or user interactions with no equivalent on the other platform.
+
 ## Skill Improvement: Fix and Assess In-Session
 
 Apply skill improvements in the same session they surface — context fades across sessions. After running a skill, note what worked, what didn't, and prioritize: regression prevention >> efficiency; one-line fixes >> structural overhauls. Cap at 3-5 improvements. If a skill hits a bug mid-execution, fix immediately — scope to one constraint workaround per incident.
@@ -153,7 +155,7 @@ See also: `~/.claude/learnings/claude-code-hooks.md` for PostToolUse limitations
 
 Then in the step itself, explicitly instruct: "Read `template.md` from the skill's base directory (shown in the header)."
 
-**Path resolution gotcha**: `@./` relative paths may have resolution issues — the 3 observed failures with `git:create-mr` where `@./mr-body-template.md` wasn't loaded were likely path resolution bugs, not evidence that `@` doesn't work in SKILL.md. Use `@filename.md` (skill-directory-relative) or `@~/.claude/...` (absolute-ish) paths for reliability. Always add explicit read instructions as a defensive backup regardless of `@` vs backtick style.
+**Path resolution gotcha**: `@./` relative paths may have resolution issues — the 3 observed failures with `git:create-mr` (now unified as `git:create-request`) where `@./mr-body-template.md` wasn't loaded were likely path resolution bugs, not evidence that `@` doesn't work in SKILL.md. Use `@filename.md` (skill-directory-relative) or `@~/.claude/...` (absolute-ish) paths for reliability. Always add explicit read instructions as a defensive backup regardless of `@` vs backtick style.
 
 **Attention pattern**: Even for `@`-loaded content, explicitly instructing "Read X before step N" in the relevant step improves reliability — the LLM engages more deliberately with content it actively reads vs content passively injected into a large context.
 
@@ -167,7 +169,7 @@ Skills are only invoked when the model recognizes the user's intent maps to a sk
 
 **Fix:** Add natural-language trigger phrases to the skill's `description` field in the YAML frontmatter. Cover common ways a user might express the intent without naming the skill directly.
 
-Example from `git:create-mr`:
+Example from `git:create-mr` (now unified as `git:create-request`):
 ```
 description: Create a merge request [...]. Use when the user asks to push an MR, in any variation (e.g., "commit and push an MR", "branch and push a MR", "create a merge request", "push this as an MR").
 ```
@@ -280,4 +282,48 @@ Persona `## Proactive loads` sections cannot use `@` references because persona 
 
 ## /loop Supersedes Purpose-Built Monitor Skills
 
-When a domain skill (e.g., `/git:address-pr-review`) fetches fresh state each invocation, pairing it with `/loop` replaces purpose-built monitor skills that maintain their own state tracking. The monitor skill's state management adds complexity without value — the domain skill's stateless design means every invocation is self-contained. Delete the monitor skill; keep the domain skill + `/loop`.
+When a domain skill (e.g., `/git:address-request-comments`) fetches fresh state each invocation, pairing it with `/loop` replaces purpose-built monitor skills that maintain their own state tracking. The monitor skill's state management adds complexity without value — the domain skill's stateless design means every invocation is self-contained. Delete the monitor skill; keep the domain skill + `/loop`.
+
+## Platform-Neutral Skill Naming: Use "Request", Not "Review"
+
+When unifying GitHub PR and GitLab MR skills, name them with "request" — the shared root of "pull request" and "merge request." Avoid "review" as the noun — it means the act of code review, creating ambiguity (e.g., "address review comments on a review"). Good: `create-request`, `explore-request`, `split-request`, `address-request-comments`. The `-comments` suffix on address disambiguates what's being addressed.
+
+**Pressure-test unified names before writing.** Naming propagates fast — once a name lands in a SKILL.md, it cascades into cross-references, template filenames, descriptions, and related skills tables. Check the candidate noun against all contexts it'll appear in: does it collide with an existing domain term? Does it read clearly when combined with action verbs (`address-X`, `explore-X`, `split-X`)? The `address-review` collision (addressing review comments on a review) would have surfaced immediately with this check. Renaming after the fact works but is mechanical overhead across every file that adopted the name.
+
+## Dual Platform Commands for Diverged APIs
+
+When unifying GitHub/GitLab skills, CLI commands (`gh pr create` vs `glab mr create`) can use variable substitution (`$CREATE_CMD`). API calls cannot — JSON field names (`number` vs `iid`, `body` vs `description`), query params (`direction=asc` vs `sort=asc&order_by=created_at`), and endpoint shapes diverge too much. Use side-by-side platform blocks for API calls:
+
+```markdown
+**GitHub:**
+\```bash
+gh api "repos/{owner}/{repo}/pulls/..." | jq '{number, ...}'
+\```
+
+**GitLab:**
+\```bash
+glab api "projects/:id/merge_requests/..." | jq '{iid, ...}'
+\```
+```
+
+Variable tables in step 1 ("Detect platform") work well for CLI commands and flags.
+
+## Shared Reference Files Reduce Cross-Skill Duplication
+
+When multiple skills duplicate the same platform-specific command blocks (e.g., GitHub vs GitLab API calls), extract them into shared reference files under `~/.claude/skill-references/`. Split by platform (`github-commands.md`, `gitlab-commands.md`) so each skill reads only the file matching its detected platform — avoids loading unused commands. Don't use `@` references for these files; skills should Read selectively after platform detection.
+
+Benefits:
+- Bug fixes apply once (e.g., fixing a jq escaping issue in the shared file fixes all skills)
+- New platform support added in one place
+- Skills stay focused on workflow logic, not API mechanics
+- Selective Read loads ~half the tokens vs auto-inlining both platforms
+
+Pattern: skill step 1 defines variables (`$VIEW_CMD`, `$API_CMD`), shared reference uses those variables in command templates, skill steps reference sections by name.
+
+## Incremental Fetch Timestamps Must Derive From Data
+
+When polling for new items (PR comments, notifications, etc.), set `LAST_FETCH_TS` to the `created_at` of the newest item returned — not wall-clock time. Wall-clock creates gaps: if a comment arrives between the API call and the timestamp assignment, the next poll's `since` parameter skips past it. If no items are returned, keep the previous timestamp unchanged.
+
+## Keep Approval Flows On-Platform
+
+When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified in one place and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.

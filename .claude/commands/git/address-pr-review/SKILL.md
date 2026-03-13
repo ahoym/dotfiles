@@ -38,7 +38,7 @@ Fetch and address review comments from a pull request.
      ```
    - Get general PR review comments (not tied to specific lines):
      ```bash
-     gh pr view <pr> --json reviews --jq '.reviews[] | select(.body != "") | {author: .author.login, state: .state, body}'
+     gh pr view <pr> --json reviews --jq '.reviews[] | select(.body | length > 0) | {author: .author.login, state: .state, body}'
      ```
    - Get issue/PR comments (includes LGTM comments):
      ```bash

@@ -41,7 +41,8 @@ Load when working in the specific area:
 - `learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
 - `learnings/resilience-patterns.md` — Dedup-before-process, domain exceptions for integration failures, stale cache silent data loss
 - `learnings/financial-applications.md` — Fee calculation invariants, zero-divisor guards, command-query separation in financial state
-- `learnings/code-review-general.md` — Broad Java/Spring code review patterns: null safety, enum design, test structure, naming conventions
+- `learnings/process-conventions.md` — MR scoping, review process, infrastructure evidence patterns
+- `learnings/code-quality-instincts.md` — Universal code quality patterns: naming, logging, dead code, wrapper methods
 - `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
 - `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge

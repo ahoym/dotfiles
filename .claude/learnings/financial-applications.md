@@ -53,3 +53,7 @@ Settlement cutoff used `.minusDays(1).withHour(6)` instead of `.withHour(6)`, sh
 - **Storage** — PostgreSQL uses ~2 bytes per 4 decimal digits; `(80, 30)` roughly doubles per-row cost with no practical benefit
 
 No currency standard requires >18 decimals (XRP=6, fiat=2-4, Ethereum=18). For intermediate FX rate calculations, compute in BigDecimal and persist only the final amount.
+
+### Null Safety in BigDecimal Stream Reductions and Arithmetic
+
+Nullable fields throw NPE in `reduce(BigDecimal.ZERO, BigDecimal::add)`. Add `.filter(Objects::nonNull)` or use `Optional.ofNullable().orElse(BigDecimal.ZERO)` before reducing. Extends to individual operations: guard with `BigDecimal.ZERO` before subtraction when methods like `getFeeAmount()` can return null.
