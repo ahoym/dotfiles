@@ -15,9 +15,9 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
-- extractor-prompt.md — Read when spawning extractor subagents
-- writer-prompt.md — Read when spawning the writer subagent
-- plan-template.md — Read when initializing a new extraction plan
+- `extractor-prompt.md` — Read when spawning extractor subagents
+- `writer-prompt.md` — Read when spawning the writer subagent
+- `plan-template.md` — Read when initializing a new extraction plan
 
 ## Prerequisites
 
