@@ -23,7 +23,7 @@ Analyze a large review and propose how to split it into smaller, reviewable unit
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
-- @~/.claude/skill-references/git-platform-commands.md — Platform-specific command templates
+- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 
 ## Instructions
 

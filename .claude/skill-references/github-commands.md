@@ -1,0 +1,121 @@
+---
+description: "Internal reference — GitHub-specific command templates using skill variables. Read by git skills after platform detection."
+---
+
+# GitHub Commands
+
+Commands use variables set by each skill's platform detection step (e.g., `$VIEW_CMD`, `$API_CMD`).
+Substitute your skill's variables before executing.
+
+**Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
+
+## Fetch Review Details
+
+```bash
+$VIEW_CMD <number> --json number,title,headRefName,baseRefName
+```
+
+## Fetch Inline/Review Comments
+
+```bash
+# Full fetch
+$API_CMD repos/{owner}/{repo}/pulls/<number>/comments \
+  --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
+
+# Incremental fetch (append ?since=<LAST_FETCH_TS>)
+$API_CMD "repos/{owner}/{repo}/pulls/<number>/comments?since=<TS>" \
+  --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
+```
+
+## Fetch General Review Comments
+
+```bash
+$VIEW_CMD <number> --json reviews \
+  --jq '.reviews[] | select(.body | length > 0) | {author: .author.login, state: .state, body}'
+```
+
+## Fetch Issue/Top-Level Comments
+
+```bash
+$API_CMD repos/{owner}/{repo}/issues/<number>/comments \
+  --jq '.[] | {id, body, user: .user.login, created_at}'
+```
+
+## Reply to Inline Comment
+
+Write the message body to `.gh-reply.tmp` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
+
+```bash
+# Write body to .gh-reply.tmp, then:
+$API_CMD repos/{owner}/{repo}/pulls/<number>/comments \
+  -F body=@.gh-reply.tmp -F in_reply_to=<comment_id>
+```
+
+## Post Top-Level Comment
+
+Write the message body to `.gh-reply.tmp` first, then pass via file reference:
+
+```bash
+# Write body to .gh-reply.tmp, then:
+$COMMENT_CMD <number> --body-file .gh-reply.tmp
+```
+
+## Checkout Review Branch
+
+```bash
+$CHECKOUT_CMD <number>
+git pull origin <headRefName>
+```
+
+## Fetch Files Changed
+
+```bash
+$VIEW_CMD <number> --json files --jq '.files[].path'
+```
+
+## Fetch Commits
+
+```bash
+$VIEW_CMD <number> --json commits \
+  --jq '.commits[] | {sha: .oid[0:7], message: .messageHeadline}'
+```
+
+## Fetch Diff
+
+```bash
+$DIFF_CMD <number>
+```
+
+## Check for Existing Review
+
+```bash
+$LIST_CMD <branch-name>
+```
+
+## Find Approved Reviewers
+
+```bash
+$API_CMD repos/{owner}/{repo}/pulls/<number>/reviews \
+  --jq '[.[] | select(.state == "APPROVED") | .user.login] | unique | .[]'
+```
+
+## Fetch Review Metadata (Batch)
+
+For batch operations like learnings extraction:
+
+```bash
+$API_CMD "repos/{owner}/{repo}/pulls?state=all&sort=created&direction=asc&per_page=<SIZE>&page=<PAGE>" \
+  | jq -c '.[] | {number, title, state, comments, user: .user.login, head_branch: .head.ref, requested_reviewers: [.requested_reviewers[].login], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], body: (.body // "(none)")[:400]}'
+```
+
+## Verify Platform Access (Batch)
+
+```bash
+$API_CMD "repos/{owner}/{repo}/pulls?state=all&per_page=1" | jq length
+```
+
+## Count Total Reviews
+
+```bash
+$API_CMD "repos/{owner}/{repo}/pulls?state=all&per_page=1" -i 2>&1 | grep -i 'link:'
+```

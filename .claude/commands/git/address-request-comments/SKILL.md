@@ -20,7 +20,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md - Platform detection for GitHub/GitLab
-- @~/.claude/skill-references/git-platform-commands.md - Platform-specific command templates
+- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 - `request-reply-templates.md` — Read before composing replies to review comments (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
 
@@ -41,7 +41,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 2. **Fetch review and comments** (run in parallel):
 
-   **Incremental fetch:** If this review was already fetched earlier in the session, use `updated_after` (GitLab) or `since` (GitHub) to get only new/edited comments since the last fetch. Store the current UTC timestamp as `LAST_FETCH_TS` after each fetch for use in subsequent invocations. On incremental fetch, filter out your own replies (author = current user via `$AUTH_CMD`) to avoid re-processing comments you already responded to.
+   **Incremental fetch:** If this review was already fetched earlier in the session, use `updated_after` (GitLab) or `since` (GitHub) to get only new/edited comments since the last fetch. After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies (author = current user via `$AUTH_CMD`) to avoid re-processing comments you already responded to.
 
    Announce the mode:
    ```
@@ -52,7 +52,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Full fetch — first review of $REVIEW_UNIT <number>
    ```
 
-   Follow patterns in `git-platform-commands.md`:
+   Read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform), then follow:
    - **Fetch Review Details** — get number, title, branch names
    - **Fetch Inline/Review Comments** — use full or incremental fetch as appropriate
    - **Fetch General Review Comments** — comments not tied to specific lines
@@ -63,7 +63,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in `git-platform-commands.md`.
+4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform commands file.
 
 5. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
@@ -82,21 +82,25 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
-   Follow **Reply to Inline Comment** in `git-platform-commands.md`.
+   Follow **Reply to Inline Comment** in the platform commands file.
 
-7. **Present suggestions for partner approval**:
-   After replying to all comments on the platform, present actionable suggestions to your partner (the user in CLI) for approval:
+7. **Post suggestion summary on the platform**:
+   After replying to individual comments, post a top-level comment summarizing actionable suggestions and your recommendations:
 
    ```
-   | # | File | Suggestion | My Recommendation |
-   |---|------|------------|-------------------|
+   ## Suggestions awaiting approval
+
+   | # | File | Suggestion | Recommendation |
+   |---|------|------------|----------------|
    | 1 | src/auth.py:25 | Use bcrypt | Agree — more secure |
    | 2 | src/auth.py:48 | Add error handling | Agree — improves robustness |
-
-   Which suggestions should I implement? (all / none / 1,2)
    ```
 
+   Follow **Post Top-Level Comment** in the platform commands file.
+
    Typo/bug fixes are auto-implemented (they're corrections, not debatable suggestions).
+
+   Wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") before implementing suggestions. Do NOT prompt in CLI.
 
 8. **Implement approved changes** (only after partner approval):
    a. For partner-approved suggestions and auto-approved typo/bug fixes:
@@ -124,7 +128,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 11. **Reply to comments with commit reference** (after implementation):
 
-    Follow **Reply to Inline Comment** in `git-platform-commands.md`. Include `Fixed in <COMMIT_HASH>` in the body for comments addressed by code changes.
+    Follow **Reply to Inline Comment** in the platform commands file. Include `Fixed in <COMMIT_HASH>` in the body for comments addressed by code changes.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically
@@ -259,13 +263,13 @@ For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, o
 
 Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level review comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
 
-Follow **Post Top-Level Comment** in `git-platform-commands.md`.
+Follow **Post Top-Level Comment** in the platform commands file.
 
 ### Re-review Requests
 
 After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review.
 
-Follow **Find Approved Reviewers** in `git-platform-commands.md` to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
+Follow **Find Approved Reviewers** in the platform commands file to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
 
 **Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
 

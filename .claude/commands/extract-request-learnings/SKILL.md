@@ -14,7 +14,7 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md — Platform detection for GitHub/GitLab
-- @~/.claude/skill-references/git-platform-commands.md — Platform-specific command templates
+- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 - extractor-prompt.md — Read when spawning extractor subagents
 - writer-prompt.md — Read when spawning the writer subagent
 - plan-template.md — Read when initializing a new extraction plan
@@ -33,9 +33,9 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
    | `ID_FIELD` | `number` | `iid` |
    | `PLAN_FILENAME` | `pr-learnings-extraction.md` | `mr-learnings-extraction.md` |
 
-2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from `git-platform-commands.md`, substituting `$API_CMD`.
+2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from the platform commands file, substituting `$API_CMD`.
 
-3. **Count total reviews** — use **"Count Total Reviews"** from `git-platform-commands.md`, substituting `$API_CMD`.
+3. **Count total reviews** — use **"Count Total Reviews"** from the platform commands file, substituting `$API_CMD`.
 
 4. **Create plan file** at `docs/plans/$PLAN_FILENAME`:
    - Use the template in `plan-template.md`
@@ -54,7 +54,7 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 
 4. **Glob existing learnings files** in all output locations to build `EXISTING_CATEGORIES` for subagent prompts.
 
-5. **Fetch metadata** (1 bash call) — use **"Fetch Review Metadata (Batch)"** from `git-platform-commands.md`, substituting `$API_CMD`, `BATCH_SIZE`, and `NEXT_PAGE`. Store result as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
+5. **Fetch metadata** (1 bash call) — use **"Fetch Review Metadata (Batch)"** from the platform commands file, substituting `$API_CMD`, `BATCH_SIZE`, and `NEXT_PAGE`. Store result as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
 
 6. **Spawn extractor subagents** in parallel — one per review. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every review gets the identical template structure. **Research only — no file writes.**
 
@@ -92,6 +92,36 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 9. **Update progress tracker** — edit the plan file's progress table. This is the only write the main context performs. Include a brief note on key findings.
 
 10. **Report batch summary** — 2-3 sentences on signal level, recurring patterns, and new categories. Keep it brief to preserve context.
+
+## Prerequisites
+
+Writer subagents run in the background and cannot prompt for permissions. Add these allow patterns to **project-level** `.claude/settings.local.json`:
+
+```json
+"permissions": {
+  "allow": [
+    "Bash(gh api:*)",
+    "Bash(glab api:*)",
+    "Bash(jq:*)",
+    "Bash(wc:*)",
+    "Bash(grep:*)",
+    "Read(docs/learnings/**)",
+    "Read(docs/plans/**)",
+    "Write(docs/learnings/**)",
+    "Write(docs/plans/**)",
+    "Edit(docs/learnings/**)",
+    "Edit(docs/plans/**)",
+    "Read(~/.claude/learnings/**)",
+    "Read(~/.claude/learnings-private/**)",
+    "Write(~/.claude/learnings/**)",
+    "Write(~/.claude/learnings-private/**)",
+    "Edit(~/.claude/learnings/**)",
+    "Edit(~/.claude/learnings-private/**)"
+  ]
+}
+```
+
+Without these, writer subagents will fail silently and the orchestrator must do writes in foreground.
 
 ## Important Notes
 
