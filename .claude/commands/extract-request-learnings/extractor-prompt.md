@@ -51,6 +51,7 @@ What the learning is, why it matters, and when it applies.
 - **Source**: <REVIEW_UNIT> <REVIEW_PREFIX><ID>
 - **Frequency**: once | recurring | convention
 - **Scope**: project-specific | general | private
+- **Language**: <language/framework if applicable, e.g., Python, React, Docker; omit if language-agnostic>
 - **Category**: <one of: EXISTING_CATEGORIES, or suggest new>
 ```
 

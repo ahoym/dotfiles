@@ -34,9 +34,10 @@ You ONLY write to <WRITER_SCOPE> files. Ignore learnings with scope other than "
 
 1. Read all existing files from the read location (listed below)
 2. Deduplicate extracted learnings against existing entries
-3. Enrich existing entries where patterns recur (update frequency, add source reviews)
-4. Write full output files to the write location — for enriched files, include the complete file content (not just the new entries)
-5. Create new category files only if nothing existing fits
+3. **Route-check**: Use the **Language** tag from each learning to route to the correct file. Language-specific learnings (e.g., Python, React) go to language-specific files (e.g., `python-specific.md`) even if the underlying principle is universal. Language-agnostic learnings go to topic files (e.g., `code-quality-instincts.md`). If a learning has no Language tag, treat it as language-agnostic.
+4. Enrich existing entries where patterns recur (update frequency, add source reviews)
+5. Write full output files to the write location — for enriched files, include the complete file content (not just the new entries)
+6. Create new category files only if nothing existing fits
 
 ## Read location (existing files for dedup)
 

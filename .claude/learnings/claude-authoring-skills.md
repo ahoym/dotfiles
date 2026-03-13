@@ -328,3 +328,9 @@ A skill doesn't know whether it was invoked manually, by `/loop`, or by another 
 Extraction subagents classify learnings as "general" when the underlying principle feels universal, even when the examples and syntax are language-specific. Python patterns like `# noqa` suppression, `__all__` exports, and sentinel `None` defaults were classified as general scope because the concepts (fix root causes, define public APIs) are universal — but the actual content is only useful in Python contexts. Writers should cross-check: if a learning references language-specific syntax, tooling, or idioms, route it to the language-specific file regardless of how universal the principle feels.
 
 - **Takeaway**: Cross-check scope classification against language specificity — universal principles with language-specific examples belong in language-specific files.
+
+## Multi-Session Skills Need Git Remote Sync
+
+Skills that span multiple sessions and create PRs between runs (e.g., batch extraction workflows) must sync with the remote before creating new branches. Local `main` goes stale between sessions as PRs merge. Add a `git fetch origin main` step early in the continue/resume flow, and suggest creating a fresh branch from `origin/main` if the current branch is behind or diverged.
+
+- **Takeaway**: Multi-session skill flows should include `git fetch` as an early step to prevent stale-branch issues.

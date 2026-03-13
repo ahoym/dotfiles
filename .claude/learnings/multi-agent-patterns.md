@@ -261,6 +261,14 @@ When parallel extractors fail (API rate limits, permission issues), process comp
 
 - **Takeaway**: Design batch workflows to treat partial completion as a first-class state, not an error to retry.
 
+## Staging Directory Pattern for Out-of-Project Writes
+
+Background agents cannot write to paths outside the project directory — this is a hardcoded restriction that no permission pattern can override. When agents need to produce files destined for external locations (e.g., `~/.claude/learnings/`), have them write to a staging directory inside the project instead. The orchestrator then copies staged files to their final locations in foreground, where the restriction doesn't apply.
+
+Pattern: agent reads from real location (dedup), writes to `docs/learnings/_staging/<scope>/`, orchestrator runs `cp` + `rm -rf` after all agents complete. The staging files are also visible in `git status` before being applied, enabling review.
+
+- **Takeaway**: Stage inside the project, copy to final location from orchestrator — separates analysis (agent) from file placement (orchestrator).
+
 ## Pre-Read External Files Before Launching Agents
 
 Agents inherit the parent session's permission scope. Files outside permissioned directories (e.g., `~/Downloads/`) cause silent failures — agents complete analysis but can't read the inputs. When launching agents that need files from outside the workspace, read the files yourself first and pass the content in the agent prompt. The analysis is the expensive part; providing input content is cheap.
