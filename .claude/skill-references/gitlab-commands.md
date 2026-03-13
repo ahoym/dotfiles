@@ -16,11 +16,11 @@ glab mr view <number> --output json
 
 ```bash
 # Full fetch
-glab api projects/:id/merge_requests/<number>/notes \
+glab api "projects/:id/merge_requests/<number>/notes?per_page=100" \
   | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
-# Incremental fetch
-glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>" \
+# Incremental fetch (newest first so new comments aren't hidden by pagination)
+glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>&sort=desc" \
   | jq '.[] | {id, body, author: .author.username, created_at, position}'
 ```
 
@@ -35,28 +35,34 @@ glab api projects/:id/merge_requests/<number>/discussions \
 ## Fetch Issue/Top-Level Comments
 
 ```bash
-# Notes without position data are top-level comments
-glab api projects/:id/merge_requests/<number>/notes \
+# Full fetch — notes without position data are top-level comments
+glab api "projects/:id/merge_requests/<number>/notes?per_page=100" \
+  | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+
+# Incremental fetch (newest first)
+glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>&sort=desc" \
   | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
 ```
 
 ## Reply to Inline Comment
 
-Write the message body to `.gh-reply.tmp` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
+Write the message body to `.gh-replies/<note_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
 ```bash
-# Write body to .gh-reply.tmp, then:
+mkdir -p .gh-replies
+# Write body to .gh-replies/<note_id>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@.gh-reply.tmp
+  -X POST -F body=@.gh-replies/<note_id>.md
 ```
 
 ## Post Top-Level Comment
 
-Write the message body to `.gh-reply.tmp` first, then pass via file reference:
+Write the message body to `.gh-replies/<mr_number>-top.md` first, then pass via file reference:
 
 ```bash
-# Write body to .gh-reply.tmp, then:
-glab mr comment <number> --message "$(cat .gh-reply.tmp)"
+mkdir -p .gh-replies
+# Write body to .gh-replies/<mr_number>-top.md, then:
+glab mr comment <number> --message "$(cat .gh-replies/<mr_number>-top.md)"
 ```
 
 ## Checkout Review Branch

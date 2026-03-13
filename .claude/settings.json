@@ -5,7 +5,10 @@
       "Bash(chmod:*)",
       "Bash(curl:*)",
       "Bash(find:*)",
+      "Bash(gh api:*)",
+      "Bash(gh auth:*)",
       "Bash(gh pr checkout:*)",
+      "Bash(gh pr comment:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh pr edit:*)",
@@ -44,7 +47,8 @@
       "Write(~/.claude/learnings/**)",
       "Write(~/.claude/learnings-private/**)",
       "Write(~/.claude/skill-references/**)",
-      "Write(~/.claude/skills/**)"
+      "Write(~/.claude/skills/**)",
+      "Write(~/WORKSPACE/**/.gh-replies/**)"
     ]
   }
 }
