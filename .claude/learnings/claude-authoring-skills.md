@@ -333,4 +333,18 @@ Extraction subagents classify learnings as "general" when the underlying princip
 
 Skills that span multiple sessions and create PRs between runs (e.g., batch extraction workflows) must sync with the remote before creating new branches. Local `main` goes stale between sessions as PRs merge. Add a `git fetch origin main` step early in the continue/resume flow, and suggest creating a fresh branch from `origin/main` if the current branch is behind or diverged.
 
+## Hub-and-Spoke for Authoring Guides
+
+When authoring knowledge spans multiple content types (skills, guidelines, learnings, personas), organize as a routing hub + per-type spokes rather than a monolithic file or scattered fragments. The hub stays small — routing table, boundary cases, inline guidance for minor types. Spokes handle authoring craft for types with enough depth. This enables selective loading (pay tokens only for the type you're writing) and clean ownership (each spoke stays in its lane).
+
+Naming convention: use a shared prefix (`claude-authoring-*`) to group the cluster and separate from platform knowledge files (`claude-code-*`).
+
+## Reviewer Personas vs Working-in-Repo Personas
+
+A "working in this repo" persona encodes things the user already knows — low value. A reviewer persona encodes the design philosophy and quality bar so a *reviewer agent* can evaluate changes against the user's standards without them being spelled out each time. The test: "does this persona give knowledge to someone who doesn't already have it?" Reviewer personas pass because the reviewer (the agent) is the one who needs the domain context, not the author.
+
+## Memory Minimalism
+
+Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral rules), learnings (for domain knowledge), skill references (for shared patterns), or personas (for judgment lenses) — all are conditional and discoverable. Memory is for facts that genuinely don't fit anywhere else: project state, user context, temporal facts. If content would be useful to a skill or persona, put it in a file those can discover and reference.
+
 - **Takeaway**: Multi-session skill flows should include `git fetch` as an early step to prevent stale-branch issues.
