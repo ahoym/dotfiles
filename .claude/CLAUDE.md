@@ -13,7 +13,7 @@ Check `pwd` before assuming you need to change directories. Don't `cd` or `git -
 
 # Read Tool
 
-Prefer offset + limit over full re-reads. After reading a file once, note line numbers for sections you'll need later. Don't re-read to verify an Edit — trust the success message or use a 5-line targeted read. Avoid reading a file in full right before a Write when you already have the content in context.
+Prefer offset + limit over full re-reads. After reading a file once, note line numbers for sections you'll need later. Don't re-read to verify an Edit — trust the success message or use a 5-line targeted read. Avoid reading a file in full right before a Write when you already have the content in context. Every unnecessary Read costs ~200-500 tokens; across a multi-file refactor with multiple passes, that compounds to 2-5k+ wasted tokens.
 
 Edit requires a recent Read of the target file — having the content in context from a prior skill invocation or earlier conversation turn is not enough. When batching edits across multiple files, issue a quick Read (offset + limit) on each file immediately before its Edit call.
 

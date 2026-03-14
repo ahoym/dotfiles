@@ -531,3 +531,15 @@ When a skill runs repeatedly within a session (via `/loop` or manual re-invocati
 ## Base Reviewer Persona with Extends
 
 Universal review knowledge (code quality instincts, process conventions) belongs in a base `reviewer` persona that domain-specific reviewer personas extend via `## Extends: reviewer`. This ensures every reviewer gets the baseline quality bar without each persona duplicating the same proactive loads. Domain-specific personas add only their unique loads and judgment lens.
+
+## Nest Platform-Specific References in Subdirectories
+
+When reference files are platform-specific (GitHub vs GitLab), nest them in `github/` and `gitlab/` subdirectories rather than using flat prefix naming (`github-foo.md`, `gitlab-foo.md`). Benefits: shorter filenames, natural grouping, cleaner paths in skill instructions. The index file (`commands.md`) lives inside each subdirectory alongside its cluster files.
+
+## Brace-Expansion Path Format for Platform References
+
+Use `~/.claude/skill-references/{github,gitlab}/file.md` in skill instructions rather than "read `file.md` from `dir/github/` or `dir/gitlab/`". The brace-expansion format is a single resolvable path expression. The split format requires assembling a filename with one of two directory options — more cognitive overhead, same information.
+
+## Sweep Sub-Reference Files During Restructuring
+
+When renaming or restructuring reference file paths, sweep conditional reference files (edge-cases, re-review-mode, lgtm-verification, etc.) — not just the parent SKILL.md. These sub-references often contain inline mentions like "see the platform commands file" that also need updating. Use `grep -rn` across the entire `commands/` tree to catch all occurrences.
