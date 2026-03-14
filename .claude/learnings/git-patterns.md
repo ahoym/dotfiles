@@ -154,3 +154,11 @@ with open('path/to/file.json', 'w') as f:
 Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address]/route.ts` fails with "no matches found." This hits constantly in Next.js projects with dynamic route dirs like `[address]`, `[id]`, etc.
 
 **Workarounds:** `git add -A` (if all changes are wanted), `git add -- 'app/api/accounts/\[address\]/**'` (escaped), or `noglob git add <path>`.
+
+## Stash Pop Across Diverged Branches Causes Conflicts
+
+`git stash pop` applies the stash as a patch against the current HEAD. If the stash was created on branch A and popped on branch B (which diverged from A), files modified in the divergent commits will conflict — even if the stash itself didn't touch those files.
+
+**Common scenario:** Stash working changes → `git checkout -b new-branch main` → `git stash pop`. If the original branch had commits modifying files that main also modified differently, those files conflict.
+
+**For delete/modify conflicts** (stash deleted a file that the new base modified): `git rm <file>` resolves in favor of the deletion. For text conflicts: resolve normally, keeping the stash's changes.

@@ -137,3 +137,11 @@ Before starting any refactoring, build a coverage map:
 | Change validator signature | 16 routes | Has lib test | Safe to refactor immediately |
 
 Items with no tests get tests first; items with existing coverage can be refactored immediately.
+
+## Content-Loss Audit After Large Refactors
+
+When a refactor renames, splits, or merges files, run a parallel audit to verify no sections were dropped. Launch one agent per old file — each extracts `##` headings from the old version (`git show main:<path>`) and traces each to a new file.
+
+**Pattern:** The audit agent produces a table mapping old heading → new file → status (✅/❌). Missing sections surface immediately. This caught 9 dropped sections in a 6-file hub-and-spoke refactor that otherwise would have been silently lost.
+
+**When to apply:** Any refactor that deletes or renames 3+ files. The parallel agent cost (~30s) is trivial compared to discovering content loss later.
