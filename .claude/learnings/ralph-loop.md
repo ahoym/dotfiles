@@ -40,8 +40,12 @@ The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous l
 - **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 2 consecutive clean rounds. Max 5 rounds before forced stop.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; only true blockers surface for human review via `blockers.md`
 - **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by subsequent sweeps via the convergence mechanism.
-- **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/lab/ralph/wiggum.sh`)
-- **Resume**: `/ralph:consolidate:resume` handles blocker resolution and relaunch (vs `/ralph:resume` for research question answering)
+- **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/ralph/research/wiggum.sh`)
+- **Resume**: `/ralph:consolidate:resume` handles blocker resolution and relaunch (vs `/ralph:research:resume` for research question answering)
+
+## Research Output Pipeline: staged-learnings
+
+Research output goes to `docs/staged-learnings/<project>/` inside the worktree — not `docs/learnings/`. The naming creates an explicit pipeline: research produces staged learnings that can later be filtered/promoted into `docs/learnings/`. This separates raw research artifacts from curated knowledge.
 
 ## Round-Based vs Type-Blocked Convergence
 

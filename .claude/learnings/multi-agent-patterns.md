@@ -72,6 +72,10 @@ When comparing two codebases to identify features worth porting:
 
 When the task is porting code from one codebase to another, request **exact source code** from Explore agents — not summaries. Summaries are useful for understanding; porting requires the actual class signatures, method bodies, annotations, and import lists. Requesting summaries first then re-launching agents for full code doubles the exploration cost.
 
+## Distill Before Discussing
+
+After parallel Explore agents return, synthesize their findings into a concise summary before jumping to questions or decisions. The user shouldn't have to reconstruct the picture from raw agent output. Pattern: explore → distill ("here's what I found and what it means") → discuss. Especially important when agents return large outputs spanning multiple files and dependency trees.
+
 **Heuristic:** If the plan will include "port X from repo A to repo B", the explore prompt should say "read the FULL contents of these files — report package declarations, imports, and complete class bodies."
 
 ## Three-Phase Subagent Refactoring

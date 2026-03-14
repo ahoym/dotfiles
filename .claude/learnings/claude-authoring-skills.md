@@ -328,6 +328,10 @@ Benefits:
 
 Pattern: skill step 1 defines variables (`$VIEW_CMD`, `$API_CMD`), shared reference uses those variables in command templates, skill steps reference sections by name.
 
+### Session-Stable References: Skip-If-Cached Instruction Pattern
+
+When a shared reference produces a result that's stable within a session (e.g., platform detection — the git remote doesn't change mid-session), add explicit conditional language to the instruction step: "if not already detected this session, read X and follow its logic." This enables the LLM to skip both the file read and the detection bash call on subsequent skill invocations in the same session. Saves ~200 tokens + 1 bash call + 1 file read per subsequent invocation. The reference section should use backtick-quoted paths (not `@`) with a note like "read if platform not yet detected this session."
+
 ## Incremental Fetch Timestamps Must Derive From Data
 
 When polling for new items (PR comments, notifications, etc.), set `LAST_FETCH_TS` to the `created_at` of the newest item returned — not wall-clock time. Wall-clock creates gaps: if a comment arrives between the API call and the timestamp assignment, the next poll's `since` parameter skips past it. If no items are returned, keep the previous timestamp unchanged.
@@ -543,3 +547,7 @@ Use `~/.claude/skill-references/{github,gitlab}/file.md` in skill instructions r
 ## Sweep Sub-Reference Files During Restructuring
 
 When renaming or restructuring reference file paths, sweep conditional reference files (edge-cases, re-review-mode, lgtm-verification, etc.) — not just the parent SKILL.md. These sub-references often contain inline mentions like "see the platform commands file" that also need updating. Use `grep -rn` across the entire `commands/` tree to catch all occurrences.
+
+## Skill Namespace Migration Blast Radius
+
+When renaming a skill namespace (e.g., `ralph:init` → `ralph:research:init`), the SKILL.md files are the obvious targets but infrastructure references are the most commonly missed. Trace all of these: runner script paths (wiggum.sh), hook marker patterns in lib-hooks.sh (used for idempotent injection/cleanup), worktree prefix patterns in cleanup skills, output directory paths across sibling skills (brief/resume/compare may reference different paths than init), and learnings files that document the architecture. Grep the entire `.claude/` tree for the old path fragments before declaring the migration complete.

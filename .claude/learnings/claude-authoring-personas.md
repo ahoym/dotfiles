@@ -74,6 +74,14 @@ Child personas that declare `## Extends: <parent>` or `## Extends: <parent1>, <p
 
 Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
 
+## Knowledge/Lens Decomposition
+
+When a persona carries both domain knowledge (taxonomy, placement rules, gotchas) and a judgment lens (review checklists, authoring posture), split the knowledge into a base "expert" persona. Multiple lens personas can then extend the expert alongside other bases. The expert carries *what to know*; the lens carries *how to apply it*.
+
+**When to decompose:** A persona has 2+ distinct use modes (reviewing vs authoring vs debugging) that share the same knowledge but apply different judgment. The signal is wanting to activate the same domain knowledge with a different posture.
+
+**Structure:** `expert` (knowledge base) → `reviewer` extends `[domain-reviewer, expert]` (evaluative lens) + `author` extends `[expert]` (generative lens).
+
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
 When two peer personas share duplicated content (e.g., both have React/Next.js gotchas), **extract to a shared learning file and reference from both** rather than choosing which persona "owns" the content. Ownership-based resolution ("the more specialized persona owns the gotcha") breaks down when neither persona is clearly more specialized for the shared domain — react-frontend is more specialized for React, xrpl-typescript-fullstack is more specialized for XRPL, but both legitimately need the React patterns.
