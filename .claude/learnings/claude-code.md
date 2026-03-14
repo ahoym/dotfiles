@@ -184,3 +184,7 @@ gh api repos/{owner}/{repo}/pulls/comments/<comment_id> -X PATCH -F body=@.gh-re
 ```
 
 Using the wrong path (`pulls/<number>/comments/<id>`) returns a 404.
+
+## Setup Scripts Must Track Symlink Target Changes
+
+When a file moves within the repo (e.g., `CLAUDE.md` from root to `.claude/CLAUDE.md`), update the setup script's symlink list. The symlink at `~/.claude/` will still point to the old location, causing silent breakage on fresh installs. The fix is mechanical (add to ITEMS list) but easy to forget — the existing install works fine because the symlink was updated manually.
