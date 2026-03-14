@@ -76,7 +76,11 @@ Flags can be combined: `/resolve-conflicts --rebase main`
    **Rebase note:** Conflicts appear per-commit, not all at once. After resolving each commit's conflicts, `git rebase --continue` advances to the next. Be prepared for multiple conflict rounds.
 
 7. **For each conflicted file**:
-   - Read the file to see conflict markers
+   - Locate conflict markers surgically — don't read the full file:
+     ```bash
+     grep -n '<<<<<<' <file>
+     ```
+   - Read only the conflict regions using offset+limit (±10 lines around each marker). Full file reads on large files (400+ lines) waste context budget when only 20-30 lines are conflicted.
    - Analyze both sides of the conflict
 
    **Rebase-specific: `--ours`/`--theirs` are inverted.** During rebase, `--ours` = the base branch (what you're rebasing onto), `--theirs` = your commit being replayed. This is the opposite of merge. Always verify with a content check after using `git checkout --ours/--theirs`.

@@ -315,6 +315,12 @@ Pattern: skill step 1 defines variables (`$VIEW_CMD`, `$API_CMD`), shared refere
 
 When polling for new items (PR comments, notifications, etc.), set `LAST_FETCH_TS` to the `created_at` of the newest item returned — not wall-clock time. Wall-clock creates gaps: if a comment arrives between the API call and the timestamp assignment, the next poll's `since` parameter skips past it. If no items are returned, keep the previous timestamp unchanged.
 
+## Re-Read Templates at Point of Use, Not Ahead of Time
+
+When a skill step says "read template X and use it verbatim," read the template immediately before that step — not minutes earlier as pre-work. Stale context causes improvisation: the agent fills in values from memory rather than from the template's prescriptive instructions, missing critical details like staging directories or routing rules. The longer the gap between reading and using, the more likely the agent substitutes its own assumptions.
+
+- **Takeaway**: Template reads belong at the step that uses them, not in a setup phase.
+
 ## Explicit Variable Continuity Across Skill Steps
 
 Multi-step skills should explicitly name variables when data flows between steps. E.g., "Store as `FILES_TO_EXTRACT`" in step 3, then "For each file in `FILES_TO_EXTRACT`" in step 7. Without this, later steps become ambiguous — "add the files" vs "add `FILES_TO_EXTRACT`." Named variables create a traceable data flow through the skill.
