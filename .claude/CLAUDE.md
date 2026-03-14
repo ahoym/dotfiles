@@ -1,9 +1,9 @@
 # Guidelines
 
-@.claude/guidelines/communication.md
-@.claude/guidelines/skill-invocation.md
-@.claude/guidelines/context-aware-learnings.md
-@.claude/guidelines/skill-path-resolution.md
+@./guidelines/communication.md
+@./guidelines/skill-invocation.md
+@./guidelines/context-aware-learnings.md
+@./guidelines/skill-path-resolution.md
 
 # Bash Tool
 
@@ -14,6 +14,8 @@ Check `pwd` before assuming you need to change directories. Don't `cd` or `git -
 # Read Tool
 
 Prefer offset + limit over full re-reads. After reading a file once, note line numbers for sections you'll need later. Don't re-read to verify an Edit — trust the success message or use a 5-line targeted read. Avoid reading a file in full right before a Write when you already have the content in context.
+
+Edit requires a recent Read of the target file — having the content in context from a prior skill invocation or earlier conversation turn is not enough. When batching edits across multiple files, issue a quick Read (offset + limit) on each file immediately before its Edit call.
 
 # Path Resolution
 
