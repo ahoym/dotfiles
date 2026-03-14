@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
-| ROUND | 3 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 9 |
+| ROUND | 4 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
+| CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -53,6 +53,7 @@ Suggested iterations: 15
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 3 | 0 | 1 | 0 | 0 | 0 | No |
 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | No |
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -68,6 +69,7 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 3. Round 2 complete (not clean). |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, 11 domain clusters. No duplicates, no staleness, no genericization issues. All prior dedup from iters 1/4 holding. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iter 5. No changes since last sweep. All cross-references valid. |
+| 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 6. Round 3 complete (clean). CLEAN_ROUND_STREAK → 1. |
 
 ## Deep Dive Status
 
@@ -143,5 +145,13 @@ Suggested iterations: 15
 ### Iter 8
 
 **SKILLS sweep (Round 3)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas — identical inventory to iter 5. No skill files modified since iter 5. Cross-referenced against LEARNINGS changes from iter 4 (removed duplicate sections from claude-authoring-skills.md, bash-patterns.md) — all skills/personas referencing these files point to the files themselves (which still exist), not the removed sections. No overlap, staleness, or scope issues.
+
+**Compounding**: Skipped — clean sweep.
+
+### Iter 9
+
+**GUIDELINES sweep (Round 3)**: Clean. Same 4 files as iters 3, 6. All @-referenced from CLAUDE.md. No modifications since iter 6. Cross-referenced against learnings corpus (13 files mention guideline-related terms) — all are reference knowledge, not behavioral duplication. CLAUDE.md inline sections (Bash Tool, Read Tool, Path Resolution table, Sync) correctly placed.
+
+**Round 3 complete**: Clean (all three types clean). CLEAN_ROUND_STREAK → 1. Starting Round 4 — if this round is also clean, broad sweeps converge.
 
 **Compounding**: Skipped — clean sweep.
