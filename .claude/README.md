@@ -32,11 +32,12 @@ This symlinks everything in `.claude/` into `~/.claude/`, making it available gl
 
 | Skill | Description |
 |-------|-------------|
-| `/git:create-pr` | Create a PR or update an existing one following project conventions |
-| `/git:address-pr-review` | Fetch and address review comments from a PR |
-| `/git:explore-pr` | Pull down a PR to get context and ask questions about it |
-| `/git:monitor-pr-comments` | Watch a PR in background and address new comments as they arrive |
-| `/git:split-pr` | Analyze a large PR and propose how to split it into smaller units |
+| `/git:create-request` | Create a PR/MR or update an existing one following project conventions |
+| `/git:address-request-comments` | Fetch and address review comments from a PR/MR |
+| `/git:explore-request` | Pull down a PR/MR to get context and ask questions about it |
+| `/git:code-review-request` | Code review a PR/MR with persona lens and inline comments |
+| `/git:split-request` | Analyze a large PR/MR and propose how to split it into smaller units |
+| `/git:split-commit` | Split a commit with mixed changes into separate commits |
 | `/git:repoint-branch` | Extract independent changes from a feature branch into a new PR targeting main |
 | `/git:cascade-rebase` | Rebase a chain of stacked/dependent branches when main is updated |
 | `/git:resolve-conflicts` | Resolve merge conflicts between branches |

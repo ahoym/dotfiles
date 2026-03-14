@@ -138,10 +138,10 @@ PR created: https://github.com/user/repo/pull/42
 Returned to feature/phase2.
 ```
 
-## When to Use This vs `/git:split-pr`
+## When to Use This vs `/git:split-request`
 
 - **`/git:repoint-branch`** — You already know which files to extract into a separate PR. Provide paths and this skill handles branching, copying, committing, and PR creation.
-- **`/git:split-pr`** — You have a large PR and need help analyzing *how* to split it. That skill proposes a strategy; use this one to execute each piece.
+- **`/git:split-request`** — You have a large PR/MR and need help analyzing *how* to split it. That skill proposes a strategy; use this one to execute each piece.
 
 ## Important Notes
 
