@@ -71,7 +71,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
-   **Always append the co-authorship footnote** (`---\n*Co-authored with Claude Opus 4.6*`) to every reply posted on the platform. See `request-reply-templates.md` for examples.
+   **Always append the co-authorship footnote** (`---\n*Co-authored with Claude <model>*`) to every reply posted on the platform, using the model you're currently running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6"). See `request-reply-templates.md` for examples.
 
    Follow **Reply to Inline Comment** in the platform commands file.
 

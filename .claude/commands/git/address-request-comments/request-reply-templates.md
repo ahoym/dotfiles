@@ -8,8 +8,10 @@ Use these templates when replying to review comments. Always include the co-auth
 Thanks for catching this! Updated `_END_YEAR` to 2026 in cfc995a.
 
 ---
-*Co-authored with Claude Opus 4.6*
+*Co-authored with Claude <model>*
 ```
+
+(Use the model you're currently running as, e.g., "Claude Opus 4.6", "Claude Sonnet 4.6".)
 
 ## Agreeing with Feedback
 
@@ -17,7 +19,7 @@ Thanks for catching this! Updated `_END_YEAR` to 2026 in cfc995a.
 Good call - these were definitely overkill. Inlined both functions in abc123.
 
 ---
-*Co-authored with Claude Opus 4.6*
+*Co-authored with Claude <model>*
 ```
 
 ## Asking for Clarification
@@ -29,7 +31,7 @@ I think you're suggesting we extract this into a separate config dict - is that 
 or did you have a different approach in mind?
 
 ---
-*Co-authored with Claude Opus 4.6*
+*Co-authored with Claude <model>*
 ```
 
 ## Respectfully Pushing Back
@@ -42,5 +44,5 @@ I kept this as a separate function because it's also called from `order_processo
 shared utils module work better, or am I missing something about the intended design?
 
 ---
-*Co-authored with Claude Opus 4.6*
+*Co-authored with Claude <model>*
 ```
