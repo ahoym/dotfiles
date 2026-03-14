@@ -55,6 +55,15 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
    ```
 
+   **Merged/closed detection (incremental only):** On quiet no-ops, also check the PR/MR state. If merged or closed, announce it and auto-cancel any matching polling loop:
+   1. Use `CronList` to find jobs whose prompt contains `/git:address-request-comments <number>`
+   2. Delete matching jobs with `CronDelete`
+   3. Announce:
+   ```
+   <REVIEW_UNIT> #<number> is <merged|closed>. Cancelled polling loop <job_id>.
+   ```
+   If no matching loop is found, just announce the state change without the cancellation line.
+
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
 3. **Display comments summary**:
