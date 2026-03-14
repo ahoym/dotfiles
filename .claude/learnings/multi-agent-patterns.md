@@ -282,3 +282,7 @@ Split SKILL.md into two files when a skill has a multi-step background workflow:
 ## Verify Assumptions Before Documenting
 
 Test assumptions with a controlled experiment before writing them as facts across multiple files. Run a minimal reproducer that isolates the specific claim. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.
+
+## Cross-Check Subagent Inventory Comparisons
+
+When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).
