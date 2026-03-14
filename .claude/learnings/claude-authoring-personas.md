@@ -66,7 +66,9 @@ Personas reference gotcha files via a `## Proactive loads` section — loaded de
 
 ## Extends Inherits Detailed References
 
-Child personas that declare `## Extends: <parent>` inherit the parent's Detailed references — the set-persona skill loads the parent first, then layers the child. Don't duplicate parent refs in the child; only add refs unique to the child's narrower domain.
+Child personas that declare `## Extends: <parent>` or `## Extends: <parent1>, <parent2>` inherit the parents' Detailed references — the set-persona skill loads parents in declaration order, then layers the child. Don't duplicate parent refs in the child; only add refs unique to the child's narrower domain.
+
+**Multi-parent extends:** A persona can extend multiple parents (comma-separated). Parents are loaded in declaration order. Use this when a persona needs knowledge from one base and judgment posture from another — e.g., `claude-config-reviewer` extends both `reviewer` (review instincts) and `claude-config-expert` (config domain knowledge). Still no chaining — parents cannot themselves extend other personas.
 
 ## Proactive Loads Require Agent Behavior, Not @ References
 
