@@ -397,3 +397,32 @@ When a skill has mutually exclusive execution paths (e.g., "content mode" vs "sk
 **Anti-pattern: single-file conditional split.** Putting all conditional content into one reference file that's always loaded just adds indirection without saving context. Splits only help when they actually gate content out. Similarly, splitting report templates into their own file when they're always loaded alongside their mode is pure overhead.
 
 **Mode variants stay with their parent mode.** When a mode has a variant (e.g., "broad sweep" is content mode at a different granularity), keep it in the mode's file rather than in the shared SKILL.md or a third file. It's the same execution path with different entry conditions — splitting it out would add coordination cost without meaningful savings.
+
+## Structured Footnote for External Platform Posts
+
+Skills that post to external platforms (GitHub, GitLab) should use a structured footnote on every piece of posted content:
+
+```
+---
+*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+*Persona:* <name or "none">
+*Role:* <Reviewer | Addresser | ...>
+```
+
+The `Persona + Role` composite key enables filtering comment chains — the same persona may act as both Reviewer and Addresser on the same PR, and those are separate chains. Skills filter their own previous comments by matching both fields, not by username (which catches all comments regardless of role).
+
+## Re-Review Detection via Footnote Pattern Matching
+
+When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.
+
+## Polling Skills Must Fetch Fresh API Data Every Invocation
+
+Skills designed for `/loop` polling must hit the API on every invocation — never short-circuit based on in-context memory of previous runs. The whole point of polling is that external actors (other agents, humans) push changes between runs. Relying on "I already checked this PR" from a prior invocation silently breaks the polling contract.
+
+## Quick-Exit Before Expensive Fetches
+
+Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
+
+## Reference Platform Command Sections by Name, Don't Inline
+
+Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).

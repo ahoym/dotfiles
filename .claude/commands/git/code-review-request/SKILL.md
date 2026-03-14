@@ -47,17 +47,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 3. **Resolve the request** — determine which PR/MR to review:
    - If `$ARGUMENTS` contains a URL, extract the number from it
    - If `$ARGUMENTS` contains a number, use it directly
-   - Otherwise, detect from current branch:
-
-   **GitHub:**
-   ```bash
-   gh pr view --json number,title,headRefName,baseRefName,url
-   ```
-
-   **GitLab:**
-   ```bash
-   glab mr view --output json
-   ```
+   - Otherwise, detect from current branch using **"Fetch Review Details"** from the platform commands file
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
@@ -75,27 +65,23 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Announce: `🔍 Mode: first review` or `🔄 Mode: re-review (previous review from <LAST_REVIEW_TS>)`
 
-5. **Fetch PR metadata and diff** — run these in parallel:
+5. **Quick-exit check** (re-review only) — before fetching the full diff, check if anything has changed since the last review. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
 
-   **Fetch the full diff:**
-   ```bash
-   gh pr diff <REQUEST_NUMBER>
+   Fetch the latest commit SHA using **"Fetch Commits"** from the platform commands file (only the last entry). Compare against the commit SHA at `LAST_REVIEW_TS`.
+
+   Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform commands file, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`.
+
+   **If no new commits AND no new replies**, emit a single line and stop — do not proceed to step 6+:
+   ```
+   PR #<REQUEST_NUMBER>: no changes since last review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-   **Fetch the file list:**
-   ```bash
-   gh pr view <REQUEST_NUMBER> --json files --jq '.files[].path'
-   ```
+6. **Fetch PR metadata and diff** — run these in parallel using the platform commands file:
 
-   **Fetch the PR body:**
-   ```bash
-   gh pr view <REQUEST_NUMBER> --json body --jq '.body'
-   ```
-
-   **Fetch commit history:**
-   ```bash
-   gh pr view <REQUEST_NUMBER> --json commits --jq '.commits[] | {sha: .oid[0:7], message: .messageHeadline}'
-   ```
+   - **Fetch Diff** — use the **"Fetch Diff"** section
+   - **Fetch Files Changed** — use the **"Fetch Files Changed"** section
+   - **Fetch Review Details** — for PR body and metadata
+   - **Fetch Commits** — use the **"Fetch Commits"** section
 
    Store the diff as `FULL_DIFF`, file list as `CHANGED_FILES`, body as `REQUEST_BODY`, commits as `COMMITS`.
 
@@ -103,23 +89,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review only:** Also identify `NEW_COMMITS` — commits with timestamps after `LAST_REVIEW_TS`.
 
-6. **Fetch previous comment state** (re-review only):
+7. **Fetch previous comment state** (re-review only):
 
-   Fetch all inline comments from our previous reviews by matching both persona and role:
-   ```bash
-   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/comments --paginate \
-     --jq '[.[] | select((.body | contains("*Persona:* <PERSONA_NAME>")) and (.body | contains("*Role:* Reviewer"))) | {id, path, line, body, created_at}]'
-   ```
+   Use **"Fetch Inline/Review Comments"** from the platform commands file. Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
 
-   For each of our previous comments, fetch replies:
-   ```bash
-   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/comments \
-     --jq '[.[] | select(.in_reply_to_id == <comment_id>) | {id, body, user: .user.login, created_at}]'
-   ```
+   For each of our previous comments, fetch replies by filtering all comments for `in_reply_to_id` matching the comment ID.
 
    Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 
-7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
+8. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
    - Glob `~/.claude/learnings/*.md` to get the full inventory
    - For each changed file, derive domain terms from the path and content (e.g., `src/api/` -> "api", `.github/workflows/` -> "ci-cd", `tests/` -> "testing")
    - Match domain terms against learnings filenames (e.g., "ci" matches `ci-cd.md`, "test" matches `testing-patterns.md`)
@@ -127,7 +105,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Announce: `📚 Loaded domain learnings: <list>`
    - This supplements the persona's proactive loads with PR-specific knowledge
 
-8. **Analyze changes** — review through the active persona's lens.
+9. **Analyze changes** — review through the active persona's lens.
 
    **First review:** For each file, evaluate:
    - Does the change align with the persona's domain priorities?
@@ -156,7 +134,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
 
-9. **Compose the review** — build the review payload:
+10. **Compose the review** — build the review payload:
 
    **First review body** (summary — themes only, no file-specific details):
    ```
@@ -215,7 +193,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
 
-10. **Post the review** — execute in order:
+11. **Post the review** — execute in order:
 
     **a) React to resolved comments** (re-review only) — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform commands file. React with `+1` (GitHub) or `thumbsup` (GitLab).
 
@@ -223,7 +201,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **c) Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API. This covers the summary body and any new inline comments on new code.
 
-11. **Clean up and report** — remove temp files, then confirm:
+12. **Clean up and report** — remove temp files, then confirm:
 
     **First review:**
     ```
@@ -249,3 +227,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
 - Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
 - Follow-up replies should reference what changed (or didn't) since the original comment
+- **Always fetch fresh data from the API** — never rely on in-context memory of previous invocations. The polling use case (`/loop`) assumes external actors push commits and reply to comments between runs. Every invocation must hit the API to check for changes.
+- **Don't post empty reviews** — if analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that just says "no concerns" adds noise without value. This applies to both first-review and re-review modes.
+- **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over

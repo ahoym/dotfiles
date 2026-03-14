@@ -218,3 +218,7 @@ Same pattern works for `gh pr edit --body-file`. The `change-request-replies/` d
 ## Test Skills for Empirical CLI Behavior Verification
 
 Create a throwaway skill under `.claude/commands/test-<topic>/SKILL.md` to test CLI behaviors that can't be verified by reading code (e.g., `@` reference parsing, permission resolution, skill discovery). The skill body describes the test, and invoking it via `/test-<topic>` exercises the real CLI loader. Delete after testing. Useful when documentation is ambiguous or absent — the CLI's behavior is the ground truth.
+
+## GitHub Reviews API: Single Payload with Inline Comments
+
+`POST /repos/{owner}/{repo}/pulls/{number}/reviews` accepts a JSON payload with both a review summary (`body`) and an array of inline comments (`comments[]`). Each comment specifies `path`, `line`, `side`, and `body`. This avoids N+1 API calls (one per comment). Use `gh api --input file.json` to post — write the payload to a temp file to avoid shell quoting issues with complex JSON.

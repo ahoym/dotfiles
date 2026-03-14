@@ -125,3 +125,38 @@ When a decision framework (e.g., "separating universal from specific") lives in 
 When addressing PR reviews that include "LGTM" summaries: (1) When the reviewer's summary doesn't match the actual implementation, reply politely indicating the mismatch and hint at where to look — don't reveal implementation details. (2) When the summary is accurate, confirm with a short acknowledgment.
 
 - **Takeaway**: Match LGTM summaries against actual changes; politely redirect when they diverge.
+
+### Structured footnotes for multi-agent comment identity
+
+When multiple agents (addresser, reviewer) post comments from the same account, use structured metadata in comment footers to distinguish them:
+
+```
+---
+*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+*Persona:* <persona or "none">
+*Role:* <Addresser|Reviewer|...>
+```
+
+The `Role` field enables role-based filtering: `select(.body | test("Role: Addresser"))` skips self-replies without false-positiving on reviewer bot comments. Better than content-based heuristics ("Co-authored") which can't distinguish between agents sharing an account.
+
+### Never dismiss review comments as duplicates based on topic
+
+Each comment ID is a distinct interaction requiring its own response — even if a previous comment covered the same topic. "Duplicate" means the exact same comment ID being re-processed, not a different comment about the same subject. Comments from different review passes are separate interactions, not redundant noise.
+
+### Review summary vs inline comments: no duplication
+
+Review summaries name themes ("some learnings may not earn their context cost"); inline comments carry the specifics ("this pattern on line 103 is basic OOP"). A reader skimming the summary gets the full picture without clicking into files; a reader reviewing the diff gets details in context. No finding should appear in both places.
+
+- **Takeaway**: Summary = themes grouped by concern; inline = file-specific details. Zero overlap.
+
+### Emoji reactions for resolved review comments
+
+When re-reviewing a PR and a previous comment has been addressed, react with a 👍 emoji instead of posting a text reply. This signals acknowledgment without creating noise in the comment thread. Reserve text replies for partially-addressed or unresolved findings.
+
+- **Takeaway**: Resolved = emoji react (lightweight); partially addressed = follow-up reply (substantive).
+
+### Don't post empty reviews
+
+If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
+
+- **Takeaway**: No findings = no post. Silence is a valid review outcome.
