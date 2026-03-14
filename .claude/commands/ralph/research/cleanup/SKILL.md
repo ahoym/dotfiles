@@ -18,7 +18,7 @@ Prune stale ralph worktrees by checking if their branches have been merged or de
    ```bash
    git worktree list
    ```
-   - Filter for worktrees with paths containing `.claude/worktrees/ralph-`
+   - Filter for worktrees with paths containing `.claude/worktrees/research-`
    - If none found, report "No ralph worktrees found." and exit
 
 2. **Classify each worktree**:
@@ -34,11 +34,11 @@ Prune stale ralph worktrees by checking if their branches have been merged or de
    Show a summary table of worktrees with their status and branch name. Example:
    ```
    Ralph worktrees:
-   - ralph-my-topic (research/my-topic) — MERGED, safe to remove
-   - ralph-other-topic (research/other-topic) — ACTIVE, branch on remote
-   - ralph-old-thing (research/old-thing) — REMOTE DELETED, likely merged via PR
-   - ralph-experiment (research/experiment) — LOCAL ONLY, never pushed
-   - ralph-wip (research/wip) — ACTIVE + DIRTY, uncommitted changes
+   - research-my-topic (research/my-topic) — MERGED, safe to remove
+   - research-other-topic (research/other-topic) — ACTIVE, branch on remote
+   - research-old-thing (research/old-thing) — REMOTE DELETED, likely merged via PR
+   - research-experiment (research/experiment) — LOCAL ONLY, never pushed
+   - research-wip (research/wip) — ACTIVE + DIRTY, uncommitted changes
    ```
 
 4. **Ask which to remove**:

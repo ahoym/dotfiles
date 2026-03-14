@@ -7,7 +7,7 @@
 #
 # Example:
 #   cd .claude/worktrees/ralph-my-topic
-#   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/my-topic 10
+#   bash ~/.claude/ralph/research/wiggum.sh docs/staged-learnings/my-topic 10
 
 set -e
 
@@ -16,7 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # --- Args ---
 if [ -z "$1" ]; then
     echo "Usage: $0 <project_directory> [max_iterations]"
-    echo "Example: $0 docs/learnings/monte-carlo 10"
+    echo "Example: $0 docs/staged-learnings/monte-carlo 10"
     exit 1
 fi
 

@@ -19,9 +19,9 @@ inject_hooks() {
   # Build hooks config via jq to ensure proper JSON escaping
   local hooks_json
   hooks_json=$(jq -n \
-    --arg bash_cmd "bash ~/.claude/lab/ralph/hooks/guard-bash.sh" \
-    --arg web_cmd "bash ~/.claude/lab/ralph/hooks/guard-webfetch.sh" \
-    --arg write_cmd "bash ~/.claude/lab/ralph/hooks/guard-write-scope.sh $project_dir" \
+    --arg bash_cmd "bash ~/.claude/ralph/research/hooks/guard-bash.sh" \
+    --arg web_cmd "bash ~/.claude/ralph/research/hooks/guard-webfetch.sh" \
+    --arg write_cmd "bash ~/.claude/ralph/research/hooks/guard-write-scope.sh $project_dir" \
     '{
       "PreToolUse": [
         {
@@ -50,7 +50,7 @@ inject_hooks() {
     jq --argjson hooks "$hooks_json" '
       # Keep non-ralph PreToolUse entries
       [(.hooks.PreToolUse // [])[] | select(
-        .hooks | any(.command | contains("lab/ralph/hooks/guard-")) | not
+        .hooks | any(.command | contains("ralph/research/hooks/guard-")) | not
       )] as $non_ralph |
       .hooks.PreToolUse = ($non_ralph + $hooks.PreToolUse)
     ' "$settings_file" > "${settings_file}.tmp"
