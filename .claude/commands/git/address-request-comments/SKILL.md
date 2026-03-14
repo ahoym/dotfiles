@@ -33,6 +33,8 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **Incremental fetch:** If this review was already fetched earlier in the session, use `updated_after` (GitLab) or `since` (GitHub) to get only new/edited comments since the last fetch. After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies (author = current user via `$AUTH_CMD`) to avoid re-processing comments you already responded to.
 
+   **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time — it doesn't support timestamp filtering. On incremental fetches, always re-fetch reviews and compare the count against `LAST_REVIEW_COUNT` to detect new review submissions. Only process reviews beyond the previous count.
+
    Announce the mode:
    ```
    Incremental fetch — checking for comments since <LAST_FETCH_TS>
@@ -48,7 +50,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - **Fetch General Review Comments** — comments not tied to specific lines
    - **Fetch Issue/Top-Level Comments** — includes LGTM comments
 
-   **Quiet no-op (incremental only):** If both inline and top-level comment counts are 0, emit a single line and stop — do not proceed to step 3+:
+   **Quiet no-op (incremental only):** If inline, top-level, and review comment counts are all 0, emit a single line and stop — do not proceed to step 3+:
    ```
    <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
    ```
@@ -76,6 +78,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - For suggestions: State whether you agree/disagree and your proposed approach
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it
+   - For general feedback/positive signals: React with an emoji (e.g., `+1`, `heart`, `rocket`) instead of a text reply. Follow **React to Comment** in the platform commands file.
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 

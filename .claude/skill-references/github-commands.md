@@ -25,9 +25,10 @@ gh api repos/{owner}/{repo}/pulls/<number>/comments --jq '.[] | select(.created_
 ## Fetch General Review Comments
 
 ```bash
-gh pr view <number> --json reviews \
-  --jq '.reviews[] | select(.body | length > 0) | {author: .author.login, state: .state, body}'
+gh pr view <number> --json reviews --jq '.reviews[] | select(.body | length > 0) | {author: .author.login, state: .state, body}'
 ```
+
+**Note:** This endpoint does not support `since` filtering. On incremental fetches, always re-fetch and compare the review count against `LAST_REVIEW_COUNT` to detect new review submissions.
 
 ## Fetch Issue/Top-Level Comments
 
@@ -61,6 +62,18 @@ gh api repos/{owner}/{repo}/pulls/comments/<comment_id> -X PATCH \
 ```
 
 Note: The endpoint is `pulls/comments/<comment_id>` (no PR number), not `pulls/<number>/comments/<comment_id>`.
+
+## React to Comment
+
+Add an emoji reaction to an inline comment or issue comment. Use for positive signals/general feedback instead of a text reply.
+
+```bash
+# React to inline/review comment (available: +1, -1, laugh, confused, heart, hooray, rocket, eyes)
+gh api repos/{owner}/{repo}/pulls/comments/<comment_id>/reactions -F content=<emoji>
+
+# React to issue/top-level comment
+gh api repos/{owner}/{repo}/issues/comments/<comment_id>/reactions -F content=<emoji>
+```
 
 ## Post Top-Level Comment
 

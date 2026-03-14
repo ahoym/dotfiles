@@ -30,6 +30,8 @@ glab api projects/:id/merge_requests/<number>/discussions \
   | jq '.[] | {id, notes: [.notes[] | {id, body, author: .author.username, position}]}'
 ```
 
+**Note:** This endpoint does not support `updated_after` filtering. On incremental fetches, always re-fetch and compare the discussion count against `LAST_REVIEW_COUNT` to detect new review submissions.
+
 ## Fetch Issue/Top-Level Comments
 
 ```bash
@@ -49,6 +51,15 @@ mkdir -p change-request-replies
 # Write body to change-request-replies/<note_id>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
   -X POST -F body=@change-request-replies/<note_id>.md
+```
+
+## React to Comment
+
+Add an emoji reaction to a note. Use for positive signals/general feedback instead of a text reply.
+
+```bash
+# React to a merge request note (available: thumbsup, thumbsdown, smile, tada, confused, heart, rocket, eyes)
+glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POST -F name=<emoji>
 ```
 
 ## Post Top-Level Comment
