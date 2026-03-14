@@ -16,12 +16,10 @@ glab mr view <number> --output json
 
 ```bash
 # Full fetch
-glab api "projects/:id/merge_requests/<number>/notes?per_page=100" \
-  | jq '.[] | {id, body, author: .author.username, created_at, position}'
+glab api projects/:id/merge_requests/<number>/notes | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
-# Incremental fetch (newest first so new comments aren't hidden by pagination)
-glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>&sort=desc" \
-  | jq '.[] | {id, body, author: .author.username, created_at, position}'
+# Incremental fetch (filter client-side to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
 ```
 
 ## Fetch General Review Comments
@@ -36,12 +34,10 @@ glab api projects/:id/merge_requests/<number>/discussions \
 
 ```bash
 # Full fetch — notes without position data are top-level comments
-glab api "projects/:id/merge_requests/<number>/notes?per_page=100" \
-  | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+glab api projects/:id/merge_requests/<number>/notes | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
 
-# Incremental fetch (newest first)
-glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>&sort=desc" \
-  | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+# Incremental fetch (filter client-side to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes | jq '[.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}'
 ```
 
 ## Reply to Inline Comment

@@ -16,12 +16,10 @@ gh pr view <number> --json number,title,headRefName,baseRefName
 
 ```bash
 # Full fetch
-gh api 'repos/{owner}/{repo}/pulls/<number>/comments?per_page=100' \
-  --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
+gh api repos/{owner}/{repo}/pulls/<number>/comments --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 
-# Incremental fetch (newest first so new comments aren't hidden by pagination)
-gh api 'repos/{owner}/{repo}/pulls/<number>/comments?since=<TS>&direction=desc' \
-  --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
+# Incremental fetch (filter client-side to avoid query params that require quoting)
+gh api repos/{owner}/{repo}/pulls/<number>/comments --jq '.[] | select(.created_at > "<TS>") | {id, path, line, body, user: .user.login, created_at}'
 ```
 
 ## Fetch General Review Comments
@@ -35,12 +33,10 @@ gh pr view <number> --json reviews \
 
 ```bash
 # Full fetch
-gh api 'repos/{owner}/{repo}/issues/<number>/comments?per_page=100' \
-  --jq '.[] | {id, body, user: .user.login, created_at}'
+gh api repos/{owner}/{repo}/issues/<number>/comments --jq '.[] | {id, body, user: .user.login, created_at}'
 
-# Incremental fetch (newest first)
-gh api 'repos/{owner}/{repo}/issues/<number>/comments?since=<TS>&direction=desc' \
-  --jq '.[] | {id, body, user: .user.login, created_at}'
+# Incremental fetch (filter client-side to avoid query params that require quoting)
+gh api repos/{owner}/{repo}/issues/<number>/comments --jq '.[] | select(.created_at > "<TS>") | {id, body, user: .user.login, created_at}'
 ```
 
 ## Reply to Inline Comment
