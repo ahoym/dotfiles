@@ -45,3 +45,12 @@ When a structural pattern applies to a category (e.g., "every persona gets a got
 When extracting guidelines from a monolithic config, use a deliberate taxonomy: (1) universal software engineering principles (helper class extraction, factory functions, SRP — applicable to any language, uses pseudocode examples), (2) language-specific practices (docstrings, linting, float comparisons), and (3) project-specific conventions (noqa directives, test file naming, domain-specific patterns). The universal tier's portability across projects is the key design goal — pseudocode examples, not language-specific ones.
 
 - **Takeaway**: Structure guidelines in three tiers (universal/language/project) with pseudocode at the universal level for cross-project portability.
+
+## Inline Format Examples Over Fenced Code Blocks
+
+When a guideline specifies announcement formats (emoji prefixes, status messages, structured output), use inline `·`-separated examples instead of fenced code blocks. Each code block costs 3+ lines (fence + content + fence) for a single format string; inline examples express the same specification in one line.
+
+**Before** (20 lines for 3 formats): three separate fenced blocks with headers.
+**After** (2 lines): `Formats: 📚 Session start — loaded X (reason) · 📚 "keyword" → loaded X · 📚 Searched for "X" — no matches`
+
+Saves ~70% of lines in format-heavy guideline sections. The agent parses inline examples just as reliably as code blocks — the format is the content, not the fencing.
