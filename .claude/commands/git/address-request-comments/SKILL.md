@@ -20,7 +20,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md
-- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
+- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details
+- `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment fetch/reply/react templates
+- `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Checkout command
 - `request-reply-templates.md` — Read before composing replies to review comments (step 7)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
 - `address-request-edge-cases.md` — Read when processing comments (step 6+). Skip on quiet no-ops.
@@ -28,11 +30,11 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
 2. **Fetch review and comments** (run in parallel):
 
-   **Incremental fetch:** If this review was already fetched earlier in the session, filter by timestamp client-side (see platform commands file). After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies by checking for `Role: Addresser` in the comment body — this is the role tag appended to all replies by this skill.
+   **Incremental fetch:** If this review was already fetched earlier in the session, filter by timestamp client-side (see comment-interaction cluster file). After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies by checking for `Role: Addresser` in the comment body — this is the role tag appended to all replies by this skill.
 
    **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time — it doesn't support timestamp filtering. On incremental fetches, always re-fetch reviews and compare the count against `LAST_REVIEW_COUNT` to detect new review submissions. Only process reviews beyond the previous count.
 
@@ -45,7 +47,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Full fetch — first review of $REVIEW_UNIT <number>
    ```
 
-   Read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform), then follow:
+   Using the platform cluster files loaded in step 1, follow:
    - **Fetch Review Details** — get number, title, branch names
    - **Fetch Inline/Review Comments** — use full or incremental fetch as appropriate
    - **Fetch General Review Comments** — comments not tied to specific lines
@@ -63,7 +65,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform commands file.
+4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files.
 
 5. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
@@ -81,13 +83,13 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - For suggestions: State whether you agree/disagree and your proposed approach
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it
-   - For general feedback/positive signals: React with an emoji (e.g., `+1`, `heart`, `rocket`) instead of a text reply. Follow **React to Comment** in the platform commands file.
+   - For general feedback/positive signals: React with an emoji (e.g., `+1`, `heart`, `rocket`) instead of a text reply. Follow **React to Comment** in the platform cluster files.
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
    **Always append the co-authorship footnote** to every reply posted on the platform. Use the model you're currently running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6"). See `request-reply-templates.md` for the exact format — includes model, persona, and role fields.
 
-   Follow **Reply to Inline Comment** in the platform commands file.
+   Follow **Reply to Inline Comment** in the platform cluster files.
 
 8. **Post suggestion summary on the platform**:
    After replying to individual comments, post a top-level comment summarizing actionable suggestions and your recommendations:
@@ -101,7 +103,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    | 2 | src/auth.py:48 | Add error handling | Agree — improves robustness |
    ```
 
-   Follow **Post Top-Level Comment** in the platform commands file.
+   Follow **Post Top-Level Comment** in the platform cluster files.
 
    Typo/bug fixes are auto-implemented (they're corrections, not debatable suggestions).
 
@@ -130,7 +132,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 11. **Reply to comments with commit reference** (after implementation):
 
-    Follow **Reply to Inline Comment** in the platform commands file. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
+    Follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically

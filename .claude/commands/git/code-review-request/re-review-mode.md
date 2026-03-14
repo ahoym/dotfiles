@@ -4,11 +4,11 @@ Loaded when `MODE=re-review` (step 4 found a previous review with matching Perso
 
 ## Quick-exit (re-review)
 
-Compare the latest commit SHA against `LAST_REVIEW_TS`. Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform commands file, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`. If no new commits AND no new replies → skip.
+Compare the latest commit SHA against `LAST_REVIEW_TS`. Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform cluster files, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`. If no new commits AND no new replies → skip.
 
 ## Fetch previous comment state
 
-Use **"Fetch Inline/Review Comments"** from the platform commands file. Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
+Use **"Fetch Inline/Review Comments"** from the platform cluster files. Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
 
 For each of our previous comments, fetch replies by filtering all comments for `in_reply_to_id` matching the comment ID.
 
@@ -63,9 +63,9 @@ Build the output lists:
 
 Execute in order:
 
-**a) React to resolved comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform commands file. React with `+1` (GitHub) or `thumbsup` (GitLab).
+**a) React to resolved comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform cluster files. React with `+1` (GitHub) or `thumbsup` (GitLab).
 
-**b) Post follow-up replies** — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform commands file.
+**b) Post follow-up replies** — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform cluster files.
 
 **c) Post the review** — use the **"Post Review with Inline Comments"** section. This covers the summary body and any new inline comments on new code.
 

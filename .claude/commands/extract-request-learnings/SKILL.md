@@ -14,7 +14,7 @@ Systematically extract learnings from pull request (GitHub) or merge request (Gi
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md
-- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
+- `~/.claude/skill-references/github/batch-operations.md` / `gitlab/batch-operations.md` — Batch metadata fetch, access verification, count
 - `extractor-prompt.md` — Read when spawning extractor subagents
 - `writer-prompt.md` — Read when spawning the writer subagent
 - `plan-template.md` — Read when initializing a new extraction plan
@@ -49,11 +49,11 @@ General/private writers use staging directories inside the project (`docs/learni
 
 ### Init mode (`init` arg)
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/batch-operations.md` (matching detected platform).
 
-2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from the platform commands file, substituting `$API_CMD`.
+2. **Verify platform access** — use **"Verify Platform Access (Batch)"** from the batch-operations cluster file, substituting `$API_CMD`.
 
-3. **Count total reviews** — use **"Count Total Reviews"** from the platform commands file, substituting `$API_CMD`.
+3. **Count total reviews** — use **"Count Total Reviews"** from the batch-operations cluster file, substituting `$API_CMD`.
 
 4. **Create plan file** at `docs/plans/$PLAN_FILENAME`:
    - Use the template in `plan-template.md`
@@ -74,7 +74,7 @@ General/private writers use staging directories inside the project (`docs/learni
 
 5. **Glob existing learnings files** in all output locations to build `EXISTING_CATEGORIES` for subagent prompts.
 
-6. **Fetch metadata** (1 bash call) — use **"Fetch Review Metadata (Batch)"** from the platform commands file, substituting `$API_CMD`, `BATCH_SIZE`, and `NEXT_PAGE`. Store result as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
+6. **Fetch metadata** (1 bash call) — use **"Fetch Review Metadata (Batch)"** from the batch-operations cluster file, substituting `$API_CMD`, `BATCH_SIZE`, and `NEXT_PAGE`. Store result as `BATCH_METADATA`. Read `BATCH_SIZE` from the plan file (default: 10).
 
 7. **Spawn extractor subagents** in parallel — one per review. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every review gets the identical template structure. **Research only — no file writes.**
 

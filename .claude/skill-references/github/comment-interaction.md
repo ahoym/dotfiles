@@ -1,18 +1,12 @@
 ---
-description: "Internal reference — GitHub-specific command templates. Read by git skills after platform detection."
+description: "GitHub commands for fetching, posting, and reacting to PR comments."
 ---
 
-# GitHub Commands
+# GitHub: Comment Interaction
 
 **Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
-
-## Fetch Review Details
-
-```bash
-gh pr view <number> --json number,title,headRefName,baseRefName
-```
 
 ## Fetch Inline/Review Comments
 
@@ -86,111 +80,4 @@ Write the message body to `change-request-replies/<pr_number>-top.md` first, the
 mkdir -p change-request-replies
 # Write body to change-request-replies/<pr_number>-top.md, then:
 gh pr comment <number> --body-file change-request-replies/<pr_number>-top.md
-```
-
-## Create or Update PR (Body via File)
-
-Write the PR body to `change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
-
-```bash
-mkdir -p change-request-replies
-# Write body via Write tool to change-request-replies/pr-body.md, then:
-gh pr create --base <base-branch> --title "<title>" --body-file change-request-replies/pr-body.md
-# Or update existing:
-gh pr edit <number> --body-file change-request-replies/pr-body.md
-# Clean up:
-rm -rf change-request-replies
-```
-
-## Post Review with Inline Comments
-
-Write the review payload to `change-request-replies/review-<number>.json` via the Write tool, then post:
-
-```bash
-mkdir -p change-request-replies
-# Write JSON payload to change-request-replies/review-<number>.json, then:
-gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  --input change-request-replies/review-<number>.json
-# Clean up:
-rm change-request-replies/review-<number>.json && rmdir change-request-replies 2>/dev/null
-```
-
-**Payload format** (`change-request-replies/review-<number>.json`):
-```json
-{
-  "event": "COMMENT",
-  "body": "Review summary body here",
-  "comments": [
-    {
-      "path": "relative/file/path.md",
-      "line": 42,
-      "side": "RIGHT",
-      "body": "Inline comment body here"
-    }
-  ]
-}
-```
-
-- `line`: line number in the final version of the file (RIGHT side of diff)
-- `side`: always `"RIGHT"` for comments on the new version
-- `event`: `"COMMENT"`, `"APPROVE"`, or `"REQUEST_CHANGES"`
-
-## Checkout Review Branch
-
-```bash
-gh pr checkout <number>
-git pull origin <headRefName>
-```
-
-## Fetch Files Changed
-
-```bash
-gh pr view <number> --json files --jq '.files[].path'
-```
-
-## Fetch Commits
-
-```bash
-gh pr view <number> --json commits \
-  --jq '.commits[] | {sha: .oid[0:7], message: .messageHeadline}'
-```
-
-## Fetch Diff
-
-```bash
-gh pr diff <number>
-```
-
-## Check for Existing Review
-
-```bash
-gh pr list --head <branch-name>
-```
-
-## Find Approved Reviewers
-
-```bash
-gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  --jq '[.[] | select(.state == "APPROVED") | .user.login] | unique | .[]'
-```
-
-## Fetch Review Metadata (Batch)
-
-For batch operations like learnings extraction:
-
-```bash
-gh api 'repos/{owner}/{repo}/pulls?state=all&sort=created&direction=asc&per_page=<SIZE>&page=<PAGE>' \
-  | jq -c '.[] | {number, title, state, comments, user: .user.login, head_branch: .head.ref, requested_reviewers: [.requested_reviewers[].login], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], body: (.body // "(none)")[:400]}'
-```
-
-## Verify Platform Access (Batch)
-
-```bash
-gh api 'repos/{owner}/{repo}/pulls?state=all&per_page=1' | jq length
-```
-
-## Count Total Reviews
-
-```bash
-gh api 'repos/{owner}/{repo}/pulls?state=all&per_page=1' -i 2>&1 | grep -i 'link:'
 ```

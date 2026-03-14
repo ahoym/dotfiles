@@ -25,11 +25,11 @@ Pull down a review to understand its changes, get context, and ask questions.
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md
-- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
+- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details, diff, files, commits
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
+1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md` (matching detected platform).
 
 2. **Parse review identifier** from `$ARGUMENTS`:
    - If empty, use current branch's review
@@ -38,7 +38,7 @@ Pull down a review to understand its changes, get context, and ask questions.
 
 3. **Fetch review metadata** (run in parallel):
 
-   Read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform), then use:
+   Using the fetch-review-data cluster file loaded in step 1, follow:
    - **Fetch Review Details** — get number, title, body, author, branches, state, timestamps
    - **Fetch Files Changed** — get list of modified file paths
    - **Fetch Commits** — get short SHAs and commit messages

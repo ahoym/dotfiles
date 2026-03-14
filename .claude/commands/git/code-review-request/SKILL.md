@@ -36,23 +36,25 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - @~/.claude/skill-references/platform-detection.md
-- `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Read the one matching detected platform
+- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details and diff
+- `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment interaction for re-review detection
+- `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Post review, find approvers
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
 
 1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the user to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read the matching platform commands file (`~/.claude/skill-references/github-commands.md` or `gitlab-commands.md`).
+2. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
 3. **Resolve the request** — determine which PR/MR to review:
    - If `$ARGUMENTS` contains a URL, extract the number from it
    - If `$ARGUMENTS` contains a number, use it directly
-   - Otherwise, detect from current branch using **"Fetch Review Details"** from the platform commands file
+   - Otherwise, detect from current branch using **"Fetch Review Details"** from the platform cluster files
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
-   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform commands file. If the state is `MERGED` or `CLOSED`:
+   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform cluster files. If the state is `MERGED` or `CLOSED`:
    1. Use `CronList` to find any cron job whose prompt contains `/git:code-review-request` and `<REQUEST_NUMBER>`
    2. If found, cancel it with `CronDelete` using the matched job ID
    3. Emit a message and stop:
@@ -76,7 +78,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 5. **Quick-exit check** — before fetching the full diff, check if anything has changed. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
 
-   Fetch the latest commit SHA using **"Fetch Commits"** from the platform commands file (only the last entry).
+   Fetch the latest commit SHA using **"Fetch Commits"** from the platform cluster files (only the last entry).
 
    **Re-review mode:** Follow the quick-exit logic in `re-review-mode.md`.
 
@@ -87,7 +89,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER>: no changes since last review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-6. **Fetch PR metadata and diff** — run these in parallel using the platform commands file:
+6. **Fetch PR metadata and diff** — run these in parallel using the platform cluster files:
 
    - **Fetch Diff** — use the **"Fetch Diff"** section
    - **Fetch Files Changed** — use the **"Fetch Files Changed"** section
@@ -162,7 +164,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API.
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API.
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 

@@ -28,7 +28,7 @@ Verdict: LGTM understanding matches main features.
 
 When a reviewer's LGTM summary doesn't match the implementation, reply back politely indicating the mismatch. **Do not reveal the actual implementation** — instead, hint at where they should focus.
 
-Post via **Post Top-Level Comment** in the platform commands file:
+Post via **Post Top-Level Comment** in the platform cluster files:
 
 > Thanks for the review! However, that summary doesn't quite match what this PR/MR implements.
 >
@@ -38,6 +38,6 @@ Post via **Post Top-Level Comment** in the platform commands file:
 
 When a reviewer's LGTM summary accurately reflects the implementation, reply back confirming.
 
-Post via **Post Top-Level Comment** in the platform commands file:
+Post via **Post Top-Level Comment** in the platform cluster files:
 
 > Thanks! That summary accurately reflects the PR/MR.

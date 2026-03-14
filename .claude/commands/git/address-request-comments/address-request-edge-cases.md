@@ -68,13 +68,13 @@ For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, o
 
 Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level review comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
 
-Follow **Post Top-Level Comment** in the platform commands file.
+Follow **Post Top-Level Comment** in the platform cluster files.
 
 ## Re-review Requests
 
 After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review.
 
-Follow **Find Approved Reviewers** in the platform commands file to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
+Follow **Find Approved Reviewers** in the platform cluster files to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
 
 **Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
 
