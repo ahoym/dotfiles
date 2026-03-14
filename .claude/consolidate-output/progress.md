@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
-| ROUND_CLEAN | true |
+| CONTENT_TYPE | SKILLS |
+| ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -28,8 +28,8 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
-- **HIGHs applied**: 3
+- **Sweeps**: 2
+- **HIGHs applied**: 5
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 3 | 0 | 0 | 3 | Removed persona duplicates from claude-authoring-skills.md, deleted redundant validation.md, removed cross-cutting duplicates from claude-authoring-guidelines.md |
 | 2 | 1 | SKILLS | 1 | 0 | 0 | 1 | Fixed stale path in ralph:init (docs/claude-learnings/ → docs/learnings/, 6 occurrences) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, all behavioral, no duplication with learnings |
+| 4 | 2 | LEARNINGS | 2 | 0 | 0 | 2 | Removed duplicate "Grep Before Creating New Files" from claude-authoring-skills.md (verbatim in claude-authoring-learnings.md), removed duplicate "glab api --jq" from bash-patterns.md (covered in gitlab-cli.md) |
 
 ## Deep Dive Status
 
@@ -101,3 +102,15 @@ Suggested iterations: 15
 **GUIDELINES sweep**: Clean. 4 files (communication.md, context-aware-learnings.md, path-resolution.md, skill-invocation.md), all @-referenced from CLAUDE.md. All behavioral, universally needed, no domain-specific content. CLAUDE.md inline sections (Bash Tool, Read Tool, Path Resolution table, Sync) correctly placed — too short for extraction. Path Resolution table is a valid complement to path-resolution.md (adds permission patterns + Read rows). No duplication with learnings corpus.
 
 **Round 1 complete**: Not clean (4 HIGHs across LEARNINGS + SKILLS). CLEAN_ROUND_STREAK remains 0. Starting Round 2.
+
+### Iter 4
+
+**LEARNINGS sweep (Round 2)**: 56 files, re-read all. Found 2 more cross-file duplicates that survived round 1 — both are section-within-file duplicates (not whole-file like iter 1).
+
+**Pattern**: Both duplicates are "spoke file retained source content after hub-and-spoke refactor" — same root cause as iter 1's findings. claude-authoring-skills.md had a compound-skill-specific version of a general pattern already in claude-authoring-learnings.md. bash-patterns.md had a tool-specific gotcha already covered by the dedicated gitlab-cli.md.
+
+**Thin file check**: java-infosec-gotchas.md (12 lines), java-observability-gotchas.md (9 lines), quarkus-kotlin.md (8 lines), aws-patterns.md (14 lines), vercel-deployment.md (14 lines), gitlab-cli.md (15 lines) — all thin but justified: gotchas files stay separate per convention, others have distinct keyword search value.
+
+**No MEDIUMs or LOWs identified**. No obvious merge/split/compression/reference-wiring opportunities beyond the HIGHs.
+
+**Compounding**: Skipped — both findings are additional instances of the same hub-and-spoke dedup pattern already documented in curation-insights.md from iter 1. No novel meta-insights.

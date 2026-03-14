@@ -7,18 +7,18 @@
 | Started | 2026-03-14 |
 | Branch | consolidate/2026-03-14 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14 |
-| Iterations | 3 |
-| Rounds | 1 |
+| Iterations | 4 |
+| Rounds | 2 |
 | Status | IN_PROGRESS |
 
 ## Summary
 
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
-| Learnings | 1 | 3 | 0 | 0 | 0 |
+| Learnings | 2 | 5 | 0 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **3** | **4** | **0** | **0** | **0** |
+| **Total** | **4** | **6** | **0** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -30,6 +30,8 @@
 | 1 | 1 | LEARNINGS | delete file | validation.md | ralph-loop.md | HIGH |
 | 1 | 1 | LEARNINGS | delete cross-cutting duplicates | claude-authoring-guidelines.md | claude-authoring-learnings.md | HIGH |
 | 2 | 1 | SKILLS | fix stale path | ralph:init SKILL.md | — | HIGH |
+| 4 | 2 | LEARNINGS | delete duplicate section | claude-authoring-skills.md | claude-authoring-learnings.md | HIGH |
+| 4 | 2 | LEARNINGS | delete duplicate section | bash-patterns.md | gitlab-cli.md | HIGH |
 
 ## Blocked Items
 
