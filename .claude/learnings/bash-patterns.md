@@ -137,6 +137,28 @@ echo ${args[@]+"${args[@]}"}
 
 This uses parameter alternate value syntax: if `arr[@]` is unset/empty, expand to nothing; otherwise expand normally. Common in functions that conditionally build argument lists.
 
+## `gh api` Query Params Require Quoting — Filter Client-Side Instead
+
+`gh api` URLs with `?` and `&` (query params) require quoting in zsh, but quoted strings trigger Claude Code permission prompts. The workaround: drop query params entirely and filter client-side with `--jq select()`.
+
+```bash
+# Triggers permission prompt (quoted URL):
+gh api 'repos/{owner}/{repo}/pulls/24/comments?since=2026-03-14T04:00:00Z&direction=desc' --jq '...'
+
+# No prompt (unquoted URL, client-side filter):
+gh api repos/{owner}/{repo}/pulls/24/comments --jq '.[] | select(.created_at > "2026-03-14T04:00:00Z") | ...'
+```
+
+`gh api` natively resolves `{owner}/{repo}` from the current repo context — no need to manually look up the owner and repo name.
+
+**Use `--paginate` to get all results.** `gh api` defaults to 30 results per page (ascending). Without `--paginate`, comments beyond the first page are silently missed. `--paginate` is a CLI flag (no quoting needed) that auto-fetches all pages.
+
+**Use `--input file.json` for complex JSON payloads.** When a POST body has nested arrays or objects (e.g., review with inline comments), write the JSON to a temp file and pass via `--input`. Avoids shell quoting issues entirely — no `-f`/`-F` field-by-field construction needed.
+
+## `gh api` `-f` vs `-F` for Field Values
+
+`-F` (uppercase) infers type: `+1` becomes numeric `1`, which the GitHub reactions API rejects. `-f` (lowercase) always sends as string. Use `-f` when the value must be a string (e.g., `-f content=+1` for emoji reactions).
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.

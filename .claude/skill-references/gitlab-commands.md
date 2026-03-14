@@ -15,13 +15,11 @@ glab mr view <number> --output json
 ## Fetch Inline/Review Comments
 
 ```bash
-# Full fetch
-glab api projects/:id/merge_requests/<number>/notes \
-  | jq '.[] | {id, body, author: .author.username, created_at, position}'
+# Full fetch (--paginate to get all notes beyond default page limit)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
-# Incremental fetch
-glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>" \
-  | jq '.[] | {id, body, author: .author.username, created_at, position}'
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
 ```
 
 ## Fetch General Review Comments
@@ -32,31 +30,93 @@ glab api projects/:id/merge_requests/<number>/discussions \
   | jq '.[] | {id, notes: [.notes[] | {id, body, author: .author.username, position}]}'
 ```
 
+**Note:** This endpoint does not support `updated_after` filtering. On incremental fetches, always re-fetch and compare the discussion count against `LAST_REVIEW_COUNT` to detect new review submissions.
+
 ## Fetch Issue/Top-Level Comments
 
 ```bash
-# Notes without position data are top-level comments
-glab api projects/:id/merge_requests/<number>/notes \
-  | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+# Full fetch — notes without position data are top-level comments (--paginate for all pages)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}'
 ```
 
 ## Reply to Inline Comment
 
-Write the message body to `.gh-reply.tmp` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
+Write the message body to `change-request-replies/<note_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
 ```bash
-# Write body to .gh-reply.tmp, then:
+mkdir -p change-request-replies
+# Write body to change-request-replies/<note_id>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@.gh-reply.tmp
+  -X POST -F body=@change-request-replies/<note_id>.md
+```
+
+## React to Comment
+
+Add an emoji reaction to a note. Use for positive signals/general feedback instead of a text reply.
+
+```bash
+# React to a merge request note (available: thumbsup, thumbsdown, smile, tada, confused, heart, rocket, eyes)
+glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POST -F name=<emoji>
 ```
 
 ## Post Top-Level Comment
 
-Write the message body to `.gh-reply.tmp` first, then pass via file reference:
+Write the message body to `change-request-replies/<mr_number>-top.md` first, then pass via file reference:
 
 ```bash
-# Write body to .gh-reply.tmp, then:
-glab mr comment <number> --message "$(cat .gh-reply.tmp)"
+mkdir -p change-request-replies
+# Write body to change-request-replies/<mr_number>-top.md, then:
+glab mr comment <number> --message "$(cat change-request-replies/<mr_number>-top.md)"
+```
+
+**Note:** `glab mr comment` has no `--body-file` or `--message-file` equivalent. The `$(cat ...)` subshell pattern is the best available workaround but may trigger permission prompts for complex message bodies with special characters.
+
+## Create or Update MR (Body via File)
+
+Write the MR body to `change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
+
+```bash
+mkdir -p change-request-replies
+# Write body via Write tool to change-request-replies/request-body-<BRANCH_NAME>.md, then:
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
+# Or update existing:
+glab mr update <number> --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
+# Clean up:
+rm change-request-replies/request-body-<BRANCH_NAME>.md && rmdir change-request-replies 2>/dev/null
+```
+
+## Post Review with Inline Comments
+
+GitLab has no single "review" API like GitHub. Post inline comments as individual discussion notes, then post the summary as a top-level comment.
+
+**Step 1: Post each inline comment as a new discussion:**
+
+```bash
+mkdir -p change-request-replies
+# For each inline comment, write body to change-request-replies/review-<note_index>.md, then:
+glab api projects/:id/merge_requests/<number>/discussions -X POST \
+  -f "body=$(cat change-request-replies/review-<note_index>.md)" \
+  -f "position[base_sha]=<base_sha>" \
+  -f "position[head_sha]=<head_sha>" \
+  -f "position[start_sha]=<base_sha>" \
+  -f "position[position_type]=text" \
+  -f "position[new_path]=<file_path>" \
+  -f "position[new_line]=<line_number>"
+```
+
+Get `base_sha` and `head_sha` from:
+```bash
+glab api projects/:id/merge_requests/<number>/versions | jq '.[0] | {base_commit_sha, head_commit_sha}'
+```
+
+**Step 2: Post the review summary as a top-level comment** (see "Post Top-Level Comment" above).
+
+**Step 3: Clean up:**
+```bash
+rm -rf change-request-replies
 ```
 
 ## Checkout Review Branch

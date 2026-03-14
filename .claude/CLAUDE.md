@@ -19,11 +19,11 @@ Edit requires a recent Read of the target file — having the content in context
 
 # Path Resolution
 
-| Context | `~/.claude/...` | CWD-relative |
-|---------|-----------------|--------------|
+| Context | `~/.claude/...` | Relative paths |
+|---------|-----------------|----------------|
 | **Permission patterns** (settings.json) | ✅ Required | ❌ Won't match |
-| **Read** (file_path) | ✅ | ✅ |
-| **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ (file-relative) |
+| **Read** (file_path) | ✅ | ✅ CWD-relative |
+| **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ file-relative |
 
 `@` references in CLAUDE.md files resolve relative to the file's directory, not the project root. See `path-resolution.md` guideline for details.
 

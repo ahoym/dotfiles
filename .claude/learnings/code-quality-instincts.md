@@ -93,3 +93,33 @@ When switching identity sources (e.g., request-param to JWT), tests must stop pa
 ## Log level demotion requires justifying where signal is preserved
 
 When downgrading log levels, identify the alternative location where the information is still logged appropriately. Without justification, important signals disappear from production logs.
+
+## Inline parameter documentation replaces verbose guideline sections
+
+Instead of maintaining separate guideline sections documenting constructor parameters, add inline comments directly to the code. Co-located documentation reduces staleness risk and trims the guideline file.
+
+- **Takeaway**: If guideline content is restating what's in the code, move it to inline comments.
+
+## Eliminate duplicate entities through inheritance
+
+When two dataclasses share core fields, create a base dataclass with shared fields and extend for specific attributes. Reduces duplication while preserving semantic distinction.
+
+- **Takeaway**: Shared fields across dataclasses → base class with extensions.
+
+## Raise exceptions instead of returning None for invalid states
+
+Returning `None` for invalid states is ambiguous — callers can't distinguish "no results" from a bug. Raise a specific exception to make failure explicit and let callers handle it.
+
+- **Takeaway**: Invalid states should raise, not return None.
+
+## Name the primary method `run()` — demote secondary methods
+
+The primary use case of a class should own the simplest method name (e.g., `run()`). Secondary methods get descriptive names. When a class has multiple public methods, the one representing the core purpose gets the clean name.
+
+- **Takeaway**: Primary method = simplest name; secondary methods = descriptive names.
+
+## Consolidation: each piece of knowledge in exactly one location
+
+When the same content appears in guidelines, code comments, and documentation, consolidate to the most natural home. The single-source-of-truth principle applies to instructions and reference material, not just code.
+
+- **Takeaway**: Duplicate knowledge across guideline tiers = pick one authoritative location.

@@ -162,3 +162,59 @@ Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address
 **Common scenario:** Stash working changes → `git checkout -b new-branch main` → `git stash pop`. If the original branch had commits modifying files that main also modified differently, those files conflict.
 
 **For delete/modify conflicts** (stash deleted a file that the new base modified): `git rm <file>` resolves in favor of the deletion. For text conflicts: resolve normally, keeping the stash's changes.
+
+## Dependent PR Chains Risk Abandonment When Order Is Violated
+
+When PRs declare dependencies on other PRs, parallel work can make the dependent PR redundant before its dependency chain resolves.
+
+- **Takeaway**: Stacked PRs compound risk — parallel work can invalidate the entire chain.
+
+## Stacked Branch Dependency Model Risks
+
+When a branch carries both its dependency's changes and its own, the dependent branch becomes stale if the dependency is merged separately with a different implementation. Deep copies of parent changes in child branches create divergence risk.
+
+- **Takeaway**: Keep stacked branches minimal — don't carry parent changes forward.
+
+## GitHub API Pagination Hides Newest Comments
+
+The GitHub PR comments endpoint defaults to `per_page=30` ascending — when a PR has 30+ comments, newer ones silently fall off the first page. Incremental polling that doesn't account for this misses new reviewer comments entirely.
+
+**Fix:** Use `direction=desc` for incremental fetches (newest first, always visible within default page size). Use `per_page=100` for full fetches. Same applies to the issues comments endpoint.
+
+## Symlinked Dirs Revert Edits on Branch Switch
+
+When `~/.claude/learnings/` is a symlink to a git-tracked directory (e.g., `dotfiles/.claude/learnings/`), switching branches in that repo reverts all files to the branch's state — including files you edited via the symlink path. Uncommitted edits made through the symlink are silently lost. This also affects worktree creation: `git worktree add` from a branch with uncommitted changes doesn't carry those changes to the worktree.
+
+- **Takeaway**: Commit or stash edits to symlinked paths before any branch operation in the underlying repo. Verify file contents after branch switches.
+
+## Use `git mv` for File Renames to Preserve History
+
+Use `git mv` rather than manual delete-and-create to preserve file history through renames. This matters for files that evolve over time (skills, configs, learnings). When applying a naming convention retroactively, batch all renames into a single atomic PR to avoid a transitional period.
+
+- **Takeaway**: `git mv` preserves history; batch related renames into one PR.
+
+## Verify Staged Files Before `git commit --amend`
+
+Pre-commit hooks can stage additional files beyond what you explicitly `git add`. When amending, `--amend` picks up everything in the index — including hook-staged files — and folds them into the amended commit with no warning. This can silently bundle unrelated changes into the wrong commit.
+
+**Fix:** Run `git diff --cached --stat` after `git add` and before `git commit --amend` to confirm only intended files are staged.
+
+## Rebase: `--ours` and `--theirs` Are Inverted vs Merge
+
+During `git rebase`, `--ours` refers to the **base branch** (the branch you're rebasing onto) and `--theirs` refers to the **commit being replayed** (your branch's commit). This is the opposite of merge semantics where `--ours` is your current branch. Always verify with a content check (e.g., `grep` for a known string) after `git checkout --ours/--theirs` during rebase conflict resolution.
+
+## Dirty Working Tree Blocks `git rebase --continue`
+
+Unstaged changes to tracked files can block `git rebase --continue` even when all merge conflicts are resolved and staged. The rebase machinery requires a clean working tree. **Fix:** `git stash` dirty files before `--continue`, then `git stash pop` after.
+
+## Renamed Files in Rebase Show Cross-History Conflicts
+
+When the target branch renamed a file (e.g., `skill-design.md` → `claude-authoring-skills.md`), rebase conflicts appear under the new filename but contain content referencing the old. To resolve efficiently: check what content already exists on the target branch under both old and new filenames (and any split-out files like `claude-authoring-personas.md`), then keep only genuinely new content from your commit.
+
+## GitHub Reviews Endpoint Has No `since` Filter
+
+The `gh pr view --json reviews` endpoint returns all reviews every time — it doesn't support `since` or `updated_after` filtering. To detect new review submissions on incremental fetches, track `LAST_REVIEW_COUNT` and compare against the current count. Only process reviews beyond the previous count. This is distinct from inline comments and issue comments, which support timestamp-based filtering.
+
+## Stash Pop After Rebase Can Self-Conflict
+
+When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.

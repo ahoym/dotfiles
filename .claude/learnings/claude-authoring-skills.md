@@ -88,6 +88,12 @@ When migrating file paths (e.g., relocating shared references), preserve each sk
 
 Adding `@` to files that previously used bare paths changes behavior (auto-include vs manual read instruction). Only update the path portion, not the reference mechanism.
 
+## Compound Skill: Grep Before Creating New Files
+
+When `/learnings:compound` creates a new learnings file, it should first grep `~/.claude/learnings/` for existing files matching the domain. Without this check, near-duplicate files accumulate (e.g., `parallel-planning.md` and `parallel-plans.md` about the same topic). Similarly, check if the insight already exists in a more authoritative location before creating a domain-specific copy — platform behavior patterns compounded from a parallel-plan session may already be covered in `claude-code.md`.
+
+Additionally, when creating a new learnings file, check personas in `~/.claude/commands/set-persona/` for `Detailed references` sections that cover the same domain — a new file won't be discoverable through persona activation unless it's wired in. Suggest adding a reference link to matching personas.
+
 ## "LLM Knows X" ≠ "LLM Consistently Applies X"
 
 When deciding whether to codify a pattern, the question isn't "can the model execute this when asked?" but "does it reliably do so unprompted?" Textbook patterns (extract class, DRY, factories) that the model knows but doesn't consistently apply during implementation still warrant codification — as a lightweight checklist reminder, not a tutorial. The correct form factor is a slim reference file (~15 lines) that reminds, not a 229-line reference file that teaches.
@@ -156,6 +162,14 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 **Format flexibility**: The `@` parser resolves regardless of surrounding formatting — `- @path — description`, `@path — description`, `- @path`, and bare `@path` all work identically. The `- ` prefix and `— description` suffix are purely human-readability conventions.
 
+## Skill Description Frontmatter Optimization
+
+The `description:` field should be optimized for searchability:
+1. **Remove internal jargon** — Use widely understood terms
+2. **Add action keywords** — Include verbs describing what happens
+3. **Use standard terminology** — Prefer terms from common dev workflows
+4. **Include specific capabilities** — For multi-purpose skills, list key features
+
 ## Discoverability via Trigger Phrases
 
 Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.
@@ -176,7 +190,7 @@ Skip routing hints when:
 - The functional description covers it
 - The triggers would just paraphrase the name
 
-Only add "Use when..." routing hints when the skill name + functional description isn't enough for agent inference — e.g., opaque names, overlapping skills needing disambiguation. Internal reference files belong in `~/.claude/skill-references/`, not under `commands/` (which registers them as skills).
+Only add "Use when..." routing hints when the skill name + functional description isn't enough for agent inference — e.g., opaque names, overlapping skills needing disambiguation.
 
 ## Subagent Prompts: Read Shared References Instead of Hardcoding
 
@@ -189,6 +203,39 @@ Claude Code supports three-level directory nesting for skills: `commands/a/b/c/S
 ## "Reduces Typing" Is Sufficient Justification for a Skill
 
 Don't overthink whether a repeated sequence "deserves" to be a skill. If the user types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.
+
+## Persona Value: Judgment Layer, Not Recipe Catalog
+
+A persona's value comes from changing how you *think* about a domain — priorities, tradeoffs, review instincts. Recipe-heavy content (step-by-step patterns, code templates) belongs in learning files, not personas. When creating a persona from a cluster of learnings:
+
+1. Seed with judgment-grade content only (architectural principles, review checks, tradeoff heuristics, gotchas that change decision-making)
+2. Reference learning files conditionally (via "Detailed references" section) for recipes and code patterns
+3. Start thin — the enrichment loop grows the persona as more judgment-style insights emerge from real work
+4. A persona that's 90% recipes and thin on judgment doesn't justify the always-on context cost
+
+The test: "Would activating this persona before a task actually change what I do?" If the answer is just "load a gotcha list," it's not ready to be a persona yet.
+
+## Tools Must Encode the Philosophy They Curate
+
+When a philosophy is established in learnings (e.g., "lean personas as judgment layers, rich learnings as knowledge") but the tools that maintain the corpus don't enforce it, the philosophy erodes. Example: the consolidation spec's Persona Handling section told the agent to "enrich" personas with knowledge content — directly contradicting the lean-persona principle in this very file. The spec was actively working against the philosophy it was supposed to maintain.
+
+**Check**: when updating a curation tool's methodology, cross-reference the principles in the learnings it curates. The tool's actions should reinforce the established philosophy, not contradict it.
+
+## Compose Personas from Shared Learnings
+
+Personas should reference shared learning files for cross-cutting instincts rather than inlining everything. Language-agnostic practices (no duplication, single source of truth, port intent not idioms) go in a shared learning file; language-specific patterns (no IIFEs, no `as` casts) stay inline in the persona. Multiple personas can reference the same learning file without duplication.
+
+Pattern:
+```markdown
+## Code style
+Enforce `learnings/code-quality-instincts.md` (generic instincts).
+
+Language-specific:
+- Avoid IIFEs — extract named helpers
+- Avoid `as` casts — fix the source type
+```
+
+This keeps persona files focused on domain judgment while inheriting shared quality instincts.
 
 ## Skill Responsibility Boundaries: Compound, Curate, Retro
 
@@ -204,11 +251,48 @@ Skills follow a natural lifecycle: **tight feedback loop** (run, inspect output,
 
 Maturity is per-capability, not per-skill. A fundamental change to one capability (e.g., adding a new content type to a curation loop) pulls that capability back to the tight-feedback stage while the rest of the skill remains mature. This is desirable — it means the system adapts rather than calcifying.
 
+## Gotchas Are Proactive Knowledge, Not Reactive Reference
+
+Gotchas and learnings are both knowledge, but they differ in **delivery timing**. A learning can wait until you're in the weeds ("how do I wire a rate limiter?"). A gotcha must be present *before you start* — it prevents mistakes the agent wouldn't think to check for.
+
+**The test:** "Would the agent make this specific mistake without this in-context?" If yes → proactive gotcha. If it's reference knowledge needed only when you're already working in that area → reactive learning.
+
+This distinction matters because reactive-only loading has a failure mode: the agent has to *know it needs the gotcha* to load the file. But the whole point of a gotcha is catching things you wouldn't think to check.
+
+## `*-gotchas.md` Companion File Convention
+
+Proactive gotchas live in dedicated `learnings/*-gotchas.md` files — small (10-30 lines) one-liner tripwires. They're **companions** to `*-patterns.md` files when one exists (e.g., `xrpl-patterns-gotchas.md` alongside `xrpl-patterns.md`), **standalone** when no patterns file exists (e.g., `java-infosec-gotchas.md`).
+
+Personas reference gotcha files via a `## Proactive loads` section — loaded deterministically at persona activation. This is distinct from `## Detailed references` which are reactive/on-demand.
+
+```markdown
+## Proactive loads
+- `learnings/xrpl-gotchas.md`
+- `learnings/react-frontend-gotchas.md`
+
+## Detailed references
+- `learnings/xrpl-patterns.md` — full recipes, API details
+```
+
+**Why separate files, not sections within patterns files:** The `Read` tool is all-or-nothing — no section-level extraction. Loading `xrpl-patterns.md` (200+ lines) to get 15 lines of gotchas wastes context. Small dedicated files keep proactive loading cheap.
+
+**Every persona's gotchas get a file, even with a single consumer.** Uniform convention over case-by-case optimization — predictability of the pattern matters more than minimizing file count.
+
+This resolves the proactive/shared/lean trilemma: gotcha files are cheap to load (small), single source of truth (shared across personas), and loaded at persona activation (proactive).
+
 ## Skill Reference Files Are Authoritative — Deduplicate from Skills
 
 `skill-references/*.md` files are the single source of truth for shared patterns consumed by multiple skills. When skills grow and absorb reference content into their SKILL.md, the duplication should be removed from the *skill*, not the reference. The reference file stays authoritative; skills reference it.
 
 During curation, when a skill section duplicates a reference file section, replace the skill's inline content with a pointer (e.g., "See `agent-prompting.md` § Git Workflow"). This keeps skills lean and prevents the same content from fragmenting across multiple consuming skills.
+
+## Persona Extends Inherits Detailed References
+
+Child personas that declare `## Extends: <parent>` inherit the parent's Detailed references — the set-persona skill loads the parent first, then layers the child. Don't duplicate parent refs in the child; only add refs unique to the child's narrower domain.
+
+## Proactive Loads Require Agent Behavior, Not @ References
+
+Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
 
 ## /loop Supersedes Purpose-Built Monitor Skills
 
@@ -248,6 +332,12 @@ Pattern: skill step 1 defines variables (`$VIEW_CMD`, `$API_CMD`), shared refere
 
 When polling for new items (PR comments, notifications, etc.), set `LAST_FETCH_TS` to the `created_at` of the newest item returned — not wall-clock time. Wall-clock creates gaps: if a comment arrives between the API call and the timestamp assignment, the next poll's `since` parameter skips past it. If no items are returned, keep the previous timestamp unchanged.
 
+## Re-Read Templates at Point of Use, Not Ahead of Time
+
+When a skill step says "read template X and use it verbatim," read the template immediately before that step — not minutes earlier as pre-work. Stale context causes improvisation: the agent fills in values from memory rather than from the template's prescriptive instructions, missing critical details like staging directories or routing rules. The longer the gap between reading and using, the more likely the agent substitutes its own assumptions.
+
+- **Takeaway**: Template reads belong at the step that uses them, not in a setup phase.
+
 ## Explicit Variable Continuity Across Skill Steps
 
 Multi-step skills should explicitly name variables when data flows between steps. E.g., "Store as `FILES_TO_EXTRACT`" in step 3, then "For each file in `FILES_TO_EXTRACT`" in step 7. Without this, later steps become ambiguous — "add the files" vs "add `FILES_TO_EXTRACT`." Named variables create a traceable data flow through the skill.
@@ -260,18 +350,53 @@ A skill doesn't know whether it was invoked manually, by `/loop`, or by another 
 
 Skills that span multiple sessions and create PRs between runs (e.g., batch extraction workflows) must sync with the remote before creating new branches. Local `main` goes stale between sessions as PRs merge. Add a `git fetch origin main` step early in the continue/resume flow, and suggest creating a fresh branch from `origin/main` if the current branch is behind or diverged.
 
-- **Takeaway**: Multi-session skill flows should include `git fetch` as an early step to prevent stale-branch issues.
+## Hub-and-Spoke for Authoring Guides
 
-## Background Agent Permission Debugging
+When authoring knowledge spans multiple content types (skills, guidelines, learnings, personas), organize as a routing hub + per-type spokes rather than a monolithic file or scattered fragments. The hub stays small — routing table, boundary cases, inline guidance for minor types. Spokes handle authoring craft for types with enough depth. This enables selective loading (pay tokens only for the type you're writing) and clean ownership (each spoke stays in its lane).
 
-When a background agent fails silently (no output, or "permission denied"), follow this diagnostic sequence:
+Naming convention: use a shared prefix (`claude-authoring-*`) to group the cluster and separate from platform knowledge files (`claude-code-*`).
 
-1. Check if the specific command has a matching allow pattern in `.claude/settings.local.json`
-2. Test with a simple command that IS in the allow list (e.g., `echo "test"`) to isolate permission vs platform issues
-3. If the simple command works — the issue is a missing allow pattern for the specific command
-4. If the simple command also fails — escalate as a potential platform issue
+## Reviewer Personas vs Working-in-Repo Personas
 
-The most common cause of background agent failure is a missing Bash allow pattern, not a fundamental limitation.
+A "working in this repo" persona encodes things the user already knows — low value. A reviewer persona encodes the design philosophy and quality bar so a *reviewer agent* can evaluate changes against the user's standards without them being spelled out each time. The test: "does this persona give knowledge to someone who doesn't already have it?" Reviewer personas pass because the reviewer (the agent) is the one who needs the domain context, not the author.
+
+## Guidelines-to-Skills Migration
+
+### Context budget drives guideline-to-skill conversion
+
+Guidelines (`@`-loaded from CLAUDE.md) are always present in every agent's context. Skills load contextually — only meta descriptions are indexed, full content loads on invocation. For situational instructions ("how to create a PR", "how to resolve conflicts"), converting from guideline to skill saves context budget. Reserve guidelines for rules that genuinely apply to every interaction.
+
+- **Takeaway**: If an instruction is "do X when I say so" rather than "always behave this way," it should be a skill.
+
+### Skill conversion signal: procedural workflows with clear triggers
+
+The pattern that marks a guideline for skill conversion: procedural workflows with clear invocation triggers (address-pr-review, capture-learnings, close-redundant-pr, create-followup-issue, create-pr, resolve-conflicts). Trigger-ability is the key signal.
+
+- **Takeaway**: "Do X when triggered" = skill. "Always behave this way" = guideline.
+
+### Skill naming convention: prefix by taxonomy domain
+
+When skill count grows, prefix filenames by domain taxonomy (e.g., `git-create-pr.md`, `git-cascade-rebase.md`) rather than flat names. Pattern: `{domain}-{action}.md`. Apply retroactively in a single atomic PR to avoid transitional inconsistency.
+
+- **Takeaway**: Group skills by domain prefix for scannability.
+
+### Consolidate guidelines by removing skill commands that duplicate inline knowledge
+
+When guidelines already document how to run commands (e.g., exact CLI invocations), dedicated skill files wrapping those same commands add no value. Delete the skill when the guideline already covers it.
+
+- **Takeaway**: If a guideline already contains the command, a wrapper skill is redundant.
+
+### Meta-guidelines for skill creation belong in always-loaded context
+
+When converting guidelines to skills, a companion `skill-design.md` guideline codifying skill structure belongs in always-loaded context — it governs the quality of all future skill creation.
+
+- **Takeaway**: Guidelines about how to write skills are universal; keep them always-loaded.
+
+## Memory Minimalism
+
+Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral rules), learnings (for domain knowledge), skill references (for shared patterns), or personas (for judgment lenses) — all are conditional and discoverable. Memory is for facts that genuinely don't fit anywhere else: project state, user context, temporal facts. If content would be useful to a skill or persona, put it in a file those can discover and reference.
+
+- **Takeaway**: Memory is the last resort — prefer discoverable, conditional files (learnings, skill-references, personas) over always-on context cost.
 
 ## User Interaction Points
 
@@ -280,71 +405,14 @@ Mark steps where user input is needed:
 - **Ask for selection**: When multiple paths are possible
 - **Show and confirm**: Before committing or pushing
 
-```markdown
-5. **Validate**:
-   - Show the files to be extracted
-   - Ask: "Confirm these changes? (y/n)"
-```
-
-## Bash Commands in Skills
-
-- Use `--force-with-lease` instead of `--force` for safety
-- Include the full command, not just fragments
-- Show prerequisite commands (fetch, checkout) explicitly
-- Use HEREDOC for multi-line commit messages
-
-## File Operations
+## File Operations in Skills
 
 Keep temp files within repo scope rather than system directories:
-
 - **Use `./tmp/`** instead of `/tmp/` for skill-generated files
 - Add `tmp/` to `.gitignore`
 - Create the directory with `mkdir -p ./tmp` before use
 
 This keeps operations contained to the repo context and avoids permission issues.
-
-## Permissions
-
-When a skill requires Bash commands, update `.claude/settings.json`:
-
-1. List all commands the skill will run
-2. Add appropriate patterns to `permissions.allow`
-3. **Commit the settings.json changes** — permissions must be committed to take effect reliably
-4. Verify the permissions work after committing
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Bash(bash .claude/commands/my-skill/*)",
-      "Bash(./tmp/my-script.sh*)"
-    ]
-  }
-}
-```
-
-Without pre-approved permissions, users get prompted for every command, creating friction and defeating the purpose of automation. Uncommitted permission changes may appear to work in the current session but won't persist or be available to other users/sessions.
-
-## Skill Naming Conventions
-
-- Use lowercase with hyphens: `/cascade-rebase`, `/pr-status`
-- Verb-noun or noun-verb: `/split-commit`, `/resolve-conflicts`
-- Keep names short but descriptive (2-3 words max)
-
-## Skill Description Frontmatter
-
-The `description:` field in SKILL.md frontmatter should be optimized for searchability and quick recognition.
-
-1. **Remove internal jargon** — Use widely understood terms (e.g., "research directories" not "Ralph loop directories")
-2. **Add action keywords** — Include verbs that describe what happens (e.g., "Interactively resolve merge conflicts")
-3. **Use standard terminology** — Prefer terms from common git/dev workflows (e.g., "stacked branches" over "compound branches")
-4. **Include specific capabilities** — For multi-purpose skills, list key features (e.g., "Analyze code for refactoring: helper extraction, nested functions, test factories")
-
-| Before | After | Improvement |
-|--------|-------|-------------|
-| Poll a PR for new comments... | Watch a PR in background and address new comments... | Added "background" keyword |
-| Extract changes from a compound branch... | Extract independent changes from a feature branch into a new PR... | Removed jargon, clarified output |
-| Initialize a new Ralph loop research project... | Initialize an iterative research project with spec and progress tracking | Removed internal jargon |
 
 ## Making Skills Portable
 
@@ -352,23 +420,11 @@ Skills should work across different projects. Periodically audit skills to remov
 
 | Project-Specific | Generic Replacement |
 |------------------|---------------------|
-| Class names from your codebase (`BackTester`, `WalkForwardTester`) | Domain-neutral names (`DataProcessor`, `BatchProcessor`) |
-| File paths from your project (`walkforward.py`, `logic/models/`) | Generic paths (`pipeline.py`, `src/models/`) |
-| Internal API names (`Schwab API`) | Generic references (`External API`, `Payment API`) |
-| Project branch names (`docs/ralph-comparison-learnings`) | Common patterns (`feature/user-settings`) |
-
-**Keep:** Industry terminology, standard tool names (`gh`, `git`, `pytest`, `ruff`), and generic software patterns (auth, JWT, config files).
+| Class names from your codebase | Domain-neutral names (`DataProcessor`, `BatchProcessor`) |
+| File paths from your project | Generic paths (`pipeline.py`, `src/models/`) |
+| Internal API names | Generic references (`External API`, `Payment API`) |
 
 **Audit process:** Search skills for project-specific class/file names → check SKILL.md and reference files → replace with domain-neutral examples → verify examples still make sense generically.
-
-## Validating Skill Changes
-
-After modifying or creating skills, verify before committing:
-
-1. **Structure** — Directory exists, old files removed (if migrated)
-2. **Content** — Key content present in SKILL.md, reference files linked correctly
-3. **Permissions** — Required Bash patterns added to settings.json
-4. **Function** — Test the actual commands the skill uses when possible
 
 ## Analyzing Skills for Token Optimization
 
@@ -382,51 +438,67 @@ Periodically review skills 100+ lines to identify content extractable into condi
 
 **Evaluate extraction benefit:** 50+ lines situational = high value, 20-50 = medium, <20 = overhead exceeds benefit. Don't extract content under 15 lines, needed on every invocation, or that loses context when separated.
 
-## Orchestrator/Agent Separation for Multi-Step Skills
-
-Split SKILL.md into two files when a skill has a multi-step background workflow:
-
-1. **Orchestrator (SKILL.md)** — User interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines. List reference files as conditional (no eager `@`).
-2. **Background agent steps (separate .md)** — Autonomous workflow executed by a Task agent. Use aliases at top, decision tables for branching, inline warnings at point of use, error recovery at bottom.
-
-## Platform-Neutral Skill Naming: Use "Request", Not "Review"
-
-When unifying GitHub PR and GitLab MR skills, name them with "request" — the shared root of "pull request" and "merge request." Avoid "review" as the noun — it means the act of code review, creating ambiguity (e.g., "address review comments on a review"). Good: `create-request`, `explore-request`, `split-request`, `address-request-comments`. The `-comments` suffix on address disambiguates what's being addressed.
-
-**Pressure-test unified names before writing.** Naming propagates fast — once a name lands in a SKILL.md, it cascades into cross-references, template filenames, descriptions, and related skills tables. Check the candidate noun against all contexts it'll appear in: does it collide with an existing domain term? Does it read clearly when combined with action verbs (`address-X`, `explore-X`, `split-X`)? The `address-review` collision (addressing review comments on a review) would have surfaced immediately with this check. Renaming after the fact works but is mechanical overhead across every file that adopted the name.
-
-## Keep Approval Flows On-Platform
-
-When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified in one place and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
-
-## Explore Agent Upfront for Large Implementation Tasks
-
-For implementation tasks touching 10+ reference files (existing infrastructure, patterns to follow, files to edit), launch a thorough Explore agent upfront before writing anything. The upfront cost (~2 min, 50+ tool calls) eliminates incremental back-and-forth during execution and enables writing all output files in parallel with full context. This is faster end-to-end than reading files incrementally as you discover you need them.
-
 ## No Half-Steps in Numbered Instructions
 
 When writing numbered steps in skills or protocols, use proper integer steps (Step 0, 1, 2, 3...), not half-steps (Step 1.5). Half-steps signal the structure wasn't planned upfront, add uncertainty about ordering, and make the sequence harder to reference. If a new step needs to be inserted, renumber all subsequent steps.
 
-## Verify Assumptions Before Documenting
+## Validating Skill Changes
 
-Always test assumptions with a controlled experiment before writing them as facts across multiple files. Before documenting a technical limitation, run a minimal reproducer that isolates the specific claim. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.
+After modifying or creating skills, verify before committing:
+1. **Structure** — Directory exists, old files removed (if migrated)
+2. **Content** — Key content present in SKILL.md, reference files linked correctly
+3. **Permissions** — Required Bash patterns added to settings.json
+4. **Function** — Test the actual commands the skill uses when possible
 
-Common pattern: permission-denied errors in background agents are almost always missing allow patterns, not platform constraints. Test with a command known to be allowed before escalating.
+## Bash Commands in Skills
 
-## Cross-Referencing Between Reference Files
+- Use `--force-with-lease` instead of `--force` for safety
+- Include the full command, not just fragments
+- Show prerequisite commands (fetch, checkout) explicitly
+- Use HEREDOC for multi-line commit messages
 
-When splitting a large file into multiple focused reference files, add a "Related References" section at the bottom of each to help navigate between related content:
+## Skill Deduplication: Platform-Specific vs Platform-Agnostic
 
-```markdown
-## Related References
+When a platform-agnostic skill (e.g., `address-request-comments`) supersedes a platform-specific one (e.g., `address-pr-review`), check whether the older skill is still referenced or should be removed. Keeping both causes confusion about which to invoke and risks the older one falling out of sync with improvements made to the newer version.
 
-- other-file.md - Brief description of what it covers
-- another-file.md - Brief description of what it covers
+## Skill Decomposition by Execution Path
+
+When a skill has mutually exclusive execution paths (e.g., "content mode" vs "skill mode"), split mode-specific steps into conditional reference files loaded after the mode is determined. This saves context — the unused mode's instructions never load.
+
+**Decision criteria:**
+- Paths must be truly independent (never both active in one invocation)
+- Savings must exceed coordination cost (an extra Read + cross-file references)
+- Report templates and apply actions travel with their mode — they're consumed together, so grouping them avoids extra files
+
+**Anti-pattern: single-file conditional split.** Putting all conditional content into one reference file that's always loaded just adds indirection without saving context. Splits only help when they actually gate content out. Similarly, splitting report templates into their own file when they're always loaded alongside their mode is pure overhead.
+
+**Mode variants stay with their parent mode.** When a mode has a variant (e.g., "broad sweep" is content mode at a different granularity), keep it in the mode's file rather than in the shared SKILL.md or a third file. It's the same execution path with different entry conditions — splitting it out would add coordination cost without meaningful savings.
+
+## Structured Footnote for External Platform Posts
+
+Skills that post to external platforms (GitHub, GitLab) should use a structured footnote on every piece of posted content:
+
+```
+---
+*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+*Persona:* <name or "none">
+*Role:* <Reviewer | Addresser | ...>
 ```
 
-## Skill Composition
+The `Persona + Role` composite key enables filtering comment chains — the same persona may act as both Reviewer and Addresser on the same PR, and those are separate chains. Skills filter their own previous comments by matching both fields, not by username (which catches all comments regardless of role).
 
-When skills can be used together, add cross-references to help users discover related workflows:
+## Re-Review Detection via Footnote Pattern Matching
 
-1. **Add "Related Skills" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
-2. **Reference prerequisite skills** in Important Notes (e.g., "Use `/git:explore-pr` first if you need to understand the PR before splitting")
+When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.
+
+## Polling Skills Must Fetch Fresh API Data Every Invocation
+
+Skills designed for `/loop` polling must hit the API on every invocation — never short-circuit based on in-context memory of previous runs. The whole point of polling is that external actors (other agents, humans) push changes between runs. Relying on "I already checked this PR" from a prior invocation silently breaks the polling contract.
+
+## Quick-Exit Before Expensive Fetches
+
+Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
+
+## Reference Platform Command Sections by Name, Don't Inline
+
+Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).

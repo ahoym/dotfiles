@@ -53,6 +53,16 @@ When using `Task` with `subagent_type: "Bash"` and `run_in_background: true`, th
 
 **Workaround:** For file copy/create operations, do them directly in the main thread using Bash, Write, or Edit tools instead of delegating to background Bash agents. Background agents are better suited for long-running processes where the specific Bash commands have pre-configured allow patterns.
 
+### Background Agent Diagnostic Sequence
+
+When a background agent fails silently, follow this sequence:
+1. Check if the specific command has a matching allow pattern in settings
+2. Test with a simple command that IS in the allow list to isolate permission vs platform issues
+3. If the simple command works — missing allow pattern for the specific command
+4. If the simple command also fails — escalate as a potential platform issue
+
+The most common cause is a missing Bash allow pattern, not a platform limitation.
+
 ## Permissions Are Cached at Session Start
 
 Changes to `settings.json` or `settings.local.json` mid-session are **not picked up** by background agents or the current session. This applies to both project-level and local settings files.
@@ -60,6 +70,10 @@ Changes to `settings.json` or `settings.local.json` mid-session are **not picked
 **Impact:** Adding a permission mid-session then launching background agents → agents silently fail with "Permission denied."
 
 **Fix:** Add all required permissions **before** starting the session. If you discover missing permissions mid-execution, add them and restart the session.
+
+### Skill Prerequisites Pattern
+
+Skills requiring Bash commands should document permission patterns in a `## Prerequisites` section. Permission changes must be **committed** to take effect reliably — uncommitted changes may work in the current session but won't persist.
 
 ## Worktree Isolation Creates Permission Mismatches
 
@@ -146,6 +160,20 @@ Glob cannot traverse directory symlinks — even with absolute paths. `~/.claude
 
 When scrubbing personal details from learning examples, use generic placeholders (`/Users/<user>/`) rather than replacing with the "correct" form (`~/.claude`). If the learning demonstrates that absolute paths fail, replacing the example with a tilde path removes the demonstration of the failure. Match the placeholder to the role the value plays in the example.
 
+## `/loop` + Review Skill for Async PR Babysitting
+
+`/loop 1m /git:address-request-comments` creates a recurring cron job that polls a PR for new review comments every minute. Useful when waiting for reviewer feedback — the agent fetches, categorizes, and replies to comments automatically, then presents actionable suggestions for approval.
+
+Key details:
+- Uses `CronCreate` with `recurring: true`; auto-expires after 3 days
+- Incremental fetches via `?since=<timestamp>` avoid reprocessing old comments
+- Stop with `CronDelete` when done
+- The agent replies on the platform first, then posts suggestion summaries as PR comments (not CLI prompts)
+
+## Permission Patterns May Not Match Complex Bash Commands
+
+`Bash(gh api:*)` works for simple commands like `gh api repos/.../comments --jq '...'` but may fail to match when the command includes HEREDOC bodies (`-f body="$(cat <<'BODY'...BODY)"`), subshell expansions, or multi-line content. The pattern matcher appears to operate on the full command string, and complex quoting/expansion can break the glob match. For commands that post user-facing content (PR replies, comments), manual approval may be unavoidable.
+
 ## @ References Only Resolve in CLAUDE.md and SKILL.md
 
 `@path/to/file.md` references are resolved by the CLI at load time — not by the agent or the Read tool. They work in CLAUDE.md (expanded at session start) and SKILL.md (expanded when the skill is invoked). They do NOT resolve in arbitrary `.md` files read via the Read tool at runtime. This means data files (personas, reference docs, learnings) cannot use `@` to pull in other files — the agent must explicitly read them.
@@ -188,3 +216,23 @@ Using the wrong path (`pulls/<number>/comments/<id>`) returns a 404.
 ## Setup Scripts Must Track Symlink Target Changes
 
 When a file moves within the repo (e.g., `CLAUDE.md` from root to `.claude/CLAUDE.md`), update the setup script's symlink list. The symlink at `~/.claude/` will still point to the old location, causing silent breakage on fresh installs. The fix is mechanical (add to ITEMS list) but easy to forget — the existing install works fine because the symlink was updated manually.
+
+## Use `--body-file` for `gh pr create` to Avoid Permission Prompts
+
+HEREDOC content with quoted strings in `gh pr create --body "..."` triggers permission prompts on every line. Write the body to a temp file and use `--body-file` instead:
+
+```bash
+# Write body via Write tool to change-request-replies/pr-body.md, then:
+gh pr create --base main --title "title" --body-file change-request-replies/pr-body.md
+rm -rf change-request-replies
+```
+
+Same pattern works for `gh pr edit --body-file`. The `change-request-replies/` directory is already used for comment replies in `github-commands.md`.
+
+## Test Skills for Empirical CLI Behavior Verification
+
+Create a throwaway skill under `.claude/commands/test-<topic>/SKILL.md` to test CLI behaviors that can't be verified by reading code (e.g., `@` reference parsing, permission resolution, skill discovery). The skill body describes the test, and invoking it via `/test-<topic>` exercises the real CLI loader. Delete after testing. Useful when documentation is ambiguous or absent — the CLI's behavior is the ground truth.
+
+## GitHub Reviews API: Single Payload with Inline Comments
+
+`POST /repos/{owner}/{repo}/pulls/{number}/reviews` accepts a JSON payload with both a review summary (`body`) and an array of inline comments (`comments[]`). Each comment specifies `path`, `line`, `side`, and `body`. This avoids N+1 API calls (one per comment). Use `gh api --input file.json` to post — write the payload to a temp file to avoid shell quoting issues with complex JSON.

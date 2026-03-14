@@ -90,7 +90,7 @@ A pattern is **outdated** when ANY of these apply:
 | **Superseded by newer learning** | Same topic exists in more recent file/section with updated content |
 | **References non-existent code** | File paths, classes, or functions no longer exist in codebase. **Verify with `Read`, not `Glob`** — Glob doesn't reliably resolve symlinked directories (e.g., `~/.claude/` subdirs). |
 | **Contradicts current skill/guideline** | A skill or guideline now recommends a different approach |
-| **Migrated completely** | Content was fully incorporated into a skill or guideline |
+| **Migrated completely** | Content was fully incorporated into a **broadly-discoverable** location (another learning, a guideline). If the destination is narrowly scoped (one skill's SKILL.md, a skill-specific reference file), check: would future work in this domain find it there? If not, the learning is the discoverable copy — keep it. See `curation-insights.md` for the operational checklist. |
 | **References deprecated tooling** | Mentions tools/libraries no longer used (e.g., pipenv → uv) |
 
 **NOT outdated (false positives):**
