@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 3 | 0 | 1 | 0 | 0 | 0 | No |
+| 2 | 2 | 0 | 0 | 0 | 0 | 0 | No |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, all behavioral, no duplication with learnings |
 | 4 | 2 | LEARNINGS | 2 | 0 | 0 | 2 | Removed duplicate "Grep Before Creating New Files" from claude-authoring-skills.md (verbatim in claude-authoring-learnings.md), removed duplicate "glab api --jq" from bash-patterns.md (covered in gitlab-cli.md) |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. No overlap, stale refs, or scope issues |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 3. Round 2 complete (not clean). |
 
 ## Deep Dive Status
 
@@ -121,3 +123,11 @@ Suggested iterations: 15
 **SKILLS sweep (Round 2)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas. Clustered by namespace: git:10, learnings:4, ralph:7, parallel-plan:2, standalone:8. No overlap within or across namespaces. All reference files verified present. Model version strings current (Claude Opus 4.6). Co-Authored-By lines all current. Cross-persona checks: no duplicated gotchas.
 
 **Compounding**: Skipped — clean sweep, nothing to learn.
+
+### Iter 6
+
+**GUIDELINES sweep (Round 2)**: Clean. Same 4 files as iter 3, all @-referenced from CLAUDE.md. No modifications since iter 3. Cross-referenced against learnings changes from iter 4 (removed sections from claude-authoring-skills.md, bash-patterns.md) — no impact on guidelines.
+
+**Round 2 complete**: Not clean (iter 4 had 2 HIGHs in LEARNINGS). CLEAN_ROUND_STREAK remains 0. Starting Round 3.
+
+**Compounding**: Skipped — clean sweep.
