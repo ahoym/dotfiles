@@ -1,6 +1,6 @@
 ---
 name: code-review-request
-description: "Code review a pull request or merge request. Fetches diff, analyzes through active persona lens, posts review with inline comments. Use when the user asks to review a PR, do a code review, review a request, or review changes."
+description: "Code review a pull request or merge request. Fetches diff, analyzes through active persona lens, posts review with inline comments. Detects previous reviews and handles re-review automatically. Use when the user asks to review a PR, do a code review, review a request, or review changes."
 argument-hint: "[request-number-or-url]"
 ---
 
@@ -9,7 +9,7 @@ argument-hint: "[request-number-or-url]"
 
 # Code Review Request
 
-Fetch a PR/MR diff, analyze it through the active persona's lens, and post a review with inline comments — all footnoted with model and persona attribution.
+Fetch a PR/MR diff, analyze it through the active persona's lens, and post a review with inline comments — all footnoted with model and persona attribution. On consecutive runs, automatically detects previous reviews and enters re-review mode.
 
 ## Usage
 
@@ -61,7 +61,21 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
-4. **Fetch PR metadata and diff** — run these in parallel:
+4. **Check for previous reviews** — detect whether this is a first review or re-review by searching for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
+
+   **GitHub:**
+   ```bash
+   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
+     --jq '[.[] | select((.body | contains("*Persona:* <PERSONA_NAME>")) and (.body | contains("*Role:* Reviewer"))) | {id, submitted_at, body}] | sort_by(.submitted_at) | last'
+   ```
+
+   **GitLab:** Check for top-level comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer`.
+
+   If a previous review is found, set `MODE=re-review` and store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`. Otherwise, set `MODE=first-review`.
+
+   Announce: `🔍 Mode: first review` or `🔄 Mode: re-review (previous review from <LAST_REVIEW_TS>)`
+
+5. **Fetch PR metadata and diff** — run these in parallel:
 
    **Fetch the full diff:**
    ```bash
@@ -87,7 +101,25 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
-5. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
+   **Re-review only:** Also identify `NEW_COMMITS` — commits with timestamps after `LAST_REVIEW_TS`.
+
+6. **Fetch previous comment state** (re-review only):
+
+   Fetch all inline comments from our previous reviews by matching both persona and role:
+   ```bash
+   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/comments --paginate \
+     --jq '[.[] | select((.body | contains("*Persona:* <PERSONA_NAME>")) and (.body | contains("*Role:* Reviewer"))) | {id, path, line, body, created_at}]'
+   ```
+
+   For each of our previous comments, fetch replies:
+   ```bash
+   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/comments \
+     --jq '[.[] | select(.in_reply_to_id == <comment_id>) | {id, body, user: .user.login, created_at}]'
+   ```
+
+   Store as `PREVIOUS_COMMENTS` (our comments + their replies).
+
+7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
    - Glob `~/.claude/learnings/*.md` to get the full inventory
    - For each changed file, derive domain terms from the path and content (e.g., `src/api/` -> "api", `.github/workflows/` -> "ci-cd", `tests/` -> "testing")
    - Match domain terms against learnings filenames (e.g., "ci" matches `ci-cd.md`, "test" matches `testing-patterns.md`)
@@ -95,22 +127,38 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Announce: `📚 Loaded domain learnings: <list>`
    - This supplements the persona's proactive loads with PR-specific knowledge
 
-6. **Analyze changes** — review the full diff through the active persona's lens. For each file, evaluate:
+8. **Analyze changes** — review through the active persona's lens.
+
+   **First review:** For each file, evaluate:
    - Does the change align with the persona's domain priorities?
    - Are there taxonomy, placement, or architectural concerns?
    - Are there patterns from loaded learnings that apply?
    - Are there bugs, edge cases, or missing considerations?
    - Is there unnecessary complexity or missing simplification?
 
-   Build two lists:
-   - `INLINE_COMMENTS`: list of `{path, line, body}` — specific findings anchored to file lines. Use the line number as it appears in the final version of the file (RIGHT side of diff). Every comment should be actionable or ask a clarifying question. All specifics (file names, line numbers, code snippets) belong here — not in the summary.
-   - `SUMMARY_POINTS`: high-level themes and patterns across the PR. No file-specific details — those belong in inline comments. The summary should be readable without clicking into any file.
+   **Re-review:** Two parallel analyses:
 
-   **No duplication between summary and inline comments.** The summary names themes ("some learnings may not earn their context cost"); inline comments carry the specifics ("this pattern on line 103 is basic OOP"). A reader skimming the summary gets the full picture; a reader reviewing the diff gets the details in context.
+   **a) Evaluate previous comment responses.** For each comment in `PREVIOUS_COMMENTS`:
+   - Read the author's reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`
+   - Classify the response:
+     - **Resolved** — concern addressed by code change, reply, or both. Action: react with ✅ emoji (see "React to Comment" in platform commands). No text reply.
+     - **Partially addressed** — some progress but original concern not fully resolved. Action: post a follow-up reply explaining what's still open.
+     - **Not addressed** — no code change and no substantive reply, or reply disagrees without resolution. Action: re-raise with additional context.
+     - **Acknowledged (no action needed)** — our comment was informational/positive and the author acknowledged it. Action: no response needed.
 
-7. **Compose the review** — build the review payload:
+   **b) Review new code.** Analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
 
-   **Review body** (summary — themes only, no file-specific details):
+   Build the output lists:
+   - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary.
+   - `REACTIONS`: list of `{comment_id, emoji}` for resolved comments.
+   - `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
+   - `SUMMARY_POINTS`: high-level themes. No file-specific details.
+
+   **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
+
+9. **Compose the review** — build the review payload:
+
+   **First review body** (summary — themes only, no file-specific details):
    ```
    ## <Persona Name> Review: <REQUEST_TITLE>
 
@@ -125,31 +173,79 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    <What's done well — themes and patterns, not file-by-file inventory>
 
    ---
-   *Generated with [Claude Code](https://claude.ai/code) (<model name>) using the `<persona-name>` persona.*
+   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
+   *Persona:* <persona-name>
+   *Role:* Reviewer
    ```
 
-   **Each inline comment** must end with:
+   **Re-review body**:
+   ```
+   ## <Persona Name> Re-review: <REQUEST_TITLE>
+
+   <1-2 sentence delta summary — what changed since last review>
+
+   ### Previous Findings
+
+   - ✅ <N> resolved
+   - 🔄 <N> partially addressed
+   - ❌ <N> not addressed
+
+   ### New Findings
+
+   <Bulleted themes from new commits — same rules as first review>
+
+   ### Positive Signals
+
+   <Acknowledge improvements made in response to feedback>
+
+   ---
+   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
+   *Persona:* <persona-name>
+   *Role:* Reviewer
+   ```
+
+   **Each inline comment and follow-up reply** must end with the same footnote:
    ```
 
    ---
-   *Generated with [Claude Code](https://claude.ai/code) (<model name>) using the `<persona-name>` persona.*
+   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
+   *Persona:* <persona-name>
+   *Role:* Reviewer
    ```
 
    For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
 
-8. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API.
+10. **Post the review** — execute in order:
 
-9. **Clean up and report** — remove temp files, then confirm:
-   ```
-   ✅ Review posted on <REVIEW_UNIT> #<REQUEST_NUMBER> (<N> inline comments)
-   <REQUEST_URL>
-   ```
+    **a) React to resolved comments** (re-review only) — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform commands file. React with `+1` (GitHub) or `thumbsup` (GitLab).
+
+    **b) Post follow-up replies** (re-review only) — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform commands file.
+
+    **c) Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API. This covers the summary body and any new inline comments on new code.
+
+11. **Clean up and report** — remove temp files, then confirm:
+
+    **First review:**
+    ```
+    ✅ Review posted on <REVIEW_UNIT> #<REQUEST_NUMBER> (<N> inline comments)
+    <REQUEST_URL>
+    ```
+
+    **Re-review:**
+    ```
+    🔄 Re-review posted on <REVIEW_UNIT> #<REQUEST_NUMBER>
+    ✅ <N> resolved (reacted)  🔄 <N> follow-ups posted  💬 <N> new inline comments
+    <REQUEST_URL>
+    ```
 
 ## Important Notes
 
 - Review is always thorough regardless of PR size — don't skip files or skim changes
 - The persona's judgment lens shapes what you look for and how you weigh findings
-- Domain learnings ground the review in established patterns — cite them when relevant (e.g., "per `ci-cd.md`, lint should run first as a fast gate")
+- Domain learnings ground the review in established patterns — cite them when relevant
 - Every piece of externally-posted content gets the footnote — no exceptions
 - Post the review as a `COMMENT` event (not `APPROVE` or `REQUEST_CHANGES`) — the user decides the verdict
 - If the diff is too large to fit in context, tell the user rather than silently truncating
+- Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
+- Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
+- Follow-up replies should reference what changed (or didn't) since the original comment
