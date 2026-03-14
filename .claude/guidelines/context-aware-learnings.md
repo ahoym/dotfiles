@@ -39,27 +39,13 @@ Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings
 
 ## Confidence-level gate (soft — experimental)
 
-Before drafting any substantial domain-specific content (20+ lines), ask: **"Am I working from loaded knowledge or from training memory?"**
+Before drafting substantial domain-specific content (20+ lines), ask: **"Am I working from loaded knowledge or training memory?"** If you haven't read learnings files in this domain during this session, search first. The user's learnings contain calibrated gotchas and decisions that training knowledge misses.
 
-- **Loaded knowledge**: I've read learnings files in this domain during this session → proceed
-- **Training memory**: I *think* I know about this topic but haven't verified against the user's corpus → search learnings first
+**Binary self-check**: "Have I loaded files in this domain? Yes/no." Fires when creating/modifying skills, guidelines, learnings, personas, CLAUDE.md; writing architecture docs, design proposals, or reviews; synthesizing domain knowledge into structured artifacts.
 
-The distinction matters because training knowledge is generic. The user's learnings contain calibrated gotchas, conventions, and decisions that generic knowledge misses. A persona built from training alone would be dramatically thinner than one informed by the user's actual `claude-authoring-skills.md`, `curation-insights.md`, etc.
+Announce: `📚 Confidence check — working from training, not loaded knowledge. Searching learnings for "<domain>"...`
 
-**The self-check is binary**: "Have I loaded files in this domain? Yes/no." Not "did I notice a keyword? Maybe." This makes it stickier than keyword matching — it's tied to a specific moment (about to produce substantial output) and a checkable condition.
-
-**When this fires:**
-- Creating or modifying a skill, guideline, learning, persona, or CLAUDE.md
-- Writing an architecture doc, design proposal, or review
-- Synthesizing domain knowledge into any structured artifact
-- Producing a detailed analysis or recommendation in a specialized domain
-
-**Announce when it fires:**
-```
-📚 Confidence check — working from training, not loaded knowledge. Searching learnings for "<domain>"...
-```
-
-**Why soft, not hard:** There's no tool-call trigger to hook this to. It relies on self-awareness at the moment of drafting, not a mechanical gate. Soft gates fire sometimes, not always — but when they do fire, the quality improvement is substantial.
+Soft because there's no tool-call trigger — it relies on self-awareness at the moment of drafting. Fires sometimes, not always, but quality improvement is substantial when it does.
 
 ## Keyword-based (proactive)
 
@@ -71,39 +57,12 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 
 ## Observability
 
-Always announce when learnings are loaded or searched. The user needs visibility to iterate on this system.
+Always announce when learnings are loaded or searched — the user needs visibility to iterate on this system. No-match announcements are **mandatory** (they surface gaps and confirm the system is firing).
 
-**Session start:**
-```
-📚 Session start — loaded `ralph-loop.md` (branch: consolidate/2026-02-28), `claude-code.md` (message: "worktree")
-```
+Formats: `📚 Session start — loaded X (reason)` · `📚 "keyword" → loaded X` · `📚 Searched for "X" — no matches`
 
-**Keyword trigger:**
-```
-📚 "Fargate" → loaded `aws-patterns.md`
-```
-
-**No matches (ALWAYS announce):**
-```
-📚 Searched learnings for "Kubernetes" — no matches
-```
-
-No-match announcements are **mandatory**. They surface gaps in the learnings library and confirm the system is actually firing. Every search — keyword or hard gate — must announce its result, hit or miss.
-
-## Persona check announcements
-
-```
-🎭 No persona active — recommending `xrpl-typescript-fullstack` for this task. Set it?
-```
-
-```
-🎭 Persona active: `xrpl-typescript-fullstack` — proceeding with implementation
-```
-
-```
-🎭 No persona active — none strongly relevant for <task domain>, proceeding without
-```
+Persona checks: `🎭 No persona active — recommending X. Set it?` · `🎭 Persona active: X — proceeding` · `🎭 No persona — none relevant, proceeding without`
 
 ## Relationship to Personas
 
-Personas provide a **lens** (priorities, tradeoffs, posture). Learnings provide **knowledge** (gotchas, patterns, facts). This guideline makes knowledge active regardless of whether a persona is set. Personas are recommended when relevant — the implementation gate above ensures they're considered before execution begins.
+Personas provide a **lens** (priorities, tradeoffs, posture). Learnings provide **knowledge** (gotchas, patterns, facts). This guideline makes knowledge active regardless of whether a persona is set.

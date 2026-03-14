@@ -25,8 +25,6 @@ Edit requires a recent Read of the target file — having the content in context
 | **Read** (file_path) | ✅ | ✅ CWD-relative |
 | **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ file-relative |
 
-`@` references in CLAUDE.md files resolve relative to the file's directory, not the project root. See `path-resolution.md` guideline for details.
-
 # Sync
 
 sync-source: ~/WORKSPACE/mahoy-claude-stuff
