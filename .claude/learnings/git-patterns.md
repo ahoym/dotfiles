@@ -211,6 +211,10 @@ Unstaged changes to tracked files can block `git rebase --continue` even when al
 
 When the target branch renamed a file (e.g., `skill-design.md` → `claude-authoring-skills.md`), rebase conflicts appear under the new filename but contain content referencing the old. To resolve efficiently: check what content already exists on the target branch under both old and new filenames (and any split-out files like `claude-authoring-personas.md`), then keep only genuinely new content from your commit.
 
+## GitHub Reviews Endpoint Has No `since` Filter
+
+The `gh pr view --json reviews` endpoint returns all reviews every time — it doesn't support `since` or `updated_after` filtering. To detect new review submissions on incremental fetches, track `LAST_REVIEW_COUNT` and compare against the current count. Only process reviews beyond the previous count. This is distinct from inline comments and issue comments, which support timestamp-based filtering.
+
 ## Stash Pop After Rebase Can Self-Conflict
 
 When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.

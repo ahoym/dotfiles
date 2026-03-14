@@ -137,6 +137,20 @@ echo ${args[@]+"${args[@]}"}
 
 This uses parameter alternate value syntax: if `arr[@]` is unset/empty, expand to nothing; otherwise expand normally. Common in functions that conditionally build argument lists.
 
+## `gh api` Query Params Require Quoting — Filter Client-Side Instead
+
+`gh api` URLs with `?` and `&` (query params) require quoting in zsh, but quoted strings trigger Claude Code permission prompts. The workaround: drop query params entirely and filter client-side with `--jq select()`.
+
+```bash
+# Triggers permission prompt (quoted URL):
+gh api 'repos/{owner}/{repo}/pulls/24/comments?since=2026-03-14T04:00:00Z&direction=desc' --jq '...'
+
+# No prompt (unquoted URL, client-side filter):
+gh api repos/{owner}/{repo}/pulls/24/comments --jq '.[] | select(.created_at > "2026-03-14T04:00:00Z") | ...'
+```
+
+`gh api` natively resolves `{owner}/{repo}` from the current repo context — no need to manually look up the owner and repo name.
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.
