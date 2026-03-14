@@ -37,6 +37,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 - @~/.claude/skill-references/platform-detection.md
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Read the one matching detected platform
+- `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
 
@@ -51,11 +52,13 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
-   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform commands file. If the state is `MERGED` or `CLOSED`, emit a message and stop:
+   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform commands file. If the state is `MERGED` or `CLOSED`:
+   1. Use `CronList` to find any cron job whose prompt contains `/git:code-review-request` and `<REQUEST_NUMBER>`
+   2. If found, cancel it with `CronDelete` using the matched job ID
+   3. Emit a message and stop:
    ```
-   PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. 🔄
+   PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. Canceled cron job <JOB_ID>. 🔄
    ```
-   If running via `/loop`, suggest the user cancel the cron job with `CronDelete`.
 
 4. **Check for previous reviews** — detect whether this is a first review or re-review by searching for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
@@ -67,7 +70,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **GitLab:** Check for top-level comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer`.
 
-   If a previous review is found, set `MODE=re-review` and store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`. Otherwise, set `MODE=first-review`.
+   If a previous review is found, set `MODE=re-review`, store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`, and read `re-review-mode.md` from the skill's base directory. Otherwise, set `MODE=first-review`.
 
    Announce: `🔍 Mode: first review` or `🔄 Mode: re-review (previous review from <LAST_REVIEW_TS>)`
 
@@ -75,7 +78,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Fetch the latest commit SHA using **"Fetch Commits"** from the platform commands file (only the last entry).
 
-   **Re-review mode:** Compare against the commit SHA at `LAST_REVIEW_TS`. Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform commands file, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`. If no new commits AND no new replies → skip.
+   **Re-review mode:** Follow the quick-exit logic in `re-review-mode.md`.
 
    **First-review mode with cached analysis:** If you have high-confidence cached data from a previous invocation in this session (e.g., you already analyzed the full diff and the commit SHA matches), skip the full diff fetch and trust your cached analysis. The cheap SHA check validates the cache.
 
@@ -97,13 +100,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review only:** Also identify `NEW_COMMITS` — commits with timestamps after `LAST_REVIEW_TS`.
 
-7. **Fetch previous comment state** (re-review only):
-
-   Use **"Fetch Inline/Review Comments"** from the platform commands file. Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
-
-   For each of our previous comments, fetch replies by filtering all comments for `in_reply_to_id` matching the comment ID.
-
-   Store as `PREVIOUS_COMMENTS` (our comments + their replies).
+7. **Fetch previous comment state** (re-review only) — follow `re-review-mode.md`.
 
 8. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
    - Glob `~/.claude/learnings/*.md` to get the full inventory
@@ -122,22 +119,10 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Are there bugs, edge cases, or missing considerations?
    - Is there unnecessary complexity or missing simplification?
 
-   **Re-review:** Two parallel analyses:
-
-   **a) Evaluate previous comment responses.** For each comment in `PREVIOUS_COMMENTS`:
-   - Read the author's reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`
-   - Classify the response:
-     - **Resolved** — concern addressed by code change, reply, or both. Action: react with ✅ emoji (see "React to Comment" in platform commands). No text reply.
-     - **Partially addressed** — some progress but original concern not fully resolved. Action: post a follow-up reply explaining what's still open.
-     - **Not addressed** — no code change and no substantive reply, or reply disagrees without resolution. Action: re-raise with additional context.
-     - **Acknowledged (no action needed)** — our comment was informational/positive and the author acknowledged it. Action: no response needed.
-
-   **b) Review new code.** Analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
+   **Re-review:** Follow `re-review-mode.md` — evaluate previous comment responses + review new code.
 
    Build the output lists:
    - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary.
-   - `REACTIONS`: list of `{comment_id, emoji}` for resolved comments.
-   - `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
    - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
    **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
@@ -164,31 +149,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    *Role:* Reviewer
    ```
 
-   **Re-review body**:
-   ```
-   ## <Persona Name> Re-review: <REQUEST_TITLE>
-
-   <1-2 sentence delta summary — what changed since last review>
-
-   ### Previous Findings
-
-   - ✅ <N> resolved
-   - 🔄 <N> partially addressed
-   - ❌ <N> not addressed
-
-   ### New Findings
-
-   <Bulleted themes from new commits — same rules as first review>
-
-   ### Positive Signals
-
-   <Acknowledge improvements made in response to feedback>
-
-   ---
-   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
-   *Persona:* <persona-name>
-   *Role:* Reviewer
-   ```
+   **Re-review body:** Use the template in `re-review-mode.md`.
 
    **Each inline comment and follow-up reply** must end with the same footnote:
    ```
@@ -201,28 +162,16 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
 
-11. **Post the review** — execute in order:
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API.
 
-    **a) React to resolved comments** (re-review only) — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform commands file. React with `+1` (GitHub) or `thumbsup` (GitLab).
-
-    **b) Post follow-up replies** (re-review only) — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform commands file.
-
-    **c) Post the review** — use the **"Post Review with Inline Comments"** section from the platform commands file. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API. This covers the summary body and any new inline comments on new code.
+    **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 
 12. **Clean up and report** — remove temp files, then confirm:
-
-    **First review:**
     ```
     ✅ Review posted on <REVIEW_UNIT> #<REQUEST_NUMBER> (<N> inline comments)
     <REQUEST_URL>
     ```
-
-    **Re-review:**
-    ```
-    🔄 Re-review posted on <REVIEW_UNIT> #<REQUEST_NUMBER>
-    ✅ <N> resolved (reacted)  🔄 <N> follow-ups posted  💬 <N> new inline comments
-    <REQUEST_URL>
-    ```
+    Re-review report format is in `re-review-mode.md`.
 
 ## Important Notes
 
@@ -234,7 +183,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - If the diff is too large to fit in context, tell the user rather than silently truncating
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
 - Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
-- Follow-up replies should reference what changed (or didn't) since the original comment
-- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). One cheap API call to confirm the commit SHA hasn't changed, then trust your cached analysis. This saves significant tokens on polling runs while still catching external changes.
-- **Don't post empty reviews** — if analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that just says "no concerns" adds noise without value. This applies to both first-review and re-review modes.
+- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). One cheap API call to confirm the commit SHA hasn't changed, then trust your cached analysis.
+- **Don't post empty reviews** — if analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes.
 - **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over
