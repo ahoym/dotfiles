@@ -86,6 +86,39 @@ gh pr edit <number> --body-file change-request-replies/pr-body.md
 rm -rf change-request-replies
 ```
 
+## Post Review with Inline Comments
+
+Write the review payload to `change-request-replies/review-<number>.json` via the Write tool, then post:
+
+```bash
+mkdir -p change-request-replies
+# Write JSON payload to change-request-replies/review-<number>.json, then:
+gh api repos/{owner}/{repo}/pulls/<number>/reviews \
+  --input change-request-replies/review-<number>.json
+# Clean up:
+rm change-request-replies/review-<number>.json && rmdir change-request-replies 2>/dev/null
+```
+
+**Payload format** (`change-request-replies/review-<number>.json`):
+```json
+{
+  "event": "COMMENT",
+  "body": "Review summary body here",
+  "comments": [
+    {
+      "path": "relative/file/path.md",
+      "line": 42,
+      "side": "RIGHT",
+      "body": "Inline comment body here"
+    }
+  ]
+}
+```
+
+- `line`: line number in the final version of the file (RIGHT side of diff)
+- `side`: always `"RIGHT"` for comments on the new version
+- `event`: `"COMMENT"`, `"APPROVE"`, or `"REQUEST_CHANGES"`
+
 ## Checkout Review Branch
 
 ```bash

@@ -75,6 +75,37 @@ glab mr update <number> --description "$(cat change-request-replies/request-body
 rm change-request-replies/request-body-<BRANCH_NAME>.md && rmdir change-request-replies 2>/dev/null
 ```
 
+## Post Review with Inline Comments
+
+GitLab has no single "review" API like GitHub. Post inline comments as individual discussion notes, then post the summary as a top-level comment.
+
+**Step 1: Post each inline comment as a new discussion:**
+
+```bash
+mkdir -p change-request-replies
+# For each inline comment, write body to change-request-replies/review-<note_index>.md, then:
+glab api projects/:id/merge_requests/<number>/discussions -X POST \
+  -f "body=$(cat change-request-replies/review-<note_index>.md)" \
+  -f "position[base_sha]=<base_sha>" \
+  -f "position[head_sha]=<head_sha>" \
+  -f "position[start_sha]=<base_sha>" \
+  -f "position[position_type]=text" \
+  -f "position[new_path]=<file_path>" \
+  -f "position[new_line]=<line_number>"
+```
+
+Get `base_sha` and `head_sha` from:
+```bash
+glab api projects/:id/merge_requests/<number>/versions | jq '.[0] | {base_commit_sha, head_commit_sha}'
+```
+
+**Step 2: Post the review summary as a top-level comment** (see "Post Top-Level Comment" above).
+
+**Step 3: Clean up:**
+```bash
+rm -rf change-request-replies
+```
+
 ## Checkout Review Branch
 
 ```bash
