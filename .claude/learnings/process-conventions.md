@@ -159,6 +159,10 @@ When re-reviewing a PR and a previous comment has been addressed, react with a �
 
 If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
 
+### Verify safeguards survive fixes
+
+When fixing one problem, verify the original problem's safeguards are preserved or replaced. Example: removing `?per_page=100` from URLs to fix quoting issues silently reverted to the 30-result default, hiding comments beyond page 1. The fix (`--paginate`) replaced the safeguard — but the gap between removing the old safeguard and adding the new one caused a real miss. Pattern: when removing a workaround, ask "what was this protecting against?" before deleting.
+
 - **Takeaway**: No findings = no post. Silence is a valid review outcome.
 
 ### Keep Approval Flows On-Platform

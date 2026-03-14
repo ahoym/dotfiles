@@ -489,7 +489,6 @@ The `Persona + Role` composite key enables filtering comment chains — the same
 
 ## Re-Review Detection via Footnote Pattern Matching
 
-<<<<<<< HEAD
 When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.
 
 ## Polling Skills Must Fetch Fresh API Data Every Invocation
@@ -516,3 +515,11 @@ Skills invoked via `/loop` can self-cancel when the target becomes irrelevant (e
 ## State Check as Earliest Exit Point
 
 Review/polling skills should check the target's state (merged, closed, open) before any review logic. This is cheaper than commit SHA comparison and catches the terminal case where no further polling is needed. Order: state check → quick-exit (commit SHA) → full review.
+
+## Cache-Then-Validate for Repeated Skill Invocations
+
+When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), validate cached analysis with the cheapest possible check rather than re-fetching all data. If the commit SHA hasn't changed since the last analysis, trust the cached diff and findings — don't re-read the full diff. The cheap validation check (one API call for the latest SHA) is the guard; the cached analysis is the optimization. This saves significant tokens on polling runs (~4-5K per no-op vs ~20-50K for a full diff re-read).
+
+## Base Reviewer Persona with Extends
+
+Universal review knowledge (code quality instincts, process conventions) belongs in a base `reviewer` persona that domain-specific reviewer personas extend via `## Extends: reviewer`. This ensures every reviewer gets the baseline quality bar without each persona duplicating the same proactive loads. Domain-specific personas add only their unique loads and judgment lens.

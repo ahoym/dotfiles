@@ -71,13 +71,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Announce: `🔍 Mode: first review` or `🔄 Mode: re-review (previous review from <LAST_REVIEW_TS>)`
 
-5. **Quick-exit check** (re-review only) — before fetching the full diff, check if anything has changed since the last review. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
+5. **Quick-exit check** — before fetching the full diff, check if anything has changed. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
 
-   Fetch the latest commit SHA using **"Fetch Commits"** from the platform commands file (only the last entry). Compare against the commit SHA at `LAST_REVIEW_TS`.
+   Fetch the latest commit SHA using **"Fetch Commits"** from the platform commands file (only the last entry).
 
-   Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform commands file, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`.
+   **Re-review mode:** Compare against the commit SHA at `LAST_REVIEW_TS`. Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform commands file, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`. If no new commits AND no new replies → skip.
 
-   **If no new commits AND no new replies**, emit a single line and stop — do not proceed to step 6+:
+   **First-review mode with cached analysis:** If you have high-confidence cached data from a previous invocation in this session (e.g., you already analyzed the full diff and the commit SHA matches), skip the full diff fetch and trust your cached analysis. The cheap SHA check validates the cache.
+
+   **If nothing has changed**, emit a single line and stop — do not proceed to step 6+:
    ```
    PR #<REQUEST_NUMBER>: no changes since last review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
@@ -233,6 +235,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
 - Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
 - Follow-up replies should reference what changed (or didn't) since the original comment
-- **Always fetch fresh data from the API** — never rely on in-context memory of previous invocations. The polling use case (`/loop`) assumes external actors push commits and reply to comments between runs. Every invocation must hit the API to check for changes.
+- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). One cheap API call to confirm the commit SHA hasn't changed, then trust your cached analysis. This saves significant tokens on polling runs while still catching external changes.
 - **Don't post empty reviews** — if analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that just says "no concerns" adds noise without value. This applies to both first-review and re-review modes.
 - **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over
