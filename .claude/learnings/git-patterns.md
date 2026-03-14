@@ -187,8 +187,30 @@ When `~/.claude/learnings/` is a symlink to a git-tracked directory (e.g., `dotf
 
 - **Takeaway**: Commit or stash edits to symlinked paths before any branch operation in the underlying repo. Verify file contents after branch switches.
 
+## Use `git mv` for File Renames to Preserve History
+
+Use `git mv` rather than manual delete-and-create to preserve file history through renames. This matters for files that evolve over time (skills, configs, learnings). When applying a naming convention retroactively, batch all renames into a single atomic PR to avoid a transitional period.
+
+- **Takeaway**: `git mv` preserves history; batch related renames into one PR.
+
 ## Verify Staged Files Before `git commit --amend`
 
 Pre-commit hooks can stage additional files beyond what you explicitly `git add`. When amending, `--amend` picks up everything in the index — including hook-staged files — and folds them into the amended commit with no warning. This can silently bundle unrelated changes into the wrong commit.
 
 **Fix:** Run `git diff --cached --stat` after `git add` and before `git commit --amend` to confirm only intended files are staged.
+
+## Rebase: `--ours` and `--theirs` Are Inverted vs Merge
+
+During `git rebase`, `--ours` refers to the **base branch** (the branch you're rebasing onto) and `--theirs` refers to the **commit being replayed** (your branch's commit). This is the opposite of merge semantics where `--ours` is your current branch. Always verify with a content check (e.g., `grep` for a known string) after `git checkout --ours/--theirs` during rebase conflict resolution.
+
+## Dirty Working Tree Blocks `git rebase --continue`
+
+Unstaged changes to tracked files can block `git rebase --continue` even when all merge conflicts are resolved and staged. The rebase machinery requires a clean working tree. **Fix:** `git stash` dirty files before `--continue`, then `git stash pop` after.
+
+## Renamed Files in Rebase Show Cross-History Conflicts
+
+When the target branch renamed a file (e.g., `skill-design.md` → `claude-authoring-skills.md`), rebase conflicts appear under the new filename but contain content referencing the old. To resolve efficiently: check what content already exists on the target branch under both old and new filenames (and any split-out files like `claude-authoring-personas.md`), then keep only genuinely new content from your commit.
+
+## Stash Pop After Rebase Can Self-Conflict
+
+When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.

@@ -10,9 +10,9 @@ When code review surfaces a systemic improvement (e.g., float-to-Decimal convers
 
 ### Plan-first PRs as exploration pattern
 
-PRs that include a plan document alongside implementation code serve as design artifacts. Even when the PR is ultimately closed, the planning work feeds into the decision — the analysis itself is the value.
+PRs that include a plan document alongside implementation code serve as design artifacts. Even when the PR is ultimately closed, the planning work feeds into the decision — the analysis itself is the value. However, plan PRs scoped too narrowly get superseded — when planning refactors that touch data types flowing across module boundaries, scope the plan to the full data flow path, not just the module where symptoms are most visible.
 
-- **Takeaway**: Exploration PRs that get closed still produce value through their analysis.
+- **Takeaway**: Exploration PRs produce value through analysis, but scope plans to the full data flow path to avoid supersession.
 
 ### Closing PRs cleanly with cherry-pick intent
 
@@ -32,9 +32,11 @@ Ship the client (HTTP wrapper, DTOs, auth) as a standalone MR before the orchest
 
 For larger MRs, state which files contain the important business logic. Guides reviewers to spend time where it matters.
 
-### Author self-annotation as review substitute
+### Author self-annotation and self-review as quality gate
 
-When no reviewers are available, authors annotating their own code with design decisions creates a written record. Not a substitute for review, but better than no documentation.
+When no reviewers are available, authors annotating their own code with design decisions creates a written record. Self-review on the diff view catches issues invisible during implementation — the diff presentation surfaces patterns (like repeated mock data) that aren't obvious in the editor. Not a substitute for external review, but better than no documentation.
+
+- **Takeaway**: Self-review the diff view even on solo PRs — it surfaces patterns the editor view hides.
 
 ### Migration conflict resolution should be documented
 
@@ -99,6 +101,24 @@ When addressing PR review feedback, reply to each comment with the commit hash t
 Treat review feedback as a source of reusable guidelines rather than one-off corrections. After a review cycle, capture patterns into the project's guideline files (e.g., `.claude/guidelines/`) while context is fresh. Ship via lightweight docs-only PRs with zero-discussion, same-day merge.
 
 - **Takeaway**: Review sessions produce guidelines — capture them immediately while context is fresh.
+
+### Track organizational debt via issues before fixing
+
+Even for straightforward rename/reorganization tasks, creating an issue first establishes traceability and makes the "why" discoverable later. The PR references "Fixes #N" for clean linking.
+
+- **Takeaway**: File an issue before executing organizational changes — the "why" matters more than the "what."
+
+### PR splitting strategy for large PRs
+
+When splitting a large PR, separate refactors and structural changes first (independent, merge to main), features last (dependent, merge after structure). Structure → tests → feature is the natural dependency order.
+
+- **Takeaway**: Refactors first (independent), features last (dependent on structure).
+
+### Relocate decision frameworks to the moment of use
+
+When a decision framework (e.g., "separating universal from specific") lives in a general guideline but is only needed at one specific moment (e.g., capturing learnings), move it to the skill where it's actually used. Location should match the moment of use.
+
+- **Takeaway**: Place decision frameworks in the skill/context where they're applied, not in general guidelines.
 
 ### LGTM response patterns
 

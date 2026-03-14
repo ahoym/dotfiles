@@ -1,6 +1,6 @@
 ---
 name: resolve-conflicts
-description: "Resolve merge conflicts between branches."
+description: "Resolve merge or rebase conflicts between branches."
 ---
 
 ## Context
@@ -8,13 +8,16 @@ description: "Resolve merge conflicts between branches."
 
 # Resolve Conflicts
 
-Resolve merge conflicts between your PR branch and its base branch.
+Resolve merge or rebase conflicts between your PR branch and its base branch.
 
 ## Usage
 
-- `/resolve-conflicts` - Resolve conflicts for current branch against its base
+- `/resolve-conflicts` - Resolve conflicts via merge (default)
+- `/resolve-conflicts --rebase` - Resolve via rebase (rewrites history, requires force push)
 - `/resolve-conflicts <base-branch>` - Resolve against specified base branch
-- `/resolve-conflicts --preview` - Preview conflicts only (runs steps 1-3, skips the actual merge)
+- `/resolve-conflicts --preview` - Preview conflicts only (no merge or rebase)
+
+Flags can be combined: `/resolve-conflicts --rebase main`
 
 ## Reference Files (conditional — read only when needed)
 
@@ -24,41 +27,65 @@ Resolve merge conflicts between your PR branch and its base branch.
 
 0. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
 
-1. **Check for preview-only mode**:
-   - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true` and remove `--preview` from args
-   - If preview-only: run steps 1-3 only (determine branches, fetch, preview), then stop
+1. **Parse arguments**:
+   - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true`
+   - If `$ARGUMENTS` contains `--rebase`, set `STRATEGY=rebase`, otherwise `STRATEGY=merge`
+   - Remaining args = base branch override
 
-1. **Determine branches**:
+2. **Determine branches**:
    - Current branch: `git branch --show-current`
-   - Base branch: If `$ARGUMENTS` provided, use it. Otherwise, detect from PR or default to `origin/main`
+   - Base branch: If override provided, use it. Otherwise, detect from PR or default to `origin/main`
 
    ```bash
    gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null || echo "main"
    ```
 
-2. **Fetch latest**:
+3. **Check for dirty working tree**:
+   ```bash
+   git status --porcelain
+   ```
+   If dirty files exist, stash them before proceeding:
+   ```bash
+   git stash push -m "resolve-conflicts: stash before <STRATEGY>"
+   ```
+   Set `STASHED=true` to restore later.
+
+4. **Fetch latest**:
    ```bash
    git fetch origin <base-branch>
    ```
 
-3. **Preview conflicts first**:
+5. **Preview conflicts**:
    ```bash
    git merge-tree $(git merge-base HEAD origin/<base-branch>) HEAD origin/<base-branch>
    ```
+   Show which files will conflict. If `PREVIEW_ONLY=true`, stop here.
 
-   Show which files will conflict before starting the merge.
+6. **Start the operation**:
 
-4. **Start the merge**:
+   **If STRATEGY=merge:**
    ```bash
    git merge origin/<base-branch>
    ```
 
-5. **For each conflicted file**:
+   **If STRATEGY=rebase:**
+   ```bash
+   git rebase origin/<base-branch>
+   ```
+
+   **Rebase note:** Conflicts appear per-commit, not all at once. After resolving each commit's conflicts, `git rebase --continue` advances to the next. Be prepared for multiple conflict rounds.
+
+7. **For each conflicted file**:
    - Read the file to see conflict markers
    - Analyze both sides of the conflict
+
+   **Rebase-specific: `--ours`/`--theirs` are inverted.** During rebase, `--ours` = the base branch (what you're rebasing onto), `--theirs` = your commit being replayed. This is the opposite of merge. Always verify with a content check after using `git checkout --ours/--theirs`.
+
+   **Rebase-specific: check for file renames.** If the base branch renamed files, conflicts appear under the new filename but contain content from the old. Check both filenames on the base branch to determine what content is already covered before resolving.
+
    - Ask user: "How should this conflict be resolved?"
-     - Keep ours (current branch)
-     - Keep theirs (base branch)
+     - Keep ours (current branch in merge / base branch in rebase)
+     - Keep theirs (base branch in merge / your commit in rebase)
      - Combine both
      - Custom resolution
    - Apply the resolution and stage the file:
@@ -66,63 +93,84 @@ Resolve merge conflicts between your PR branch and its base branch.
    git add <resolved-file>
    ```
 
-6. **Complete the merge**:
+8. **Complete the operation**:
+
+   **If STRATEGY=merge:**
    ```bash
    git commit -m "Merge <base-branch> into <current-branch>"
    ```
 
-7. **Push to update the PR**:
-   Ask: "Conflicts resolved. Push to update the PR?"
+   **If STRATEGY=rebase:**
    ```bash
-   git push origin <current-branch>
+   git rebase --continue
    ```
+   Repeat steps 7-8 for each commit with conflicts until rebase completes.
 
-8. **Verify PR status**:
+9. **Restore stashed changes** (if `STASHED=true`):
    ```bash
-   gh pr view --json mergeable --jq '.mergeable'
+   git stash pop
    ```
+   If stash pop itself conflicts (common after rebase — stash has pre-rebase content), resolve by keeping the post-rebase version (authoritative), then `git stash drop`.
 
-   Report whether the PR is now mergeable.
+10. **Push to update the PR**:
 
-## Example
+    **If STRATEGY=merge:**
+    Ask: "Conflicts resolved. Push to update the PR?"
+    ```bash
+    git push origin <current-branch>
+    ```
+
+    **If STRATEGY=rebase:**
+    Ask: "Rebase complete. This requires a force push (history was rewritten). Push?"
+    ```bash
+    git push --force-with-lease origin <current-branch>
+    ```
+
+11. **Verify PR status**:
+    ```bash
+    gh pr view --json mergeable --jq '.mergeable'
+    ```
+    Report whether the PR is now mergeable.
+
+## Example (merge)
 
 ```
-Resolving conflicts: feature/my-branch ← main
-
-Fetching origin/main...
+Resolving conflicts (merge): feature/my-branch ← main
 
 Conflicts detected in 2 files:
   1. src/config.py
   2. README.md
 
-Starting merge...
-
 --- Conflict 1/2: src/config.py ---
-
-<<<<<<< HEAD (your changes)
-MAX_RETRIES = 5
-=======
-MAX_RETRIES = 3
-TIMEOUT = 30
->>>>>>> origin/main
-
 How should this be resolved?
-> Combine both (keep MAX_RETRIES = 5, add TIMEOUT = 30)
+> Combine both
 
-Resolved and staged src/config.py
+All conflicts resolved. Push to update PR? → Pushed. PR #8 is now mergeable.
+```
 
---- Conflict 2/2: README.md ---
-[... continues for each file ...]
+## Example (rebase)
 
-All conflicts resolved. Committing merge...
-Push to update PR? (y/n)
-> y
+```
+Resolving conflicts (rebase): feature/my-branch onto main
 
-Pushed. PR #8 is now mergeable.
+Rebasing (3/5) — conflict in src/config.py
+
+--- Conflict: src/config.py ---
+Note: during rebase, "ours" = main, "theirs" = your commit
+How should this be resolved?
+> Combine both
+
+Resolved. Continuing rebase...
+Rebasing (4/5) — clean
+Rebasing (5/5) — clean
+
+Rebase complete. Force push to update PR? → Pushed. PR #8 is now mergeable.
 ```
 
 ## Important Notes
 
-- Use merge (not rebase) when changes are independent of feature code
+- **Default to merge** when changes are independent of feature code
+- **Use rebase** when you want clean linear history on a feature branch
 - Always fetch the latest base branch before starting
-- If the merge gets complicated, you can abort with `git merge --abort`
+- Abort if needed: `git merge --abort` or `git rebase --abort`
+- Rebase rewrites history — requires `--force-with-lease` push

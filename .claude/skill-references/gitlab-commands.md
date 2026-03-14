@@ -65,6 +65,20 @@ mkdir -p .gh-replies
 glab mr comment <number> --message "$(cat .gh-replies/<mr_number>-top.md)"
 ```
 
+## Create or Update MR (Body via File)
+
+Write the MR body to `.gh-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
+
+```bash
+mkdir -p .gh-replies
+# Write body via Write tool to .gh-replies/request-body-<BRANCH_NAME>.md, then:
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat .gh-replies/request-body-<BRANCH_NAME>.md)"
+# Or update existing:
+glab mr update <number> --description "$(cat .gh-replies/request-body-<BRANCH_NAME>.md)"
+# Clean up:
+rm .gh-replies/request-body-<BRANCH_NAME>.md && rmdir .gh-replies 2>/dev/null
+```
+
 ## Checkout Review Branch
 
 ```bash

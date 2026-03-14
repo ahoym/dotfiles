@@ -76,6 +76,20 @@ mkdir -p .gh-replies
 gh pr comment <number> --body-file .gh-replies/<pr_number>-top.md
 ```
 
+## Create or Update PR (Body via File)
+
+Write the PR body to `.gh-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
+
+```bash
+mkdir -p .gh-replies
+# Write body via Write tool to .gh-replies/pr-body.md, then:
+gh pr create --base <base-branch> --title "<title>" --body-file .gh-replies/pr-body.md
+# Or update existing:
+gh pr edit <number> --body-file .gh-replies/pr-body.md
+# Clean up:
+rm -rf .gh-replies
+```
+
 ## Checkout Review Branch
 
 ```bash

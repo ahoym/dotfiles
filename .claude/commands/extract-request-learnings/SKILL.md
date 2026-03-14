@@ -78,7 +78,7 @@ General/private writers use staging directories inside the project (`docs/learni
 
 7. **Spawn extractor subagents** in parallel — one per review. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every review gets the identical template structure. **Research only — no file writes.**
 
-8. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. Read `writer-prompt.md` and use it as a **verbatim template** — fill in placeholders per writer:
+8. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. **Re-read `writer-prompt.md` immediately before spawning** (use offset+limit for the orchestrator section, lines 1-20) — do not rely on an earlier read. Use it as a **verbatim template** — fill in placeholders per writer:
    - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `READ_PATH=docs/learnings/`, `WRITE_PATH=docs/learnings/`, files from step 5
    - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `READ_PATH=~/.claude/learnings/`, `WRITE_PATH=docs/learnings/_staging/general/`, files from step 5
    - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `READ_PATH=~/.claude/learnings-private/`, `WRITE_PATH=docs/learnings/_staging/private/`, files from step 5

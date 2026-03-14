@@ -28,11 +28,14 @@ Full placement decision table for the Claude configuration surface:
 |---|---|---|---|
 | **Guideline** | `guidelines/` | Behavioral rules ("always do X") | Shapes behavior universally, `@`-loaded from CLAUDE.md |
 | **Learning** | `learnings/` | Domain knowledge: gotchas, recipes, patterns | Conditional reference, loaded by persona or keyword search |
+| **Documentation** | `docs/` or equivalent | Reference/educational material (concepts, tutorials) | Consulted on demand, not behavioral rules |
 | **Persona** | `commands/set-persona/` | Judgment lens: priorities, tradeoffs, review instincts | "Would activating this change what I do?" — if just a gotcha list, not ready |
 | **Skill reference** | `skill-references/` | Shared patterns consumed by 2+ skills | Single source of truth; skills read selectively, not `@`-loaded |
 | **Template** | Inside skill directory | Message body content (reply text, PR descriptions) | Body-only — no posting commands. Promote to `skill-references/` if shared |
 | **Memory** | `memory/` | Facts, context, project state | Last resort — if it would be useful to a skill or persona, use a discoverable file instead |
 | **CLAUDE.md** | Project root or subdirectory | Navigational hub, architecture, relationships | `@` refs for always-needed context; signposts (non-`@`) for conditional |
+
+**Key distinction:** Guidelines contain actionable rules that shape behavior; reference/educational material (teaching concepts like `__all__` exports, dataclass `__post_init__`) belongs in documentation where it can be consulted on demand without cluttering the active instruction set.
 
 **Boundary cases:**
 - Prescriptive but conditional on domain → learning or persona gotcha, not guideline

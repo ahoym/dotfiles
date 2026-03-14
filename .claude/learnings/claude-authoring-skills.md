@@ -343,8 +343,44 @@ Naming convention: use a shared prefix (`claude-authoring-*`) to group the clust
 
 A "working in this repo" persona encodes things the user already knows — low value. A reviewer persona encodes the design philosophy and quality bar so a *reviewer agent* can evaluate changes against the user's standards without them being spelled out each time. The test: "does this persona give knowledge to someone who doesn't already have it?" Reviewer personas pass because the reviewer (the agent) is the one who needs the domain context, not the author.
 
+## Guidelines-to-Skills Migration
+
+### Context budget drives guideline-to-skill conversion
+
+Guidelines (`@`-loaded from CLAUDE.md) are always present in every agent's context. Skills load contextually — only meta descriptions are indexed, full content loads on invocation. For situational instructions ("how to create a PR", "how to resolve conflicts"), converting from guideline to skill saves context budget. Reserve guidelines for rules that genuinely apply to every interaction.
+
+- **Takeaway**: If an instruction is "do X when I say so" rather than "always behave this way," it should be a skill.
+
+### Skill conversion signal: procedural workflows with clear triggers
+
+The pattern that marks a guideline for skill conversion: procedural workflows with clear invocation triggers (address-pr-review, capture-learnings, close-redundant-pr, create-followup-issue, create-pr, resolve-conflicts). Trigger-ability is the key signal.
+
+- **Takeaway**: "Do X when triggered" = skill. "Always behave this way" = guideline.
+
+### Skill naming convention: prefix by taxonomy domain
+
+When skill count grows, prefix filenames by domain taxonomy (e.g., `git-create-pr.md`, `git-cascade-rebase.md`) rather than flat names. Pattern: `{domain}-{action}.md`. Apply retroactively in a single atomic PR to avoid transitional inconsistency.
+
+- **Takeaway**: Group skills by domain prefix for scannability.
+
+### Consolidate guidelines by removing skill commands that duplicate inline knowledge
+
+When guidelines already document how to run commands (e.g., exact CLI invocations), dedicated skill files wrapping those same commands add no value. Delete the skill when the guideline already covers it.
+
+- **Takeaway**: If a guideline already contains the command, a wrapper skill is redundant.
+
+### Meta-guidelines for skill creation belong in always-loaded context
+
+When converting guidelines to skills, a companion `skill-design.md` guideline codifying skill structure belongs in always-loaded context — it governs the quality of all future skill creation.
+
+- **Takeaway**: Guidelines about how to write skills are universal; keep them always-loaded.
+
 ## Memory Minimalism
 
 Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral rules), learnings (for domain knowledge), skill references (for shared patterns), or personas (for judgment lenses) — all are conditional and discoverable. Memory is for facts that genuinely don't fit anywhere else: project state, user context, temporal facts. If content would be useful to a skill or persona, put it in a file those can discover and reference.
 
 - **Takeaway**: Multi-session skill flows should include `git fetch` as an early step to prevent stale-branch issues.
+
+## Skill Deduplication: Platform-Specific vs Platform-Agnostic
+
+When a platform-agnostic skill (e.g., `address-request-comments`) supersedes a platform-specific one (e.g., `address-pr-review`), check whether the older skill is still referenced or should be removed. Keeping both causes confusion about which to invoke and risks the older one falling out of sync with improvements made to the newer version.

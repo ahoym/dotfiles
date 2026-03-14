@@ -203,6 +203,18 @@ Using the wrong path (`pulls/<number>/comments/<id>`) returns a 404.
 
 When a file moves within the repo (e.g., `CLAUDE.md` from root to `.claude/CLAUDE.md`), update the setup script's symlink list. The symlink at `~/.claude/` will still point to the old location, causing silent breakage on fresh installs. The fix is mechanical (add to ITEMS list) but easy to forget — the existing install works fine because the symlink was updated manually.
 
+## Use `--body-file` for `gh pr create` to Avoid Permission Prompts
+
+HEREDOC content with quoted strings in `gh pr create --body "..."` triggers permission prompts on every line. Write the body to a temp file and use `--body-file` instead:
+
+```bash
+# Write body via Write tool to .gh-replies/pr-body.md, then:
+gh pr create --base main --title "title" --body-file .gh-replies/pr-body.md
+rm -rf .gh-replies
+```
+
+Same pattern works for `gh pr edit --body-file`. The `.gh-replies/` directory is already used for comment replies in `github-commands.md`.
+
 ## Test Skills for Empirical CLI Behavior Verification
 
 Create a throwaway skill under `.claude/commands/test-<topic>/SKILL.md` to test CLI behaviors that can't be verified by reading code (e.g., `@` reference parsing, permission resolution, skill discovery). The skill body describes the test, and invoking it via `/test-<topic>` exercises the real CLI loader. Delete after testing. Useful when documentation is ambiguous or absent — the CLI's behavior is the ground truth.

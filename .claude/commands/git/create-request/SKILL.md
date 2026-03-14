@@ -83,22 +83,8 @@ Before creating the review, verify these items are complete:
 
 9. **Compose review body** — Read `request-body-template.md` from the skill's base directory. Structure the body following that template.
 
-10. **Run the command**:
+10. **Write body and create/update review** — Read the platform commands file (`~/.claude/skill-references/github-commands.md` or `gitlab-commands.md`) and follow the **"Create or Update PR (Body via File)"** section. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
 
-For new review:
-```bash
-$CREATE_CMD $BASE_FLAG <base-branch> --title "<title>" $BODY_FLAG "$(cat <<'EOF'
-<body content>
-EOF
-)"
-```
+11. **Clean up** — remove the temp body file and empty `.gh-replies/` directory (per the platform commands section).
 
-For existing review:
-```bash
-$EDIT_CMD <number> $BODY_FLAG "$(cat <<'EOF'
-<body content>
-EOF
-)"
-```
-
-11. **Return the review URL** to the user.
+12. **Return the review URL** to the user.
