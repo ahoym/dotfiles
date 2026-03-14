@@ -90,6 +90,25 @@ This is narrower than full Bash access (small, enumerable allowlist of structure
 
 The "blanket > pattern matching" principle still holds for *open-ended* pattern matching (trying to enumerate dangerous commands). A *closed* allowlist of specific command prefixes is fundamentally different — you're enumerating what's allowed, not what's dangerous.
 
+## Hook Enforcement for Workflow Gates
+
+Hooks can enforce sequential workflow gates (e.g., "search learnings before doing anything else") using filesystem state coordination:
+
+1. **SessionStart** creates a flag file (`/tmp/claude-gate-${session_id}`)
+2. **PreToolUse** blocks non-exempt tools while the flag exists
+3. **PostToolUse** on the required tool (e.g., Glob targeting learnings/) removes the flag
+
+**What's enforceable:** The session-start gate works cleanly — low cost, flag removed after first qualifying tool call, zero ongoing overhead.
+
+**What's not:** Plan mode is a **permission state change**, not a tool call. No `EnterPlanMode` tool exists for PreToolUse to intercept. Hooks see `permission_mode` in their JSON input (current state) but not transitions. There is no `PlanModeEntry` hook event.
+
+**Alternative for non-enforceable gates:** Use `additionalContext` (available on SessionStart, UserPromptSubmit, PreToolUse, SubagentStart) to inject reminders conditionally — a nudge rather than a wall. Fires only while the flag file exists, so no ongoing overhead after compliance.
+
+**Key coordination details:**
+- `session_id` is in every hook's JSON input — use it for session-scoped state files
+- PostToolUse completes before next PreToolUse fires (no race conditions)
+- `CLAUDE_ENV_FILE` only sets env vars visible to Bash commands, not to other hooks — use filesystem for cross-hook state
+
 ## Idempotent Hook Injection
 
 When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("lab/ralph/hooks/guard-")`).

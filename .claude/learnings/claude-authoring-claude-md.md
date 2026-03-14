@@ -141,6 +141,14 @@ When introducing structural changes that will cause merge conflicts (e.g., switc
 
 - **Takeaway**: Ship conflict resolution docs with the structural change that causes those conflicts.
 
+## Section Ordering Affects AI Priority Signal
+
+For unnumbered, unmarked sections (no "IMPORTANT", no bold markers, no numbering), **position is the only remaining priority signal**. Earlier sections carry implicit weight because training data reflects authoring conventions where important content comes first.
+
+**Alphabetizing neutralizes this signal** — it tells the AI "these are peers, organized for findability, don't read priority into the order." This is genuinely useful when equal weight is intended, and a reason *not* to alphabetize when ordering should carry meaning.
+
+**What always overrides position:** Explicit priority language ("IMPORTANT", "MUST", "CRITICAL", "always", "never"), heading specificity, and in-conversation instructions. These work regardless of where they appear in a file.
+
 ## `@` References Resolve Relative to the File, Not the Project Root
 
 `@./guidelines/foo.md` in `~/.claude/CLAUDE.md` resolves to `~/.claude/guidelines/foo.md`. Using `@.claude/guidelines/foo.md` (project-root-relative) may fail to load content even though the path looks correct. Always use `./`-relative paths from the CLAUDE.md file's own directory.
