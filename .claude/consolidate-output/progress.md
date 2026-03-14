@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 4 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 5
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, 11 domain clusters. No duplicates, no staleness, no genericization issues. All prior dedup from iters 1/4 holding. |
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iter 5. No changes since last sweep. All cross-references valid. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 6. Round 3 complete (clean). CLEAN_ROUND_STREAK → 1. |
+| 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 57 files, 11 domain clusters. No changes since iter 7. All prior dedup holding. Deep dive candidates recorded (10 files). |
 
 ## Deep Dive Status
 
@@ -153,5 +154,17 @@ Suggested iterations: 15
 **GUIDELINES sweep (Round 3)**: Clean. Same 4 files as iters 3, 6. All @-referenced from CLAUDE.md. No modifications since iter 6. Cross-referenced against learnings corpus (13 files mention guideline-related terms) — all are reference knowledge, not behavioral duplication. CLAUDE.md inline sections (Bash Tool, Read Tool, Path Resolution table, Sync) correctly placed.
 
 **Round 3 complete**: Clean (all three types clean). CLEAN_ROUND_STREAK → 1. Starting Round 4 — if this round is also clean, broad sweeps converge.
+
+**Compounding**: Skipped — clean sweep.
+
+### Iter 10
+
+**LEARNINGS sweep (Round 4)**: Clean. 57 files across 11 domain clusters. No modifications since iter 7. All prior dedup from iters 1/4 confirmed holding. Gotchas files properly separate. Large files (claude-authoring-skills.md 466L, multi-agent-patterns.md 289L, claude-code.md 244L) thematically unified.
+
+**File count note**: Glob returns 57 files (was 56 in iter 7 notes). Likely a miscount in iter 7 — no files were added or deleted between iters 7 and 10.
+
+**Deep dive candidates recorded** (for potential convergence after Round 4): 10 files meeting criteria 1 (hub), 5 (modified skill), 6 (staleness), and fill (untracked).
+
+DEEP_DIVE_CANDIDATES: [claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md]
 
 **Compounding**: Skipped — clean sweep.
