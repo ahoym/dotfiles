@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,6 +51,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 3 | 0 | 1 | 0 | 0 | 0 | No |
 
 ## Iteration Log
 
@@ -60,6 +61,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 3 | 0 | 0 | 3 | Removed persona duplicates from claude-authoring-skills.md, deleted redundant validation.md, removed cross-cutting duplicates from claude-authoring-guidelines.md |
 | 2 | 1 | SKILLS | 1 | 0 | 0 | 1 | Fixed stale path in ralph:init (docs/claude-learnings/ → docs/learnings/, 6 occurrences) |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, all behavioral, no duplication with learnings |
 
 ## Deep Dive Status
 
@@ -93,3 +95,9 @@ Suggested iterations: 15
 **Cross-persona checks**: Deferred to GUIDELINES sweep — no persona-level issues surfaced during skill evaluation.
 
 **Compounding**: Skipped — stale path fix is a standard consistency correction, not a novel curation pattern.
+
+### Iter 3
+
+**GUIDELINES sweep**: Clean. 4 files (communication.md, context-aware-learnings.md, path-resolution.md, skill-invocation.md), all @-referenced from CLAUDE.md. All behavioral, universally needed, no domain-specific content. CLAUDE.md inline sections (Bash Tool, Read Tool, Path Resolution table, Sync) correctly placed — too short for extraction. Path Resolution table is a valid complement to path-resolution.md (adds permission patterns + Read rows). No duplication with learnings corpus.
+
+**Round 1 complete**: Not clean (4 HIGHs across LEARNINGS + SKILLS). CLEAN_ROUND_STREAK remains 0. Starting Round 2.
