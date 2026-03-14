@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 5 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 2 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 15
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 57 files, 11 domain clusters. No changes since iter 7. All prior dedup holding. Deep dive candidates recorded (10 files). |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iters 5/8. No changes since iter 8. |
 | 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 9. Round 4 clean → CLEAN_ROUND_STREAK = 2 → BROAD SWEEP CONVERGED. Transitioning to DEEP_DIVE with 10 candidates. |
+| 13 | DD | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-authoring-content-types.md: 12 patterns, 122 lines. Hub file well-structured. 1 HIGH: removed Memory Minimalism from claude-authoring-skills.md (duplicate of content-types § Memory). |
 
 ## Deep Dive Status
 
@@ -81,6 +82,7 @@ Suggested iterations: 15
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| claude-authoring-content-types.md | done | 13 | 1 HIGH: removed duplicate Memory Minimalism from skills spoke. 11/12 patterns clean (standalone reference, keep). |
 
 ## Notes for Next Iteration
 
@@ -189,3 +191,13 @@ DEEP_DIVE_CANDIDATES: [claude-authoring-content-types.md, .claude/commands/ralph
 **Transition to DEEP_DIVE**: 10 candidates from iter 10 notes: claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md.
 
 **Compounding**: Skipped — clean sweep.
+
+### Iter 13
+
+**Deep dive: claude-authoring-content-types.md** (122 lines, 12 patterns). Hub file for content-type routing. Cross-referenced all 5 spoke files (skills, guidelines, learnings, personas, claude-md) plus classification-model.md.
+
+**Finding**: claude-authoring-skills.md § "Memory Minimalism" (lines 315-319) duplicated content-types § Memory (lines 83-89). Same hub-and-spoke dedup pattern from iters 1/4 — content that belongs to the hub was retained in a spoke. Removed from skills file.
+
+**File quality**: Well-structured routing hub. All spoke cross-references valid (5/5 files exist). Decision tree, boundary cases, scoping table, and migration signals all unique to this file. No compression opportunities (already concise at 122 lines). "Universal vs Language-Specific" section complements (not duplicates) guidelines file's "Three-Tier Guideline Separation" — content-types has the binary principle, guidelines adds the project tier.
+
+**Compounding**: Skipped — finding is another instance of the known hub-and-spoke dedup pattern already in curation-insights.md.

@@ -312,12 +312,6 @@ When converting guidelines to skills, a companion `skill-design.md` guideline co
 
 - **Takeaway**: Guidelines about how to write skills are universal; keep them always-loaded.
 
-## Memory Minimalism
-
-Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral rules), learnings (for domain knowledge), skill references (for shared patterns), or personas (for judgment lenses) — all are conditional and discoverable. Memory is for facts that genuinely don't fit anywhere else: project state, user context, temporal facts. If content would be useful to a skill or persona, put it in a file those can discover and reference.
-
-- **Takeaway**: Memory is the last resort — prefer discoverable, conditional files (learnings, skill-references, personas) over always-on context cost.
-
 ## User Interaction Points
 
 Mark steps where user input is needed:
