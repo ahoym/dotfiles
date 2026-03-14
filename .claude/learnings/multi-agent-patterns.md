@@ -272,3 +272,13 @@ Pattern: agent reads from real location (dedup), writes to `docs/learnings/_stag
 ## Pre-Read External Files Before Launching Agents
 
 Agents inherit the parent session's permission scope. Files outside permissioned directories (e.g., `~/Downloads/`) cause silent failures — agents complete analysis but can't read the inputs. When launching agents that need files from outside the workspace, read the files yourself first and pass the content in the agent prompt. The analysis is the expensive part; providing input content is cheap.
+
+## Orchestrator/Agent Split for Multi-Step Skills
+
+Split SKILL.md into two files when a skill has a multi-step background workflow:
+1. **Orchestrator (SKILL.md)** — User interaction only: identifying items, displaying for selection, gathering input. Target ~80 lines. List reference files as conditional (no eager `@`).
+2. **Background agent steps (separate .md)** — Autonomous workflow executed by a Task agent. Use aliases at top, decision tables for branching, inline warnings at point of use, error recovery at bottom.
+
+## Verify Assumptions Before Documenting
+
+Test assumptions with a controlled experiment before writing them as facts across multiple files. Run a minimal reproducer that isolates the specific claim. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.

@@ -162,6 +162,14 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 **Format flexibility**: The `@` parser resolves regardless of surrounding formatting — `- @path — description`, `@path — description`, `- @path`, and bare `@path` all work identically. The `- ` prefix and `— description` suffix are purely human-readability conventions.
 
+## Skill Description Frontmatter Optimization
+
+The `description:` field should be optimized for searchability:
+1. **Remove internal jargon** — Use widely understood terms
+2. **Add action keywords** — Include verbs describing what happens
+3. **Use standard terminology** — Prefer terms from common dev workflows
+4. **Include specific capabilities** — For multi-purpose skills, list key features
+
 ## Discoverability via Trigger Phrases
 
 Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.
@@ -174,6 +182,15 @@ description: Create a merge request [...]. Use when the user asks to push an MR,
 ```
 
 The description field serves double duty — documentation for the user and a matching signal for the model. Optimizing for the latter prevents skill bypass. **Every** `.claude/commands/*.md` file should include `description` frontmatter — missing descriptions make skills invisible in the command picker.
+
+### When NOT to Add Routing Hints
+
+Skip routing hints when:
+- The skill name already communicates intent (e.g., `git:create-pr`)
+- The functional description covers it
+- The triggers would just paraphrase the name
+
+Only add "Use when..." routing hints when the skill name + functional description isn't enough for agent inference — e.g., opaque names, overlapping skills needing disambiguation.
 
 ## Subagent Prompts: Read Shared References Instead of Hardcoding
 
@@ -380,6 +397,65 @@ When converting guidelines to skills, a companion `skill-design.md` guideline co
 Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral rules), learnings (for domain knowledge), skill references (for shared patterns), or personas (for judgment lenses) — all are conditional and discoverable. Memory is for facts that genuinely don't fit anywhere else: project state, user context, temporal facts. If content would be useful to a skill or persona, put it in a file those can discover and reference.
 
 - **Takeaway**: Memory is the last resort — prefer discoverable, conditional files (learnings, skill-references, personas) over always-on context cost.
+
+## User Interaction Points
+
+Mark steps where user input is needed:
+- **Ask for confirmation**: Before destructive operations (force push, reset)
+- **Ask for selection**: When multiple paths are possible
+- **Show and confirm**: Before committing or pushing
+
+## File Operations in Skills
+
+Keep temp files within repo scope rather than system directories:
+- **Use `./tmp/`** instead of `/tmp/` for skill-generated files
+- Add `tmp/` to `.gitignore`
+- Create the directory with `mkdir -p ./tmp` before use
+
+This keeps operations contained to the repo context and avoids permission issues.
+
+## Making Skills Portable
+
+Skills should work across different projects. Periodically audit skills to remove project-specific content.
+
+| Project-Specific | Generic Replacement |
+|------------------|---------------------|
+| Class names from your codebase | Domain-neutral names (`DataProcessor`, `BatchProcessor`) |
+| File paths from your project | Generic paths (`pipeline.py`, `src/models/`) |
+| Internal API names | Generic references (`External API`, `Payment API`) |
+
+**Audit process:** Search skills for project-specific class/file names → check SKILL.md and reference files → replace with domain-neutral examples → verify examples still make sense generically.
+
+## Analyzing Skills for Token Optimization
+
+Periodically review skills 100+ lines to identify content extractable into conditional reference files.
+
+| Content Type | Extract? | Threshold |
+|---|---|---|
+| Core instructions | No | Always needed |
+| Templates, examples, reference tables | Yes | 10+ lines, only needed situationally |
+| Edge case documentation | Maybe | 20+ lines |
+
+**Evaluate extraction benefit:** 50+ lines situational = high value, 20-50 = medium, <20 = overhead exceeds benefit. Don't extract content under 15 lines, needed on every invocation, or that loses context when separated.
+
+## No Half-Steps in Numbered Instructions
+
+When writing numbered steps in skills or protocols, use proper integer steps (Step 0, 1, 2, 3...), not half-steps (Step 1.5). Half-steps signal the structure wasn't planned upfront, add uncertainty about ordering, and make the sequence harder to reference. If a new step needs to be inserted, renumber all subsequent steps.
+
+## Validating Skill Changes
+
+After modifying or creating skills, verify before committing:
+1. **Structure** — Directory exists, old files removed (if migrated)
+2. **Content** — Key content present in SKILL.md, reference files linked correctly
+3. **Permissions** — Required Bash patterns added to settings.json
+4. **Function** — Test the actual commands the skill uses when possible
+
+## Bash Commands in Skills
+
+- Use `--force-with-lease` instead of `--force` for safety
+- Include the full command, not just fragments
+- Show prerequisite commands (fetch, checkout) explicitly
+- Use HEREDOC for multi-line commit messages
 
 ## Skill Deduplication: Platform-Specific vs Platform-Agnostic
 

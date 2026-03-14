@@ -160,3 +160,7 @@ When re-reviewing a PR and a previous comment has been addressed, react with a �
 If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
 
 - **Takeaway**: No findings = no post. Silence is a valid review outcome.
+
+### Keep Approval Flows On-Platform
+
+When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
