@@ -2,6 +2,8 @@
 
 Use these templates when replying to review comments. Always include the co-authorship footnote.
 
+**Avoid bare `#N` references.** GitHub auto-links `#1`, `#2`, etc. to issues/PRs. When numbering items in a reply, use backtick-wrapped `` `#1` `` or omit the `#` entirely (e.g., "item 1", "comment 1").
+
 ## Acknowledging a Fix
 
 ```
