@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 2
+- **Sweeps**: 3
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -67,6 +67,7 @@ Suggested iterations: 15
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. No overlap, stale refs, or scope issues |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 3. Round 2 complete (not clean). |
 | 7 | 3 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, 11 domain clusters. No duplicates, no staleness, no genericization issues. All prior dedup from iters 1/4 holding. |
+| 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iter 5. No changes since last sweep. All cross-references valid. |
 
 ## Deep Dive Status
 
@@ -136,5 +137,11 @@ Suggested iterations: 15
 ### Iter 7
 
 **LEARNINGS sweep (Round 3)**: Clean. 56 files across 11 domain clusters: XRPL+TypeScript (8), React/Next.js (6), Java/Spring (6), Claude/Meta-tooling (14), Git (1), CI/CD (4), Infrastructure (4), API/Backend (5), Process/Quality (4), Python (1), Other (3). H2/H3 heading collision scan: no duplicates. Cross-file content check: all dedup from iters 1 and 4 holding clean. Gotchas files properly separate from parents. Large files (claude-authoring-skills.md 466L, multi-agent-patterns.md 289L, claude-code.md 244L) thematically unified — not split candidates.
+
+**Compounding**: Skipped — clean sweep.
+
+### Iter 8
+
+**SKILLS sweep (Round 3)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas — identical inventory to iter 5. No skill files modified since iter 5. Cross-referenced against LEARNINGS changes from iter 4 (removed duplicate sections from claude-authoring-skills.md, bash-patterns.md) — all skills/personas referencing these files point to the files themselves (which still exist), not the removed sections. No overlap, staleness, or scope issues.
 
 **Compounding**: Skipped — clean sweep.
