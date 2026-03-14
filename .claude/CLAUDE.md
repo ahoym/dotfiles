@@ -3,7 +3,7 @@
 @./guidelines/communication.md
 @./guidelines/skill-invocation.md
 @./guidelines/context-aware-learnings.md
-@./guidelines/skill-path-resolution.md
+@./guidelines/path-resolution.md
 
 # Bash Tool
 
@@ -23,9 +23,9 @@ Edit requires a recent Read of the target file — having the content in context
 |---------|-----------------|--------------|
 | **Permission patterns** (settings.json) | ✅ Required | ❌ Won't match |
 | **Read** (file_path) | ✅ | ✅ |
-| **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ |
+| **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ (file-relative) |
 
-When a skill references a file via relative path (`../../`, `sibling.md`), resolve against the skill's "Base directory" header before passing to Read. See `skill-path-resolution.md` guideline for details.
+`@` references in CLAUDE.md files resolve relative to the file's directory, not the project root. See `path-resolution.md` guideline for details.
 
 # Sync
 

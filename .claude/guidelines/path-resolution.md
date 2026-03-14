@@ -1,4 +1,12 @@
-# Skill Path Resolution
+# Path Resolution
+
+## `@` references in CLAUDE.md files
+
+`@` references in CLAUDE.md files resolve relative to the file's directory, not the project root.
+
+- From `.claude/CLAUDE.md`: `@./guidelines/foo.md` → `.claude/guidelines/foo.md`
+- From project root `CLAUDE.md`: `@.claude/guidelines/foo.md` → `.claude/guidelines/foo.md`
+- Tilde paths (`@~/.claude/...`) resolve absolutely regardless of file location
 
 ## Resolve relative paths against the skill's base directory
 
@@ -11,4 +19,4 @@ The Read tool only natively resolves CWD-relative and tilde (`~`) paths. Relativ
 2. Resolve the relative path against it (e.g., `../../learnings/foo.md` → `/Users/<user>/.claude/learnings/foo.md`)
 3. Pass the absolute path to Read
 
-This applies to lazy-loaded references (plain paths without `@`). For eager loading, use `@` with CWD-relative or tilde paths instead — those are resolved by the CLI deterministically at load time.
+This applies to lazy-loaded references (plain paths without `@`). For eager loading, use `@` with file-relative or tilde paths instead — those are resolved by the CLI deterministically at load time.
