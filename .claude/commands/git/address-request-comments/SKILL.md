@@ -31,7 +31,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 2. **Fetch review and comments** (run in parallel):
 
-   **Incremental fetch:** If this review was already fetched earlier in the session, use `updated_after` (GitLab) or `since` (GitHub) to get only new/edited comments since the last fetch. After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies (author = current user via `$AUTH_CMD`) to avoid re-processing comments you already responded to.
+   **Incremental fetch:** If this review was already fetched earlier in the session, filter by timestamp client-side (see platform commands file). After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies by checking for `Role: Addresser` in the comment body — this is the role tag appended to all replies by this skill.
 
    **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time — it doesn't support timestamp filtering. On incremental fetches, always re-fetch reviews and compare the count against `LAST_REVIEW_COUNT` to detect new review submissions. Only process reviews beyond the previous count.
 
@@ -84,7 +84,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
-   **Always append the co-authorship footnote** (`---\n*Co-authored with Claude <model>*`) to every reply posted on the platform, using the model you're currently running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6"). See `request-reply-templates.md` for examples.
+   **Always append the co-authorship footnote** to every reply posted on the platform. Use the model you're currently running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6"). See `request-reply-templates.md` for the exact format — includes model, persona, and role fields.
 
    Follow **Reply to Inline Comment** in the platform commands file.
 
