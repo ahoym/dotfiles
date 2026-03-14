@@ -14,6 +14,8 @@ Examples:
 
 **Source design-intent claims.** When explaining *why* a system behaves a certain way, distinguish reasoning from general principles ("this is how broad sweeps generally work") from verified claims ("the spec says X on line Y"). If you haven't read the primary source, say so — don't present plausible reasoning as confirmed design intent. "This is by design" is a verifiable claim; verify it.
 
+**Stress-test negative conclusions from empirical tests.** Before concluding "X doesn't work," ask: "Could something other than failure explain this result?" Check: (1) Was the test environment clean — no caching, dedup, or prior state contaminating results? (2) Was only one variable isolated? (3) Would a different input (file, path, context) give the same result? If any answer is uncertain, the conclusion isn't ready — design another test. A plausible hypothesis that fits the data is not a confirmed result.
+
 ## Pre-flight checklists for complex tasks
 
 Before executing complex or potentially impactful actions, state assumptions and verify alignment. This identifies potential misalignment before taking action. Example:
