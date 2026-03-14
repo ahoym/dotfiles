@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 1 | 0 | 0 | 1 | Fixed stale path in ralph:init (docs/claude-learnings/ → docs/learnings/, 6 occurrences) |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, all behavioral, no duplication with learnings |
 | 4 | 2 | LEARNINGS | 2 | 0 | 0 | 2 | Removed duplicate "Grep Before Creating New Files" from claude-authoring-skills.md (verbatim in claude-authoring-learnings.md), removed duplicate "glab api --jq" from bash-patterns.md (covered in gitlab-cli.md) |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. No overlap, stale refs, or scope issues |
 
 ## Deep Dive Status
 
@@ -114,3 +115,9 @@ Suggested iterations: 15
 **No MEDIUMs or LOWs identified**. No obvious merge/split/compression/reference-wiring opportunities beyond the HIGHs.
 
 **Compounding**: Skipped — both findings are additional instances of the same hub-and-spoke dedup pattern already documented in curation-insights.md from iter 1. No novel meta-insights.
+
+### Iter 5
+
+**SKILLS sweep (Round 2)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas. Clustered by namespace: git:10, learnings:4, ralph:7, parallel-plan:2, standalone:8. No overlap within or across namespaces. All reference files verified present. Model version strings current (Claude Opus 4.6). Co-Authored-By lines all current. Cross-persona checks: no duplicated gotchas.
+
+**Compounding**: Skipped — clean sweep, nothing to learn.
