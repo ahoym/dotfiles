@@ -51,6 +51,12 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
+   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform commands file. If the state is `MERGED` or `CLOSED`, emit a message and stop:
+   ```
+   PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. 🔄
+   ```
+   If running via `/loop`, suggest the user cancel the cron job with `CronDelete`.
+
 4. **Check for previous reviews** — detect whether this is a first review or re-review by searching for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
    **GitHub:**
