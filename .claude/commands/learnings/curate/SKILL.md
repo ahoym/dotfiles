@@ -100,24 +100,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 
 **If user selects "all learnings" (broad sweep mode)**:
 
-Broad sweep uses a **cluster-first approach** instead of per-file pattern analysis:
-
-1. Read all learnings files (use parallel Read calls for all files in one batch)
-2. Cluster files by domain/stack (e.g., "XRPL + TypeScript", "Java + Spring", "Python", "Meta/tooling")
-3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
-4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
-5. Run persona detection (step 6) across all clusters simultaneously
-6. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
-   - **Genericization candidates**: Extract domain terms from persona file names (e.g., "xrpl", "java", "spring"). Grep each learnings file for these terms. A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
-   - **Compression candidates**: Files with patterns that have high line-count relative to insight count (e.g., 30+ line patterns with large code blocks, multi-line JSON examples). Flag files where estimated compression >= 30%.
-
-   Store as `POLISH_CANDIDATES`. These are reported separately from HIGH/MEDIUM/LOW findings — they're quality signals, not classification changes.
-7. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
-8. Use the **broad sweep report format** (see content-mode.md)
-
-**Why cluster-first:** Classifying all ~50 patterns individually produces an unreadable table. Most are "standalone reference / keep." Clustering surfaces the high-value actions (persona enhancements, thin file cleanup, staleness) without the noise.
-
-**Consecutive sweeps compound:** Each sweep's actions (enhanced personas, deleted files, moved content) create new state for the next sweep to evaluate. For example, after folding `spring-patterns.md` content into `java-backend`, a follow-up sweep can check whether `spring-patterns.md` is now partially redundant. Run 2-3 consecutive sweeps to fully distill.
+This is a content mode variant. Read `content-mode.md` and follow the **Broad Sweep** section.
 
 ### 2. Load mode-specific instructions
 

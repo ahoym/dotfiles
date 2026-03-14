@@ -390,3 +390,16 @@ Memory (`memory/`) is always-on context cost. Prefer guidelines (for behavioral 
 ## Skill Deduplication: Platform-Specific vs Platform-Agnostic
 
 When a platform-agnostic skill (e.g., `address-request-comments`) supersedes a platform-specific one (e.g., `address-pr-review`), check whether the older skill is still referenced or should be removed. Keeping both causes confusion about which to invoke and risks the older one falling out of sync with improvements made to the newer version.
+
+## Skill Decomposition by Execution Path
+
+When a skill has mutually exclusive execution paths (e.g., "content mode" vs "skill mode"), split mode-specific steps into conditional reference files loaded after the mode is determined. This saves context — the unused mode's instructions never load.
+
+**Decision criteria:**
+- Paths must be truly independent (never both active in one invocation)
+- Savings must exceed coordination cost (an extra Read + cross-file references)
+- Report templates and apply actions travel with their mode — they're consumed together, so grouping them avoids extra files
+
+**Anti-pattern: single-file conditional split.** Putting all conditional content into one reference file that's always loaded just adds indirection without saving context. Splits only help when they actually gate content out. Similarly, splitting report templates into their own file when they're always loaded alongside their mode is pure overhead.
+
+**Mode variants stay with their parent mode.** When a mode has a variant (e.g., "broad sweep" is content mode at a different granularity), keep it in the mode's file rather than in the shared SKILL.md or a third file. It's the same execution path with different entry conditions — splitting it out would add coordination cost without meaningful savings.
