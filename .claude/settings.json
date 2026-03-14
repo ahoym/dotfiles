@@ -48,7 +48,7 @@
       "Write(~/.claude/learnings-private/**)",
       "Write(~/.claude/skill-references/**)",
       "Write(~/.claude/skills/**)",
-      "Write(~/WORKSPACE/**/.gh-replies/**)"
+      "Write(~/**/.gh-replies/**)"
     ]
   }
 }
