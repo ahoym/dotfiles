@@ -23,6 +23,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
 - `request-reply-templates.md` — Read before composing replies to review comments (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
+- `~/.claude/learnings/` — Glob filenames during categorization (step 5b); read files whose domain matches a comment's subject matter to ground replies in established knowledge
 
 ## Instructions
 
@@ -68,7 +69,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
       - **General feedback** - Praise, acknowledgment, or non-actionable comment
       - **Out of scope** - Valid but should be a separate issue
 
-6. **Reply to all comments on the platform**:
+6. **Load relevant learnings**: Glob `~/.claude/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so replies and implementation are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+
+7. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
    - For suggestions: State whether you agree/disagree and your proposed approach
    - For clarification requests: Provide the explanation
@@ -80,7 +83,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Reply to Inline Comment** in the platform commands file.
 
-7. **Post suggestion summary on the platform**:
+8. **Post suggestion summary on the platform**:
    After replying to individual comments, post a top-level comment summarizing actionable suggestions and your recommendations:
 
    ```
@@ -98,7 +101,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") before implementing suggestions. Do NOT prompt in CLI.
 
-8. **Implement approved changes** (only after partner approval):
+9. **Implement approved changes** (only after partner approval):
    a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
    b. For each group:
       - Make the changes
