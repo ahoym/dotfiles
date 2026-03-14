@@ -35,7 +35,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-references/platform-detection.md
+- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
 - `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details and diff
 - `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment interaction for re-review detection
 - `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Post review, find approvers
@@ -45,7 +45,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the user to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
+2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
 3. **Resolve the request** — determine which PR/MR to review:
    - If `$ARGUMENTS` contains a URL, extract the number from it
