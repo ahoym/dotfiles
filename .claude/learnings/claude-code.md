@@ -208,12 +208,12 @@ When a file moves within the repo (e.g., `CLAUDE.md` from root to `.claude/CLAUD
 HEREDOC content with quoted strings in `gh pr create --body "..."` triggers permission prompts on every line. Write the body to a temp file and use `--body-file` instead:
 
 ```bash
-# Write body via Write tool to .gh-replies/pr-body.md, then:
-gh pr create --base main --title "title" --body-file .gh-replies/pr-body.md
-rm -rf .gh-replies
+# Write body via Write tool to change-request-replies/pr-body.md, then:
+gh pr create --base main --title "title" --body-file change-request-replies/pr-body.md
+rm -rf change-request-replies
 ```
 
-Same pattern works for `gh pr edit --body-file`. The `.gh-replies/` directory is already used for comment replies in `github-commands.md`.
+Same pattern works for `gh pr edit --body-file`. The `change-request-replies/` directory is already used for comment replies in `github-commands.md`.
 
 ## Test Skills for Empirical CLI Behavior Verification
 

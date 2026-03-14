@@ -77,20 +77,20 @@ Before creating the PR, verify these items are complete:
 
 8. **Create or update PR** using the template from pr-body-template.md
 
-9. **Write PR body to temp file** — use the Write tool to save body content to `.gh-replies/pr-body-<BRANCH_NAME>.md` (branch name makes it parallel-safe). Create the `.gh-replies/` directory first if needed (`mkdir -p .gh-replies`).
+9. **Write PR body to temp file** — use the Write tool to save body content to `change-request-replies/pr-body-<BRANCH_NAME>.md` (branch name makes it parallel-safe). Create the `change-request-replies/` directory first if needed (`mkdir -p change-request-replies`).
 
 10. **Run the gh command**:
 
 For new PR:
 ```bash
-gh pr create --base <base-branch> --title "<title>" --body-file .gh-replies/pr-body-<BRANCH_NAME>.md
+gh pr create --base <base-branch> --title "<title>" --body-file change-request-replies/pr-body-<BRANCH_NAME>.md
 ```
 
 For existing PR:
 ```bash
-gh pr edit <number> --body-file .gh-replies/pr-body-<BRANCH_NAME>.md
+gh pr edit <number> --body-file change-request-replies/pr-body-<BRANCH_NAME>.md
 ```
 
-11. **Clean up** — remove the temp body file: `rm .gh-replies/pr-body-<BRANCH_NAME>.md`. If `.gh-replies/` is now empty, remove it too: `rmdir .gh-replies 2>/dev/null`.
+11. **Clean up** — remove the temp body file: `rm change-request-replies/pr-body-<BRANCH_NAME>.md`. If `change-request-replies/` is now empty, remove it too: `rmdir change-request-replies 2>/dev/null`.
 
 12. **Return the PR URL** to the user.

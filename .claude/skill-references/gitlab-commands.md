@@ -46,37 +46,37 @@ glab api "projects/:id/merge_requests/<number>/notes?updated_after=<TS>&sort=des
 
 ## Reply to Inline Comment
 
-Write the message body to `.gh-replies/<note_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
+Write the message body to `change-request-replies/<note_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
 ```bash
-mkdir -p .gh-replies
-# Write body to .gh-replies/<note_id>.md, then:
+mkdir -p change-request-replies
+# Write body to change-request-replies/<note_id>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@.gh-replies/<note_id>.md
+  -X POST -F body=@change-request-replies/<note_id>.md
 ```
 
 ## Post Top-Level Comment
 
-Write the message body to `.gh-replies/<mr_number>-top.md` first, then pass via file reference:
+Write the message body to `change-request-replies/<mr_number>-top.md` first, then pass via file reference:
 
 ```bash
-mkdir -p .gh-replies
-# Write body to .gh-replies/<mr_number>-top.md, then:
-glab mr comment <number> --message "$(cat .gh-replies/<mr_number>-top.md)"
+mkdir -p change-request-replies
+# Write body to change-request-replies/<mr_number>-top.md, then:
+glab mr comment <number> --message "$(cat change-request-replies/<mr_number>-top.md)"
 ```
 
 ## Create or Update MR (Body via File)
 
-Write the MR body to `.gh-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
+Write the MR body to `change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
 
 ```bash
-mkdir -p .gh-replies
-# Write body via Write tool to .gh-replies/request-body-<BRANCH_NAME>.md, then:
-glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat .gh-replies/request-body-<BRANCH_NAME>.md)"
+mkdir -p change-request-replies
+# Write body via Write tool to change-request-replies/request-body-<BRANCH_NAME>.md, then:
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Or update existing:
-glab mr update <number> --description "$(cat .gh-replies/request-body-<BRANCH_NAME>.md)"
+glab mr update <number> --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Clean up:
-rm .gh-replies/request-body-<BRANCH_NAME>.md && rmdir .gh-replies 2>/dev/null
+rm change-request-replies/request-body-<BRANCH_NAME>.md && rmdir change-request-replies 2>/dev/null
 ```
 
 ## Checkout Review Branch

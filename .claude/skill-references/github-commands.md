@@ -16,11 +16,11 @@ gh pr view <number> --json number,title,headRefName,baseRefName
 
 ```bash
 # Full fetch
-gh api "repos/{owner}/{repo}/pulls/<number>/comments?per_page=100" \
+gh api 'repos/{owner}/{repo}/pulls/<number>/comments?per_page=100' \
   --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 
 # Incremental fetch (newest first so new comments aren't hidden by pagination)
-gh api "repos/{owner}/{repo}/pulls/<number>/comments?since=<TS>&direction=desc" \
+gh api 'repos/{owner}/{repo}/pulls/<number>/comments?since=<TS>&direction=desc' \
   --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 ```
 
@@ -35,23 +35,23 @@ gh pr view <number> --json reviews \
 
 ```bash
 # Full fetch
-gh api "repos/{owner}/{repo}/issues/<number>/comments?per_page=100" \
+gh api 'repos/{owner}/{repo}/issues/<number>/comments?per_page=100' \
   --jq '.[] | {id, body, user: .user.login, created_at}'
 
 # Incremental fetch (newest first)
-gh api "repos/{owner}/{repo}/issues/<number>/comments?since=<TS>&direction=desc" \
+gh api 'repos/{owner}/{repo}/issues/<number>/comments?since=<TS>&direction=desc' \
   --jq '.[] | {id, body, user: .user.login, created_at}'
 ```
 
 ## Reply to Inline Comment
 
-Write the message body to `.gh-replies/<comment_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
+Write the message body to `change-request-replies/<comment_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
 ```bash
-mkdir -p .gh-replies
-# Write body to .gh-replies/<comment_id>.md, then:
+mkdir -p change-request-replies
+# Write body to change-request-replies/<comment_id>.md, then:
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  -F body=@.gh-replies/<comment_id>.md -F in_reply_to=<comment_id>
+  -F body=@change-request-replies/<comment_id>.md -F in_reply_to=<comment_id>
 ```
 
 ## Edit Inline Comment
@@ -68,26 +68,26 @@ Note: The endpoint is `pulls/comments/<comment_id>` (no PR number), not `pulls/<
 
 ## Post Top-Level Comment
 
-Write the message body to `.gh-replies/<pr_number>-top.md` first, then pass via file reference:
+Write the message body to `change-request-replies/<pr_number>-top.md` first, then pass via file reference:
 
 ```bash
-mkdir -p .gh-replies
-# Write body to .gh-replies/<pr_number>-top.md, then:
-gh pr comment <number> --body-file .gh-replies/<pr_number>-top.md
+mkdir -p change-request-replies
+# Write body to change-request-replies/<pr_number>-top.md, then:
+gh pr comment <number> --body-file change-request-replies/<pr_number>-top.md
 ```
 
 ## Create or Update PR (Body via File)
 
-Write the PR body to `.gh-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
+Write the PR body to `change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
 
 ```bash
-mkdir -p .gh-replies
-# Write body via Write tool to .gh-replies/pr-body.md, then:
-gh pr create --base <base-branch> --title "<title>" --body-file .gh-replies/pr-body.md
+mkdir -p change-request-replies
+# Write body via Write tool to change-request-replies/pr-body.md, then:
+gh pr create --base <base-branch> --title "<title>" --body-file change-request-replies/pr-body.md
 # Or update existing:
-gh pr edit <number> --body-file .gh-replies/pr-body.md
+gh pr edit <number> --body-file change-request-replies/pr-body.md
 # Clean up:
-rm -rf .gh-replies
+rm -rf change-request-replies
 ```
 
 ## Checkout Review Branch
@@ -134,18 +134,18 @@ gh api repos/{owner}/{repo}/pulls/<number>/reviews \
 For batch operations like learnings extraction:
 
 ```bash
-gh api "repos/{owner}/{repo}/pulls?state=all&sort=created&direction=asc&per_page=<SIZE>&page=<PAGE>" \
+gh api 'repos/{owner}/{repo}/pulls?state=all&sort=created&direction=asc&per_page=<SIZE>&page=<PAGE>' \
   | jq -c '.[] | {number, title, state, comments, user: .user.login, head_branch: .head.ref, requested_reviewers: [.requested_reviewers[].login], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], body: (.body // "(none)")[:400]}'
 ```
 
 ## Verify Platform Access (Batch)
 
 ```bash
-gh api "repos/{owner}/{repo}/pulls?state=all&per_page=1" | jq length
+gh api 'repos/{owner}/{repo}/pulls?state=all&per_page=1' | jq length
 ```
 
 ## Count Total Reviews
 
 ```bash
-gh api "repos/{owner}/{repo}/pulls?state=all&per_page=1" -i 2>&1 | grep -i 'link:'
+gh api 'repos/{owner}/{repo}/pulls?state=all&per_page=1' -i 2>&1 | grep -i 'link:'
 ```

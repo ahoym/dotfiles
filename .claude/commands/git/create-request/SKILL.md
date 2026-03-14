@@ -85,6 +85,6 @@ Before creating the review, verify these items are complete:
 
 10. **Write body and create/update review** — Read the platform commands file (`~/.claude/skill-references/github-commands.md` or `gitlab-commands.md`) and follow the **"Create or Update PR (Body via File)"** section. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
 
-11. **Clean up** — remove the temp body file and empty `.gh-replies/` directory (per the platform commands section).
+11. **Clean up** — remove the temp body file and empty `change-request-replies/` directory (per the platform commands section).
 
 12. **Return the review URL** to the user.
