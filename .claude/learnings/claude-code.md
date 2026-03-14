@@ -236,3 +236,7 @@ Create a throwaway skill under `.claude/commands/test-<topic>/SKILL.md` to test 
 ## GitHub Reviews API: Single Payload with Inline Comments
 
 `POST /repos/{owner}/{repo}/pulls/{number}/reviews` accepts a JSON payload with both a review summary (`body`) and an array of inline comments (`comments[]`). Each comment specifies `path`, `line`, `side`, and `body`. This avoids N+1 API calls (one per comment). Use `gh api --input file.json` to post — write the payload to a temp file to avoid shell quoting issues with complex JSON.
+
+## Polling Loop Token Cost
+
+Each `/loop` invocation of a skill costs ~4-5K tokens minimum even on no-op runs — skill instructions (~3K) + platform detection ref (~500) + API calls (~200) + response (~50). At 3-minute intervals, that's ~80-100K tokens/hour for confirming nothing changed. Factor this into interval selection: use 10m+ for review polling unless rapid response is needed.

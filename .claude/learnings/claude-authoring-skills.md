@@ -489,6 +489,7 @@ The `Persona + Role` composite key enables filtering comment chains — the same
 
 ## Re-Review Detection via Footnote Pattern Matching
 
+<<<<<<< HEAD
 When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.
 
 ## Polling Skills Must Fetch Fresh API Data Every Invocation
@@ -502,3 +503,16 @@ Polling skills should check for changes with the cheapest possible API call befo
 ## Reference Platform Command Sections by Name, Don't Inline
 
 Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).
+
+## Cross-Skill Discovery via Related Skills
+
+1. **Add "Related Skills" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
+2. **Reference prerequisite skills** in Important Notes (e.g., "Use `/git:explore-pr` first if you need to understand the PR before splitting")
+
+## Self-Canceling Polling Loops
+
+Skills invoked via `/loop` can self-cancel when the target becomes irrelevant (e.g., PR merged/closed). Use `CronList` to find the cron job whose prompt matches the skill name + target identifier, then `CronDelete` to cancel it. The skill doesn't know its own job ID, but prompt-pattern matching is reliable since each loop has a unique prompt string.
+
+## State Check as Earliest Exit Point
+
+Review/polling skills should check the target's state (merged, closed, open) before any review logic. This is cheaper than commit SHA comparison and catches the terminal case where no further polling is needed. Order: state check → quick-exit (commit SHA) → full review.

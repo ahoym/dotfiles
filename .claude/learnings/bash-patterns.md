@@ -159,6 +159,10 @@ gh api repos/{owner}/{repo}/pulls/24/comments --jq '.[] | select(.created_at > "
 
 `-F` (uppercase) infers type: `+1` becomes numeric `1`, which the GitHub reactions API rejects. `-f` (lowercase) always sends as string. Use `-f` when the value must be a string (e.g., `-f content=+1` for emoji reactions).
 
+## Separate `git add` and `git commit` to Avoid Permission Rejection
+
+Chaining `git add && git commit && git push` in a single Bash call can trigger permission rejection because the combined command doesn't match simple allow patterns like `Bash(git add:*)`. Run each as a separate Bash call instead.
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.

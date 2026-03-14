@@ -53,3 +53,7 @@ Additionally, when creating a new learnings file, check personas in `~/.claude/c
 
 - **Source-vs-echo test** — see `curation-insights.md` → "Source-vs-echo test for deletions"
 - **Reusability test** ("Is there another time we'd need this?") — see `curation-insights.md` → same section
+
+## Deep Coverage Analysis for Deleted Content
+
+When consolidation removes sections, verify concepts have new homes — not just that keywords appear elsewhere. Check both git history (original content) and current corpus (where concepts landed). Categorize each deleted section as: COVERED (concepts exist elsewhere), PARTIALLY COVERED (some missing), or GAP (unique content dropped). For partial coverage, add the missing pieces to existing files rather than re-creating the deleted section.

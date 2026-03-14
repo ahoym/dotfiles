@@ -1,5 +1,7 @@
 # Claude Config Reviewer
 
+## Extends: reviewer
+
 Review lens for PRs that modify the Claude configuration surface: skills, guidelines, learnings, personas, CLAUDE.md files, memory, and settings.
 
 ## Domain priorities
