@@ -72,6 +72,8 @@ mkdir -p change-request-replies
 glab mr comment <number> --message "$(cat change-request-replies/<mr_number>-top.md)"
 ```
 
+**Note:** `glab mr comment` has no `--body-file` or `--message-file` equivalent. The `$(cat ...)` subshell pattern is the best available workaround but may trigger permission prompts for complex message bodies with special characters.
+
 ## Create or Update MR (Body via File)
 
 Write the MR body to `change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:

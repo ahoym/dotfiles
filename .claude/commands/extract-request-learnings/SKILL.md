@@ -96,8 +96,6 @@ General/private writers use staging directories inside the project (`docs/learni
    for f in docs/learnings/_staging/private/*.md; do
      [ -f "$f" ] && cp "$f" ~/.claude/learnings-private/
    done
-   # Clean up staging
-   rm -rf docs/learnings/_staging/
    ```
    This runs in the orchestrator's foreground context where `~/.claude/` is writable.
 

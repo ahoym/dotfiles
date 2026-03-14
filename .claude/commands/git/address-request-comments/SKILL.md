@@ -55,6 +55,8 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
    ```
 
+   **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
+
 3. **Display comments summary**:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
