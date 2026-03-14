@@ -15,11 +15,11 @@ glab mr view <number> --output json
 ## Fetch Inline/Review Comments
 
 ```bash
-# Full fetch
-glab api projects/:id/merge_requests/<number>/notes | jq '.[] | {id, body, author: .author.username, created_at, position}'
+# Full fetch (--paginate to get all notes beyond default page limit)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
-# Incremental fetch (filter client-side to avoid query params that require quoting)
-glab api projects/:id/merge_requests/<number>/notes | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
 ```
 
 ## Fetch General Review Comments
@@ -35,11 +35,11 @@ glab api projects/:id/merge_requests/<number>/discussions \
 ## Fetch Issue/Top-Level Comments
 
 ```bash
-# Full fetch — notes without position data are top-level comments
-glab api projects/:id/merge_requests/<number>/notes | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
+# Full fetch — notes without position data are top-level comments (--paginate for all pages)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
 
-# Incremental fetch (filter client-side to avoid query params that require quoting)
-glab api projects/:id/merge_requests/<number>/notes | jq '[.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}'
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}'
 ```
 
 ## Reply to Inline Comment

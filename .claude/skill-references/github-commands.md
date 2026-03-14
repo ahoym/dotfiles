@@ -15,11 +15,11 @@ gh pr view <number> --json number,title,headRefName,baseRefName
 ## Fetch Inline/Review Comments
 
 ```bash
-# Full fetch
-gh api repos/{owner}/{repo}/pulls/<number>/comments --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
+# Full fetch (--paginate to get all comments beyond default 30-per-page limit)
+gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 
-# Incremental fetch (filter client-side to avoid query params that require quoting)
-gh api repos/{owner}/{repo}/pulls/<number>/comments --jq '.[] | select(.created_at > "<TS>") | {id, path, line, body, user: .user.login, created_at}'
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | select(.created_at > "<TS>") | {id, path, line, body, user: .user.login, created_at}'
 ```
 
 ## Fetch General Review Comments
@@ -33,11 +33,11 @@ gh pr view <number> --json reviews --jq '.reviews[] | select(.body | length > 0)
 ## Fetch Issue/Top-Level Comments
 
 ```bash
-# Full fetch
-gh api repos/{owner}/{repo}/issues/<number>/comments --jq '.[] | {id, body, user: .user.login, created_at}'
+# Full fetch (--paginate to get all comments beyond default 30-per-page limit)
+gh api repos/{owner}/{repo}/issues/<number>/comments --paginate --jq '.[] | {id, body, user: .user.login, created_at}'
 
-# Incremental fetch (filter client-side to avoid query params that require quoting)
-gh api repos/{owner}/{repo}/issues/<number>/comments --jq '.[] | select(.created_at > "<TS>") | {id, body, user: .user.login, created_at}'
+# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
+gh api repos/{owner}/{repo}/issues/<number>/comments --paginate --jq '.[] | select(.created_at > "<TS>") | {id, body, user: .user.login, created_at}'
 ```
 
 ## Reply to Inline Comment
