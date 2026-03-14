@@ -24,7 +24,7 @@ cat << EOT >> ~/.gitconfig
 
 EOT
 else
-  echo "[nclude-git] ahoym/dotfiles already [include]d in ~/.gitconfig. Skipping [include-git]."
+  echo "[include-git] ahoym/dotfiles already [include]d in ~/.gitconfig. Skipping [include-git]."
 fi
 echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS$BASIC_EMPTY_PROGRESS[20%]\r"
 
@@ -55,7 +55,7 @@ echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_
 which -s brew
 if [[ $? != 0 ]] ; then
   echo "[include-brew] Homebrew not found, installing."
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
   echo "[include-brew] Homebrew exists, updating."
   brew update
