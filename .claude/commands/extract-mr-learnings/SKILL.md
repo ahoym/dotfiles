@@ -33,7 +33,7 @@ Systematically extract learnings from GitHub pull request history. Processes PRs
 3. **Create plan file** at `docs/plans/pr-learnings-extraction.md`:
    - Use the template in `plan-template.md`
    - Fill in repo name, PR count, output locations
-   - Create output directories: `docs/learnings/` and `~/.claude/learnings/` (if not existing)
+   - Create output directories: `docs/learnings/`, `~/.claude/learnings/`, and `~/.claude/learnings-private/` (if not existing)
 
 4. **Confirm with user** before proceeding to first batch.
 
@@ -53,9 +53,10 @@ Systematically extract learnings from GitHub pull request history. Processes PRs
 
 5. **Spawn extractor subagents** in parallel — one per PR. Read `extractor-prompt.md` and use it as a **verbatim template** — fill in placeholders but do not abbreviate, paraphrase, or add ad-hoc instructions. Every PR gets the identical template structure. **Research only — no file writes.**
 
-6. **Spawn 2 writer subagents in parallel** with all extractor outputs concatenated to both. Read `writer-prompt.md` and use it as a **verbatim template** — fill in placeholders per writer:
+6. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. Read `writer-prompt.md` and use it as a **verbatim template** — fill in placeholders per writer:
    - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `LEARNINGS_PATH=docs/learnings/`, files from step 3
    - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `LEARNINGS_PATH=~/.claude/learnings/`, files from step 3
+   - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `LEARNINGS_PATH=~/.claude/learnings-private/`, files from step 3
    - **DEDUP_GUIDANCE**: pull from the plan file's progress tracker notes (recurring pattern mentions). Do not improvise — use what's written.
    Each writer independently deduplicates against its own file set.
 

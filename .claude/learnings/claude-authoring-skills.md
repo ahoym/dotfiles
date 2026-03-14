@@ -457,6 +457,14 @@ After modifying or creating skills, verify before committing:
 - Show prerequisite commands (fetch, checkout) explicitly
 - Use HEREDOC for multi-line commit messages
 
+## Runtime Instructions Belong at Point of Use
+
+Instructions that affect agent behavior during skill execution (e.g., "use templates verbatim", "don't simplify commands") must live where the agent reads them at runtime — in the template file, reference file, or SKILL.md itself. Putting them in learnings files only helps during authoring/curation sessions, not during execution. The test: "will the agent see this when it matters?"
+
+## Skills Must Search All Three Learnings Locations
+
+Skills that glob learnings for domain context should search all three locations: `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local). Missing a location means the skill can't ground its responses in available knowledge. This mirrors the learnings search protocol in `context-aware-learnings.md`.
+
 ## Skill Deduplication: Platform-Specific vs Platform-Agnostic
 
 When a platform-agnostic skill (e.g., `address-request-comments`) supersedes a platform-specific one (e.g., `address-pr-review`), check whether the older skill is still referenced or should be removed. Keeping both causes confusion about which to invoke and risks the older one falling out of sync with improvements made to the newer version.

@@ -21,9 +21,10 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 - @~/.claude/skill-references/platform-detection.md
 - `~/.claude/skill-references/github-commands.md` / `gitlab-commands.md` — Platform-specific command templates (read the one matching detected platform)
-- `request-reply-templates.md` — Read before composing replies to review comments (step 6)
+- `request-reply-templates.md` — Read before composing replies to review comments (step 7)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected among review comments
-- `~/.claude/learnings/` — Glob filenames during categorization (step 5b); read files whose domain matches a comment's subject matter to ground replies in established knowledge
+- `address-request-edge-cases.md` — Read when processing comments (step 6+). Skip on quiet no-ops.
+- `~/.claude/learnings/`, `~/.claude/learnings-private/`, `docs/learnings/` — Glob filenames at step 5; read files whose domain matches the comments' subject matter
 
 ## Instructions
 
@@ -64,7 +65,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform commands file.
 
-5. **Categorize each comment in `COMMENTS`**:
+5. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+
+6. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
    b. Categorize each comment as one of:
       - **Suggestion** - Proposes a code change, architectural change, or different approach
@@ -72,8 +75,6 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
       - **Clarification request** - Asks a question or requests explanation
       - **General feedback** - Praise, acknowledgment, or non-actionable comment
       - **Out of scope** - Valid but should be a separate issue
-
-6. **Load relevant learnings**: Glob `~/.claude/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so replies and implementation are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
 7. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
@@ -141,104 +142,6 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Number of comments replied to with clarification
     - Number of suggestions skipped (awaiting user decision)
 
-## Important Notes
+## Important Notes (conditional)
 
-- Use `/git:explore-request` first if you need to understand the review before addressing comments
-- **Reply to comments on the platform first** — share your analysis with the reviewer, then present suggestions to your partner for approval
-- **Your partner approves** — after replying on the platform, present suggestions and wait for your partner to choose which to implement (they may approve in CLI or via review comments)
-- Typo fixes and obvious bug fixes can be auto-implemented (they're corrections, not debatable suggestions)
-- Always read the file context before making changes
-- Use a friendly, appreciative tone in replies ("Thanks for catching this!", "Good call")
-- If you disagree with a comment, explain your reasoning respectfully and ask for clarification
-- Group related changes into a single commit when possible
-- If a comment is unclear, ask the user before responding
-
-### Who approves suggestions?
-
-Your **partner** — the person you're pair-programming with. They see your analysis, the reviewer's comments, and your platform replies, then tell you which suggestions to implement. Approval can come via CLI or review comments — either channel is valid.
-
-### Conditional Requests
-
-Comments with conditional phrasing like "If X, please do Y" should be categorized as **clarification requests**, not suggestions. The reviewer is asking for confirmation before the change should be made.
-
-**Example:**
-> "I think `is` means in-sample here. If so, please rename these variables."
-
-This is a clarification request. Reply to confirm the understanding, then implement only after the reviewer confirms:
-```
-Yes, `is_` here means "in-sample". Would you like me to rename to `in_sample_*` or `train_*`?
-```
-
-### Line Number Drift
-
-When comments reference specific line numbers (inline diff comments), be aware that:
-- The line numbers in the API response refer to line numbers **at the time the comment was made**
-- If new commits have been pushed since the comment was made, line numbers may have shifted
-- On GitLab, the `head_sha` in the position data tells you which commit the line numbers refer to
-
-**To find what an inline comment is actually about:**
-```bash
-# Option 1: Check out the commit the comment was made on
-git show <commit_sha>:<file_path> | sed -n '<line_number>p'
-
-# Option 2: View the file at that commit with context
-git show <commit_sha>:<file_path> | head -n <line_number+5> | tail -n 10
-```
-
-**Do NOT** assume current file line numbers match the comment's line numbers after pushing changes.
-
-### Investigation vs Approval Distinction
-
-Be careful to distinguish comment types:
-
-- **Clear approval** (execute): "Claude can you update...", "Go ahead and change it", "Please update the plan to...", "yes, proceed", "send it"
-- **Investigation request** (analyze, then ask): "Can you look into X?", "Claude, can you investigate Y?"
-- **Preference statement** (do NOT execute): "please annotate with X", "we should use X", "it would be better to..."
-
-For investigation requests: Analyze the request, provide your findings/recommendations, then explicitly ask for approval before making changes.
-
-### Planning Documents Exception
-
-For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, or any path containing `plans/`), do NOT auto-fix even if you agree with the comment. Planning documents require discussion, so reply with your thoughts and wait for explicit approval from the review author before making changes.
-
-**When approval is given, only include what was specifically approved** - don't expand scope to include related improvements discussed in the same thread.
-
-### Delta Summaries
-
-Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level review comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
-
-Follow **Post Top-Level Comment** in the platform commands file.
-
-### Re-review Requests
-
-After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review.
-
-Follow **Find Approved Reviewers** in the platform commands file to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
-
-**Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
-
-### Keep Reviews Focused
-
-When responding to review feedback leads to changes unrelated to the review's purpose (e.g., updating rules/guidelines while reviewing an error handling audit), move those changes to a separate branch:
-
-```bash
-# Stash unrelated changes
-git stash push -m "unrelated changes" <files>
-
-# Switch to appropriate branch (often the base branch)
-git checkout <target_branch>
-
-# Apply and commit
-git stash pop
-git add -A && git commit -m "<message>"
-git push origin <target_branch>
-
-# Return to original branch
-git checkout <original_branch>
-```
-
-This keeps the review focused on its intended scope and makes reviews easier.
-
-### After LGTM Verification
-
-After verifying and confirming an LGTM, note to the user that the review is approved and further comment monitoring is unlikely to be needed. An approved review rarely receives new comments.
+- `address-request-edge-cases.md` — Read when processing comments (step 6+). Contains categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**

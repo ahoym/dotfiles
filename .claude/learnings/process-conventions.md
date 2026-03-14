@@ -168,3 +168,11 @@ When fixing one problem, verify the original problem's safeguards are preserved 
 ### Keep Approval Flows On-Platform
 
 When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
+
+### Verify the fix didn't break the safeguard
+
+After fixing a problem, test that the original safeguard still works — not just that the symptom is gone. Example: "command runs without permission prompt" ✅ but "command still returns all results" ❌. A quick verification (e.g., `| jq length` to confirm result count) catches regressions before they become real misses.
+
+### Fix the source, not just the behavior
+
+When a correction traces back to a template or reference file, fix the file — not just your current behavior. Otherwise the next session reads the same bad template and repeats the mistake. If you're corrected on a command format and the command came from a template, update the template immediately.

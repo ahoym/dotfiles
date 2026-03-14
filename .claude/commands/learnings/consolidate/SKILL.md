@@ -625,12 +625,15 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 ```json
 "Read(~/.claude/commands/**)",
 "Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/learnings/**)",
+"Write(~/.claude/learnings-private/**)",
 "Write(~/.claude/guidelines/**)",
 "Edit(~/.claude/commands/**)",
 "Edit(~/.claude/learnings/**)",
+"Edit(~/.claude/learnings-private/**)",
 "Edit(~/.claude/guidelines/**)"
 ```
 

@@ -74,7 +74,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
+- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `docs/learnings/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
 - Use `AskUserQuestion` to prompt user:
   ```
   What would you like to curate?

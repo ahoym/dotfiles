@@ -6,6 +6,8 @@ description: "Internal reference — GitHub-specific command templates. Read by 
 
 **Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 
+**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
+
 ## Fetch Review Details
 
 ```bash

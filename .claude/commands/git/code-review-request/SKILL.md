@@ -103,7 +103,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 7. **Fetch previous comment state** (re-review only) — follow `re-review-mode.md`.
 
 8. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
-   - Glob `~/.claude/learnings/*.md` to get the full inventory
+   - Glob `~/.claude/learnings/*.md`, `~/.claude/learnings-private/*.md`, and `docs/learnings/*.md` to get the full inventory
    - For each changed file, derive domain terms from the path and content (e.g., `src/api/` -> "api", `.github/workflows/` -> "ci-cd", `tests/` -> "testing")
    - Match domain terms against learnings filenames (e.g., "ci" matches `ci-cd.md`, "test" matches `testing-patterns.md`)
    - Read matched files to ground the review in established knowledge
