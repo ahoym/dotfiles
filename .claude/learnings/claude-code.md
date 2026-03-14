@@ -149,3 +149,38 @@ When scrubbing personal details from learning examples, use generic placeholders
 ## @ References Only Resolve in CLAUDE.md and SKILL.md
 
 `@path/to/file.md` references are resolved by the CLI at load time — not by the agent or the Read tool. They work in CLAUDE.md (expanded at session start) and SKILL.md (expanded when the skill is invoked). They do NOT resolve in arbitrary `.md` files read via the Read tool at runtime. This means data files (personas, reference docs, learnings) cannot use `@` to pull in other files — the agent must explicitly read them.
+
+**Path resolution styles** (empirically verified 2026-03-13):
+
+| Style | Example | Works? |
+|-------|---------|--------|
+| CWD/project-root relative | `@.claude/learnings/foo.md` | ✅ Yes |
+| Tilde expansion | `@~/.claude/learnings/foo.md` | ✅ Yes |
+| Relative traversal | `@../../learnings/foo.md` | ❌ No |
+| Skill-directory relative | `@sibling.md` (from SKILL.md) | ❌ No |
+
+**Cross-project verification:** All four styles tested from both the dotfiles repo (same-repo) and algo-trading (cross-repo). Results are consistent: CWD-relative and tilde work in both contexts; `../../` and sibling fail in both. CWD-relative fails cross-repo when the target file doesn't exist relative to the other project's root.
+
+**Three-layer path resolution model:**
+
+| Layer | CWD-relative | Tilde | `../../` | Sibling |
+|-------|-------------|-------|----------|---------|
+| **`@` reference (CLI)** | ✅ | ✅ | ❌ | ❌ |
+| **Read tool (direct)** | ✅ | ✅ | ❌ | ❌ |
+| **Agent (manual expansion)** | ✅ | ✅ | ✅ | ✅ |
+
+The agent layer works because the CLI injects a "Base directory for this skill: /absolute/path" header when loading skills. Agents can resolve `../../` and sibling paths against this base directory, then pass the absolute path to Read. This was verified cross-repo — the expanded absolute path matches existing `Read(~/.claude/learnings/**)` permission patterns. A guideline instructing agents to always expand relative paths against the skill's base directory would make this layer reliably deterministic rather than dependent on agent initiative.
+
+**Session-level dedup:** The CLI deduplicates `@` references within a session. If the same file is referenced by multiple `@` paths (even different path forms resolving to the same file), only the first triggers a Read. This can cause false negatives when testing — always use a file not yet loaded in the session.
+
+**Format flexibility:** The `@` reference parser doesn't require any specific surrounding syntax. All of these resolve identically: `- @path — description`, `@path — description`, `- @path`, and bare `@path`. The `- ` list prefix and description text are formatting conventions for human readability — they don't affect resolution.
+
+## GitHub API: Edit PR Review Comment Endpoint
+
+The endpoint for editing a pull request review comment is `pulls/comments/{comment_id}` — NOT `pulls/{number}/comments/{comment_id}`. The PR number is not in the path.
+
+```bash
+gh api repos/{owner}/{repo}/pulls/comments/<comment_id> -X PATCH -F body=@.gh-reply.tmp
+```
+
+Using the wrong path (`pulls/<number>/comments/<id>`) returns a 404.
