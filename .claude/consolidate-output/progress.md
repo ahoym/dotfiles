@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 4 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 8 | 3 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iter 5. No changes since last sweep. All cross-references valid. |
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 6. Round 3 complete (clean). CLEAN_ROUND_STREAK → 1. |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 57 files, 11 domain clusters. No changes since iter 7. All prior dedup holding. Deep dive candidates recorded (10 files). |
+| 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iters 5/8. No changes since iter 8. |
 
 ## Deep Dive Status
 
@@ -166,5 +167,13 @@ Suggested iterations: 15
 **Deep dive candidates recorded** (for potential convergence after Round 4): 10 files meeting criteria 1 (hub), 5 (modified skill), 6 (staleness), and fill (untracked).
 
 DEEP_DIVE_CANDIDATES: [claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md]
+
+**Compounding**: Skipped — clean sweep.
+
+### Iter 11
+
+**SKILLS sweep (Round 4)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas — identical inventory to iters 5/8. Namespace clustering: git:10, learnings:4, ralph:7, parallel-plan:2, standalone:8. No corpus modifications since iter 8 (iters 9-10 were clean GUIDELINES/LEARNINGS). All reference files verified present. No overlap, staleness, or scope issues.
+
+**Next**: GUIDELINES sweep (iter 12). If clean → Round 4 complete and clean → CLEAN_ROUND_STREAK = 2 → broad sweep convergence → transition to deep dive phase with 10 candidates from iter 10.
 
 **Compounding**: Skipped — clean sweep.

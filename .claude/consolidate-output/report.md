@@ -7,7 +7,7 @@
 | Started | 2026-03-14 |
 | Branch | consolidate/2026-03-14 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14 |
-| Iterations | 10 |
+| Iterations | 11 |
 | Rounds | 4 |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 4 | 5 | 0 | 0 | 0 |
-| Skills | 3 | 1 | 0 | 0 | 0 |
+| Skills | 4 | 1 | 0 | 0 | 0 |
 | Guidelines | 3 | 0 | 0 | 0 | 0 |
-| **Total** | **10** | **6** | **0** | **0** | **0** |
+| **Total** | **11** | **6** | **0** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -45,7 +45,7 @@ See `blockers.md` for details.
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Learnings files | 57 | 56 |
+| Learnings files | 57 | 57 |
 | Skills | 31 | 31 |
 | Guidelines files | 4 | 4 |
 | Persona files | 9 | 9 |
