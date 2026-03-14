@@ -29,7 +29,16 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/github-commands.md` or `gitlab-commands.md` (matching detected platform) for exact command templates.
 
-2. **Fetch review and comments** (run in parallel):
+2. **Check PR/MR state (incremental only):** Before fetching comments, check if the review is merged or closed. If so, auto-cancel any matching polling loop and stop:
+   1. Use `CronList` to find jobs whose prompt contains `/git:address-request-comments <number>`
+   2. Delete matching jobs with `CronDelete`
+   3. Announce and stop — do not proceed to comment fetching:
+   ```
+   <REVIEW_UNIT> #<number> is <merged|closed>. Cancelled polling loop <job_id>.
+   ```
+   If no matching loop is found, just announce the state change without the cancellation line.
+
+3. **Fetch review and comments** (run in parallel):
 
    **Incremental fetch:** If this review was already fetched earlier in the session, filter by timestamp client-side (see platform commands file). After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies by checking for `Role: Addresser` in the comment body — this is the role tag appended to all replies by this skill.
 
@@ -55,25 +64,16 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
    ```
 
-   **Merged/closed detection (incremental only):** On quiet no-ops, also check the PR/MR state. If merged or closed, announce it and auto-cancel any matching polling loop:
-   1. Use `CronList` to find jobs whose prompt contains `/git:address-request-comments <number>`
-   2. Delete matching jobs with `CronDelete`
-   3. Announce:
-   ```
-   <REVIEW_UNIT> #<number> is <merged|closed>. Cancelled polling loop <job_id>.
-   ```
-   If no matching loop is found, just announce the state change without the cancellation line.
-
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
-3. **Display comments summary**:
+4. **Display comments summary**:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform commands file.
+5. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform commands file.
 
-5. **Categorize each comment in `COMMENTS`**:
+6. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
    b. Categorize each comment as one of:
       - **Suggestion** - Proposes a code change, architectural change, or different approach
@@ -82,9 +82,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
       - **General feedback** - Praise, acknowledgment, or non-actionable comment
       - **Out of scope** - Valid but should be a separate issue
 
-6. **Load relevant learnings**: Glob `~/.claude/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so replies and implementation are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+7. **Load relevant learnings**: Glob `~/.claude/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so replies and implementation are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
-7. **Reply to all comments on the platform**:
+8. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
    - For suggestions: State whether you agree/disagree and your proposed approach
    - For clarification requests: Provide the explanation
@@ -97,7 +97,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Reply to Inline Comment** in the platform commands file.
 
-8. **Post suggestion summary on the platform**:
+9. **Post suggestion summary on the platform**:
    After replying to individual comments, post a top-level comment summarizing actionable suggestions and your recommendations:
 
    ```
@@ -115,7 +115,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") before implementing suggestions. Do NOT prompt in CLI.
 
-9. **Implement approved changes** (only after partner approval):
+10. **Implement approved changes** (only after partner approval):
    a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
    b. For each group:
       - Make the changes
@@ -131,12 +131,12 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
         ```
    c. Track which comments are addressed by each commit hash.
 
-10. **Push changes**:
+11. **Push changes**:
     ```bash
     git push origin <branch>
     ```
 
-11. **Reply to comments with commit reference** (after implementation):
+12. **Reply to comments with commit reference** (after implementation):
 
     Follow **Reply to Inline Comment** in the platform commands file. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
@@ -144,7 +144,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Do not reply automatically
     - Let the user handle these manually or in a follow-up
 
-12. **Summary**: Report to user:
+13. **Summary**: Report to user:
     - Number of suggestions approved and implemented
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification
