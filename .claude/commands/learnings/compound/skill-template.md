@@ -87,10 +87,10 @@ Extract content into separate files when:
 - Content would benefit from syntax highlighting in its own file
 - Multiple skills might share the same reference
 
-See writing-best-practices.md for conventions when writing skill content.
+See `~/.claude/learnings/claude-authoring-skills.md` for conventions when writing skill content.
 
 ## Related References
 
-- content-type-decisions.md - Deciding if something should be a skill, guideline, or learning
-- writing-best-practices.md - Conventions for writing effective skills
+- `~/.claude/learnings/claude-authoring-content-types.md` - Deciding if something should be a skill, guideline, or learning
+- `~/.claude/learnings/claude-authoring-skills.md` - Conventions for writing effective skills
 - iterative-loop-design.md - Patterns for Ralph-style research loops

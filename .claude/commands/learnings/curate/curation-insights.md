@@ -68,10 +68,12 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 
 ## Classification Calibration (cont.)
 
-- **Guidelines must be universal — actively migrate stack/language/project-specific content to learnings.** See `content-type-decisions.md` → "Evaluating Existing Guidelines" for the full migration table. During guideline curation, this is the first check before pattern-level classification.
+- **Guidelines must be universal — actively migrate stack/language/project-specific content to learnings.** See `claude-authoring-content-types.md` → "Evaluating Existing Guidelines" for the full migration table. During guideline curation, this is the first check before pattern-level classification.
 
 ## Execution Strategy
 
 - **Single-file curation: targeted reads over bulk agents.** For content-mode curation of 1-2 files, read the most-likely-overlapping files directly (same-domain learnings, relevant personas) + grep for key terms. A bulk-read agent for the full corpus is slower and may not return usable content. Reserve corpus-wide agents for broad sweeps.
 - **Clean sweep output should be terse.** One-line "Learnings: Clean (23 files, ~120 patterns)" when there are 0 findings. Don't produce multi-section reports with cluster tables, cross-reference validation, and persona coverage checks for sweeps that found nothing. Reserve detailed reports for sweeps with actionable findings.
 - **New learnings require full corpus cross-referencing.** A new learning could duplicate a persona gotcha, overlap with a skill reference, be a guideline candidate, or overlap with another learning in a different domain cluster. Incremental analysis (only reading new files) doesn't work — the value is in cross-referencing against the full corpus. The optimization is faster acquisition (direct reads) not narrower scope.
+- **Source-vs-echo test for deletions.** When a learning is "fully covered" by a consuming skill, check git history: did the learning predate the skill (it's the source — keep) or was it compounded after the skill was built (it's the echo — delete candidate)? Source learnings teach the general principle that informed the skill's design; echoes are redundant reflections of already-committed behavior.
+- **"Is there another time we'd need this?" test.** Even when a learning is echoed in a specific skill or reference file, keep it if the general principle applies beyond that one consumer. A polling timestamp gotcha in `address-request-comments` doesn't help someone building a *new* polling skill — but the same gotcha in `claude-authoring-skills.md` does. The question isn't "is it covered somewhere?" but "would future work discover it through that somewhere?"

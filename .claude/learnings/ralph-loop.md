@@ -55,7 +55,7 @@ Count curation-related commits in recent git history to right-size iteration cou
 
 ## Small Files Gravitate Toward Larger Domain Files
 
-Standalone reference files risk orphaning when a larger file in the same domain independently accumulates the same patterns with more context. Example: all 3 patterns from `research-methodology.md` were re-discovered and expanded in `skill-design.md`, making the small file fully redundant. This is a natural corpus decay vector — the consolidation loop detects it, but it explains why thin files tend to need folding over time.
+Standalone reference files risk orphaning when a larger file in the same domain independently accumulates the same patterns with more context. Example: all 3 patterns from `research-methodology.md` were re-discovered and expanded in `claude-authoring-skills.md`, making the small file fully redundant. This is a natural corpus decay vector — the consolidation loop detects it, but it explains why thin files tend to need folding over time.
 
 ## Nested Skill Glob Pattern
 
@@ -69,7 +69,7 @@ Compounded insights go directly into the sweep corpus (worktree's `.claude/learn
 
 When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
 
-The inline methodology: categorize insights using `content-type-decisions.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
+The inline methodology: categorize insights using `claude-authoring-content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
 
 ## Personas as Execution-Mode Learnings Conduit
 

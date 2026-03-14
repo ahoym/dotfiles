@@ -21,10 +21,9 @@ Save new patterns and learnings from the current session into global skills, gui
 
 ## Reference Files (conditional — read only when needed)
 
-- `content-type-decisions.md` — Read if categorization is ambiguous
+- `~/.claude/learnings/claude-authoring-content-types.md` — Read if categorization is ambiguous
 - `skill-template.md` — Read only when a Skill-type learning is selected
-- `writing-best-practices.md` — Read only when a Skill-type learning is selected
-- `skill-authoring.md` — Read only when a Skill-type learning is selected
+- `~/.claude/learnings/claude-authoring-skills.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
 - `public-release-review.md` — Read when learning will be shared publicly or across repos
 
@@ -84,7 +83,7 @@ Save new patterns and learnings from the current session into global skills, gui
    **Do NOT proceed until auto-save list is confirmed (or no learnings qualify).** If no learnings are High/Medium, inform user and exit.
 
 3. **Write learnings to files**:
-   - If any Skill-type learning is selected: read `skill-template.md`, `writing-best-practices.md`, and `skill-authoring.md` first
+   - If any Skill-type learning is selected: read `skill-template.md` and `~/.claude/learnings/claude-authoring-skills.md` first
    - For each item in `SELECTED_LEARNINGS`:
      - Read the target file (`~/.claude/<relative-path>`) to check if it exists
      - **Existing file**: use Edit to append new sections (find a unique string near the end, replace with itself + new content)
@@ -131,5 +130,5 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 - Keep learnings atomic — one concept per section
 - **Write concisely** — every token in a learning/guideline/skill costs context budget when loaded. Express insights in the fewest tokens that preserve the teaching value. Prefer terse patterns over verbose explanations; code examples over prose when the code speaks for itself.
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
-- **Strip provenance before writing.** Remove "discovered while building X" / "learned during Y project" notes — they add no teaching value and leak project context into global learnings. The pattern itself is what matters. (See also: `learnings/guideline-authoring.md` → "Provenance vs structural content")
+- **Strip provenance before writing.** Remove "discovered while building X" / "learned during Y project" notes — they add no teaching value and leak project context into global learnings. The pattern itself is what matters. (See also: `learnings/claude-authoring-learnings.md` → "Provenance vs structural content")
 - Be honest in utility self-assessments

@@ -77,7 +77,7 @@ All in `.claude/consolidate-output/`:
 Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the analytical framework — classification model, persona criteria, and operational calibration:
 
 - `.claude/commands/learnings/curate/classification-model.md` — 6-bucket model, confidence levels, skill pruning criteria
-- `.claude/commands/learnings/compound/content-type-decisions.md` — Skill vs guideline vs learning decision tree
+- `~/.claude/learnings/claude-authoring-content-types.md` — Content type routing table
 - `.claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
 - `.claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
 - `.claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
@@ -170,7 +170,7 @@ Follow the `/learnings:compound` skill's methodology inline — no Skill tool in
    - "Persona reference gaps are systematic — learnings exist but personas don't point to them. A reference audit checklist could catch these earlier"
    - "Thin files (< 20 lines) that serve as shared cross-persona references are correctly sized — thinness is only a merge signal when the file has a single consumer"
 
-2. **Categorize** each using the decision tree from `content-type-decisions.md` (loaded in first invocation):
+2. **Categorize** each using the decision tree from `claude-authoring-content-types.md` (loaded in first invocation):
    - Command with clear, repeatable steps? → **Skill**
    - Changes behavior or approach? → **Guideline**
    - Reference info, patterns, or examples? → **Learning**
@@ -274,7 +274,7 @@ Deep dives run **after broad sweeps converge** (`CLEAN_ROUND_STREAK >= 2`). They
 
 A file is a deep dive candidate if it meets ANY of:
 
-1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, content-type-decisions.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
+1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, claude-authoring-content-types.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
 2. **Polish Opportunity file**: Flagged in the broad sweep's per-file quality scan (genericization candidates, compression candidates). These were already identified but had no execution path in the broad sweep.
 3. **Curate skill criteria**: 5+ patterns AND an action signal (stale content, domain overlap, compression opportunity).
 4. **Modified guideline file**: Any `.claude/guidelines/*.md` file that received a HIGH or MEDIUM action during broad sweeps. Guidelines are always-loaded context (`@`-referenced in CLAUDE.md) — every token costs context budget in every session, so changes warrant per-pattern verification.
