@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
-| ROUND | 4 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 12 |
+| ROUND | 5 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 1 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 2 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 3
+- **Sweeps**: 4
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | 1 | 3 | 0 | 1 | 0 | 0 | 0 | No |
 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | No |
 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
+| 4 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
 
 ## Iteration Log
 
@@ -72,6 +73,7 @@ Suggested iterations: 15
 | 9 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 6. Round 3 complete (clean). CLEAN_ROUND_STREAK → 1. |
 | 10 | 4 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 57 files, 11 domain clusters. No changes since iter 7. All prior dedup holding. Deep dive candidates recorded (10 files). |
 | 11 | 4 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 15 skill-references, 9 personas. Same inventory as iters 5/8. No changes since iter 8. |
+| 12 | 4 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no changes since iter 9. Round 4 clean → CLEAN_ROUND_STREAK = 2 → BROAD SWEEP CONVERGED. Transitioning to DEEP_DIVE with 10 candidates. |
 
 ## Deep Dive Status
 
@@ -175,5 +177,15 @@ DEEP_DIVE_CANDIDATES: [claude-authoring-content-types.md, .claude/commands/ralph
 **SKILLS sweep (Round 4)**: Clean. 31 SKILL.md files, 15 skill-references, 9 personas — identical inventory to iters 5/8. Namespace clustering: git:10, learnings:4, ralph:7, parallel-plan:2, standalone:8. No corpus modifications since iter 8 (iters 9-10 were clean GUIDELINES/LEARNINGS). All reference files verified present. No overlap, staleness, or scope issues.
 
 **Next**: GUIDELINES sweep (iter 12). If clean → Round 4 complete and clean → CLEAN_ROUND_STREAK = 2 → broad sweep convergence → transition to deep dive phase with 10 candidates from iter 10.
+
+**Compounding**: Skipped — clean sweep.
+
+### Iter 12
+
+**GUIDELINES sweep (Round 4)**: Clean. Same 4 files as iters 3, 6, 9. All @-referenced from CLAUDE.md. No modifications since iter 9. No cross-type regressions from iters 10-11 (both clean).
+
+**Round 4 complete**: Clean. CLEAN_ROUND_STREAK → 2. **Broad sweeps converged.**
+
+**Transition to DEEP_DIVE**: 10 candidates from iter 10 notes: claude-authoring-content-types.md, .claude/commands/ralph/init/SKILL.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, web-session-sync.md, .claude/commands/set-persona/typescript-devops.md, ralph-loop.md, api-design.md, spring-boot.md.
 
 **Compounding**: Skipped — clean sweep.
