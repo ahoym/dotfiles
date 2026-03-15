@@ -35,34 +35,19 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details and diff
-- `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment interaction for re-review detection
-- `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Post review, find approvers
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
+- Platform cluster files — loaded via the base reference's Platform Detection section
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
 
+**Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
+
 1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the operator to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
+2. **Detect platform** — follow **Platform Detection** from the base reference.
 
-3. **Resolve the request and detect mode** — fetch PR metadata, state, and previous reviews in a single call:
-   - If `$ARGUMENTS` contains a URL, extract the number from it
-   - If `$ARGUMENTS` contains a number, use it directly
-   - Otherwise, detect from current branch
-
-   Use **"Fetch Review Details with Reviews (consolidated)"** from the platform cluster files (1 call — metadata, state, and reviews together).
-
-   Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
-
-   **Check request state** — if the state is `MERGED` or `CLOSED`:
-   1. Use `CronList` to find any cron job whose prompt contains `/git:code-review-request` and `<REQUEST_NUMBER>`
-   2. If found, cancel it with `CronDelete` using the matched job ID
-   3. Emit a message and stop:
-   ```
-   PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. Canceled cron job <JOB_ID>. 🔄
-   ```
+3. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
 4. **Check for previous reviews** — using the `reviews` data already fetched in step 3, filter for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
@@ -150,27 +135,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    ### Positive Signals
 
    <What's done well — themes and patterns, not file-by-file inventory>
-
-   ---
-   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
-   *Persona:* <persona-name>
-   *Role:* Reviewer
    ```
+
+   Append the **Footnote Format** from the base reference (Role: Reviewer) to the review body.
 
    **Re-review body:** Use the template in `re-review-mode.md`.
 
-   **Each inline comment and follow-up reply** must end with the same footnote:
-   ```
+   **Each inline comment and follow-up reply** must also end with the footnote.
 
-   ---
-   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
-   *Persona:* <persona-name>
-   *Role:* Reviewer
-   ```
-
-   For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
-
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json` and post via the API. All temp files (replies, review payloads) must be suffixed with `-<PERSONA>-<ROLE>` to avoid conflicts when multiple agents (reviewer + addresser) operate on the same PR concurrently.
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`). Use `~/` paths per the base reference.
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 
@@ -186,7 +159,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - Review is always thorough regardless of PR size — don't skip files or skim changes
 - The persona's judgment lens shapes what you look for and how you weigh findings
 - Domain learnings ground the review in established patterns — cite them when relevant
-- Every piece of externally-posted content gets the footnote — no exceptions
+- Every piece of externally-posted content gets the footnote (see base reference **Footnote Format**) — no exceptions
 - Post the review as a `COMMENT` event (not `APPROVE` or `REQUEST_CHANGES`) — the operator decides the verdict
 - If the diff is too large to fit in context, tell the operator rather than silently truncating
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR

@@ -7,6 +7,7 @@
       "Bash(find:*)",
       "Bash(gh api:*)",
       "Bash(gh auth:*)",
+      "Bash(gh issue create:*)",
       "Bash(gh pr checkout:*)",
       "Bash(gh pr comment:*)",
       "Bash(gh pr create:*)",
