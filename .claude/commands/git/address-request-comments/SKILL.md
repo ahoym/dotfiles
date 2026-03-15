@@ -43,7 +43,13 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 4. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
-5. **Categorize each comment in `COMMENTS`**:
+5. **Form independent assessment**: For each suggestion, determine what you think the right change is *before* evaluating whether you agree with the reviewer. Read the file context, pull relevant learnings, and reason about the problem independently. Agreement should be a conclusion you arrive at, not a starting position.
+
+   - **Multi-part comments:** Enumerate every distinct point the reviewer raises. Map your proposed change to each one. If your plan doesn't cover a point, either address it or push back on why.
+   - **Multi-option suggestions:** When a reviewer offers alternatives, evaluate each against the content's structure. Don't default to the simplest fix.
+   - **Push back when warranted:** If the reviewer's suggestion is wrong, incomplete, or misses context, say so — respectfully, with reasoning. This applies to both agent and human reviewers.
+
+6. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
    b. Categorize each comment as one of:
       - **Suggestion** - Proposes a code change, architectural change, or different approach
@@ -54,9 +60,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Apply the **Mutual Resolution Filter** from the base reference before replying.
 
-6. **Reply to all comments on the platform**:
+7. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
-   - For suggestions: State whether you agree/disagree and your proposed approach
+   - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it
    - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
@@ -65,7 +71,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
 
-7. **Act on suggestions based on agreement**:
+8. **Act on suggestions based on agreement**:
 
    **Auto-implement** when both agents converge (addresser agrees with reviewer's suggestion). Also auto-implement typo/bug fixes (corrections, not debatable).
 
@@ -73,7 +79,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Use **Comment Identity** from the base reference to distinguish reviewer/human comments. Human suggestions follow the same escalation logic (agree = implement, disagree = escalate).
 
-8. **Post review actions summary on the platform**:
+9. **Post review actions summary on the platform**:
    After processing, post a top-level comment summarizing what was done and what needs the partner's input:
 
    ```
@@ -87,28 +93,28 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Post Top-Level Comment** in the platform cluster files.
 
-9. **Implement changes**:
-   a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
-   b. For each group:
-      - Make the changes
-      - Stage the relevant files: `git add <paths>`
-      - Commit with a message describing the specific concern:
-        ```bash
-        git commit -m "$(cat <<'EOF'
-        <descriptive message for this group>
+10. **Implement changes**:
+    a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
+    b. For each group:
+       - Make the changes
+       - Stage the relevant files: `git add <paths>`
+       - Commit with a message describing the specific concern:
+         ```bash
+         git commit -m "$(cat <<'EOF'
+         <descriptive message for this group>
 
-        Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-        EOF
-        )"
-        ```
-   c. Track which comments are addressed by each commit hash.
+         Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+         EOF
+         )"
+         ```
+    c. Track which comments are addressed by each commit hash.
 
-10. **Push changes**:
+11. **Push changes**:
     ```bash
     git push origin <branch>
     ```
 
-11. **Reply to comments with commit reference** (after implementation):
+12. **Reply to comments with commit reference** (after implementation):
 
     Follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
@@ -116,7 +122,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Do not reply automatically
     - Let the user handle these manually or in a follow-up
 
-12. **Summary**: Report to user:
+13. **Summary**: Report to user:
     - Number of suggestions auto-implemented (mutual agreement)
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification
@@ -124,4 +130,4 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Important Notes (conditional)
 
-- `address-request-edge-cases.md` — Read when processing comments (step 6+). Contains categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**
+- `address-request-edge-cases.md` — Read when processing comments (step 5+). Contains independent assessment guidance, categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**

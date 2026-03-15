@@ -63,15 +63,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
-   - **New reviews from others**: any review submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. **Important:** empty-body review entries ARE activity signals — GitHub creates them when inline comment replies are posted. Don't dismiss them as artifacts.
+   - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
    - **State**: if `MERGED` or `CLOSED` → cancel cron and stop (step 3 logic)
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Latest Inline Comment (quick-exit check)"** from the platform cluster files. If the latest comment's `created_at > LAST_REVIEW_TS` → proceed to step 6+. Otherwise → skip.
+   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 5). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). If any remaining non-self comment has `created_at > LAST_REVIEW_TS` → proceed to step 6+. Otherwise → skip. Fetching 5 instead of 1 catches operator comments sandwiched between agent responses.
 
-   This is 1 call when there's a new commit/review/comment, 2 calls when polling quietly. All four activity signals (commits, reviews, top-level comments, inline comments) are covered.
+   This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 
    **First-review mode with cached analysis:** If you have high-confidence cached data from a previous invocation in this session (e.g., you already analyzed the full diff and the commit SHA matches), skip the full diff fetch and trust your cached analysis. The cheap SHA check validates the cache.
 
@@ -113,6 +113,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Is there unnecessary complexity or missing simplification?
 
    **Re-review:** Follow `re-review-mode.md` — evaluate previous comment responses + review new code.
+
+   **Separate identification from suggestion.** Finding an issue and proposing a fix require independent reasoning. A wrong suggestion compounds — the addresser implements it, the reviewer confirms it, and the operator unwinds multiple layers. Verify a rule's scope before citing it, think about what actually improves the content, and when uncertain, identify without prescribing.
 
    Build the output lists:
    - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary.
