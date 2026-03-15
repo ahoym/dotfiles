@@ -101,6 +101,8 @@ The outer loop (wiggum.sh) should read agent state before and after each invocat
 
 When editing files from a worktree context, use the worktree's absolute path (e.g., `.claude/worktrees/consolidate-2026-02-28/.claude/learnings/foo.md`), not the main repo path that `~/.claude/` symlinks resolve to. Both are valid filesystem paths on disk, but they target different git branches. Editing via `~/.claude/learnings/foo.md` modifies main's copy; editing via the worktree path modifies the branch's copy. The Edit/Write tools won't warn you — the file exists at both paths.
 
+**Explore agents in worktrees.** When launching an Explore agent from a worktree, include the worktree absolute path in the prompt and instruct it to return paths relative to that CWD (e.g., "CWD is `/path/to/worktree/`, return all paths relative to it"). Otherwise the agent resolves to main-repo absolute paths, and editing those puts changes on the wrong branch — requiring copy-to-worktree + revert-main cleanup.
+
 ## Worktree Commit-to-Main Workflow
 
 When working in a worktree and the user wants changes on main, apply directly to the main repo (`git -C <main-repo-path>`) rather than commit-on-branch then cherry-pick. Cherry-picking requires stashing main's uncommitted changes first, and stash-pop conflicts are likely when main has dirty state on the same files. Direct application avoids the stash/cherry-pick/conflict-resolution chain entirely.
@@ -217,3 +219,11 @@ Not every learning file needs a persona Detailed reference. Context-aware learni
 ## Consolidation Worktree Hooks Auto-Commit and Can Revert
 
 The consolidation worktree has guard hooks that auto-commit changes and can revert uncommitted modifications to match the last committed state. When making multiple sequential changes in an interactive session, commit after each logical change — don't batch. Uncommitted changes between tool calls may be silently reverted by hooks, requiring the work to be redone.
+
+## Interactive-Autonomous Tracker Coordination
+
+`/learnings:curate` (interactive) and the consolidation loop (autonomous) both review corpus files. After interactive curation, update the deep-dive tracker (`~/.claude/ralph/consolidate/deep-dive-tracker.json`) by setting `last_deep_dive_run = current run_count` for the curated file. This prevents the next consolidation run from queueing files for deep dives that were just manually reviewed.
+
+## Rate Limit Detection in Outer Loops
+
+Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.

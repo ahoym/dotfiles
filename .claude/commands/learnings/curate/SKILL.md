@@ -126,7 +126,20 @@ For each recommended action, use `AskUserQuestion` with **multi-select** to let 
 
 Apply the mode-specific actions described in the loaded mode file (content-mode.md or skill-mode.md).
 
-### 9. Report results
+### 9. Update deep-dive tracker
+
+After applying changes, update the consolidation deep-dive tracker so the next autonomous consolidation run knows this file was recently reviewed:
+
+1. Read `~/.claude/ralph/consolidate/deep-dive-tracker.json`
+2. For each curated file in `TARGET_FILES`:
+   - Derive the tracker key (path relative to repo root, e.g., `.claude/learnings/foo.md`)
+   - Set `last_deep_dive_run` to the current `run_count` value
+   - If the file isn't in the tracker yet, add it
+3. Write the updated tracker back
+
+This prevents the consolidation loop from queueing files for deep dives that were just manually curated.
+
+### 10. Report results
 
 ```
 ## Curation Complete
@@ -135,6 +148,8 @@ Apply the mode-specific actions described in the loaded mode file (content-mode.
 
 **Actions taken**:
 - ...
+
+**Deep-dive tracker**: Updated for <N> file(s) (run_count: <N>)
 
 **Skills flagged for review**: N
 ```

@@ -125,17 +125,25 @@ echo ${args[@]+"${args[@]}"}
 
 This uses parameter alternate value syntax: if `arr[@]` is unset/empty, expand to nothing; otherwise expand normally. Common in functions that conditionally build argument lists.
 
-## `gh api` Query Params Require Quoting — Filter Client-Side Instead
+## `gh api` Query Params: Use `-f`/`-F` Flags, Not URL Query Strings
 
-`gh api` URLs with `?` and `&` (query params) require quoting in zsh, but quoted strings trigger Claude Code permission prompts. The workaround: drop query params entirely and filter client-side with `--jq select()`.
+`gh api` URLs with `?` and `&` cause zsh globbing errors and break permission patterns. Two workarounds:
 
+**Preferred — flag-based GET params:**
 ```bash
-# Triggers permission prompt (quoted URL):
-gh api 'repos/{owner}/{repo}/pulls/24/comments?since=2026-03-14T04:00:00Z&direction=desc' --jq '...'
+# Wrong — zsh glob error + permission prompt:
+gh api 'repos/{owner}/{repo}/pulls/24/comments?sort=created&direction=desc&per_page=1'
 
-# No prompt (unquoted URL, client-side filter):
+# Right — flags become query params with --method GET:
+gh api repos/{owner}/{repo}/pulls/24/comments --method GET -f sort=created -f direction=desc -F per_page=1
+```
+
+**Fallback — client-side filter (when server-side filtering isn't available):**
+```bash
 gh api repos/{owner}/{repo}/pulls/24/comments --jq '.[] | select(.created_at > "2026-03-14T04:00:00Z") | ...'
 ```
+
+Note: `--jq` expressions with `contains()` or string comparisons also trigger permission prompts. When possible, drop `--jq` entirely and parse the raw JSON in agent logic.
 
 `gh api` natively resolves `{owner}/{repo}` from the current repo context — no need to manually look up the owner and repo name.
 

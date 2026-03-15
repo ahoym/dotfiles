@@ -4,7 +4,13 @@ Loaded when `MODE=re-review` (step 4 found a previous review with matching Perso
 
 ## Quick-exit (re-review)
 
-Compare the latest commit SHA against `LAST_REVIEW_TS`. Also count new replies to our previous comments using **"Fetch Inline/Review Comments"** from the platform cluster files, filtering for `created_at > LAST_REVIEW_TS` and `in_reply_to_id != null`. If no new commits AND no new replies → skip.
+Two-phase check with short-circuit — see step 5 in SKILL.md for the full commands.
+
+**Phase 1** (1 call): `gh pr view --json commits,reviews,state,comments` → new commit SHA, new reviews from others, new top-level PR comments, or merged/closed state. If any signal → proceed immediately.
+
+**Phase 2** (1 call, only if phase 1 found nothing): `gh api .../pulls/N/comments?sort=created&direction=desc&per_page=1` → check if the most recent inline review comment is newer than `LAST_REVIEW_TS`. If yes → proceed. If no → skip.
+
+1 call when there's new activity in phase 1, 2 calls when polling quietly. Covers all four activity signals: commits, review submissions, top-level comments, inline review comments.
 
 ## Fetch previous comment state
 
@@ -19,16 +25,16 @@ Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 For each comment in `PREVIOUS_COMMENTS`:
 - Read the author's reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`
 - Classify the response:
-  - **Resolved** — concern addressed by code change, reply, or both. Action: react with ✅ emoji (see "React to Comment" in platform commands). No text reply.
+  - **Resolved** — concern addressed by a code change (with or without a reply). The fix is verifiable in the diff. Action: react to the *reply* comment (not our original comment) with 🎉 emoji (see "React to Comment" in platform commands). No text reply. If resolved by code change with no reply, react to our own comment instead.
+  - **Acknowledged** — reply agrees with the finding and states intent to fix, but no code change yet. Action: react to the reply with 👍 emoji. Do NOT post a re-review summary — the reaction is sufficient. The finding stays open until a code change lands (at which point it becomes **Resolved**).
   - **Partially addressed** — some progress but original concern not fully resolved. Action: post a follow-up reply explaining what's still open.
   - **Not addressed** — no code change and no substantive reply, or reply disagrees without resolution. Action: re-raise with additional context.
-  - **Acknowledged (no action needed)** — our comment was informational/positive and the author acknowledged it. Action: no response needed.
 
 Also review new code: analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
 
 Build the output lists:
 - `INLINE_COMMENTS`: new findings on new/changed code.
-- `REACTIONS`: list of `{comment_id, emoji}` for resolved comments.
+- `REACTIONS`: list of `{comment_id, emoji}` for resolved and acknowledged comments. For **resolved**: `comment_id` is the reply's ID (not our original comment's ID), emoji is `hooray`. If no reply exists (resolved by code change alone), use our original comment's ID. For **acknowledged**: `comment_id` is the reply's ID, emoji is `+1`.
 - `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
 - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
@@ -41,7 +47,8 @@ Build the output lists:
 
 ### Previous Findings
 
-- ✅ <N> resolved
+- ✅ <N> resolved (code change verified)
+- 👍 <N> acknowledged (agreed, pending fix)
 - 🔄 <N> partially addressed
 - ❌ <N> not addressed
 
@@ -63,7 +70,7 @@ Build the output lists:
 
 Execute in order:
 
-**a) React to resolved comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform cluster files. React with `+1` (GitHub) or `thumbsup` (GitLab).
+**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform cluster files. Use the emoji specified in the reaction entry (`hooray` for resolved, `+1` for acknowledged).
 
 **b) Post follow-up replies** — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform cluster files.
 
@@ -72,6 +79,6 @@ Execute in order:
 **Report:**
 ```
 🔄 Re-review posted on <REVIEW_UNIT> #<REQUEST_NUMBER>
-✅ <N> resolved (reacted)  🔄 <N> follow-ups posted  💬 <N> new inline comments
+✅ <N> resolved  👍 <N> acknowledged  🔄 <N> follow-ups  💬 <N> new inline comments
 <REQUEST_URL>
 ```

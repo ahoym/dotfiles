@@ -12,6 +12,16 @@ description: "GitLab commands for fetching MR metadata, diffs, files, and commit
 glab mr view <number> --output json
 ```
 
+## Fetch Activity Signals (consolidated)
+
+Quick-exit check for polling — MR state and latest activity. `glab mr view` returns state, commits, and metadata in one call. No `--jq`. Parse JSON response in agent logic.
+
+```bash
+glab mr view <number> --output json
+```
+
+For notes/comments activity, see "Fetch Latest Inline Comment" in comment-interaction.md.
+
 ## Fetch Diff
 
 ```bash

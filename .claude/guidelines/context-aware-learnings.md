@@ -4,7 +4,7 @@
 
 1. **Session start**: Before your FIRST tool call, glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for `*.md`. Match filenames against ambient context + user message. Announce results (including no-matches).
 2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). This is the most valuable checkpoint — plans lock in decisions that are expensive to reverse.
-3. **Implementation start**: Before executing an approved plan, check if a persona is active. If not, recommend one by matching `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task domain. Announce the check.
+3. **Implementation start**: Before executing an approved plan, check if the active persona (if any) is appropriate for implementation — the implementor may need a different lens than the planner. If no persona is active or the current one doesn't match the implementation domain, recommend one by matching `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task's technology stack. Announce the check.
 
 These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, or the task feels urgent. No exceptions.
 
@@ -50,7 +50,7 @@ Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings
    No match: "flyway"
 ```
 
-## Confidence-level gate (soft — experimental)
+## Confidence-level gate (soft)
 
 Before drafting substantial domain-specific content (20+ lines), ask: **"Am I working from loaded knowledge or training memory?"** If you haven't read learnings files in this domain during this session, search first. The user's learnings contain calibrated gotchas and decisions that training knowledge misses.
 
@@ -58,7 +58,7 @@ Before drafting substantial domain-specific content (20+ lines), ask: **"Am I wo
 
 Announce: `📚 Confidence check — working from training, not loaded knowledge. Searching learnings for "<domain>"...`
 
-Soft because there's no tool-call trigger — it relies on self-awareness at the moment of drafting. Fires sometimes, not always, but quality improvement is substantial when it does.
+Soft because there's no tool-call trigger — it relies on self-awareness at the moment of drafting. Fires inconsistently, but quality improvement is substantial when it does.
 
 ## Keyword-based (proactive)
 
@@ -67,6 +67,7 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 - Learnings filenames are the index — `aws-patterns.md`, `vercel-deployment.md`, `bignumber-financial-arithmetic.md`
 - Works with or without an active persona
 - Cost: low (reading a file). Upside: shapes thinking before decisions are made.
+- **Dedup**: Don't re-load files already read earlier in the session. When context compression makes load history uncertain, err toward re-checking (glob to confirm the file exists and is relevant) rather than blindly re-loading.
 
 ## Observability
 
@@ -79,3 +80,5 @@ Persona checks: `🎭 No persona active — recommending X. Set it?` · `🎭 Pe
 ## Relationship to Personas
 
 Personas provide a **lens** (priorities, tradeoffs, posture). Learnings provide **knowledge** (gotchas, patterns, facts). This guideline makes knowledge active regardless of whether a persona is set.
+
+**Subagent persona propagation.** Subagents get this protocol but rarely enter plan/implementation phases, so persona gates (#2–3) don't fire. When launching a subagent for domain work, include a persona filename in the prompt — the orchestrator has better context for selection. Skip for utility tasks.

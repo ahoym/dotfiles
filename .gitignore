@@ -3,5 +3,5 @@
 *.swo
 .claude/worktrees/
 .claude/learnings-private/
-change-request-replies/
+change-request-replies/*.md
 tmp/

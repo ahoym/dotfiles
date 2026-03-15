@@ -241,3 +241,11 @@ Create a throwaway skill under `.claude/commands/test-<topic>/SKILL.md` to test 
 ## Polling Loop Token Cost
 
 Each `/loop` invocation of a skill costs ~4-5K tokens minimum even on no-op runs — skill instructions (~3K) + platform detection ref (~500) + API calls (~200) + response (~50). At 3-minute intervals, that's ~80-100K tokens/hour for confirming nothing changed. Factor this into interval selection: use 10m+ for review polling unless rapid response is needed.
+
+## Subagents Receive Full CLAUDE.md Context
+
+Subagents launched via the Agent tool receive CLAUDE.md and all `@`-referenced guidelines — including the learnings search protocol. They can search and load learnings independently via gate #1 (session start). However, persona gates (#2–3) only fire at plan mode entry and implementation start — phases subagents rarely enter. The orchestrator has better context for persona selection and should include a persona assignment in the subagent prompt for domain-specific work.
+
+## `git -C` Triggers Permission Prompts
+
+`git -C <path> <command>` doesn't match permission patterns that allow bare `git <command>`. Use `cd <path> && git <command>` instead when targeting worktrees or other directories. Same applies to any CLI tool where permission patterns are scoped to the bare command form.

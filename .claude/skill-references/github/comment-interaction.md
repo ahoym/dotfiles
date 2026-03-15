@@ -18,6 +18,16 @@ gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | {id, 
 gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | select(.created_at > "<TS>") | {id, path, line, body, user: .user.login, created_at}'
 ```
 
+## Fetch Latest Inline Comment (quick-exit check)
+
+Returns only the most recent inline review comment — use for polling quick-exit to check if any new activity exists without paginating all comments. No `--jq` to avoid quoted strings.
+
+```bash
+gh api repos/{owner}/{repo}/pulls/<number>/comments --method GET -f sort=created -f direction=desc -F per_page=1
+```
+
+Parse `.[0].created_at` and compare against `LAST_REVIEW_TS`.
+
 ## Fetch General Review Comments
 
 ```bash
@@ -40,11 +50,12 @@ gh api repos/{owner}/{repo}/issues/<number>/comments --paginate --jq '.[] | sele
 
 Write the message body to `change-request-replies/<comment_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
+**Use absolute paths with `-F body=@`** — `gh api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+
 ```bash
-mkdir -p change-request-replies
 # Write body to change-request-replies/<comment_id>.md, then:
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  -F body=@change-request-replies/<comment_id>.md -F in_reply_to=<comment_id>
+  -F body=@/absolute/path/to/change-request-replies/<comment_id>.md -F in_reply_to=<comment_id>
 ```
 
 ## Edit Inline Comment
@@ -74,10 +85,9 @@ gh api repos/{owner}/{repo}/issues/comments/<comment_id>/reactions -f content=<e
 
 ## Post Top-Level Comment
 
-Write the message body to `change-request-replies/<pr_number>-top.md` first, then pass via file reference:
+Write the message body to `change-request-replies/<pr_number>-top.md` first, then pass via file reference. **Use absolute paths** — same CWD caveat as Reply to Inline Comment.
 
 ```bash
-mkdir -p change-request-replies
 # Write body to change-request-replies/<pr_number>-top.md, then:
-gh pr comment <number> --body-file change-request-replies/<pr_number>-top.md
+gh pr comment <number> --body-file /absolute/path/to/change-request-replies/<pr_number>-top.md
 ```

@@ -47,14 +47,16 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
-3. **Resolve the request** — determine which PR/MR to review:
+3. **Resolve the request and detect mode** — fetch PR metadata, state, and previous reviews in a single call:
    - If `$ARGUMENTS` contains a URL, extract the number from it
    - If `$ARGUMENTS` contains a number, use it directly
-   - Otherwise, detect from current branch using **"Fetch Review Details"** from the platform cluster files
+   - Otherwise, detect from current branch
+
+   Use **"Fetch Review Details with Reviews (consolidated)"** from the platform cluster files (1 call — metadata, state, and reviews together).
 
    Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
-   **Check request state** — also fetch the PR/MR state using **"Fetch Review Details"** from the platform cluster files. If the state is `MERGED` or `CLOSED`:
+   **Check request state** — if the state is `MERGED` or `CLOSED`:
    1. Use `CronList` to find any cron job whose prompt contains `/git:code-review-request` and `<REQUEST_NUMBER>`
    2. If found, cancel it with `CronDelete` using the matched job ID
    3. Emit a message and stop:
@@ -62,15 +64,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. Canceled cron job <JOB_ID>. 🔄
    ```
 
-4. **Check for previous reviews** — detect whether this is a first review or re-review by searching for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
+4. **Check for previous reviews** — using the `reviews` data already fetched in step 3, filter for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
-   **GitHub:**
-   ```bash
-   gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
-     --jq '[.[] | select((.body | contains("*Persona:* <PERSONA_NAME>")) and (.body | contains("*Role:* Reviewer"))) | {id, submitted_at, body}] | sort_by(.submitted_at) | last'
-   ```
-
-   **GitLab:** Check for top-level comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer`.
+   **GitLab:** Check for top-level comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` (requires a separate API call).
 
    If a previous review is found, set `MODE=re-review`, store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`, and read `re-review-mode.md` from the skill's base directory. Otherwise, set `MODE=first-review`.
 
@@ -78,9 +74,19 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 5. **Quick-exit check** — before fetching the full diff, check if anything has changed. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
 
-   Fetch the latest commit SHA using **"Fetch Commits"** from the platform cluster files (only the last entry).
+   **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
-   **Re-review mode:** Follow the quick-exit logic in `re-review-mode.md`.
+   **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
+   - **New commits**: latest commit SHA differs from last reviewed
+   - **New reviews from others**: any review submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote
+   - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
+   - **State**: if `MERGED` or `CLOSED` → cancel cron and stop (step 3 logic)
+
+   If any activity signal → proceed to step 6+ (skip phase 2).
+
+   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Latest Inline Comment (quick-exit check)"** from the platform cluster files. If the latest comment's `created_at > LAST_REVIEW_TS` → proceed to step 6+. Otherwise → skip.
+
+   This is 1 call when there's a new commit/review/comment, 2 calls when polling quietly. All four activity signals (commits, reviews, top-level comments, inline comments) are covered.
 
    **First-review mode with cached analysis:** If you have high-confidence cached data from a previous invocation in this session (e.g., you already analyzed the full diff and the commit SHA matches), skip the full diff fetch and trust your cached analysis. The cheap SHA check validates the cache.
 
@@ -185,6 +191,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - If the diff is too large to fit in context, tell the user rather than silently truncating
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
 - Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
-- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). One cheap API call to confirm the commit SHA hasn't changed, then trust your cached analysis.
-- **Don't post empty reviews** — if analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes.
+- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). In re-review mode, this means checking all three signals (commits, replies, reviews) — not just the commit SHA. A same-SHA result with new replies is NOT a skip.
+- **Don't post empty reviews** — if analysis produces no findings, no inline comments, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes. In re-review mode, lightweight reactions (resolved/acknowledged) without new findings or follow-ups don't warrant a summary — post the reactions and skip the review body.
 - **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over

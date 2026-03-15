@@ -86,6 +86,14 @@ for i in $(seq 1 $MAX_ITERATIONS); do
         echo "Warning: Iteration $i exited with non-zero status" | tee -a "$LOG_FILE"
     fi
 
+    # Rate limit detection — exit immediately rather than burning retries
+    if grep -q "hit your limit" "$LOG_FILE" 2>/dev/null; then
+        echo ""
+        echo "Rate limit detected in iteration $i. Stopping loop."
+        echo "Resume after limit resets with /ralph:consolidate:resume."
+        exit 1
+    fi
+
     # Sweep count validation: capture after and compare
     SWEEP_AFTER=$(awk -F'|' '/SWEEP_COUNT/{gsub(/[[:space:]]/, "", $3); print $3}' "$PROGRESS_FILE") || true
     SWEEP_AFTER=${SWEEP_AFTER:-0}
@@ -125,7 +133,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
             echo "Done! Consolidation complete."
         else
             echo "Stopped: $STOP_SIGNAL"
-            echo "Check blockers.md for details."
+            echo "Check review.md for details."
         fi
         echo "Total iterations: $i"
         echo "Total duration:   ${LOOP_DURATION}s"
@@ -186,6 +194,5 @@ echo ""
 echo "Output files:"
 echo "  $PROJECT_DIR/report.md     - Cumulative summary"
 echo "  $PROJECT_DIR/decisions.md  - Full decision log"
-echo "  $PROJECT_DIR/blockers.md   - Items needing human review"
-echo "  $PROJECT_DIR/lows.md       - Items for /learnings:curate"
+echo "  $PROJECT_DIR/review.md     - Items needing human review"
 exit 1

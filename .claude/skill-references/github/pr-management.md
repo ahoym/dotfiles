@@ -11,13 +11,10 @@ description: "GitHub commands for creating/updating PRs, posting reviews, and br
 Write the PR body to `change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
 
 ```bash
-mkdir -p change-request-replies
 # Write body via Write tool to change-request-replies/pr-body.md, then:
 gh pr create --base <base-branch> --title "<title>" --body-file change-request-replies/pr-body.md
 # Or update existing:
 gh pr edit <number> --body-file change-request-replies/pr-body.md
-# Clean up:
-rm -rf change-request-replies
 ```
 
 ## Post Review with Inline Comments
@@ -25,12 +22,11 @@ rm -rf change-request-replies
 Write the review payload to `change-request-replies/review-<number>.json` via the Write tool, then post:
 
 ```bash
-mkdir -p change-request-replies
 # Write JSON payload to change-request-replies/review-<number>.json, then:
 gh api repos/{owner}/{repo}/pulls/<number>/reviews \
   --input change-request-replies/review-<number>.json
 # Clean up:
-rm change-request-replies/review-<number>.json && rmdir change-request-replies 2>/dev/null
+rm change-request-replies/review-<number>.json
 ```
 
 **Payload format** (`change-request-replies/review-<number>.json`):

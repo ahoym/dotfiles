@@ -18,7 +18,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
 
 1. **Compound learnings**: Invoke `/learnings:compound` using the Skill tool. Wait for it to complete fully before continuing.
 
-2. **Skill performance**: Share your observations on how the skills used this session performed — what went well, what was rough. Then ask the user for their perspective. Discuss naturally.
+2. **Skill performance**: Share your observations on how the skills used this session performed — what went well, what was rough. Include a **learnings load review**: which learnings files were loaded, which influenced the work, which were noise, and whether any useful files were missed. This calibrates the search protocol over time. Then ask the user for their perspective. Discuss naturally.
 
 3. **Communication quality**: Share your honest assessment of how communication went — specific moments that worked, things you could've done better. Then ask the user for their take. Discuss naturally.
 

@@ -218,3 +218,7 @@ The `gh pr view --json reviews` endpoint returns all reviews every time — it d
 ## Stash Pop After Rebase Can Self-Conflict
 
 When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.
+
+## Merge vs Rebase: Token-Cost Heuristic
+
+Conflict resolution rounds drive token cost — each round requires reading markers, asking the user, applying, and staging. Merge always costs `N` rounds (N = conflicted files). Rebase can cost more because it replays each commit: if multiple commits touch the same conflicted file, that file re-conflicts per commit. Estimate: `rebase_rounds` = sum of (commits touching each conflicted file); `merge_rounds` = count of conflicted files. Pick merge when `rebase_rounds > merge_rounds × 1.5` (rebase's cleaner history is worth a small premium, but not 2×). Also pick merge unconditionally when the branch has merge commits — rebasing merge commits requires `--rebase-merges` and produces confusing conflict contexts.

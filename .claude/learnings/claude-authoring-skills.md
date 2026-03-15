@@ -100,6 +100,8 @@ Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnin
 
 **Symlink gotcha:** `~/.claude/` subdirectories are directory-level symlinks to the dotfiles repo. `Glob` doesn't reliably resolve paths through these symlinks — a file can exist but Glob reports "No files found." Always verify path existence with `Read` (which resolves symlinks correctly), not `Glob`.
 
+**When files move outside a skill's directory, `@` refs must become Read instructions.** `@` resolves relative to the SKILL.md file's directory — if a referenced file (e.g., a template) is relocated to an infrastructure directory elsewhere, the `@` path breaks silently. Replace with explicit instructions to Read from the new absolute path (e.g., "Read `~/.claude/ralph/research/templates/spec-template.md`"). This is the migration cost of restructuring; `@` gives you eager loading convenience at the cost of co-location coupling.
+
 ## Producer-Consumer Skill Contracts
 
 When a skill produces structured output intended for another workflow (e.g., curate skill's "Suggested Deep Dives" section), verify the consuming workflow actually reads it. A capability defined in a component skill but not wired into the orchestrating spec is a silent no-op. Check this especially for skills that generate report sections, candidate lists, or action items meant to feed into autonomous loops.
@@ -212,6 +214,11 @@ Skills follow a natural lifecycle: **tight feedback loop** (run, inspect output,
 
 Maturity is per-capability, not per-skill. A fundamental change to one capability (e.g., adding a new content type to a curation loop) pulls that capability back to the tight-feedback stage while the rest of the skill remains mature. This is desirable — it means the system adapts rather than calcifying.
 
+## Inline Critical Conditions — Don't Defer to Lazy-Loaded Files
+
+When a skill step says "follow the logic in `<file>.md`," the agent may cache past the deferral entirely — especially during polling loops where efficiency pressure encourages skipping file reads. Critical branching conditions (e.g., "check commits AND replies AND reviews before skipping") must be inlined in the main SKILL.md, not deferred to a reference file. Use the reference file for detailed procedures, but state the branching conditions where they're evaluated.
+
+The tension: "prefer offset+limit reads, don't re-read files" (efficiency) vs "follow this file's logic" (correctness). Inlining the conditions resolves this — the agent can cache the detailed procedures while still seeing the decision criteria.
 ## Skill Reference Files Are Authoritative — Deduplicate from Skills
 
 `skill-references/*.md` files are the single source of truth for shared patterns consumed by multiple skills. When skills grow and absorb reference content into their SKILL.md, the duplication should be removed from the *skill*, not the reference. The reference file stays authoritative; skills reference it.
@@ -465,3 +472,7 @@ When renaming or restructuring reference file paths, sweep conditional reference
 ## Skill Namespace Migration Blast Radius
 
 When renaming a skill namespace (e.g., `ralph:init` → `ralph:research:init`), the SKILL.md files are the obvious targets but infrastructure references are the most commonly missed. Trace all of these: runner script paths (wiggum.sh), hook marker patterns in lib-hooks.sh (used for idempotent injection/cleanup), worktree prefix patterns in cleanup skills, output directory paths across sibling skills (brief/resume/compare may reference different paths than init), and learnings files that document the architecture. Grep the entire `.claude/` tree for the old path fragments before declaring the migration complete.
+
+## Numeric Arg = PR/MR Number Convention
+
+Git skills that operate on a PR/MR should treat a numeric positional arg as a PR/MR number: resolve head/base branches via `gh pr view <N>` / `glab mr view <N>`, check out the branch if needed. Already standard in: address-request-comments, code-review-request, explore-request, split-request, resolve-conflicts. Non-numeric positional args remain branch names or other skill-specific inputs. When adding PR/MR support to a skill, also handle URL args (extract the number) and fall back to current branch detection.

@@ -12,12 +12,14 @@ Resolve merge or rebase conflicts between your PR branch and its base branch.
 
 ## Usage
 
-- `/resolve-conflicts` - Resolve conflicts via merge (default)
-- `/resolve-conflicts --rebase` - Resolve via rebase (rewrites history, requires force push)
+- `/resolve-conflicts` - Auto-select strategy (rebase preferred, merge when cheaper)
+- `/resolve-conflicts --rebase` - Force rebase (skip auto-selection)
+- `/resolve-conflicts --merge` - Force merge (skip auto-selection)
+- `/resolve-conflicts <PR-number>` - Resolve conflicts on a specific PR (checks out the branch)
 - `/resolve-conflicts <base-branch>` - Resolve against specified base branch
 - `/resolve-conflicts --preview` - Preview conflicts only (no merge or rebase)
 
-Flags can be combined: `/resolve-conflicts --rebase main`
+Flags can be combined: `/resolve-conflicts --merge main`
 
 ## Reference Files (conditional — read only when needed)
 
@@ -29,16 +31,31 @@ Flags can be combined: `/resolve-conflicts --rebase main`
 
 1. **Parse arguments**:
    - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true`
-   - If `$ARGUMENTS` contains `--rebase`, set `STRATEGY=rebase`, otherwise `STRATEGY=merge`
-   - Remaining args = base branch override
+   - If `$ARGUMENTS` contains `--merge`, set `STRATEGY=merge` (skip auto-selection in step 5)
+   - If `$ARGUMENTS` contains `--rebase`, set `STRATEGY=rebase` (skip auto-selection in step 5)
+   - If neither `--merge` nor `--rebase`, set `STRATEGY=auto`
+   - If remaining arg is a number, treat it as a PR/MR number (set `PR_NUMBER`)
+   - Otherwise, remaining arg = base branch override
 
 2. **Determine branches**:
+
+   **If PR_NUMBER is set:**
+   ```bash
+   gh pr view <PR_NUMBER> --json headRefName,baseRefName --jq '{head: .headRefName, base: .baseRefName}'
+   ```
+   - Set base branch from `baseRefName`
+   - If current branch != `headRefName`, check out the PR branch:
+     ```bash
+     gh pr checkout <PR_NUMBER>
+     ```
+   - Current branch is now the PR's head branch
+
+   **Otherwise:**
    - Current branch: `git branch --show-current`
    - Base branch: If override provided, use it. Otherwise, detect from PR or default to `origin/main`
-
-   ```bash
-   gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null || echo "main"
-   ```
+     ```bash
+     gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null || echo "main"
+     ```
 
 3. **Check for dirty working tree**:
    ```bash
@@ -55,11 +72,45 @@ Flags can be combined: `/resolve-conflicts --rebase main`
    git fetch origin <base-branch>
    ```
 
-5. **Preview conflicts**:
+5. **Preview conflicts and select strategy**:
+
+   Preview which files will conflict:
    ```bash
    git merge-tree $(git merge-base HEAD origin/<base-branch>) HEAD origin/<base-branch>
    ```
-   Show which files will conflict. If `PREVIEW_ONLY=true`, stop here.
+   Extract the list of conflicted files from the output. If `PREVIEW_ONLY=true`, show conflicts and stop here.
+
+   **If STRATEGY=auto**, analyze the branch to select the best strategy:
+
+   Run these in parallel:
+   ```bash
+   # (a) Check for merge commits on the branch
+   git log --merges --oneline origin/<base-branch>..HEAD
+
+   # (b) Count commits on the branch
+   git rev-list --count origin/<base-branch>..HEAD
+
+   # (c) For each commit, list which files it touches (intersect with conflicted files)
+   git log --name-only --pretty=format:--- origin/<base-branch>..HEAD
+   ```
+
+   Then compute:
+   - `has_merge_commits` = whether (a) returned any results
+   - `commit_count` = result of (b)
+   - `rebase_rounds` = for each conflicted file, count how many commits touch it (from c). Sum across all conflicted files.
+   - `merge_rounds` = number of conflicted files
+
+   **Decision logic:**
+   1. If `has_merge_commits` → **MERGE**. Rebasing merge commits requires `--rebase-merges` and produces confusing conflict contexts — strictly worse for token cost.
+   2. If `rebase_rounds > merge_rounds × 1.5` → **MERGE**. Multiple commits touching the same conflicted files means rebase will re-conflict on the same file repeatedly, multiplying resolution rounds.
+   3. Otherwise → **REBASE**. Clean linear history is worth the small overhead when conflict rounds are comparable.
+
+   **Announce the selection with the estimate:**
+   ```
+   Strategy: auto → <REBASE|MERGE>
+   Reason: <why>
+   Estimated resolution rounds: rebase=<N>, merge=<N>
+   ```
 
 6. **Start the operation**:
 
@@ -136,6 +187,34 @@ Flags can be combined: `/resolve-conflicts --rebase main`
     ```
     Report whether the PR is now mergeable.
 
+## Example (auto-selection → rebase)
+
+```
+Resolving conflicts: feature/my-branch vs main
+
+Strategy: auto → REBASE
+Reason: no merge commits, low conflict overlap (2 rounds either way)
+Estimated resolution rounds: rebase=2, merge=2
+
+Rebasing (3/5) — conflict in src/config.py
+...
+```
+
+## Example (auto-selection → merge)
+
+```
+Resolving conflicts: feature/my-branch vs main
+
+Strategy: auto → MERGE
+Reason: 4 commits touch the same 2 conflicted files (rebase=7 rounds vs merge=2)
+Estimated resolution rounds: rebase=7, merge=2
+
+Conflicts detected in 2 files:
+  1. src/config.py
+  2. src/utils.py
+...
+```
+
 ## Example (merge)
 
 ```
@@ -173,8 +252,8 @@ Rebase complete. Force push to update PR? → Pushed. PR #8 is now mergeable.
 
 ## Important Notes
 
-- **Default to merge** when changes are independent of feature code
-- **Use rebase** when you want clean linear history on a feature branch
+- **Default is auto-selection** — prefers rebase for clean history, falls back to merge when it's cheaper (merge commits on branch, or rebase would re-conflict the same files across multiple commits)
+- **Use `--rebase` or `--merge`** to skip auto-selection and force a strategy
 - Always fetch the latest base branch before starting
 - Abort if needed: `git merge --abort` or `git rebase --abort`
 - Rebase rewrites history — requires `--force-with-lease` push
