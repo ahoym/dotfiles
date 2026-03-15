@@ -19,7 +19,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-references/platform-detection.md
+- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
 - `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details
 - `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment fetch/reply/react templates
 - `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Checkout command
@@ -30,7 +30,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
+1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
 2. **Fetch review and comments** (run in parallel):
 

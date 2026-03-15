@@ -32,13 +32,14 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
 
 4. **Adopt the persona**:
    - Read the persona file contents
-   - After reading the persona file, check for an `## Extends: <name>` heading
-   - If found, resolve and read the parent persona using the same lookup order (project-local → dotfiles)
-   - Load the parent first as foundational context, then layer the child persona on top
-   - Child sections supplement the parent — they don't replace them
-   - Only one level of extension is supported (no chaining)
+   - After reading the persona file, check for an `## Extends: <name>` or `## Extends: <name1>, <name2>` heading
+   - If found, parse the comma-separated list of parent names
+   - Resolve and read each parent persona in declaration order using the same lookup order (project-local → dotfiles)
+   - Load parents in order as foundational context, then layer the child persona on top
+   - Child sections supplement the parents — they don't replace them
+   - Only one level of extension is supported (no chaining — parents cannot themselves extend)
    - Confirm activation with a one-line summary of what you're now focused on
-   - If the persona extends a parent, mention both: "Activated **child** (extends **parent**)"
+   - If the persona extends parents, mention all: "Activated **child** (extends **parent1**, **parent2**)"
    - Apply the priorities and focus areas from that point forward in the session
 
 5. **Load proactive knowledge**:
@@ -64,5 +65,5 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 - A persona doesn't replace project CLAUDE.md context, it layers on top
 - Project-local personas take precedence over shared ones with the same name
 - If the user says something that conflicts with the persona's priorities, the user wins
-- Personas can extend one parent via `## Extends: <name>` — the parent is loaded first, then the child layers on top
-- Only single-level extension is supported (a parent cannot itself extend another persona)
+- Personas can extend one or more parents via `## Extends: <name>` or `## Extends: <name1>, <name2>` — parents are loaded in declaration order, then the child layers on top
+- Only single-level extension is supported (parents cannot themselves extend another persona)

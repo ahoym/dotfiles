@@ -18,7 +18,7 @@ Create a pull request (GitHub) or merge request (GitLab), or update an existing 
 
 ## Reference Files (conditional — read only when needed)
 
-- @~/.claude/skill-references/platform-detection.md
+- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
 - `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Create/update PR, check existing
 - `request-body-template.md` — Read before composing review body (step 9). Located in the skill's base directory.
 
@@ -35,7 +35,7 @@ Before creating the review, verify these items are complete:
 
 ## Instructions
 
-1. **Detect platform** — follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/pr-management.md` (matching detected platform).
+1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/pr-management.md` (matching detected platform).
 
 2. **Gather context** (run in parallel):
    - `git status` - Check for uncommitted changes

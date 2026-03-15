@@ -89,6 +89,21 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 
 **Project CLAUDE.md redundancy check:** For any learning file named after a specific project (e.g., `payment-service-setup.md`), check if that project has a CLAUDE.md. If so, compare each pattern against the project CLAUDE.md — content already covered there is an outdated (migrated) candidate.
 
+## 5b. Cross-reference opportunities
+
+For each file being curated, evaluate its `## See also` section (or lack thereof). See `claude-authoring-learnings.md` → "Cross-Reference Convention" for the full convention.
+
+**Staleness check** (if `## See also` exists):
+1. **Existence:** Glob to confirm each target file still exists. Flag missing targets for removal.
+2. **Relationship decay:** For each cross-ref, check whether the stated reason still describes a real overlap between the two files. Curate is already reading both files deeply — this is a lightweight verification, not a new analysis pass. Flag cross-refs where the reason no longer holds (e.g., the target was refactored to cover different topics).
+
+**New cross-ref suggestions:**
+- Identify 1-3 related files where the relationship is **non-obvious from vocabulary** (wouldn't be found by keyword search)
+- Check bidirectionality — if suggesting A → B, also evaluate whether B → A provides lateral discovery value
+- Don't suggest cross-refs where shared vocabulary already connects the files (the keyword search protocol handles those)
+
+Store findings as `CROSSREF_ACTIONS` (stale removals + new suggestions). Report alongside other classifications in step 7.
+
 ## 6. Check underutilized skills and detect persona opportunities
 
 **⚡ Parallel.** These two analyses are independent — run them as parallel tool calls after step 5.
@@ -136,6 +151,13 @@ When the user selects "all learnings", use a **cluster-first approach** instead 
    Store as `POLISH_CANDIDATES`. These are reported separately from HIGH/MEDIUM/LOW findings — they're quality signals, not classification changes.
 7. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
 8. Use the **broad sweep report format** below
+
+9. **Cross-reference graph health.** After cluster analysis, scan all `## See also` sections across learnings files and report a topology summary:
+   - **Isolated nodes:** Files with zero inbound or outbound refs (self-contained or orphaned knowledge?)
+   - **Dense clusters:** Files with 3+ mutual refs (merge candidates or missing synthesis file?)
+   - **Hub files:** High inbound count (foundational knowledge — keep especially clean and current)
+   - **Cross-cluster refs:** Cross-refs that link files in different domain clusters (these are the highest-value refs — flag missing ones)
+   - Format as a summary line, not a full table (e.g., "Graph: 12 connected, 5 isolated, 2 dense clusters (XRPL, claude-authoring), 1 hub (claude-code.md)")
 
 **Why cluster-first:** Classifying all ~50 patterns individually produces an unreadable table. Most are "standalone reference / keep." Clustering surfaces the high-value actions (persona enhancements, thin file cleanup, staleness) without the noise.
 
@@ -295,6 +317,9 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.
+- **Add cross-ref**: Append to or create `## See also` section as the last section of the file. Follow the format in `claude-authoring-learnings.md` → "Cross-Reference Convention".
+- **Remove stale cross-ref**: Delete lines pointing to files that no longer exist or where the relationship decayed. Include the reason (file deleted vs. relationship no longer holds) in the report.
+- **Add reverse cross-ref**: When adding A → B, also add B → A in the target file if the reverse provides lateral discovery value.
 
 ## Content Mode Example
 

@@ -13,7 +13,7 @@ Review the state of a completed or blocked ralph loop, collect answers to blocki
 
 ## Usage
 
-- `/ralph:resume <project-path>` - Resume a specific project (e.g., `docs/learnings/claude-skills-best-practices-v2`)
+- `/ralph:resume <project-path>` - Resume a specific project (e.g., `docs/staged-learnings/claude-skills-best-practices-v2`)
 - `/ralph:resume` - List available projects and prompt for selection
 
 ## Instructions
@@ -21,10 +21,10 @@ Review the state of a completed or blocked ralph loop, collect answers to blocki
 ### 1. Locate the project
 
 - If `$ARGUMENTS` provided, use as the project path
-- Otherwise, list directories under `docs/learnings/` and ask the user to pick one
+- Otherwise, list directories under `docs/staged-learnings/` and ask the user to pick one
 - If the path exists locally (on the current branch), read from the filesystem
 - If not, check for a `research/<basename>` branch:
-  - Extract the basename from the path (e.g., `claude-skills-best-practices-v2` from `docs/learnings/claude-skills-best-practices-v2`)
+  - Extract the basename from the path (e.g., `claude-skills-best-practices-v2` from `docs/staged-learnings/claude-skills-best-practices-v2`)
   - Check if a `research/<basename>` branch exists via `git branch -a --list *research/<basename>*`
   - If found, note to the user: "📡 Project lives on branch `research/<basename>`. You'll need to check out that branch or use a worktree before relaunching."
   - If neither local nor branch, error: "Project not found locally or on a research branch."
@@ -89,7 +89,7 @@ After updating progress.md:
 
 ```
 Ready to resume. Run:
-bash ~/.claude/lab/ralph/wiggum.sh <project-path>
+bash ~/.claude/ralph/research/wiggum.sh <project-path>
 ```
 
 If the user confirms, execute the command. If the project is on a remote branch (not local), remind the user they need to check out that branch first or use a worktree:
@@ -99,12 +99,12 @@ The project lives on branch research/<basename>. To resume:
 
 Option A — checkout the branch:
   git checkout research/<basename>
-  bash ~/.claude/lab/ralph/wiggum.sh <project-path>
+  bash ~/.claude/ralph/research/wiggum.sh <project-path>
 
 Option B — use a worktree:
-  git worktree add .ralph-worktree research/<basename>
-  cd .ralph-worktree
-  bash ~/.claude/lab/ralph/wiggum.sh <project-path>
+  git worktree add .research-worktree research/<basename>
+  cd .research-worktree
+  bash ~/.claude/ralph/research/wiggum.sh <project-path>
 ```
 
 ## Design Notes

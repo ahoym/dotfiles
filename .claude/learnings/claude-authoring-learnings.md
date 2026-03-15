@@ -49,10 +49,38 @@ When creating a new learnings file, first grep `~/.claude/learnings/` for existi
 
 Additionally, when creating a new learnings file, check personas in `~/.claude/commands/set-persona/` for `Detailed references` sections that cover the same domain — a new file won't be discoverable through persona activation unless it's wired in. Suggest adding a reference link to matching personas.
 
-## Curation Cross-References
+## Cross-Reference Convention (`## See also`)
 
+Learnings files can cross-reference related files to enable **lateral discovery** — finding files that are relevant to what you already loaded but wouldn't be found by keyword search alone. Cross-refs are conditional (non-`@`) signposts, not eager loads.
+
+**Format:** A `## See also` footer as the last section in the file, with 1-3 refs:
+
+```markdown
+## See also
+
+.claude/learnings/postgresql-query-patterns.md — migration patterns overlap with Flyway/Spring Boot
+.claude/learnings/java-observability-gotchas.md — Spring Boot instrumentation pitfalls
+```
+
+**Rules:**
+- **Scope:** Learnings-only (`~/.claude/learnings/`) for now — not cross-type to skills or guidelines
+- **Only non-obvious relationships.** If keyword search would find the connection (shared vocabulary in filenames or content), a cross-ref adds no value. Reserve for relationships where the agent wouldn't think to search.
+- **1-3 refs max per file.** More than 3 signals the file is a hub that relates to everything — that's noise, not signal.
+- **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and user) judge relevance without loading the target.
+- **Path format:** `.claude/learnings/<file>.md` (CWD-relative, consistent with Glob/Grep path conventions in this repo)
+- **Placement:** Always the last section in the file, after all content sections.
+
+**Bidirectionality:** When adding A → B, check whether B → A is also valuable. Relationships can be asymmetric — "spring-boot-gotchas relates to postgresql for migrations" doesn't necessarily mean postgresql needs to link back to spring-boot. Add the reverse only when both directions provide lateral discovery value.
+
+**Growth:** Cross-refs grow organically through `/learnings:curate` content-mode passes, not through bulk backfill. When curate touches a file, it considers cross-ref opportunities as part of the pass.
+
+**Staleness:** Cross-refs can decay two ways:
+1. **Target deleted** — the file no longer exists (caught by glob)
+2. **Relationship decay** — the file exists but the stated reason no longer holds (e.g., content was refactored to cover different topics). Curate checks both during its staleness pass.
+
+**Example — curation-specific cross-refs:**
 - **Source-vs-echo test** — see `curation-insights.md` → "Source-vs-echo test for deletions"
-- **Reusability test** ("Is there another time we'd need this?") — see `curation-insights.md` → same section
+- **Reusability test** — see `curation-insights.md` → same section
 
 ## Deep Coverage Analysis for Deleted Content
 

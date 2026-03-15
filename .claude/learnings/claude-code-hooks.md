@@ -92,4 +92,4 @@ The "blanket > pattern matching" principle still holds for *open-ended* pattern 
 
 ## Idempotent Hook Injection
 
-When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("lab/ralph/hooks/guard-")`).
+When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("ralph/research/hooks/guard-")`).

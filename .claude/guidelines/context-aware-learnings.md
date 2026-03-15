@@ -27,6 +27,8 @@ One filename glob, no content grep — keep it cheap so narrow opening questions
 
 Load matches and announce. If no ambient context is available (fresh repo, no git), fall back to message-only matching.
 
+**Step 4: Follow cross-refs (one level).** After loading matched files, check their `## See also` sections for additional files to load. Follow cross-refs one level deep — don't recurse (that's unbounded). Only follow refs that appear relevant to the current context. Announce cross-ref loads distinctly from keyword loads.
+
 ## How to search (plan mode entry)
 
 Search broadly, not just the obvious keywords. Derive search terms from the *current task scope* (which may have evolved significantly from the opening message), not just the surface-level topic. Include:
@@ -36,6 +38,17 @@ Search broadly, not just the obvious keywords. Derive search terms from the *cur
 - Adjacent domains that might have relevant gotchas
 
 Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
+
+**Follow cross-refs (one level).** Same as session-start step 4 — check `## See also` sections on loaded files. In plan mode, also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. This negative announcement is plan-mode only (too noisy for session-start).
+
+**Enhanced plan-mode announcement format.** Include derived search terms, not just results:
+```
+📚 Plan mode — terms: ["spring boot", "migration", "flyway"] from task scope
+   Matched: spring-boot-gotchas.md, spring-boot.md
+   Cross-ref: → postgresql-query-patterns.md (migration patterns)
+   Cross-ref: → java-observability-gotchas.md (skipped: not relevant)
+   No match: "flyway"
+```
 
 ## Confidence-level gate (soft — experimental)
 
@@ -59,7 +72,7 @@ When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Ve
 
 Always announce when learnings are loaded or searched — the user needs visibility to iterate on this system. No-match announcements are **mandatory** (they surface gaps and confirm the system is firing).
 
-Formats: `📚 Session start — loaded X (reason)` · `📚 "keyword" → loaded X` · `📚 Searched for "X" — no matches`
+Formats: `📚 Session start — loaded X (reason)` · `📚 "keyword" → loaded X` · `📚 Searched for "X" — no matches` · `📚 Cross-ref from X → loaded Y (reason)` · `📚 Cross-ref from X → Y (skipped: not relevant)` (plan-mode only)
 
 Persona checks: `🎭 No persona active — recommending X. Set it?` · `🎭 Persona active: X — proceeding` · `🎭 No persona — none relevant, proceeding without`
 

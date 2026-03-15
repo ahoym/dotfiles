@@ -66,11 +66,27 @@ Personas reference gotcha files via a `## Proactive loads` section — loaded de
 
 ## Extends Inherits Detailed References
 
-Child personas that declare `## Extends: <parent>` inherit the parent's Detailed references — the set-persona skill loads the parent first, then layers the child. Don't duplicate parent refs in the child; only add refs unique to the child's narrower domain.
+Child personas that declare `## Extends: <parent>` or `## Extends: <parent1>, <parent2>` inherit the parents' Detailed references — the set-persona skill loads parents in declaration order, then layers the child. Don't duplicate parent refs in the child; only add refs unique to the child's narrower domain.
+
+**Multi-parent extends:** A persona can extend multiple parents (comma-separated). Parents are loaded in declaration order. Use this when a persona needs knowledge from one base and judgment posture from another — e.g., `claude-config-reviewer` extends both `reviewer` (review instincts) and `claude-config-expert` (config domain knowledge). Still no chaining — parents cannot themselves extend other personas.
 
 ## Proactive Loads Require Agent Behavior, Not @ References
 
 Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
+
+## Knowledge/Lens Decomposition
+
+When a persona carries both domain knowledge (taxonomy, placement rules, gotchas) and a judgment lens (review checklists, authoring posture), split the knowledge into a base "expert" persona. Multiple lens personas can then extend the expert alongside other bases. The expert carries *what to know*; the lens carries *how to apply it*.
+
+**When to decompose:** A persona has 2+ distinct use modes (reviewing vs authoring vs debugging) that share the same knowledge but apply different judgment. The signal is wanting to activate the same domain knowledge with a different posture.
+
+**Structure:** `expert` (knowledge base) → `reviewer` extends `[domain-reviewer, expert]` (evaluative lens) + `author` extends `[expert]` (generative lens).
+
+## Implementation-Start Persona Matching: Descriptions Over Filenames
+
+The implementation-start gate matches persona filenames against the task domain, but filenames encode *activity* ("reviewer") not *domain* ("skills, guidelines, learnings"). Reading the first ~5 lines of each persona file (name + description) provides a much better matching surface. Example: `claude-config-reviewer` filename suggests "reviewing" but its description says "skills, guidelines, learnings, personas, CLAUDE.md files, memory, and settings" — which matches any config-authoring task.
+
+**Proposed improvement (pending more data):** During the implementation-start persona check, read persona descriptions (not just filenames) and match against the task's *domain*, not its *activity mode*.
 
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
