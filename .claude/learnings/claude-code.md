@@ -149,13 +149,9 @@ When multiple tool calls are sent in a single batch and one fails, all sibling c
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
 
-## Glob Can Miss Files — Verify with ls/Bash
+## Glob Limitations with Symlinks
 
-Glob tool may silently return empty for files that exist (observed with untracked files in `docs/learnings/`). When making claims about file existence/absence, verify with `ls` or `Bash` before stating files don't exist. Getting this wrong (claiming a directory is empty when it has 5 files) erodes trust quickly.
-
-## Glob Fails Through Symlinked Directories
-
-Glob cannot traverse directory symlinks — even with absolute paths. `~/.claude` is symlinked, so `Glob(pattern: "commands/set-persona/*.md", path: "/Users/<user>/.claude")` returns empty while `ls /Users/<user>/.claude/commands/set-persona/*.md` finds files. Fall back to `Bash` `ls` when searching inside symlinked directory trees like `~/.claude/commands/` or `~/.claude/learnings/`.
+Glob can silently return empty results in two cases: (1) untracked files in directories, and (2) paths through directory symlinks. Since `~/.claude` subdirectories are symlinks, `Glob(path: "/Users/<user>/.claude")` returns empty while `ls` finds files. Fall back to `Bash` `ls` when searching inside symlinked directory trees. Verify claims about file existence/absence with `ls` before stating files don't exist.
 
 ## Sanitizing Examples: Preserve Pedagogical Intent
 
@@ -171,13 +167,9 @@ Key details:
 - Stop with `CronDelete` when done
 - The agent replies on the platform first, then posts suggestion summaries as PR comments (not CLI prompts)
 
-## Permission Patterns May Not Match Complex Bash Commands
-
-`Bash(gh api:*)` works for simple commands like `gh api repos/.../comments --jq '...'` but may fail to match when the command includes HEREDOC bodies (`-f body="$(cat <<'BODY'...BODY)"`), subshell expansions, or multi-line content. The pattern matcher appears to operate on the full command string, and complex quoting/expansion can break the glob match. For commands that post user-facing content (PR replies, comments), manual approval may be unavoidable.
-
 ## @ References Only Resolve in CLAUDE.md and SKILL.md
 
-`@path/to/file.md` references are resolved by the CLI at load time — not by the agent or the Read tool. They work in CLAUDE.md (expanded at session start) and SKILL.md (expanded when the skill is invoked). They do NOT resolve in arbitrary `.md` files read via the Read tool at runtime. This means data files (personas, reference docs, learnings) cannot use `@` to pull in other files — the agent must explicitly read them.
+`@path/to/file.md` references are resolved by the CLI at load time — not by the agent or the Read tool. They work in CLAUDE.md and SKILL.md only. Data files (personas, reference docs, learnings) cannot use `@` — the agent must explicitly Read them.
 
 **Path resolution styles** (empirically verified 2026-03-13):
 
@@ -188,7 +180,7 @@ Key details:
 | Relative traversal | `@../../learnings/foo.md` | ❌ No |
 | Skill-directory relative | `@sibling.md` (from SKILL.md) | ❌ No |
 
-**Cross-project verification:** All four styles tested from both the dotfiles repo (same-repo) and algo-trading (cross-repo). Results are consistent: CWD-relative and tilde work in both contexts; `../../` and sibling fail in both. CWD-relative fails cross-repo when the target file doesn't exist relative to the other project's root.
+CWD-relative and tilde work consistently across repos. CWD-relative fails cross-repo when the target doesn't exist relative to the other project's root.
 
 **Three-layer path resolution model:**
 
@@ -198,11 +190,9 @@ Key details:
 | **Read tool (direct)** | ✅ | ✅ | ❌ | ❌ |
 | **Agent (manual expansion)** | ✅ | ✅ | ✅ | ✅ |
 
-The agent layer works because the CLI injects a "Base directory for this skill: /absolute/path" header when loading skills. Agents can resolve `../../` and sibling paths against this base directory, then pass the absolute path to Read. This was verified cross-repo — the expanded absolute path matches existing `Read(~/.claude/learnings/**)` permission patterns. A guideline instructing agents to always expand relative paths against the skill's base directory would make this layer reliably deterministic rather than dependent on agent initiative.
+The agent layer works because the CLI injects a "Base directory for this skill" header. Agents resolve relative paths against this base directory, then pass the absolute path to Read. See `path-resolution.md` guideline.
 
-**Session-level dedup:** The CLI deduplicates `@` references within a session. If the same file is referenced by multiple `@` paths (even different path forms resolving to the same file), only the first triggers a Read. This can cause false negatives when testing — always use a file not yet loaded in the session.
-
-**Format flexibility:** The `@` reference parser doesn't require any specific surrounding syntax. All of these resolve identically: `- @path — description`, `@path — description`, `- @path`, and bare `@path`. The `- ` list prefix and description text are formatting conventions for human readability — they don't affect resolution.
+**Session-level dedup:** The CLI deduplicates `@` references within a session — only the first load of a given file triggers a Read. Use a file not yet loaded when testing.
 
 ## GitHub API: Edit PR Review Comment Endpoint
 
@@ -246,6 +236,8 @@ Each `/loop` invocation of a skill costs ~4-5K tokens minimum even on no-op runs
 
 Subagents launched via the Agent tool receive CLAUDE.md and all `@`-referenced guidelines — including the learnings search protocol. They can search and load learnings independently via gate #1 (session start). However, persona gates (#2–3) only fire at plan mode entry and implementation start — phases subagents rarely enter. The orchestrator has better context for persona selection and should include a persona assignment in the subagent prompt for domain-specific work.
 
-## `git -C` Triggers Permission Prompts
+## See also
 
-`git -C <path> <command>` doesn't match permission patterns that allow bare `git <command>`. Use `cd <path> && git <command>` instead when targeting worktrees or other directories. Same applies to any CLI tool where permission patterns are scoped to the bare command form.
+- `~/.claude/learnings/multi-agent-patterns.md` — worktree agent isolation, sandbox workarounds, background agent orchestration (complements the permissions/platform angle here)
+- `~/.claude/learnings/claude-code-hooks.md` — hooks vs permissions independence, PreToolUse as security boundary (complements the permissions cluster here)
+

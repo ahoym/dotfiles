@@ -290,3 +290,7 @@ Test assumptions with a controlled experiment before writing them as facts acros
 ## Cross-Check Subagent Inventory Comparisons
 
 When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).
+
+## See also
+
+- `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas (platform mechanics underlying the agent patterns here)
