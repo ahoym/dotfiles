@@ -9,7 +9,7 @@
 
 Avoid quoted strings in Bash commands (e.g., `echo "---"`, `echo "DONE"`). Quoted characters trigger permission prompts, forcing the user to manually approve. Use unquoted alternatives or separate tool calls instead.
 
-Check `pwd` before assuming you need to change directories. Don't `cd` or `git -C` into CWD — permission patterns match `git status`, not `cd /path && git status` or `git -C /path status`, so either forces manual approval. Only use `cd`/`git -C` when targeting a different directory.
+Check `pwd` before assuming you need to change directories. Don't `cd` or `git -C` into CWD — permission patterns match `git status`, not `cd /path && git status` or `git -C /path status`, so either forces manual approval. When targeting a different directory, prefer a single `cd` over repeated `git -C` — `cd` prompts once, `-C` prompts on every command.
 
 # Read Tool
 
