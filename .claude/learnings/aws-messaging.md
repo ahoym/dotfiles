@@ -79,3 +79,7 @@
   - Circuit breaker on the downstream call (fail fast, let visibility timeout redeliver)
   - Separate "slow lane" queue for degraded-mode processing
 - Don't use `Thread.sleep()` or delays in consumers to throttle — it wastes threads and hides the real problem.
+
+## See also
+
+- `.claude/learnings/resilience-patterns.md` — idempotency, dedup-before-process, and retry patterns that complement SQS consumer design

@@ -159,19 +159,19 @@ When re-reviewing a PR and a previous comment has been addressed, react with a �
 
 If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
 
+- **Takeaway**: No findings = no post. Silence is a valid review outcome.
+
 ### Verify safeguards survive fixes
 
-When fixing one problem, verify the original problem's safeguards are preserved or replaced. Example: removing `?per_page=100` from URLs to fix quoting issues silently reverted to the 30-result default, hiding comments beyond page 1. The fix (`--paginate`) replaced the safeguard — but the gap between removing the old safeguard and adding the new one caused a real miss. Pattern: when removing a workaround, ask "what was this protecting against?" before deleting.
+When fixing one problem, verify the original problem's safeguards are preserved or replaced. Pattern: when removing a workaround, ask "what was this protecting against?" before deleting. After the fix, test that the original safeguard still works — not just that the symptom is gone.
 
-- **Takeaway**: No findings = no post. Silence is a valid review outcome.
+Example: removing `?per_page=100` from URLs to fix quoting issues silently reverted to the 30-result default, hiding comments beyond page 1. The fix (`--paginate`) replaced the safeguard — but verification ("command runs without permission prompt" ✅ but "command still returns all results" ❌) would have caught the regression immediately.
+
+- **Takeaway**: Before removing a workaround, identify what it protected. After fixing, verify the protection still holds (e.g., `| jq length` to confirm result count).
 
 ### Keep Approval Flows On-Platform
 
 When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
-
-### Verify the fix didn't break the safeguard
-
-After fixing a problem, test that the original safeguard still works — not just that the symptom is gone. Example: "command runs without permission prompt" ✅ but "command still returns all results" ❌. A quick verification (e.g., `| jq length` to confirm result count) catches regressions before they become real misses.
 
 ### Fix the source, not just the behavior
 
