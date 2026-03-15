@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 11 |
+| Iterations | 12 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -42,6 +42,8 @@
 | 11 | — | DEEP_DIVE | migrate "Uniform Convention" to curation-insights | claude-authoring-guidelines.md | curation-insights.md | MEDIUM |
 | 11 | — | DEEP_DIVE | compress "Three-Tier Separation" (−9 lines) | claude-authoring-guidelines.md | — | MEDIUM |
 | 11 | — | DEEP_DIVE | add See also cross-refs | claude-authoring-guidelines.md | — | MEDIUM |
+| 12 | — | DEEP_DIVE | add See also cross-ref | financial-applications.md | resilience-patterns.md | MEDIUM |
+| 12 | — | DEEP_DIVE | add reverse cross-ref (See also) | resilience-patterns.md | financial-applications.md | MEDIUM |
 
 ## Blocked Items
 

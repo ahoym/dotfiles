@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md |
+| DEEP_DIVE_CANDIDATES | aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md |
 
 ## Pre-Flight
 
@@ -73,6 +73,7 @@ Suggested iterations: 15
 | 9 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | process-conventions.md: 179→~170 lines, merge 2 near-dup sections, add See also cross-refs |
 | 10 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | bash-patterns.md: 180→~162 lines, migrate 2 permission gotchas to claude-code.md, add See also cross-refs |
 | 11 | — | DEEP_DIVE | 0 | 3 | 0 | 3 | claude-authoring-guidelines.md: 57→~48 lines, migrate "Uniform Convention" to curation-insights, compress tier separation, add See also |
+| 12 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | financial-applications.md: 63→64 lines, add See also cross-refs to resilience-patterns.md (bidirectional) |
 
 ## Deep Dive Status
 
@@ -86,6 +87,7 @@ Suggested iterations: 15
 | process-conventions.md | done | 9 | 3 MEDIUMs applied: 2 intra-file merges (near-duplicate sections), See also cross-refs. 1 LOW (redundant takeaways). |
 | bash-patterns.md | done | 10 | 3 MEDIUMs applied: migrate inline-subshell + chaining gotchas to claude-code.md, See also cross-refs. 1 LOW (jq vs python3 placement). |
 | claude-authoring-guidelines.md | done | 11 | 3 MEDIUMs applied: migrate "Uniform Convention" to curation-insights.md, compress tier separation (−9 lines), See also cross-refs. |
+| financial-applications.md | done | 12 | 2 MEDIUMs applied: See also cross-ref to resilience-patterns.md + reverse cross-ref. 10 patterns all standalone reference, concise (63 lines). |
 
 ## Notes for Next Iteration
 
@@ -224,3 +226,17 @@ Suggested iterations: 15
 **Tracker note**: curation-insights.md received migrated content → added to tracker with last_deep_dive_run=0.
 
 **Next**: financial-applications.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #6.
+
+### Iter 12
+
+**Deep dive: financial-applications.md** (63→64 lines, 10 patterns). Cross-referenced against bignumber-financial-arithmetic.md (existing See also), api-design.md (idempotency overlap — keyword-discoverable, not cross-ref'd), resilience-patterns.md (error handling/correctness themes — non-obvious vocabulary connection).
+
+**Actions taken (2 MEDIUMs):**
+- Added `resilience-patterns.md` to See also — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns complement financial-applications's "fail loudly" and "never default to zero" error handling. Non-obvious from vocabulary.
+- Added reverse cross-ref: new See also section in resilience-patterns.md → financial-applications.md.
+
+**All 10 patterns classified standalone reference / keep.** File is concise (~6 lines/pattern average), well-scoped to financial domain, no duplicates across corpus, no compression or genericization candidates.
+
+**Tracker**: financial-applications.md → last_deep_dive_run=8. resilience-patterns.md added with last_deep_dive_run=0 (received new See also section).
+
+**Next**: aws-messaging.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #7.
