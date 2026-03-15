@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 1 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,9 @@ Suggested iterations: 15
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 1 | 2 | 1 | 1 | 0 | 0 | No |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | Yes |
+
+**Broad sweeps converged** after Round 2 (CLEAN_ROUND_STREAK = 1). Transitioning to DEEP_DIVE phase.
 
 ## Iteration Log
 
@@ -64,10 +67,12 @@ Suggested iterations: 15
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no duplication/drift |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, no new duplicates/staleness/regressions from R1 changes |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, R1 fixes verified, no regressions |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, no changes since R1. R2 fully clean → convergence → DEEP_DIVE |
 
 ## Deep Dive Status
 
 <!-- Populated when PHASE transitions to DEEP_DIVE after broad sweep convergence -->
+<!-- Max guard: 5 invocations. Unprocessed candidates carry over to next run. -->
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
@@ -129,3 +134,18 @@ Suggested iterations: 15
 **Round 2 SKILLS sweep**: 31 skills, 11 personas, 15 skill-references. All read in parallel. Verified Round 1 fixes (name frontmatter on extract-request-learnings + split-commit, consolidate example table update). No new issues — no overlap, no stale references, no scope problems. All namespace clusters clean.
 
 **Next**: GUIDELINES sweep (Round 2). If clean → CLEAN_ROUND_STREAK = 1 → convergence → deep dive candidacy check.
+
+### Iter 6
+
+**Round 2 GUIDELINES sweep**: 4 files, all @-referenced from CLAUDE.md. Cross-referenced against learnings, skills, personas. No duplicates, no domain-specific content, no dead references, no compression targets. Clean.
+
+**Round 2 complete**: All 3 sweeps clean → ROUND_CLEAN=true → CLEAN_ROUND_STREAK=1 → **broad sweeps converged**.
+
+**Deep dive candidacy compiled**: 25 candidates prioritized:
+- **Modification-triggered (11)**: 10 files with last_deep_dive_run=0 (bash-patterns, claude-authoring-skills, claude-authoring-guidelines, process-conventions, financial-applications, aws-messaging, ralph/consolidate/init, extract-request-learnings, git/split-commit, learnings/consolidate) + 1 cross-reference hub (claude-authoring-content-types)
+- **Polish Opportunities (2 additional)**: ralph-loop (230 lines, delta=4), multi-agent-patterns (296 lines, delta=2)
+- **Stale (12 additional, delta >= 3)**: web-session-sync, typescript-devops, api-design (delta=4); skill-platform-portability, nextjs, react-patterns, react-frontend, explore-repo, platform-engineer, code-quality-instincts, cross-repo-sync, git-patterns (delta=3)
+
+**Tracker note**: Entry `.claude/commands/ralph/init/SKILL.md` doesn't match any actual file — actual paths are `ralph/consolidate/init/SKILL.md` and `ralph/research/init/SKILL.md`. Corrected in candidate list to `ralph/consolidate/init/SKILL.md`.
+
+**Next**: Deep dive phase. Max guard = 5 invocations.
