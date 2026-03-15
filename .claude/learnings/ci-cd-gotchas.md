@@ -21,12 +21,17 @@ Companion to `ci-cd.md` and `gitlab-ci-cd.md`. GitHub Actions and GitLab CI trip
 - `extends:` over YAML anchors — supports deep merge, more readable
 - `include:project` for org-wide templates, `include:local` for repo-internal fragments
 - Protected variables only available on protected branches/tags — feature branches silently get empty values
+- `GIT_DEPTH: 20` (or appropriate depth) in `variables:` for faster clones — `GIT_DEPTH: 0` for full history when needed (changelog, diff-based checks)
+- `allow_failure: true` for non-blocking informational jobs; `allow_failure:exit_codes:` for granular control
+- `environment:` with `url:` and `on_stop:` for review apps — enables automatic cleanup when MRs are merged/closed
+- `retry: 2` on flaky infrastructure jobs (Docker pulls, network-dependent steps) — avoid on test jobs as it masks real failures
 
 ## Git Workflows
 
 - Cascade rebase for stacked branches: `checkout -B` resets local to remote, then rebase on updated base; `--force-with-lease` for safe push
-- After rebasing stacked branches, retarget MRs: `glab mr update <N> --target-branch <new-base>`
+- After rebasing stacked branches, retarget: `glab mr update <N> --target-branch <new-base>` (GitLab) / `gh pr edit <N> --base <new-base>` (GitHub)
+- `checkout -B` is safer than `checkout` for stacked workflows — avoids stale local state
 
 ## CI Guards
 
-- Lightweight CI guard (no checkout): see `ci-cd.md` for full YAML examples (GitLab + GitHub)
+- Lightweight CI guard (no checkout): API calls + `jq` to check for blocked file paths — runs in seconds with no dependencies beyond `curl` and `jq`. See `ci-cd.md` for full YAML examples
