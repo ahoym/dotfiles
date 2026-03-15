@@ -155,25 +155,11 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 `-F` (uppercase) infers type: `+1` becomes numeric `1`, which the GitHub reactions API rejects. `-f` (lowercase) always sends as string. Use `-f` when the value must be a string (e.g., `-f content=+1` for emoji reactions).
 
-## Inline `$()` Subshells Trigger Permission Prompts
-
-Commands with inline `$()` subshells (e.g., `git log --oneline origin/main ^$(git merge-base HEAD origin/main)`) don't match simple allow patterns and trigger permission prompts. Split into two sequential calls instead:
-
-```bash
-# Wrong — permission prompt:
-git log --oneline origin/main ^$(git merge-base HEAD origin/main)
-
-# Right — two calls:
-# Call 1: MERGE_BASE=$(git merge-base HEAD origin/main)
-# Call 2: git log --oneline origin/main ^$MERGE_BASE
-```
-
-Store the subshell result in a variable from one Bash call, then use it in the next. This applies to any command where `$()` is embedded in arguments.
-
-## Separate `git add` and `git commit` to Avoid Permission Rejection
-
-Chaining `git add && git commit && git push` in a single Bash call can trigger permission rejection because the combined command doesn't match simple allow patterns like `Bash(git add:*)`. Run each as a separate Bash call instead.
-
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.
+
+## See also
+
+- `~/.claude/learnings/claude-code.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
+- `~/.claude/learnings/git-patterns.md` — GitHub API pagination, git operations that use bash scripting patterns

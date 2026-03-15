@@ -70,3 +70,13 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Compress — remove redundant takeaways, save ~10-15 lines. (b) Keep — takeaways serve as scanning anchors even if repetitive.
 - **Why LOW**: Per-pattern savings are small (2-3 lines each). File is ~170 lines — not a compression priority. Judgment call on whether takeaways aid scanning.
 - **Curate command**: `/learnings:curate learnings/process-conventions.md`
+
+## [L-5] "Use jq Instead of python3" placement in bash-patterns.md (LOW)
+
+- **Iter**: 10
+- **Content Type**: DEEP_DIVE (bash-patterns.md)
+- **File**: `.claude/learnings/bash-patterns.md`
+- **Pattern**: "Use `jq` Instead of `python3` for JSON Parsing in Bash" — framed as bash best practice but primarily motivated by Claude Code permission prompts.
+- **Possible classifications**: (a) Keep in bash-patterns — jq over python3 is a genuine bash best practice regardless of permissions. (b) Migrate to claude-code.md — the motivation is permission behavior, not JSON parsing efficiency.
+- **Why LOW**: Both framings are valid. The current bash framing works and the pattern is only 3 lines — low-impact either way.
+- **Curate command**: `/learnings:curate learnings/bash-patterns.md`

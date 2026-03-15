@@ -87,12 +87,14 @@ Edit/Write permission patterns like `Edit(~/.claude/commands/**)` resolve to abs
 
 ## Bash Permission Prefix Matching Gotchas
 
-Bash permission patterns match on the **literal command prefix**. Three common breaks:
+Bash permission patterns match on the **literal command prefix**. Common breaks:
 
 1. **`cd &&` prefix:** `cd /tmp/worktree && git add .` starts with `cd`, not `git` — won't match `Bash(git add:*)`. Fix: use `git -C <dir>` instead.
 2. **`git -C` prefix:** `git -C ../worktree push` doesn't match `Bash(git push:*)` because `-C` comes before `push`. Workaround: push from main repo — `git push origin <branch>` works for worktree commits (shared object database).
 3. **Tilde expansion:** Background agents may expand `~` to `/Users/...`, breaking `Bash(bash ~/.claude/...:*)`. Always pass `~` literally — the shell expands at runtime, permission checks the literal text.
 4. **Quoted strings trigger prompts regardless of allow patterns.** Even with `Bash(gh api:*)` in the allow list, `gh api 'url?param=val'` or `gh api "url?param=val"` triggers a permission prompt. The permission system appears to treat the full command including quotes as the match target. Workaround: avoid quotes entirely — use `--paginate` instead of `?per_page=100`, filter client-side with `--jq` instead of `?since=`, and use `-f` flag for string values instead of quoting.
+5. **`&&` chaining:** `git add . && git commit -m "msg"` in a single Bash call can trigger rejection because the combined command doesn't match simple patterns like `Bash(git add:*)`. Run each command as a separate Bash call.
+6. **Inline `$()` subshells:** `git log ^$(git merge-base HEAD main)` doesn't match simple patterns. Split into two calls — store the subshell result in a variable from one Bash call, use it in the next. Applies to any command where `$()` is embedded in arguments.
 
 ## Scoping Bash Permissions: Helper Scripts
 

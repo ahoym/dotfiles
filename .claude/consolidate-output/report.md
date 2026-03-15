@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 9 |
+| Iterations | 10 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -36,13 +36,16 @@
 | 8 | — | DEEP_DIVE | add reverse cross-ref | multi-agent-patterns.md | — | MEDIUM |
 | 9 | — | DEEP_DIVE | merge intra-file near-duplicates (2 sections) | process-conventions.md | process-conventions.md | MEDIUM |
 | 9 | — | DEEP_DIVE | add See also cross-refs | process-conventions.md | — | MEDIUM |
+| 10 | — | DEEP_DIVE | migrate inline subshell gotcha | bash-patterns.md | claude-code.md | MEDIUM |
+| 10 | — | DEEP_DIVE | migrate && chaining gotcha | bash-patterns.md | claude-code.md | MEDIUM |
+| 10 | — | DEEP_DIVE | add See also cross-refs | bash-patterns.md | — | MEDIUM |
 
 ## Blocked Items
 
 See `review.md` for details.
 
-- Total: 4
-- Open: 3
+- Total: 5
+- Open: 4
 - Resolved: 1
 
 ## Collection Health

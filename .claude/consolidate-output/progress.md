@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md |
+| DEEP_DIVE_CANDIDATES | claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md |
 
 ## Pre-Flight
 
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 7 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md: clean, 11 patterns all standalone reference |
 | 8 | — | DEEP_DIVE | 0 | 5 | 1 | 5 | claude-authoring-skills.md: 503→~490 lines, dedup footnote, migrate 2 patterns to multi-agent, add cross-refs |
 | 9 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | process-conventions.md: 179→~170 lines, merge 2 near-dup sections, add See also cross-refs |
+| 10 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | bash-patterns.md: 180→~162 lines, migrate 2 permission gotchas to claude-code.md, add See also cross-refs |
 
 ## Deep Dive Status
 
@@ -82,6 +83,7 @@ Suggested iterations: 15
 | claude-authoring-content-types.md | done | 7 | Clean — 11 patterns, all standalone reference, hub-spoke boundary clean |
 | claude-authoring-skills.md | done | 8 | 5 MEDIUMs applied: footnote dedup, 2 migrations to multi-agent-patterns, See also + reverse cross-ref. 1 LOW (worktree branches placement). |
 | process-conventions.md | done | 9 | 3 MEDIUMs applied: 2 intra-file merges (near-duplicate sections), See also cross-refs. 1 LOW (redundant takeaways). |
+| bash-patterns.md | done | 10 | 3 MEDIUMs applied: migrate inline-subshell + chaining gotchas to claude-code.md, See also cross-refs. 1 LOW (jq vs python3 placement). |
 
 ## Notes for Next Iteration
 
@@ -192,3 +194,18 @@ Suggested iterations: 15
 **Remaining ~28 patterns are standalone reference / keep.** Many patterns relate to review skills (address-request-comments, code-review-request) but don't duplicate — learnings teach principles, skill references provide implementation templates.
 
 **Next**: bash-patterns.md (next in DEEP_DIVE_CANDIDATES).
+
+### Iter 10
+
+**Deep dive: bash-patterns.md** (180→~162 lines, 11→9 patterns). Cross-referenced against claude-code.md (244 lines, "Bash Permission Prefix Matching Gotchas"), git-patterns.md (225 lines, GitHub API patterns), and CLAUDE.md Bash Tool section.
+
+**Actions taken (3 MEDIUMs):**
+- Migrated "Inline `$()` Subshells Trigger Permission Prompts" to claude-code.md § "Bash Permission Prefix Matching Gotchas" as point 6. Permission system behavior, not bash language pattern.
+- Migrated "Separate `git add` and `git commit` to Avoid Permission Rejection" to same section as point 5. Same reasoning — `&&` chaining breaks prefix matching.
+- Added `## See also` with 2 cross-refs: claude-code.md (permission gotchas complement bash patterns) and git-patterns.md (GitHub API patterns, git scripting).
+
+**1 LOW recorded** — "Use jq Instead of python3" straddles bash best practice and Claude Code permission workaround. Both framings valid. [L-5].
+
+**Tracker note**: claude-code.md received migrated content → set last_deep_dive_run=0 (modified, needs future deep dive).
+
+**Next**: claude-authoring-guidelines.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #5 (max guard = 15).
