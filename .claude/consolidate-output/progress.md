@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md |
+| DEEP_DIVE_CANDIDATES | web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md |
 
 ## Pre-Flight
 
@@ -80,6 +80,7 @@ Suggested iterations: 15
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | git/split-commit/SKILL.md: clean, 7 patterns, no duplication with git-patterns.md split-branch technique |
 | 17 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | learnings/consolidate/SKILL.md: 2 MEDIUMs applied — update stale skill count (~23→~31), add missing skill-references permission to Prerequisites |
 | 18 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | ralph-loop.md: 2 MEDIUMs applied — fix stale convergence threshold (2→1 clean round), add See also cross-refs (3 targets) |
+| 19 | — | DEEP_DIVE | 1 | 1 | 0 | 2 | multi-agent-patterns.md: 1 HIGH (fix TaskOutput inconsistency) + 1 MEDIUM (merge 2 context compaction sections) |
 
 ## Deep Dive Status
 
@@ -100,6 +101,7 @@ Suggested iterations: 15
 | git/split-commit/SKILL.md | done | 16 | Clean — 7 patterns (usage + 6 steps + notes). No duplication with git-patterns.md "Split Mixed-Concern Branch" (different granularity). Co-Authored-By format consistent. `--force-with-lease` correct. |
 | learnings/consolidate/SKILL.md | done | 17 | 2 MEDIUMs applied: update stale skill count (~23→~31, threshold 30→40), add missing `Read(~/.claude/skill-references/**)` to Prerequisites. ~17 major sections, 648 lines. |
 | ralph-loop.md | done | 18 | 2 MEDIUMs applied: fix stale convergence threshold ("2 consecutive clean rounds" → "a clean round"), add See also cross-refs to curation-insights.md, claude-code.md, multi-agent-patterns.md. 230 lines, ~44 patterns. |
+| multi-agent-patterns.md | done | 19 | 1 HIGH + 1 MEDIUM: fix TaskOutput inconsistency (steps 2-3 contradicted by later pattern in same file), merge 2 non-adjacent context compaction sections into one. 306→~298 lines, ~37 patterns. |
 
 ## Notes for Next Iteration
 
@@ -310,3 +312,17 @@ Suggested iterations: 15
 **Tracker note**: ralph-loop.md → last_deep_dive_run=8 (current run_count).
 
 **Next**: multi-agent-patterns.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #13.
+
+### Iter 19
+
+**Deep dive: multi-agent-patterns.md** (306→~298 lines, ~37 patterns). Cross-referenced against subagent-patterns.md (skill-reference), claude-code.md (See also target), claude-authoring-skills.md (See also target, migration source).
+
+**Actions taken (1 HIGH, 1 MEDIUM):**
+- **HIGH**: Fixed internal inconsistency — "Multi-Agent Workflows Survive Context Compaction" steps 2-3 recommended `TaskOutput` with `block: false`/`block: true` for checking agent status. "TaskOutput Only Works for Background Bash Tasks" (line 242) in the same file directly contradicts this: `TaskOutput` returns "No task found" for Agent tasks. Removed incorrect steps, replaced with correct mechanism (automatic notifications).
+- **MEDIUM**: Merged "Multi-Agent Workflows Survive Context Compaction" and "Many-Agent Context Compaction Risk" into single "Context Compaction in Multi-Agent Workflows" section. Same topic split across non-adjacent sections (separated by "Balance Agent Work Distribution"). Merged with corrected TaskOutput behavior. ~8 lines saved.
+
+**No LOWs.** Remaining ~35 patterns are standalone multi-agent workflow knowledge — no duplication with subagent-patterns.md (complementary: subagent-patterns covers WHY/universal patterns, multi-agent covers HOW/specific workflows). Patterns like "Three-Branch Gate Announcements" and "Verify Assumptions Before Documenting" are borderline non-multi-agent but are short (2-3 lines) and were discovered in multi-agent context — moving would be LOW-impact. Existing See also cross-refs verified valid.
+
+**Tracker**: multi-agent-patterns.md → last_deep_dive_run=8.
+
+**Next**: web-session-sync.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #14.
