@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md |
+| DEEP_DIVE_CANDIDATES | extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md |
 
 ## Pre-Flight
 
@@ -75,6 +75,7 @@ Suggested iterations: 15
 | 11 | — | DEEP_DIVE | 0 | 3 | 0 | 3 | claude-authoring-guidelines.md: 57→~48 lines, migrate "Uniform Convention" to curation-insights, compress tier separation, add See also |
 | 12 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | financial-applications.md: 63→64 lines, add See also cross-refs to resilience-patterns.md (bidirectional) |
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | aws-messaging.md: clean, 12 patterns all standalone reference, existing See also valid |
+| 14 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ralph/consolidate/init/SKILL.md: clean, 7 patterns, well-structured skill definition, template paths verified |
 
 ## Deep Dive Status
 
@@ -90,6 +91,7 @@ Suggested iterations: 15
 | claude-authoring-guidelines.md | done | 11 | 3 MEDIUMs applied: migrate "Uniform Convention" to curation-insights.md, compress tier separation (−9 lines), See also cross-refs. |
 | financial-applications.md | done | 12 | 2 MEDIUMs applied: See also cross-ref to resilience-patterns.md + reverse cross-ref. 10 patterns all standalone reference, concise (63 lines). |
 | aws-messaging.md | done | 13 | Clean — 12 patterns, all standalone reference, concise (86 lines). Existing See also to resilience-patterns.md valid. |
+| ralph/consolidate/init/SKILL.md | done | 14 | Clean — 7 patterns (derive names, collision check, create worktree, scaffold, pre-flight, confirm, example). Template paths verified, correct `**` glob. |
 
 ## Notes for Next Iteration
 
@@ -250,3 +252,11 @@ Suggested iterations: 15
 **No actions taken.** All 12 patterns classified standalone reference / HIGH / keep. File is concise (~7 lines/pattern), well-organized. Existing See also to resilience-patterns.md verified valid. No new non-obvious cross-refs needed — adjacent files (aws-patterns, spring-boot, java-observability) are all keyword-discoverable.
 
 **Next**: ralph/consolidate/init/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #8.
+
+### Iter 14
+
+**Deep dive: ralph/consolidate/init/SKILL.md** (141 lines, 7 patterns). Cross-referenced against resume/SKILL.md (companion skill), learnings/consolidate/SKILL.md (interactive consolidation — different execution model), ralph-loop.md (consolidation loop variant documentation, pre-flight cadence analysis).
+
+**No actions taken.** All 7 patterns are standalone skill instructions specific to the init workflow. Template list verified against disk (7 templates exist at `~/.claude/ralph/consolidate/templates/`). Glob pattern uses `**` for nested skills (correct per ralph-loop.md "Nested Skill Glob Pattern"). No duplication with corpus — pre-flight cadence analysis in skill (implementation) vs ralph-loop.md (insight/gotcha) is correctly separated. Example uses older file counts (illustrative, not authoritative). No compression candidates — file is already concise at ~20 lines/pattern average.
+
+**Next**: extract-request-learnings/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #9.
