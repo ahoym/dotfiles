@@ -310,7 +310,7 @@ For each skill, follow learnings:curate skill mode (steps 2s–4s) with full cro
 - Skills that are subsets of other skills (merge or prune candidates)
 - Namespace gaps (missing skills that would complete a workflow)
 
-**Inline analysis** for the current collection size (~23 skills). Use subagents for collections of 30+.
+**Inline analysis** for the current collection size (~31 skills). Use subagents for collections of 40+.
 
 **Additional cross-cutting checks** (run after individual skill evaluation):
 - **Stale model version strings:** Grep all skill directories for `Co-Authored-By` and `Co-authored with` lines with outdated model versions (e.g., previous model generation). Bulk-update matches.
@@ -627,6 +627,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/guidelines/**)",
+"Read(~/.claude/skill-references/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/learnings/**)",
 "Write(~/.claude/learnings-private/**)",

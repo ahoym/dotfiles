@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md |
+| DEEP_DIVE_CANDIDATES | ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md |
 
 ## Pre-Flight
 
@@ -78,6 +78,7 @@ Suggested iterations: 15
 | 14 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ralph/consolidate/init/SKILL.md: clean, 7 patterns, well-structured skill definition, template paths verified |
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | extract-request-learnings/SKILL.md: clean, ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | git/split-commit/SKILL.md: clean, 7 patterns, no duplication with git-patterns.md split-branch technique |
+| 17 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | learnings/consolidate/SKILL.md: 2 MEDIUMs applied — update stale skill count (~23→~31), add missing skill-references permission to Prerequisites |
 
 ## Deep Dive Status
 
@@ -96,6 +97,7 @@ Suggested iterations: 15
 | ralph/consolidate/init/SKILL.md | done | 14 | Clean — 7 patterns (derive names, collision check, create worktree, scaffold, pre-flight, confirm, example). Template paths verified, correct `**` glob. |
 | extract-request-learnings/SKILL.md | done | 15 | Clean — ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns. Sibling templates well-structured. All referenced files verified. |
 | git/split-commit/SKILL.md | done | 16 | Clean — 7 patterns (usage + 6 steps + notes). No duplication with git-patterns.md "Split Mixed-Concern Branch" (different granularity). Co-Authored-By format consistent. `--force-with-lease` correct. |
+| learnings/consolidate/SKILL.md | done | 17 | 2 MEDIUMs applied: update stale skill count (~23→~31, threshold 30→40), add missing `Read(~/.claude/skill-references/**)` to Prerequisites. ~17 major sections, 648 lines. |
 
 ## Notes for Next Iteration
 
@@ -279,4 +281,16 @@ Suggested iterations: 15
 
 **No actions taken.** All 7 patterns are standalone skill instructions specific to the commit-splitting workflow. No duplication with git-patterns.md — different granularity (commit vs branch) and technique (hard reset + /tmp save vs soft reset + selective unstage). Co-Authored-By format (`Claude Opus 4.6`) consistent with address-request-comments and repoint-branch skills. `--force-with-lease` correctly used (safer than `--force`). Name frontmatter (added in iter 2) correct. 73 lines / 7 patterns = ~10 lines/pattern — already concise.
 
-**Next**: learnings/consolidate/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #11.
+### Iter 17
+
+**Deep dive: learnings/consolidate/SKILL.md** (648 lines, ~17 major sections). Cross-referenced against curate/SKILL.md (parent methodology), curate/content-mode.md, curate/classification-model.md, ralph/consolidate/resume/SKILL.md, ralph/consolidate/init/SKILL.md, claude-authoring-skills.md, claude-authoring-content-types.md.
+
+**Actions taken (2 MEDIUMs):**
+- Updated stale skill collection size from "~23 skills" to "~31 skills" and raised subagent threshold from 30+ to 40+ (line 313). The interactive consolidation skill had a static count from before the collection grew. The threshold was also bumped since the current 31-skill collection works fine with inline analysis.
+- Added missing `Read(~/.claude/skill-references/**)` to Prerequisites section. Content mode step 2 pre-loads skill-references/ but the permission pattern was absent, causing permission prompts during prompt-free execution.
+
+**All other patterns verified clean.** The orchestration logic (HIGH sweep loop → MEDIUM batch → verification → deep dive → content type progression) is well-structured. State variables are correctly documented. Edge case handling is comprehensive. Templates are appropriately verbose (serve as agent copy targets). Reference file paths all verified. Related Skills table current. `disable-model-invocation: true` correct for this heavy orchestration skill.
+
+**Note**: The curate/SKILL.md Prerequisites section has the same missing `skill-references` pattern — it's the parent file that consolidate delegates to. This is a separate file; the next deep dive that touches curate/ should pick it up.
+
+**Next**: ralph-loop.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #12.
