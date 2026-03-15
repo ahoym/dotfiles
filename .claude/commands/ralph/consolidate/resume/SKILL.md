@@ -1,6 +1,6 @@
 ---
 name: resume
-description: "Review consolidation loop state, handle blockers, and prepare to relaunch."
+description: "Review consolidation loop state, handle review items, and prepare to relaunch."
 disable-model-invocation: true
 allowed-tools:
   - Read
@@ -13,7 +13,7 @@ allowed-tools:
 
 # Resume Consolidation Loop
 
-Review the state of a completed or blocked consolidation loop, handle any open blockers, and print the relaunch command.
+Review the state of a completed or stalled consolidation loop, handle any review items, and print the relaunch command.
 
 ## Instructions
 
@@ -31,7 +31,7 @@ Read from `<worktree>/.claude/consolidate-output/`:
 |------|-----------------|
 | `progress.md` | State variables (SWEEP_COUNT, ROUND, CONTENT_TYPE, ROUND_CLEAN, CLEAN_ROUND_STREAK), iteration log, round summary, notes |
 | `report.md` | Summary table, total actions, status |
-| `blockers.md` | Any items with `Status: OPEN` |
+| `review.md` | Any review items (LOWs, blocked MEDIUMs, loop limits) |
 | `decisions.md` | Last 10 rows (recent actions for context) |
 
 ### 3. Present status
@@ -43,7 +43,7 @@ Read from `<worktree>/.claude/consolidate-output/`:
 - **Round**: N
 - **Content Type**: LEARNINGS / SKILLS / GUIDELINES
 - **Sweep Count**: N
-- **Clean Round Streak**: N/2
+- **Clean Round Streak**: N/1
 - **Status**: IN_PROGRESS / MAX_ITERATIONS_HIT / COMPLETE
 
 ## Summary
@@ -51,12 +51,12 @@ Read from `<worktree>/.claude/consolidate-output/`:
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked |
 |...|
 
-## Open Blockers (N)
+## Review Items (N)
 
-[B-1] Title — options: ...
-[B-2] Title — options: ...
+[L-1] Title — ambiguous classification...
+[BM-1] Title — blocked MEDIUM, options: ...
 
-(If none: "No open blockers — loop can resume as-is.")
+(If none: "No review items — loop can resume as-is.")
 
 ## Recent Decisions (last 5)
 
@@ -64,18 +64,18 @@ Read from `<worktree>/.claude/consolidate-output/`:
 |...|
 ```
 
-### 4. Handle blockers
+### 4. Handle review items
 
-If there are OPEN blockers:
+If there are review items in `review.md`:
 
-1. Present each blocker with its title, context, and options
+1. Present each item with its title, context, tag, and options
 2. Use `AskUserQuestion` to collect the user's decision for each
-3. Update blockers.md: change `Status: OPEN` to `Status: RESOLVED (<chosen option>)`
+3. Update review.md: append `**Status**: RESOLVED (<chosen option>)` to the item
 4. If the resolution requires an action (e.g., "apply option A"), add guidance to progress.md's `Notes for Next Iteration` section so the next loop iteration picks it up
 
-If the user wants to skip a blocker, leave it as OPEN.
+If the user wants to skip an item, leave it without a Status line.
 
-**Recommendation framing**: When presenting options, prefer recommending the option that fixes root cause (wire, restructure, merge) over the option that accepts dysfunction (delete, skip). Deletion is irreversible; wiring is reversible. Only recommend cleanup when the content is stale, incorrect, or has no identifiable consumers. This applies equally to LOWs surfaced from `lows.md`.
+**Recommendation framing**: When presenting options, prefer recommending the option that fixes root cause (wire, restructure, merge) over the option that accepts dysfunction (delete, skip). Deletion is irreversible; wiring is reversible. Only recommend cleanup when the content is stale, incorrect, or has no identifiable consumers.
 
 ### 5. Prepare for relaunch
 
@@ -100,5 +100,5 @@ Ready to resume. Run:
 ## Design Notes
 
 - **Does not auto-launch** — prints the command for the user to run, since `wiggum.sh` invokes `claude --print` (cannot be called from within Claude)
-- **Blocker resolution feeds back through progress.md** — the next loop iteration reads Notes and acts on resolved blockers
+- **Review item resolution feeds back through progress.md** — the next loop iteration reads Notes and acts on resolved items
 - **COMPLETE state** — when the loop finished successfully, resume shifts to review/merge guidance instead of relaunch

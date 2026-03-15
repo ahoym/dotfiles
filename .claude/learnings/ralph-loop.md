@@ -4,6 +4,10 @@
 
 Each iteration is stateless — `claude --print` with no conversation history. Continuity is only through files on disk (`spec.md`, `progress.md`, output files).
 
+## Stateless Iteration as Viewpoint Diversity
+
+Fresh agents per iteration don't just provide fault tolerance — they provide viewpoint diversity. Each agent brings independent judgment to the same state, catching things a single continuous agent would miss (same dynamic as multiple code reviewers). This works because state files are the shared ground truth (facts), while interpretation (judgment) varies per agent. The prerequisite: state must be explicit in files so diversity of interpretation doesn't become diversity of state understanding.
+
 `wiggum.sh` checks for `WOOT_COMPLETE_WOOT` in `progress.md` after every iteration. If present, the loop exits immediately. **To resume**: remove the completion signal, update pending tasks/answers, then re-run the script.
 
 ## Question Tracking in progress.md
@@ -35,17 +39,21 @@ When writing a spec for `claude --print` agents with no conversation history, em
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
 
 - **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
-- **Output files**: 6 files (spec, progress, decisions, blockers, report, lows) instead of 5 core research files
+- **Output files**: 5 files (spec, progress, decisions, report, review) instead of 5 core research files
 - **Security hooks**: Bash restricted to selective git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta (expected 1) after each invocation.
-- **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 2 consecutive clean rounds. Max 5 rounds before forced stop.
-- **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; only true blockers surface for human review via `blockers.md`
+- **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 1 clean round. Max 5 rounds before forced stop.
+- **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; items needing human review surface via `review.md` (LOWs + blocked MEDIUMs)
 - **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by subsequent sweeps via the convergence mechanism.
-- **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/lab/ralph/wiggum.sh`)
-- **Resume**: `/ralph:consolidate:resume` handles blocker resolution and relaunch (vs `/ralph:resume` for research question answering)
+- **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/ralph/research/wiggum.sh`)
+- **Resume**: `/ralph:consolidate:resume` handles review item resolution and relaunch (vs `/ralph:research:resume` for research question answering)
+
+## Research Output Pipeline: staged-learnings
+
+Research output goes to `docs/staged-learnings/<project>/` inside the worktree — not `docs/learnings/`. The naming creates an explicit pipeline: research produces staged learnings that can later be filtered/promoted into `docs/learnings/`. This separates raw research artifacts from curated knowledge.
 
 ## Round-Based vs Type-Blocked Convergence
 
-Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. Also halves the minimum iteration count for clean corpora (6 vs 12 for 3 types × 2 confirmations).
+Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. One clean round is sufficient — a second clean round only confirms stability of zero changes. Deep dives provide defense-in-depth for per-pattern issues that broad sweeps miss.
 
 ## Pre-Flight Cadence Analysis
 
@@ -197,6 +205,10 @@ Before creating a PR, strip working state from the branch while preserving local
 ## Resume Should Check for Uncommitted Deep-Dive Changes
 
 The resume skill should run `git status` before cleanup and check for uncommitted modifications from the deep-dive phase. Deep-dive iterations may leave changes that weren't committed by the autonomous agent (e.g., agent-prompting compression, new learnings sections). These need to be committed before `git rm -r consolidate-output/` to avoid losing work or creating a confusing commit history.
+
+## Retro → Compound → Curate as Search Protocol Feedback Loop
+
+The existing retro → compound → curate pipeline provides search protocol performance feedback without needing a dedicated log file. Session retro reviews which learnings were loaded and whether they influenced the work. Compound captures insights ("this file keeps being noise," "this domain had no match"). Curate reads those insights and restructures files accordingly. The signal is qualitative (prose) rather than quantitative (tallies), but curation doesn't need quantitative precision to act.
 
 ## Unreferenced Learnings Are Not Orphans
 

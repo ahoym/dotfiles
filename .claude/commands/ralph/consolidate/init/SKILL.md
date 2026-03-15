@@ -56,9 +56,8 @@ Read each template from `~/.claude/ralph/consolidate/templates/` and write to th
 | `deep-dive-methodology.md` | `.claude/consolidate-output/deep-dive-methodology.md` |
 | `progress.md` | `.claude/consolidate-output/progress.md` |
 | `decisions.md` | `.claude/consolidate-output/decisions.md` |
-| `blockers.md` | `.claude/consolidate-output/blockers.md` |
 | `report.md` | `.claude/consolidate-output/report.md` |
-| `lows.md` | `.claude/consolidate-output/lows.md` |
+| `review.md` | `.claude/consolidate-output/review.md` |
 
 Copy each template as-is first. Pre-flight data is populated next.
 
