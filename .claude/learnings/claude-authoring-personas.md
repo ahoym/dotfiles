@@ -82,6 +82,12 @@ When a persona carries both domain knowledge (taxonomy, placement rules, gotchas
 
 **Structure:** `expert` (knowledge base) → `reviewer` extends `[domain-reviewer, expert]` (evaluative lens) + `author` extends `[expert]` (generative lens).
 
+## Implementation-Start Persona Matching: Descriptions Over Filenames
+
+The implementation-start gate matches persona filenames against the task domain, but filenames encode *activity* ("reviewer") not *domain* ("skills, guidelines, learnings"). Reading the first ~5 lines of each persona file (name + description) provides a much better matching surface. Example: `claude-config-reviewer` filename suggests "reviewing" but its description says "skills, guidelines, learnings, personas, CLAUDE.md files, memory, and settings" — which matches any config-authoring task.
+
+**Proposed improvement (pending more data):** During the implementation-start persona check, read persona descriptions (not just filenames) and match against the task's *domain*, not its *activity mode*.
+
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
 When two peer personas share duplicated content (e.g., both have React/Next.js gotchas), **extract to a shared learning file and reference from both** rather than choosing which persona "owns" the content. Ownership-based resolution ("the more specialized persona owns the gotcha") breaks down when neither persona is clearly more specialized for the shared domain — react-frontend is more specialized for React, xrpl-typescript-fullstack is more specialized for XRPL, but both legitimately need the React patterns.
