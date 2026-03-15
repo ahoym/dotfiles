@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md |
+| DEEP_DIVE_CANDIDATES | ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 15
 | 10 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | bash-patterns.md: 180→~162 lines, migrate 2 permission gotchas to claude-code.md, add See also cross-refs |
 | 11 | — | DEEP_DIVE | 0 | 3 | 0 | 3 | claude-authoring-guidelines.md: 57→~48 lines, migrate "Uniform Convention" to curation-insights, compress tier separation, add See also |
 | 12 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | financial-applications.md: 63→64 lines, add See also cross-refs to resilience-patterns.md (bidirectional) |
+| 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | aws-messaging.md: clean, 12 patterns all standalone reference, existing See also valid |
 
 ## Deep Dive Status
 
@@ -88,6 +89,7 @@ Suggested iterations: 15
 | bash-patterns.md | done | 10 | 3 MEDIUMs applied: migrate inline-subshell + chaining gotchas to claude-code.md, See also cross-refs. 1 LOW (jq vs python3 placement). |
 | claude-authoring-guidelines.md | done | 11 | 3 MEDIUMs applied: migrate "Uniform Convention" to curation-insights.md, compress tier separation (−9 lines), See also cross-refs. |
 | financial-applications.md | done | 12 | 2 MEDIUMs applied: See also cross-ref to resilience-patterns.md + reverse cross-ref. 10 patterns all standalone reference, concise (63 lines). |
+| aws-messaging.md | done | 13 | Clean — 12 patterns, all standalone reference, concise (86 lines). Existing See also to resilience-patterns.md valid. |
 
 ## Notes for Next Iteration
 
@@ -240,3 +242,11 @@ Suggested iterations: 15
 **Tracker**: financial-applications.md → last_deep_dive_run=8. resilience-patterns.md added with last_deep_dive_run=0 (received new See also section).
 
 **Next**: aws-messaging.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #7.
+
+### Iter 13
+
+**Deep dive: aws-messaging.md** (86 lines, 12 patterns). Cross-referenced against aws-patterns.md (EventBridge overlap — keyword discoverable), spring-boot.md (Spring Cloud AWS — keyword discoverable), java-observability.md (metrics — keyword discoverable), resilience-patterns.md (existing cross-ref).
+
+**No actions taken.** All 12 patterns classified standalone reference / HIGH / keep. File is concise (~7 lines/pattern), well-organized. Existing See also to resilience-patterns.md verified valid. No new non-obvious cross-refs needed — adjacent files (aws-patterns, spring-boot, java-observability) are all keyword-discoverable.
+
+**Next**: ralph/consolidate/init/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #8.
