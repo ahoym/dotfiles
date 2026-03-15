@@ -3,8 +3,8 @@
 ## Hard Gates (non-negotiable — do not skip under any circumstances)
 
 1. **Session start**: Before your FIRST tool call, glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for `*.md`. Match filenames against ambient context + user message. Announce results (including no-matches).
-2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). This is the most valuable checkpoint — plans lock in decisions that are expensive to reverse.
-3. **Implementation start**: Before executing an approved plan, check if the active persona (if any) is appropriate for implementation — the implementor may need a different lens than the planner. If no persona is active or the current one doesn't match the implementation domain, recommend one by matching `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task's technology stack. Announce the check.
+2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). Plans lock in decisions that are expensive to reverse. Set a persona if none is active — plan mode entry means the task warrants it.
+3. **Implementation start**: Before executing an approved plan, verify the active persona fits the implementation domain (planner and implementor may need different lenses). Set or switch if needed. Match `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task's technology stack.
 
 These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, or the task feels urgent. No exceptions.
 
