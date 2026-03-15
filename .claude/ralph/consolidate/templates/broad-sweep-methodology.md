@@ -95,7 +95,7 @@ All MEDIUMs are judged autonomously. The worktree diff + decisions.md provide fu
 | Conflicting classifications | Multiple valid buckets with no clear winner |
 | Skill pruning | User may still rely on the skill |
 
-**Always log rationale in decisions.md** — especially for auto-applied MEDIUMs where the reasoning must be auditable.
+Blocked MEDIUMs go to `review.md` with `[BLOCKED-MED]` tag and options. **Always log rationale in decisions.md** — especially for auto-applied MEDIUMs where the reasoning must be auditable.
 
 ## Persona Handling
 

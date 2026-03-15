@@ -62,9 +62,8 @@ All in `.claude/consolidate-output/`:
 |------|---------|
 | `progress.md` | State tracking — read first, update last |
 | `decisions.md` | Decision log — append every action |
-| `blockers.md` | Items needing human review |
 | `report.md` | Cumulative summary |
-| `lows.md` | Low-confidence items for manual review |
+| `review.md` | Items needing human review (LOWs + blocked MEDIUMs) |
 
 ### Infrastructure
 
@@ -139,11 +138,11 @@ Execute all HIGH-confidence actions:
 
 For each MEDIUM, apply the judgment criteria (see MEDIUM Judgment section):
 - **Auto-apply**: Execute the action. Log to decisions.md with `applied` and detailed rationale. Track touched files in deep-dive tracker (same as step 5).
-- **Block**: Do NOT execute. Log to decisions.md with `blocked`. Add to blockers.md with options.
+- **Block**: Do NOT execute. Log to decisions.md with `blocked`. Add to review.md with `[BM-N]` tag and options (matching review.md template format).
 
 ### 7. Record LOWs
 
-Append to lows.md following its format: iter, content type, file, pattern, possible classifications, why LOW.
+Append to review.md following its format: iter, content type, file, pattern, possible classifications, why LOW.
 
 ### 8. Compound Insights
 
@@ -192,7 +191,7 @@ Follow the `/learnings:compound` skill's methodology inline — no Skill tool in
    - `git add` the new/modified file (committed with everything else in step 10).
    - Log to decisions.md: `| <iter> | <type> | compound | <insight summary> | <target file> | <utility> | applied | <rationale> |`
 
-5. **Low-utility insights** go to `lows.md` — consistent with existing LOW handling. Do not persist these to the learnings system.
+5. **Low-utility insights** go to `review.md` — consistent with existing LOW handling. Do not persist these to the learnings system.
 
 #### Constraints
 
@@ -208,8 +207,7 @@ Before exiting, update:
   - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below).
   - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 5 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
-- **blockers.md**: Only if new blockers added.
-- **lows.md**: Only if new LOWs found.
+- **review.md**: Only if new LOWs or blocked MEDIUMs found.
 
 ### 10. Stage and Commit
 
@@ -228,7 +226,7 @@ One git command per Bash call. Verify with `git status` before committing if unc
 **Max rounds guard**: If `ROUND > 5` and not converged, stop the loop:
 1. Write `MAX_ROUNDS_HIT` as the first line of progress.md
 2. Update report.md status to `MAX_ROUNDS_HIT`
-3. Add a blocker to blockers.md: "Loop hit 5 rounds without converging — remaining findings may need human review"
+3. Add to review.md with `[MAX-ROUNDS]` tag: "Loop hit 5 rounds without converging — remaining findings may need human review"
 4. Do NOT continue sweeping — exit and let the resume skill surface the state
 
 **Round structure**: Each round sweeps all three content types in order: LEARNINGS → SKILLS → GUIDELINES. One sweep per invocation, one type per sweep.
@@ -250,9 +248,9 @@ One git command per Bash call. Verify with `git status` before committing if unc
 5. Increment `ROUND`
 6. Set `CONTENT_TYPE` back to LEARNINGS
 
-**Convergence**: `CLEAN_ROUND_STREAK >= 2` → two consecutive fully-clean rounds → broad sweeps converged.
+**Convergence**: `CLEAN_ROUND_STREAK >= 1` → one fully-clean round → broad sweeps converged.
 
-This means every type's "confirmation" sweep happens after all other types have been swept in the intervening round, catching cross-type regressions naturally.
+One clean round is sufficient because each type's sweep runs after all other types' most recent changes, catching cross-type regressions naturally. Deep dives provide defense-in-depth for per-pattern issues.
 
 **After broad sweep convergence** (check deep dive candidacy):
 1. Review the most recent LEARNINGS broad sweep's per-file quality scan for Polish Opportunity files and cross-reference hub files (see Deep Dive Phase below)
@@ -268,7 +266,7 @@ This means every type's "confirmation" sweep happens after all other types have 
 
 ## Deep Dive Phase
 
-Deep dives run **after broad sweeps converge** (`CLEAN_ROUND_STREAK >= 2`). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
+Deep dives run **after broad sweeps converge** (`CLEAN_ROUND_STREAK >= 1`). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
 
 ### Candidacy
 
