@@ -51,6 +51,5 @@ Saves ~70% of lines in format-heavy guideline sections. The agent parses inline 
 
 ## See also
 
-- `~/.claude/learnings/claude-authoring-content-types.md` — hub routing table, tier taxonomy, guideline scoping and evaluation criteria
-- `~/.claude/learnings/claude-authoring-skills.md` — sibling authoring guide for skills (cross-refs back here)
+- `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
 - `~/.claude/commands/learnings/curate/curation-insights.md` — operational calibration including "uniform convention" pattern (migrated from here)

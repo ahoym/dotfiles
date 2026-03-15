@@ -488,7 +488,6 @@ When fixing a bug in a platform-specific reference file (e.g., `github/comment-i
 ## See also
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
-- `~/.claude/learnings/claude-authoring-guidelines.md` — guideline authoring patterns (merging, enforcement gates, scoping)
 - `~/.claude/learnings/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)
 - `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
 - `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity
