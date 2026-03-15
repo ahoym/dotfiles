@@ -47,12 +47,16 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: Can't definitively verify from learnings alone whether any consuming project still references the old names.
 - **Curate command**: `/learnings:curate learnings/cross-repo-sync.md`
 
-## [L-2] Duplicate "structured footnotes" pattern across files (LOW)
+## [L-2] ~~Duplicate "structured footnotes" pattern across files~~ RESOLVED (Iter 8)
 
-- **Iter**: 1
-- **Content Type**: LEARNINGS
-- **File**: `.claude/learnings/process-conventions.md` (lines 130-138) AND `.claude/learnings/claude-authoring-skills.md` (lines 411-426)
-- **Pattern**: Both describe the `Persona + Role` structured footnote pattern for multi-agent comment identity.
-- **Possible classifications**: (a) process-conventions version is about *when* to use footnotes (process), skills version is about *how to implement* them (skill design) — keep both as different angles. (b) Merge into one location with a cross-reference from the other. (c) Extract to a shared reference since it serves both review process and skill implementation.
-- **Why LOW**: The content is genuinely useful in both locations for different audiences (process thinkers vs skill builders). Removing either risks losing discoverability for that audience.
-- **Curate command**: `/learnings:curate learnings/process-conventions.md learnings/claude-authoring-skills.md`
+Resolved by deep dive: skills version compressed to pointer referencing process-conventions.md, keeping the unique composite-key filtering instruction. Template lives in process-conventions (single source of truth), skill instruction points there.
+
+## [L-3] "Worktree Branches Block `gh pr checkout`" placement (LOW)
+
+- **Iter**: 8
+- **Content Type**: DEEP_DIVE (claude-authoring-skills.md)
+- **File**: `.claude/learnings/claude-authoring-skills.md`
+- **Pattern**: "Worktree Branches Block `gh pr checkout`" — describes `gh pr checkout` failing when branch is in a worktree.
+- **Possible classifications**: (a) Keep in skills — it's about how skills should detect and handle worktrees. (b) Migrate to `claude-code.md` — it's a platform/CLI gotcha. (c) Duplicate in both as a cross-ref.
+- **Why LOW**: Straddles skill design instruction (how to handle it) and platform gotcha (why it happens). Both framings are valid.
+- **Curate command**: `/learnings:curate learnings/claude-authoring-skills.md`

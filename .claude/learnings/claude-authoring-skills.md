@@ -409,16 +409,7 @@ When a skill has mutually exclusive execution paths (e.g., "content mode" vs "sk
 
 ## Structured Footnote for External Platform Posts
 
-Skills that post to external platforms (GitHub, GitLab) should use a structured footnote on every piece of posted content:
-
-```
----
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* <name or "none">
-*Role:* <Reviewer | Addresser | ...>
-```
-
-The `Persona + Role` composite key enables filtering comment chains — the same persona may act as both Reviewer and Addresser on the same PR, and those are separate chains. Skills filter their own previous comments by matching both fields, not by username (which catches all comments regardless of role).
+Skills that post to external platforms should include the structured footer from `process-conventions.md` § "Structured footnotes for multi-agent comment identity." The `Persona + Role` composite key enables filtering comment chains — the same persona may act as both Reviewer and Addresser on the same PR. Skills filter their own previous comments by matching both fields, not by username (which catches all comments regardless of role).
 
 ## Re-Review Detection via Footnote Pattern Matching
 
@@ -481,13 +472,6 @@ Git skills that operate on a PR/MR should treat a numeric positional arg as a PR
 
 Skills that write temp files to a staging directory (e.g., `change-request-replies/`) should persist the directory with a `.gitkeep` and gitignore the contents (`*.md`, `*.json`). This avoids `mkdir -p` permission prompts on every invocation. Remove `mkdir -p` from skill templates once the directory is tracked.
 
-## Mutual Agreement Auto-Implementation
-
-When an addresser agent agrees with a reviewer agent's suggestion, auto-implement without waiting for human approval. Escalate to the human partner only when the addresser disagrees or is uncertain. The human reviews the PR diff and calibrates — they don't need to approve every change both agents converge on. Use the structured footnote (`Role:.*Reviewer`) to distinguish agent comments from human comments; comments without a Role tag are human.
-
-## Agent-to-Agent Review Cycle
-
-Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
 
 ## Worktree Branches Block `gh pr checkout`
 
@@ -500,3 +484,11 @@ Repeated invocations via `/loop` surface edge cases that single runs hide: self-
 ## Sweep Both Platforms When Fixing Reference Files
 
 When fixing a bug in a platform-specific reference file (e.g., `github/comment-interaction.md`), always check and fix the equivalent file for the other platform (`gitlab/comment-interaction.md`). Same applies to `pr-management.md` and any other paired files. The fix is often mechanical (same pattern, different CLI syntax), but skipping it guarantees drift.
+
+## See also
+
+- `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
+- `~/.claude/learnings/claude-authoring-guidelines.md` — guideline authoring patterns (merging, enforcement gates, scoping)
+- `~/.claude/learnings/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)
+- `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
+- `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity

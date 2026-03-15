@@ -291,6 +291,15 @@ Test assumptions with a controlled experiment before writing them as facts acros
 
 When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).
 
+## Mutual Agreement Auto-Implementation
+
+When an addresser agent agrees with a reviewer agent's suggestion, auto-implement without waiting for human approval. Escalate to the human partner only when the addresser disagrees or is uncertain. The human reviews the PR diff and calibrates — they don't need to approve every change both agents converge on. Use the structured footnote (`Role:.*Reviewer`) to distinguish agent comments from human comments; comments without a Role tag are human.
+
+## Agent-to-Agent Review Cycle
+
+Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
+
 ## See also
 
 - `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas (platform mechanics underlying the agent patterns here)
+- `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

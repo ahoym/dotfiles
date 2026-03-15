@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 7 |
+| Iterations | 8 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -29,14 +29,19 @@
 | 1 | 1 | LEARNINGS | reference wiring (See also) | aws-messaging.md | aws-messaging.md | MEDIUM |
 | 2 | 1 | SKILLS | add missing name frontmatter | extract-request-learnings + split-commit | same | HIGH |
 | 2 | 1 | SKILLS | update stale skill names in example | consolidate/SKILL.md | same | MEDIUM |
+| 8 | — | DEEP_DIVE | compress footnote duplication (pointer) | claude-authoring-skills.md | process-conventions.md | MEDIUM |
+| 8 | — | DEEP_DIVE | migrate Mutual Agreement Auto-Implementation | claude-authoring-skills.md | multi-agent-patterns.md | MEDIUM |
+| 8 | — | DEEP_DIVE | migrate Agent-to-Agent Review Cycle | claude-authoring-skills.md | multi-agent-patterns.md | MEDIUM |
+| 8 | — | DEEP_DIVE | add See also cross-refs | claude-authoring-skills.md | — | MEDIUM |
+| 8 | — | DEEP_DIVE | add reverse cross-ref | multi-agent-patterns.md | — | MEDIUM |
 
 ## Blocked Items
 
 See `review.md` for details.
 
-- Total: 2
+- Total: 3
 - Open: 2
-- Resolved: 0
+- Resolved: 1
 
 ## Collection Health
 
