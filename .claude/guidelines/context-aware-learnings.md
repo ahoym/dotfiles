@@ -4,7 +4,7 @@
 
 1. **Session start**: Before your FIRST tool call, glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for `*.md`. Match filenames against ambient context + user message. Announce results (including no-matches).
 2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). Plans lock in decisions that are expensive to reverse. Set a persona if none is active — plan mode entry means the task warrants it.
-3. **Implementation start**: Before executing an approved plan, verify the active persona fits the implementation domain (planner and implementor may need different lenses). Set or switch if needed. Match `~/.claude/commands/set-persona/` and `.claude/personas/` filenames against the task's technology stack.
+3. **Implementation start**: Before executing an approved plan, glob `~/.claude/commands/set-persona/` and `.claude/personas/` against the task's technology stack. Match → activate. No match → announce and proceed. Never skip based on perceived task simplicity.
 
 These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, or the task feels urgent. No exceptions.
 
