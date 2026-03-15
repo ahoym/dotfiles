@@ -60,3 +60,13 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Keep in skills — it's about how skills should detect and handle worktrees. (b) Migrate to `claude-code.md` — it's a platform/CLI gotcha. (c) Duplicate in both as a cross-ref.
 - **Why LOW**: Straddles skill design instruction (how to handle it) and platform gotcha (why it happens). Both framings are valid.
 - **Curate command**: `/learnings:curate learnings/claude-authoring-skills.md`
+
+## [L-4] Redundant takeaways in process-conventions.md (LOW)
+
+- **Iter**: 9
+- **Content Type**: DEEP_DIVE (process-conventions.md)
+- **File**: `.claude/learnings/process-conventions.md`
+- **Pattern**: Multiple takeaway lines rephrase their heading without adding insight (e.g., "Exploration PRs produce value through analysis" restates "Plan-first PRs as exploration pattern").
+- **Possible classifications**: (a) Compress — remove redundant takeaways, save ~10-15 lines. (b) Keep — takeaways serve as scanning anchors even if repetitive.
+- **Why LOW**: Per-pattern savings are small (2-3 lines each). File is ~170 lines — not a compression priority. Judgment call on whether takeaways aid scanning.
+- **Curate command**: `/learnings:curate learnings/process-conventions.md`

@@ -4,7 +4,7 @@ Patterns for how engineering work is organized, scoped, and tracked.
 
 ### Defer large cross-cutting refactors to tracked issues
 
-When code review surfaces a systemic improvement (e.g., float-to-Decimal conversion), file an issue rather than scope-creeping the current PR. The PR stays focused; the improvement gets tracked.
+When code review surfaces a systemic improvement (e.g., float-to-Decimal conversion), file an issue rather than scope-creeping the current PR. The PR stays focused; the improvement gets tracked. Even for straightforward rename/reorganization tasks, creating an issue first establishes traceability and makes the "why" discoverable later (`Fixes #N` for clean linking).
 
 - **Takeaway**: Systemic improvements surfaced during review = new issue, not PR scope expansion.
 
@@ -22,7 +22,7 @@ Rather than silently abandoning a PR, explicitly note that unique content will b
 
 ### Scope MRs tightly — one concern per merge request
 
-Breaking changes bundled with new features make review, rollback, and changelog tracking harder. Ship separately. Large exploratory MRs (47+ files) get closed. Cross-cutting refactors with zero pre-alignment face high closure risk. Small, focused MRs (4 files, single purpose) get same-day turnaround.
+Breaking changes bundled with new features make review, rollback, and changelog tracking harder. Ship separately. Large exploratory MRs (47+ files) get closed. Cross-cutting refactors with zero pre-alignment face high closure risk. Small, focused MRs (4 files, single purpose) get same-day turnaround. Tangential changes (e.g., CLAUDE.md update in a feature PR) get their own PR, even if small.
 
 ### Ship integration client separately from orchestration wiring
 
@@ -62,10 +62,6 @@ Superficial LGTMs with inaccurate summaries are worse than no summary. Verify yo
 
 First ask "does this need to be here?" with a concrete test. Get analysis back, then decide whether to request extraction. Avoids premature refactoring requests.
 
-### Remove cross-cutting concerns to separate PRs
-
-Tangential changes (e.g., CLAUDE.md update in a feature PR) get their own PR, even if small.
-
 ### Automated reviewers can create false sense of coverage
 
 AI catches mechanical issues (null checks, config formatting, constraint/message mismatches). Humans catch architectural and security concerns. Both are complementary. Monitor whether automated tools supplement or replace human review.
@@ -101,12 +97,6 @@ When addressing PR review feedback, reply to each comment with the commit hash t
 Treat review feedback as a source of reusable guidelines rather than one-off corrections. After a review cycle, capture patterns into the project's guideline files (e.g., `.claude/guidelines/`) while context is fresh. Ship via lightweight docs-only PRs with zero-discussion, same-day merge.
 
 - **Takeaway**: Review sessions produce guidelines — capture them immediately while context is fresh.
-
-### Track organizational debt via issues before fixing
-
-Even for straightforward rename/reorganization tasks, creating an issue first establishes traceability and makes the "why" discoverable later. The PR references "Fixes #N" for clean linking.
-
-- **Takeaway**: File an issue before executing organizational changes — the "why" matters more than the "what."
 
 ### PR splitting strategy for large PRs
 
@@ -176,3 +166,8 @@ When a skill interacts with a review platform (GitHub/GitLab), post suggestion s
 ### Fix the source, not just the behavior
 
 When a correction traces back to a template or reference file, fix the file — not just your current behavior. Otherwise the next session reads the same bad template and repeats the mistake. If you're corrected on a command format and the command came from a template, update the template immediately.
+
+## See also
+
+- `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
+- `~/.claude/learnings/code-quality-instincts.md` — code-level quality patterns (complementary: code vs process)

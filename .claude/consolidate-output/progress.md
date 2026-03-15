@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md |
+| DEEP_DIVE_CANDIDATES | bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, no changes since R1. R2 fully clean → convergence → DEEP_DIVE |
 | 7 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md: clean, 11 patterns all standalone reference |
 | 8 | — | DEEP_DIVE | 0 | 5 | 1 | 5 | claude-authoring-skills.md: 503→~490 lines, dedup footnote, migrate 2 patterns to multi-agent, add cross-refs |
+| 9 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | process-conventions.md: 179→~170 lines, merge 2 near-dup sections, add See also cross-refs |
 
 ## Deep Dive Status
 
@@ -80,6 +81,7 @@ Suggested iterations: 15
 |------|--------|------|---------|
 | claude-authoring-content-types.md | done | 7 | Clean — 11 patterns, all standalone reference, hub-spoke boundary clean |
 | claude-authoring-skills.md | done | 8 | 5 MEDIUMs applied: footnote dedup, 2 migrations to multi-agent-patterns, See also + reverse cross-ref. 1 LOW (worktree branches placement). |
+| process-conventions.md | done | 9 | 3 MEDIUMs applied: 2 intra-file merges (near-duplicate sections), See also cross-refs. 1 LOW (redundant takeaways). |
 
 ## Notes for Next Iteration
 
@@ -175,3 +177,18 @@ Suggested iterations: 15
 **Remaining patterns (~62) are standalone reference / keep.** File is still the largest at ~490 lines but patterns are predominantly unique skill design knowledge with no further dedup or migration targets. The file would benefit from subsection-level compression in a future pass but nothing rises to MEDIUM confidence for autonomous action.
 
 **Next**: process-conventions.md (next in DEEP_DIVE_CANDIDATES).
+
+### Iter 9
+
+**Deep dive: process-conventions.md** (179→~170 lines, ~30 patterns). Cross-referenced against code-quality-instincts.md, git-patterns.md, multi-agent-patterns.md, claude-authoring-content-types.md, and 4 skill reference files (request-reply-templates, request-lgtm-verification, re-review-mode, address-request-edge-cases).
+
+**Actions taken (3 MEDIUMs):**
+- Merged "Remove cross-cutting concerns to separate PRs" into "Scope MRs tightly" — same principle, specific instance folded into parent.
+- Merged "Track organizational debt via issues before fixing" into "Defer large cross-cutting refactors" — both say "file an issue first," folded traceability insight.
+- Added `## See also` with 2 cross-refs: multi-agent-patterns.md (references structured footnote from here) and code-quality-instincts.md (complementary code vs process quality).
+
+**1 LOW recorded** — redundant takeaway lines rephrase their headings without adding insight. Small per-pattern savings, file not a compression priority. [L-4].
+
+**Remaining ~28 patterns are standalone reference / keep.** Many patterns relate to review skills (address-request-comments, code-review-request) but don't duplicate — learnings teach principles, skill references provide implementation templates.
+
+**Next**: bash-patterns.md (next in DEEP_DIVE_CANDIDATES).

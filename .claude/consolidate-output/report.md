@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 8 |
+| Iterations | 9 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -34,13 +34,15 @@
 | 8 | — | DEEP_DIVE | migrate Agent-to-Agent Review Cycle | claude-authoring-skills.md | multi-agent-patterns.md | MEDIUM |
 | 8 | — | DEEP_DIVE | add See also cross-refs | claude-authoring-skills.md | — | MEDIUM |
 | 8 | — | DEEP_DIVE | add reverse cross-ref | multi-agent-patterns.md | — | MEDIUM |
+| 9 | — | DEEP_DIVE | merge intra-file near-duplicates (2 sections) | process-conventions.md | process-conventions.md | MEDIUM |
+| 9 | — | DEEP_DIVE | add See also cross-refs | process-conventions.md | — | MEDIUM |
 
 ## Blocked Items
 
 See `review.md` for details.
 
-- Total: 3
-- Open: 2
+- Total: 4
+- Open: 3
 - Resolved: 1
 
 ## Collection Health
