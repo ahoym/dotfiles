@@ -423,6 +423,14 @@ Skills designed for `/loop` polling must hit the API on every invocation — nev
 
 Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
 
+## Quick-Exit Must Filter Self-Comments
+
+When a polling skill's quick-exit check fetches the latest inline comment to detect new activity, fetching only the single latest (`per_page=1`) misses operator comments sandwiched between agent responses. If the agent posted the most recent reply, the operator's comment (which has no Role footnote) is invisible to the check. Fix: fetch the last N comments (`per_page=5`) and filter out self-comments (`Role:.*<YOUR_ROLE>` in body) before comparing timestamps. The non-self filter also solves the stale-timestamp problem — after a re-review posts reactions/replies, the agent's own replies become the latest, causing every subsequent poll to false-trigger. Filtering self avoids this without needing to advance the comparison timestamp.
+
+## Empty-Body Reviews Are Not Reliable Activity Signals
+
+GitHub creates empty-body review entries as wrappers when inline comment replies are posted. Treating these as activity signals in phase 1 of a quick-exit check causes false triggers on every poll cycle after a re-review — the agent's own replies generate empty-body reviews that never age past `LAST_REVIEW_TS`. Instead, rely on phase 2 (inline comment fetch with self-filter) to catch the actual inline activity that these wrappers represent. Only non-empty-body reviews from non-self sources should count as phase 1 signals.
+
 ## Reference Platform Command Sections by Name, Don't Inline
 
 Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).
