@@ -11,13 +11,10 @@ description: "GitLab commands for creating/updating MRs, posting reviews, and br
 Write the MR body to `change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
 
 ```bash
-mkdir -p change-request-replies
 # Write body via Write tool to change-request-replies/request-body-<BRANCH_NAME>.md, then:
 glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Or update existing:
 glab mr update <number> --description "$(cat change-request-replies/request-body-<BRANCH_NAME>.md)"
-# Clean up:
-rm change-request-replies/request-body-<BRANCH_NAME>.md && rmdir change-request-replies 2>/dev/null
 ```
 
 ## Post Review with Inline Comments
@@ -27,7 +24,6 @@ GitLab has no single "review" API like GitHub. Post inline comments as individua
 **Step 1: Post each inline comment as a new discussion:**
 
 ```bash
-mkdir -p change-request-replies
 # For each inline comment, write body to change-request-replies/review-<note_index>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions -X POST \
   -f "body=$(cat change-request-replies/review-<note_index>.md)" \

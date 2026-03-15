@@ -52,11 +52,12 @@ glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | sele
 
 Write the message body to `change-request-replies/<note_id>.md` first (avoids permission prompts from inline HEREDOC content), then pass via `-F body=@`:
 
+**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+
 ```bash
-mkdir -p change-request-replies
 # Write body to change-request-replies/<note_id>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@change-request-replies/<note_id>.md
+  -X POST -F body=@/absolute/path/to/change-request-replies/<note_id>.md
 ```
 
 ## React to Comment
@@ -73,9 +74,8 @@ glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POS
 Write the message body to `change-request-replies/<mr_number>-top.md` first, then pass via file reference:
 
 ```bash
-mkdir -p change-request-replies
 # Write body to change-request-replies/<mr_number>-top.md, then:
-glab mr comment <number> --message "$(cat change-request-replies/<mr_number>-top.md)"
+glab mr comment <number> --message "$(cat /absolute/path/to/change-request-replies/<mr_number>-top.md)"
 ```
 
 **Note:** `glab mr comment` has no `--body-file` or `--message-file` equivalent. The `$(cat ...)` subshell pattern is the best available workaround but may trigger permission prompts for complex message bodies with special characters.

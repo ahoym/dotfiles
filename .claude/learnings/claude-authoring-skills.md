@@ -492,3 +492,11 @@ Reviewer → addresser → human is a viable review architecture. The addresser 
 ## Worktree Branches Block `gh pr checkout`
 
 `gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands.
+
+## Polling as Skill Stress-Test
+
+Repeated invocations via `/loop` surface edge cases that single runs hide: self-reply filter mismatches, CWD drift from mid-session directory changes, missing terminal-state exits. When a skill is designed for polling, run it through a few cycles before considering it stable — the first invocation tests the happy path, subsequent invocations test state management.
+
+## Sweep Both Platforms When Fixing Reference Files
+
+When fixing a bug in a platform-specific reference file (e.g., `github/comment-interaction.md`), always check and fix the equivalent file for the other platform (`gitlab/comment-interaction.md`). Same applies to `pr-management.md` and any other paired files. The fix is often mechanical (same pattern, different CLI syntax), but skipping it guarantees drift.
