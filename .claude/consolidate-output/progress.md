@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md |
+| DEEP_DIVE_CANDIDATES | learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md |
 
 ## Pre-Flight
 
@@ -77,6 +77,7 @@ Suggested iterations: 15
 | 13 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | aws-messaging.md: clean, 12 patterns all standalone reference, existing See also valid |
 | 14 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ralph/consolidate/init/SKILL.md: clean, 7 patterns, well-structured skill definition, template paths verified |
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | extract-request-learnings/SKILL.md: clean, ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns |
+| 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | git/split-commit/SKILL.md: clean, 7 patterns, no duplication with git-patterns.md split-branch technique |
 
 ## Deep Dive Status
 
@@ -94,6 +95,7 @@ Suggested iterations: 15
 | aws-messaging.md | done | 13 | Clean — 12 patterns, all standalone reference, concise (86 lines). Existing See also to resilience-patterns.md valid. |
 | ralph/consolidate/init/SKILL.md | done | 14 | Clean — 7 patterns (derive names, collision check, create worktree, scaffold, pre-flight, confirm, example). Template paths verified, correct `**` glob. |
 | extract-request-learnings/SKILL.md | done | 15 | Clean — ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns. Sibling templates well-structured. All referenced files verified. |
+| git/split-commit/SKILL.md | done | 16 | Clean — 7 patterns (usage + 6 steps + notes). No duplication with git-patterns.md "Split Mixed-Concern Branch" (different granularity). Co-Authored-By format consistent. `--force-with-lease` correct. |
 
 ## Notes for Next Iteration
 
@@ -270,3 +272,11 @@ Suggested iterations: 15
 **No actions taken.** All patterns are standalone skill instructions specific to the extraction workflow. The extractor-writer architecture correctly implements the generalized pattern in multi-agent-patterns.md — no duplication (concrete wiring vs abstract insight). Staging directory pattern likewise. Sibling templates are well-structured with clear placeholders and orchestrator instructions. All referenced files verified to exist. Name frontmatter (added in iter 2) is correct. 138 lines / ~11 patterns = ~12 lines/pattern — already concise, no compression candidates.
 
 **Next**: git/split-commit/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #10.
+
+### Iter 16
+
+**Deep dive: git/split-commit/SKILL.md** (73 lines, 7 patterns). Cross-referenced against git-patterns.md (§ "Split Mixed-Concern Branch via Soft Reset" — related but distinct technique), claude-authoring-skills.md (destructive operation confirmation patterns), and other git namespace skills (Co-Authored-By format consistency).
+
+**No actions taken.** All 7 patterns are standalone skill instructions specific to the commit-splitting workflow. No duplication with git-patterns.md — different granularity (commit vs branch) and technique (hard reset + /tmp save vs soft reset + selective unstage). Co-Authored-By format (`Claude Opus 4.6`) consistent with address-request-comments and repoint-branch skills. `--force-with-lease` correctly used (safer than `--force`). Name frontmatter (added in iter 2) correct. 73 lines / 7 patterns = ~10 lines/pattern — already concise.
+
+**Next**: learnings/consolidate/SKILL.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #11.
