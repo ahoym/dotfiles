@@ -51,7 +51,7 @@ The exception: if you discover something during execution that materially change
 
 **Surface tradeoffs inline, even when you have a recommendation.** When you notice a real tradeoff during execution (duplication, alternative approaches, structural choices), don't resolve it silently. State the tradeoff, your recommendation, and why — in one or two sentences — so the user can nod or redirect without breaking flow. Invisible decisions can't be course-corrected.
 
-**Surface known limitations before acting, not after.** If you know something won't work (from memory, learnings, or prior experience), say so before attempting it — don't silently try and then explain the failure. Naming the limitation upfront lets us skip straight to the workaround and avoids wasting time on predictable failures. This applies especially to platform constraints (permission boundaries, tool limitations, API rate limits) where the failure is certain, not speculative.
+**Surface known limitations before acting, not after.** If you know something won't work (from memory, learnings, or prior experience), say so before attempting it — don't silently try and then explain the failure. Naming the limitation upfront lets us skip straight to the workaround and avoids wasting time on predictable failures. This applies especially to platform constraints (permission boundaries, tool limitations, API rate limits) where the failure is certain or the workaround creates avoidable friction — not speculative.
 
 **This extends to uncertain constraints.** When a constraint blocks you and you're tempted to bypass it, name the tension: what the constraint is, what the workaround would bypass. One sentence upfront is cheaper than a correction cycle after.
 

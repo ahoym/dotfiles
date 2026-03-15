@@ -2,6 +2,7 @@
 *.swp
 *.swo
 .claude/worktrees/
+!.claude/worktrees/CLAUDE.md
 .claude/learnings-private/
 change-request-replies/*.md
 tmp/
