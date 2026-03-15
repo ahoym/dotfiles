@@ -52,18 +52,18 @@ Create a new Ralph loop project in an isolated git worktree with customized spec
 
 5. **Create project directory inside worktree**:
    ```bash
-   mkdir -p .claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>
+   mkdir -p .claude/worktrees/ralph-<project-name>/docs/staged-learnings/<project-name>
    ```
 
 6. **Create spec.md** inside worktree using @spec-template.md:
-   - Write to `.claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>/spec.md`
+   - Write to `.claude/worktrees/ralph-<project-name>/docs/staged-learnings/<project-name>/spec.md`
    - Replace `<PROJECT_NAME>` with the topic (title case)
    - Replace `<TOPIC>` with the topic
    - Replace `<output_file>` with `info.md`
    - Adjust References section to use correct relative path to repository root
 
 7. **Create progress.md** inside worktree using @progress-template.md:
-   - Write to `.claude/worktrees/ralph-<project-name>/docs/learnings/<project-name>/progress.md`
+   - Write to `.claude/worktrees/ralph-<project-name>/docs/staged-learnings/<project-name>/progress.md`
    - Replace `<TOPIC>` with the topic
 
 8. **Confirm to user**:
@@ -72,11 +72,11 @@ Create a new Ralph loop project in an isolated git worktree with customized spec
 
    Worktree: .claude/worktrees/ralph-<project-name>/
    Branch:   research/<project-name>
-   Project:  docs/learnings/<project-name>/
+   Project:  docs/staged-learnings/<project-name>/
 
    Next steps:
    cd .claude/worktrees/ralph-<project-name>
-   bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/<project-name>
+   bash ~/.claude/ralph/research/wiggum.sh docs/staged-learnings/<project-name>
    ```
 
 ## Example
@@ -88,11 +88,11 @@ Created Ralph research project in worktree.
 
 Worktree: .claude/worktrees/ralph-options-pricing-models/
 Branch:   research/options-pricing-models
-Project:  docs/learnings/options-pricing-models/
+Project:  docs/staged-learnings/options-pricing-models/
 
 Next steps:
 cd .claude/worktrees/ralph-options-pricing-models
-bash ~/.claude/lab/ralph/wiggum.sh docs/learnings/options-pricing-models
+bash ~/.claude/ralph/research/wiggum.sh docs/staged-learnings/options-pricing-models
 ```
 
 ## Research Conventions

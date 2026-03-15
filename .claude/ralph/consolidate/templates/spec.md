@@ -138,7 +138,7 @@ Execute all HIGH-confidence actions:
 
 For each MEDIUM, apply the judgment criteria (see MEDIUM Judgment section):
 - **Auto-apply**: Execute the action. Log to decisions.md with `applied` and detailed rationale. Track touched files in deep-dive tracker (same as step 5).
-- **Block**: Do NOT execute. Log to decisions.md with `blocked`. Add to review.md with `[BLOCKED-MED]` tag and options.
+- **Block**: Do NOT execute. Log to decisions.md with `blocked`. Add to review.md with `[BM-N]` tag and options (matching review.md template format).
 
 ### 7. Record LOWs
 
