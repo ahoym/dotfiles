@@ -70,6 +70,8 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 - **Path format:** `.claude/learnings/<file>.md` (CWD-relative, consistent with Glob/Grep path conventions in this repo)
 - **Placement:** Always the last section in the file, after all content sections.
 
+**Hub-spoke rule:** When files form a hub-spoke cluster (e.g., `claude-authoring-content-types.md` routing to `claude-authoring-skills.md`, `claude-authoring-guidelines.md`, etc.), spokes should cross-ref the hub (upward navigation — the agent needs a breadcrumb back to the routing table) but NOT sibling spokes (lateral navigation — the hub already handles that). Spoke-to-spoke refs duplicate hub routing and grow linearly with new spokes.
+
 **Bidirectionality:** When adding A → B, check whether B → A is also valuable. Relationships can be asymmetric — "spring-boot-gotchas relates to postgresql for migrations" doesn't necessarily mean postgresql needs to link back to spring-boot. Add the reverse only when both directions provide lateral discovery value.
 
 **Growth:** Cross-refs grow organically through `/learnings:curate` content-mode passes, not through bulk backfill. When curate touches a file, it considers cross-ref opportunities as part of the pass.
@@ -85,3 +87,7 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 ## Deep Coverage Analysis for Deleted Content
 
 When consolidation removes sections, verify concepts have new homes — not just that keywords appear elsewhere. Check both git history (original content) and current corpus (where concepts landed). Categorize each deleted section as: COVERED (concepts exist elsewhere), PARTIALLY COVERED (some missing), or GAP (unique content dropped). For partial coverage, add the missing pieces to existing files rather than re-creating the deleted section.
+
+## See also
+
+- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

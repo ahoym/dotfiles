@@ -144,3 +144,7 @@ When introducing structural changes that will cause merge conflicts (e.g., switc
 ## `@` References Resolve Relative to the File, Not the Project Root
 
 `@./guidelines/foo.md` in `~/.claude/CLAUDE.md` resolves to `~/.claude/guidelines/foo.md`. Using `@.claude/guidelines/foo.md` (project-root-relative) may fail to load content even though the path looks correct. Always use `./`-relative paths from the CLAUDE.md file's own directory.
+
+## See also
+
+- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

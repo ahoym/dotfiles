@@ -1,6 +1,6 @@
 ---
 name: code-review-request
-description: "Code review a pull request or merge request. Fetches diff, analyzes through active persona lens, posts review with inline comments. Detects previous reviews and handles re-review automatically. Use when the user asks to review a PR, do a code review, review a request, or review changes."
+description: "Code review a pull request or merge request. Fetches diff, analyzes through active persona lens, posts review with inline comments. Detects previous reviews and handles re-review automatically. Use when the operator asks to review a PR, do a code review, review a request, or review changes."
 argument-hint: "[request-number-or-url]"
 ---
 
@@ -43,7 +43,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Instructions
 
-1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the user to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
+1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the operator to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
 2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
@@ -78,7 +78,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
-   - **New reviews from others**: any review submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote
+   - **New reviews from others**: any review submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. **Important:** empty-body review entries ARE activity signals — GitHub creates them when inline comment replies are posted. Don't dismiss them as artifacts.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
    - **State**: if `MERGED` or `CLOSED` → cancel cron and stop (step 3 logic)
 
@@ -170,7 +170,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>.json` and post via the API.
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json` and post via the API. All temp files (replies, review payloads) must be suffixed with `-<PERSONA>-<ROLE>` to avoid conflicts when multiple agents (reviewer + addresser) operate on the same PR concurrently.
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 
@@ -187,10 +187,11 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - The persona's judgment lens shapes what you look for and how you weigh findings
 - Domain learnings ground the review in established patterns — cite them when relevant
 - Every piece of externally-posted content gets the footnote — no exceptions
-- Post the review as a `COMMENT` event (not `APPROVE` or `REQUEST_CHANGES`) — the user decides the verdict
-- If the diff is too large to fit in context, tell the user rather than silently truncating
+- Post the review as a `COMMENT` event (not `APPROVE` or `REQUEST_CHANGES`) — the operator decides the verdict
+- If the diff is too large to fit in context, tell the operator rather than silently truncating
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
-- Emoji reactions are the right response for resolved comments — they signal acknowledgment without creating noise
-- **Cache-then-validate on repeated invocations.** If you have high-confidence cached data from a previous invocation (e.g., you already analyzed the full diff and know the latest commit SHA), you don't need to re-fetch the full diff — but you DO need to validate the cache with the quick-exit check (step 5). In re-review mode, this means checking all three signals (commits, replies, reviews) — not just the commit SHA. A same-SHA result with new replies is NOT a skip.
-- **Don't post empty reviews** — if analysis produces no findings, no inline comments, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes. In re-review mode, lightweight reactions (resolved/acknowledged) without new findings or follow-ups don't warrant a summary — post the reactions and skip the review body.
+- For resolved and acknowledged comments, post both an emoji reaction AND a short text reply — the reaction is a quick signal, the text reply provides visibility in the comment thread for async review
+- **Always run the API-based quick-exit check (step 5).** Never skip it based on session memory of the last SHA or timestamp. The full phase 1+2 check is cheap (1-2 API calls) and catches activity that session memory misses — especially operator comments on threads you thought were closed. Caching applies to the *diff analysis* (step 6+), not to *activity detection* (step 5).
+- **Don't post empty reviews** — if analysis produces no findings, no inline comments, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes. In re-review mode, resolved/acknowledged responses without new findings or follow-ups don't warrant a summary — post the reactions and text replies, then skip the review body.
+- **Handle all activity types in one invocation.** When multiple signals are present (e.g., new inline replies AND new commits), handle them all — don't stop after replying to threads. Reply to comments first (step 7), then proceed through steps 8-12 to review the new code. Splitting these across poll cycles delays review of new commits.
 - **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over

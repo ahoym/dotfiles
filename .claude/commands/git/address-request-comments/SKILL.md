@@ -30,15 +30,29 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-1. **Check PR/MR state** — fetch the review unit's state before any other work. If the state is terminal (merged or closed), announce it, cancel any active `/loop` polling this review (use `CronList` to find the job by prompt match, then `CronDelete`), and stop.
+1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
 
-2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
+2. **Fetch state, reviews, and comments** (2 calls total):
 
-3. **Fetch review and comments** (run in parallel):
+   **Call 1 (consolidated):** Fetch state + reviews + top-level comments in a single call:
+   ```bash
+   gh pr view <number> --json state,reviews,comments,number,title,headRefName,baseRefName
+   ```
+   Parse the JSON response — no `--jq` (avoids quoted string permission prompts).
 
-   **Incremental fetch:** If this review was already fetched earlier in the session, filter by timestamp client-side (see comment-interaction cluster file). After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest comment returned (not wall-clock time) — this ensures we never advance past unseen comments. If no comments are returned, keep the previous `LAST_FETCH_TS`. On incremental fetch, filter out your own replies by matching `Role:.*Addresser` (regex) in the comment body — the footer uses markdown italics (`*Role:* Addresser`), so a literal `Role: Addresser` substring match won't work.
+   **Check state first.** If terminal (merged or closed), cancel any active `/loop` polling this review (use `CronList` to find the job by prompt match, then `CronDelete`), announce, and stop.
 
-   **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time — it doesn't support timestamp filtering. On incremental fetches, always re-fetch reviews and compare the count against `LAST_REVIEW_COUNT` to detect new review submissions. Only process reviews beyond the previous count.
+   **Call 2 (inline comments):** Fetch inline/review comments via the REST API:
+   - **Full fetch:** Use **Fetch Inline/Review Comments** from the platform cluster files (with `--paginate`)
+   - **Incremental fetch:** Same endpoint, filter client-side by `created_at > LAST_FETCH_TS` and exclude Addresser replies (`Role:.*Addresser` regex in body)
+
+   Run call 2 only after confirming the PR is not in a terminal state.
+
+   **Incremental fetch rules:** After each fetch, set `LAST_FETCH_TS` to the `created_at` of the newest **non-addresser** comment returned (not wall-clock time, not your own reply timestamps) — this ensures we never advance past unseen comments. Comments can arrive between fetch and reply posting; using your reply's `created_at` instead would skip those. If no non-addresser comments are returned, keep the previous `LAST_FETCH_TS`. Filter out your own replies by matching `Role:.*Addresser` (regex) in the comment body — the footer uses markdown italics, so a literal substring match won't work.
+
+   **General Review Comments have no `since` support.** The reviews data from call 1 returns all reviews every time. On incremental fetches, compare the count against `LAST_REVIEW_COUNT` to detect new review submissions. Only process reviews beyond the previous count.
+
+   **Top-level comments** are included in call 1's `comments` field. On incremental fetches, filter by `createdAt > LAST_FETCH_TS` and exclude Addresser replies.
 
    Announce the mode:
    ```
@@ -49,29 +63,23 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Full fetch — first review of $REVIEW_UNIT <number>
    ```
 
-   Using the platform cluster files loaded in step 2, follow:
-   - **Fetch Review Details** — get number, title, branch names
-   - **Fetch Inline/Review Comments** — use full or incremental fetch as appropriate
-   - **Fetch General Review Comments** — comments not tied to specific lines
-   - **Fetch Issue/Top-Level Comments** — includes LGTM comments
-
-   **Quiet no-op (incremental only):** If inline, top-level, and review comment counts are all 0, emit a single line and stop — do not proceed to step 4+:
+   **Quiet no-op (incremental only):** If inline, top-level, and review comment counts are all 0, emit a single line and stop — do not proceed to step 3+:
    ```
    <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
    ```
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
-4. **Display comments summary**:
+3. **Display comments summary**:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-5. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files.
+4. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files.
 
-6. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+5. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
-7. **Categorize each comment in `COMMENTS`**:
+6. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
    b. Categorize each comment as one of:
       - **Suggestion** - Proposes a code change, architectural change, or different approach
@@ -80,12 +88,19 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
       - **General feedback** - Praise, acknowledgment, or non-actionable comment
       - **Out of scope** - Valid but should be a separate issue
 
-8. **Reply to all comments on the platform**:
+   **Mutual resolution filter:** Before replying, check each comment for mutual resolution. A thread is mutually resolved when ALL of these are true:
+   - The comment is from a reviewer (`Role:.*Reviewer` in body)
+   - The comment is a resolution signal (contains: "resolved", "acknowledged", "sounds good", "thread resolved", "no code change needed", "no action needed", or is purely emoji like 👍/🤝)
+   - The addresser has already posted a substantive reply on the same thread (`in_reply_to_id` matches a thread where an Addresser reply exists)
+
+   When mutual resolution is detected, skip the comment entirely — no reaction, no reply, no text. Just update `LAST_FETCH_TS` and move on. Announce: `Thread <file>:<line> — mutual resolution detected, skipping.`
+
+7. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
    - For suggestions: State whether you agree/disagree and your proposed approach
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it
-   - For general feedback/positive signals: React with a `rocket` emoji (default) instead of a text reply. Follow **React to Comment** in the platform cluster files.
+   - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
 
    **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
 
@@ -93,7 +108,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Reply to Inline Comment** in the platform cluster files.
 
-9. **Act on suggestions based on agreement**:
+8. **Act on suggestions based on agreement**:
 
    **Auto-implement** when both agents converge (addresser agrees with reviewer's suggestion). Also auto-implement typo/bug fixes (corrections, not debatable).
 
@@ -101,7 +116,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    To distinguish reviewer comments from human comments, check for `Role:.*Reviewer` in the comment body. Comments without a Role tag are from humans — treat human approvals/suggestions with the same escalation logic (agree = implement, disagree = escalate).
 
-10. **Post review actions summary on the platform**:
+9. **Post review actions summary on the platform**:
    After processing, post a top-level comment summarizing what was done and what needs the partner's input:
 
    ```
@@ -115,7 +130,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Post Top-Level Comment** in the platform cluster files.
 
-11. **Implement changes**:
+10. **Implement changes**:
    a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
    b. For each group:
       - Make the changes
@@ -131,12 +146,12 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
         ```
    c. Track which comments are addressed by each commit hash.
 
-12. **Push changes**:
+11. **Push changes**:
     ```bash
     git push origin <branch>
     ```
 
-13. **Reply to comments with commit reference** (after implementation):
+12. **Reply to comments with commit reference** (after implementation):
 
     Follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
@@ -144,7 +159,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Do not reply automatically
     - Let the user handle these manually or in a follow-up
 
-14. **Summary**: Report to user:
+13. **Summary**: Report to user:
     - Number of suggestions auto-implemented (mutual agreement)
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification
@@ -152,4 +167,4 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Important Notes (conditional)
 
-- `address-request-edge-cases.md` — Read when processing comments (step 7+). Contains categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**
+- `address-request-edge-cases.md` — Read when processing comments (step 6+). Contains categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**

@@ -228,6 +228,14 @@ The consolidation worktree has guard hooks that auto-commit changes and can reve
 
 `/learnings:curate` (interactive) and the consolidation loop (autonomous) both review corpus files. After interactive curation, update the deep-dive tracker (`~/.claude/ralph/consolidate/deep-dive-tracker.json`) by setting `last_deep_dive_run = current run_count` for the curated file. This prevents the next consolidation run from queueing files for deep dives that were just manually reviewed.
 
+## MAX_DEEP_DIVES_HIT Is a Completion Signal
+
+`MAX_DEEP_DIVES_HIT` should be treated as a completion signal (like `COMPLETE`) for resume purposes — the run's substantive work is done. Carryover candidates are staleness-eligible periodic reviews, not blocked work. The resume skill should offer the merge path, noting what carries over to the next run.
+
+## Session-Start Learnings Search Is Noisy for Consolidation Reviews
+
+When evaluating a consolidation run, every file the loop touched appears in recent commit messages. The session-start learnings search matches those commit messages, loading files that are irrelevant to the *evaluation* task (e.g., `multi-agent-patterns.md` loaded because the loop edited it, not because the review session needed multi-agent knowledge). Low cost per false positive (~500 tokens), but worth noting as a known noise vector.
+
 ## Rate Limit Detection in Outer Loops
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.

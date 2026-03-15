@@ -88,8 +88,16 @@ The implementation-start gate matches persona filenames against the task domain,
 
 **Proposed improvement (pending more data):** During the implementation-start persona check, read persona descriptions (not just filenames) and match against the task's *domain*, not its *activity mode*.
 
+## Persona Gotchas Duplicating Proactive Loads
+
+When a persona has both an inline "Known gotchas & platform specifics" section AND a `## Proactive loads` entry for a `*-gotchas.md` file covering the same domain, the inline section is likely a near-exact duplicate. Detection: compare inline items against the proactive-loaded file. Resolution: port any unique items from the persona to the gotchas file, then remove the inline section. This is a systematic pattern — check all personas with both inline gotchas and proactive loads.
+
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
 When two peer personas share duplicated content (e.g., both have React/Next.js gotchas), **extract to a shared learning file and reference from both** rather than choosing which persona "owns" the content. Ownership-based resolution ("the more specialized persona owns the gotcha") breaks down when neither persona is clearly more specialized for the shared domain — react-frontend is more specialized for React, xrpl-typescript-fullstack is more specialized for XRPL, but both legitimately need the React patterns.
 
 Extracting to a shared learning eliminates the ownership question and follows the lean-persona philosophy: personas reference knowledge, they don't inline it. Both personas get a Detailed references entry pointing to the same learning file.
+
+## See also
+
+- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
