@@ -2,7 +2,7 @@
 
 ## Quantum-tunnel-claudes path-mismatch gap
 
-The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. **Largely solved:** unified platform-neutral skills (`create-request`, `address-request-comments`, `explore-request`, `split-request`, `extract-request-learnings`) replace the divergent pairs. Old `-pr`/`-mr` variants still exist during transition — delete after testing confirms the unified versions work.
+The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. **Solved:** unified platform-neutral skills (`create-request`, `address-request-comments`, `explore-request`, `split-request`, `extract-request-learnings`) replace the divergent pairs.
 
 ## Platform-detection.md is intentionally dual-platform
 

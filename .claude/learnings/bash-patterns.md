@@ -106,10 +106,6 @@ fi
 if $CLEAN; then docker rm -f postgres; fi
 ```
 
-## Use `jq` Instead of `python3` for JSON Parsing in Bash
-
-`python3 -c "import json; ..."` in bash commands triggers permission prompts because quoted strings match differently. `jq` is auto-permitted and handles the same JSON parsing tasks. When passing API output to subagents, prefer passing raw JSON directly rather than parsing in the main context at all.
-
 ## Empty Array Expansion Under `set -u`
 
 `${arr[@]}` fails with "unbound variable" under `set -u` when the array is empty. Use the `${arr[@]+"${arr[@]}"}` pattern:

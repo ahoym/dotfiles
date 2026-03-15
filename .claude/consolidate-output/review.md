@@ -46,6 +46,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: The old PR/MR-named skill variants appear to have been fully replaced by unified `-request` names. The note is stale. Options: (a) remove the sentence, (b) update to past tense "Old variants have been replaced by unified names."
 - **Why LOW**: Can't definitively verify from learnings alone whether any consuming project still references the old names.
 - **Curate command**: `/learnings:curate learnings/cross-repo-sync.md`
+- **Status**: RESOLVED (removed stale transition sentence, updated "Largely solved" to "Solved")
 
 ## [L-2] ~~Duplicate "structured footnotes" pattern across files~~ RESOLVED (Iter 8)
 
@@ -60,6 +61,7 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Keep in skills — it's about how skills should detect and handle worktrees. (b) Migrate to `claude-code.md` — it's a platform/CLI gotcha. (c) Duplicate in both as a cross-ref.
 - **Why LOW**: Straddles skill design instruction (how to handle it) and platform gotcha (why it happens). Both framings are valid.
 - **Curate command**: `/learnings:curate learnings/claude-authoring-skills.md`
+- **Status**: RESOLVED (option c — added concise version to claude-code.md with bidirectional cross-refs)
 
 ## [L-4] Redundant takeaways in process-conventions.md (LOW)
 
@@ -70,6 +72,7 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Compress — remove redundant takeaways, save ~10-15 lines. (b) Keep — takeaways serve as scanning anchors even if repetitive.
 - **Why LOW**: Per-pattern savings are small (2-3 lines each). File is ~170 lines — not a compression priority. Judgment call on whether takeaways aid scanning.
 - **Curate command**: `/learnings:curate learnings/process-conventions.md`
+- **Status**: RESOLVED (removed 10 redundant takeaways, kept 3 that add structured decision rules or unique framing)
 
 ## [L-5] "Use jq Instead of python3" placement in bash-patterns.md (LOW)
 
@@ -80,6 +83,7 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Keep in bash-patterns — jq over python3 is a genuine bash best practice regardless of permissions. (b) Migrate to claude-code.md — the motivation is permission behavior, not JSON parsing efficiency.
 - **Why LOW**: Both framings are valid. The current bash framing works and the pattern is only 3 lines — low-impact either way.
 - **Curate command**: `/learnings:curate learnings/bash-patterns.md`
+- **Status**: RESOLVED (migrated to claude-code.md § Bash Permission Prefix Matching Gotchas as point 7 — discoverability at the actionable moment matters more than bash purity)
 
 ## [MAX-DEEP-DIVES] Deep dive phase hit 15-invocation limit (MAX_DEEP_DIVES_HIT)
 

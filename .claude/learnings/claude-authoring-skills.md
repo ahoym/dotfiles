@@ -475,7 +475,7 @@ Skills that write temp files to a staging directory (e.g., `change-request-repli
 
 ## Worktree Branches Block `gh pr checkout`
 
-`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands.
+`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands. See also: `claude-code.md` for the platform gotcha angle.
 
 ## Polling as Skill Stress-Test
 
