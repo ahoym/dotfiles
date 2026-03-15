@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md |
+| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md |
 
 ## Pre-Flight
 
@@ -79,6 +79,7 @@ Suggested iterations: 15
 | 15 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | extract-request-learnings/SKILL.md: clean, ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns |
 | 16 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | git/split-commit/SKILL.md: clean, 7 patterns, no duplication with git-patterns.md split-branch technique |
 | 17 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | learnings/consolidate/SKILL.md: 2 MEDIUMs applied — update stale skill count (~23→~31), add missing skill-references permission to Prerequisites |
+| 18 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | ralph-loop.md: 2 MEDIUMs applied — fix stale convergence threshold (2→1 clean round), add See also cross-refs (3 targets) |
 
 ## Deep Dive Status
 
@@ -98,6 +99,7 @@ Suggested iterations: 15
 | extract-request-learnings/SKILL.md | done | 15 | Clean — ~11 patterns, extractor-writer architecture correctly implements generalized multi-agent patterns. Sibling templates well-structured. All referenced files verified. |
 | git/split-commit/SKILL.md | done | 16 | Clean — 7 patterns (usage + 6 steps + notes). No duplication with git-patterns.md "Split Mixed-Concern Branch" (different granularity). Co-Authored-By format consistent. `--force-with-lease` correct. |
 | learnings/consolidate/SKILL.md | done | 17 | 2 MEDIUMs applied: update stale skill count (~23→~31, threshold 30→40), add missing `Read(~/.claude/skill-references/**)` to Prerequisites. ~17 major sections, 648 lines. |
+| ralph-loop.md | done | 18 | 2 MEDIUMs applied: fix stale convergence threshold ("2 consecutive clean rounds" → "a clean round"), add See also cross-refs to curation-insights.md, claude-code.md, multi-agent-patterns.md. 230 lines, ~44 patterns. |
 
 ## Notes for Next Iteration
 
@@ -294,3 +296,17 @@ Suggested iterations: 15
 **Note**: The curate/SKILL.md Prerequisites section has the same missing `skill-references` pattern — it's the parent file that consolidate delegates to. This is a separate file; the next deep dive that touches curate/ should pick it up.
 
 **Next**: ralph-loop.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #12.
+
+### Iter 18
+
+**Deep dive: ralph-loop.md** (230 lines, ~44 patterns). Cross-referenced against multi-agent-patterns.md, claude-code.md, process-conventions.md, curation-insights.md, code-quality-instincts.md.
+
+**Actions taken (2 MEDIUMs):**
+- Fixed stale convergence threshold in "Convergence as Safety Net for Compounding" — said "2 consecutive clean rounds" but line 56 in same file says "one clean round is sufficient" and current consolidation spec uses `CLEAN_ROUND_STREAK >= 1`. Internal inconsistency corrected to "a clean round".
+- Added `## See also` with 3 cross-refs: curation-insights.md (sweep calibration complements defect/opportunity mode here), claude-code.md (worktree permission mismatches underlie worktree editing gotchas here), multi-agent-patterns.md (orchestration patterns complement stateless iteration design).
+
+**No LOWs.** All ~44 patterns classified standalone reference / keep. File is well-compressed (~5 lines/pattern average), covers ralph loop design, consolidation variant, research methodology, and autonomous agent gotchas — all unique to the corpus. No compression candidates (already concise). No overlap with curation-insights.md (checked "Defect vs Opportunity Mode" — not present there).
+
+**Tracker note**: ralph-loop.md → last_deep_dive_run=8 (current run_count).
+
+**Next**: multi-agent-patterns.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #13.

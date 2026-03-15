@@ -71,7 +71,7 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 ## Convergence as Safety Net for Compounding
 
-Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (2 consecutive clean rounds) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
+Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (a clean round) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
 
 ## Inline Compounding Over Skill Invocation in Autonomous Loops
 
@@ -227,3 +227,9 @@ The consolidation worktree has guard hooks that auto-commit changes and can reve
 ## Rate Limit Detection in Outer Loops
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.
+
+## See also
+
+- `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
+- `~/.claude/learnings/claude-code.md` — worktree permission mismatches and path resolution mechanics underlying the worktree editing gotchas here
+- `~/.claude/learnings/multi-agent-patterns.md` — multi-agent orchestration patterns that complement the stateless iteration and autonomous loop design here

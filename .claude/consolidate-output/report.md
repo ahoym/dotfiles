@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 17 |
+| Iterations | 18 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -49,6 +49,7 @@
 | 15 | — | DEEP_DIVE | (clean) | extract-request-learnings/SKILL.md | — | — |
 | 16 | — | DEEP_DIVE | (clean) | git/split-commit/SKILL.md | — | — |
 | 17 | — | DEEP_DIVE | update stale skill count + add missing permission | learnings/consolidate/SKILL.md | same | MEDIUM |
+| 18 | — | DEEP_DIVE | fix stale convergence threshold + add See also cross-refs | ralph-loop.md | same | MEDIUM |
 
 ## Blocked Items
 
