@@ -14,9 +14,13 @@ Read this file when processing comments (step 6+). Skip on quiet no-ops.
 - Group related changes into a single commit when possible
 - If a comment is unclear, ask the user before responding
 
-## Who approves suggestions?
+## When do suggestions get implemented?
 
-Your **partner** — the person you're pair-programming with. They see your analysis, the reviewer's comments, and your platform replies, then tell you which suggestions to implement. Approval can come via CLI or review comments — either channel is valid.
+**Mutual agreement = auto-implement.** When the addresser agrees with a reviewer's suggestion, implement it without waiting for human approval. The partner can review the changes in the PR diff and calibrate.
+
+**Disagreement = escalate.** When the addresser disagrees or is uncertain, present the suggestion to the partner and wait for their decision. Approval can come via CLI or review comments — either channel is valid.
+
+To identify agent vs human comments, check for `Role:.*Reviewer` or `Role:.*Addresser` in the comment body. Comments without a Role tag are from humans.
 
 ## Conditional Requests
 

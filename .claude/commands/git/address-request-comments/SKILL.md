@@ -93,25 +93,29 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    Follow **Reply to Inline Comment** in the platform cluster files.
 
-9. **Post suggestion summary on the platform**:
-   After replying to individual comments, post a top-level comment summarizing actionable suggestions and your recommendations:
+9. **Act on suggestions based on agreement**:
+
+   **Auto-implement** when both agents converge (addresser agrees with reviewer's suggestion). Also auto-implement typo/bug fixes (corrections, not debatable).
+
+   **Escalate to partner** when the addresser disagrees or is uncertain about a reviewer suggestion. Do NOT implement — wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") or in CLI.
+
+   To distinguish reviewer comments from human comments, check for `Role:.*Reviewer` in the comment body. Comments without a Role tag are from humans — treat human approvals/suggestions with the same escalation logic (agree = implement, disagree = escalate).
+
+10. **Post review actions summary on the platform**:
+   After processing, post a top-level comment summarizing what was done and what needs the partner's input:
 
    ```
-   ## Suggestions awaiting approval
+   ## Review actions
 
-   | # | File | Suggestion | Recommendation |
-   |---|------|------------|----------------|
-   | 1 | src/auth.py:25 | Use bcrypt | Agree — more secure |
-   | 2 | src/auth.py:48 | Add error handling | Agree — improves robustness |
+   | # | File | Suggestion | Action |
+   |---|------|------------|--------|
+   | 1 | spec.md:141 | Fix tag format | Implemented (mutual agreement) — abc123 |
+   | 2 | auth.py:48 | Restructure auth flow | Awaiting your decision (disagree) |
    ```
 
    Follow **Post Top-Level Comment** in the platform cluster files.
 
-   Typo/bug fixes are auto-implemented (they're corrections, not debatable suggestions).
-
-   Wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") before implementing suggestions. Do NOT prompt in CLI.
-
-10. **Implement approved changes** (only after partner approval):
+11. **Implement changes**:
    a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
    b. For each group:
       - Make the changes
@@ -127,12 +131,12 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
         ```
    c. Track which comments are addressed by each commit hash.
 
-11. **Push changes**:
+12. **Push changes**:
     ```bash
     git push origin <branch>
     ```
 
-12. **Reply to comments with commit reference** (after implementation):
+13. **Reply to comments with commit reference** (after implementation):
 
     Follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
@@ -140,11 +144,11 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Do not reply automatically
     - Let the user handle these manually or in a follow-up
 
-13. **Summary**: Report to user:
-    - Number of suggestions approved and implemented
+14. **Summary**: Report to user:
+    - Number of suggestions auto-implemented (mutual agreement)
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification
-    - Number of suggestions skipped (awaiting user decision)
+    - Number of suggestions escalated (awaiting partner decision)
 
 ## Important Notes (conditional)
 

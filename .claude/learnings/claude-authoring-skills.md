@@ -476,3 +476,19 @@ When renaming a skill namespace (e.g., `ralph:init` → `ralph:research:init`), 
 ## Numeric Arg = PR/MR Number Convention
 
 Git skills that operate on a PR/MR should treat a numeric positional arg as a PR/MR number: resolve head/base branches via `gh pr view <N>` / `glab mr view <N>`, check out the branch if needed. Already standard in: address-request-comments, code-review-request, explore-request, split-request, resolve-conflicts. Non-numeric positional args remain branch names or other skill-specific inputs. When adding PR/MR support to a skill, also handle URL args (extract the number) and fall back to current branch detection.
+
+## Persist Staging Directories with .gitkeep
+
+Skills that write temp files to a staging directory (e.g., `change-request-replies/`) should persist the directory with a `.gitkeep` and gitignore the contents (`*.md`, `*.json`). This avoids `mkdir -p` permission prompts on every invocation. Remove `mkdir -p` from skill templates once the directory is tracked.
+
+## Mutual Agreement Auto-Implementation
+
+When an addresser agent agrees with a reviewer agent's suggestion, auto-implement without waiting for human approval. Escalate to the human partner only when the addresser disagrees or is uncertain. The human reviews the PR diff and calibrates — they don't need to approve every change both agents converge on. Use the structured footnote (`Role:.*Reviewer`) to distinguish agent comments from human comments; comments without a Role tag are human.
+
+## Agent-to-Agent Review Cycle
+
+Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
+
+## Worktree Branches Block `gh pr checkout`
+
+`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands.
