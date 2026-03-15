@@ -80,3 +80,9 @@ Resolved by deep dive: skills version compressed to pointer referencing process-
 - **Possible classifications**: (a) Keep in bash-patterns — jq over python3 is a genuine bash best practice regardless of permissions. (b) Migrate to claude-code.md — the motivation is permission behavior, not JSON parsing efficiency.
 - **Why LOW**: Both framings are valid. The current bash framing works and the pattern is only 3 lines — low-impact either way.
 - **Curate command**: `/learnings:curate learnings/bash-patterns.md`
+
+## [MAX-DEEP-DIVES] Deep dive phase hit 15-invocation limit (MAX_DEEP_DIVES_HIT)
+
+- **Details**: 15 of 25 deep dive candidates processed. 10 remaining: api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md.
+- **Action needed**: Remaining candidates will carry over to the next consolidation run. Their staleness naturally increases in the tracker, ensuring they're prioritized. Manual curation via `/learnings:curate <file>` is also an option for high-priority files.
+- **Note**: platform-engineer.md may have the same persona-gotchas-duplicate-proactive-loads pattern found in typescript-devops.md (iter 21). Prioritize checking it.

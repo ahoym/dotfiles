@@ -7,9 +7,9 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 20 |
+| Iterations | 21 |
 | Rounds | 2 (converged) |
-| Status | DEEP_DIVE |
+| Status | MAX_DEEP_DIVES_HIT |
 
 ## Summary
 
@@ -52,13 +52,14 @@
 | 18 | — | DEEP_DIVE | fix stale convergence threshold + add See also cross-refs | ralph-loop.md | same | MEDIUM |
 | 19 | — | DEEP_DIVE | fix TaskOutput inconsistency + merge context compaction sections | multi-agent-patterns.md | same | HIGH+MEDIUM |
 | 20 | — | DEEP_DIVE | (clean) | web-session-sync.md | — | — |
+| 21 | — | DEEP_DIVE | remove duplicated gotchas section | typescript-devops.md | same | HIGH |
 
 ## Blocked Items
 
 See `review.md` for details.
 
-- Total: 5
-- Open: 4
+- Total: 6
+- Open: 5
 - Resolved: 1
 
 ## Collection Health

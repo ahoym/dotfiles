@@ -1,17 +1,18 @@
+MAX_DEEP_DIVES_HIT
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 20 |
+| SWEEP_COUNT | 21 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md |
+| DEEP_DIVE_CANDIDATES | api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md |
 
 ## Pre-Flight
 
@@ -82,6 +83,7 @@ Suggested iterations: 15
 | 18 | — | DEEP_DIVE | 0 | 2 | 0 | 2 | ralph-loop.md: 2 MEDIUMs applied — fix stale convergence threshold (2→1 clean round), add See also cross-refs (3 targets) |
 | 19 | — | DEEP_DIVE | 1 | 1 | 0 | 2 | multi-agent-patterns.md: 1 HIGH (fix TaskOutput inconsistency) + 1 MEDIUM (merge 2 context compaction sections) |
 | 20 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | web-session-sync.md: clean, 8 patterns all standalone reference, 67 lines, no duplication or cross-ref gaps |
+| 21 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | typescript-devops.md: 1 HIGH — remove duplicated gotchas section (exact dup of proactive-loaded typescript-ci-gotchas.md, 42→24 lines) |
 
 ## Deep Dive Status
 
@@ -104,6 +106,7 @@ Suggested iterations: 15
 | ralph-loop.md | done | 18 | 2 MEDIUMs applied: fix stale convergence threshold ("2 consecutive clean rounds" → "a clean round"), add See also cross-refs to curation-insights.md, claude-code.md, multi-agent-patterns.md. 230 lines, ~44 patterns. |
 | multi-agent-patterns.md | done | 19 | 1 HIGH + 1 MEDIUM: fix TaskOutput inconsistency (steps 2-3 contradicted by later pattern in same file), merge 2 non-adjacent context compaction sections into one. 306→~298 lines, ~37 patterns. |
 | web-session-sync.md | done | 20 | Clean — 8 patterns, 67 lines, all standalone reference. No duplication, no stale content, no cross-ref gaps. Related files (cross-repo-sync, skill-platform-portability) vocabulary-discoverable. |
+| typescript-devops.md | done | 21 | 1 HIGH: remove entire "Known gotchas & platform specifics" section — all 10 items (3 subsections) exactly duplicated from proactive-loaded typescript-ci-gotchas.md. 42→24 lines. Domain priorities, review checks, and proactive/detailed reference sections retained. |
 
 ## Notes for Next Iteration
 
@@ -338,3 +341,18 @@ Suggested iterations: 15
 **Tracker**: web-session-sync.md → last_deep_dive_run=8.
 
 **Next**: typescript-devops.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #15 (max guard = 15).
+
+### Iter 21
+
+**Deep dive: typescript-devops.md** (persona, 42→24 lines, extends platform-engineer). Cross-referenced against parent persona (platform-engineer.md), proactive-loaded `typescript-ci-gotchas.md` (23 lines), and `vercel-deployment.md` (14 lines).
+
+**Actions taken (1 HIGH):**
+- Removed entire "Known gotchas & platform specifics" section (3 subsections: GitHub Actions pnpm/Node 7 items, TypeScript Build 1 item, Vercel/Serverless 2 items). All 10 items were exact or near-exact duplicates of content in `typescript-ci-gotchas.md`, which the persona already proactive-loads. Duplication wasted ~25 lines of context budget when persona was active.
+
+**Retained sections**: Domain priorities (4 items — TypeScript specialization of parent's generic CI/CD), When reviewing or writing code (3 actionable checks — lockfile, ESLint/Prettier, E2E blocking), Proactive loads (typescript-ci-gotchas.md), Detailed references (vercel-deployment.md).
+
+**Pattern**: Persona gotchas sections that duplicate proactive-loaded learning files are a systematic dedup target. Other personas with both inline gotchas AND proactive loads pointing to the same domain should be checked. Parent persona (platform-engineer.md) has inline gotchas AND proactive loads — same pattern may apply there, but it's a separate candidate.
+
+**Tracker**: typescript-devops.md → last_deep_dive_run=8.
+
+**Deep dive invocation #15 = max guard (15).** Remaining 10 candidates carry over to next run: api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md.
