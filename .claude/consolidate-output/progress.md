@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 2 | 1 | SKILLS | 1 | 1 | 0 | 2 | Add missing name frontmatter to 2 skills; update stale skill names in consolidate example table |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no duplication/drift |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, no new duplicates/staleness/regressions from R1 changes |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, R1 fixes verified, no regressions |
 
 ## Deep Dive Status
 
@@ -122,3 +123,9 @@ Suggested iterations: 15
 - **Stale tracked files (delta >= 3)**: web-session-sync.md, ralph-loop.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md, explore-repo.md, react-frontend.md (persona), platform-engineer.md (persona), typescript-devops.md (persona)
 - **Polish Opportunities**: claude-authoring-skills.md (503 lines), multi-agent-patterns.md (296 lines), ralph-loop.md (230 lines), process-conventions.md (178 lines)
 - **Cross-reference hub**: claude-authoring-content-types.md (referenced by classification-model, curation-insights, and 4+ authoring spoke files)
+
+### Iter 5
+
+**Round 2 SKILLS sweep**: 31 skills, 11 personas, 15 skill-references. All read in parallel. Verified Round 1 fixes (name frontmatter on extract-request-learnings + split-commit, consolidate example table update). No new issues — no overlap, no stale references, no scope problems. All namespace clusters clean.
+
+**Next**: GUIDELINES sweep (Round 2). If clean → CLEAN_ROUND_STREAK = 1 → convergence → deep dive candidacy check.
