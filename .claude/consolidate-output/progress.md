@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 15
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 1
 - **MEDIUMs applied**: 2
 - **MEDIUMs blocked**: 0
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 1 | 1 | LEARNINGS | 1 | 2 | 2 | 3 | Fix misplaced takeaway + merge dup sections in process-conventions.md; reference wiring for financial-applications.md and aws-messaging.md |
 | 2 | 1 | SKILLS | 1 | 1 | 0 | 2 | Add missing name frontmatter to 2 skills; update stale skill names in consolidate example table |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no duplication/drift |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, no new duplicates/staleness/regressions from R1 changes |
 
 ## Deep Dive Status
 
@@ -111,3 +112,13 @@ Suggested iterations: 15
 **Findings**: Clean. No duplicates, no domain-specific content, no dead references, no stale content. `claude-authoring-guidelines.md` in learnings is meta-knowledge about authoring guidelines — distinct from the guidelines themselves.
 
 **Round 1 complete**: Not clean (sweeps 1-2 had findings). CLEAN_ROUND_STREAK stays at 0. Starting Round 2.
+
+### Iter 4
+
+**Round 2 LEARNINGS sweep**: 56 files, all read in parallel. Heading collision detection clean. No regressions from Round 1 changes (process-conventions fix, reference wiring for financial-applications and aws-messaging). No new duplicates, overlaps, stale content, genericization issues, or compression targets at broad sweep level.
+
+**Deep dive candidates** (recording for convergence check):
+- **Modified files (last_deep_dive_run=0)**: process-conventions.md, financial-applications.md, aws-messaging.md, bash-patterns.md, claude-authoring-skills.md, claude-authoring-guidelines.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph/init/SKILL.md
+- **Stale tracked files (delta >= 3)**: web-session-sync.md, ralph-loop.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md, explore-repo.md, react-frontend.md (persona), platform-engineer.md (persona), typescript-devops.md (persona)
+- **Polish Opportunities**: claude-authoring-skills.md (503 lines), multi-agent-patterns.md (296 lines), ralph-loop.md (230 lines), process-conventions.md (178 lines)
+- **Cross-reference hub**: claude-authoring-content-types.md (referenced by classification-model, curation-insights, and 4+ authoring spoke files)
