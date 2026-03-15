@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md |
+| DEEP_DIVE_CANDIDATES | financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md |
 
 ## Pre-Flight
 
@@ -72,11 +72,12 @@ Suggested iterations: 15
 | 8 | — | DEEP_DIVE | 0 | 5 | 1 | 5 | claude-authoring-skills.md: 503→~490 lines, dedup footnote, migrate 2 patterns to multi-agent, add cross-refs |
 | 9 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | process-conventions.md: 179→~170 lines, merge 2 near-dup sections, add See also cross-refs |
 | 10 | — | DEEP_DIVE | 0 | 3 | 1 | 3 | bash-patterns.md: 180→~162 lines, migrate 2 permission gotchas to claude-code.md, add See also cross-refs |
+| 11 | — | DEEP_DIVE | 0 | 3 | 0 | 3 | claude-authoring-guidelines.md: 57→~48 lines, migrate "Uniform Convention" to curation-insights, compress tier separation, add See also |
 
 ## Deep Dive Status
 
 <!-- Populated when PHASE transitions to DEEP_DIVE after broad sweep convergence -->
-<!-- Max guard: 5 invocations. Unprocessed candidates carry over to next run. -->
+<!-- Max guard: 15 invocations. Unprocessed candidates carry over to next run. -->
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
@@ -84,6 +85,7 @@ Suggested iterations: 15
 | claude-authoring-skills.md | done | 8 | 5 MEDIUMs applied: footnote dedup, 2 migrations to multi-agent-patterns, See also + reverse cross-ref. 1 LOW (worktree branches placement). |
 | process-conventions.md | done | 9 | 3 MEDIUMs applied: 2 intra-file merges (near-duplicate sections), See also cross-refs. 1 LOW (redundant takeaways). |
 | bash-patterns.md | done | 10 | 3 MEDIUMs applied: migrate inline-subshell + chaining gotchas to claude-code.md, See also cross-refs. 1 LOW (jq vs python3 placement). |
+| claude-authoring-guidelines.md | done | 11 | 3 MEDIUMs applied: migrate "Uniform Convention" to curation-insights.md, compress tier separation (−9 lines), See also cross-refs. |
 
 ## Notes for Next Iteration
 
@@ -209,3 +211,16 @@ Suggested iterations: 15
 **Tracker note**: claude-code.md received migrated content → set last_deep_dive_run=0 (modified, needs future deep dive).
 
 **Next**: claude-authoring-guidelines.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #5 (max guard = 15).
+
+### Iter 11
+
+**Deep dive: claude-authoring-guidelines.md** (57→~48 lines, 7→6 patterns). Cross-referenced against claude-authoring-content-types.md (hub), claude-authoring-skills.md (sibling), curation-insights.md (migration target), and 2 persona files (claude-config-expert, claude-config-reviewer).
+
+**Actions taken (3 MEDIUMs):**
+- Migrated "Uniform Convention Over Case-by-Case Optimization" to curation-insights.md § "Classification Calibration (cont.)." Curation philosophy pattern, not guideline-specific — applies to any structural decision (personas, learnings, skills).
+- Compressed "Three-Tier Guideline Separation" to "Pseudocode at the Universal Tier" (3 lines → 2 lines). Tier structure already in content-types.md § "Universal vs Language-Specific" + "Evaluating Existing Guidelines." Kept only unique insight: pseudocode examples at universal tier. Removed redundant takeaway line.
+- Added `## See also` with 3 cross-refs: hub (content-types.md), sibling (skills.md), and migration target (curation-insights.md).
+
+**Tracker note**: curation-insights.md received migrated content → added to tracker with last_deep_dive_run=0.
+
+**Next**: financial-applications.md (next in DEEP_DIVE_CANDIDATES). Deep dive invocation #6.

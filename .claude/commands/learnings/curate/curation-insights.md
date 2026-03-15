@@ -69,6 +69,7 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 ## Classification Calibration (cont.)
 
 - **Guidelines must be universal — actively migrate stack/language/project-specific content to learnings.** See `claude-authoring-content-types.md` → "Evaluating Existing Guidelines" for the full migration table. During guideline curation, this is the first check before pattern-level classification.
+- **Uniform convention over case-by-case optimization.** When a structural pattern applies to a category (e.g., "every persona gets a gotcha file"), apply it uniformly — even when a specific instance doesn't strictly need it. Predictability of the convention matters more than minimizing artifact count. Case-by-case exceptions erode the pattern and force future decisions the uniform rule would have automated.
 
 ## Execution Strategy
 

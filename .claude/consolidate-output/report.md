@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 10 |
+| Iterations | 11 |
 | Rounds | 2 (converged) |
 | Status | DEEP_DIVE |
 
@@ -39,6 +39,9 @@
 | 10 | — | DEEP_DIVE | migrate inline subshell gotcha | bash-patterns.md | claude-code.md | MEDIUM |
 | 10 | — | DEEP_DIVE | migrate && chaining gotcha | bash-patterns.md | claude-code.md | MEDIUM |
 | 10 | — | DEEP_DIVE | add See also cross-refs | bash-patterns.md | — | MEDIUM |
+| 11 | — | DEEP_DIVE | migrate "Uniform Convention" to curation-insights | claude-authoring-guidelines.md | curation-insights.md | MEDIUM |
+| 11 | — | DEEP_DIVE | compress "Three-Tier Separation" (−9 lines) | claude-authoring-guidelines.md | — | MEDIUM |
+| 11 | — | DEEP_DIVE | add See also cross-refs | claude-authoring-guidelines.md | — | MEDIUM |
 
 ## Blocked Items
 
