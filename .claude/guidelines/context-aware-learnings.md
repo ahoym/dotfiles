@@ -60,6 +60,14 @@ Announce: `📚 Confidence check — working from training, not loaded knowledge
 
 Soft because there's no tool-call trigger — it relies on self-awareness at the moment of drafting. Fires inconsistently, but quality improvement is substantial when it does.
 
+## Friction-triggered (soft)
+
+When a tool call fails, a command errors, or a workaround is needed during skill execution, check loaded learnings for known patterns that address the friction. The error is the trigger; the lateral check is the judgment call.
+
+Fires on: tool errors, permission rejections, unexpected state (worktree conflicts, missing files, API failures). Does NOT fire on expected no-ops (empty poll results, no matches found).
+
+Announce: `📚 Friction check — <error summary>. Checking learnings for known patterns...`
+
 ## Keyword-based (proactive)
 
 When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
