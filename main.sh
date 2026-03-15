@@ -33,6 +33,14 @@ VIM_COPY_SIGIL="File copied from ahoym/vim_related"
 # Copies vim related files/dirs if not existing
 if [ ! -f ~/.vimrc ] || ! grep -q "$VIM_COPY_SIGIL" ~/.vimrc; then
   echo "[include-vim] Copying vim related files/dirs to root"
+  if [ -f ~/.vimrc ]; then
+    echo "[include-vim] Backing up existing ~/.vimrc to ~/.vimrc.bak"
+    cp ~/.vimrc ~/.vimrc.bak
+  fi
+  if [ -d ~/.vim ]; then
+    echo "[include-vim] Backing up existing ~/.vim to ~/.vim.bak"
+    cp -R ~/.vim ~/.vim.bak
+  fi
   cp -R ./vim_related/ ~
 else
   echo "[include-vim] ahoym/vim_related already exists in ~/.vimrc. Skipping [include-vim]."

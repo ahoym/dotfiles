@@ -19,3 +19,6 @@
   # Pushes current changes up to branch
   pushcurrent = "!git brname; git push origin $(pbpaste)"
 
+[init]
+  defaultBranch = main
+
