@@ -39,6 +39,8 @@ For skills that poll repeatedly on the same review:
 - If no non-self comments are returned, keep the previous `LAST_FETCH_TS`.
 - Filter out your own replies by matching `Role:.*<YOUR_ROLE>` (regex) in the comment body. The footer uses markdown italics (`*Role:* <role>`), so a literal substring match won't work.
 
+**Quick-exit is a gate, not a processing shortcut.** The quick-exit check (fetching only the latest comment) determines whether any new activity exists. If new activity is detected, always perform a full incremental fetch before applying filters or processing. Never apply the Mutual Resolution Filter or categorize comments based solely on the quick-exit result — intermediate comments (especially human comments) may exist between the latest comment and `LAST_FETCH_TS`.
+
 **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time. On incremental fetches, compare the count against `LAST_REVIEW_COUNT`. Only process reviews beyond the previous count.
 
 **Top-level comments** are included in the consolidated fetch's `comments` field. On incremental fetches, filter by `createdAt > LAST_FETCH_TS` and exclude self-replies.
@@ -77,6 +79,7 @@ A thread is mutually resolved when ALL of these are true:
 - The comment is from the **other** role (`Role:.*<OTHER_ROLE>` in body)
 - The comment is a resolution signal (contains: "resolved", "acknowledged", "sounds good", "thread resolved", "no code change needed", "no action needed", or is purely emoji like 👍/🤝)
 - You have already posted a substantive reply on the same thread (`in_reply_to_id` matches a thread where your role's reply exists)
+- No unaddressed human comments (no `Role:` tag in body) exist in the thread after your last reply. A human comment between your reply and the resolution signal breaks the resolution chain — that comment must be processed first.
 
 When mutual resolution is detected, skip the comment entirely — no reaction, no reply. Just update `LAST_FETCH_TS` and move on. Announce: `Thread <file>:<line> — mutual resolution detected, skipping.`
 
