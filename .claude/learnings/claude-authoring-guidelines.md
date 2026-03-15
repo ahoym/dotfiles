@@ -36,15 +36,9 @@ A guideline is redundant when skills already handle the behavior as part of thei
 
 **Rule:** Guidelines should shape ambiguous situations, not override explicit instructions. If a skill handles the default and the user explicitly asks for something different, honor the user.
 
-## Uniform Convention Over Case-by-Case Optimization
+## Pseudocode at the Universal Tier
 
-When a structural pattern applies to a category (e.g., "every persona gets a gotcha file"), apply it uniformly — even when a specific instance doesn't strictly need it (e.g., a gotcha file with a single consumer). Predictability of the convention matters more than minimizing artifact count. Case-by-case exceptions erode the pattern and force future decisions that the uniform rule would have automated.
-
-## Three-Tier Guideline Separation: Universal / Language / Project
-
-When extracting guidelines from a monolithic config, use a deliberate taxonomy: (1) universal software engineering principles (helper class extraction, factory functions, SRP — applicable to any language, uses pseudocode examples), (2) language-specific practices (docstrings, linting, float comparisons), and (3) project-specific conventions (noqa directives, test file naming, domain-specific patterns). The universal tier's portability across projects is the key design goal — pseudocode examples, not language-specific ones.
-
-- **Takeaway**: Structure guidelines in three tiers (universal/language/project) with pseudocode at the universal level for cross-project portability.
+When extracting universal guidelines (see `claude-authoring-content-types.md` → "Universal vs Language-Specific" for the tier taxonomy), use pseudocode examples rather than language-specific ones. Pseudocode makes the universal tier portable across projects — language-specific examples anchor it to one stack.
 
 ## Inline Format Examples Over Fenced Code Blocks
 
@@ -54,3 +48,8 @@ When a guideline specifies announcement formats (emoji prefixes, status messages
 **After** (2 lines): `Formats: 📚 Session start — loaded X (reason) · 📚 "keyword" → loaded X · 📚 Searched for "X" — no matches`
 
 Saves ~70% of lines in format-heavy guideline sections. The agent parses inline examples just as reliably as code blocks — the format is the content, not the fencing.
+
+## See also
+
+- `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
+- `~/.claude/commands/learnings/curate/curation-insights.md` — operational calibration including "uniform convention" pattern (migrated from here)

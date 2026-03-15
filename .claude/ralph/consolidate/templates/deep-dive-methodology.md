@@ -27,10 +27,10 @@ After all candidates processed → completion (`WOOT_COMPLETE_WOOT`).
 
 ## Max Guard
 
-If deep dives exceed 15 invocations without completing all candidates, stop with `MAX_DEEP_DIVES_HIT`:
+If deep dives exceed 30 invocations without completing all candidates, stop with `MAX_DEEP_DIVES_HIT`:
 1. Write `MAX_DEEP_DIVES_HIT` as the first line of progress.md
 2. Update report.md status to `MAX_DEEP_DIVES_HIT`
-3. Add to review.md with `[MAX-DEEP-DIVES]` tag: "Deep dive phase hit 15-invocation limit — remaining candidates need manual curation"
+3. Add to review.md with `[MAX-DEEP-DIVES]` tag: "Deep dive phase hit 30-invocation limit — remaining candidates need manual curation"
 4. List remaining unprocessed candidates in the entry
 
-Typical runs should have 10–15 candidates (minimum floor + organic). The 15-invocation limit is a safety net.
+Typical runs should have 10–15 candidates (minimum floor + organic). The 30-invocation limit is a safety net.

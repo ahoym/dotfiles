@@ -57,3 +57,8 @@ No currency standard requires >18 decimals (XRP=6, fiat=2-4, Ethereum=18). For i
 ### Null Safety in BigDecimal Stream Reductions and Arithmetic
 
 Nullable fields throw NPE in `reduce(BigDecimal.ZERO, BigDecimal::add)`. Add `.filter(Objects::nonNull)` or use `Optional.ofNullable().orElse(BigDecimal.ZERO)` before reducing. Extends to individual operations: guard with `BigDecimal.ZERO` before subtraction when methods like `getFeeAmount()` can return null.
+
+## See also
+
+- `.claude/learnings/bignumber-financial-arithmetic.md` — JavaScript BigNumber.js patterns for frontend financial calculations (complements the Java BigDecimal patterns here)
+- `.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)

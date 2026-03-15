@@ -288,11 +288,11 @@ Group all skill directories under `~/.claude/commands/` by their namespace prefi
 
 | Cluster | Skills |
 |---------|--------|
-| `git:*` | git:split-pr, git:cascade-rebase, git:create-pr, ... |
-| `learnings:*` | learnings:curate, learnings:compound, learnings:consolidate, ... |
-| `ralph:*` | ralph:init, ralph:compare |
+| `git:*` | git:address-request-comments, git:cascade-rebase, git:code-review-request, git:create-request, git:explore-request, git:prune-merged, git:repoint-branch, git:resolve-conflicts, git:split-commit, git:split-request |
+| `learnings:*` | learnings:compound, learnings:consolidate, learnings:curate, learnings:distribute |
+| `ralph:*` | ralph:consolidate:init, ralph:consolidate:resume, ralph:research:brief, ralph:research:cleanup, ralph:research:compare, ralph:research:init, ralph:research:resume |
 | `parallel-plan:*` | parallel-plan:make, parallel-plan:execute |
-| Standalone | do-refactor-code, do-security-audit, explore-repo, set-persona, ... |
+| Standalone | do-refactor-code, do-security-audit, explore-repo, explore-repo:brief, extract-request-learnings, quantum-tunnel-claudes, session-retro, set-persona |
 
 This clustering enables cross-skill overlap detection within namespaces.
 
@@ -310,7 +310,7 @@ For each skill, follow learnings:curate skill mode (steps 2s–4s) with full cro
 - Skills that are subsets of other skills (merge or prune candidates)
 - Namespace gaps (missing skills that would complete a workflow)
 
-**Inline analysis** for the current collection size (~23 skills). Use subagents for collections of 30+.
+**Inline analysis** for the current collection size (~31 skills). Use subagents for collections of 40+.
 
 **Additional cross-cutting checks** (run after individual skill evaluation):
 - **Stale model version strings:** Grep all skill directories for `Co-Authored-By` and `Co-authored with` lines with outdated model versions (e.g., previous model generation). Bulk-update matches.
@@ -627,6 +627,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/guidelines/**)",
+"Read(~/.claude/skill-references/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/learnings/**)",
 "Write(~/.claude/learnings-private/**)",

@@ -1,4 +1,5 @@
 ---
+name: split-commit
 description: Split a commit with mixed changes into separate commits
 ---
 

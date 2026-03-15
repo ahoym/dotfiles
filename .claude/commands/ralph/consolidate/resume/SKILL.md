@@ -1,6 +1,6 @@
 ---
 name: resume
-description: "Review consolidation loop state, handle review items, and prepare to relaunch."
+description: "Evaluate consolidation run quality, handle review items, and prepare to merge or relaunch."
 disable-model-invocation: true
 allowed-tools:
   - Read
@@ -13,7 +13,7 @@ allowed-tools:
 
 # Resume Consolidation Loop
 
-Review the state of a completed or stalled consolidation loop, handle any review items, and print the relaunch command.
+Evaluate the quality of a completed or stalled consolidation loop, handle any review items, and print the relaunch command.
 
 ## Instructions
 
@@ -34,7 +34,25 @@ Read from `<worktree>/.claude/consolidate-output/`:
 | `review.md` | Any review items (LOWs, blocked MEDIUMs, loop limits) |
 | `decisions.md` | Last 10 rows (recent actions for context) |
 
-### 3. Present status
+### 3. Evaluate run
+
+Analyze data from step 2 across these dimensions:
+
+| Dimension | What to check | Source |
+|-----------|---------------|--------|
+| **Convergence** | How many rounds to converge? Clean or messy? | Round summary table |
+| **Action quality** | Were HIGHs genuine fixes? Were MEDIUMs well-calibrated? Borderline calls? | decisions.md rationales |
+| **Deep dive yield** | Ratio of substantive findings vs clean. Were clean results worth the cost? | Iteration log |
+| **Compounding** | Were insights compounded? If zero, calibration problem or genuine? | Iteration log notes |
+| **Spec compliance** | One-action-per-invocation: does SWEEP_COUNT match log file count? | progress.md + Glob on logs/ |
+| **Adjacent patterns** | Did any deep dive note patterns applying to unprocessed files? | Notes for Next Iteration |
+| **Carryover framing** | If MAX_DEEP_DIVES_HIT: staleness-eligible periodic review or unfinished work? | DEEP_DIVE_CANDIDATES, tracker |
+
+Flag anything warranting discussion before proceeding to review items.
+
+Note: Spec compliance uses `Glob` on the logs/ directory (not Bash — not in allowed-tools).
+
+### 4. Present status
 
 ```markdown
 # Resume: Consolidation <date>
@@ -51,6 +69,10 @@ Read from `<worktree>/.claude/consolidate-output/`:
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked |
 |...|
 
+## Evaluation
+
+[Structured analysis from step 3. Flag items warranting discussion.]
+
 ## Review Items (N)
 
 [L-1] Title — ambiguous classification...
@@ -64,7 +86,7 @@ Read from `<worktree>/.claude/consolidate-output/`:
 |...|
 ```
 
-### 4. Handle review items
+### 5. Handle review items
 
 If there are review items in `review.md`:
 
@@ -77,13 +99,14 @@ If the user wants to skip an item, leave it without a Status line.
 
 **Recommendation framing**: When presenting options, prefer recommending the option that fixes root cause (wire, restructure, merge) over the option that accepts dysfunction (delete, skip). Deletion is irreversible; wiring is reversible. Only recommend cleanup when the content is stale, incorrect, or has no identifiable consumers.
 
-### 5. Prepare for relaunch
+### 6. Prepare for relaunch
 
 Calculate suggested iterations based on pre-flight cadence (from progress.md) and remaining work:
 - Read `Cadence` and `Suggested iterations` from the Pre-Flight section
 - Base: `max(5, <init_suggested> - SWEEP_COUNT)` where `<init_suggested>` is the value from pre-flight (default 20 if not present)
 
-If COMPLETE or MAX_ROUNDS_HIT signal is present in progress.md:
+If COMPLETE, MAX_ROUNDS_HIT, or MAX_DEEP_DIVES_HIT signal is present in progress.md:
+- MAX_DEEP_DIVES_HIT: carryover candidates are staleness-eligible periodic review, not unfinished work — merge path applies with a note about what carries over
 - **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r .claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
 - Ask if the user wants to review the diff: `git diff main -- .claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
@@ -102,3 +125,4 @@ Ready to resume. Run:
 - **Does not auto-launch** — prints the command for the user to run, since `wiggum.sh` invokes `claude --print` (cannot be called from within Claude)
 - **Review item resolution feeds back through progress.md** — the next loop iteration reads Notes and acts on resolved items
 - **COMPLETE state** — when the loop finished successfully, resume shifts to review/merge guidance instead of relaunch
+- **Evaluation before interaction** — run quality analysis surfaces patterns (convergence issues, calibration gaps, adjacent findings) before the user commits to review decisions

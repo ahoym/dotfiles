@@ -205,7 +205,7 @@ Before exiting, update:
 
 - **progress.md**: Increment SWEEP_COUNT. Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
   - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below).
-  - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 5 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
+  - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 30 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **review.md**: Only if new LOWs or blocked MEDIUMs found.
 

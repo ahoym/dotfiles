@@ -71,7 +71,7 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 ## Convergence as Safety Net for Compounding
 
-Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (2 consecutive clean rounds) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
+Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (a clean round) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
 
 ## Inline Compounding Over Skill Invocation in Autonomous Loops
 
@@ -135,6 +135,10 @@ Both need explicit methodology in the spec. Defect mode has clear confidence lev
 ## Spec-Runner Signal Coherence
 
 When adding stop signals to a spec (e.g., `MAX_DEEP_DIVES_HIT`), verify the runner script checks for all signals. The spec defines agent behavior (write signal, stop sweeping); the runner defines loop termination (grep for signal, exit). If the runner only checks the original signal (`WOOT_COMPLETE_WOOT`), new signals cause the agent to stop but the runner to keep launching iterations until the stalled detector kicks in.
+
+## Deep Dive Carryover ≠ Unfinished Work
+
+When a run exits with `MAX_DEEP_DIVES_HIT` and lists remaining candidates, those are typically staleness-eligible files awaiting periodic review — not incomplete work from the current run. They qualified via `run_count - last_deep_dive_run >= threshold`, not because the current run started and couldn't finish them. Relaunching is optional (they'll be picked up next run with higher priority), not urgent. Frame accordingly during resume.
 
 ## Resume Decision vs Action Ambiguity
 
@@ -227,3 +231,9 @@ The consolidation worktree has guard hooks that auto-commit changes and can reve
 ## Rate Limit Detection in Outer Loops
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.
+
+## See also
+
+- `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
+- `~/.claude/learnings/claude-code.md` — worktree permission mismatches and path resolution mechanics underlying the worktree editing gotchas here
+- `~/.claude/learnings/multi-agent-patterns.md` — multi-agent orchestration patterns that complement the stateless iteration and autonomous loop design here

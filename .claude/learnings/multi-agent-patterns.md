@@ -125,26 +125,17 @@ When merging diverged files with many structural changes (new sections, reordere
 
 **Recovery pattern:** If an agent detects duplication after incremental edits (by reading the file back), it should abandon the edit approach and do a full `Write` with the correct merged content. This self-correction is cheaper than debugging cascading edit failures.
 
-## Multi-Agent Workflows Survive Context Compaction
+## Context Compaction in Multi-Agent Workflows
 
-Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files) can exceed the orchestrator's context window. When context compaction occurs mid-execution, background agents continue running independently — they have their own context. On resumption:
+Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files) can exceed the orchestrator's context window. Background agents continue running independently — they have their own context and are decoupled from the orchestrator's context lifecycle. On resumption, the compaction summary preserves agent IDs, completion statuses, and file-level progress. You'll be notified automatically when background agents complete — don't poll with `TaskOutput` (it only works for background Bash commands; see "TaskOutput Only Works for Background Bash Tasks" below).
 
-1. The compaction summary preserves agent IDs, completion statuses, and file-level progress
-2. Use `TaskOutput` with `block: false` to check running agents' status
-3. Use `TaskOutput` with `block: true` to wait for still-running agents
-4. Completed agents' results are available via their agent IDs
-
-**Key insight:** agents are decoupled from the orchestrator's context lifecycle. The orchestrator can be compacted, resumed, or even restarted — agents keep working.
+**Risk with 10+ agents:** Some may complete after compaction, losing original agent IDs and notifications. Mitigations: (1) batch in waves of 5-6 so each wave completes within the context window, (2) use a status tracking table updated after each notification, (3) record agent IDs in a file for the continuation session.
 
 ## Balance Agent Work Distribution by Complexity
 
 When splitting work across parallel agents, balance by estimated complexity — not just file count. In a 30-file merge operation split 3/3/5/19, the 19-file agent (472s, 105 tool uses) was the bottleneck while others finished in 217-320s.
 
 **Complexity factors beyond count:** files needing fine-grained per-section merging (BOTH_UNIQUE) are ~3-5x more work than simple overwrites (SUPERSET:source) or copies (source-only). Weight distribution by merge type, not just file count.
-
-## Many-Agent Context Compaction Risk
-
-When launching 10+ background agents, some may complete after context compaction. The continuation session loses the original agent IDs and completion notifications. Mitigations: (1) batch agents in waves of 5-6 so each wave completes within the context window, (2) use a status tracking table updated after each completion notification, (3) if agents must all launch at once, record agent IDs in a file for the continuation session to check via `TaskOutput`.
 
 ## Write One, Validate, Then Parallelize
 
@@ -291,6 +282,15 @@ Test assumptions with a controlled experiment before writing them as facts acros
 
 When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).
 
+## Mutual Agreement Auto-Implementation
+
+When an addresser agent agrees with a reviewer agent's suggestion, auto-implement without waiting for human approval. Escalate to the human partner only when the addresser disagrees or is uncertain. The human reviews the PR diff and calibrates — they don't need to approve every change both agents converge on. Use the structured footnote (`Role:.*Reviewer`) to distinguish agent comments from human comments; comments without a Role tag are human.
+
+## Agent-to-Agent Review Cycle
+
+Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
+
 ## See also
 
 - `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas (platform mechanics underlying the agent patterns here)
+- `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

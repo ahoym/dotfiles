@@ -1,4 +1,5 @@
 ---
+name: extract-request-learnings
 description: Extract learnings from request history (GitHub PRs or GitLab MRs) in batches — review patterns, architectural decisions, conventions, and engineering insights from discussions and metadata.
 ---
 
