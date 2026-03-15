@@ -485,6 +485,10 @@ Repeated invocations via `/loop` surface edge cases that single runs hide: self-
 
 When fixing a bug in a platform-specific reference file (e.g., `github/comment-interaction.md`), always check and fix the equivalent file for the other platform (`gitlab/comment-interaction.md`). Same applies to `pr-management.md` and any other paired files. The fix is often mechanical (same pattern, different CLI syntax), but skipping it guarantees drift.
 
+## When to Extract Skill References
+
+The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
+
 ## See also
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
