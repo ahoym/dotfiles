@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | claude-authoring-skills.md, process-conventions.md, bash-patterns.md, claude-authoring-guidelines.md, financial-applications.md, aws-messaging.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, ralph-loop.md, multi-agent-patterns.md, web-session-sync.md, typescript-devops.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, react-frontend.md, explore-repo.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, git-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md |
 
 ## Pre-Flight
 
@@ -68,6 +68,7 @@ Suggested iterations: 15
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 56 files, no new duplicates/staleness/regressions from R1 changes |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, R1 fixes verified, no regressions |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, no changes since R1. R2 fully clean → convergence → DEEP_DIVE |
+| 7 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md: clean, 11 patterns all standalone reference |
 
 ## Deep Dive Status
 
@@ -76,6 +77,7 @@ Suggested iterations: 15
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| claude-authoring-content-types.md | done | 7 | Clean — 11 patterns, all standalone reference, hub-spoke boundary clean |
 
 ## Notes for Next Iteration
 
@@ -149,3 +151,9 @@ Suggested iterations: 15
 **Tracker note**: Entry `.claude/commands/ralph/init/SKILL.md` doesn't match any actual file — actual paths are `ralph/consolidate/init/SKILL.md` and `ralph/research/init/SKILL.md`. Corrected in candidate list to `ralph/consolidate/init/SKILL.md`.
 
 **Next**: Deep dive phase. Max guard = 5 invocations.
+
+### Iter 7
+
+**Deep dive: claude-authoring-content-types.md** (cross-reference hub file). 122 lines, 11 patterns. All classified standalone reference / HIGH / keep. Hub-spoke boundary verified clean — 5 spoke files (skills, guidelines, learnings, personas, claude-md) all exist with accurate descriptions. No duplication between hub and spokes. No stale references. No compression targets (file is already concise). No `## See also` section, but the "Authoring Guides (per-type)" routing section serves the same discovery function for spoke files.
+
+**Next**: claude-authoring-skills.md (503 lines — largest file, likely has compression/split candidates).
