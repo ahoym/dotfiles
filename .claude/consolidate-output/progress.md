@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,6 +51,7 @@ Suggested iterations: 15
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 1 | 2 | 1 | 1 | 0 | 0 | No |
 
 ## Iteration Log
 
@@ -60,6 +61,7 @@ Suggested iterations: 15
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 1 | 2 | 2 | 3 | Fix misplaced takeaway + merge dup sections in process-conventions.md; reference wiring for financial-applications.md and aws-messaging.md |
 | 2 | 1 | SKILLS | 1 | 1 | 0 | 2 | Add missing name frontmatter to 2 skills; update stale skill names in consolidate example table |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no duplication/drift |
 
 ## Deep Dive Status
 
@@ -101,3 +103,11 @@ Suggested iterations: 15
 **Corpus health**: Skills collection is well-organized. Namespace clusters are clean with clear boundaries. Shared references are appropriately factored. Extension hierarchy in personas (claude-config-*, java-*) works well with no duplication.
 
 **Modified files added to deep-dive tracker**: extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md
+
+### Iter 3
+
+**Guidelines sweep**: 4 files (communication.md, context-aware-learnings.md, path-resolution.md, skill-invocation.md). All @-referenced from `.claude/CLAUDE.md`. Cross-referenced against 56 learnings, 31 skills, 11 personas.
+
+**Findings**: Clean. No duplicates, no domain-specific content, no dead references, no stale content. `claude-authoring-guidelines.md` in learnings is meta-knowledge about authoring guidelines — distinct from the guidelines themselves.
+
+**Round 1 complete**: Not clean (sweeps 1-2 had findings). CLEAN_ROUND_STREAK stays at 0. Starting Round 2.
