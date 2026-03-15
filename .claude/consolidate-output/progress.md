@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
+| SWEEP_COUNT | 2 |
 | ROUND | 1 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | false |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,9 +34,9 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
-- **HIGHs applied**: 0
-- **MEDIUMs applied**: 0
+- **Sweeps**: 1
+- **HIGHs applied**: 1
+- **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 1 | 2 | 2 | 3 | Fix misplaced takeaway + merge dup sections in process-conventions.md; reference wiring for financial-applications.md and aws-messaging.md |
+| 2 | 1 | SKILLS | 1 | 1 | 0 | 2 | Add missing name frontmatter to 2 skills; update stale skill names in consolidate example table |
 
 ## Deep Dive Status
 
@@ -90,3 +91,13 @@ Suggested iterations: 15
 - `process-conventions.md` (now ~176 lines, ~25 patterns) — compression candidates in verbose takeaways
 - `ralph-loop.md` (230 lines) — check for stale v1 references
 - `multi-agent-patterns.md` (296 lines) — large but thematically unified
+
+### Iter 2
+
+**Skills sweep**: 31 skills across 5 namespace clusters (git:10, learnings:4, ralph:7, parallel-plan:2, standalone:8). Also read 11 persona files and 15 skill-reference files.
+
+**Findings**: 1 HIGH (missing `name` frontmatter in extract-request-learnings + git:split-commit), 1 MEDIUM auto-applied (stale skill names in consolidate example table). No stale model version strings. No cross-persona content duplication. No skill overlap warranting merge/prune.
+
+**Corpus health**: Skills collection is well-organized. Namespace clusters are clean with clear boundaries. Shared references are appropriately factored. Extension hierarchy in personas (claude-config-*, java-*) works well with no duplication.
+
+**Modified files added to deep-dive tracker**: extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md

@@ -288,11 +288,11 @@ Group all skill directories under `~/.claude/commands/` by their namespace prefi
 
 | Cluster | Skills |
 |---------|--------|
-| `git:*` | git:split-pr, git:cascade-rebase, git:create-pr, ... |
-| `learnings:*` | learnings:curate, learnings:compound, learnings:consolidate, ... |
-| `ralph:*` | ralph:init, ralph:compare |
+| `git:*` | git:address-request-comments, git:cascade-rebase, git:code-review-request, git:create-request, git:explore-request, git:prune-merged, git:repoint-branch, git:resolve-conflicts, git:split-commit, git:split-request |
+| `learnings:*` | learnings:compound, learnings:consolidate, learnings:curate, learnings:distribute |
+| `ralph:*` | ralph:consolidate:init, ralph:consolidate:resume, ralph:research:brief, ralph:research:cleanup, ralph:research:compare, ralph:research:init, ralph:research:resume |
 | `parallel-plan:*` | parallel-plan:make, parallel-plan:execute |
-| Standalone | do-refactor-code, do-security-audit, explore-repo, set-persona, ... |
+| Standalone | do-refactor-code, do-security-audit, explore-repo, explore-repo:brief, extract-request-learnings, quantum-tunnel-claudes, session-retro, set-persona |
 
 This clustering enables cross-skill overlap detection within namespaces.
 

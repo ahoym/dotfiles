@@ -32,6 +32,9 @@
     ".claude/learnings/claude-authoring-content-types.md": { "last_deep_dive_run": 7 },
     ".claude/learnings/process-conventions.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/financial-applications.md": { "last_deep_dive_run": 0 },
-    ".claude/learnings/aws-messaging.md": { "last_deep_dive_run": 0 }
+    ".claude/learnings/aws-messaging.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/extract-request-learnings/SKILL.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/git/split-commit/SKILL.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/learnings/consolidate/SKILL.md": { "last_deep_dive_run": 0 }
   }
 }

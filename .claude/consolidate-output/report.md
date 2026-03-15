@@ -7,7 +7,7 @@
 | Started | 2026-03-14 23:50 |
 | Branch | consolidate/2026-03-14-2350 |
 | Worktree | .claude/worktrees/consolidate-2026-03-14-2350 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 1 (in progress) |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 1 | 2 | 0 | 0 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 1 | 1 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **1** | **2** | **0** | **0** |
+| **Total** | **2** | **2** | **3** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -27,6 +27,8 @@
 | 1 | 1 | LEARNINGS | fix misplaced takeaway + merge duplicate sections | process-conventions.md | process-conventions.md | HIGH |
 | 1 | 1 | LEARNINGS | reference wiring (See also) | financial-applications.md | financial-applications.md | MEDIUM |
 | 1 | 1 | LEARNINGS | reference wiring (See also) | aws-messaging.md | aws-messaging.md | MEDIUM |
+| 2 | 1 | SKILLS | add missing name frontmatter | extract-request-learnings + split-commit | same | HIGH |
+| 2 | 1 | SKILLS | update stale skill names in example | consolidate/SKILL.md | same | MEDIUM |
 
 ## Blocked Items
 
