@@ -136,6 +136,10 @@ Both need explicit methodology in the spec. Defect mode has clear confidence lev
 
 When adding stop signals to a spec (e.g., `MAX_DEEP_DIVES_HIT`), verify the runner script checks for all signals. The spec defines agent behavior (write signal, stop sweeping); the runner defines loop termination (grep for signal, exit). If the runner only checks the original signal (`WOOT_COMPLETE_WOOT`), new signals cause the agent to stop but the runner to keep launching iterations until the stalled detector kicks in.
 
+## Deep Dive Carryover ≠ Unfinished Work
+
+When a run exits with `MAX_DEEP_DIVES_HIT` and lists remaining candidates, those are typically staleness-eligible files awaiting periodic review — not incomplete work from the current run. They qualified via `run_count - last_deep_dive_run >= threshold`, not because the current run started and couldn't finish them. Relaunching is optional (they'll be picked up next run with higher priority), not urgent. Frame accordingly during resume.
+
 ## Resume Decision vs Action Ambiguity
 
 The consolidation agent misinterpreted a resume commit (which recorded human decisions in progress.md notes) as having already applied the L-2 extraction. This caused it to verify stability of changes that never happened, then report "clean."
