@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | ROUND | 2 |
-| CONTENT_TYPE | LEARNINGS |
+| CONTENT_TYPE | SKILLS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -28,7 +28,7 @@ Suggested iterations: 20
 ## Content Type Status
 
 ### LEARNINGS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 3
 - **MEDIUMs blocked**: 0
@@ -62,6 +62,7 @@ Suggested iterations: 20
 | 1 | 1 | LEARNINGS | 0 | 3 | 0 | 3 | Moved git workflows section, wired 2 persona refs |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 10 clusters, all current |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no overlap |
+| 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — corpus stable after round 1 changes |
 
 ## Deep Dive Status
 
@@ -108,3 +109,15 @@ Suggested iterations: 20
 **Checks**: No orphaned guidelines, no domain-specific content for persona migration, no duplication with learnings/skills, no compression opportunities that wouldn't degrade teaching quality. CLAUDE.md inline Path Resolution table partially overlaps `path-resolution.md` but serves as complementary quick-reference (5 lines, minimal cost).
 
 **Round 1 complete**: ROUND_CLEAN=false (LEARNINGS found 3 MEDIUMs). CLEAN_ROUND_STREAK stays 0. Advancing to Round 2, CONTENT_TYPE reset to LEARNINGS.
+
+### Iter 4
+
+**LEARNINGS sweep (Round 2)**: Clean. 56 files, all clusters evaluated. Round 1 changes verified: git workflows section in git-patterns.md (correct location), local-dev-seeding wired into java-backend (line 49), claude-code-hooks wired into claude-config-expert (line 53). No concept-name collisions, no new overlaps, no genericization/compression opportunities.
+
+**Deep dive candidates (for when convergence is reached)**:
+- Modification-triggered (last_deep_dive_run=0): claude-code.md, curation-insights, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend persona, claude-config-expert persona
+- Polish Opportunity: claude-authoring-skills.md (517 lines, 3+ distinct sub-topics — potential split)
+- Staleness (run_count 9, threshold 3): api-design (5 behind), skill-platform-portability (4), nextjs (4), react-patterns (4), explore-repo (4), code-quality-instincts (4), cross-repo-sync (4), react-frontend persona (4), platform-engineer persona (4)
+- Untracked files: ~30 learnings files not yet in tracker — these fill remaining slots after criteria 1-6 candidates
+
+**Tracker note**: deep-dive-tracker.json has a duplicate key for `.claude/learnings/git-patterns.md` (lines 27 and 42). JSON parser keeps the last entry (last_deep_dive_run=0). Not functionally broken but should be cleaned up during deep dive phase.
