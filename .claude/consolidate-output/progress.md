@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md |
+| DEEP_DIVE_CANDIDATES | ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md |
 
 ## Pre-Flight
 
@@ -68,6 +68,7 @@ Suggested iterations: 20
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files unchanged. Round 2 clean → convergence. 24 deep dive candidates identified. |
 | 7 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-code.md: deleted duplicate "Worktree Branches Block gh pr checkout". Tracker duplicate key fixed. |
 | 8 | — | DEEP_DIVE | 5 | 2 | 0 | 7 | curation-insights.md: deleted 5 duplicate bullets (covered by SKILL.md/classification-model/content-mode), merged Classification Calibration (cont.) into parent, folded Phase 2 into Execution Strategy. 81→70 lines. |
+| 9 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | resilience-patterns.md: clean. 4 patterns, all unique standalone references. Cross-refs healthy (bidirectional with financial-applications.md). |
 
 ## Deep Dive Status
 
@@ -77,6 +78,7 @@ Suggested iterations: 20
 |------|--------|------|---------|
 | claude-code.md | done | 7 | 1 HIGH applied (deleted duplicate "Worktree Branches Block gh pr checkout" — fuller version in claude-authoring-skills.md). Tracker duplicate key fixed. |
 | curation-insights.md | done | 8 | 5 HIGHs (deleted duplicate bullets covered by SKILL.md, classification-model.md, content-mode.md, deep-dive-methodology.md). 2 MEDIUMs (merged split Classification Calibration section, folded Phase 2 into Execution Strategy). 81→70 lines. |
+| resilience-patterns.md | done | 9 | Clean — 4 patterns, all unique. Cross-refs valid (bidirectional with financial-applications.md, inbound from aws-messaging.md). |
 
 ## Notes for Next Iteration
 
@@ -174,3 +176,17 @@ Suggested iterations: 20
 **Result**: 81→70 lines. 6 sections (was 8). All remaining content is unique operational calibration not covered by the eagerly-loaded SKILL.md or step-4 reference files.
 
 **No compounding needed** — all actions were dedup/structural cleanup, no novel meta-insight to extract.
+
+### Iter 9
+
+**DEEP DIVE: resilience-patterns.md** (32 lines, 4 patterns). Cross-referenced against financial-applications.md, aws-messaging.md, spring-boot-gotchas.md, java-backend persona.
+
+**Clean** — all 4 patterns are unique standalone references:
+1. "Mark items as processed before processing" — application-level dedup, distinct from aws-messaging SQS dedup (infrastructure-level)
+2. "Domain-specific exceptions" — distinct from spring-boot-gotchas RuntimeException context (interrupt flag, not domain typing)
+3. "Scheduler-decoupled maker/checker" — no matches anywhere in corpus
+4. "Stale validation caches" — specific production incident complementing java-backend persona's general principle
+
+**Cross-refs verified**: financial-applications.md bidirectional ✅, aws-messaging.md inbound ✅ (no reverse needed — keyword overlap sufficient for discovery).
+
+**No compounding needed** — clean deep dive, no findings.
