@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 24 |
+| Iterations | 25 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 18 of 24 candidates complete |
+| Status | DEEP_DIVE — 19 of 24 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 18 | 13 | 6 | 0 | 0 |
-| **Total** | **24** | **13** | **9** | **0** | **2** |
+| Deep Dives | 19 | 13 | 6 | 0 | 0 |
+| **Total** | **25** | **13** | **9** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -53,6 +53,7 @@
 | 22 | — | DEEP_DIVE | compress 2→1 | code-quality-instincts.md (internal dedup) | — | MEDIUM |
 | 23 | — | DEEP_DIVE | delete 2 sections | cross-repo-sync.md (SKILL.md absorbed duplicates) | — | HIGH |
 | 24 | — | DEEP_DIVE | (clean) | playwright-patterns.md | — | — |
+| 25 | — | DEEP_DIVE | (clean) | refactoring-patterns.md | — | — |
 
 ## Blocked Items
 

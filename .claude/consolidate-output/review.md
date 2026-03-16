@@ -146,3 +146,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking react-frontend-gotchas.md (companion tripwires), testing-patterns.md (unit/integration test patterns), react-patterns.md (modal timing patterns) vs rely on persona references and keyword overlap
 - **Why LOW**: react-frontend persona line 52 references playwright-patterns.md. react-frontend-gotchas.md companion header covers Playwright section. Keyword overlap ("playwright", "E2E", "getByRole") sufficient for discovery.
 - **Curate command**: `/learnings:curate learnings/playwright-patterns.md`
+
+## [L-12] refactoring-patterns.md missing See also section (LOW)
+
+- **Iter**: 25
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/refactoring-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking code-quality-instincts.md (complementary: code instincts vs refactoring methodology), process-conventions.md (PR/MR process patterns), testing-patterns.md (test recipes for refactoring safety) vs rely on keyword overlap and inbound references
+- **Why LOW**: Inbound references from claude-authoring-skills.md and do-refactor-code/SKILL.md. No persona references this file. Keyword overlap ("refactoring", "test coverage", "PR splitting") sufficient for discovery.
+- **Curate command**: `/learnings:curate learnings/refactoring-patterns.md`
