@@ -5,10 +5,7 @@
 | Variable | Value |
 |----------|-------|
 | SWEEP_COUNT | 0 |
-| ROUND | 1 |
 | CONTENT_TYPE | LEARNINGS |
-| ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -47,23 +44,16 @@ Suggested iterations: (pending)
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
-## Round Summary
-
-<!-- Appended at the end of each round -->
-
-| Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
-|-------|---------|--------|---------|--------|---------|--------|--------|
-
 ## Iteration Log
 
-<!-- Each iteration appends: | N | Round | CONTENT_TYPE | HIGHs | MEDIUMs | LOWs | Actions | Notes | -->
+<!-- Each iteration appends: | N | CONTENT_TYPE | HIGHs | MEDIUMs | LOWs | Actions | Notes | -->
 
-| Iter | Round | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
-|------|-------|-------------|-------|---------|------|---------|-------|
+| Iter | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
+|------|-------------|-------|---------|------|---------|-------|
 
 ## Deep Dive Status
 
-<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweep convergence -->
+<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweeps complete -->
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|

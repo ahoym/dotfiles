@@ -8,7 +8,6 @@
 | Branch | <!-- branch name --> |
 | Worktree | <!-- worktree path --> |
 | Iterations | 0 |
-| Rounds | 0 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -22,10 +21,10 @@
 
 ## Actions (Chronological)
 
-<!-- Each action appended as: | Iter | Round | Content Type | Action | Source | Target | Confidence | -->
+<!-- Each action appended as: | Iter | Content Type | Action | Source | Target | Confidence | -->
 
-| Iter | Round | Content Type | Action | Source | Target | Confidence |
-|------|-------|-------------|--------|--------|--------|------------|
+| Iter | Content Type | Action | Source | Target | Confidence |
+|------|-------------|--------|--------|--------|------------|
 
 ## Blocked Items
 

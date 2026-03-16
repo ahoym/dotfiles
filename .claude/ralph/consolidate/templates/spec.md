@@ -92,12 +92,9 @@ Read `.claude/consolidate-output/progress.md`. Extract:
 | Variable | Purpose |
 |----------|---------|
 | `SWEEP_COUNT` | Total sweeps executed |
-| `ROUND` | Current round number (1, 2, 3, ...) |
 | `CONTENT_TYPE` | Current: LEARNINGS, SKILLS, or GUIDELINES |
-| `ROUND_CLEAN` | Whether the current round has been clean so far (true/false) |
-| `CLEAN_ROUND_STREAK` | Consecutive fully-clean rounds |
 | `PHASE` | `BROAD_SWEEP` (default) or `DEEP_DIVE` |
-| `DEEP_DIVE_CANDIDATES` | Ordered list of files to deep-dive (populated at convergence) |
+| `DEEP_DIVE_CANDIDATES` | Ordered list of files to deep-dive (populated after broad sweeps) |
 | `DEEP_DIVE_COMPLETED` | Files already processed in deep dive phase |
 
 Also read `Notes for Next Iteration` for guidance from the previous invocation.
@@ -197,14 +194,14 @@ Follow the `/learnings:compound` skill's methodology inline — no Skill tool in
 
 - **Worktree paths only**: Write to the worktree's `.claude/` paths, NOT `~/.claude/` (which resolves to the main repo via symlink). The write scope constraint from the spec header still applies.
 - **Concise**: Every token in a learning costs context budget when loaded. Express insights in the fewest tokens that preserve teaching value.
-- **Convergence impact**: Compounded files are corpus changes. They don't affect ROUND_CLEAN for the current sweep (which is already false since HIGHs/MEDIUMs were found), but the next LEARNINGS sweep will evaluate them. If they create issues, the loop catches them naturally.
+- **Convergence impact**: Compounded files are corpus changes. They don't affect the current sweep (which already found HIGHs/MEDIUMs), but deep dives will evaluate them. If they create issues, the next consolidation run catches them.
 
 ### 9. Update Output Files
 
 Before exiting, update:
 
 - **progress.md**: Increment SWEEP_COUNT. Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
-  - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <round> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. If this sweep found any HIGH or MEDIUM, set ROUND_CLEAN to false. Advance CONTENT_TYPE (see Transitions below).
+  - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. Advance CONTENT_TYPE (see Transitions below).
   - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 30 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **review.md**: Only if new LOWs or blocked MEDIUMs found.
@@ -221,52 +218,32 @@ Stage all changes from this sweep and commit:
 
 One git command per Bash call. Verify with `git status` before committing if uncertain about staging state.
 
-### 11. Transitions + Convergence
+### 11. Transitions
 
-**Max rounds guard**: If `ROUND > 5` and not converged, stop the loop:
-1. Write `MAX_ROUNDS_HIT` as the first line of progress.md
-2. Update report.md status to `MAX_ROUNDS_HIT`
-3. Add to review.md with `[MAX-ROUNDS]` tag: "Loop hit 5 rounds without converging — remaining findings may need human review"
-4. Do NOT continue sweeping — exit and let the resume skill surface the state
+**Broad sweep structure**: One pass through all three content types in order: LEARNINGS → SKILLS → GUIDELINES. One sweep per invocation, one type per sweep.
 
-**Round structure**: Each round sweeps all three content types in order: LEARNINGS → SKILLS → GUIDELINES. One sweep per invocation, one type per sweep.
-
-**After each sweep**:
-- If this sweep found any HIGH or MEDIUM → set `ROUND_CLEAN` to `false`
-- Advance `CONTENT_TYPE` to the next in sequence
-
-**Content type transition** (within a round):
+**Content type transition**:
 - LEARNINGS → SKILLS
 - SKILLS → GUIDELINES
-- GUIDELINES → end of round (see below)
+- GUIDELINES → check deep dive candidacy (see below)
 
-**End of round** (after GUIDELINES sweep completes):
-1. If `ROUND_CLEAN` is `true` → increment `CLEAN_ROUND_STREAK`
-2. If `ROUND_CLEAN` is `false` → reset `CLEAN_ROUND_STREAK` to 0
-3. Log round summary in progress.md
-4. Reset `ROUND_CLEAN` to `true`
-5. Increment `ROUND`
-6. Set `CONTENT_TYPE` back to LEARNINGS
+**Skip empty content types**: If a content type has 0 files, mark `skipped (empty)` and advance to the next type.
 
-**Convergence**: `CLEAN_ROUND_STREAK >= 1` → one fully-clean round → broad sweeps converged.
-
-One clean round is sufficient because each type's sweep runs after all other types' most recent changes, catching cross-type regressions naturally. Deep dives provide defense-in-depth for per-pattern issues.
-
-**After broad sweep convergence** (check deep dive candidacy):
-1. Review the most recent LEARNINGS broad sweep's per-file quality scan for Polish Opportunity files and cross-reference hub files (see Deep Dive Phase below)
+**After GUIDELINES sweep** (check deep dive candidacy):
+1. Review the LEARNINGS broad sweep's per-file quality scan for Polish Opportunity files and cross-reference hub files (see Deep Dive Phase below)
 2. If candidates exist → set `PHASE` to `DEEP_DIVE`, populate `DEEP_DIVE_CANDIDATES`, continue to deep dive phase
 3. If no candidates → completion (below)
+
+Cross-type regressions from broad sweep changes are rare in practice. Deep dives provide defense-in-depth for per-file issues, making a second confirmation pass unnecessary.
 
 **Completion**:
 - Write `WOOT_COMPLETE_WOOT` as the first line of progress.md
 - Update report.md status to `COMPLETE`
 - Write final collection health metrics
 
-**Skip empty content types**: If a content type has 0 files, mark `skipped (empty)` and advance to the next type. An all-empty round still counts as clean.
-
 ## Deep Dive Phase
 
-Deep dives run **after broad sweeps converge** (`CLEAN_ROUND_STREAK >= 1`). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
+Deep dives run **after broad sweeps complete** (L→S→G pass finished). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
 
 ### Candidacy
 
@@ -279,7 +256,7 @@ A file is a deep dive candidate if it meets ANY of:
 5. **Modified skill file**: Any `.claude/commands/**/SKILL.md` file that received a HIGH or MEDIUM action during broad sweeps. Skills define repeatable agent workflows — changes warrant per-pattern verification to catch downstream breakage.
 6. **Stale tracked file**: Any file in `deep-dive-tracker.json` where `run_count - last_deep_dive_run >= threshold`. Files enter the tracker organically when touched by broad sweep actions (steps 5/6) or deep dives — no file is tracked until the loop first modifies or deep-dives it.
 
-Candidacy is determined incrementally: learnings candidates during the final LEARNINGS broad sweep, guideline candidates during any GUIDELINES sweep that applies changes, skill candidates during any SKILLS sweep that applies changes, staleness candidates at convergence (check tracker). The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+Candidacy is determined incrementally: learnings candidates during the LEARNINGS broad sweep, guideline candidates during the GUIDELINES sweep if it applies changes, skill candidates during the SKILLS sweep if it applies changes, staleness candidates after GUIDELINES completes (check tracker). The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
 **Minimum deep dives per run**: Read `min_deep_dives` from the tracker (default 10). After collecting all criteria 1–6 candidates, if the count is below the minimum, fill remaining slots:
 1. **Untracked corpus files** (not in tracker at all) — glob the full corpus, diff against tracker keys. Priority 1.

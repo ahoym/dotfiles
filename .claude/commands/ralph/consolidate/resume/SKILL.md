@@ -29,7 +29,7 @@ Read from `<worktree>/.claude/consolidate-output/`:
 
 | File | What to extract |
 |------|-----------------|
-| `progress.md` | State variables (SWEEP_COUNT, ROUND, CONTENT_TYPE, ROUND_CLEAN, CLEAN_ROUND_STREAK), iteration log, round summary, notes |
+| `progress.md` | State variables (SWEEP_COUNT, CONTENT_TYPE, PHASE), iteration log, notes |
 | `report.md` | Summary table, total actions, status |
 | `review.md` | Any review items (LOWs, blocked MEDIUMs, loop limits) |
 | `decisions.md` | Last 10 rows (recent actions for context) |
@@ -40,7 +40,7 @@ Analyze data from step 2 across these dimensions:
 
 | Dimension | What to check | Source |
 |-----------|---------------|--------|
-| **Convergence** | How many rounds to converge? Clean or messy? | Round summary table |
+| **Broad sweep yield** | How many findings in the L→S→G pass? Clean or messy? | Iteration log |
 | **Action quality** | Were HIGHs genuine fixes? Were MEDIUMs well-calibrated? Borderline calls? | decisions.md rationales |
 | **Deep dive yield** | Ratio of substantive findings vs clean. Were clean results worth the cost? | Iteration log |
 | **Compounding** | Were insights compounded? If zero, calibration problem or genuine? | Iteration log notes |
@@ -58,11 +58,10 @@ Note: Spec compliance uses `Glob` on the logs/ directory (not Bash — not in al
 # Resume: Consolidation <date>
 
 ## State
-- **Round**: N
 - **Content Type**: LEARNINGS / SKILLS / GUIDELINES
 - **Sweep Count**: N
-- **Clean Round Streak**: N/1
-- **Status**: IN_PROGRESS / MAX_ITERATIONS_HIT / COMPLETE
+- **Phase**: BROAD_SWEEP / DEEP_DIVE
+- **Status**: IN_PROGRESS / COMPLETE
 
 ## Summary
 
@@ -105,7 +104,7 @@ Calculate suggested iterations based on pre-flight cadence (from progress.md) an
 - Read `Cadence` and `Suggested iterations` from the Pre-Flight section
 - Base: `max(5, <init_suggested> - SWEEP_COUNT)` where `<init_suggested>` is the value from pre-flight (default 20 if not present)
 
-If COMPLETE, MAX_ROUNDS_HIT, or MAX_DEEP_DIVES_HIT signal is present in progress.md:
+If COMPLETE or MAX_DEEP_DIVES_HIT signal is present in progress.md:
 - MAX_DEEP_DIVES_HIT: carryover candidates are staleness-eligible periodic review, not unfinished work — merge path applies with a note about what carries over
 - **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r .claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
 - Ask if the user wants to review the diff: `git diff main -- .claude/`

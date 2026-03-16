@@ -30,7 +30,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   3. Skip — leave as-is
 - **Curate command**: `/learnings:curate <file>`
 
-## [MAX-ROUNDS] / [MAX-DEEP-DIVES] (loop limit hit)
+## [MAX-DEEP-DIVES] (loop limit hit)
 
 - **Details**: What remains unprocessed
 - **Action needed**: Resume or manual curation

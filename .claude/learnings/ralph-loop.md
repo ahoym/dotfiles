@@ -41,19 +41,15 @@ The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous l
 - **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
 - **Output files**: 5 files (spec, progress, decisions, report, review) instead of 5 core research files
 - **Security hooks**: Bash restricted to selective git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta (expected 1) after each invocation.
-- **Round-based progression**: Each round sweeps LEARNINGS → SKILLS → GUIDELINES (one each). Convergence = 1 clean round. Max 5 rounds before forced stop.
+- **Single-pass broad sweep**: One pass through LEARNINGS → SKILLS → GUIDELINES (one each), then transitions to deep dives. No convergence rounds — cross-type regressions are rare in practice and deep dives provide defense-in-depth.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; items needing human review surface via `review.md` (LOWs + blocked MEDIUMs)
-- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by subsequent sweeps via the convergence mechanism.
+- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by deep dives and subsequent consolidation runs.
 - **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/ralph/research/wiggum.sh`)
 - **Resume**: `/ralph:consolidate:resume` handles review item resolution and relaunch (vs `/ralph:research:resume` for research question answering)
 
 ## Research Output Pipeline: staged-learnings
 
 Research output goes to `docs/staged-learnings/<project>/` inside the worktree — not `docs/learnings/`. The naming creates an explicit pipeline: research produces staged learnings that can later be filtered/promoted into `docs/learnings/`. This separates raw research artifacts from curated knowledge.
-
-## Round-Based vs Type-Blocked Convergence
-
-Type-blocked convergence (sweep type A twice, then type B twice) confirms each type in isolation — the "confirmation" sweep has no cross-type context. Round-based convergence (sweep A → B → C, then A → B → C again) means each type's confirmation sweep happens after all other types have been swept, catching cross-type regressions naturally. One clean round is sufficient — a second clean round only confirms stability of zero changes. Deep dives provide defense-in-depth for per-pattern issues that broad sweeps miss.
 
 ## Pre-Flight Cadence Analysis
 
@@ -77,7 +73,7 @@ Compounded insights go directly into the sweep corpus (worktree's `.claude/learn
 
 When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
 
-The inline methodology: categorize insights using `claude-authoring-content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — the next LEARNINGS sweep evaluates them naturally via the convergence mechanism.
+The inline methodology: categorize insights using `claude-authoring-content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
 
 ## Personas as Execution-Mode Learnings Conduit
 

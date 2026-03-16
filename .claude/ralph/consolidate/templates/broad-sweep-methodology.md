@@ -27,7 +27,7 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 - **Compression for token ROI**: Files where insight-to-token ratio could improve. MEDIUM.
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
 
-**Deep dive candidate recording** (when `CLEAN_ROUND_STREAK >= 1`, i.e., this could be the final LEARNINGS sweep): Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. This costs nothing on non-final sweeps and ensures candidates are ready if this round completes clean.
+**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase.
 
 ## SKILLS — Skill Mode
 
