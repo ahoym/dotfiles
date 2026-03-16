@@ -71,7 +71,7 @@ Write reply bodies to `change-request-replies/<id>-<persona>-<role>.md` before p
 
 Top-level comments: `change-request-replies/<number>-<persona>-<role>-top.md`.
 
-**Use `~/` paths** (not absolute `/Users/.../`) to match tilde-based Write permission patterns.
+**Path selection for tool calls:** Use CWD-relative paths when CWD is a symlinked `~/.claude` repo (tilde paths normalize through the symlink and fail permission matching). Use `~/` paths in non-symlinked contexts. Never use absolute `/Users/.../` paths — they match neither pattern style.
 
 ## Mutual Resolution Filter
 
@@ -90,3 +90,13 @@ When an incremental fetch returns no new comments (inline, top-level, and review
 <REVIEW_UNIT> #<number>: no new comments (<LAST_FETCH_TS>)
 ```
 Do not proceed to analysis or processing steps.
+
+## Stale Poll Auto-Cancel
+
+After a quiet no-op, compare current time against `LAST_FETCH_TS`. If the delta exceeds 30 minutes:
+
+1. `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`
+2. If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
+3. If not found (manual invocation), skip silently — no action needed.
+
+This is a sibling to Terminal State Handling: both auto-cancel polls that no longer need to run. Terminal state catches merged/closed PRs; stale poll catches idle reviews where the reviewer hasn't responded.
