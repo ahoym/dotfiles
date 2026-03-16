@@ -145,3 +145,8 @@ For doc-vs-code inconsistencies found during scanning:
 ## Cross-Reference Sections Create a Documentation Graph
 
 Adding `## Cross-references` sections to domain scan files creates a navigable documentation graph. Only add genuine relationships — don't cross-reference everything to everything. Place the section before `## Scan Limitations`.
+
+## See also
+
+- `multi-agent-patterns.md` — synthesis architecture and subagent coordination
+- `claude-authoring-skills.md` — stateful mode detection patterns

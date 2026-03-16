@@ -108,3 +108,9 @@ Generating `UUID.randomUUID()` inside a client prevents the orchestration layer 
 ## Log correlation/request IDs in integration client operations
 
 Include correlation/request IDs in all log statements for integration operations. Without this, debugging requires correlating logs by timestamp alone.
+
+## See also
+
+- `financial-applications.md` — idempotency patterns
+- `testing-patterns.md` — validator and route handler testing
+- `code-quality-instincts.md` — parameter naming conventions

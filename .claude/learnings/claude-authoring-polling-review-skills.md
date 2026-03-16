@@ -1,0 +1,57 @@
+# Polling and Review Skill Patterns
+
+> Core skill design patterns → `claude-authoring-skills.md`
+
+## Re-Review Detection via Footnote Pattern Matching
+
+When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.
+
+## Polling Skills Must Fetch Fresh API Data Every Invocation
+
+Skills designed for `/loop` polling must hit the API on every invocation — never short-circuit based on in-context memory of previous runs. The whole point of polling is that external actors (other agents, humans) push changes between runs. Relying on "I already checked this PR" from a prior invocation silently breaks the polling contract.
+
+## Quick-Exit Before Expensive Fetches
+
+Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
+
+## Quick-Exit Must Filter Self-Comments
+
+Quick-exit checks must fetch N recent comments (`per_page=10`), filter out self-comments (`Role:.*<YOUR_ROLE>`), then interpret: non-self present and all old → no activity; non-self present and some new → proceed; all self → inconclusive, fall through to full fetch. This catches operator comments sandwiched between agent replies and prevents false-triggers from the agent's own post-review activity.
+
+## Empty-Body Reviews Are Not Reliable Activity Signals
+
+GitHub creates empty-body review entries as wrappers when inline comment replies are posted. Treating these as activity signals in phase 1 of a quick-exit check causes false triggers on every poll cycle after a re-review — the agent's own replies generate empty-body reviews that never age past `LAST_REVIEW_TS`. Instead, rely on phase 2 (inline comment fetch with self-filter) to catch the actual inline activity that these wrappers represent. Only non-empty-body reviews from non-self sources should count as phase 1 signals.
+
+## Never Reduce Quick-Exit to Commit-Only Checks
+
+During long polling sessions, it's tempting to optimize the quick-exit from full phase 1+2 (2 API calls) down to a commit-SHA-only check. This silently drops coverage for inline comments, top-level comments, and reviews — all activity types that arrive without new commits. Worse, the stale poll auto-cancel compounds the problem: the poll misses the comment, keeps no-oping, then cancels after 30 minutes — permanently orphaning the comment. Phase 1 (consolidated fetch) is the minimum; phase 2 (inline comment check) fires only when phase 1 is quiet. Both are cheap. Don't optimize them away.
+
+## Self-Canceling Polling Loops
+
+Skills invoked via `/loop` can self-cancel when the target becomes irrelevant (e.g., PR merged/closed). Use `CronList` to find the cron job whose prompt matches the skill name + target identifier, then `CronDelete` to cancel it. The skill doesn't know its own job ID, but prompt-pattern matching is reliable since each loop has a unique prompt string.
+
+## State Check as Earliest Exit Point
+
+Review/polling skills should check the target's state (merged, closed, open) before any review logic. This is cheaper than commit SHA comparison and catches the terminal case where no further polling is needed. Order: state check → quick-exit (commit SHA) → full review.
+
+## Cache-Then-Validate for Repeated Skill Invocations
+
+When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), cache both **analysis data** (diffs, findings) and **reference files** (shared references, platform cluster files, persona files) after the first read. Validate with the cheapest possible check rather than re-fetching. For analysis: if the commit SHA hasn't changed, trust the cached diff and findings. For reference files: read once on first invocation, skip re-reads on subsequent invocations unless a new commit modifies the file. A 20+ invocation polling session re-reading 6-7 reference files per cycle wastes hundreds of reads on unchanged content.
+
+## Polling as Skill Stress-Test
+
+Repeated invocations via `/loop` surface edge cases that single runs hide: self-reply filter mismatches, CWD drift from mid-session directory changes, missing terminal-state exits. When a skill is designed for polling, run it through a few cycles before considering it stable — the first invocation tests the happy path, subsequent invocations test state management.
+
+## Reviewer Timestamp Stalls on Reaction-Only Invocations
+
+When the reviewer posts only thread replies and reactions (no review body — per "don't post empty reviews"), `LAST_REVIEW_TS` stays at the last formal review submission. Subsequent polls detect already-processed addresser replies as "new" (they're after `LAST_REVIEW_TS`), triggering phase 2 and thread checks that find nothing to do. The mutual resolution / already-processed logic catches it, but the wasted API calls and context repeat every cycle until the stale poll auto-cancel fires. Not a bug — the "don't post empty reviews" rule is correct — but a known cost of reaction-only re-review cycles.
+
+## Session-Scoped State for Cron-Lifecycle Concerns
+
+When tracking state that shares a cron job's lifecycle (e.g., last-activity timestamps for stale poll detection), use session context (conversation memory) rather than files. File-based state requires creation, gitignore, cleanup on terminal state, and permission patterns — all complexity that disappears when the state lives and dies with the session. The tracking-artifacts file approach was tried and reverted within one PR cycle in favor of session variables.
+
+## See also
+
+- `claude-authoring-skills.md` — core skill design patterns
+- `claude-authoring-content-types.md` — routing hub for authoring cluster
+- `process-conventions.md` — structured footnote template for multi-agent comment identity

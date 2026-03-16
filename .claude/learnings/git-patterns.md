@@ -228,3 +228,8 @@ When you stash dirty files to unblock a rebase, `git stash pop` after rebase com
 ## Merge vs Rebase: Token-Cost Heuristic
 
 Conflict resolution rounds drive token cost — each round requires reading markers, asking the user, applying, and staging. Merge always costs `N` rounds (N = conflicted files). Rebase can cost more because it replays each commit: if multiple commits touch the same conflicted file, that file re-conflicts per commit. Estimate: `rebase_rounds` = sum of (commits touching each conflicted file); `merge_rounds` = count of conflicted files. Pick merge when `rebase_rounds > merge_rounds × 1.5` (rebase's cleaner history is worth a small premium, but not 2×). Also pick merge unconditionally when the branch has merge commits — rebasing merge commits requires `--rebase-merges` and produces confusing conflict contexts.
+
+## See also
+
+- `bash-patterns.md` — shell escaping gotchas for git commands
+- `ci-cd-gotchas.md` — CI pipeline git workflow patterns

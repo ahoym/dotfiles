@@ -217,3 +217,8 @@ SkillPort uses `metadata.skillport.*` in YAML frontmatter for platform-specific 
 The spec-standard `compatibility:` frontmatter field (max 500 chars) signals intended platform and runtime requirements. Zero runtime cost, recognized by multiple platforms. Good practice for skills with varying portability levels:
 - Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
 - CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
+
+## See also
+
+- `claude-authoring-skills.md` — skill design patterns
+- `claude-code.md` — permission and platform mechanics
