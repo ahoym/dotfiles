@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md |
+| DEEP_DIVE_CANDIDATES | react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md |
 
 ## Pre-Flight
 
@@ -78,6 +78,7 @@ Suggested iterations: 20
 | 16 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | skill-platform-portability.md: clean. 22 patterns verified unique across claude-authoring-skills.md, claude-code.md, multi-agent-patterns.md, claude-config-expert.md. 1 LOW (missing See also). |
 | 17 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | nextjs.md: clean. 7 patterns verified unique across react-frontend-gotchas.md, react-patterns.md, testing-patterns.md, xrpl-typescript-fullstack, react-frontend personas. 2 LOWs (misplaced TypeScript pattern, missing See also). |
 | 18 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | react-patterns.md: clean. 10 patterns verified unique across react-frontend-gotchas.md, reactive-data-patterns.md, refactoring-patterns.md, testing-patterns.md, playwright-patterns.md, ui-patterns.md, code-quality-instincts.md. 1 LOW (missing See also). |
+| 19 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | explore-repo.md: clean. 15 patterns verified unique across multi-agent-patterns.md, claude-authoring-skills.md, claude-code.md, skill-platform-portability.md, claude-authoring-content-types.md. 1 LOW (missing See also). |
 
 ## Deep Dive Status
 
@@ -97,6 +98,7 @@ Suggested iterations: 20
 | skill-platform-portability.md | done | 16 | Clean — 22 patterns (platform features, frontmatter, agents, plugins, cross-platform compat), all unique. 1 LOW (missing See also — reverse ref exists in claude-authoring-skills.md). |
 | nextjs.md | done | 17 | Clean — 7 patterns (proxy.ts, async params, Turbopack, rate limiter, testing cross-ref, union types), all unique. Hub/spoke with react-frontend-gotchas.md verified correct. 2 LOWs (misplaced TS pattern, missing See also). |
 | react-patterns.md | done | 18 | Clean — 10 patterns (React 19 setState/useEffect, hydration mismatch, circular hook deps, modal timing, refreshKey, page decomposition, two-tier hooks, polling visibility, per-env state), all unique. Companion hub/spoke with react-frontend-gotchas.md verified correct. 1 LOW (missing See also). |
+| explore-repo.md | done | 19 | Clean — 15 patterns (parallel exploration, repo learnings structure, synthesis context budget, subdirectory CLAUDE.md heuristic, cross-domain dedup, staleness detection, scan inconsistencies, language-specific mapping, @-include guidance, PROJECT_CONTEXT hints, inconsistencies.md, single-pass synthesis, greenfield CLAUDE.md, auto-fix strategy, cross-reference graph), all unique. 1 LOW (missing See also). |
 
 ## Notes for Next Iteration
 
@@ -339,5 +341,15 @@ Suggested iterations: 20
 10. Per-Environment Frontend State with Migration — unique localStorage per-env pattern
 
 **1 LOW recorded**: No `## See also` section. Companion header in react-frontend-gotchas.md already references react-patterns.md. Both personas list it. Keyword overlap sufficient.
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 19
+
+**DEEP DIVE: explore-repo.md** (148 lines, 15 patterns). Cross-referenced against multi-agent-patterns.md, claude-authoring-skills.md, claude-code.md, skill-platform-portability.md, claude-authoring-content-types.md. No personas reference this file.
+
+**Clean** — all 15 patterns are unique standalone references. Each pattern has related content in multi-agent-patterns.md (synthesis architecture, output file naming, structural context, scan inconsistencies) but at different granularity — multi-agent covers general principles, explore-repo covers the specific application to repo exploration. No duplication.
+
+**1 LOW recorded**: No `## See also` section. Inbound cross-ref from claude-authoring-skills.md line 38. Keyword overlap sufficient.
 
 **No compounding needed** — clean deep dive, no findings.

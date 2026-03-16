@@ -116,3 +116,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking reactive-data-patterns.md (complementary refresh/polling patterns), refactoring-patterns.md (general survey methodology), react-frontend-gotchas.md (companion tripwires) vs rely on companion header and keyword overlap
 - **Why LOW**: react-frontend-gotchas.md companion header already references react-patterns.md (line 3). Both personas (react-frontend, xrpl-typescript-fullstack) list it. reactive-data-patterns.md is discoverable via keyword overlap ("polling", "refresh", "localStorage"). Adding See also would be marginally helpful but not critical.
 - **Curate command**: `/learnings:curate learnings/react-patterns.md`
+
+## [L-9] explore-repo.md missing See also section (LOW)
+
+- **Iter**: 19
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/explore-repo.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking multi-agent-patterns.md (synthesis architecture, output file patterns, structural context for subagents) and claude-authoring-skills.md (stateful mode detection cross-ref) vs rely on keyword overlap and existing inbound cross-ref
+- **Why LOW**: claude-authoring-skills.md line 38 already has an inbound cross-ref. multi-agent-patterns.md covers related general patterns at different granularity. No personas reference explore-repo.md directly. Keyword overlap ("synthesis", "scan", "agent") sufficient for discovery.
+- **Curate command**: `/learnings:curate learnings/explore-repo.md`
