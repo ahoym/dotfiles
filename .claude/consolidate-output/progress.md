@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 20 |
+| SWEEP_COUNT | 21 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md |
+| DEEP_DIVE_CANDIDATES | code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md |
 
 ## Pre-Flight
 
@@ -80,6 +80,7 @@ Suggested iterations: 20
 | 18 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | react-patterns.md: clean. 10 patterns verified unique across react-frontend-gotchas.md, reactive-data-patterns.md, refactoring-patterns.md, testing-patterns.md, playwright-patterns.md, ui-patterns.md, code-quality-instincts.md. 1 LOW (missing See also). |
 | 19 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | explore-repo.md: clean. 15 patterns verified unique across multi-agent-patterns.md, claude-authoring-skills.md, claude-code.md, skill-platform-portability.md, claude-authoring-content-types.md. 1 LOW (missing See also). |
 | 20 | — | DEEP_DIVE | 2 | 0 | 0 | 2 | react-frontend.md: deleted React 19 gotchas (3 bullets) and Playwright gotchas (5 bullets) — all near-verbatim of proactive load react-frontend-gotchas.md. 8 detailed refs verified. 65→55 lines. |
+| 21 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: clean. 1 proactive load + 5 detailed refs verified (all exist, descriptions accurate). No content duplication with proactive load (lens vs factual tripwires). |
 
 ## Deep Dive Status
 
@@ -101,6 +102,7 @@ Suggested iterations: 20
 | react-patterns.md | done | 18 | Clean — 10 patterns (React 19 setState/useEffect, hydration mismatch, circular hook deps, modal timing, refreshKey, page decomposition, two-tier hooks, polling visibility, per-env state), all unique. Companion hub/spoke with react-frontend-gotchas.md verified correct. 1 LOW (missing See also). |
 | explore-repo.md | done | 19 | Clean — 15 patterns (parallel exploration, repo learnings structure, synthesis context budget, subdirectory CLAUDE.md heuristic, cross-domain dedup, staleness detection, scan inconsistencies, language-specific mapping, @-include guidance, PROJECT_CONTEXT hints, inconsistencies.md, single-pass synthesis, greenfield CLAUDE.md, auto-fix strategy, cross-reference graph), all unique. 1 LOW (missing See also). |
 | react-frontend.md | done | 20 | 2 HIGHs applied (deleted React 19 gotchas subsection — 3 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 7-9; deleted Playwright gotchas subsection — 5 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 22-26). All 8 detailed references verified (files exist, descriptions accurate). 65→55 lines. |
+| platform-engineer.md | done | 21 | Clean — 1 proactive load (ci-cd-gotchas.md) + 5 detailed references (aws-patterns, git-patterns, bash-patterns, ci-cd, gitlab-ci-cd), all verified. No content duplication. Pure lens persona. |
 
 ## Notes for Next Iteration
 
@@ -369,3 +371,15 @@ Suggested iterations: 20
 **All 8 detailed references verified**: code-quality-instincts.md, react-patterns.md, reactive-data-patterns.md, nextjs.md, accessibility-patterns.md, ui-patterns.md, testing-patterns.md, playwright-patterns.md — all exist, descriptions accurate.
 
 **No compounding needed** — proactive-load dedup is a well-established pattern (3rd occurrence), no novel meta-insight to extract.
+
+### Iter 21
+
+**DEEP DIVE: platform-engineer.md** (39 lines, persona file). Cross-referenced against ci-cd-gotchas.md (proactive load), aws-patterns.md, git-patterns.md, bash-patterns.md, ci-cd.md, gitlab-ci-cd.md. Also checked java-observability.md, java-observability-gotchas.md for potential missing references.
+
+**Clean** — pure lens persona (domain priorities, review posture, tradeoff values) with no factual content that could duplicate its proactive load. All 6 references verified:
+- Proactive: ci-cd-gotchas.md (19 patterns, tripwire checklist)
+- Detailed: aws-patterns.md (EventBridge, Fargate), git-patterns.md (worktrees, pnpm, zsh glob), bash-patterns.md (env defaults, test library, set -e, teardown), ci-cd.md (Docker stages, composite actions), gitlab-ci-cd.md (glab API, MR endpoints, CI stages)
+
+**No missing references**: Java-specific observability files (java-observability.md, java-observability-gotchas.md) match the persona's "observability" domain but are Java-specific — correctly under java-backend persona.
+
+**No compounding needed** — clean deep dive, no findings.
