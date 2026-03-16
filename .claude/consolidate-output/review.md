@@ -126,3 +126,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking multi-agent-patterns.md (synthesis architecture, output file patterns, structural context for subagents) and claude-authoring-skills.md (stateful mode detection cross-ref) vs rely on keyword overlap and existing inbound cross-ref
 - **Why LOW**: claude-authoring-skills.md line 38 already has an inbound cross-ref. multi-agent-patterns.md covers related general patterns at different granularity. No personas reference explore-repo.md directly. Keyword overlap ("synthesis", "scan", "agent") sufficient for discovery.
 - **Curate command**: `/learnings:curate learnings/explore-repo.md`
+
+## [L-10] code-quality-instincts.md missing See also section (LOW)
+
+- **Iter**: 22
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/code-quality-instincts.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking process-conventions.md (complementary: code vs process), refactoring-patterns.md (refactoring methodology for code quality instincts) vs rely on keyword overlap and existing reverse reference
+- **Why LOW**: process-conventions.md line 165 already has reverse link. 6 personas reference this file (highest persona coverage in corpus). Keyword overlap ("code quality", "duplication", "dead code") sufficient for discovery.
+- **Curate command**: `/learnings:curate learnings/code-quality-instincts.md`

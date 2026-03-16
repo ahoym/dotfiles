@@ -4,7 +4,7 @@ Fundamental practices that apply across languages and frameworks. These are the 
 
 ## Don't duplicate logic across modules
 
-If a calculation exists in a utility, import it. Don't inline a copy — even if the copy is "just a few lines." Duplication means two places to update and two places for bugs to diverge.
+If a calculation exists in a utility, import it. Don't inline a copy — even if the copy is "just a few lines." Search for existing implementations before writing new logic; inline reimplementations diverge silently from the canonical version.
 
 ## Single source of truth for definitions
 
@@ -19,12 +19,6 @@ When porting code from another repo, adapt to the target's structure. Don't carr
 Refactor phases are opportunities to audit and prune. When adding new functionality, check for functions/constants the new code supersedes and remove them along with their tests. Net-negative line counts on feature PRs are a healthy signal.
 
 - **Takeaway**: Every refactor is an audit opportunity — delete what the new code replaces.
-
-## Reuse existing calculation functions instead of duplicating logic
-
-When implementing new features, check if the calculation you need already exists in the codebase. Inline reimplementations diverge silently from the canonical version.
-
-- **Takeaway**: Search for existing implementations before writing new calculation logic.
 
 ## Use named guard variables for multi-condition early returns
 

@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 21 |
+| SWEEP_COUNT | 22 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_CANDIDATES | cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md |
 
 ## Pre-Flight
 
@@ -81,6 +81,7 @@ Suggested iterations: 20
 | 19 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | explore-repo.md: clean. 15 patterns verified unique across multi-agent-patterns.md, claude-authoring-skills.md, claude-code.md, skill-platform-portability.md, claude-authoring-content-types.md. 1 LOW (missing See also). |
 | 20 | — | DEEP_DIVE | 2 | 0 | 0 | 2 | react-frontend.md: deleted React 19 gotchas (3 bullets) and Playwright gotchas (5 bullets) — all near-verbatim of proactive load react-frontend-gotchas.md. 8 detailed refs verified. 65→55 lines. |
 | 21 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: clean. 1 proactive load + 5 detailed refs verified (all exist, descriptions accurate). No content duplication with proactive load (lens vs factual tripwires). |
+| 22 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | code-quality-instincts.md: 1 MEDIUM (compressed internal near-duplicate "Reuse existing calculation functions" into "Don't duplicate logic across modules"). 1 LOW (missing See also). 24 patterns verified unique across refactoring-patterns.md, testing-patterns.md, process-conventions.md. 126→121 lines. |
 
 ## Deep Dive Status
 
@@ -103,6 +104,7 @@ Suggested iterations: 20
 | explore-repo.md | done | 19 | Clean — 15 patterns (parallel exploration, repo learnings structure, synthesis context budget, subdirectory CLAUDE.md heuristic, cross-domain dedup, staleness detection, scan inconsistencies, language-specific mapping, @-include guidance, PROJECT_CONTEXT hints, inconsistencies.md, single-pass synthesis, greenfield CLAUDE.md, auto-fix strategy, cross-reference graph), all unique. 1 LOW (missing See also). |
 | react-frontend.md | done | 20 | 2 HIGHs applied (deleted React 19 gotchas subsection — 3 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 7-9; deleted Playwright gotchas subsection — 5 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 22-26). All 8 detailed references verified (files exist, descriptions accurate). 65→55 lines. |
 | platform-engineer.md | done | 21 | Clean — 1 proactive load (ci-cd-gotchas.md) + 5 detailed references (aws-patterns, git-patterns, bash-patterns, ci-cd, gitlab-ci-cd), all verified. No content duplication. Pure lens persona. |
+| code-quality-instincts.md | done | 22 | 1 MEDIUM applied (compressed internal near-duplicate — "Reuse existing calculation functions" folded into "Don't duplicate logic across modules"). 1 LOW (missing See also — process-conventions.md has reverse link). 24 patterns verified unique. 6 persona references confirmed. 126→121 lines. |
 
 ## Notes for Next Iteration
 
@@ -383,3 +385,15 @@ Suggested iterations: 20
 **No missing references**: Java-specific observability files (java-observability.md, java-observability-gotchas.md) match the persona's "observability" domain but are Java-specific — correctly under java-backend persona.
 
 **No compounding needed** — clean deep dive, no findings.
+
+### Iter 22
+
+**DEEP DIVE: code-quality-instincts.md** (126 lines, 25 patterns). Cross-referenced against refactoring-patterns.md (148 lines), testing-patterns.md (189 lines), process-conventions.md (166 lines). Persona references checked: react-frontend, claude-config-expert, java-backend, xrpl-typescript-fullstack, reviewer, claude-config-reviewer (6 personas — heavily cross-referenced).
+
+**1 MEDIUM applied**: Compressed "Reuse existing calculation functions instead of duplicating logic" (lines 23-27) into "Don't duplicate logic across modules" (lines 5-7). Same principle stated twice — the first as an abstract rule ("don't inline a copy"), the second as a concrete action ("search for existing implementations"). Folded the search-first action into the first entry. 126→121 lines.
+
+**1 LOW recorded**: No `## See also` section. process-conventions.md line 165 already has reverse link. 6 personas reference this file. Keyword overlap ("code quality") sufficient for discovery.
+
+**Verified clean**: All 24 remaining patterns are unique standalone references. No duplication with refactoring-patterns.md (process/methodology vs code instincts), testing-patterns.md (test-specific recipes vs general instincts), or process-conventions.md (engineering process vs code quality). Cross-ref from process-conventions.md verified healthy (complementary: code vs process).
+
+**No compounding needed** — routine internal dedup compression, no meta-insight to extract.
