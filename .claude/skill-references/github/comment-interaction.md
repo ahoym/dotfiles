@@ -20,13 +20,16 @@ gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | selec
 
 ## Fetch Recent Inline Comments (quick-exit check)
 
-Returns the most recent inline review comments — use for polling quick-exit to check if any new non-self activity exists. Fetches 5 to see past our own replies (operator comments can be sandwiched between agent responses). No `--jq` to avoid quoted strings.
+Returns recent inline review comments — use for polling quick-exit to check if any new non-self activity exists. Fetches 10 to see past agent replies. No `--jq` to avoid quoted strings.
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/<number>/comments --method GET -f sort=created -f direction=desc -F per_page=5
+gh api repos/{owner}/{repo}/pulls/<number>/comments --method GET -f sort=created -f direction=desc -F per_page=10
 ```
 
-Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). If any remaining comment has `created_at > LAST_REVIEW_TS` → new activity. If all non-self comments are older → no new activity.
+Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Interpret results:
+- **Some non-self, at least one newer than `LAST_REVIEW_TS`** → new activity, proceed
+- **Some non-self, all older than `LAST_REVIEW_TS`** → no new activity, skip
+- **All comments are self** → inconclusive (non-self activity may exist beyond the window), fall through to full incremental fetch
 
 ## Fetch General Review Comments
 

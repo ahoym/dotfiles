@@ -425,7 +425,7 @@ Polling skills should check for changes with the cheapest possible API call befo
 
 ## Quick-Exit Must Filter Self-Comments
 
-When a polling skill's quick-exit check fetches the latest inline comment to detect new activity, fetching only the single latest (`per_page=1`) misses operator comments sandwiched between agent responses. If the agent posted the most recent reply, the operator's comment (which has no Role footnote) is invisible to the check. Fix: fetch the last N comments (`per_page=5`) and filter out self-comments (`Role:.*<YOUR_ROLE>` in body) before comparing timestamps. The non-self filter also solves the stale-timestamp problem — after a re-review posts reactions/replies, the agent's own replies become the latest, causing every subsequent poll to false-trigger. Filtering self avoids this without needing to advance the comparison timestamp.
+Quick-exit checks must fetch N recent comments (`per_page=10`), filter out self-comments (`Role:.*<YOUR_ROLE>`), then interpret: non-self present and all old → no activity; non-self present and some new → proceed; all self → inconclusive, fall through to full fetch. This catches operator comments sandwiched between agent replies and prevents false-triggers from the agent's own post-review activity.
 
 ## Empty-Body Reviews Are Not Reliable Activity Signals
 

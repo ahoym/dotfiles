@@ -6,7 +6,7 @@
 2. **Plan mode entry**: Before calling `EnterPlanMode`, search learnings broadly (filenames + content grep). Plans lock in decisions that are expensive to reverse. Set a persona if none is active — plan mode entry means the task warrants it.
 3. **Implementation start**: Before executing an approved plan, glob `~/.claude/commands/set-persona/` and `.claude/personas/` against the task's technology stack. Match → activate. No match → announce and proceed. Never skip based on perceived task simplicity.
 
-These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, or the task feels urgent. No exceptions.
+These gates apply even when context is pre-loaded (e.g., `@file` references), the question is narrow, the task feels urgent, or a skill is loaded in the opening message. Skill instructions compete for attention — run the search before executing the skill's steps. No exceptions.
 
 ---
 
@@ -27,7 +27,7 @@ One filename glob, no content grep — keep it cheap so narrow opening questions
 
 Load matches and announce. If no ambient context is available (fresh repo, no git), fall back to message-only matching.
 
-**Step 4: Follow cross-refs (one level).** After loading matched files, check their `## See also` sections for additional files to load. Follow cross-refs one level deep — don't recurse (that's unbounded). Only follow refs that appear relevant to the current context. Announce cross-ref loads distinctly from keyword loads.
+**Step 4: Follow cross-refs (up to two levels).** After loading matched files, check their `## See also` sections for additional files to load. Follow cross-refs up to two levels deep, only when relevant to the current context. Stop earlier when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
 
 ## How to search (plan mode entry)
 
@@ -39,7 +39,7 @@ Search broadly, not just the obvious keywords. Derive search terms from the *cur
 
 Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
 
-**Follow cross-refs (one level).** Same as session-start step 4 — check `## See also` sections on loaded files. In plan mode, also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. This negative announcement is plan-mode only (too noisy for session-start).
+**Follow cross-refs (up to two levels).** Same as session-start step 4. In plan mode, also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. This negative announcement is plan-mode only (too noisy for session-start).
 
 **Enhanced plan-mode announcement format.** Include derived search terms, not just results:
 ```
@@ -62,11 +62,11 @@ Soft because there's no tool-call trigger — it relies on self-awareness at the
 
 ## Friction-triggered (soft)
 
-When a tool call fails, a command errors, or a workaround is needed during skill execution, check loaded learnings for known patterns that address the friction. The error is the trigger; the lateral check is the judgment call.
+When a tool call fails, is rejected, or requires a workaround, glob learnings filenames for the error domain (e.g., permission rejection → "claude-code", "permission"; API error → the service name). Load matches before retrying.
 
-Fires on: tool errors, permission rejections, unexpected state (worktree conflicts, missing files, API failures). Does NOT fire on expected no-ops (empty poll results, no matches found).
+Fires on: tool errors, permission rejections, unexpected state. Not on expected no-ops.
 
-Announce: `📚 Friction check — <error summary>. Checking learnings for known patterns...`
+Announce: `📚 Friction check — <error summary>. Searching learnings...`
 
 ## Keyword-based (proactive)
 
