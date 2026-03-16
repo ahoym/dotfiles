@@ -143,58 +143,30 @@ Append to review.md following its format: iter, content type, file, pattern, pos
 
 ### 8. Compound Insights
 
-If this sweep found any HIGHs or MEDIUMs (i.e., actions were taken), persist meta-insights directly into the learnings system. These are NOT the actions themselves (those go in decisions.md) — they are **patterns about the corpus** discovered during analysis:
+If this sweep applied any HIGHs or MEDIUMs, persist meta-insights into the learnings system. These are **patterns about the corpus** (not the actions themselves — those go in decisions.md): growing domain clusters, recurring persona boundary overlaps, frequent merge targets, staleness drift areas, structural patterns predicting future curation needs.
 
-- Domain clusters that are growing and may need personas
-- Personas with boundary overlap that keeps recurring
-- Learning files that are frequent merge targets (gravity wells)
-- Content types that drift toward staleness in specific areas
-- Structural patterns that predict future curation needs
+**The analysis behind your action is the insight.** Extract the decision criteria you already applied — the heuristic for splitting, the gap-detection method for wiring, etc.
 
-**The analysis behind your action is the insight.** When you split a file, the heuristic you used (e.g., "6+ independent subsections with distinct lookup keywords") is a compoundable pattern. When you wired a reference, the gap-detection method (e.g., "persona had no pointer to a directly relevant learning") is the pattern. Don't treat compounding as a separate discovery step — extract the decision criteria you already applied.
-
-**Skip if clean sweep** — nothing to learn from "no findings."
+**Skip if clean sweep.**
 
 #### Compound methodology
 
-Follow the `/learnings:compound` skill's methodology inline — no Skill tool invocation needed.
+Follow `/learnings:compound` methodology inline (no Skill tool):
 
-1. **Identify insights** from the sweep just completed. List each with a brief description.
-
-   Examples from a LEARNINGS sweep that split a file and wired references:
-   - "Large learning files (400+ lines) with 6+ independent subsections and distinct keyword domains benefit from splits — file size alone is a weak signal, subsection independence is the indicator"
-   - "Persona reference gaps are systematic — learnings exist but personas don't point to them. A reference audit checklist could catch these earlier"
-   - "Thin files (< 20 lines) that serve as shared cross-persona references are correctly sized — thinness is only a merge signal when the file has a single consumer"
-
-2. **Categorize** each using the decision tree from `claude-authoring-content-types.md` (loaded in first invocation):
-   - Command with clear, repeatable steps? → **Skill**
-   - Changes behavior or approach? → **Guideline**
-   - Reference info, patterns, or examples? → **Learning**
-
-3. **Assign utility**:
-   - **High** — novel pattern the agent wouldn't know without documenting
-   - **Medium** — useful reminder, but rediscoverable
-   - **Low** — standard knowledge or already documented
-
-4. **Persist High and Medium insights** to the appropriate path within the worktree:
-   - Learning → `.claude/learnings/<topic>.md`
-   - Guideline → `.claude/guidelines/<name>.md`
-   - Skill → `.claude/commands/<name>/SKILL.md`
-
-   For each insight:
-   - **Dedup check**: Glob + Grep the target directory for existing files matching the domain. Prefer updating an existing file over creating a new one.
-   - **Read** the target file. If it exists, Edit to append. If new, Write to create.
-   - **Strip provenance**: Remove "discovered during consolidation sweep N" — the pattern itself is what matters.
-   - `git add` the new/modified file (committed with everything else in step 10).
-   - Log to decisions.md: `| <iter> | <type> | compound | <insight summary> | <target file> | <utility> | applied | <rationale> |`
-
-5. **Low-utility insights** go to `review.md` — consistent with existing LOW handling. Do not persist these to the learnings system.
+1. **Identify insights** from the sweep. List each briefly.
+2. **Categorize** via `claude-authoring-content-types.md` decision tree: Skill (repeatable steps) / Guideline (behavior change) / Learning (reference info).
+3. **Assign utility**: High (novel, wouldn't know without documenting) / Medium (useful reminder) / Low (standard or documented).
+4. **Persist High and Medium** to worktree paths:
+   - Dedup check (Glob + Grep target directory), Read target, Edit to append or Write to create
+   - Strip provenance — the pattern matters, not when it was discovered
+   - `git add` (committed in step 10). Log to decisions.md.
+5. **Low-utility** → `review.md` (consistent with LOW handling).
 
 #### Constraints
 
-- **Worktree paths only**: Write to the worktree's `.claude/` paths, NOT `~/.claude/` (which resolves to the main repo via symlink). The write scope constraint from the spec header still applies.
-- **Concise**: Every token in a learning costs context budget when loaded. Express insights in the fewest tokens that preserve teaching value.
-- **Convergence impact**: Compounded files are corpus changes. They don't affect the current sweep (which already found HIGHs/MEDIUMs), but deep dives will evaluate them. If they create issues, the next consolidation run catches them.
+- **Worktree paths only** — write to `.claude/`, NOT `~/.claude/` (symlink to main repo)
+- **Concise** — every token costs context budget when loaded
+- **Convergence** — compounded files are corpus changes evaluated by deep dives
 
 ### 9. Update Output Files
 
@@ -243,27 +215,23 @@ Cross-type regressions from broad sweep changes are rare in practice. Deep dives
 
 ## Deep Dive Phase
 
-Deep dives run **after broad sweeps complete** (L→S→G pass finished). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip because they operate at cluster level.
+Deep dives run after broad sweeps complete (L→S→G). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip (cluster level).
 
 ### Candidacy
 
-A file is a deep dive candidate if it meets ANY of:
+A file is a candidate if it meets ANY of:
 
-1. **Cross-reference hub file**: Referenced as a canonical source by 2+ other files (e.g., a genericization guidance file referenced by classification-model.md, claude-authoring-content-types.md, and curation-insights.md). Cluster-level analysis can't verify pattern-level coverage of hub files.
-2. **Polish Opportunity file**: Flagged in the broad sweep's per-file quality scan (genericization candidates, compression candidates). These were already identified but had no execution path in the broad sweep.
-3. **Curate skill criteria**: 5+ patterns AND an action signal (stale content, domain overlap, compression opportunity).
-4. **Modified guideline file**: Any `.claude/guidelines/*.md` file that received a HIGH or MEDIUM action during broad sweeps. Guidelines are always-loaded context (`@`-referenced in CLAUDE.md) — every token costs context budget in every session, so changes warrant per-pattern verification.
-5. **Modified skill file**: Any `.claude/commands/**/SKILL.md` file that received a HIGH or MEDIUM action during broad sweeps. Skills define repeatable agent workflows — changes warrant per-pattern verification to catch downstream breakage.
-6. **Stale tracked file**: Any file in `deep-dive-tracker.json` where `run_count - last_deep_dive_run >= threshold`. Files enter the tracker organically when touched by broad sweep actions (steps 5/6) or deep dives — no file is tracked until the loop first modifies or deep-dives it.
+1. **Cross-reference hub**: Referenced by 2+ other files as canonical source
+2. **Polish Opportunity**: Flagged in broad sweep's per-file quality scan (genericization/compression)
+3. **Curate skill criteria**: 5+ patterns AND an action signal (stale, overlap, compression)
+4. **Modified guideline**: Received HIGH/MEDIUM during broad sweeps (always-on context — changes warrant verification)
+5. **Modified skill**: Received HIGH/MEDIUM during broad sweeps (workflow breakage risk)
+6. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
 
-Candidacy is determined incrementally: learnings candidates during the LEARNINGS broad sweep, guideline candidates during the GUIDELINES sweep if it applies changes, skill candidates during the SKILLS sweep if it applies changes, staleness candidates after GUIDELINES completes (check tracker). The agent records all candidates in progress.md `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+Candidacy is determined incrementally per content type sweep. Record all in progress.md as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
-**Minimum deep dives per run**: Read `min_deep_dives` from the tracker (default 10). After collecting all criteria 1–6 candidates, if the count is below the minimum, fill remaining slots:
-1. **Untracked corpus files** (not in tracker at all) — glob the full corpus, diff against tracker keys. Priority 1.
-2. **Stalest tracked files** (highest `run_count - last_deep_dive_run`, even if below threshold) — Priority 2.
+**Minimum per run**: Read `min_deep_dives` from tracker (default 10). If candidates < minimum, fill with: (1) untracked corpus files, (2) stalest tracked files. Full corpus cycles through in ~7 runs.
 
-This ensures idle capacity is used productively. With 70+ corpus files and a minimum of 10 per run, the full corpus cycles through deep dives in ~7 runs.
+**Prioritization**: modification-triggered (criteria 1–5) first, then staleness-sorted, then fill candidates. Unprocessed carry over — staleness increases naturally.
 
-**Prioritization** (when candidates exceed the max guard): modification-triggered candidates first (criteria 1–5), then staleness candidates sorted by most overdue (`run_count - last_deep_dive_run`, descending), then fill candidates in the order above. Unprocessed candidates carry over to the next run — their staleness naturally increases.
-
-Per-file execution methodology, convergence rules, and max guard are in `.claude/consolidate-output/deep-dive-methodology.md` — read when `PHASE` is `DEEP_DIVE`.
+Per-file methodology, convergence rules, and max guard: `.claude/consolidate-output/deep-dive-methodology.md`.

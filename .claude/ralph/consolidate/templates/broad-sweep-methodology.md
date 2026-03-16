@@ -16,23 +16,17 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
    - **Genericization**: Domain terms appearing in wrong cluster, project-specific names/paths/routes
    - **Compression**: High line-count vs insight ratio, verbose code blocks, provenance notes, debugging trails
 7. **Cross-reference**: Check if learnings patterns are already fully covered in skills, guidelines, or personas → outdated candidate
-8. **Cross-reference graph health**: Scan all `## See also` sections across learnings files. The agent has the full corpus loaded — this is the best vantage point for graph-level analysis that per-file deep dives can't see.
-   - **Stale refs**: Target file no longer exists, or stated relationship decayed (content refactored to different topics). HIGH.
-   - **Isolated files**: Files with zero inbound or outbound cross-refs. Not inherently wrong — evaluate whether a cross-ref would provide non-obvious lateral discovery (keyword search wouldn't connect them). MEDIUM if a clear link exists.
-   - **Missing cross-cluster refs**: Files in different domain clusters that share non-obvious conceptual overlap (e.g., `resilience-patterns.md` ↔ `aws-messaging.md` on retry/backoff). These are the highest-value cross-refs — keyword search connects within-cluster files but misses cross-cluster relationships. MEDIUM.
-   - **Hub files**: High inbound ref count (3+). Flag for deep dive candidacy — foundational knowledge that should be kept current. No action unless stale.
-   - Log a topology summary in Notes for Next Iteration (e.g., "Graph: 40 connected, 16 isolated, 3 hubs, 2 stale refs removed, 4 cross-cluster refs added").
+8. **Cross-reference graph health**: Scan all `## See also` sections across learnings files. Full corpus is loaded — best vantage for graph-level analysis.
+   - **Stale refs**: Target gone or relationship decayed. HIGH.
+   - **Isolated files**: Zero cross-refs. MEDIUM if a non-obvious lateral link exists.
+   - **Missing cross-cluster refs**: Different domain clusters sharing non-obvious conceptual overlap (highest-value cross-refs — keyword search misses these). MEDIUM.
+   - **Hub files**: 3+ inbound refs. Flag for deep dive candidacy.
+   - Log topology summary in Notes (e.g., "Graph: 40 connected, 16 isolated, 3 hubs").
 
-   **Cross-ref quality test**: A cross-ref earns its keep when the answer to both questions is yes: (1) Would an agent working in file A benefit from knowing about file B? (2) Would they plausibly not find it via keyword search?
+   **Quality test**: (1) Would an agent in file A benefit from knowing about file B? (2) Would they plausibly not find it via keyword search? Both must be yes.
 
-   Good cross-refs connect:
-   - **Different vocabulary, shared concept** — files that overlap on a strategy or pattern but use different domain terms (e.g., resilience retry logic vs. SQS retry policies)
-   - **Different domain, transferable pattern** — a technique in one domain that applies to another but isn't obviously related (e.g., financial precision handling ↔ DEX data normalization)
-   - **Complementary perspectives** — files addressing the same problem from different angles (e.g., test design patterns ↔ local dev seeding)
-
-   Don't cross-ref:
-   - **Keyword-discoverable** — files the search protocol already connects via filename or content matching (e.g., `spring-boot.md` ↔ `spring-boot-gotchas.md`)
-   - **Weak thematic similarity** — "both mention databases" isn't enough; the link should save a wrong turn or surface a non-obvious approach
+   **Good cross-refs**: different vocabulary/shared concept, different domain/transferable pattern, complementary perspectives.
+   **Don't cross-ref**: keyword-discoverable pairs, weak thematic similarity.
 
 **Thin files**: Files < 20 lines that are mostly cross-references are fold-and-delete candidates. Fold substantive content into the target persona or skill, then delete.
 
@@ -117,50 +111,34 @@ Blocked MEDIUMs go to `review.md` with `[BLOCKED-MED]` tag and options. **Always
 
 ## Persona Handling
 
-Personas are lean judgment layers — priorities, tradeoffs, review instincts. Knowledge (gotchas, patterns, recipes, code examples) belongs in learning files, not inline in personas. The `react-frontend.md` persona demonstrates the correct pattern.
+Personas are lean judgment layers — priorities, tradeoffs, review instincts. Knowledge belongs in learning files, not inline.
 
-### Reference Wiring (replaces Enrichment)
+### Reference Wiring
 
-When a learning file contains knowledge relevant to a persona's domain, ensure the persona has a "Detailed references" section linking to it. Don't inline the knowledge — reference it:
-
-```
-## Detailed references
-Load when working in the specific area:
-- `learnings/<file>.md` — brief description of what's in it
-```
+Ensure personas have `## Detailed references` linking to relevant learnings. Don't inline knowledge — reference it.
 
 ### De-enrichment
 
-When a persona has heavy knowledge content inline (gotchas lists, platform specifics, code patterns, multi-step algorithms), extract that content to a learning file and replace with a reference link.
+Extract heavy inline knowledge (gotchas lists, platform specifics, code patterns) to learning files. Keep only judgment-grade summaries in the persona. Test: "Would removing this detail make the gotcha un-actionable?" If yes, keep it.
 
-**What stays in the persona**: The minimum viable warning — enough specificity that the agent knows what to look for and what to do. Test: "Would removing this detail make the gotcha un-actionable?" If yes, keep it.
-
-**What moves to a learning**: Recipes, multi-step algorithms, detailed error catalogs, implementation patterns, and any content that is reference material rather than judgment.
-
-De-enrichment is a multi-file atomic operation:
-1. Create or update the target learning file with extracted content
-2. Trim the persona — remove inline knowledge, keep judgment-grade summaries
-3. Add reference link in persona's "Detailed references" section
-4. Stage all changes together — they commit as one unit in step 10
-
-This is a MEDIUM auto-apply action (reversible, no content lost — content moves to a learning).
+Atomic operation: (1) create/update learning, (2) trim persona, (3) add reference link, (4) stage together. MEDIUM auto-apply (reversible, no content lost).
 
 ### Creation
 
-3+ files cluster around a domain with 8+ discrete patterns, no existing persona → create with judgment-grade content only (priorities, review checks, tradeoff heuristics). Knowledge goes in referenced learnings, not inline.
+3+ files, 8+ patterns, no existing persona → create with judgment-grade content only. Knowledge in referenced learnings.
 
 ### Cross-persona dedup
 
-Personas sharing domain boundaries → check for duplicated gotchas at content level. The more specialized persona owns the gotcha. Unchanged from current behavior.
+Shared domain boundaries → check for duplicated gotchas at content level. More specialized persona owns the gotcha.
 
 ## Operational Notes
 
-- **Pure-deletion sweeps**: If a sweep only applied deletions, note in "Notes for Next Iteration" — deletions can't create new overlaps, so the next sweep should expect a clean result.
-- **Always re-read files at sweep start**: Files change between invocations. Never assume prior state.
-- **Parallel reads over subagents**: Batch all file reads as parallel tool calls. Direct reads are faster than subagents for collections under ~25 files.
-- **Clean sweep output**: When a sweep finds nothing actionable, keep the iteration log terse — content type, "clean", file/pattern count. Reserve detailed notes for sweeps with findings.
-- **Reference over inline**: When a persona needs to point to knowledge, use the Detailed references section. Don't inline knowledge content regardless of length — the persona stays lean.
-- **Partial overlap**: Decompose rather than downgrade. When a section has N concepts covered elsewhere and 1+ novel concepts, split into separate items — each individually unambiguous.
-- **MEMORY.md is not a safety net**: Don't keep a learning because MEMORY.md covers it. MEMORY.md is always-on cost; learnings are conditional. Prune the MEMORY.md entry, not the learning.
-- **Persona coverage is not learning obsolescence**: When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" Keep the learning if it prevents specific wrong approaches or provides recipes the rule alone can't trigger.
-- **Opportunity over cleanup as tiebreaker**: When a finding has both a cleanup option (delete orphan, remove dead weight) and an opportunity option (wire it, restructure it, merge it), prefer opportunity — it fixes the root cause and is reversible. Cleanup accepts the dysfunction. Only prefer cleanup when the content is stale, incorrect, or has no identifiable consumers.
+- **Pure-deletion sweeps**: Note in "Notes for Next Iteration" — deletions can't create new overlaps.
+- **Always re-read files at sweep start**: Files change between invocations.
+- **Parallel reads over subagents**: Batch all reads as parallel tool calls. Faster than subagents for <25 files.
+- **Clean sweep output**: Terse iteration log — content type, "clean", file/pattern count.
+- **Reference over inline**: Personas use Detailed references, never inline knowledge.
+- **Partial overlap**: Decompose rather than downgrade — split into individually unambiguous items.
+- **MEMORY.md is not a safety net**: Prune the MEMORY.md entry, not the learning.
+- **Persona coverage ≠ learning obsolescence**: Keep learnings that prevent specific wrong approaches the persona one-liner can't.
+- **Opportunity over cleanup as tiebreaker**: Prefer wiring/restructuring (reversible, fixes root cause) over deletion (irreversible). Only delete when stale, incorrect, or no consumers.

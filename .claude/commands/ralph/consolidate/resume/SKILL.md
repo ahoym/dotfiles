@@ -36,21 +36,17 @@ Read from `<worktree>/.claude/consolidate-output/`:
 
 ### 3. Evaluate run
 
-Analyze data from step 2 across these dimensions:
+| Dimension | Check | Source |
+|-----------|-------|--------|
+| **Broad sweep yield** | Finding count, clean or messy? | Iteration log |
+| **Action quality** | HIGHs genuine? MEDIUMs well-calibrated? | decisions.md rationales |
+| **Deep dive yield** | Substantive vs clean ratio | Iteration log |
+| **Compounding** | Insights compounded? If zero, why? | Iteration log notes |
+| **Spec compliance** | SWEEP_COUNT matches log file count? | progress.md + Glob on logs/ |
+| **Adjacent patterns** | Deep dives noting patterns for unprocessed files? | Notes for Next Iteration |
+| **Carryover framing** | MAX_DEEP_DIVES_HIT: periodic review or unfinished? | DEEP_DIVE_CANDIDATES, tracker |
 
-| Dimension | What to check | Source |
-|-----------|---------------|--------|
-| **Broad sweep yield** | How many findings in the L→S→G pass? Clean or messy? | Iteration log |
-| **Action quality** | Were HIGHs genuine fixes? Were MEDIUMs well-calibrated? Borderline calls? | decisions.md rationales |
-| **Deep dive yield** | Ratio of substantive findings vs clean. Were clean results worth the cost? | Iteration log |
-| **Compounding** | Were insights compounded? If zero, calibration problem or genuine? | Iteration log notes |
-| **Spec compliance** | One-action-per-invocation: does SWEEP_COUNT match log file count? | progress.md + Glob on logs/ |
-| **Adjacent patterns** | Did any deep dive note patterns applying to unprocessed files? | Notes for Next Iteration |
-| **Carryover framing** | If MAX_DEEP_DIVES_HIT: staleness-eligible periodic review or unfinished work? | DEEP_DIVE_CANDIDATES, tracker |
-
-Flag anything warranting discussion before proceeding to review items.
-
-Note: Spec compliance uses `Glob` on the logs/ directory (not Bash — not in allowed-tools).
+Flag anything warranting discussion. Spec compliance uses `Glob` (not Bash).
 
 ### 4. Present status
 
@@ -121,7 +117,7 @@ Ready to resume. Run:
 
 ## Design Notes
 
-- **Does not auto-launch** — prints the command for the user to run, since `wiggum.sh` invokes `claude --print` (cannot be called from within Claude)
-- **Review item resolution feeds back through progress.md** — the next loop iteration reads Notes and acts on resolved items
-- **COMPLETE state** — when the loop finished successfully, resume shifts to review/merge guidance instead of relaunch
-- **Evaluation before interaction** — run quality analysis surfaces patterns (convergence issues, calibration gaps, adjacent findings) before the user commits to review decisions
+- **Does not auto-launch** — `wiggum.sh` invokes `claude --print` (cannot be called from within Claude)
+- **Review item resolution** feeds back through progress.md Notes
+- **COMPLETE state** → review/merge guidance instead of relaunch
+- **Evaluation before interaction** — surfaces quality patterns before review decisions
