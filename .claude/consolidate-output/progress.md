@@ -4,13 +4,13 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
-| ROUND | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 6 |
+| ROUND | 3 |
+| CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
-| CLEAN_ROUND_STREAK | 0 |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| CLEAN_ROUND_STREAK | 1 |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -40,7 +40,7 @@ Suggested iterations: 20
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -52,6 +52,7 @@ Suggested iterations: 20
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
 | 1 | 0 | 3 | 0 | 0 | 0 | 0 | false |
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | true |
 
 ## Iteration Log
 
@@ -64,6 +65,7 @@ Suggested iterations: 20
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no overlap |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — corpus stable after round 1 changes |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills unchanged, no cross-type regressions |
+| 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files unchanged. Round 2 clean → convergence. 24 deep dive candidates identified. |
 
 ## Deep Dive Status
 
@@ -126,3 +128,16 @@ Suggested iterations: 20
 ### Iter 5
 
 **SKILLS sweep (Round 2)**: Clean. 31 skills across 10 namespace clusters — identical to sweep 2. No skill files modified since last SKILLS sweep. No cross-type regressions from round 1 learnings changes. No compounding needed.
+
+### Iter 6
+
+**GUIDELINES sweep (Round 2)**: Clean. 4 files, all @-referenced, identical to sweep 3. No modifications between sweeps.
+
+**Round 2 complete**: ROUND_CLEAN=true → CLEAN_ROUND_STREAK=1 → **Broad sweeps converged.**
+
+**Deep dive candidates (24 files)**:
+- **Modification-triggered** (7): claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend persona, claude-config-expert persona
+- **Polish Opportunity** (1): claude-authoring-skills.md (517 lines, 3+ distinct sub-topics)
+- **Staleness** (16): api-design (5 behind), skill-platform-portability/nextjs/react-patterns/explore-repo/react-frontend/platform-engineer/code-quality-instincts/cross-repo-sync (4 behind), playwright-patterns/refactoring-patterns/xrpl-patterns/xrpl-typescript-fullstack/testing-patterns/quantum-tunnel-claudes/agent-prompting (3 behind)
+
+**Tracker cleanup needed**: git-patterns.md has duplicate key in deep-dive-tracker.json (noted in iter 4). Clean up when deep-diving that file.
