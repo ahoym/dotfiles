@@ -1,17 +1,19 @@
+WOOT_COMPLETE_WOOT
+
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 29 |
+| SWEEP_COUNT | 30 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
-| PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md |
+| PHASE | COMPLETE |
+| DEEP_DIVE_CANDIDATES | (none) |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
 
 ## Pre-Flight
 
@@ -89,6 +91,7 @@ Suggested iterations: 20
 | 27 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-typescript-fullstack.md: 1 MEDIUM (deleted 10 review items near-verbatim of proactive loads). 4 unique items kept. 12 detailed refs verified. 76→66 lines. |
 | 28 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | testing-patterns.md: clean. 14 patterns verified unique across react-frontend-gotchas.md, python-specific.md, nextjs.md, react-patterns.md, playwright-patterns.md, process-conventions.md. Persona: react-frontend (line 51). 1 LOW (missing See also). |
 | 29 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | quantum-tunnel-claudes/SKILL.md: clean. 270 lines, all instructions verified unique. 3 reference files exist. Inbound refs from cross-repo-sync.md, claude-authoring-skills.md, corpus-cross-reference.md all valid. |
+| 30 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | agent-prompting.md: clean. 258 lines, 15 patterns verified unique across multi-agent-patterns.md, subagent-patterns.md, claude-authoring-skills.md. All deep dive candidates complete → WOOT_COMPLETE_WOOT. |
 
 ## Deep Dive Status
 
@@ -119,6 +122,7 @@ Suggested iterations: 20
 | xrpl-typescript-fullstack.md | done | 27 | 1 MEDIUM applied (deleted 10 review items near-verbatim of proactive loads xrpl-gotchas.md + react-frontend-gotchas.md). Kept 4 unique items (zero-price filter, BigNumber cross-ref, proxy.ts build error, error boundaries). All 12 detailed refs verified. 76→66 lines. |
 | testing-patterns.md | done | 28 | Clean — 14 patterns (Vitest+RTL stack, cross-implementation fixtures, local payload, response validators, Invalid Date jsdom, jsdom localStorage, vi.mock hoisting, route handler structure, shared test helpers, mock encoding isolation, Python module-level singletons, UTC datetime, pytest.raises specificity, plan doc mock values), all unique. 1 LOW (missing See also). |
 | quantum-tunnel-claudes/SKILL.md | done | 29 | Clean — 270 lines, 5 steps + config + notes. All instructions unique. 3 reference files verified (corpus-cross-reference.md, classification-model.md, cross-repo-sync.md). Inbound refs from claude-authoring-skills.md line 117, corpus-cross-reference.md line 7 valid. Prior iter 23 cleaned main overlap with cross-repo-sync.md. |
+| agent-prompting.md | done | 30 | Clean — 258 lines, 15 patterns (verbatim templates, prompt structure, fast/slow agents, scaling by file size, code landmarks, TDD workflow, code formatting, boundary constraints, shared contract, model selection, completion report, git workflow, interface-first, integration agent), all unique. Consumed by parallel-plan/execute (4 refs), parallel-plan/make (2 refs). No duplication with multi-agent-patterns.md (orchestration vs prompt content) or subagent-patterns.md (output verification vs prompt crafting). |
 
 ## Notes for Next Iteration
 
@@ -549,5 +553,37 @@ Suggested iterations: 20
 **Inbound references**: cross-repo-sync.md (companion), claude-authoring-skills.md line 117 (section count verification after content sync), corpus-cross-reference.md line 7 (consumer). All valid.
 
 **1 remaining candidate**: agent-prompting.md.
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 30
+
+**DEEP DIVE: agent-prompting.md** (258 lines, 15 patterns, skill-reference file). Cross-referenced against multi-agent-patterns.md (304 lines), subagent-patterns.md (41 lines), claude-authoring-skills.md (510 lines).
+
+**Clean** — all 15 patterns are unique standalone references:
+1. Verbatim Templates for Same-Type Subagents — unique prompting discipline
+2. Prompt Structure (5-element) — specific to parallel-plan system
+3. What Makes a Fast Agent — speed criteria + concrete example
+4. What Makes a Slow Agent — anti-patterns
+5. Scaling Prompts by File Size — 4-tier guidance
+6. Code Landmarks — specificity examples
+7. TDD Workflow in Prompts — full template
+8. Code Formatting — formatter integration
+9. Boundary Constraints — DO NOT MODIFY pattern
+10. Shared Contract in Prompts — prompt composition model
+11. Model Selection — haiku/sonnet/opus criteria
+12. Completion Report in Prompts — report template
+13. Git Workflow in Prompts — branch/PR templates for root and dependent agents
+14. Interface-First Agent Prompts — Agent A pattern
+15. Integration Agent Prompts — last-in-DAG context requirements
+
+**Reference-file gate (4a)**: Consumed by parallel-plan/execute (4 references) and parallel-plan/make (2 references). No duplication in consuming skills — both reference by section pointer, not inline copy.
+
+**Cross-reference analysis**:
+- multi-agent-patterns.md: orchestration patterns vs prompt crafting. Different abstraction levels, no overlap.
+- subagent-patterns.md: output verification vs prompt crafting. Different domain.
+- claude-authoring-skills.md: complementary patterns (reference reading, meta-patterns about reference files), not content duplication.
+
+**All deep dive candidates complete. WOOT_COMPLETE_WOOT.**
 
 **No compounding needed** — clean deep dive, no findings.
