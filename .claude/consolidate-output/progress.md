@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 27 |
+| SWEEP_COUNT | 28 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md |
+| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md |
 
 ## Pre-Flight
 
@@ -87,6 +87,7 @@ Suggested iterations: 20
 | 25 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | refactoring-patterns.md: clean. 13 patterns verified unique across code-quality-instincts, process-conventions, testing-patterns, multi-agent-patterns. 1 LOW (missing See also). |
 | 26 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | xrpl-patterns.md: clean. 21 patterns verified unique across 7 cross-ref files. Hub/spoke with xrpl-gotchas.md correct. 1 LOW (missing See also). |
 | 27 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-typescript-fullstack.md: 1 MEDIUM (deleted 10 review items near-verbatim of proactive loads). 4 unique items kept. 12 detailed refs verified. 76→66 lines. |
+| 28 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | testing-patterns.md: clean. 14 patterns verified unique across react-frontend-gotchas.md, python-specific.md, nextjs.md, react-patterns.md, playwright-patterns.md, process-conventions.md. Persona: react-frontend (line 51). 1 LOW (missing See also). |
 
 ## Deep Dive Status
 
@@ -115,6 +116,7 @@ Suggested iterations: 20
 | refactoring-patterns.md | done | 25 | Clean — 13 patterns (survey before acting, commit granularity, factory vs hooks, React Context assessment, split PRs by risk, parallel batch failure, gate strategy, phased refactoring, structural bug fix, deciding what NOT to refactor, test layering, dependency-first order, coverage map, content-loss audit), all unique. No persona references. 1 LOW (missing See also). |
 | xrpl-patterns.md | done | 26 | Clean — 21 patterns (getOrderbook vs book_offers, route-scoped singleton, mainnet WS endpoint, full book depth, string volumes, funded offer fields, RippleState sign convention, detecting fills, Vercel serverless WS, crossing offers, xrpl.js type gaps, currency encoding, typed interfaces, fee adjustment helper, metadata double cast, credential vs currency encoding, getBalanceChanges, dev portal mirror, simulate API, submitAndWait error behavior, tx result code fees), all unique. Hub/spoke with xrpl-gotchas.md verified correct. 1 LOW (missing See also). |
 | xrpl-typescript-fullstack.md | done | 27 | 1 MEDIUM applied (deleted 10 review items near-verbatim of proactive loads xrpl-gotchas.md + react-frontend-gotchas.md). Kept 4 unique items (zero-price filter, BigNumber cross-ref, proxy.ts build error, error boundaries). All 12 detailed refs verified. 76→66 lines. |
+| testing-patterns.md | done | 28 | Clean — 14 patterns (Vitest+RTL stack, cross-implementation fixtures, local payload, response validators, Invalid Date jsdom, jsdom localStorage, vi.mock hoisting, route handler structure, shared test helpers, mock encoding isolation, Python module-level singletons, UTC datetime, pytest.raises specificity, plan doc mock values), all unique. 1 LOW (missing See also). |
 
 ## Notes for Next Iteration
 
@@ -498,3 +500,29 @@ Suggested iterations: 20
 **All 12 detailed references verified**: react-patterns.md, nextjs.md, xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, order-book-pricing.md, reactive-data-patterns.md, xrpl-cross-currency-payments.md, api-design.md, code-quality-instincts.md — all exist, descriptions accurate.
 
 **No compounding needed** — proactive-load dedup is well-established pattern (4th persona occurrence), no novel meta-insight to extract.
+
+### Iter 28
+
+**DEEP DIVE: testing-patterns.md** (189 lines, 14 patterns). Cross-referenced against react-frontend-gotchas.md, python-specific.md, nextjs.md (line 84 inbound cross-ref), react-patterns.md, playwright-patterns.md, process-conventions.md, code-quality-instincts.md. Persona references checked: react-frontend (line 51).
+
+**Clean** — all 14 patterns are unique standalone references:
+- Vitest+RTL stack setup (lines 1-9): unique stack configuration, no overlap
+- Cross-Implementation Test Fixtures (lines 11-23): encoding drift testing, unique approach
+- Prefer local payload (lines 25-47): mock coupling reduction, unique pattern
+- Testing Response-Returning Validators (lines 49-65): Next.js specific, unique recipe
+- Invalid Date in jsdom/Node (lines 67-77): unique jsdom gotcha
+- jsdom Provides localStorage (lines 79-81): unique fact
+- vi.mock() Hoisting + vi.hoisted() (lines 83-99): unique Vitest mechanics
+- Route Handler Test Structure (lines 101-125): specialized application of vi.hoisted pattern + import ordering + clearAllMocks + dynamic route params — different access pattern from the general vi.mock section (complementary, not duplicate)
+- Shared Test Helpers Design (lines 127-136): unique design pattern with vi.hoisted limitation note
+- Test Isolation: Mock Data Must Match Runtime Encoding (lines 138-142): unique encoding mismatch gotcha
+- Python Module-Level Singletons (lines 144-172): Python import side effects poisoning test suite — testing-specific, correctly placed vs python-specific.md (which covers language features, not test mechanics)
+- UTC-Explicit Datetime Conversions (lines 174-178): unique timezone gotcha
+- Use Specific Exception Types in pytest.raises (lines 180-184): unique pytest best practice
+- Plan Docs Should Specify Mock Expectation Values (lines 186-189): meta-pattern about plan quality, testing-specific enough to stay here vs process-conventions.md
+
+**1 LOW recorded**: Missing See also section. Inbound from nextjs.md (line 84) and react-frontend persona (line 51). Keyword overlap sufficient.
+
+**2 remaining candidates**: quantum-tunnel-claudes/SKILL.md, agent-prompting.md.
+
+**No compounding needed** — clean deep dive, no findings.

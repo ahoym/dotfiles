@@ -166,3 +166,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking xrpl-gotchas.md (companion tripwires), xrpl-dex-data.md (external API data), bignumber-financial-arithmetic.md (BigNumber patterns used in orderbook/depth), xrpl-amm.md (AMM liquidity interleaving) vs rely on persona references and keyword overlap
 - **Why LOW**: xrpl-gotchas.md line 1 already identifies itself as companion. xrpl-typescript-fullstack persona (lines 46, 67) references xrpl-patterns.md. All related files share "xrpl" keyword prefix for discovery. Adding See also is marginally helpful but not critical.
 - **Curate command**: `/learnings:curate learnings/xrpl-patterns.md`
+
+## [L-14] testing-patterns.md missing See also section (LOW)
+
+- **Iter**: 28
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/testing-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking nextjs.md (route handler testing cross-ref), react-frontend-gotchas.md (Vitest stack context), python-specific.md (Python testing overlap), code-quality-instincts.md (test quality instincts) vs rely on persona references and keyword overlap
+- **Why LOW**: nextjs.md line 84 already has inbound cross-ref to Route Handler Test Structure. react-frontend persona (line 51) references this file. Keyword overlap "testing" sufficient. Adding See also is marginally helpful but not critical.
+- **Curate command**: `/learnings:curate learnings/testing-patterns.md`
