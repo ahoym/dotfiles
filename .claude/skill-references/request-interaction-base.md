@@ -93,16 +93,15 @@ Do not proceed to analysis or processing steps.
 
 ## Stale Poll Auto-Cancel
 
-After a quiet no-op, check whether the review is truly idle before cancelling:
+After a quiet no-op, check whether the poll has been idle long enough to cancel. Uses a state file to track when the poll last saw activity (including the poll starting).
 
-1. **Get current time.** Run `date -u +%s` to get the current UTC epoch seconds. This is the only reliable time source — do not estimate from context.
-2. **Find the most recent activity timestamp.** Take the `max()` of:
-   - The newest non-self comment's `created_at` (the last non-self activity timestamp — each consuming skill maps this to its own variable, e.g., `LAST_FETCH_TS` for addresser, `LAST_REVIEW_TS` for reviewer)
-   - The newest self-reply's `created_at` from the quick-exit results (own replies are signs of life too)
-3. **Convert and compare.** Convert the ISO 8601 timestamp to epoch seconds (`date -u -d "<ts>" +%s` on Linux, `date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "<ts>" +%s` on macOS). If `current_epoch - activity_epoch < 1800` (30 minutes), skip the cancel — the review is still active.
-4. **Cancel if stale.** If the delta is >= 1800 seconds:
-   - `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`.
-   - If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
-   - If not found (manual invocation), skip silently — no action needed.
+**State file:** `.claude/tracking-artifacts/poll-state/<REQUEST_NUMBER>-last-activity` — contains a single UTC epoch timestamp.
+
+1. **Check for matching cron job.** `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`. If not found (manual invocation), skip the entire staleness check — no state to track.
+2. **Read or initialize state file.** If `.claude/tracking-artifacts/poll-state/<REQUEST_NUMBER>-last-activity` doesn't exist, create it with the current epoch (`date -u +%s`). This means the poll just started — it can't be stale yet. Skip the cancel.
+3. **Compare.** Run `date -u +%s` for current time. Read the epoch from the state file. If `current - stored < 1800` (30 minutes), skip the cancel.
+4. **Cancel if stale.** If delta >= 1800: `CronDelete`, remove the state file, and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
+
+**Resetting the clock:** When the skill processes new activity (any non-no-op iteration), update the state file with the current epoch. This resets the 30-minute window. Mutual resolutions count as activity (the skill did work). Terminal state handling should also clean up the state file.
 
 This is a sibling to Terminal State Handling: both auto-cancel polls that no longer need to run. Terminal state catches merged/closed PRs; stale poll catches idle reviews where the reviewer hasn't responded.
