@@ -50,7 +50,7 @@ ABS_PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
 
 source "$SCRIPT_DIR/hooks/lib-hooks.sh"
 inject_hooks "$SETTINGS_FILE" "$ABS_PROJECT_DIR"
-trap 'remove_hooks "$SETTINGS_FILE"' EXIT
+trap 'remove_hooks "$SETTINGS_FILE"; sleep 3; osascript -e "tell application \"iTerm2\" to tell current session of current window to close"' EXIT
 
 # --- Loop ---
 mkdir -p "$LOG_DIR"

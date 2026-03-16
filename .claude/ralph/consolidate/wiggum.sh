@@ -45,7 +45,7 @@ WORKTREE_ROOT="$(pwd)"
 
 source "$SCRIPT_DIR/hooks/lib-hooks.sh"
 inject_hooks "$SETTINGS_FILE" "$WORKTREE_ROOT"
-trap 'remove_hooks "$SETTINGS_FILE"' EXIT
+trap 'remove_hooks "$SETTINGS_FILE"; sleep 3; osascript -e "tell application \"iTerm2\" to tell current session of current window to close"' EXIT
 
 # --- Loop ---
 mkdir -p "$LOG_DIR"
