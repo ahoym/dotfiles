@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 28 |
+| SWEEP_COUNT | 29 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md |
+| DEEP_DIVE_CANDIDATES | agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md |
 
 ## Pre-Flight
 
@@ -88,6 +88,7 @@ Suggested iterations: 20
 | 26 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | xrpl-patterns.md: clean. 21 patterns verified unique across 7 cross-ref files. Hub/spoke with xrpl-gotchas.md correct. 1 LOW (missing See also). |
 | 27 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-typescript-fullstack.md: 1 MEDIUM (deleted 10 review items near-verbatim of proactive loads). 4 unique items kept. 12 detailed refs verified. 76→66 lines. |
 | 28 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | testing-patterns.md: clean. 14 patterns verified unique across react-frontend-gotchas.md, python-specific.md, nextjs.md, react-patterns.md, playwright-patterns.md, process-conventions.md. Persona: react-frontend (line 51). 1 LOW (missing See also). |
+| 29 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | quantum-tunnel-claudes/SKILL.md: clean. 270 lines, all instructions verified unique. 3 reference files exist. Inbound refs from cross-repo-sync.md, claude-authoring-skills.md, corpus-cross-reference.md all valid. |
 
 ## Deep Dive Status
 
@@ -117,6 +118,7 @@ Suggested iterations: 20
 | xrpl-patterns.md | done | 26 | Clean — 21 patterns (getOrderbook vs book_offers, route-scoped singleton, mainnet WS endpoint, full book depth, string volumes, funded offer fields, RippleState sign convention, detecting fills, Vercel serverless WS, crossing offers, xrpl.js type gaps, currency encoding, typed interfaces, fee adjustment helper, metadata double cast, credential vs currency encoding, getBalanceChanges, dev portal mirror, simulate API, submitAndWait error behavior, tx result code fees), all unique. Hub/spoke with xrpl-gotchas.md verified correct. 1 LOW (missing See also). |
 | xrpl-typescript-fullstack.md | done | 27 | 1 MEDIUM applied (deleted 10 review items near-verbatim of proactive loads xrpl-gotchas.md + react-frontend-gotchas.md). Kept 4 unique items (zero-price filter, BigNumber cross-ref, proxy.ts build error, error boundaries). All 12 detailed refs verified. 76→66 lines. |
 | testing-patterns.md | done | 28 | Clean — 14 patterns (Vitest+RTL stack, cross-implementation fixtures, local payload, response validators, Invalid Date jsdom, jsdom localStorage, vi.mock hoisting, route handler structure, shared test helpers, mock encoding isolation, Python module-level singletons, UTC datetime, pytest.raises specificity, plan doc mock values), all unique. 1 LOW (missing See also). |
+| quantum-tunnel-claudes/SKILL.md | done | 29 | Clean — 270 lines, 5 steps + config + notes. All instructions unique. 3 reference files verified (corpus-cross-reference.md, classification-model.md, cross-repo-sync.md). Inbound refs from claude-authoring-skills.md line 117, corpus-cross-reference.md line 7 valid. Prior iter 23 cleaned main overlap with cross-repo-sync.md. |
 
 ## Notes for Next Iteration
 
@@ -524,5 +526,28 @@ Suggested iterations: 20
 **1 LOW recorded**: Missing See also section. Inbound from nextjs.md (line 84) and react-frontend persona (line 51). Keyword overlap sufficient.
 
 **2 remaining candidates**: quantum-tunnel-claudes/SKILL.md, agent-prompting.md.
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 29
+
+**DEEP DIVE: quantum-tunnel-claudes/SKILL.md** (270 lines, 5 instruction steps + config + notes). Cross-referenced against cross-repo-sync.md (110 lines, companion learnings), multi-agent-patterns.md (agent batching), subagent-patterns.md (output verification), corpus-cross-reference.md (shared procedure), claude-authoring-skills.md (inbound reference line 117).
+
+**Clean** — all instructions are skill-specific operational content:
+- Step 0 (detect source/target): unique config parsing
+- Step 1 (inventory): unique inventory.sh integration, classification table
+- Step 2 (analyze): unique assessment methodology with >15-line threshold, genericization/structural gap checks
+- Step 3 (display): unique merge plan table format with AskUserQuestion
+- Step 4 (execute): agent write permission pre-check (absorbed from cross-repo-sync.md in iter 23), divergence routing, batch waves, content-aware merge procedure
+- Step 5 (verify): unique reporting format
+- Important Notes: 10 summary bullets, all operational — no verbatim overlap with learnings
+
+**Agent batching echo**: Line 197 "batch in waves of 5-6" echoes multi-agent-patterns.md line 132 — appropriate inline operational instruction vs general learning pattern.
+
+**Reference verification**: corpus-cross-reference.md ✅, classification-model.md ✅, cross-repo-sync.md ✅, inventory.sh ✅.
+
+**Inbound references**: cross-repo-sync.md (companion), claude-authoring-skills.md line 117 (section count verification after content sync), corpus-cross-reference.md line 7 (consumer). All valid.
+
+**1 remaining candidate**: agent-prompting.md.
 
 **No compounding needed** — clean deep dive, no findings.
