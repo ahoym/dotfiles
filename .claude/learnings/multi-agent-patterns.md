@@ -290,7 +290,11 @@ When an addresser agent agrees with a reviewer agent's suggestion, auto-implemen
 
 Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
 
+## Iterative Testing for Timing-Dependent Autonomous Features
+
+Autonomous features with timing-dependent side effects (stale poll auto-cancel, timeout-based cleanup, rate-limiting) need iterative testing with a human watching. The spec gets ~70% right, but edge cases only surface in production: premature cancellation, clock access limitations, permission friction on state persistence. Design the first version, run it live, observe failures, fix, repeat. The loop itself is the test harness.
+
 ## See also
 
-- `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas (platform mechanics underlying the agent patterns here)
+- `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas, cron and polling patterns (platform mechanics underlying the agent patterns here)
 - `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

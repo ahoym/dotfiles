@@ -431,6 +431,10 @@ Quick-exit checks must fetch N recent comments (`per_page=10`), filter out self-
 
 GitHub creates empty-body review entries as wrappers when inline comment replies are posted. Treating these as activity signals in phase 1 of a quick-exit check causes false triggers on every poll cycle after a re-review — the agent's own replies generate empty-body reviews that never age past `LAST_REVIEW_TS`. Instead, rely on phase 2 (inline comment fetch with self-filter) to catch the actual inline activity that these wrappers represent. Only non-empty-body reviews from non-self sources should count as phase 1 signals.
 
+## Never Reduce Quick-Exit to Commit-Only Checks
+
+During long polling sessions, it's tempting to optimize the quick-exit from full phase 1+2 (2 API calls) down to a commit-SHA-only check. This silently drops coverage for inline comments, top-level comments, and reviews — all activity types that arrive without new commits. Worse, the stale poll auto-cancel compounds the problem: the poll misses the comment, keeps no-oping, then cancels after 30 minutes — permanently orphaning the comment. Phase 1 (consolidated fetch) is the minimum; phase 2 (inline comment check) fires only when phase 1 is quiet. Both are cheap. Don't optimize them away.
+
 ## Reference Platform Command Sections by Name, Don't Inline
 
 Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).
@@ -450,7 +454,7 @@ Review/polling skills should check the target's state (merged, closed, open) bef
 
 ## Cache-Then-Validate for Repeated Skill Invocations
 
-When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), validate cached analysis with the cheapest possible check rather than re-fetching all data. If the commit SHA hasn't changed since the last analysis, trust the cached diff and findings — don't re-read the full diff. The cheap validation check (one API call for the latest SHA) is the guard; the cached analysis is the optimization. This saves significant tokens on polling runs (~4-5K per no-op vs ~20-50K for a full diff re-read).
+When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), cache both **analysis data** (diffs, findings) and **reference files** (shared references, platform cluster files, persona files) after the first read. Validate with the cheapest possible check rather than re-fetching. For analysis: if the commit SHA hasn't changed, trust the cached diff and findings. For reference files: read once on first invocation, skip re-reads on subsequent invocations unless a new commit modifies the file. A 20+ invocation polling session re-reading 6-7 reference files per cycle wastes hundreds of reads on unchanged content.
 
 ## Base Reviewer Persona with Extends
 

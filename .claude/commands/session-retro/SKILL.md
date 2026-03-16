@@ -30,6 +30,16 @@ End-of-session routine that captures learnings and facilitates a retrospective.
    | **Self-directed** | Read on own initiative to inform a decision, without a gate or prompt triggering it |
    | **Cross-ref** | Followed from a `## See also` in another loaded file |
 
+   Include a **Loaded?** column with three states to track actual context cost:
+
+   | Value | Meaning | Cost |
+   |-------|---------|------|
+   | **Yes** | Full read into context | Real token cost |
+   | **Sniffed** | Opened briefly to check relevance (offset+limit read, first few lines) | Small cost |
+   | **No** | Known reference, never opened (e.g., listed in persona's Detailed references) | Zero cost |
+
+   This distinction calibrates whether proactive loads are earning their context cost.
+
    This surfaces whether the search protocol is doing its job or whether useful files are only reached via persona coverage or manual reads. Also note: which files influenced decisions, which were noise, whether any useful files were missed, and whether any soft gates *should have* fired but didn't.
 
    Then ask the user for their perspective. Discuss naturally.
