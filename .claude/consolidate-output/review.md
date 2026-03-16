@@ -66,3 +66,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Split into `claude-authoring-skills.md` (core design) + `claude-authoring-review-skills.md` (polling/review patterns) vs keep unified
 - **Why LOW**: All patterns share the "skill" keyword for lookup. Splitting improves token budget when only core patterns are needed, but adds coordination overhead and all patterns are legitimately skill design content
 - **Curate command**: `/learnings:curate learnings/claude-authoring-skills.md`
+
+## [L-4] api-design.md missing See also section (LOW)
+
+- **Iter**: 15
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/api-design.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking financial-applications.md (idempotency), testing-patterns.md (validator testing), code-quality-instincts.md (parameter naming) vs rely on keyword overlap
+- **Why LOW**: All related files are discoverable via shared keywords ("idempotency", "validator"). python-specific.md already has an inbound reference. Adding See also is marginally helpful but not critical.
+- **Curate command**: `/learnings:curate learnings/api-design.md`

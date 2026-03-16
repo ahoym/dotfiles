@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md |
+| DEEP_DIVE_CANDIDATES | skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 20
 | 12 | — | DEEP_DIVE | 1 | 0 | 1 | 1 | java-backend.md: 1 HIGH (deleted duplicate gotchas section — both items verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing refs to java-infosec/observability files). 50→45 lines. |
 | 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-config-expert.md: 1 HIGH (deleted 2 boundary case lines duplicated from proactive-loaded claude-authoring-content-types.md). 7 gotchas, 13 references all verified. 54→52 lines. |
 | 14 | — | DEEP_DIVE | 1 | 1 | 1 | 2 | claude-authoring-skills.md: 1 HIGH (stale cross-ref to deleted claude-code.md pattern), 1 MEDIUM (compressed 2 near-duplicate subsections). 1 LOW (split candidate). 518→510 lines. |
+| 15 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | api-design.md: 1 MEDIUM (5 ### headings promoted to ## — independent patterns, not subsections). 1 LOW (missing See also). 14 patterns verified unique. |
 
 ## Deep Dive Status
 
@@ -89,6 +90,7 @@ Suggested iterations: 20
 | java-backend.md | done | 12 | 1 HIGH applied (deleted "Known gotchas & platform specifics" section — both items near-verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing references to java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md). 50→45 lines. |
 | claude-config-expert.md | done | 13 | 1 HIGH applied (deleted 2 boundary case lines from Content type placement — near-verbatim of proactive-loaded claude-authoring-content-types.md lines 30-31). All 7 gotchas verified against corpus (condensed tripwires, not duplicates). All 13 detailed references verified (files exist, descriptions accurate). 54→52 lines. |
 | claude-authoring-skills.md | done | 14 | 1 HIGH (updated stale cross-ref — "platform gotcha angle" pointed to pattern deleted in iter 7, updated to "worktree platform mechanics"). 1 MEDIUM (compressed "Context budget" + "Skill conversion signal" into single "Guideline-to-skill conversion signal" — near-identical takeaways, overlap with content-types.md). 1 LOW (510 lines, split candidate for polling/review cluster). 518→510 lines. |
+| api-design.md | done | 15 | 1 MEDIUM (promoted 5 independent patterns from ### to ## — were orphaned subsection headings under "Centralize Error Maps"). 1 LOW (missing See also — keyword overlap sufficient for discovery). 14 patterns, all unique across 10 cross-ref files. |
 
 ## Notes for Next Iteration
 
@@ -267,3 +269,15 @@ Suggested iterations: 20
 **Verified clean**: All remaining ~68 patterns are unique standalone references. No duplicates with skill-platform-portability.md (clean hub/spoke separation), multi-agent-patterns.md (different access patterns), or process-conventions.md (complementary content). All 4 See also cross-references verified valid and bidirectional.
 
 **No compounding needed** — the stale cross-ref fix and compression are routine maintenance, no meta-insight to extract.
+
+### Iter 15
+
+**DEEP DIVE: api-design.md** (111 lines, 14 patterns). Cross-referenced against financial-applications.md, testing-patterns.md, code-quality-instincts.md, aws-messaging.md, spring-boot.md, refactoring-patterns.md, resilience-patterns.md, python-specific.md, xrpl-patterns.md, xrpl-dex-data.md. Persona references checked: java-backend (line 35), xrpl-typescript-fullstack (line 75).
+
+**1 MEDIUM applied**: Promoted 5 independent patterns (lines 86-110) from `###` to `##` heading level. These patterns (token-derived identifiers, REST paths, integration client errors, API completeness, idempotency keys, correlation IDs) are not subsections of "Centralize Error Maps" — they're independent top-level entries that were incorrectly nested. Consistent heading structure improves keyword lookup.
+
+**1 LOW recorded**: No `## See also` section. Related files (financial-applications.md, testing-patterns.md, code-quality-instincts.md) are discoverable via keyword overlap ("idempotency", "validator"). python-specific.md already has inbound cross-ref (line 30).
+
+**Verified clean**: All 14 patterns unique. Idempotency patterns at 3 different levels across corpus (client parameter passing here, business/infra alignment in financial-applications.md, dedup window in aws-messaging.md). Validator patterns in different languages/contexts (TypeScript/Next.js here, Java in spring-boot.md, general strategy in refactoring-patterns.md, testing in testing-patterns.md). No genericization issues — all examples use generic types.
+
+**No compounding needed** — heading level fix is routine formatting, no meta-insight to extract.
