@@ -179,7 +179,7 @@ When a branch carries both its dependency's changes and its own, the dependent b
 
 The GitHub PR comments endpoint defaults to `per_page=30` ascending — when a PR has 30+ comments, newer ones silently fall off the first page. Incremental polling that doesn't account for this misses new reviewer comments entirely.
 
-**Fix:** Use `direction=desc` for incremental fetches (newest first, always visible within default page size). Use `per_page=100` for full fetches. Same applies to the issues comments endpoint.
+**Fix:** Use `direction=desc` for incremental fetches (newest first, always visible within default page size). Use `--paginate` for full fetches (auto-fetches all pages). Same applies to the issues comments endpoint.
 
 ## Symlinked Dirs Revert Edits on Branch Switch
 

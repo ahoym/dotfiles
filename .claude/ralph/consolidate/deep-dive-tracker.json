@@ -38,7 +38,7 @@
     ".claude/commands/learnings/consolidate/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/learnings/resilience-patterns.md": { "last_deep_dive_run": 9 },
     ".claude/learnings/ci-cd-gotchas.md": { "last_deep_dive_run": 9 },
-    ".claude/learnings/git-patterns.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/git-patterns.md": { "last_deep_dive_run": 9 },
     ".claude/commands/set-persona/java-backend.md": { "last_deep_dive_run": 0 },
     ".claude/commands/set-persona/claude-config-expert.md": { "last_deep_dive_run": 0 }
   }

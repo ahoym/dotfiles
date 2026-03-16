@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md |
+| DEEP_DIVE_CANDIDATES | java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 20
 | 8 | — | DEEP_DIVE | 5 | 2 | 0 | 7 | curation-insights.md: deleted 5 duplicate bullets (covered by SKILL.md/classification-model/content-mode), merged Classification Calibration (cont.) into parent, folded Phase 2 into Execution Strategy. 81→70 lines. |
 | 9 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | resilience-patterns.md: clean. 4 patterns, all unique standalone references. Cross-refs healthy (bidirectional with financial-applications.md). |
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ci-cd-gotchas.md: clean. 19 patterns (6 GH Actions, 12 GitLab, 1 CI Guards), all unique. platform-engineer persona correctly references as proactive load. |
+| 11 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | git-patterns.md: 1 MEDIUM (per_page=100→--paginate), 1 LOW (missing See also). 28 patterns verified unique across 6 cross-ref files. |
 
 ## Deep Dive Status
 
@@ -81,6 +82,7 @@ Suggested iterations: 20
 | curation-insights.md | done | 8 | 5 HIGHs (deleted duplicate bullets covered by SKILL.md, classification-model.md, content-mode.md, deep-dive-methodology.md). 2 MEDIUMs (merged split Classification Calibration section, folded Phase 2 into Execution Strategy). 81→70 lines. |
 | resilience-patterns.md | done | 9 | Clean — 4 patterns, all unique. Cross-refs valid (bidirectional with financial-applications.md, inbound from aws-messaging.md). |
 | ci-cd-gotchas.md | done | 10 | Clean — 19 patterns across 3 sections, all unique standalone references. 1 LOW thematic match (cancel-in-progress with ci-cd.md — different lookup paths). Cross-refs healthy via companion header + shared naming. |
+| git-patterns.md | done | 11 | 1 MEDIUM applied (per_page=100 → --paginate for full fetches). 1 LOW (missing See also — reverse link exists in bash-patterns.md). 28 patterns, all unique. Cross-refs with resolve-conflicts skill verified (complementary, not duplicate). |
 
 ## Notes for Next Iteration
 
@@ -208,4 +210,16 @@ Suggested iterations: 20
 
 **Persona**: platform-engineer correctly lists ci-cd-gotchas.md as proactive load (line 29).
 
-**No compounding needed** — clean deep dive, no findings.
+**No compounding needed** — clean, no findings.
+
+### Iter 11
+
+**DEEP DIVE: git-patterns.md** (231 lines, 28 patterns). Cross-referenced against claude-code.md, bash-patterns.md, process-conventions.md, cross-repo-sync.md, git:resolve-conflicts skill, git:cascade-rebase skill, git:split-commit skill.
+
+**1 MEDIUM applied**: Updated line 182 — `per_page=100` for full fetches replaced with `--paginate`. Three other corpus files (bash-patterns.md, claude-code.md, process-conventions.md) had already converged on `--paginate`; the git-patterns advice was stale.
+
+**1 LOW recorded**: No `## See also` section. bash-patterns.md already has reverse cross-ref (line 161). Forward link would be marginally helpful but not critical for discoverability.
+
+**Verified clean patterns**: Rebase ours/theirs inversion (lines 202-204) matches resolve-conflicts skill line 137 but serves different access pattern (keyword lookup vs in-context operational reference). Merge vs Rebase Token-Cost Heuristic (lines 228-231) extends the skill's decision point with the full 1.5x formula. Cascade Rebase (lines 222-226) complements the cascade-rebase skill (concise reference vs executable procedure). All appropriate separation.
+
+**No compounding needed** — routine stale-advice update, no meta-insight to extract.

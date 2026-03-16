@@ -36,3 +36,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Action needed**: Resume or manual curation
 
 -->
+
+## [L-1] git-patterns.md missing See also section (LOW)
+
+- **Iter**: 11
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/git-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: bash-patterns.md already has reverse cross-ref → bidirectional linking would be marginally useful
+- **Why LOW**: Reverse link already exists in bash-patterns.md; adding forward link is a net-positive but not required for discoverability
+- **Curate command**: `/learnings:curate git-patterns.md`
