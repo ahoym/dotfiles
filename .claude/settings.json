@@ -4,6 +4,7 @@
       "Bash(bash ~/.claude/commands/**)",
       "Bash(chmod:*)",
       "Bash(curl:*)",
+      "Bash(date:*)",
       "Bash(find:*)",
       "Bash(gh api:*)",
       "Bash(gh auth:*)",
