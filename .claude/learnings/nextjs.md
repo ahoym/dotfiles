@@ -83,8 +83,9 @@ function getTier(pathname: string, method: string) {
 
 Route handlers are plain async functions — import and call directly in Vitest without spinning up the server. See `testing-patterns.md` § "Route Handler Test Structure" for the full pattern including `vi.hoisted()` mock setup, import ordering, and dynamic route `Promise.resolve()` params.
 
-## Extending a Union Type Used in Record Keys
+## See also
 
-When adding a new member to a union type used as a `Record` key (e.g., adding `"mainnet"` to `"testnet" | "devnet"`), every `Record<ThatUnion, ...>` in the codebase must be updated. TypeScript will catch missing keys — but the errors may be in unexpected files (e.g., configuration maps, URL registries, not just the primary type definition).
-
-Search for `Record<YourUnionType` across the codebase when extending the union.
+- `react-patterns.md` — hydration, hooks, component patterns
+- `react-frontend-gotchas.md` — condensed Next.js and React tripwires
+- `testing-patterns.md` — route handler testing
+- `typescript-specific.md` — generic TypeScript patterns (union type extension moved here)

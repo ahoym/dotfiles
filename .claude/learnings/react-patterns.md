@@ -222,3 +222,9 @@ When migrating from a legacy single-key format, perform a one-time migration on 
 4. Delete legacy key
 
 This pattern is transparent to users and prevents data loss during schema evolution.
+
+## See also
+
+- `reactive-data-patterns.md` — refresh, polling, localStorage sync
+- `react-frontend-gotchas.md` — condensed React tripwires
+- `refactoring-patterns.md` — survey methodology for component refactors

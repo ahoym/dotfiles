@@ -179,7 +179,7 @@ When a branch carries both its dependency's changes and its own, the dependent b
 
 The GitHub PR comments endpoint defaults to `per_page=30` ascending — when a PR has 30+ comments, newer ones silently fall off the first page. Incremental polling that doesn't account for this misses new reviewer comments entirely.
 
-**Fix:** Use `direction=desc` for incremental fetches (newest first, always visible within default page size). Use `per_page=100` for full fetches. Same applies to the issues comments endpoint.
+**Fix:** Use `direction=desc` for incremental fetches (newest first, always visible within default page size). Use `--paginate` for full fetches (auto-fetches all pages). Same applies to the issues comments endpoint.
 
 ## Symlinked Dirs Revert Edits on Branch Switch
 
@@ -219,6 +219,17 @@ The `gh pr view --json reviews` endpoint returns all reviews every time — it d
 
 When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.
 
+## Cascade Rebase for Stacked Branches
+
+- `checkout -B` resets local to remote, then rebase on updated base; `--force-with-lease` for safe push
+- After rebasing stacked branches, retarget: `glab mr update <N> --target-branch <new-base>` (GitLab) / `gh pr edit <N> --base <new-base>` (GitHub)
+- `checkout -B` is safer than `checkout` for stacked workflows — avoids stale local state
+
 ## Merge vs Rebase: Token-Cost Heuristic
 
 Conflict resolution rounds drive token cost — each round requires reading markers, asking the user, applying, and staging. Merge always costs `N` rounds (N = conflicted files). Rebase can cost more because it replays each commit: if multiple commits touch the same conflicted file, that file re-conflicts per commit. Estimate: `rebase_rounds` = sum of (commits touching each conflicted file); `merge_rounds` = count of conflicted files. Pick merge when `rebase_rounds > merge_rounds × 1.5` (rebase's cleaner history is worth a small premium, but not 2×). Also pick merge unconditionally when the branch has merge commits — rebasing merge commits requires `--rebase-merges` and produces confusing conflict contexts.
+
+## See also
+
+- `bash-patterns.md` — shell escaping gotchas for git commands
+- `ci-cd-gotchas.md` — CI pipeline git workflow patterns

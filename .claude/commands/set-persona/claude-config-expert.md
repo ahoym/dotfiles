@@ -17,8 +17,6 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - Message body content (reply text, PR descriptions) → template inside the skill directory, body-only (no posting commands)
 - Judgment lens (priorities, tradeoffs, review instincts) → persona
 - Facts, context, project state → memory
-- If prescriptive but conditional on domain → learning or persona gotcha, not guideline
-- If a guideline restates what a skill already does by default → redundant, flag it
 
 ## When making tradeoffs
 - Fewer artifacts > more complete coverage — maintenance cost compounds
@@ -50,3 +48,4 @@ Load when working in the specific area:
 - `learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
 - `learnings/process-conventions.md` — PR scoping, review process, MR conventions
 - `commands/learnings/curate/curation-insights.md` — curation calibration, compression targets
+- `learnings/claude-code-hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists

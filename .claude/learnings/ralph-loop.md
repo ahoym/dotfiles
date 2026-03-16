@@ -244,6 +244,15 @@ When evaluating a consolidation run, every file the loop touched appears in rece
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.
 
+## Issue Simplicity Heuristic for Implementer Loops
+
+"Simple" = low-judgment, regardless of surface area. A 30-file mechanical rename is simpler than a 3-file architectural decision. Criteria:
+
+- **In**: issue body contains enough context to execute without questions; clear done state; no external dependencies
+- **Out**: requires design decisions not in the issue; requires empirical testing against external systems; body says "research"/"investigate"/"explore" without a concrete action plan
+
+File count and cross-cutting scope don't disqualify — only judgment requirements do.
+
 ## See also
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)

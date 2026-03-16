@@ -24,12 +24,6 @@
 
 Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
 
-## Known gotchas & platform specifics
-
-### Spring Boot
-- `@Scheduled` + `@SchedulerLock` (ShedLock): swallow exceptions in the top-level method — Spring's TaskScheduler catches/logs anyway, ShedLock releases the lock regardless, and the job retries on next cron tick. Rethrowing just produces duplicate error logs.
-- Inner loops processing independent items should catch per-item to prevent one failure from killing the batch
-
 ## Proactive loads
 
 - `learnings/spring-boot-gotchas.md`
@@ -46,3 +40,7 @@ Load when working in the specific area:
 - `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
 - `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
+- `learnings/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
+- `learnings/java-infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
+- `learnings/java-observability-gotchas.md` — Logging pitfalls, metric cardinality, trace context propagation
+- `learnings/java-observability.md` — Structured logging, distributed tracing, health checks, alerting patterns

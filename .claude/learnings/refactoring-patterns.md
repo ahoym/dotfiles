@@ -145,3 +145,9 @@ When a refactor renames, splits, or merges files, run a parallel audit to verify
 **Pattern:** The audit agent produces a table mapping old heading → new file → status (✅/❌). Missing sections surface immediately. This caught 9 dropped sections in a 6-file hub-and-spoke refactor that otherwise would have been silently lost.
 
 **When to apply:** Any refactor that deletes or renames 3+ files. The parallel agent cost (~30s) is trivial compared to discovering content loss later.
+
+## See also
+
+- `code-quality-instincts.md` — code quality signals that trigger refactors
+- `process-conventions.md` — PR splitting and review process
+- `testing-patterns.md` — test recipes for refactoring safety

@@ -31,20 +31,8 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 
 ## Known gotchas & platform specifics
 
-### React 19
-- `setState` inside `useEffect` triggers lint errors — fix depends on use case: lazy initializer (hydration/init), render-time sync (prop changes), or async callbacks (fetches)
-- `suppressHydrationWarning` suppresses the warning but the user still sees a flash of the wrong value — gate rendering on hydration state instead
-- Data-fetching effects: move synchronous `setLoading(true)` to render-time via prev-key pattern; only async callbacks belong in the effect body
-
 ### Next.js 16 / Turbopack
 - Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements) — see `learnings/nextjs.md`
-
-### Playwright
-- `getByRole` matches accessible name (`aria-label`) over visible text — if aria-label differs from button text, `getByRole` uses the label
-- `textContent` on containers concatenates all child text without separators — use role-based selectors, not text matching on containers
-- `.first()` is dynamic: after removing the first match, it resolves to the next — use count-based assertions for removal/deletion tests
-- `page.on("dialog")` stacks handlers across serial tests on a shared page — use `page.once()` for one-time handling
-- Transient success banners (auto-clear after N seconds) are unreliable assertions even with long timeouts — assert the side effect instead
 
 ## Proactive loads
 

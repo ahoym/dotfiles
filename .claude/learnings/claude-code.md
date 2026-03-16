@@ -85,10 +85,6 @@ Edit/Write permission patterns like `Edit(~/.claude/commands/**)` resolve to abs
 
 **Skill tool in worktrees:** Skills write to `~/.claude/` paths by convention, which resolves to the main repo — not the worktree. Autonomous agents in worktrees that need compound-style behavior should inline the methodology (Read/Edit/Write directly) rather than invoke the Skill tool. This also avoids: hook restrictions on the Skill tool, AskUserQuestion calls with no user present, and ~120 lines of skill context loaded per invocation.
 
-## Worktree Branches Block `gh pr checkout`
-
-`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree`). Detect via `git worktree list`, extract the worktree path, and use `git -C <worktree-path>` instead. See also: `claude-authoring-skills.md` for skill design implications.
-
 ## Bash Permission Prefix Matching Gotchas
 
 Bash permission patterns match on the **literal command prefix**. Common breaks:

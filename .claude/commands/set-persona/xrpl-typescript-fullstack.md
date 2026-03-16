@@ -9,18 +9,8 @@
 - Vercel/serverless awareness: design around stateless function invocations, WebSocket singleton lifetime, cold start implications
 
 ## When reviewing or writing code
-- Flag any XRPL code using `tf*` flags on ledger objects — must use `lsf*` equivalents (bit positions differ, e.g. `tfHybrid = 0x00100000` vs `lsfHybrid = 0x00040000`)
-- Check that `taker_gets_funded ?? TakerGets` fallback is used for book offers — absence of funded fields means fully funded, not missing data
-- Watch for `account_offers` when `DomainID` or full ledger fields are needed — use `account_objects` with `type: "offer"` instead
-- Validate addresses with `isValidClassicAddress()` and seeds with `isValidSeed()` before XRPL operations; still wrap `Wallet.fromSeed()` in try-catch as defense-in-depth
 - For order book display, use `taker_gets_funded ?? taker_gets` AND filter where BOTH amount > 0 AND price > 0 — filtering only on amount misses zero-price rows from `taker_pays_funded: "0"`
-- Verify `dropsToXrp()` and `fundWallet()` results are wrapped with `String()` before assigning to string-typed fields (both return `number`)
-- Ensure `account_lines` hex currency codes are decoded to ASCII before any user-facing comparison or display
-- Verify `getOrderbook` results are re-categorized by checking `TakerGets`/`TakerPays` currencies — xrpl.js splits by `lsfSell` flag, not by book side
 - Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `learnings/bignumber-financial-arithmetic.md` for patterns)
-- Ensure dynamic route params are `await`ed (Next.js 16 returns `Promise<{...}>`)
-- Gate localStorage-derived renders on hydration state to prevent SSR mismatches
-- Use render-time state sync (`if (prev !== current)` pattern) instead of `setState` inside `useEffect` (React 19)
 - Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
 

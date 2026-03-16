@@ -105,6 +105,7 @@ Skill instructions should reference artifacts generically, not by the tool that 
 
 For detailed authoring craft, see the spoke file for the relevant type:
 - `claude-authoring-skills.md` — skill design patterns, frontmatter, composition, hooks, references
+- `claude-authoring-polling-review-skills.md` — polling loops, quick-exit logic, re-review detection, reviewer timestamps
 - `claude-authoring-guidelines.md` — merging overlaps, enforcement gates, scoping, separation tiers
 - `claude-authoring-learnings.md` — genericization, scope classification, boundary tests
 - `claude-authoring-personas.md` — judgment vs recipes, proactive loads, gotcha files, composition
