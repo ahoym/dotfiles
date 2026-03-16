@@ -93,10 +93,12 @@ Do not proceed to analysis or processing steps.
 
 ## Stale Poll Auto-Cancel
 
-After a quiet no-op, compare current time against `LAST_FETCH_TS`. If the delta exceeds 30 minutes:
+After a quiet no-op, check whether the review is truly idle before cancelling:
 
-1. `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`
-2. If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
-3. If not found (manual invocation), skip silently — no action needed.
+1. **Check for recent self-activity.** Scan the quick-exit results for any self-reply (`Role:.*<YOUR_ROLE>` in body) with `created_at` within the last 30 minutes. If found, the review is still active — skip the cancel. Own replies are signs of life that `LAST_FETCH_TS` (which tracks non-self comments) doesn't capture.
+2. **Check staleness.** If no self-activity within 30 minutes AND `LAST_FETCH_TS` is older than 30 minutes, proceed to cancel.
+3. `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`.
+4. If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
+5. If not found (manual invocation), skip silently — no action needed.
 
 This is a sibling to Terminal State Handling: both auto-cancel polls that no longer need to run. Terminal state catches merged/closed PRs; stale poll catches idle reviews where the reviewer hasn't responded.
