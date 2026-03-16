@@ -106,3 +106,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking react-patterns.md (hydration, hooks), testing-patterns.md (route handler testing), react-frontend-gotchas.md (condensed companion) vs rely on persona references and keyword overlap
 - **Why LOW**: Both personas (react-frontend, xrpl-typescript-fullstack) already list nextjs.md as a detailed reference. react-frontend-gotchas.md companion header covers Next.js gotchas. Keyword overlap ("Next.js", "proxy", "Turbopack") sufficient for discovery.
 - **Curate command**: `/learnings:curate learnings/nextjs.md`
+
+## [L-8] react-patterns.md missing See also section (LOW)
+
+- **Iter**: 18
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/react-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking reactive-data-patterns.md (complementary refresh/polling patterns), refactoring-patterns.md (general survey methodology), react-frontend-gotchas.md (companion tripwires) vs rely on companion header and keyword overlap
+- **Why LOW**: react-frontend-gotchas.md companion header already references react-patterns.md (line 3). Both personas (react-frontend, xrpl-typescript-fullstack) list it. reactive-data-patterns.md is discoverable via keyword overlap ("polling", "refresh", "localStorage"). Adding See also would be marginally helpful but not critical.
+- **Curate command**: `/learnings:curate learnings/react-patterns.md`
