@@ -98,6 +98,10 @@ When two peer personas share duplicated content (e.g., both have React/Next.js g
 
 Extracting to a shared learning eliminates the ownership question and follows the lean-persona philosophy: personas reference knowledge, they don't inline it. Both personas get a Detailed references entry pointing to the same learning file.
 
+## Inherited Proactive Loads May Be Noise for Child Personas
+
+When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive loads fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those loads add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base load is consistently irrelevant for a child persona, consider moving it from proactive to detailed references in the base.
+
 ## See also
 
 - `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

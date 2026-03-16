@@ -45,6 +45,7 @@ Load when working in the specific area:
 - `learnings/claude-authoring-claude-md.md` — conditional references, relationships, subdirectory criteria
 - `learnings/claude-authoring-personas.md` — judgment vs recipes, proactive loads, composition
 - `learnings/claude-authoring-learnings.md` — genericization, scope classification, cross-refs
+- `learnings/claude-code.md` — permission patterns, path resolution, platform behavior gotchas
 - `learnings/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
 - `learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
 - `learnings/process-conventions.md` — PR scoping, review process, MR conventions
