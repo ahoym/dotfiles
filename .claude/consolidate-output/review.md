@@ -86,3 +86,23 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking claude-authoring-skills.md (complementary design patterns), claude-code.md (permission/platform mechanics) vs rely on keyword overlap and existing reverse reference
 - **Why LOW**: claude-authoring-skills.md line 507 already has reverse reference to this file. Keyword overlap ("skill", "platform") sufficient for discovery. Adding See also is marginally helpful but not critical.
 - **Curate command**: `/learnings:curate learnings/skill-platform-portability.md`
+
+## [L-6] nextjs.md contains generic TypeScript pattern (LOW)
+
+- **Iter**: 17
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/nextjs.md`
+- **Pattern**: "Extending a Union Type Used in Record Keys" (lines 86-91)
+- **Possible classifications**: Move to a TypeScript-specific learnings file or code-quality-instincts.md vs keep in nextjs.md where it was discovered
+- **Why LOW**: The pattern is generic TypeScript (union type + Record key extension), not Next.js-specific. But it's small (5 lines), discoverable in current location, and there's no existing TypeScript-specific learnings file to move it to. Creating one for 5 lines is overhead.
+- **Curate command**: `/learnings:curate learnings/nextjs.md`
+
+## [L-7] nextjs.md missing See also section (LOW)
+
+- **Iter**: 17
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/nextjs.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking react-patterns.md (hydration, hooks), testing-patterns.md (route handler testing), react-frontend-gotchas.md (condensed companion) vs rely on persona references and keyword overlap
+- **Why LOW**: Both personas (react-frontend, xrpl-typescript-fullstack) already list nextjs.md as a detailed reference. react-frontend-gotchas.md companion header covers Next.js gotchas. Keyword overlap ("Next.js", "proxy", "Turbopack") sufficient for discovery.
+- **Curate command**: `/learnings:curate learnings/nextjs.md`

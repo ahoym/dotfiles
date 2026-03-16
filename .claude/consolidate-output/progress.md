@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md |
+| DEEP_DIVE_CANDIDATES | react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md |
 
 ## Pre-Flight
 
@@ -76,6 +76,7 @@ Suggested iterations: 20
 | 14 | — | DEEP_DIVE | 1 | 1 | 1 | 2 | claude-authoring-skills.md: 1 HIGH (stale cross-ref to deleted claude-code.md pattern), 1 MEDIUM (compressed 2 near-duplicate subsections). 1 LOW (split candidate). 518→510 lines. |
 | 15 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | api-design.md: 1 MEDIUM (5 ### headings promoted to ## — independent patterns, not subsections). 1 LOW (missing See also). 14 patterns verified unique. |
 | 16 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | skill-platform-portability.md: clean. 22 patterns verified unique across claude-authoring-skills.md, claude-code.md, multi-agent-patterns.md, claude-config-expert.md. 1 LOW (missing See also). |
+| 17 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | nextjs.md: clean. 7 patterns verified unique across react-frontend-gotchas.md, react-patterns.md, testing-patterns.md, xrpl-typescript-fullstack, react-frontend personas. 2 LOWs (misplaced TypeScript pattern, missing See also). |
 
 ## Deep Dive Status
 
@@ -93,6 +94,7 @@ Suggested iterations: 20
 | claude-authoring-skills.md | done | 14 | 1 HIGH (updated stale cross-ref — "platform gotcha angle" pointed to pattern deleted in iter 7, updated to "worktree platform mechanics"). 1 MEDIUM (compressed "Context budget" + "Skill conversion signal" into single "Guideline-to-skill conversion signal" — near-identical takeaways, overlap with content-types.md). 1 LOW (510 lines, split candidate for polling/review cluster). 518→510 lines. |
 | api-design.md | done | 15 | 1 MEDIUM (promoted 5 independent patterns from ### to ## — were orphaned subsection headings under "Centralize Error Maps"). 1 LOW (missing See also — keyword overlap sufficient for discovery). 14 patterns, all unique across 10 cross-ref files. |
 | skill-platform-portability.md | done | 16 | Clean — 22 patterns (platform features, frontmatter, agents, plugins, cross-platform compat), all unique. 1 LOW (missing See also — reverse ref exists in claude-authoring-skills.md). |
+| nextjs.md | done | 17 | Clean — 7 patterns (proxy.ts, async params, Turbopack, rate limiter, testing cross-ref, union types), all unique. Hub/spoke with react-frontend-gotchas.md verified correct. 2 LOWs (misplaced TS pattern, missing See also). |
 
 ## Notes for Next Iteration
 
@@ -297,5 +299,23 @@ Suggested iterations: 20
 - Cross-platform sections (field handling, `$ARGUMENTS`, `metadata.*`, `compatibility`) — unique
 
 **1 LOW recorded**: No `## See also` section. claude-authoring-skills.md line 507 already has reverse reference. Keyword overlap sufficient.
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 17
+
+**DEEP DIVE: nextjs.md** (91 lines, 7 patterns). Cross-referenced against react-frontend-gotchas.md, react-patterns.md, testing-patterns.md, xrpl-typescript-fullstack persona, react-frontend persona.
+
+**Clean** — all 7 patterns are unique standalone references:
+1. Next.js 16 middleware→proxy migration (lines 3-26) — full recipe; react-frontend-gotchas.md line 13 has condensed tripwire (correct hub/spoke)
+2. Dynamic Route Params async (lines 28-47) — full code examples; condensed versions in gotchas + personas (different access patterns)
+3. Turbopack Gotchas (lines 49-61) — 3 sub-items; condensed in gotchas file (correct)
+4. Rate Limiter Wiring (lines 63-80) — full pattern with code; condensed in gotchas (correct)
+5. Testing Route Handlers Directly (lines 82-84) — appropriate 2-line cross-ref to testing-patterns.md § Route Handler Test Structure
+6. Extending a Union Type Used in Record Keys (lines 86-91) — generic TypeScript pattern
+
+**2 LOWs recorded**:
+- "Extending a Union Type Used in Record Keys" is a generic TypeScript pattern not specific to Next.js. Marginal misplacement — discoverable via current file.
+- No `## See also` section. Both personas (react-frontend, xrpl-typescript-fullstack) reference nextjs.md. react-frontend-gotchas.md companion header references react-patterns.md (sibling). Keyword overlap sufficient.
 
 **No compounding needed** — clean deep dive, no findings.
