@@ -56,3 +56,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add as detailed references (increases persona token cost) vs rely on keyword discovery (`java-*` naming convention is reliable)
 - **Why LOW**: Both approaches are valid. Keyword discovery via `java-*` naming is reliable for the learnings search protocol. Adding references increases always-loaded persona size for marginal discoverability gain.
 - **Curate command**: `/learnings:curate commands/set-persona/java-backend.md`
+
+## [L-3] claude-authoring-skills.md — largest learning file, potential split candidate (LOW)
+
+- **Iter**: 14
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/claude-authoring-skills.md`
+- **Pattern**: File size (510 lines, 70+ patterns) — polling/review cluster (lines ~400-500) is the most distinct sub-topic
+- **Possible classifications**: Split into `claude-authoring-skills.md` (core design) + `claude-authoring-review-skills.md` (polling/review patterns) vs keep unified
+- **Why LOW**: All patterns share the "skill" keyword for lookup. Splitting improves token budget when only core patterns are needed, but adds coordination overhead and all patterns are legitimately skill design content
+- **Curate command**: `/learnings:curate learnings/claude-authoring-skills.md`

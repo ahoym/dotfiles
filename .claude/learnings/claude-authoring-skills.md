@@ -293,17 +293,9 @@ Naming convention: use a shared prefix (`claude-authoring-*`) to group the clust
 
 ## Guidelines-to-Skills Migration
 
-### Context budget drives guideline-to-skill conversion
+### Guideline-to-skill conversion signal
 
-Guidelines (`@`-loaded from CLAUDE.md) are always present in every agent's context. Skills load contextually — only meta descriptions are indexed, full content loads on invocation. For situational instructions ("how to create a PR", "how to resolve conflicts"), converting from guideline to skill saves context budget. Reserve guidelines for rules that genuinely apply to every interaction.
-
-- **Takeaway**: If an instruction is "do X when I say so" rather than "always behave this way," it should be a skill.
-
-### Skill conversion signal: procedural workflows with clear triggers
-
-The pattern that marks a guideline for skill conversion: procedural workflows with clear invocation triggers (address-pr-review, capture-learnings, close-redundant-pr, create-followup-issue, create-pr, resolve-conflicts). Trigger-ability is the key signal.
-
-- **Takeaway**: "Do X when triggered" = skill. "Always behave this way" = guideline.
+Guidelines are always-loaded context (`@`-referenced from CLAUDE.md); skills load on invocation. The conversion signal: procedural workflows with clear invocation triggers. "Do X when triggered" = skill. "Always behave this way" = guideline. Reserve guidelines for rules that genuinely apply to every interaction.
 
 ### Skill naming convention: prefix by taxonomy domain
 
@@ -487,7 +479,7 @@ Skills that write temp files to a staging directory (e.g., `change-request-repli
 
 ## Worktree Branches Block `gh pr checkout`
 
-`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands. See also: `claude-code.md` for the platform gotcha angle.
+`gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands. See also: `claude-code.md` for worktree platform mechanics.
 
 ## Polling as Skill Stress-Test
 

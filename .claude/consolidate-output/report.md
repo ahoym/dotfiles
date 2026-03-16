@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 13 |
+| Iterations | 14 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 7 of 24 candidates complete |
+| Status | DEEP_DIVE — 8 of 24 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 7 | 8 | 3 | 0 | 0 |
-| **Total** | **13** | **8** | **6** | **0** | **2** |
+| Deep Dives | 8 | 9 | 4 | 0 | 0 |
+| **Total** | **14** | **9** | **7** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -41,6 +41,8 @@
 | 11 | — | DEEP_DIVE | update advice | git-patterns.md (per_page→paginate) | — | MEDIUM |
 | 12 | — | DEEP_DIVE | delete section | java-backend.md (duplicate gotchas) | — | HIGH |
 | 13 | — | DEEP_DIVE | delete 2 lines | claude-config-expert.md (duplicate boundary cases) | — | HIGH |
+| 14 | — | DEEP_DIVE | update cross-ref | claude-authoring-skills.md (stale ref to deleted pattern) | — | HIGH |
+| 14 | — | DEEP_DIVE | compress 2→1 | claude-authoring-skills.md (merge duplicate takeaways) | — | MEDIUM |
 
 ## Blocked Items
 

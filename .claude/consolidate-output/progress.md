@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md |
+| DEEP_DIVE_CANDIDATES | api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md |
 
 ## Pre-Flight
 
@@ -73,6 +73,7 @@ Suggested iterations: 20
 | 11 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | git-patterns.md: 1 MEDIUM (per_page=100→--paginate), 1 LOW (missing See also). 28 patterns verified unique across 6 cross-ref files. |
 | 12 | — | DEEP_DIVE | 1 | 0 | 1 | 1 | java-backend.md: 1 HIGH (deleted duplicate gotchas section — both items verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing refs to java-infosec/observability files). 50→45 lines. |
 | 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-config-expert.md: 1 HIGH (deleted 2 boundary case lines duplicated from proactive-loaded claude-authoring-content-types.md). 7 gotchas, 13 references all verified. 54→52 lines. |
+| 14 | — | DEEP_DIVE | 1 | 1 | 1 | 2 | claude-authoring-skills.md: 1 HIGH (stale cross-ref to deleted claude-code.md pattern), 1 MEDIUM (compressed 2 near-duplicate subsections). 1 LOW (split candidate). 518→510 lines. |
 
 ## Deep Dive Status
 
@@ -87,6 +88,7 @@ Suggested iterations: 20
 | git-patterns.md | done | 11 | 1 MEDIUM applied (per_page=100 → --paginate for full fetches). 1 LOW (missing See also — reverse link exists in bash-patterns.md). 28 patterns, all unique. Cross-refs with resolve-conflicts skill verified (complementary, not duplicate). |
 | java-backend.md | done | 12 | 1 HIGH applied (deleted "Known gotchas & platform specifics" section — both items near-verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing references to java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md). 50→45 lines. |
 | claude-config-expert.md | done | 13 | 1 HIGH applied (deleted 2 boundary case lines from Content type placement — near-verbatim of proactive-loaded claude-authoring-content-types.md lines 30-31). All 7 gotchas verified against corpus (condensed tripwires, not duplicates). All 13 detailed references verified (files exist, descriptions accurate). 54→52 lines. |
+| claude-authoring-skills.md | done | 14 | 1 HIGH (updated stale cross-ref — "platform gotcha angle" pointed to pattern deleted in iter 7, updated to "worktree platform mechanics"). 1 MEDIUM (compressed "Context budget" + "Skill conversion signal" into single "Guideline-to-skill conversion signal" — near-identical takeaways, overlap with content-types.md). 1 LOW (510 lines, split candidate for polling/review cluster). 518→510 lines. |
 
 ## Notes for Next Iteration
 
@@ -251,3 +253,17 @@ Suggested iterations: 20
 **All 13 detailed references verified**: All files exist, all description annotations accurately match file content. No stale or broken references. No missing critical references identified.
 
 **No compounding needed** — straightforward dedup of proactive-loaded content, no meta-insight to extract.
+
+### Iter 14
+
+**DEEP DIVE: claude-authoring-skills.md** (518 lines, 70+ patterns — largest learnings file). Cross-referenced against skill-platform-portability.md, claude-authoring-content-types.md, multi-agent-patterns.md, process-conventions.md, subagent-patterns.md, agent-prompting.md, claude-code.md (via worktree patterns).
+
+**1 HIGH applied**: Updated stale cross-reference on line 490. Original: "See also: `claude-code.md` for the platform gotcha angle" — the specific "Worktree Branches Block" pattern it referenced was deleted from claude-code.md in iter 7. Updated to "for worktree platform mechanics" since claude-code.md still has extensive worktree content (isolation, permissions, CWD pinning).
+
+**1 MEDIUM applied**: Compressed "Guidelines-to-Skills Migration" subsections 1 ("Context budget drives guideline-to-skill conversion") and 2 ("Skill conversion signal: procedural workflows with clear triggers") into a single "Guideline-to-skill conversion signal" entry. Rationale: near-identical takeaways ("do X when triggered = skill"), significant overlap with claude-authoring-content-types.md Quick Decision Tree and Guideline Scoping table. 12 lines → 4 lines.
+
+**1 LOW recorded**: File is 510 lines with 70+ patterns. Polling/review cluster (lines ~400-500) is the most distinct sub-topic for potential split. But all patterns share the "skill" keyword for lookup, so splitting has marginal discoverability benefit.
+
+**Verified clean**: All remaining ~68 patterns are unique standalone references. No duplicates with skill-platform-portability.md (clean hub/spoke separation), multi-agent-patterns.md (different access patterns), or process-conventions.md (complementary content). All 4 See also cross-references verified valid and bidirectional.
+
+**No compounding needed** — the stale cross-ref fix and compression are routine maintenance, no meta-insight to extract.
