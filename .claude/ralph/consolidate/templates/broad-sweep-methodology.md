@@ -16,6 +16,23 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
    - **Genericization**: Domain terms appearing in wrong cluster, project-specific names/paths/routes
    - **Compression**: High line-count vs insight ratio, verbose code blocks, provenance notes, debugging trails
 7. **Cross-reference**: Check if learnings patterns are already fully covered in skills, guidelines, or personas → outdated candidate
+8. **Cross-reference graph health**: Scan all `## See also` sections across learnings files. The agent has the full corpus loaded — this is the best vantage point for graph-level analysis that per-file deep dives can't see.
+   - **Stale refs**: Target file no longer exists, or stated relationship decayed (content refactored to different topics). HIGH.
+   - **Isolated files**: Files with zero inbound or outbound cross-refs. Not inherently wrong — evaluate whether a cross-ref would provide non-obvious lateral discovery (keyword search wouldn't connect them). MEDIUM if a clear link exists.
+   - **Missing cross-cluster refs**: Files in different domain clusters that share non-obvious conceptual overlap (e.g., `resilience-patterns.md` ↔ `aws-messaging.md` on retry/backoff). These are the highest-value cross-refs — keyword search connects within-cluster files but misses cross-cluster relationships. MEDIUM.
+   - **Hub files**: High inbound ref count (3+). Flag for deep dive candidacy — foundational knowledge that should be kept current. No action unless stale.
+   - Log a topology summary in Notes for Next Iteration (e.g., "Graph: 40 connected, 16 isolated, 3 hubs, 2 stale refs removed, 4 cross-cluster refs added").
+
+   **Cross-ref quality test**: A cross-ref earns its keep when the answer to both questions is yes: (1) Would an agent working in file A benefit from knowing about file B? (2) Would they plausibly not find it via keyword search?
+
+   Good cross-refs connect:
+   - **Different vocabulary, shared concept** — files that overlap on a strategy or pattern but use different domain terms (e.g., resilience retry logic vs. SQS retry policies)
+   - **Different domain, transferable pattern** — a technique in one domain that applies to another but isn't obviously related (e.g., financial precision handling ↔ DEX data normalization)
+   - **Complementary perspectives** — files addressing the same problem from different angles (e.g., test design patterns ↔ local dev seeding)
+
+   Don't cross-ref:
+   - **Keyword-discoverable** — files the search protocol already connects via filename or content matching (e.g., `spring-boot.md` ↔ `spring-boot-gotchas.md`)
+   - **Weak thematic similarity** — "both mention databases" isn't enough; the link should save a wrong turn or surface a non-obvious approach
 
 **Thin files**: Files < 20 lines that are mostly cross-references are fold-and-delete candidates. Fold substantive content into the target persona or skill, then delete.
 
@@ -26,6 +43,7 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 - **Split for discoverability**: >150 lines AND 3+ distinct sub-topics with independent lookup value. MEDIUM. (A large but thematically unified file should NOT be split — the filename is a natural index.)
 - **Compression for token ROI**: Files where insight-to-token ratio could improve. MEDIUM.
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
+- **Cross-ref wiring**: Add `## See also` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
 
 **Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase.
 
