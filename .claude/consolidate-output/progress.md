@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md |
+| DEEP_DIVE_CANDIDATES | nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md |
 
 ## Pre-Flight
 
@@ -75,6 +75,7 @@ Suggested iterations: 20
 | 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-config-expert.md: 1 HIGH (deleted 2 boundary case lines duplicated from proactive-loaded claude-authoring-content-types.md). 7 gotchas, 13 references all verified. 54→52 lines. |
 | 14 | — | DEEP_DIVE | 1 | 1 | 1 | 2 | claude-authoring-skills.md: 1 HIGH (stale cross-ref to deleted claude-code.md pattern), 1 MEDIUM (compressed 2 near-duplicate subsections). 1 LOW (split candidate). 518→510 lines. |
 | 15 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | api-design.md: 1 MEDIUM (5 ### headings promoted to ## — independent patterns, not subsections). 1 LOW (missing See also). 14 patterns verified unique. |
+| 16 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | skill-platform-portability.md: clean. 22 patterns verified unique across claude-authoring-skills.md, claude-code.md, multi-agent-patterns.md, claude-config-expert.md. 1 LOW (missing See also). |
 
 ## Deep Dive Status
 
@@ -91,6 +92,7 @@ Suggested iterations: 20
 | claude-config-expert.md | done | 13 | 1 HIGH applied (deleted 2 boundary case lines from Content type placement — near-verbatim of proactive-loaded claude-authoring-content-types.md lines 30-31). All 7 gotchas verified against corpus (condensed tripwires, not duplicates). All 13 detailed references verified (files exist, descriptions accurate). 54→52 lines. |
 | claude-authoring-skills.md | done | 14 | 1 HIGH (updated stale cross-ref — "platform gotcha angle" pointed to pattern deleted in iter 7, updated to "worktree platform mechanics"). 1 MEDIUM (compressed "Context budget" + "Skill conversion signal" into single "Guideline-to-skill conversion signal" — near-identical takeaways, overlap with content-types.md). 1 LOW (510 lines, split candidate for polling/review cluster). 518→510 lines. |
 | api-design.md | done | 15 | 1 MEDIUM (promoted 5 independent patterns from ### to ## — were orphaned subsection headings under "Centralize Error Maps"). 1 LOW (missing See also — keyword overlap sufficient for discovery). 14 patterns, all unique across 10 cross-ref files. |
+| skill-platform-portability.md | done | 16 | Clean — 22 patterns (platform features, frontmatter, agents, plugins, cross-platform compat), all unique. 1 LOW (missing See also — reverse ref exists in claude-authoring-skills.md). |
 
 ## Notes for Next Iteration
 
@@ -281,3 +283,19 @@ Suggested iterations: 20
 **Verified clean**: All 14 patterns unique. Idempotency patterns at 3 different levels across corpus (client parameter passing here, business/infra alignment in financial-applications.md, dedup window in aws-messaging.md). Validator patterns in different languages/contexts (TypeScript/Next.js here, Java in spring-boot.md, general strategy in refactoring-patterns.md, testing in testing-patterns.md). No genericization issues — all examples use generic types.
 
 **No compounding needed** — heading level fix is routine formatting, no meta-insight to extract.
+
+### Iter 16
+
+**DEEP DIVE: skill-platform-portability.md** (220 lines, 22 patterns). Cross-referenced against claude-authoring-skills.md (510 lines), claude-code.md (274 lines), multi-agent-patterns.md (304 lines), claude-config-expert.md (52 lines, persona).
+
+**Clean** — all 22 patterns are unique standalone references:
+- Platform equivalence (`commands/` vs `skills/`), unused frontmatter features, `disable-model-invocation` context removal, intent-signaling for broken features — all unique platform knowledge
+- Progressive Disclosure tiers, Dynamic Context Injection (`!command`), evaluation framework — not in any cross-ref file
+- `context: fork` vs Task Subagents + Viability Checklist — unique isolation comparison, multi-agent-patterns.md covers different patterns
+- Custom Agent Definitions + `memory:` field — not in multi-agent-patterns.md or claude-code.md
+- Plugin sections (caching, settings, namespace flattening, validator rejection) — unique domain
+- Cross-platform sections (field handling, `$ARGUMENTS`, `metadata.*`, `compatibility`) — unique
+
+**1 LOW recorded**: No `## See also` section. claude-authoring-skills.md line 507 already has reverse reference. Keyword overlap sufficient.
+
+**No compounding needed** — clean deep dive, no findings.

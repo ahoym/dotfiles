@@ -76,3 +76,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking financial-applications.md (idempotency), testing-patterns.md (validator testing), code-quality-instincts.md (parameter naming) vs rely on keyword overlap
 - **Why LOW**: All related files are discoverable via shared keywords ("idempotency", "validator"). python-specific.md already has an inbound reference. Adding See also is marginally helpful but not critical.
 - **Curate command**: `/learnings:curate learnings/api-design.md`
+
+## [L-5] skill-platform-portability.md missing See also section (LOW)
+
+- **Iter**: 16
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/skill-platform-portability.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking claude-authoring-skills.md (complementary design patterns), claude-code.md (permission/platform mechanics) vs rely on keyword overlap and existing reverse reference
+- **Why LOW**: claude-authoring-skills.md line 507 already has reverse reference to this file. Keyword overlap ("skill", "platform") sufficient for discovery. Adding See also is marginally helpful but not critical.
+- **Curate command**: `/learnings:curate learnings/skill-platform-portability.md`
