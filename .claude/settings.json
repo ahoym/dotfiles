@@ -69,8 +69,6 @@
       "Read(~/.claude/skills/**)",
       "Read(~/WORKSPACE/**)",
       "Read(.claude/**)",
-      "Edit(.claude/**)",
-      "Update(.claude/**)",
       "Write(.claude/**)",
       "Write(change-request-replies/**)",
       "Write(~/.claude/commands/**)",
