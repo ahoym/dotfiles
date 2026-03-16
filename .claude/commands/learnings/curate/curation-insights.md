@@ -33,13 +33,11 @@ Operational calibration and phase-specific patterns from prior consolidation run
 - **MEMORY.md is not a curation safety net.** Don't classify a learning as "outdated because MEMORY.md covers it." MEMORY.md is always-on context cost; the learning file is conditional and authoritative. When both cover the same pattern, prune the MEMORY.md entry — it's the redundant copy, not the learning.
 - **Persona coverage ≠ learning obsolescence.** When a persona one-liner covers a learning's conclusion, ask "what mistake could I still make with only the persona?" If the learning prevents a specific wrong approach (e.g., `suppressHydrationWarning` vs gating) or provides recipes the rule alone can't trigger (e.g., three distinct `setState` alternatives), keep it. Delete only when the rule is self-sufficient to execute correctly.
 - **Internal catalog-to-section redundancy.** When a file has both a catalog (e.g., "Unused Features" listing 5 items) and dedicated sections expanding some of those items, compress the catalog entries to cross-references (e.g., "See section X below") instead of duplicating the summary. Prevents the same insight from consuming tokens twice in the same file.
+- **Uniform convention over case-by-case optimization.** When a structural pattern applies to a category (e.g., "every persona gets a gotcha file"), apply it uniformly — even when a specific instance doesn't strictly need it. Predictability of the convention matters more than minimizing artifact count. Case-by-case exceptions erode the pattern and force future decisions the uniform rule would have automated.
 
 ## Context Window Optimization
 
-- **`@` references are always-on context cost.** Content included via `@` in CLAUDE.md is injected into every conversation. During curation, flag domain-specific or task-specific content in `@`-referenced files as candidates for migration to conditional references (skill reference files, learnings, non-`@` guidelines)
-- **Non-`@` path references enable selective loading.** The agent decides at runtime whether to read a file based on task relevance. This is strictly better than `@` for content that isn't universally needed. Prefer reorganizations that move content from always-on to conditional
 - **Reorganization should also compress.** When moving or consolidating content, look for opportunities to say the same thing more concisely. Redundant phrasing, excessive examples, and verbose explanations waste context budget
-- **Granular files > monolithic files for selective loading.** Smaller, focused files let the agent load only what's relevant. Split large files when distinct sections serve different tasks — the agent can then pay tokens only for the section it needs
 - **Deduplication has compounding returns.** Content duplicated across N files costs N× tokens when multiple files are loaded in the same conversation. Consolidating to a single authoritative location saves tokens proportional to the overlap
 
 ## Compression Target Patterns
@@ -56,23 +54,14 @@ The conciseness check (curate step 4) should specifically flag these patterns as
 
 **Calibration:** These patterns typically yield ~30% compression without losing teaching value. The goal is fewer tokens per insight, not fewer insights.
 
-## Phase 2 Patterns
-
-- **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
-- **Consolidation deep dives are bounded and non-cascading.** When the consolidation loop enters deep dive phase (after broad sweep convergence), per-file cross-referencing may surface duplicates or overlaps that touch other files. These cross-file effects are logged in decisions.md but do NOT cascade back to broad sweeps — the loop completes after processing all candidates (max 5 invocations). Rationale: broad sweeps already confirmed cluster-level health; deep dive findings are pattern-level and small. Cross-file effects are picked up by the next consolidation run.
-
 ## Report Formatting
 
 - **Keep full classification tables even when uniform.** When all patterns get the same classification (e.g., "standalone reference / keep"), still show the full table — the user reviews the reasoning per pattern, not just the action items. Don't collapse to "all 16: keep."
 - **Front-load the recommendation.** When the report has a clear opinion (e.g., "only pattern 4 really needs genericizing, the rest are cosmetic"), lead with that instead of presenting equal-weight options and walking it back during discussion. The full table provides visibility; the recommendation provides direction.
 
-## Classification Calibration (cont.)
-
-- **Guidelines must be universal — actively migrate stack/language/project-specific content to learnings.** See `claude-authoring-content-types.md` → "Evaluating Existing Guidelines" for the full migration table. During guideline curation, this is the first check before pattern-level classification.
-- **Uniform convention over case-by-case optimization.** When a structural pattern applies to a category (e.g., "every persona gets a gotcha file"), apply it uniformly — even when a specific instance doesn't strictly need it. Predictability of the convention matters more than minimizing artifact count. Case-by-case exceptions erode the pattern and force future decisions the uniform rule would have automated.
-
 ## Execution Strategy
 
+- **Deep dive for large-file MEDIUMs:** When a MEDIUM targets a file with 5+ sections, delegate per-section cross-reference analysis to a Task subagent rather than doing it inline. The subagent produces a per-section table (section title, related skill, coverage status, recommendation).
 - **Single-file curation: targeted reads over bulk agents.** For content-mode curation of 1-2 files, read the most-likely-overlapping files directly (same-domain learnings, relevant personas) + grep for key terms. A bulk-read agent for the full corpus is slower and may not return usable content. Reserve corpus-wide agents for broad sweeps.
 - **Clean sweep output should be terse.** One-line "Learnings: Clean (23 files, ~120 patterns)" when there are 0 findings. Don't produce multi-section reports with cluster tables, cross-reference validation, and persona coverage checks for sweeps that found nothing. Reserve detailed reports for sweeps with actionable findings.
 - **New learnings require full corpus cross-referencing.** A new learning could duplicate a persona gotcha, overlap with a skill reference, be a guideline candidate, or overlap with another learning in a different domain cluster. Incremental analysis (only reading new files) doesn't work — the value is in cross-referencing against the full corpus. The optimization is faster acquisition (direct reads) not narrower scope.

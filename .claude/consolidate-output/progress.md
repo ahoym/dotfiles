@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md |
+| DEEP_DIVE_CANDIDATES | resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md |
 
 ## Pre-Flight
 
@@ -67,6 +67,7 @@ Suggested iterations: 20
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills unchanged, no cross-type regressions |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files unchanged. Round 2 clean → convergence. 24 deep dive candidates identified. |
 | 7 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-code.md: deleted duplicate "Worktree Branches Block gh pr checkout". Tracker duplicate key fixed. |
+| 8 | — | DEEP_DIVE | 5 | 2 | 0 | 7 | curation-insights.md: deleted 5 duplicate bullets (covered by SKILL.md/classification-model/content-mode), merged Classification Calibration (cont.) into parent, folded Phase 2 into Execution Strategy. 81→70 lines. |
 
 ## Deep Dive Status
 
@@ -75,6 +76,7 @@ Suggested iterations: 20
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | claude-code.md | done | 7 | 1 HIGH applied (deleted duplicate "Worktree Branches Block gh pr checkout" — fuller version in claude-authoring-skills.md). Tracker duplicate key fixed. |
+| curation-insights.md | done | 8 | 5 HIGHs (deleted duplicate bullets covered by SKILL.md, classification-model.md, content-mode.md, deep-dive-methodology.md). 2 MEDIUMs (merged split Classification Calibration section, folded Phase 2 into Execution Strategy). 81→70 lines. |
 
 ## Notes for Next Iteration
 
@@ -153,3 +155,22 @@ Suggested iterations: 20
 **Tracker maintenance**: Fixed duplicate key for `.claude/learnings/git-patterns.md` (noted in iter 4). Removed stale entry (value 5), kept modification-triggered entry (value 0).
 
 **No compounding needed** — the deletion was a straightforward dedup, no meta-insight to extract.
+
+### Iter 8
+
+**DEEP DIVE: curation-insights.md** (81 lines, 8 sections). Cross-referenced against SKILL.md (curate), classification-model.md, content-mode.md, deep-dive-methodology.md, claude-authoring-content-types.md, claude-authoring-skills.md, persona-design.md.
+
+**5 HIGHs applied** (all duplicate deletions):
+1. Line 39 (`@` refs always-on cost) — near-verbatim duplicate of SKILL.md line 29
+2. Line 40 (non-`@` refs selective loading) — near-verbatim duplicate of SKILL.md line 30
+3. Line 42 (granular > monolithic files) — near-verbatim duplicate of SKILL.md line 31
+4. Line 62 (deep dives bounded/non-cascading) — duplicate of deep-dive-methodology.md + stale "max 5" (now max 30)
+5. Line 71 (guidelines must be universal) — duplicate of content-mode.md § 4b + claude-authoring-content-types.md § Evaluating Existing Guidelines
+
+**2 MEDIUMs applied** (structural cleanup):
+1. Merged `## Classification Calibration (cont.)` (1 remaining bullet after HIGH deletion) into `## Classification Calibration`
+2. Moved `## Phase 2 Patterns` bullet (1 remaining after HIGH deletion) into `## Execution Strategy`, deleted section
+
+**Result**: 81→70 lines. 6 sections (was 8). All remaining content is unique operational calibration not covered by the eagerly-loaded SKILL.md or step-4 reference files.
+
+**No compounding needed** — all actions were dedup/structural cleanup, no novel meta-insight to extract.
