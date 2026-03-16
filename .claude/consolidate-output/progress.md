@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| ROUND | 1 |
-| CONTENT_TYPE | GUIDELINES |
-| ROUND_CLEAN | false |
+| SWEEP_COUNT | 3 |
+| ROUND | 2 |
+| CONTENT_TYPE | LEARNINGS |
+| ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
@@ -40,7 +40,7 @@ Suggested iterations: 20
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,6 +51,7 @@ Suggested iterations: 20
 
 | Round | L HIGHs | L MEDs | S HIGHs | S MEDs | G HIGHs | G MEDs | Clean? |
 |-------|---------|--------|---------|--------|---------|--------|--------|
+| 1 | 0 | 3 | 0 | 0 | 0 | 0 | false |
 
 ## Iteration Log
 
@@ -60,6 +61,7 @@ Suggested iterations: 20
 |------|-------|-------------|-------|---------|------|---------|-------|
 | 1 | 1 | LEARNINGS | 0 | 3 | 0 | 3 | Moved git workflows section, wired 2 persona refs |
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 10 clusters, all current |
+| 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no overlap |
 
 ## Deep Dive Status
 
@@ -98,3 +100,11 @@ Suggested iterations: 20
 **Key observations**: No intra-namespace overlap. Skills with similar domains have explicit disambiguation sections. All Co-Authored-By templates use current model version (Opus 4.6). Shared reference files (platform-detection, request-interaction-base, subagent-patterns) properly centralized in skill-references/. No stale references found.
 
 **No compounding needed** — clean sweep, no findings to extract insights from.
+
+### Iter 3
+
+**GUIDELINES sweep**: Clean. 4 files evaluated, all `@`-referenced from CLAUDE.md: communication.md (14 sections, behavioral), skill-invocation.md (2 sections), context-aware-learnings.md (7+ sections, procedural protocol), path-resolution.md (2 sections, operational reference).
+
+**Checks**: No orphaned guidelines, no domain-specific content for persona migration, no duplication with learnings/skills, no compression opportunities that wouldn't degrade teaching quality. CLAUDE.md inline Path Resolution table partially overlaps `path-resolution.md` but serves as complementary quick-reference (5 lines, minimal cost).
+
+**Round 1 complete**: ROUND_CLEAN=false (LEARNINGS found 3 MEDIUMs). CLEAN_ROUND_STREAK stays 0. Advancing to Round 2, CONTENT_TYPE reset to LEARNINGS.
