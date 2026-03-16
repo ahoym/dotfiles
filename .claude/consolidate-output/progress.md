@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md |
+| DEEP_DIVE_CANDIDATES | claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md |
 
 ## Pre-Flight
 
@@ -72,6 +72,7 @@ Suggested iterations: 20
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ci-cd-gotchas.md: clean. 19 patterns (6 GH Actions, 12 GitLab, 1 CI Guards), all unique. platform-engineer persona correctly references as proactive load. |
 | 11 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | git-patterns.md: 1 MEDIUM (per_page=100→--paginate), 1 LOW (missing See also). 28 patterns verified unique across 6 cross-ref files. |
 | 12 | — | DEEP_DIVE | 1 | 0 | 1 | 1 | java-backend.md: 1 HIGH (deleted duplicate gotchas section — both items verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing refs to java-infosec/observability files). 50→45 lines. |
+| 13 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-config-expert.md: 1 HIGH (deleted 2 boundary case lines duplicated from proactive-loaded claude-authoring-content-types.md). 7 gotchas, 13 references all verified. 54→52 lines. |
 
 ## Deep Dive Status
 
@@ -85,6 +86,7 @@ Suggested iterations: 20
 | ci-cd-gotchas.md | done | 10 | Clean — 19 patterns across 3 sections, all unique standalone references. 1 LOW thematic match (cancel-in-progress with ci-cd.md — different lookup paths). Cross-refs healthy via companion header + shared naming. |
 | git-patterns.md | done | 11 | 1 MEDIUM applied (per_page=100 → --paginate for full fetches). 1 LOW (missing See also — reverse link exists in bash-patterns.md). 28 patterns, all unique. Cross-refs with resolve-conflicts skill verified (complementary, not duplicate). |
 | java-backend.md | done | 12 | 1 HIGH applied (deleted "Known gotchas & platform specifics" section — both items near-verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing references to java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md). 50→45 lines. |
+| claude-config-expert.md | done | 13 | 1 HIGH applied (deleted 2 boundary case lines from Content type placement — near-verbatim of proactive-loaded claude-authoring-content-types.md lines 30-31). All 7 gotchas verified against corpus (condensed tripwires, not duplicates). All 13 detailed references verified (files exist, descriptions accurate). 54→52 lines. |
 
 ## Notes for Next Iteration
 
@@ -235,5 +237,17 @@ Suggested iterations: 20
 **1 LOW recorded**: Three Java-domain learnings files (java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md) are not in the persona's reference lists. Keyword discovery via `java-*` naming is reliable, so the gap is marginal.
 
 **All 10 detailed references verified**: All files exist and contain content matching the persona's description annotations. No stale or broken references.
+
+**No compounding needed** — straightforward dedup of proactive-loaded content, no meta-insight to extract.
+
+### Iter 13
+
+**DEEP DIVE: claude-config-expert.md** (54 lines, persona file). Cross-referenced against 12 files: claude-authoring-content-types.md (proactive load), claude-authoring-skills.md, claude-authoring-guidelines.md, claude-authoring-claude-md.md, claude-authoring-personas.md, claude-authoring-learnings.md, claude-code.md, skill-platform-portability.md, code-quality-instincts.md, process-conventions.md, curation-insights.md, claude-code-hooks.md.
+
+**1 HIGH applied**: Deleted 2 boundary case lines from Content type placement section (lines 20-21). "If prescriptive but conditional on domain" and "If a guideline restates what a skill already does by default" are near-verbatim of claude-authoring-content-types.md lines 30-31 (Boundary Cases), which is this persona's proactive load. Same dedup pattern as java-backend iter 12. Persona → 52 lines.
+
+**All 7 Known gotchas verified**: Each is a condensed tripwire with fuller versions in learnings files. Appropriate persona-level condensation — not duplication. Verified against claude-code.md, claude-authoring-skills.md, claude-authoring-personas.md, skill-platform-portability.md.
+
+**All 13 detailed references verified**: All files exist, all description annotations accurately match file content. No stale or broken references. No missing critical references identified.
 
 **No compounding needed** — straightforward dedup of proactive-loaded content, no meta-insight to extract.

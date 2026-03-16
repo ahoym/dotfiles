@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 12 |
+| Iterations | 13 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 6 of 21 candidates complete |
+| Status | DEEP_DIVE — 7 of 24 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 6 | 7 | 3 | 0 | 0 |
-| **Total** | **12** | **7** | **6** | **0** | **2** |
+| Deep Dives | 7 | 8 | 3 | 0 | 0 |
+| **Total** | **13** | **8** | **6** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -40,6 +40,7 @@
 | 10 | — | DEEP_DIVE | (clean) | ci-cd-gotchas.md | — | — |
 | 11 | — | DEEP_DIVE | update advice | git-patterns.md (per_page→paginate) | — | MEDIUM |
 | 12 | — | DEEP_DIVE | delete section | java-backend.md (duplicate gotchas) | — | HIGH |
+| 13 | — | DEEP_DIVE | delete 2 lines | claude-config-expert.md (duplicate boundary cases) | — | HIGH |
 
 ## Blocked Items
 
