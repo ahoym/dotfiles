@@ -156,3 +156,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking code-quality-instincts.md (complementary: code instincts vs refactoring methodology), process-conventions.md (PR/MR process patterns), testing-patterns.md (test recipes for refactoring safety) vs rely on keyword overlap and inbound references
 - **Why LOW**: Inbound references from claude-authoring-skills.md and do-refactor-code/SKILL.md. No persona references this file. Keyword overlap ("refactoring", "test coverage", "PR splitting") sufficient for discovery.
 - **Curate command**: `/learnings:curate learnings/refactoring-patterns.md`
+
+## [L-13] xrpl-patterns.md missing See also section (LOW)
+
+- **Iter**: 26
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/xrpl-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking xrpl-gotchas.md (companion tripwires), xrpl-dex-data.md (external API data), bignumber-financial-arithmetic.md (BigNumber patterns used in orderbook/depth), xrpl-amm.md (AMM liquidity interleaving) vs rely on persona references and keyword overlap
+- **Why LOW**: xrpl-gotchas.md line 1 already identifies itself as companion. xrpl-typescript-fullstack persona (lines 46, 67) references xrpl-patterns.md. All related files share "xrpl" keyword prefix for discovery. Adding See also is marginally helpful but not critical.
+- **Curate command**: `/learnings:curate learnings/xrpl-patterns.md`

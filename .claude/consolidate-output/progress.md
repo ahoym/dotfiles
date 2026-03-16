@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 25 |
+| SWEEP_COUNT | 26 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md |
+| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md |
 
 ## Pre-Flight
 
@@ -85,6 +85,7 @@ Suggested iterations: 20
 | 23 | — | DEEP_DIVE | 2 | 0 | 0 | 2 | cross-repo-sync.md: deleted "Execution-Phase Routing" + "Background Merge Agents Need Permissions" — both near-verbatim of SKILL.md step 4. 18 remaining patterns verified unique. 122→110 lines. |
 | 24 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | playwright-patterns.md: clean. 17 patterns verified unique. Hub/spoke with react-frontend-gotchas.md correct (5 condensed tripwires). 1 LOW (missing See also). |
 | 25 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | refactoring-patterns.md: clean. 13 patterns verified unique across code-quality-instincts, process-conventions, testing-patterns, multi-agent-patterns. 1 LOW (missing See also). |
+| 26 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | xrpl-patterns.md: clean. 21 patterns verified unique across 7 cross-ref files. Hub/spoke with xrpl-gotchas.md correct. 1 LOW (missing See also). |
 
 ## Deep Dive Status
 
@@ -111,6 +112,7 @@ Suggested iterations: 20
 | cross-repo-sync.md | done | 23 | 2 HIGHs applied (deleted "Execution-Phase Routing" and "Background Merge Agents Need Permissions" — both near-verbatim of quantum-tunnel-claudes SKILL.md step 4). 18 remaining patterns verified unique across SKILL.md, skill-platform-portability.md, claude-code.md. 122→110 lines. |
 | playwright-patterns.md | done | 24 | Clean — 17 patterns (shared BrowserContext, page.once dialog, getByRole accessible name, textContent concatenation, scope selectors, storageState localStorage, selectOption string-only, exact:true, option visibility, getByLabel association, modal role=dialog, getByText substring, .first() dynamic, filechooser event, transient banners, .filter ancestor match, .or() terminal states), all unique. Hub/spoke with react-frontend-gotchas.md verified correct (5 condensed tripwires). 1 LOW (missing See also). |
 | refactoring-patterns.md | done | 25 | Clean — 13 patterns (survey before acting, commit granularity, factory vs hooks, React Context assessment, split PRs by risk, parallel batch failure, gate strategy, phased refactoring, structural bug fix, deciding what NOT to refactor, test layering, dependency-first order, coverage map, content-loss audit), all unique. No persona references. 1 LOW (missing See also). |
+| xrpl-patterns.md | done | 26 | Clean — 21 patterns (getOrderbook vs book_offers, route-scoped singleton, mainnet WS endpoint, full book depth, string volumes, funded offer fields, RippleState sign convention, detecting fills, Vercel serverless WS, crossing offers, xrpl.js type gaps, currency encoding, typed interfaces, fee adjustment helper, metadata double cast, credential vs currency encoding, getBalanceChanges, dev portal mirror, simulate API, submitAndWait error behavior, tx result code fees), all unique. Hub/spoke with xrpl-gotchas.md verified correct. 1 LOW (missing See also). |
 
 ## Notes for Next Iteration
 
@@ -451,6 +453,25 @@ Suggested iterations: 20
 **Clean** — all 13 patterns are unique standalone references. No duplication found. Key near-matches verified as complementary: "Split PRs by Risk Profile" (risk-based) vs process-conventions "PR splitting strategy" (dependency-based); "Parallel Batch Failure Handling" (refactoring agents) vs multi-agent-patterns "Partial Batch Completion" (extractors); "Test Layering Strategy" (methodology) vs testing-patterns (specific recipes).
 
 **1 LOW recorded**: Missing See also section. Inbound refs from claude-authoring-skills.md and do-refactor-code/SKILL.md. No persona references.
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 26
+
+**DEEP DIVE: xrpl-patterns.md** (204 lines, 21 patterns). Cross-referenced against xrpl-gotchas.md (companion), xrpl-dex-data.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-permissioned-domains.md, financial-applications.md, bignumber-financial-arithmetic.md. Also checked xrpl-typescript-fullstack persona references.
+
+**Clean** — all 21 patterns are unique standalone references:
+- `getOrderbook()` vs `book_offers` — full recipe for pagination/sorting/limiting; gotchas has condensed tripwires (correct hub/spoke)
+- Funded Offer Fields — rippled C++ source analysis; gotchas line 10 has condensed fallback pattern (correct hub/spoke)
+- RippleState Balance Sign Convention — full explanation with delta computation + common mistake; gotchas line 20 has condensed version (correct hub/spoke)
+- Detecting Filled Orders — manual approach; `getBalanceChanges()` entry provides utility shortcut (complementary within same file)
+- All remaining 17 patterns have no matches in any cross-ref file
+
+**Hub/spoke with xrpl-gotchas.md verified**: Companion header (gotchas line 1) identifies the relationship. 3 patterns have condensed tripwires in gotchas; full recipes in patterns. Correct separation.
+
+**Persona references verified**: xrpl-typescript-fullstack.md line 46 (fills detection, RippleState, orderbook) and line 67 (detailed reference) both correctly reference xrpl-patterns.md.
+
+**1 LOW recorded**: Missing See also section. Persona and companion header provide sufficient discoverability.
 
 **No compounding needed** — clean deep dive, no findings.
 
