@@ -88,6 +88,10 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 
 When consolidation removes sections, verify concepts have new homes — not just that keywords appear elsewhere. Check both git history (original content) and current corpus (where concepts landed). Categorize each deleted section as: COVERED (concepts exist elsewhere), PARTIALLY COVERED (some missing), or GAP (unique content dropped). For partial coverage, add the missing pieces to existing files rather than re-creating the deleted section.
 
+## Provenance Tracking in Retros
+
+When reviewing learnings load effectiveness (e.g., in `/session-retro`), tag each loaded file with its provenance: hard gate (session-start, plan-mode, implementation-start), soft gate (confidence-level, friction-triggered, keyword-triggered), persona proactive, skill reference, operator-prompted, self-directed, or cross-ref. This surfaces whether the search protocol is doing its job or whether useful files are only reached through persona coverage or manual reads. Missed soft gates are the highest-value finding — they reveal where the protocol should fire but doesn't.
+
 ## See also
 
 - `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

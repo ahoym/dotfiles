@@ -35,34 +35,19 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details and diff
-- `~/.claude/skill-references/github/comment-interaction.md` / `gitlab/comment-interaction.md` — Comment interaction for re-review detection
-- `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Post review, find approvers
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
+- Platform cluster files — loaded via the base reference's Platform Detection section
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
 
+**Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
+
 1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the operator to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`, `comment-interaction.md`, and `pr-management.md` (matching detected platform).
+2. **Detect platform** — follow **Platform Detection** from the base reference.
 
-3. **Resolve the request and detect mode** — fetch PR metadata, state, and previous reviews in a single call:
-   - If `$ARGUMENTS` contains a URL, extract the number from it
-   - If `$ARGUMENTS` contains a number, use it directly
-   - Otherwise, detect from current branch
-
-   Use **"Fetch Review Details with Reviews (consolidated)"** from the platform cluster files (1 call — metadata, state, and reviews together).
-
-   Store as `REQUEST_NUMBER`, `REQUEST_TITLE`, `REQUEST_URL`, `HEAD_BRANCH`, `BASE_BRANCH`.
-
-   **Check request state** — if the state is `MERGED` or `CLOSED`:
-   1. Use `CronList` to find any cron job whose prompt contains `/git:code-review-request` and `<REQUEST_NUMBER>`
-   2. If found, cancel it with `CronDelete` using the matched job ID
-   3. Emit a message and stop:
-   ```
-   PR #<REQUEST_NUMBER> is <merged/closed>. Nothing to review. Canceled cron job <JOB_ID>. 🔄
-   ```
+3. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
 4. **Check for previous reviews** — using the `reviews` data already fetched in step 3, filter for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
@@ -78,15 +63,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
-   - **New reviews from others**: any review submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. **Important:** empty-body review entries ARE activity signals — GitHub creates them when inline comment replies are posted. Don't dismiss them as artifacts.
+   - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
    - **State**: if `MERGED` or `CLOSED` → cancel cron and stop (step 3 logic)
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Latest Inline Comment (quick-exit check)"** from the platform cluster files. If the latest comment's `created_at > LAST_REVIEW_TS` → proceed to step 6+. Otherwise → skip.
+   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
 
-   This is 1 call when there's a new commit/review/comment, 2 calls when polling quietly. All four activity signals (commits, reviews, top-level comments, inline comments) are covered.
+   This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 
    **First-review mode with cached analysis:** If you have high-confidence cached data from a previous invocation in this session (e.g., you already analyzed the full diff and the commit SHA matches), skip the full diff fetch and trust your cached analysis. The cheap SHA check validates the cache.
 
@@ -129,6 +114,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review:** Follow `re-review-mode.md` — evaluate previous comment responses + review new code.
 
+   **Separate identification from suggestion.** Finding an issue and proposing a fix require independent reasoning. A wrong suggestion compounds — the addresser implements it, the reviewer confirms it, and the operator unwinds multiple layers. Verify a rule's scope before citing it, think about what actually improves the content, and when uncertain, identify without prescribing.
+
    Build the output lists:
    - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary.
    - `SUMMARY_POINTS`: high-level themes. No file-specific details.
@@ -150,27 +137,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    ### Positive Signals
 
    <What's done well — themes and patterns, not file-by-file inventory>
-
-   ---
-   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
-   *Persona:* <persona-name>
-   *Role:* Reviewer
    ```
+
+   Append the **Footnote Format** from the base reference (Role: Reviewer) to the review body.
 
    **Re-review body:** Use the template in `re-review-mode.md`.
 
-   **Each inline comment and follow-up reply** must end with the same footnote:
-   ```
+   **Each inline comment and follow-up reply** must also end with the footnote.
 
-   ---
-   *Co-Authored with [Claude Code](https://claude.ai/code) (<model name>)*
-   *Persona:* <persona-name>
-   *Role:* Reviewer
-   ```
-
-   For `<model name>`, use the model you're currently running (e.g., "Claude Opus 4.6").
-
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload to `change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json` and post via the API. All temp files (replies, review payloads) must be suffixed with `-<PERSONA>-<ROLE>` to avoid conflicts when multiple agents (reviewer + addresser) operate on the same PR concurrently.
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 
@@ -186,12 +161,13 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - Review is always thorough regardless of PR size — don't skip files or skim changes
 - The persona's judgment lens shapes what you look for and how you weigh findings
 - Domain learnings ground the review in established patterns — cite them when relevant
-- Every piece of externally-posted content gets the footnote — no exceptions
+- Every piece of externally-posted content gets the footnote (see base reference **Footnote Format**) — no exceptions
 - Post the review as a `COMMENT` event (not `APPROVE` or `REQUEST_CHANGES`) — the operator decides the verdict
 - If the diff is too large to fit in context, tell the operator rather than silently truncating
 - Re-review mode is automatic — no flag needed. The skill detects previous reviews by checking for our review comments on the PR
 - For resolved and acknowledged comments, post both an emoji reaction AND a short text reply — the reaction is a quick signal, the text reply provides visibility in the comment thread for async review
 - **Always run the API-based quick-exit check (step 5).** Never skip it based on session memory of the last SHA or timestamp. The full phase 1+2 check is cheap (1-2 API calls) and catches activity that session memory misses — especially operator comments on threads you thought were closed. Caching applies to the *diff analysis* (step 6+), not to *activity detection* (step 5).
 - **Don't post empty reviews** — if analysis produces no findings, no inline comments, and no follow-ups, skip posting entirely. An empty review adds noise without value. This applies to both first-review and re-review modes. In re-review mode, resolved/acknowledged responses without new findings or follow-ups don't warrant a summary — post the reactions and text replies, then skip the review body.
+- **Advance `LAST_REVIEW_TS` after reaction-only cycles.** When a re-review posts only reactions and thread replies (no review body), advance `LAST_REVIEW_TS` to the `created_at` of the newest non-self comment processed. Without this, subsequent polls re-detect already-processed addresser replies as "new" activity, wasting API calls and context every cycle until the stale poll auto-cancel fires.
 - **Handle all activity types in one invocation.** When multiple signals are present (e.g., new inline replies AND new commits), handle them all — don't stop after replying to threads. Reply to comments first (step 7), then proceed through steps 8-12 to review the new code. Splitting these across poll cycles delays review of new commits.
 - **Footnote format is the identity key** — if the footnote format changes, old-format reviews won't be detected as "previous reviews," causing the skill to treat a re-review as a first review. During format transitions, expect one redundant first-review post before the new format takes over

@@ -198,6 +198,10 @@ When an autonomous loop produces zero items at a classification level (e.g., zer
 2. **Check the classification funnel**: Count action types per level. If the auto-apply bucket has 14 action types and the block/escalate bucket has 4, the funnel structurally prevents items from reaching the lower level.
 3. **Spot-check "clean" items**: Pick 2-3 files the agent called clean and review manually. If a human finds things the agent missed, the agent is resolving ambiguity silently rather than surfacing it.
 
+## Edit Templates, Not Output Copies
+
+Consolidation output files (`.claude/consolidate-output/spec.md`, `deep-dive-methodology.md`, etc.) are copies scaffolded from `~/.claude/ralph/consolidate/templates/` at init time. To change loop behavior globally (e.g., bump max guard), edit the templates — not the current run's copies. The current run's copies are ephemeral state owned by the loop; editing them mid-run is fragile and won't persist to future runs.
+
 ## Strip Consolidate-Output from PR Branches
 
 `.claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.

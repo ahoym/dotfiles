@@ -423,6 +423,18 @@ Skills designed for `/loop` polling must hit the API on every invocation — nev
 
 Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
 
+## Quick-Exit Must Filter Self-Comments
+
+Quick-exit checks must fetch N recent comments (`per_page=10`), filter out self-comments (`Role:.*<YOUR_ROLE>`), then interpret: non-self present and all old → no activity; non-self present and some new → proceed; all self → inconclusive, fall through to full fetch. This catches operator comments sandwiched between agent replies and prevents false-triggers from the agent's own post-review activity.
+
+## Empty-Body Reviews Are Not Reliable Activity Signals
+
+GitHub creates empty-body review entries as wrappers when inline comment replies are posted. Treating these as activity signals in phase 1 of a quick-exit check causes false triggers on every poll cycle after a re-review — the agent's own replies generate empty-body reviews that never age past `LAST_REVIEW_TS`. Instead, rely on phase 2 (inline comment fetch with self-filter) to catch the actual inline activity that these wrappers represent. Only non-empty-body reviews from non-self sources should count as phase 1 signals.
+
+## Never Reduce Quick-Exit to Commit-Only Checks
+
+During long polling sessions, it's tempting to optimize the quick-exit from full phase 1+2 (2 API calls) down to a commit-SHA-only check. This silently drops coverage for inline comments, top-level comments, and reviews — all activity types that arrive without new commits. Worse, the stale poll auto-cancel compounds the problem: the poll misses the comment, keeps no-oping, then cancels after 30 minutes — permanently orphaning the comment. Phase 1 (consolidated fetch) is the minimum; phase 2 (inline comment check) fires only when phase 1 is quiet. Both are cheap. Don't optimize them away.
+
 ## Reference Platform Command Sections by Name, Don't Inline
 
 Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).
@@ -442,7 +454,7 @@ Review/polling skills should check the target's state (merged, closed, open) bef
 
 ## Cache-Then-Validate for Repeated Skill Invocations
 
-When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), validate cached analysis with the cheapest possible check rather than re-fetching all data. If the commit SHA hasn't changed since the last analysis, trust the cached diff and findings — don't re-read the full diff. The cheap validation check (one API call for the latest SHA) is the guard; the cached analysis is the optimization. This saves significant tokens on polling runs (~4-5K per no-op vs ~20-50K for a full diff re-read).
+When a skill runs repeatedly within a session (via `/loop` or manual re-invocation), cache both **analysis data** (diffs, findings) and **reference files** (shared references, platform cluster files, persona files) after the first read. Validate with the cheapest possible check rather than re-fetching. For analysis: if the commit SHA hasn't changed, trust the cached diff and findings. For reference files: read once on first invocation, skip re-reads on subsequent invocations unless a new commit modifies the file. A 20+ invocation polling session re-reading 6-7 reference files per cycle wastes hundreds of reads on unchanged content.
 
 ## Base Reviewer Persona with Extends
 
@@ -484,6 +496,18 @@ Repeated invocations via `/loop` surface edge cases that single runs hide: self-
 ## Sweep Both Platforms When Fixing Reference Files
 
 When fixing a bug in a platform-specific reference file (e.g., `github/comment-interaction.md`), always check and fix the equivalent file for the other platform (`gitlab/comment-interaction.md`). Same applies to `pr-management.md` and any other paired files. The fix is often mechanical (same pattern, different CLI syntax), but skipping it guarantees drift.
+
+## When to Extract Skill References
+
+The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
+
+## Reviewer Timestamp Stalls on Reaction-Only Invocations
+
+When the reviewer posts only thread replies and reactions (no review body — per "don't post empty reviews"), `LAST_REVIEW_TS` stays at the last formal review submission. Subsequent polls detect already-processed addresser replies as "new" (they're after `LAST_REVIEW_TS`), triggering phase 2 and thread checks that find nothing to do. The mutual resolution / already-processed logic catches it, but the wasted API calls and context repeat every cycle until the stale poll auto-cancel fires. Not a bug — the "don't post empty reviews" rule is correct — but a known cost of reaction-only re-review cycles.
+
+## Session-Scoped State for Cron-Lifecycle Concerns
+
+When tracking state that shares a cron job's lifecycle (e.g., last-activity timestamps for stale poll detection), use session context (conversation memory) rather than files. File-based state requires creation, gitignore, cleanup on terminal state, and permission patterns — all complexity that disappears when the state lives and dies with the session. The tracking-artifacts file approach was tried and reverted within one PR cycle in favor of session variables.
 
 ## See also
 

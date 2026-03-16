@@ -143,9 +143,21 @@ Example: removing `?per_page=100` from URLs to fix quoting issues silently rever
 
 When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
 
+### Separate identification from suggestion in review comments
+
+Identifying an issue ("this looks off") and suggesting a fix ("change it to X") are two distinct steps that require independent reasoning. Don't let the identification drive the suggestion mechanically — a rule that flags the issue may not prescribe the right fix, or may not even apply. The suggestion compounds: the addresser implements it, the reviewer confirms it, and both roles gain false confidence in a wrong fix. The operator then has to unwind multiple layers.
+
+- **Verify rule scope before citing it.** A rule about "numbered steps in skills" doesn't apply to numbered lists in reference documents. Surface-level pattern matches ("3a looks like a half-step") are not sufficient — check that the rule's stated context matches.
+- **Think independently about what would make the content better.** Even within a correctly-applied rule, the default remedy may be wrong. "Renumber sequentially" flattens a deliberate grouping; "restructure as sub-items" preserves the author's intent. Lead with the suggestion that improves the content, not the one the rule defaults to.
+- **When uncertain, identify without prescribing.** "This `3a` numbering looks odd — is the intent to group these as variants of the same gotcha, or are they independent items?" surfaces the issue without committing to a fix direction.
+
 ### Fix the source, not just the behavior
 
 When a correction traces back to a template or reference file, fix the file — not just your current behavior. Otherwise the next session reads the same bad template and repeats the mistake. If you're corrected on a command format and the command came from a template, update the template immediately.
+
+### Update PR Description When Scope Drifts During Review
+
+When mid-review work significantly expands a PR's scope beyond its original intent (e.g., an extraction PR gains cron infrastructure, permission patterns, and new learnings sections), update the PR title and description before shipping. Future readers use the description to set expectations — a mismatch between title and content makes the PR harder to review and reference.
 
 ## See also
 

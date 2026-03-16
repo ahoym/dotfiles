@@ -42,6 +42,7 @@ This means:
 - **Name the problem explicitly before laying out options.** Once we agree on the problem, we can put all solutions on the table and pick the best one together. Without that agreement, every option is evaluated against a different yardstick.
 - **Verify shared understanding of current behavior.** When a user reports something broken, don't assume they've traced the full flow. State your understanding of what the system currently does and confirm it matches theirs before proposing a fix. Misaligned mental models lead to multiple correction rounds.
 - **When a restatement lands, clarify before responding again.** If someone restates their point after your explanation, they're signaling your answer didn't address their actual concern. Pause and ask what specifically didn't land — don't rephrase the same answer with more detail.
+- **When your point is acknowledged but redirected, shift vantage point.** "That's correct but not what I meant" confirms you've been heard — rephrasing the same insight won't help. The next attempt must cover genuinely new ground, not repackage. If successive attempts stay within the same frame, that's the signal to step back and ask what dimension you're missing.
 
 ## Autonomy during execution, alignment during planning
 

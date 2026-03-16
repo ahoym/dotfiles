@@ -7,3 +7,5 @@ Operations targeting the project root repo from a worktree session hit permissio
 3. **No friction-free path exists** — both `git -C` and `cd &&` chains have the same problem. There is no workaround within the current permission system.
 
 When an operation needs to target the main repo, surface this constraint before attempting it. Let your partner decide: run the commands themselves, approve a compound command, or defer until they're on main.
+
+**Split across sessions:** File edits made here (Edit/Write) land on disk at the main repo path. Make the edits in this session, then handle git operations from a separate session rooted in the main repo.

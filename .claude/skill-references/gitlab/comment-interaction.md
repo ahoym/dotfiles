@@ -18,15 +18,18 @@ glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | {id, 
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
 ```
 
-## Fetch Latest Inline Comment (quick-exit check)
+## Fetch Recent Inline Comments (quick-exit check)
 
-Returns only the most recent note — use for polling quick-exit to check if any new activity exists. GitLab notes API supports `sort` and `per_page` as query params.
+Returns recent notes — use for polling quick-exit to check if any new non-self activity exists. Fetches 10 to see past agent replies.
 
 ```bash
-glab api projects/:id/merge_requests/<number>/notes --method GET -f sort=desc -F per_page=1
+glab api projects/:id/merge_requests/<number>/notes --method GET -f sort=desc -F per_page=10
 ```
 
-Parse `.[0].created_at` and compare against `LAST_REVIEW_TS`.
+Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Interpret results:
+- **Some non-self, at least one newer than `LAST_REVIEW_TS`** → new activity, proceed
+- **Some non-self, all older than `LAST_REVIEW_TS`** → no new activity, skip
+- **All comments are self** → inconclusive (non-self activity may exist beyond the window), fall through to full incremental fetch
 
 ## Fetch General Review Comments
 
