@@ -54,4 +54,5 @@ When tracking state that shares a cron job's lifecycle (e.g., last-activity time
 
 - `claude-authoring-skills.md` — core skill design patterns
 - `claude-authoring-content-types.md` — routing hub for authoring cluster
+- `multi-agent-patterns.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `process-conventions.md` — structured footnote template for multi-agent comment identity
