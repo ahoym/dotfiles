@@ -497,6 +497,14 @@ When fixing a bug in a platform-specific reference file (e.g., `github/comment-i
 
 The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
 
+## Reviewer Timestamp Stalls on Reaction-Only Invocations
+
+When the reviewer posts only thread replies and reactions (no review body — per "don't post empty reviews"), `LAST_REVIEW_TS` stays at the last formal review submission. Subsequent polls detect already-processed addresser replies as "new" (they're after `LAST_REVIEW_TS`), triggering phase 2 and thread checks that find nothing to do. The mutual resolution / already-processed logic catches it, but the wasted API calls and context repeat every cycle until the stale poll auto-cancel fires. Not a bug — the "don't post empty reviews" rule is correct — but a known cost of reaction-only re-review cycles.
+
+## Session-Scoped State for Cron-Lifecycle Concerns
+
+When tracking state that shares a cron job's lifecycle (e.g., last-activity timestamps for stale poll detection), use session context (conversation memory) rather than files. File-based state requires creation, gitignore, cleanup on terminal state, and permission patterns — all complexity that disappears when the state lives and dies with the session. The tracking-artifacts file approach was tried and reverted within one PR cycle in favor of session variables.
+
 ## See also
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types

@@ -100,6 +100,7 @@ Bash permission patterns match on the **literal command prefix**. Common breaks:
 5. **`&&` chaining:** `git add . && git commit -m "msg"` in a single Bash call can trigger rejection because the combined command doesn't match simple patterns like `Bash(git add:*)`. Run each command as a separate Bash call.
 6. **Inline `$()` subshells:** `git log ^$(git merge-base HEAD main)` doesn't match simple patterns. Split into two calls — store the subshell result in a variable from one Bash call, use it in the next. Applies to any command where `$()` is embedded in arguments.
 7. **`python3 -c` for JSON parsing:** `python3 -c "import json; ..."` triggers permission prompts because of quoted strings. Use `jq` instead — it's auto-permitted and handles the same tasks. When passing API output to subagents, prefer passing raw JSON directly rather than parsing in the main context at all.
+8. **Shell redirects break pattern matching.** `Bash(date:*)` matches `date -u +%s` but NOT `date -u +%s > file` — the redirect makes it a different command string. Fix: use separate tool calls (Bash for computation, Write/Edit for file I/O) instead of shell redirects.
 
 ## Write/Edit Permission Pattern Gotchas
 
@@ -108,6 +109,14 @@ Write and Edit permission patterns use a different matching mechanism than Bash 
 1. **Tilde vs absolute paths:** Permission patterns like `Write(~/**/change-request-replies/**)` require the tool call to use `~/...` paths. Passing the expanded absolute path (`/Users/<user>/...`) won't match the tilde-based pattern.
 2. **Symlink CWD-relative normalization:** When `~/.claude` is a symlink (e.g., to `WORKSPACE/dotfiles/.claude`) and CWD is the symlink target, Write/Edit tools may normalize `~/.claude/...` paths through the symlink to CWD-relative (`.claude/...`) before the permission check. Tilde-based patterns like `Edit(~/.claude/skill-references/**)` won't match the normalized path. Fix: add CWD-relative companion patterns (e.g., `Edit(.claude/**)`) alongside tilde patterns when working in symlinked repos.
 3. **Edit tool displays as `Update` in permission prompts.** The tool is called `Edit` in code, but the permission prompt shows `Update(.claude/...)`. `Edit(...)` patterns do NOT match `Update` prompts — they are different permission keys. Fix: add `Update(...)` companion patterns for every `Edit(...)` pattern.
+4. **Write tool `file_path` requires absolute or `~/` paths** per its spec, but permission patterns may use CWD-relative. In symlinked repos, Write normalizes paths unpredictably — prefer Bash for simple file writes (e.g., epoch timestamps) and reserve Write for content files where CWD-relative patterns are pre-configured.
+5. **`replace_all: true` on Edit replaces ALL occurrences in the file** — not just in the target section. When a variable name appears in both definition and usage sections, use targeted `replace_all: false` edits to avoid collateral damage.
+
+## Cron and Polling Patterns
+
+1. **Cron iterations share the parent session's context.** Unlike `claude --print` (truly stateless), cron-fired prompts run in the same REPL session. Conversation state, session variables, and tool permissions persist across firings. Use session state for cron-scoped data — no files needed.
+2. **LLMs cannot reliably infer wall-clock time.** For time-dependent logic (staleness checks, timeouts), always use `date -u +%s` to get the current epoch. Never estimate time from conversation context or message timestamps — the math will be wrong.
+3. **Quick-exit `per_page=5` can miss concurrent comments.** Multiple comments from the same review submission share the same `created_at` timestamp. If the quick-exit returns 5 comments and a 6th exists at the same timestamp, it's silently dropped. Always do a full incremental fetch after detecting new activity.
 
 ## Scoping Bash Permissions: Helper Scripts
 
