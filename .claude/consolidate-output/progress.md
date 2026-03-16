@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 19 |
+| SWEEP_COUNT | 20 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md |
+| DEEP_DIVE_CANDIDATES | platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md |
 
 ## Pre-Flight
 
@@ -79,6 +79,7 @@ Suggested iterations: 20
 | 17 | — | DEEP_DIVE | 0 | 0 | 2 | 0 | nextjs.md: clean. 7 patterns verified unique across react-frontend-gotchas.md, react-patterns.md, testing-patterns.md, xrpl-typescript-fullstack, react-frontend personas. 2 LOWs (misplaced TypeScript pattern, missing See also). |
 | 18 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | react-patterns.md: clean. 10 patterns verified unique across react-frontend-gotchas.md, reactive-data-patterns.md, refactoring-patterns.md, testing-patterns.md, playwright-patterns.md, ui-patterns.md, code-quality-instincts.md. 1 LOW (missing See also). |
 | 19 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | explore-repo.md: clean. 15 patterns verified unique across multi-agent-patterns.md, claude-authoring-skills.md, claude-code.md, skill-platform-portability.md, claude-authoring-content-types.md. 1 LOW (missing See also). |
+| 20 | — | DEEP_DIVE | 2 | 0 | 0 | 2 | react-frontend.md: deleted React 19 gotchas (3 bullets) and Playwright gotchas (5 bullets) — all near-verbatim of proactive load react-frontend-gotchas.md. 8 detailed refs verified. 65→55 lines. |
 
 ## Deep Dive Status
 
@@ -99,6 +100,7 @@ Suggested iterations: 20
 | nextjs.md | done | 17 | Clean — 7 patterns (proxy.ts, async params, Turbopack, rate limiter, testing cross-ref, union types), all unique. Hub/spoke with react-frontend-gotchas.md verified correct. 2 LOWs (misplaced TS pattern, missing See also). |
 | react-patterns.md | done | 18 | Clean — 10 patterns (React 19 setState/useEffect, hydration mismatch, circular hook deps, modal timing, refreshKey, page decomposition, two-tier hooks, polling visibility, per-env state), all unique. Companion hub/spoke with react-frontend-gotchas.md verified correct. 1 LOW (missing See also). |
 | explore-repo.md | done | 19 | Clean — 15 patterns (parallel exploration, repo learnings structure, synthesis context budget, subdirectory CLAUDE.md heuristic, cross-domain dedup, staleness detection, scan inconsistencies, language-specific mapping, @-include guidance, PROJECT_CONTEXT hints, inconsistencies.md, single-pass synthesis, greenfield CLAUDE.md, auto-fix strategy, cross-reference graph), all unique. 1 LOW (missing See also). |
+| react-frontend.md | done | 20 | 2 HIGHs applied (deleted React 19 gotchas subsection — 3 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 7-9; deleted Playwright gotchas subsection — 5 bullets near-verbatim of proactive load react-frontend-gotchas.md lines 22-26). All 8 detailed references verified (files exist, descriptions accurate). 65→55 lines. |
 
 ## Notes for Next Iteration
 
@@ -353,3 +355,17 @@ Suggested iterations: 20
 **1 LOW recorded**: No `## See also` section. Inbound cross-ref from claude-authoring-skills.md line 38. Keyword overlap sufficient.
 
 **No compounding needed** — clean deep dive, no findings.
+
+### Iter 20
+
+**DEEP DIVE: react-frontend.md** (65 lines, persona file). Cross-referenced against react-frontend-gotchas.md (proactive load), react-patterns.md, playwright-patterns.md, accessibility-patterns.md, nextjs.md, reactive-data-patterns.md, ui-patterns.md, testing-patterns.md, code-quality-instincts.md.
+
+**2 HIGHs applied** (both proactive-load dedup — same pattern as java-backend iter 12, claude-config-expert iter 13):
+1. Deleted "### React 19" subsection (lines 34-37, 3 bullets) — all near-verbatim of proactive load react-frontend-gotchas.md lines 7-9
+2. Deleted "### Playwright" subsection (lines 42-47, 5 bullets) — all near-verbatim of proactive load react-frontend-gotchas.md lines 22-26
+
+**Kept**: "### Next.js 16 / Turbopack" pointer (line 40) — cross-reference to nextjs.md, not duplicated content. "When reviewing or writing code" section (lines 12-20) — lens content (what to flag during review), distinct from gotchas file's factual tripwires.
+
+**All 8 detailed references verified**: code-quality-instincts.md, react-patterns.md, reactive-data-patterns.md, nextjs.md, accessibility-patterns.md, ui-patterns.md, testing-patterns.md, playwright-patterns.md — all exist, descriptions accurate.
+
+**No compounding needed** — proactive-load dedup is a well-established pattern (3rd occurrence), no novel meta-insight to extract.

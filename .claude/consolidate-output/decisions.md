@@ -27,3 +27,5 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 17 | DEEP_DIVE | (clean) | nextjs.md | — | — | — | 7 patterns verified unique across 5 cross-ref files. Hub/spoke with react-frontend-gotchas.md correct. 2 LOWs (misplaced TS pattern, missing See also). |
 | 18 | DEEP_DIVE | (clean) | react-patterns.md | — | — | — | 10 patterns verified unique across 7 cross-ref files. Companion hub/spoke correct. 1 LOW (missing See also). |
 | 19 | DEEP_DIVE | (clean) | explore-repo.md | — | — | — | 15 patterns verified unique across 5 cross-ref files. No personas reference this file. 1 LOW (missing See also). |
+| 20 | DEEP_DIVE | delete subsection | react-frontend.md "### React 19" (lines 34-37, 3 bullets) | — | HIGH | applied | All 3 React 19 gotcha bullets near-verbatim of proactive load react-frontend-gotchas.md lines 7-9. Same dedup pattern as java-backend (iter 12), claude-config-expert (iter 13). |
+| 20 | DEEP_DIVE | delete subsection | react-frontend.md "### Playwright" (lines 42-47, 5 bullets) | — | HIGH | applied | All 5 Playwright gotcha bullets near-verbatim of proactive load react-frontend-gotchas.md lines 22-26. 65→55 lines. |
