@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 22 |
+| Iterations | 23 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 16 of 24 candidates complete |
+| Status | DEEP_DIVE — 17 of 24 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 16 | 11 | 6 | 0 | 0 |
-| **Total** | **22** | **11** | **9** | **0** | **2** |
+| Deep Dives | 17 | 13 | 6 | 0 | 0 |
+| **Total** | **23** | **13** | **9** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -51,6 +51,7 @@
 | 20 | — | DEEP_DIVE | delete 2 subsections | react-frontend.md (duplicate React 19 + Playwright gotchas) | — | HIGH |
 | 21 | — | DEEP_DIVE | (clean) | platform-engineer.md | — | — |
 | 22 | — | DEEP_DIVE | compress 2→1 | code-quality-instincts.md (internal dedup) | — | MEDIUM |
+| 23 | — | DEEP_DIVE | delete 2 sections | cross-repo-sync.md (SKILL.md absorbed duplicates) | — | HIGH |
 
 ## Blocked Items
 

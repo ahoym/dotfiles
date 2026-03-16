@@ -42,18 +42,6 @@ Frequent quantum tunneling (daily) between repos keeps diffs small and genericiz
 
 A source section heading absent from the target doesn't mean the content is missing. Multiple smaller target sections can cover the same content under different names (e.g., source "Modal Execution Ownership" fully covered by target's "Lift Execution State" + "Modal as Form-Only" sections). During content-aware merging, compare content semantics — not just heading presence — before adding source sections.
 
-## Execution-Phase Routing for Merge Scale
-
-Route merge execution by divergence size: large diverged files (>15 source-unique lines) → background agents for parallel merges. Small diverged files (≤15 lines) → direct inline triage from inventory diff. Small-file triage frequently results in skips (target already ahead, terminology-only diffs), saving agent spawn overhead. This mirrors the analysis-phase threshold in the skill's step 2b.
-
-## Background Merge Agents Need Pre-Registered Write Permissions
-
-Background agents launched for parallel merges can't prompt for tool permissions — they silently fail when Write/Edit aren't pre-registered in `.claude/settings.local.json`. The agents complete their analysis correctly (reading both files, producing merge instructions) but can't apply the results.
-
-**Coordinator fallback:** When an agent completes analysis but couldn't write, read its output for the merge instructions and apply edits directly from the main session. The analysis is the expensive part; applying it is mechanical.
-
-**Prevention:** Before launching merge agents, verify that `Write(.claude/**)` and `Edit(.claude/**)` appear in the target repo's settings. The quantum-tunnel SKILL.md Prerequisites section documents the needed patterns, but the coordinator should verify at runtime — missing patterns cause silent failures that aren't discovered until agent completion.
-
 ## Context Continuation Can Produce Inaccurate File Paths
 
 When a session is compacted and continued, the summary may record file paths inaccurately (e.g., `learnings/persona-design.md` instead of actual `commands/learnings/curate/persona-design.md`). The summary captures the *concept* of what was being worked on but may simplify or misremember the exact path.
