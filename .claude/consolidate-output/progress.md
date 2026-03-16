@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md |
+| DEEP_DIVE_CANDIDATES | claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md |
 
 ## Pre-Flight
 
@@ -71,6 +71,7 @@ Suggested iterations: 20
 | 9 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | resilience-patterns.md: clean. 4 patterns, all unique standalone references. Cross-refs healthy (bidirectional with financial-applications.md). |
 | 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ci-cd-gotchas.md: clean. 19 patterns (6 GH Actions, 12 GitLab, 1 CI Guards), all unique. platform-engineer persona correctly references as proactive load. |
 | 11 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | git-patterns.md: 1 MEDIUM (per_page=100→--paginate), 1 LOW (missing See also). 28 patterns verified unique across 6 cross-ref files. |
+| 12 | — | DEEP_DIVE | 1 | 0 | 1 | 1 | java-backend.md: 1 HIGH (deleted duplicate gotchas section — both items verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing refs to java-infosec/observability files). 50→45 lines. |
 
 ## Deep Dive Status
 
@@ -83,6 +84,7 @@ Suggested iterations: 20
 | resilience-patterns.md | done | 9 | Clean — 4 patterns, all unique. Cross-refs valid (bidirectional with financial-applications.md, inbound from aws-messaging.md). |
 | ci-cd-gotchas.md | done | 10 | Clean — 19 patterns across 3 sections, all unique standalone references. 1 LOW thematic match (cancel-in-progress with ci-cd.md — different lookup paths). Cross-refs healthy via companion header + shared naming. |
 | git-patterns.md | done | 11 | 1 MEDIUM applied (per_page=100 → --paginate for full fetches). 1 LOW (missing See also — reverse link exists in bash-patterns.md). 28 patterns, all unique. Cross-refs with resolve-conflicts skill verified (complementary, not duplicate). |
+| java-backend.md | done | 12 | 1 HIGH applied (deleted "Known gotchas & platform specifics" section — both items near-verbatim in proactive-loaded spring-boot-gotchas.md). 1 LOW (missing references to java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md). 50→45 lines. |
 
 ## Notes for Next Iteration
 
@@ -223,3 +225,15 @@ Suggested iterations: 20
 **Verified clean patterns**: Rebase ours/theirs inversion (lines 202-204) matches resolve-conflicts skill line 137 but serves different access pattern (keyword lookup vs in-context operational reference). Merge vs Rebase Token-Cost Heuristic (lines 228-231) extends the skill's decision point with the full 1.5x formula. Cascade Rebase (lines 222-226) complements the cascade-rebase skill (concise reference vs executable procedure). All appropriate separation.
 
 **No compounding needed** — routine stale-advice update, no meta-insight to extract.
+
+### Iter 12
+
+**DEEP DIVE: java-backend.md** (50 lines, persona file). Cross-referenced against spring-boot-gotchas.md (proactive load), spring-boot.md, api-design.md, resilience-patterns.md, financial-applications.md, code-quality-instincts.md, aws-messaging.md, postgresql-query-patterns.md, newman-postman.md, local-dev-seeding.md, process-conventions.md. Also checked java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md for missing references.
+
+**1 HIGH applied**: Deleted "Known gotchas & platform specifics" section (lines 27-31, 5 lines). Both items (`@Scheduled`+ShedLock exception swallowing, per-item catch in loops) are near-verbatim duplicates of spring-boot-gotchas.md lines 5-6, which is already listed as a proactive load. Persona → 45 lines.
+
+**1 LOW recorded**: Three Java-domain learnings files (java-infosec-gotchas.md, java-observability-gotchas.md, java-observability.md) are not in the persona's reference lists. Keyword discovery via `java-*` naming is reliable, so the gap is marginal.
+
+**All 10 detailed references verified**: All files exist and contain content matching the persona's description annotations. No stale or broken references.
+
+**No compounding needed** — straightforward dedup of proactive-loaded content, no meta-insight to extract.
