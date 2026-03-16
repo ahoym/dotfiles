@@ -7,7 +7,7 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Rounds | 1 (in progress) |
 | Status | IN_PROGRESS |
 
@@ -16,9 +16,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 0 | 3 | 0 | 2 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **0** | **3** | **0** | **2** |
+| **Total** | **2** | **0** | **3** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -27,6 +27,7 @@
 | 1 | 1 | LEARNINGS | move section | ci-cd-gotchas.md "Git Workflows" | git-patterns.md | MEDIUM |
 | 1 | 1 | LEARNINGS | reference wiring | local-dev-seeding.md | java-backend persona | MEDIUM |
 | 1 | 1 | LEARNINGS | reference wiring | claude-code-hooks.md | claude-config-expert persona | MEDIUM |
+| 2 | 1 | SKILLS | (clean) | — | — | — |
 
 ## Blocked Items
 
@@ -41,6 +42,6 @@ See `review.md` for details.
 | Metric | Before | After |
 |--------|--------|-------|
 | Learnings files | 56 | 56 |
-| Skills | 31 | — |
+| Skills | 31 | 31 |
 | Guidelines files | 4 | — |
 | Persona files | 11 | 11 |
