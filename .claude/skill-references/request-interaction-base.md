@@ -95,8 +95,8 @@ Do not proceed to analysis or processing steps.
 
 After a quiet no-op, check whether the review is truly idle before cancelling:
 
-1. **Check for recent self-activity.** Scan the quick-exit results for any self-reply (`Role:.*<YOUR_ROLE>` in body) with `created_at` within the last 30 minutes. If found, the review is still active — skip the cancel. Own replies are signs of life that `LAST_FETCH_TS` (which tracks non-self comments) doesn't capture.
-2. **Check staleness.** If no self-activity within 30 minutes AND `LAST_FETCH_TS` is older than 30 minutes, proceed to cancel.
+1. **Check for recent self-activity.** Scan the quick-exit results for any self-reply (`Role:.*<YOUR_ROLE>` in body) with `created_at` within the last 30 minutes. If found, the review is still active — skip the cancel. Own replies are signs of life that the last non-self activity timestamp doesn't capture.
+2. **Check staleness.** If no self-activity within 30 minutes AND the last non-self activity timestamp is older than 30 minutes, proceed to cancel. Each consuming skill maps this to its own variable (e.g., `LAST_FETCH_TS` for addresser, `LAST_REVIEW_TS` for reviewer).
 3. `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`.
 4. If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
 5. If not found (manual invocation), skip silently — no action needed.
