@@ -50,3 +50,4 @@ Load when working in the specific area:
 - `learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
 - `learnings/process-conventions.md` — PR scoping, review process, MR conventions
 - `commands/learnings/curate/curation-insights.md` — curation calibration, compression targets
+- `learnings/claude-code-hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists

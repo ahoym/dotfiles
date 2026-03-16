@@ -1,5 +1,5 @@
 {
-  "run_count": 8,
+  "run_count": 9,
   "threshold": 3,
   "min_deep_dives": 10,
   "files": {
@@ -37,6 +37,10 @@
     ".claude/commands/extract-request-learnings/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/commands/git/split-commit/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/commands/learnings/consolidate/SKILL.md": { "last_deep_dive_run": 8 },
-    ".claude/learnings/resilience-patterns.md": { "last_deep_dive_run": 0 }
+    ".claude/learnings/resilience-patterns.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/ci-cd-gotchas.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/git-patterns.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/set-persona/java-backend.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/set-persona/claude-config-expert.md": { "last_deep_dive_run": 0 }
   }
 }

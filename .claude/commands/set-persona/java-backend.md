@@ -46,3 +46,4 @@ Load when working in the specific area:
 - `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
 - `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
+- `learnings/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
