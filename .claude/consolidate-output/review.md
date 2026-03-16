@@ -136,3 +136,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Add See also linking process-conventions.md (complementary: code vs process), refactoring-patterns.md (refactoring methodology for code quality instincts) vs rely on keyword overlap and existing reverse reference
 - **Why LOW**: process-conventions.md line 165 already has reverse link. 6 personas reference this file (highest persona coverage in corpus). Keyword overlap ("code quality", "duplication", "dead code") sufficient for discovery.
 - **Curate command**: `/learnings:curate learnings/code-quality-instincts.md`
+
+## [L-11] playwright-patterns.md missing See also section (LOW)
+
+- **Iter**: 24
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/learnings/playwright-patterns.md`
+- **Pattern**: Cross-reference discoverability
+- **Possible classifications**: Add See also linking react-frontend-gotchas.md (companion tripwires), testing-patterns.md (unit/integration test patterns), react-patterns.md (modal timing patterns) vs rely on persona references and keyword overlap
+- **Why LOW**: react-frontend persona line 52 references playwright-patterns.md. react-frontend-gotchas.md companion header covers Playwright section. Keyword overlap ("playwright", "E2E", "getByRole") sufficient for discovery.
+- **Curate command**: `/learnings:curate learnings/playwright-patterns.md`

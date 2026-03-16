@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 23 |
+| SWEEP_COUNT | 24 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md |
 
 ## Pre-Flight
 
@@ -83,6 +83,7 @@ Suggested iterations: 20
 | 21 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | platform-engineer.md: clean. 1 proactive load + 5 detailed refs verified (all exist, descriptions accurate). No content duplication with proactive load (lens vs factual tripwires). |
 | 22 | — | DEEP_DIVE | 0 | 1 | 1 | 1 | code-quality-instincts.md: 1 MEDIUM (compressed internal near-duplicate "Reuse existing calculation functions" into "Don't duplicate logic across modules"). 1 LOW (missing See also). 24 patterns verified unique across refactoring-patterns.md, testing-patterns.md, process-conventions.md. 126→121 lines. |
 | 23 | — | DEEP_DIVE | 2 | 0 | 0 | 2 | cross-repo-sync.md: deleted "Execution-Phase Routing" + "Background Merge Agents Need Permissions" — both near-verbatim of SKILL.md step 4. 18 remaining patterns verified unique. 122→110 lines. |
+| 24 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | playwright-patterns.md: clean. 17 patterns verified unique. Hub/spoke with react-frontend-gotchas.md correct (5 condensed tripwires). 1 LOW (missing See also). |
 
 ## Deep Dive Status
 
@@ -107,6 +108,7 @@ Suggested iterations: 20
 | platform-engineer.md | done | 21 | Clean — 1 proactive load (ci-cd-gotchas.md) + 5 detailed references (aws-patterns, git-patterns, bash-patterns, ci-cd, gitlab-ci-cd), all verified. No content duplication. Pure lens persona. |
 | code-quality-instincts.md | done | 22 | 1 MEDIUM applied (compressed internal near-duplicate — "Reuse existing calculation functions" folded into "Don't duplicate logic across modules"). 1 LOW (missing See also — process-conventions.md has reverse link). 24 patterns verified unique. 6 persona references confirmed. 126→121 lines. |
 | cross-repo-sync.md | done | 23 | 2 HIGHs applied (deleted "Execution-Phase Routing" and "Background Merge Agents Need Permissions" — both near-verbatim of quantum-tunnel-claudes SKILL.md step 4). 18 remaining patterns verified unique across SKILL.md, skill-platform-portability.md, claude-code.md. 122→110 lines. |
+| playwright-patterns.md | done | 24 | Clean — 17 patterns (shared BrowserContext, page.once dialog, getByRole accessible name, textContent concatenation, scope selectors, storageState localStorage, selectOption string-only, exact:true, option visibility, getByLabel association, modal role=dialog, getByText substring, .first() dynamic, filechooser event, transient banners, .filter ancestor match, .or() terminal states), all unique. Hub/spoke with react-frontend-gotchas.md verified correct (5 condensed tripwires). 1 LOW (missing See also). |
 
 ## Notes for Next Iteration
 
@@ -408,6 +410,37 @@ Suggested iterations: 20
 - Lines 63-121 (large output, bulk sync, style divergence, write-time separation, private labeling, rsync --delete, PR↔MR unification, section removals, producer-consumer, branch-based import): all unique
 
 **No compounding needed** — straightforward SKILL.md absorption dedup, no meta-insight to extract.
+
+### Iter 24
+
+**DEEP DIVE: playwright-patterns.md** (225 lines, 17 patterns). Cross-referenced against react-frontend-gotchas.md (companion hub), testing-patterns.md, react-patterns.md, typescript-ci-gotchas.md. Persona references checked: react-frontend (line 52).
+
+**Clean** — all 17 patterns are unique standalone references:
+1. Shared BrowserContext for Serial Tests (lines 5-33) — full recipe for localStorage sharing via closure variables
+2. page.once vs page.on (lines 35-51) — dialog handler stacking fix; gotchas line 25 has condensed tripwire
+3. getByRole accessible name (lines 53-69) — aria-label priority; gotchas line 22 has condensed tripwire
+4. Nav Bar textContent concatenation (lines 71-89) — false regex matches; gotchas line 23 has condensed tripwire
+5. Scope selectors to containers (lines 91-106) — .locator() scoping pattern
+6. StorageState for localStorage-only apps (lines 108-134) — unique full recipe
+7. selectOption string-only label (lines 136-156) — API type constraint
+8. exact:true for ambiguous names (lines 158-171) — strict mode prevention
+9. Option visibility in select (lines 173-175) — attached vs visible
+10. getByLabel HTML association (lines 177-179) — for/id requirement
+11. Modal scoping with role=dialog (lines 181-183) — overlay disambiguation
+12. Strict mode and getByText substring (lines 185-187) — case-insensitive matching
+13. .first() dynamic locator (lines 189-191) — count-based assertions; gotchas line 24 has condensed tripwire
+14. Dynamic file inputs filechooser (lines 193-202) — JS-created inputs
+15. Transient success banners (lines 204-206) — assert side effects; gotchas line 26 has condensed tripwire
+16. .filter ancestor match (lines 208-210) — heading parent workaround
+17. .or() terminal states (lines 212-224) — multi-outcome assertions
+
+**Hub/spoke verified**: react-frontend-gotchas.md Playwright section (5 tripwires) maps to patterns 3, 4, 13, 2, 15 respectively. All correct condensation — gotchas has lookup tripwires, playwright-patterns has full recipes with code examples.
+
+**No cross-file duplication**: testing-patterns.md has no Playwright content (Vitest + RTL focused). react-patterns.md line 122 mentions Playwright tangentially (modal unmount timing) but covers different concern. typescript-ci-gotchas.md line 13 covers Playwright browser caching (CI infra) — distinct domain.
+
+**1 LOW recorded**: Missing See also section. react-frontend persona references this file (line 52). Keyword overlap sufficient.
+
+**No compounding needed** — clean deep dive, no findings.
 
 ### Iter 22
 
