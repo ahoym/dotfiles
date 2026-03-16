@@ -10,40 +10,41 @@ These gates apply even when context is pre-loaded (e.g., `@file` references), th
 
 ---
 
-## How to search (session start)
+## Core search pipeline
 
-One filename glob, no content grep — keep it cheap so narrow opening questions don't tempt you to skip it.
+Every search follows the same four steps. Gate-specific overrides are noted inline.
 
-**Step 1: Glob all filenames.** Run `*.md` globs on `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local, if it exists) to get the full inventory. This is the index — filenames are designed to be scannable.
+**Step 1: Glob all filenames.** Run `*.md` globs on `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local, if it exists) to get the full inventory. Filenames are the index — designed to be scannable.
 
-**Step 2: Derive search terms from ambient context + user message.** Ambient context is often a stronger domain signal than the opening question:
-- **Branch name**: `consolidate/2026-02-28` → "consolidat", "ralph"
-- **CWD path**: `.claude/worktrees/consolidate-*` → same domain signal
-- **Git status snippet**: the session-start git status in the system prompt contains branch, recent commits, and changed files — scan for domain keywords
-- **CLAUDE.md / project context**: technologies mentioned (e.g., "Spring Boot", "PostgreSQL", "Vault") → search terms
-- **User's message**: extract topic terms as before
+**Step 2: Derive search terms.** Sources vary by gate:
+- **Session start**: ambient context + user message. Ambient context is often a stronger signal than the opening question:
+  - **Branch name**: `consolidate/2026-02-28` → "consolidat", "ralph"
+  - **CWD path**: `.claude/worktrees/consolidate-*` → same domain signal
+  - **Git status snippet**: branch, recent commits, changed files — scan for domain keywords
+  - **CLAUDE.md / project context**: technologies mentioned (e.g., "Spring Boot", "PostgreSQL", "Vault")
+  - **User's message**: extract topic terms
+  - If no ambient context is available (fresh repo, no git), fall back to message-only matching.
+- **Plan mode**: *current task scope* (which may have evolved from the opening message). Cast a wider net:
+  - Direct topic terms (e.g., "orderbook", "depth")
+  - Technologies and libraries involved (e.g., "BigNumber", "xrpl", "Next.js")
+  - Patterns being applied (e.g., "caching", "singleton", "API design")
+  - Adjacent domains that might have relevant gotchas
 
-**Step 3: Match filenames against terms.** Compare the inventory from step 1 against derived terms. Match broadly — `spring-boot.md` matches "Spring Boot", "startup dependencies", "Flyway", etc. because the file covers the whole domain. Don't embed search terms into glob patterns (e.g., `*spring*`) — that misses hyphenated and compound filenames.
+**Step 3: Match and sniff.** Compare filenames against derived terms. Match broadly — `spring-boot.md` matches "Spring Boot", "startup dependencies", "Flyway", etc. Don't embed search terms into glob patterns (e.g., `*spring*`) — that misses hyphenated and compound filenames.
 
-**Sniff before loading.** For each filename match, `Read(file_path, limit=5)` to see the title and description. If the domain clearly doesn't match the current context (e.g., "ralph research loop" when the task is "cron polling"), skip the full load and announce: `📚 Skipped <file> (domain mismatch: <reason>)`. Only fully load files where the sniff confirms relevance. This costs ~50 tokens per sniff vs ~500-2000 tokens for a false-positive full load.
+For each match, `Read(file_path, limit=5)` to see the title and description. Skip on domain mismatch and announce: `📚 Skipped <file> (domain mismatch: <reason>)`. Only fully load files where the sniff confirms relevance. Cost: ~50 tokens per sniff vs ~500-2000 for a false-positive full load.
 
-If no ambient context is available (fresh repo, no git), fall back to message-only matching.
+**Plan mode addition**: also grep file *content* for derived terms — filename-only matching misses learnings buried under a broader topic (e.g., a caching gotcha inside `spring-boot.md` when the search term is "Redis").
 
-**Step 4: Follow cross-refs (up to two levels).** After loading matched files, check their `## See also` sections for additional files to load. Follow cross-refs up to two levels deep, only when relevant to the current context. Stop earlier when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
+**Step 4: Follow cross-refs (up to two levels).** After loading matched files, check `## See also` sections for additional files. Follow only when relevant; stop when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
 
-## How to search (plan mode entry)
+**Plan mode addition**: also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. Too noisy for session-start.
 
-Search broadly, not just the obvious keywords. Derive search terms from the *current task scope* (which may have evolved significantly from the opening message), not just the surface-level topic. Include:
-- Direct topic terms (e.g., "orderbook", "depth")
-- Technologies and libraries involved (e.g., "BigNumber", "xrpl", "Next.js")
-- Patterns being applied (e.g., "caching", "singleton", "API design")
-- Adjacent domains that might have relevant gotchas
+## Gate-specific notes
 
-Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. **Sniff before loading** (same as session-start step 3): for each filename match, `Read(file_path, limit=5)` to confirm domain relevance before committing to a full load. Skip and announce mismatches.
+**Session start** — one filename glob, no content grep. Keep it cheap so narrow opening questions don't tempt skipping.
 
-**Follow cross-refs (up to two levels).** Same as session-start step 4. In plan mode, also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. This negative announcement is plan-mode only (too noisy for session-start).
-
-**Enhanced plan-mode announcement format.** Include derived search terms, not just results:
+**Plan mode** — filename glob + content grep. Plans lock in decisions that are expensive to reverse, so the extra search cost is justified. Use enhanced announcement format:
 ```
 📚 Plan mode — terms: ["spring boot", "migration", "flyway"] from task scope
    Matched: spring-boot-gotchas.md, spring-boot.md
