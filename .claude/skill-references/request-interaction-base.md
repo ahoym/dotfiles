@@ -28,7 +28,8 @@ Parse JSON response — no `--jq` (avoids quoted string permission prompts). Sto
 After the consolidated fetch, check state first. If terminal (merged or closed):
 1. Use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`
 2. If found, cancel it with `CronDelete`
-3. Announce and stop
+3. Remove poll state file if it exists: `rm -f .claude/tracking-artifacts/poll-state/<REQUEST_NUMBER>-last-activity`
+4. Announce and stop
 
 ## Incremental Fetch Rules
 
