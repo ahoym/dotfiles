@@ -4,9 +4,9 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | ROUND | 2 |
-| CONTENT_TYPE | SKILLS |
+| CONTENT_TYPE | GUIDELINES |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 0 |
 | PHASE | BROAD_SWEEP |
@@ -34,7 +34,7 @@ Suggested iterations: 20
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 1
+- **Sweeps**: 2
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -63,6 +63,7 @@ Suggested iterations: 20
 | 2 | 1 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 10 clusters, all current |
 | 3 | 1 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, no overlap |
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — corpus stable after round 1 changes |
+| 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills unchanged, no cross-type regressions |
 
 ## Deep Dive Status
 
@@ -121,3 +122,7 @@ Suggested iterations: 20
 - Untracked files: ~30 learnings files not yet in tracker — these fill remaining slots after criteria 1-6 candidates
 
 **Tracker note**: deep-dive-tracker.json has a duplicate key for `.claude/learnings/git-patterns.md` (lines 27 and 42). JSON parser keeps the last entry (last_deep_dive_run=0). Not functionally broken but should be cleaned up during deep dive phase.
+
+### Iter 5
+
+**SKILLS sweep (Round 2)**: Clean. 31 skills across 10 namespace clusters — identical to sweep 2. No skill files modified since last SKILLS sweep. No cross-type regressions from round 1 learnings changes. No compounding needed.
