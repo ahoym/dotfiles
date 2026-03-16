@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 26 |
+| Iterations | 27 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 20 of 24 candidates complete |
+| Status | DEEP_DIVE — 21 of 24 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 20 | 13 | 6 | 0 | 0 |
-| **Total** | **26** | **13** | **9** | **0** | **2** |
+| Deep Dives | 21 | 13 | 7 | 0 | 0 |
+| **Total** | **27** | **13** | **10** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -55,6 +55,7 @@
 | 24 | — | DEEP_DIVE | (clean) | playwright-patterns.md | — | — |
 | 25 | — | DEEP_DIVE | (clean) | refactoring-patterns.md | — | — |
 | 26 | — | DEEP_DIVE | (clean) | xrpl-patterns.md | — | — |
+| 27 | — | DEEP_DIVE | delete 10 review items | xrpl-typescript-fullstack.md (proactive-load restatements) | — | MEDIUM |
 
 ## Blocked Items
 

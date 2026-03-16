@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 26 |
+| SWEEP_COUNT | 27 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md |
+| DEEP_DIVE_CANDIDATES | testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md |
 
 ## Pre-Flight
 
@@ -86,6 +86,7 @@ Suggested iterations: 20
 | 24 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | playwright-patterns.md: clean. 17 patterns verified unique. Hub/spoke with react-frontend-gotchas.md correct (5 condensed tripwires). 1 LOW (missing See also). |
 | 25 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | refactoring-patterns.md: clean. 13 patterns verified unique across code-quality-instincts, process-conventions, testing-patterns, multi-agent-patterns. 1 LOW (missing See also). |
 | 26 | — | DEEP_DIVE | 0 | 0 | 1 | 0 | xrpl-patterns.md: clean. 21 patterns verified unique across 7 cross-ref files. Hub/spoke with xrpl-gotchas.md correct. 1 LOW (missing See also). |
+| 27 | — | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-typescript-fullstack.md: 1 MEDIUM (deleted 10 review items near-verbatim of proactive loads). 4 unique items kept. 12 detailed refs verified. 76→66 lines. |
 
 ## Deep Dive Status
 
@@ -113,6 +114,7 @@ Suggested iterations: 20
 | playwright-patterns.md | done | 24 | Clean — 17 patterns (shared BrowserContext, page.once dialog, getByRole accessible name, textContent concatenation, scope selectors, storageState localStorage, selectOption string-only, exact:true, option visibility, getByLabel association, modal role=dialog, getByText substring, .first() dynamic, filechooser event, transient banners, .filter ancestor match, .or() terminal states), all unique. Hub/spoke with react-frontend-gotchas.md verified correct (5 condensed tripwires). 1 LOW (missing See also). |
 | refactoring-patterns.md | done | 25 | Clean — 13 patterns (survey before acting, commit granularity, factory vs hooks, React Context assessment, split PRs by risk, parallel batch failure, gate strategy, phased refactoring, structural bug fix, deciding what NOT to refactor, test layering, dependency-first order, coverage map, content-loss audit), all unique. No persona references. 1 LOW (missing See also). |
 | xrpl-patterns.md | done | 26 | Clean — 21 patterns (getOrderbook vs book_offers, route-scoped singleton, mainnet WS endpoint, full book depth, string volumes, funded offer fields, RippleState sign convention, detecting fills, Vercel serverless WS, crossing offers, xrpl.js type gaps, currency encoding, typed interfaces, fee adjustment helper, metadata double cast, credential vs currency encoding, getBalanceChanges, dev portal mirror, simulate API, submitAndWait error behavior, tx result code fees), all unique. Hub/spoke with xrpl-gotchas.md verified correct. 1 LOW (missing See also). |
+| xrpl-typescript-fullstack.md | done | 27 | 1 MEDIUM applied (deleted 10 review items near-verbatim of proactive loads xrpl-gotchas.md + react-frontend-gotchas.md). Kept 4 unique items (zero-price filter, BigNumber cross-ref, proxy.ts build error, error boundaries). All 12 detailed refs verified. 76→66 lines. |
 
 ## Notes for Next Iteration
 
@@ -486,3 +488,13 @@ Suggested iterations: 20
 **Verified clean**: All 24 remaining patterns are unique standalone references. No duplication with refactoring-patterns.md (process/methodology vs code instincts), testing-patterns.md (test-specific recipes vs general instincts), or process-conventions.md (engineering process vs code quality). Cross-ref from process-conventions.md verified healthy (complementary: code vs process).
 
 **No compounding needed** — routine internal dedup compression, no meta-insight to extract.
+
+### Iter 27
+
+**DEEP DIVE: xrpl-typescript-fullstack.md** (76 lines, persona file). Cross-referenced against xrpl-gotchas.md (proactive load), react-frontend-gotchas.md (proactive load), react-patterns.md, nextjs.md, xrpl-patterns.md, bignumber-financial-arithmetic.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-permissioned-domains.md, reactive-data-patterns.md, order-book-pricing.md, xrpl-cross-currency-payments.md, api-design.md, code-quality-instincts.md.
+
+**1 MEDIUM applied**: Deleted 10 review items from "When reviewing or writing code" section (lines 12-15, 17-19, 21-23) that were near-verbatim restatements of proactive load content. 7 XRPL items matched xrpl-gotchas.md (lines 10, 12, 15, 19, 26, 36, 37); 3 React/Next.js items matched react-frontend-gotchas.md (lines 8, 9, 14). Prior deep dives deleted from "Known gotchas" sections (iters 12, 13, 20), but this is the first deletion from "When reviewing or writing code" — justified because these items lack the synthesized guidance that react-frontend.md's review section has (which was kept clean in iter 20). Kept 4 items with unique content: zero-price filter diagnostic (line 16), BigNumber cross-ref (line 20), proxy.ts build error detail (line 24), error boundaries (line 25). 76→66 lines.
+
+**All 12 detailed references verified**: react-patterns.md, nextjs.md, xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, order-book-pricing.md, reactive-data-patterns.md, xrpl-cross-currency-payments.md, api-design.md, code-quality-instincts.md — all exist, descriptions accurate.
+
+**No compounding needed** — proactive-load dedup is well-established pattern (4th persona occurrence), no novel meta-insight to extract.
