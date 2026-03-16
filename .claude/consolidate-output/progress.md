@@ -4,14 +4,14 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
 | CLEAN_ROUND_STREAK | 1 |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-code.md, curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | curation-insights.md, resilience-patterns.md, ci-cd-gotchas.md, git-patterns.md, java-backend.md, claude-config-expert.md, claude-authoring-skills.md, api-design.md, skill-platform-portability.md, nextjs.md, react-patterns.md, explore-repo.md, react-frontend.md, platform-engineer.md, code-quality-instincts.md, cross-repo-sync.md, playwright-patterns.md, refactoring-patterns.md, xrpl-patterns.md, xrpl-typescript-fullstack.md, testing-patterns.md, quantum-tunnel-claudes/SKILL.md, agent-prompting.md |
+| DEEP_DIVE_COMPLETED | claude-code.md |
 
 ## Pre-Flight
 
@@ -66,6 +66,7 @@ Suggested iterations: 20
 | 4 | 2 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — corpus stable after round 1 changes |
 | 5 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills unchanged, no cross-type regressions |
 | 6 | 2 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files unchanged. Round 2 clean → convergence. 24 deep dive candidates identified. |
+| 7 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-code.md: deleted duplicate "Worktree Branches Block gh pr checkout". Tracker duplicate key fixed. |
 
 ## Deep Dive Status
 
@@ -73,6 +74,7 @@ Suggested iterations: 20
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| claude-code.md | done | 7 | 1 HIGH applied (deleted duplicate "Worktree Branches Block gh pr checkout" — fuller version in claude-authoring-skills.md). Tracker duplicate key fixed. |
 
 ## Notes for Next Iteration
 
@@ -141,3 +143,13 @@ Suggested iterations: 20
 - **Staleness** (16): api-design (5 behind), skill-platform-portability/nextjs/react-patterns/explore-repo/react-frontend/platform-engineer/code-quality-instincts/cross-repo-sync (4 behind), playwright-patterns/refactoring-patterns/xrpl-patterns/xrpl-typescript-fullstack/testing-patterns/quantum-tunnel-claudes/agent-prompting (3 behind)
 
 **Tracker cleanup needed**: git-patterns.md has duplicate key in deep-dive-tracker.json (noted in iter 4). Clean up when deep-diving that file.
+
+### Iter 7
+
+**DEEP DIVE: claude-code.md** (278 lines, 30 patterns). Cross-referenced against multi-agent-patterns.md, claude-code-hooks.md, git-patterns.md, bash-patterns.md, claude-authoring-skills.md.
+
+**1 HIGH applied**: Deleted "Worktree Branches Block `gh pr checkout`" (lines 88-90) — 2-line stub duplicated by fuller version in claude-authoring-skills.md (lines 488-490) which includes detection pattern + skill design recommendations. The skills version also cross-refs back to claude-code.md already.
+
+**Tracker maintenance**: Fixed duplicate key for `.claude/learnings/git-patterns.md` (noted in iter 4). Removed stale entry (value 5), kept modification-triggered entry (value 0).
+
+**No compounding needed** — the deletion was a straightforward dedup, no meta-insight to extract.
