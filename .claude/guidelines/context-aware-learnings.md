@@ -25,7 +25,9 @@ One filename glob, no content grep — keep it cheap so narrow opening questions
 
 **Step 3: Match filenames against terms.** Compare the inventory from step 1 against derived terms. Match broadly — `spring-boot.md` matches "Spring Boot", "startup dependencies", "Flyway", etc. because the file covers the whole domain. Don't embed search terms into glob patterns (e.g., `*spring*`) — that misses hyphenated and compound filenames.
 
-Load matches and announce. If no ambient context is available (fresh repo, no git), fall back to message-only matching.
+**Sniff before loading.** For each filename match, `Read(file_path, limit=5)` to see the title and description. If the domain clearly doesn't match the current context (e.g., "ralph research loop" when the task is "cron polling"), skip the full load and announce: `📚 Skipped <file> (domain mismatch: <reason>)`. Only fully load files where the sniff confirms relevance. This costs ~50 tokens per sniff vs ~500-2000 tokens for a false-positive full load.
+
+If no ambient context is available (fresh repo, no git), fall back to message-only matching.
 
 **Step 4: Follow cross-refs (up to two levels).** After loading matched files, check their `## See also` sections for additional files to load. Follow cross-refs up to two levels deep, only when relevant to the current context. Stop earlier when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
 
@@ -37,7 +39,7 @@ Search broadly, not just the obvious keywords. Derive search terms from the *cur
 - Patterns being applied (e.g., "caching", "singleton", "API design")
 - Adjacent domains that might have relevant gotchas
 
-Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. Load and announce matches.
+Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames + grep content for all of the above. **Sniff before loading** (same as session-start step 3): for each filename match, `Read(file_path, limit=5)` to confirm domain relevance before committing to a full load. Skip and announce mismatches.
 
 **Follow cross-refs (up to two levels).** Same as session-start step 4. In plan mode, also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. This negative announcement is plan-mode only (too noisy for session-start).
 

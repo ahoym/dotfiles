@@ -6,6 +6,8 @@ description: "Shared patterns for skills that interact with PR/MR comments: plat
 
 Shared logic for `address-request-comments` and `code-review-request`. Skills read sections selectively — not all sections apply to every invocation.
 
+**Read once per session.** Cache the contents after the first read. On subsequent invocations (e.g., polling via `/loop`), skip re-reading unless a new commit modifies this file — the commit SHA check in the quick-exit already detects that.
+
 ## Platform Detection
 
 If not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read the matching platform cluster files:
@@ -71,7 +73,7 @@ Write reply bodies to `change-request-replies/<id>-<persona>-<role>.md` before p
 
 Top-level comments: `change-request-replies/<number>-<persona>-<role>-top.md`.
 
-**Path selection for tool calls:** Use CWD-relative paths when CWD is a symlinked `~/.claude` repo (tilde paths normalize through the symlink and fail permission matching). Use `~/` paths in non-symlinked contexts. Never use absolute `/Users/.../` paths — they match neither pattern style.
+**Path selection for tool calls (Read, Write, Edit/Update):** Use CWD-relative paths when CWD is a symlinked `~/.claude` repo (tilde paths normalize through the symlink and fail permission matching). Use `~/` paths in non-symlinked contexts. Never use absolute `/Users/.../` paths — they match neither pattern style. Note: the Edit tool displays as `Update` in permission prompts — `Edit(...)` allow patterns don't match `Update` prompts. Add `Update(...)` companion patterns for every `Edit(...)` pattern.
 
 ## Mutual Resolution Filter
 
