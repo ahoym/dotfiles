@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | ROUND | 3 |
 | CONTENT_TYPE | LEARNINGS |
 | ROUND_CLEAN | true |
@@ -69,6 +69,7 @@ Suggested iterations: 20
 | 7 | — | DEEP_DIVE | 1 | 0 | 0 | 1 | claude-code.md: deleted duplicate "Worktree Branches Block gh pr checkout". Tracker duplicate key fixed. |
 | 8 | — | DEEP_DIVE | 5 | 2 | 0 | 7 | curation-insights.md: deleted 5 duplicate bullets (covered by SKILL.md/classification-model/content-mode), merged Classification Calibration (cont.) into parent, folded Phase 2 into Execution Strategy. 81→70 lines. |
 | 9 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | resilience-patterns.md: clean. 4 patterns, all unique standalone references. Cross-refs healthy (bidirectional with financial-applications.md). |
+| 10 | — | DEEP_DIVE | 0 | 0 | 0 | 0 | ci-cd-gotchas.md: clean. 19 patterns (6 GH Actions, 12 GitLab, 1 CI Guards), all unique. platform-engineer persona correctly references as proactive load. |
 
 ## Deep Dive Status
 
@@ -79,6 +80,7 @@ Suggested iterations: 20
 | claude-code.md | done | 7 | 1 HIGH applied (deleted duplicate "Worktree Branches Block gh pr checkout" — fuller version in claude-authoring-skills.md). Tracker duplicate key fixed. |
 | curation-insights.md | done | 8 | 5 HIGHs (deleted duplicate bullets covered by SKILL.md, classification-model.md, content-mode.md, deep-dive-methodology.md). 2 MEDIUMs (merged split Classification Calibration section, folded Phase 2 into Execution Strategy). 81→70 lines. |
 | resilience-patterns.md | done | 9 | Clean — 4 patterns, all unique. Cross-refs valid (bidirectional with financial-applications.md, inbound from aws-messaging.md). |
+| ci-cd-gotchas.md | done | 10 | Clean — 19 patterns across 3 sections, all unique standalone references. 1 LOW thematic match (cancel-in-progress with ci-cd.md — different lookup paths). Cross-refs healthy via companion header + shared naming. |
 
 ## Notes for Next Iteration
 
@@ -188,5 +190,22 @@ Suggested iterations: 20
 4. "Stale validation caches" — specific production incident complementing java-backend persona's general principle
 
 **Cross-refs verified**: financial-applications.md bidirectional ✅, aws-messaging.md inbound ✅ (no reverse needed — keyword overlap sufficient for discovery).
+
+**No compounding needed** — clean deep dive, no findings.
+
+### Iter 10
+
+**DEEP DIVE: ci-cd-gotchas.md** (32 lines, 19 patterns across 3 sections). Cross-referenced against ci-cd.md, gitlab-ci-cd.md, platform-engineer persona.
+
+**Clean** — all 19 patterns are unique standalone references:
+- GitHub Actions (6 patterns): concurrency, paths-ignore, continue-on-error, minimal permissions, job timeouts, diagnosing failures with `gh run view`
+- GitLab CI/CD (12 patterns): rules, needs, cache, artifacts, interruptible, extends, include, protected variables, GIT_DEPTH, allow_failure, environment/review apps, retry
+- CI Guards (1 pattern): lightweight API-based guard (pointer to ci-cd.md for YAML)
+
+**1 LOW thematic match**: `cancel-in-progress: true` also appears in ci-cd.md line 15 (CI Pipeline Structure). Different contexts — gotchas is a standalone tripwire checklist item, ci-cd.md embeds it in pipeline design. Both serve distinct lookup paths.
+
+**Cross-refs**: No formal `## See also` but companion header (line 3) links ci-cd.md and gitlab-ci-cd.md. Shared "ci-cd" naming makes keyword discovery reliable — formal cross-refs would add tokens without adding discoverability.
+
+**Persona**: platform-engineer correctly lists ci-cd-gotchas.md as proactive load (line 29).
 
 **No compounding needed** — clean deep dive, no findings.

@@ -7,9 +7,9 @@
 | Started | 2026-03-15T22:25:09-0700 |
 | Branch | consolidate/2026-03-15 |
 | Worktree | .claude/worktrees/consolidate-2026-03-15 |
-| Iterations | 9 |
+| Iterations | 10 |
 | Rounds | 1 (complete), 2 (complete — clean) |
-| Status | DEEP_DIVE — 3 of 24 candidates complete |
+| Status | DEEP_DIVE — 4 of 21 candidates complete |
 
 ## Summary
 
@@ -18,8 +18,8 @@
 | Learnings | 2 | 0 | 3 | 0 | 2 |
 | Skills | 2 | 0 | 0 | 0 | 0 |
 | Guidelines | 2 | 0 | 0 | 0 | 0 |
-| Deep Dives | 3 | 6 | 2 | 0 | 0 |
-| **Total** | **9** | **6** | **5** | **0** | **2** |
+| Deep Dives | 4 | 6 | 2 | 0 | 0 |
+| **Total** | **10** | **6** | **5** | **0** | **2** |
 
 ## Actions (Chronological)
 
@@ -37,6 +37,7 @@
 | 8 | — | DEEP_DIVE | delete 5 bullets | curation-insights.md (duplicate content) | — | HIGH |
 | 8 | — | DEEP_DIVE | merge 2 sections | curation-insights.md (structural cleanup) | — | MEDIUM |
 | 9 | — | DEEP_DIVE | (clean) | resilience-patterns.md | — | — |
+| 10 | — | DEEP_DIVE | (clean) | ci-cd-gotchas.md | — | — |
 
 ## Blocked Items
 
