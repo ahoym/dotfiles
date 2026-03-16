@@ -107,6 +107,7 @@ Write and Edit permission patterns use a different matching mechanism than Bash 
 
 1. **Tilde vs absolute paths:** Permission patterns like `Write(~/**/change-request-replies/**)` require the tool call to use `~/...` paths. Passing the expanded absolute path (`/Users/<user>/...`) won't match the tilde-based pattern.
 2. **Symlink CWD-relative normalization:** When `~/.claude` is a symlink (e.g., to `WORKSPACE/dotfiles/.claude`) and CWD is the symlink target, Write/Edit tools may normalize `~/.claude/...` paths through the symlink to CWD-relative (`.claude/...`) before the permission check. Tilde-based patterns like `Edit(~/.claude/skill-references/**)` won't match the normalized path. Fix: add CWD-relative companion patterns (e.g., `Edit(.claude/**)`) alongside tilde patterns when working in symlinked repos.
+3. **Edit tool displays as `Update` in permission prompts.** The tool is called `Edit` in code, but the permission prompt shows `Update(.claude/...)`. `Edit(...)` patterns do NOT match `Update` prompts — they are different permission keys. Fix: add `Update(...)` companion patterns for every `Edit(...)` pattern.
 
 ## Scoping Bash Permissions: Helper Scripts
 

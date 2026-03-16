@@ -95,10 +95,14 @@ Do not proceed to analysis or processing steps.
 
 After a quiet no-op, check whether the review is truly idle before cancelling:
 
-1. **Check for recent self-activity.** Scan the quick-exit results for any self-reply (`Role:.*<YOUR_ROLE>` in body) with `created_at` within the last 30 minutes. If found, the review is still active — skip the cancel. Own replies are signs of life that the last non-self activity timestamp doesn't capture.
-2. **Check staleness.** If no self-activity within 30 minutes AND the last non-self activity timestamp is older than 30 minutes, proceed to cancel. Each consuming skill maps this to its own variable (e.g., `LAST_FETCH_TS` for addresser, `LAST_REVIEW_TS` for reviewer).
-3. `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`.
-4. If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
-5. If not found (manual invocation), skip silently — no action needed.
+1. **Get current time.** Run `date -u +%s` to get the current UTC epoch seconds. This is the only reliable time source — do not estimate from context.
+2. **Find the most recent activity timestamp.** Take the `max()` of:
+   - The newest non-self comment's `created_at` (the last non-self activity timestamp — each consuming skill maps this to its own variable, e.g., `LAST_FETCH_TS` for addresser, `LAST_REVIEW_TS` for reviewer)
+   - The newest self-reply's `created_at` from the quick-exit results (own replies are signs of life too)
+3. **Convert and compare.** Convert the ISO 8601 timestamp to epoch seconds (`date -u -d "<ts>" +%s` on Linux, `date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "<ts>" +%s` on macOS). If `current_epoch - activity_epoch < 1800` (30 minutes), skip the cancel — the review is still active.
+4. **Cancel if stale.** If the delta is >= 1800 seconds:
+   - `CronList` — find any job whose prompt contains the skill name and `<REQUEST_NUMBER>`.
+   - If found, `CronDelete` and announce: `Stale review — no new comments for 30m on <REVIEW_UNIT> #<number>, cancelled poll (<job_id>).`
+   - If not found (manual invocation), skip silently — no action needed.
 
 This is a sibling to Terminal State Handling: both auto-cancel polls that no longer need to run. Terminal state catches merged/closed PRs; stale poll catches idle reviews where the reviewer hasn't responded.
