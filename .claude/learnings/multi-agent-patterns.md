@@ -302,3 +302,4 @@ When independent work items (issues, tasks) could run in parallel, check for fil
 
 - `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas, cron and polling patterns (platform mechanics underlying the agent patterns here)
 - `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
+- `~/.claude/learnings/parallel-plans.md` — DAG shape analysis, plan splitting, branch strategies, fan-in cherry-pick mechanics (plan-level complement to the agent orchestration patterns here)

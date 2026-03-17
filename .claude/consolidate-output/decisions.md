@@ -22,6 +22,7 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 11 | DEEP_DIVE | Cross-ref wiring | financial-applications.md (See also) | bignumber-financial-arithmetic.md | MEDIUM | applied | financial-applications.md references bignumber-financial-arithmetic.md but no back-ref existed. Added See also section to bignumber-financial-arithmetic.md with bidirectional link (JS BigNumber ↔ Java BigDecimal financial patterns). |
 | 13 | DEEP_DIVE | Cross-ref wiring | ci-cd.md (See also) | ci-cd-gotchas.md | MEDIUM | applied | ci-cd-gotchas.md declares itself "Companion to ci-cd.md" but ci-cd.md had no back-reference. Added See also section. |
 | 13 | DEEP_DIVE | Cross-ref wiring | gitlab-ci-cd.md (See also) | ci-cd-gotchas.md | MEDIUM | applied | ci-cd-gotchas.md declares itself "Companion to gitlab-ci-cd.md" but gitlab-ci-cd.md had no back-reference. Added See also section. |
+| 14 | DEEP_DIVE | Cross-ref wiring | multi-agent-patterns.md (See also) | parallel-plans.md | MEDIUM | applied | parallel-plans.md → multi-agent-patterns.md existed (sweep 1) but no reverse. Added back-ref: plan-level complement to agent orchestration patterns. |
 
 ## Methodology Loaded (Iter 1)
 
