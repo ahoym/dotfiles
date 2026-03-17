@@ -73,3 +73,15 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: Same style decision as [L-2] for github/commands.md — whether index descriptions should list all section names or just core categories. The omission is not operationally breaking — skills read cluster files directly per the index navigation guidance.
 - **Curate command**: `/learnings:curate skill-references/gitlab/commands.md`
 
+## [L-4] gitlab/comment-interaction.md — Missing "Edit Inline Comment" section vs github counterpart
+
+- **Iter**: 25
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/skill-references/gitlab/comment-interaction.md`
+- **Pattern**: Missing section — "Edit Inline Comment"
+- **Possible classifications**:
+  1. KEEP as-is — GitLab notes endpoint for editing is `PATCH /projects/:id/merge_requests/:iid/notes/:note_id`, which is a straightforward path with no gotcha to document. GitHub had a specific endpoint path trap (`pulls/comments/<id>` vs `pulls/<num>/comments/<id>`). Omission is intentional because there's no non-obvious behavior worth warning about.
+  2. ADD section — coverage gap. If consumers ever need to edit inline comments, the template is missing. Add `PATCH` template for completeness.
+- **Why LOW**: Cannot determine without knowing whether any current or anticipated consumer needs comment editing. No current consumer (`extractor-prompt.md`) uses it. The simplicity of the GitLab endpoint makes the omission less risky than the GitHub version's gotcha, but it's still a potential coverage gap.
+- **Curate command**: `/learnings:curate skill-references/gitlab/comment-interaction.md`
+

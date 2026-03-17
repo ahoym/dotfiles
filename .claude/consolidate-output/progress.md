@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 24 |
+| SWEEP_COUNT | 25 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -73,6 +73,7 @@ Suggested iterations: 15
 | 22 | DEEP_DIVE | 1 | 0 | 0 | 1 | github/pr-management.md — 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (gh/glab list has no positional branch arg; should delegate to "Check for Existing Review" section). Reference file itself KEEP — 5 patterns all STANDALONE REFERENCE. |
 | 23 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. :id is glab-native auto-substitution. KEEP. |
 | 24 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/commands.md — clean index. All 4 cluster files present. No skills reference index directly. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" — same style question as [L-2]. extractor-prompt.md path fix from iter 19 covers gitlab. KEEP. |
+| 25 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/comment-interaction.md — clean. 8 patterns all STANDALONE REFERENCE. 1 consumer verified (extractor-prompt.md). No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment section vs github counterpart. KEEP. |
 
 ## Deep Dive Status
 
@@ -101,7 +102,7 @@ Suggested iterations: 15
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | done | 22 | 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (missing `--head` flag). Reference file clean — 5 patterns all STANDALONE REFERENCE. 4 consumers verified (create-request, code-review-request, address-request-comments, address-request-edge-cases.md), all delegate by section name. KEEP. |
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | done | 23 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. KEEP. |
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | done | 24 | Clean index — all 4 cluster files present, no direct consumers, nav guidance correct. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" [L-3]. KEEP. |
-| 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
+| 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | done | 25 | Clean — 8 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md), delegates by section name. No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment vs github counterpart. KEEP. |
 | 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
 | 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | pending | — | — |
 | 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | pending | — | — |
@@ -197,6 +198,17 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 25
+
+**Deep dive 22 of 30**: `gitlab/comment-interaction.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 8 patterns: pre-header meta-rules (jq `!=` avoidance, use-verbatim mandate), Fetch Inline/Review Comments (full+incremental), Fetch Recent Inline Comments (quick-exit, 3-case with LAST_REVIEW_TS), Fetch General Review Comments (discussions endpoint, no `updated_after`, compare count vs LAST_REVIEW_COUNT), Fetch Issue/Top-Level Comments (`select(.position == null)`, full+incremental), Reply to Inline Comment (write-file-first, `-F body=@` absolute path, POST to `discussions/:id/notes`), React to Comment (award_emoji endpoint), Post Top-Level Comment (`glab mr comment $(cat ...)`, no `--body-file` workaround note). All STANDALONE REFERENCE.
+- Consumer verification: 1 consumer — `extractor-prompt.md:26`. References "Fetch Inline/Review Comments" (full variant) and "Fetch Issue/Top-Level Comments" by section name. No inline duplication. ✅
+- Variable check: `<number>`, `<TS>`, `<discussion_id>`, `<note_id>`, `<persona>`, `<role>`, `<emoji>` — all placeholders, substituted by consumers. `LAST_REVIEW_TS`/`LAST_REVIEW_COUNT` defined in `request-interaction-base.md`. `:id` is glab auto-resolution. ✅
+- LOW [L-4]: Missing "Edit Inline Comment" section vs `github/comment-interaction.md`. GitHub needed it for PATCH endpoint path gotcha (`pulls/comments/<id>` vs `pulls/<num>/comments/<id>`). GitLab equivalent is `PATCH /projects/:id/merge_requests/:iid/notes/:note_id` — simpler, no documented gotcha. Omission may be intentional.
+- No compression needed (84 lines, 8 sections, maximally concise). No See also needed.
+- Key insight: When a platform counterpart (`gitlab/X.md`) is structurally symmetric to `github/X.md`, the deep dive must still verify independently: (1) consumer list may differ, (2) section coverage may differ (e.g., Edit Inline Comment present in github, absent in gitlab), (3) API differences are always per-platform. Structural symmetry is not equivalence.
+- Next: candidate 23 = `gitlab/fetch-review-data.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 24
 
