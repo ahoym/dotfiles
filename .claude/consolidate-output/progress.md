@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -61,6 +61,7 @@ Suggested iterations: 15
 | 10 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-reviewer.md — clean. 8 review sections, all STANDALONE REFERENCE. Child-only-adds-unique-content pattern (extends reviewer + claude-config-expert). All inline refs valid. |
 | 11 | DEEP_DIVE | 1 | 0 | 0 | 1 | java-infosec.md — removed 7 redundant tripwires (near-verbatim duplicate of proactive-loaded java-infosec-gotchas.md). Compounded: inline-vs-proactive-load redundancy pattern → curation-insights.md. |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | reviewer.md — clean. 10 patterns all STANDALONE REFERENCE. Base persona pattern confirmed (no Known gotchas; children add domain gotchas). |
+| 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-checklist.md — clean. 2 patterns both STANDALONE REFERENCE. Extraction heuristics + counter-heuristics. 2 consumers (do-refactor-code, parallel-plan/execute), no inline duplication. KEEP. |
 
 ## Deep Dive Status
 
@@ -77,7 +78,7 @@ Suggested iterations: 15
 | 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | done | 10 | Clean — 8 review sections, all STANDALONE REFERENCE. Structural deviations intentional (parent coverage pattern). All inline refs valid. |
 | 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | done | 11 | 1 HIGH applied — removed 7 redundant tripwires duplicating proactive-loaded java-infosec-gotchas.md. Domain priorities + tradeoffs: KEEP. |
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | done | 12 | Clean — 10 patterns, all STANDALONE REFERENCE. Base persona pattern (no Known gotchas; children add domain gotchas). Proactive loads correct. |
-| 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | pending | — | — |
+| 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | done | 13 | Clean — 2 patterns both STANDALONE REFERENCE. Extraction heuristics, 2 consumers, no inline duplication in consumers. KEEP. |
 | 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | pending | — | — |
 | 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | pending | — | — |
 | 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | pending | — | — |
@@ -173,6 +174,18 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 13
+
+**Deep dive 10 of 30**: `code-quality-checklist.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 2 patterns: "Extract when you see" (4 heuristics: field-subset methods → helper class, duplicated blocks → helper method, repeated test construction → factory, 500+ line files → split) and "Don't extract" (3 counter-heuristics: 3 similar lines fine, single-use helpers rarely justified, obscuring test helpers).
+- Both STANDALONE REFERENCE — purely actionable self-review heuristics, no principle explanations, no "why this matters" blocks.
+- Reference-file gate: 2 consumers — `do-refactor-code/SKILL.md` (reads and evaluates against it) and `parallel-plan/execute/SKILL.md` (appends to agent prompts). Neither inlines the content — both reference the file as source. No deduplication action needed.
+- Corpus cross-reference: `code-quality-instincts.md` covers implementation-time anti-duplication patterns (thematic, different scope). `refactoring-patterns.md` has "Deciding What NOT to Refactor" (thematic, different framing). No exact or partial match — no action needed.
+- No compression opportunity (17 lines, already tight — no provenance notes, no verbose examples).
+- No See also needed — keyword-discoverable via shared "code quality" vocabulary.
+- Key insight: Skill-reference files that consist entirely of detection heuristics (no rationale sections) are correctly sized even at 17 lines. The absence of "why this matters" blocks is a quality signal, not a gap. Curation-insights already captures this for learnings; same applies to skill-references.
+- Next: candidate 11 = `corpus-cross-reference.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 12
 
