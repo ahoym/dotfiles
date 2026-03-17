@@ -2,6 +2,7 @@
 name: address-request-comments
 description: "Fetch and address request comments from a pull request (GitHub) or merge request (GitLab)."
 argument-hint: "[request-number]"
+allowed-tools: Bash, Edit, Glob, Grep, Read, Write
 ---
 
 ## Context

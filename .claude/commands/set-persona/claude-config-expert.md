@@ -30,7 +30,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - `@` references in persona files don't resolve (personas are data files read at runtime, not SKILL.md)
 - AskUserQuestion has a 4-option maximum — skills offering choices must respect this
 - Skill discovery cache populates at session start — mid-session additions aren't found until restart
-- `allowed-tools` frontmatter is currently broken — add for intent-signaling only
+- `allowed-tools` frontmatter is functional — restricts tool access during skill execution (confirmed 2026-03-16)
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
 ## Proactive loads

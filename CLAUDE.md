@@ -12,3 +12,7 @@ This repo (dotfiles) is symlinked to `~/.claude` — the user's Claude Code sett
 
 Since `~/.claude` is a symlink to this repo, prefer `~/.claude/` paths for Edit/Write (matches permission patterns) and `.claude/` CWD-relative paths for Glob/Grep (can't traverse symlinks).
 
+## PR Hygiene
+
+Before creating a PR in this repo, check for unrelated uncommitted changes (learnings, skills, guidelines from other sessions). If present, offer to commit them separately or stash them so the PR only contains the intended work.
+

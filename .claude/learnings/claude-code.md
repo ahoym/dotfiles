@@ -108,6 +108,20 @@ Write and Edit permission patterns use a different matching mechanism than Bash 
 4. **Write tool `file_path` requires absolute or `~/` paths** per its spec, but permission patterns may use CWD-relative. In symlinked repos, Write normalizes paths unpredictably — prefer Bash for simple file writes (e.g., epoch timestamps) and reserve Write for content files where CWD-relative patterns are pre-configured.
 5. **`replace_all: true` on Edit replaces ALL occurrences in the file** — not just in the target section. When a variable name appears in both definition and usage sections, use targeted `replace_all: false` edits to avoid collateral damage.
 
+## `.claude/` Path Protection: Project-Scoped Write/Edit Guard
+
+Direct Write/Edit calls to paths containing `.claude/` prompt when the session's CWD is inside that `.claude/` directory (e.g., a dotfiles repo symlinked to `~/.claude/`). Not configurable via permission patterns, `settings.local.json`, or auto-accept mode.
+
+**Scope:** Project-scoped, not global. Sessions in other repos can write to `~/.claude/` paths via normal permission patterns without prompting.
+
+**Skill bypass:** Skills with `allowed-tools: [Write, Edit]` in SKILL.md frontmatter bypass the guard entirely — Write/Edit to `.claude/` paths auto-allow. This is why `/learnings:compound` works without prompting.
+
+**Remaining friction:** Only affects ad-hoc direct Write/Edit calls during dotfiles sessions. For any repeatable workflow, wrapping it in a skill with `allowed-tools` eliminates the prompts.
+
+## Settings File Merge Behavior
+
+`settings.json` (project) and `settings.local.json` (local) **merge additively** for permission arrays. Duplicating patterns across both is harmless but redundant. Precedence (highest → lowest): managed → CLI args → `settings.local.json` → `settings.json` → `~/.claude/settings.json`. Deny at any level cannot be overridden by allow at another.
+
 ## Cron and Polling Patterns
 
 1. **Cron iterations share the parent session's context.** Unlike `claude --print` (truly stateless), cron-fired prompts run in the same REPL session. Conversation state, session variables, and tool permissions persist across firings. Use session state for cron-scoped data — no files needed.
@@ -265,6 +279,10 @@ Claude Code resets CWD to the worktree root after every Bash call — `cd` to an
 **Mitigations:**
 - Surface the constraint to the user before attempting cross-repo operations. See `.claude/worktrees/CLAUDE.md` for the documented constraint and recommended approach.
 - **Split across sessions:** Make file edits in the worktree session (Edit/Write land on disk at the main repo path), then handle git operations from a separate session rooted in the main repo — no CWD pinning, no permission friction.
+
+## Persisted Tool Output Nests Line-Number Prefixes
+
+When Bash output exceeds the inline limit, it's saved to a persisted file under `tool-results/`. Reading that file via Read adds a `N→` line-number prefix. If the Read result itself exceeds the limit and is persisted again, the next Read adds another prefix layer — producing `N→  N→  N→ ...` nesting that's unreadable. Always read the **original** persisted file with `offset` + `limit` parameters rather than re-reading a persisted copy of a persisted copy.
 
 ## See also
 

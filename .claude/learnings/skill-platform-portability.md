@@ -10,7 +10,7 @@ The official docs state both "work the same way" and "support the same frontmatt
 
 This repo's skills use only `description:` from SKILL.md frontmatter. Official features not yet adopted:
 
-- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Currently broken** (restriction not enforced, SDK ignores the field, piped commands bypass — multiple open issues). **Recommended syntax: YAML list.** Use bare tool names (not scoped `Bash(git:*)`). Add for intent-signaling (see "Add Broken/Experimental Features for Intent-Signaling" below); defer reliance on enforcement.
+- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Confirmed working** (tested 2026-03-16: skill with `allowed-tools: [Read, Glob, Grep, Edit, Write]` successfully blocked Bash calls). **Recommended syntax: YAML list.** Use bare tool names (not scoped `Bash(git:*)`).
 - **`context: fork` + `agent:`** — Run skill in isolated subagent. See "`context: fork` vs Task Subagents" section below.
 - **`model:`** — Override session model per skill (e.g., `haiku` for simple tasks, `opus` for complex reasoning).
 - **`disable-model-invocation: true`** — See "`disable-model-invocation` Removes Skill from Context" section below.
@@ -22,7 +22,7 @@ Setting `disable-model-invocation: true` does more than prevent auto-invocation 
 
 ## Add Broken/Experimental Features for Intent-Signaling
 
-When an official frontmatter feature exists but enforcement is broken (e.g., `allowed-tools` restriction not enforced), it can still be worth adding — as documentation of design intent, not runtime enforcement. Criteria: (1) adding it costs nothing (no behavioral change while broken), (2) it communicates the skill's intended tool surface to human readers, (3) it future-proofs for when enforcement is fixed. Only do this for features where the *intended* behavior matches your *actual* intent — don't add `allowed-tools: Read, Glob` if the skill legitimately needs Write sometimes.
+When an official frontmatter feature exists but enforcement status is uncertain, it can still be worth adding — as documentation of design intent and (when working) runtime enforcement. Criteria: (1) it communicates the skill's intended tool surface to human readers, (2) it enforces the constraint at runtime when supported. Only do this for features where the *intended* behavior matches your *actual* intent — don't add `allowed-tools: Read, Glob` if the skill legitimately needs Write sometimes.
 
 ## Progressive Disclosure: Three Token-Cost Tiers
 
