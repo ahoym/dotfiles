@@ -50,4 +50,4 @@ items.reduce((sum, item) => sum.plus(item.amount), new BigNumber(0))
 
 ## See also
 
-- `.claude/learnings/financial-applications.md` — Java BigDecimal patterns, fee calculation invariants, DECIMAL(38,18) schema precision (complements the JavaScript BigNumber.js patterns here)
+- `financial-applications.md` — Java BigDecimal patterns, fee calculation invariants, DECIMAL(38,18) schema precision (complements the JavaScript BigNumber.js patterns here)
