@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md |
+| DEEP_DIVE_CANDIDATES | claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md |
 
 ## Pre-Flight
 
@@ -56,6 +56,7 @@ Suggested iterations: 10
 | 6 | DEEP_DIVE | 2 | 2 | 0 | 4 | ralph-loop.md — merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~20 lines saved. |
 | 7 | DEEP_DIVE | 2 | 3 | 0 | 5 | git-patterns.md — removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~14 lines saved. |
 | 8 | DEEP_DIVE | 0 | 2 | 0 | 2 | accessibility-patterns.md — added bidirectional cross-refs with react-patterns.md. Clean file, no compression needed. |
+| 9 | DEEP_DIVE | 0 | 2 | 0 | 2 | aws-patterns.md — added bidirectional cross-refs with aws-messaging.md. 14-line file, already compact. |
 
 ## Deep Dive Status
 
@@ -68,7 +69,7 @@ Suggested iterations: 10
 | ralph-loop.md | done | 6 | 2H+2M applied: merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~237 lines. |
 | git-patterns.md | done | 7 | 2H+3M applied: removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~222 lines. |
 | accessibility-patterns.md | done | 8 | 0H+2M applied: added bidirectional cross-refs with react-patterns.md. 70 lines, compact and clean. |
-| aws-patterns.md | pending | — | Unreviewed |
+| aws-patterns.md | done | 9 | 0H+2M applied: added bidirectional cross-refs with aws-messaging.md. 18 lines, compact and clean. |
 | claude-authoring-claude-md.md | pending | — | Unreviewed |
 | claude-authoring-learnings.md | pending | — | Unreviewed |
 | claude-authoring-personas.md | pending | — | Unreviewed |
@@ -232,3 +233,19 @@ Suggested iterations: 10
 **Tracker**: accessibility-patterns.md added (run 13), react-patterns.md reset to 0 (modified).
 
 **Next candidate**: aws-patterns.md (unreviewed)
+
+### Iter 9
+
+**Deep dive: aws-patterns.md** (14 lines, 2 patterns — EventBridge scheduling floor, ECS Fargate cost defaults)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` to aws-patterns.md → aws-messaging.md (same AWS cluster, EventBridge topic overlap)
+- MEDIUM (auto-applied): Added reverse cross-ref from aws-messaging.md → aws-patterns.md
+
+**Quality**: Already very lean at 14 lines. No compression, genericization, or redundancy. Both patterns are concrete with specific costs/thresholds.
+
+**Cross-ref rationale**: platform-engineer persona wires these files when active, but cross-refs serve navigation without persona. EventBridge appears in both files with different focus (scheduling vs routing).
+
+**Tracker**: aws-patterns.md added (run 13), aws-messaging.md reset to 0 (modified).
+
+**Next candidate**: claude-authoring-claude-md.md (unreviewed)
