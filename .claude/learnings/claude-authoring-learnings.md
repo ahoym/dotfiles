@@ -53,7 +53,7 @@ Additionally, when creating a new learnings file, check personas in `~/.claude/c
 
 Learnings files can cross-reference related files to enable **lateral discovery** — finding files that are relevant to what you already loaded but wouldn't be found by keyword search alone. Cross-refs are conditional (non-`@`) signposts, not eager loads.
 
-**Format:** A `## See also` footer as the last section in the file, with 1-3 refs:
+**Format:** A `## See also` footer as the last section in the file, with 1-5 refs:
 
 ```markdown
 ## See also
@@ -65,7 +65,7 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 **Rules:**
 - **Scope:** Learnings-only (`~/.claude/learnings/`) for now — not cross-type to skills or guidelines
 - **Only non-obvious relationships.** If keyword search would find the connection (shared vocabulary in filenames or content), a cross-ref adds no value. Reserve for relationships where the agent wouldn't think to search.
-- **1-3 refs max per file.** More than 3 signals the file is a hub that relates to everything — that's noise, not signal.
+- **1-5 refs max per file.** The number is a guardrail, not a target — each ref must pass the non-obvious test. Hub files that route to a cluster may exceed 5 when each ref adds non-keyword-discoverable value.
 - **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and user) judge relevance without loading the target.
 - **Path format:** `.claude/learnings/<file>.md` (CWD-relative, consistent with Glob/Grep path conventions in this repo)
 - **Placement:** Always the last section in the file, after all content sections.
