@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -55,6 +55,7 @@ Suggested iterations: 15
 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md — clean. Hub confirmed. 11 patterns all KEEP. |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | 0 | communication.md — clean. 14 patterns, all universal behavioral guidelines, KEEP. |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | context-aware-learnings.md — clean. 8 patterns, all universal protocol sections, KEEP. |
+| 7 | DEEP_DIVE | 0 | 0 | 0 | 0 | path-resolution.md — clean. 2 patterns, both universal path mechanics, KEEP. |
 
 ## Deep Dive Status
 
@@ -65,7 +66,7 @@ Suggested iterations: 15
 | 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | done | 4 | Clean — 11 patterns, all STANDALONE REFERENCE. Hub confirmed well-maintained. |
 | 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | done | 5 | Clean — 14 patterns, all universal behavioral guidelines, KEEP. No duplication, no compression, no cross-refs needed. |
 | 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | done | 6 | Clean — 8 patterns, all universal protocol sections, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
-| 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | pending | — | — |
+| 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | done | 7 | Clean — 2 patterns, both STANDALONE REFERENCE. Guideline gate passed. No compression, no cross-refs needed. |
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | pending | — | — |
 | 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | pending | — | — |
 | 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | pending | — | — |
@@ -167,6 +168,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 7
+
+**Deep dive 4 of 30**: `path-resolution.md` (guidelines, unreviewed, tier 2) — CLEAN.
+- 2 patterns: `@` references in CLAUDE.md files, Resolve relative paths against skill's base directory. Both STANDALONE REFERENCE.
+- Guideline gate passed — pure path mechanics, applies equally to any agent regardless of stack.
+- No overlap with other guidelines (orthogonal to communication, context-aware-learnings, skill-invocation).
+- No compression ≥30% — file is already ~30 lines, minimal.
+- No `## See also` warranted — `claude-authoring-claude-md.md` and `claude-authoring-skills.md` are keyword-discoverable via "CLAUDE.md"/"skill" vocabulary.
+- Key insight: Small guidelines files (< 3 patterns) may look like fold-and-delete candidates, but if they're orthogonal to all other guidelines and universally needed, size alone is not a signal. Don't conflate "small" with "thin pointer" — thin pointer files are mostly cross-references/pointers, not self-contained operational content.
+- Next: candidate 5 = `skill-invocation.md` (guidelines, unreviewed, tier 2).
 
 ### Iter 6
 
