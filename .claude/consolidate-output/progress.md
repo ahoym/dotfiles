@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -52,6 +52,7 @@ Suggested iterations: 15
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, ~1200 patterns. Well-maintained from run 13. |
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 16 skill-references. All consumers wired, no stale model strings. |
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally needed, no overlap. Transitioned to DEEP_DIVE. |
+| 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md — clean. Hub confirmed. 11 patterns all KEEP. |
 
 ## Deep Dive Status
 
@@ -59,7 +60,7 @@ Suggested iterations: 15
 
 | # | File | Tier | Criterion | Status | Iter | Summary |
 |---|------|------|-----------|--------|------|---------|
-| 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | pending | — | — |
+| 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | done | 4 | Clean — 11 patterns, all STANDALONE REFERENCE. Hub confirmed well-maintained. |
 | 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | pending | — | — |
 | 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | pending | — | — |
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | pending | — | — |
@@ -138,6 +139,13 @@ Suggested iterations: 15
 - 26 skills never deep-dived (criterion 6)
 - 5 tracked skills stale at threshold (criterion 7): quantum-tunnel-claudes, extract-request-learnings, split-commit, consolidate, ralph:consolidate:init
 - Prioritization: unreviewed skills/skill-refs/guidelines first per spec
+
+### Iter 4
+
+**Deep dive 1 of 30**: `claude-authoring-content-types.md` (hub, tier 1) — CLEAN.
+- Hub file is authoritative and up-to-date. All 6 spoke files confirmed present.
+- Key insight: `## See also` is NOT needed for this file — the "Authoring Guides" section already lists all spoke files inline, and they're keyword-discoverable via shared "claude-authoring-" prefix. Don't add See also to files where refs are already explicit AND keyword-discoverable.
+- Next: candidate 2 = `communication.md` (guidelines, unreviewed, tier 2).
 
 ### Iter 3
 
