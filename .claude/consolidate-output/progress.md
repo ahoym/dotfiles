@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -64,6 +64,7 @@ Suggested iterations: 15
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-checklist.md — clean. 2 patterns both STANDALONE REFERENCE. Extraction heuristics + counter-heuristics. 2 consumers (do-refactor-code, parallel-plan/execute), no inline duplication. KEEP. |
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | corpus-cross-reference.md — 1 HIGH (fixed stale consumer description; learnings:curate not a consumer). 1 LOW: taxonomy overlap with content-mode.md (reference-file gate ambiguous). |
 | 15 | DEEP_DIVE | 1 | 0 | 0 | 1 | platform-detection.md — 1 HIGH (added EDIT_CMD="gh pr edit"|"glab mr update" to Usage in Skills; $EDIT_CMD referenced in create-request but undefined). All 3 patterns STANDALONE REFERENCE, KEEP. |
+| 16 | DEEP_DIVE | 0 | 0 | 0 | 0 | request-interaction-base.md — clean. 10 patterns all STANDALONE REFERENCE. 2 consumers verified (code-review-request, address-request-comments), no duplication. KEEP. |
 
 ## Deep Dive Status
 
@@ -83,7 +84,7 @@ Suggested iterations: 15
 | 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | done | 13 | Clean — 2 patterns both STANDALONE REFERENCE. Extraction heuristics, 2 consumers, no inline duplication in consumers. KEEP. |
 | 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | done | 14 | 1 HIGH applied — fixed stale consumer description (removed learnings:curate claim). 1 LOW: Coverage Match Types taxonomy overlap with content-mode.md step 3. 2 patterns both STANDALONE REFERENCE. KEEP. |
 | 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | done | 15 | 1 HIGH applied — added EDIT_CMD to Usage in Skills variable block ($EDIT_CMD used in create-request but undefined). 7 consumers confirmed. All 3 patterns STANDALONE REFERENCE, KEEP. |
-| 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | pending | — | — |
+| 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | done | 16 | Clean — 10 patterns all STANDALONE REFERENCE. 2 consumers verified, no duplication, no undefined vars. KEEP. |
 | 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | pending | — | — |
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
 | 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | pending | — | — |
@@ -176,6 +177,18 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 16
+
+**Deep dive 13 of 30**: `request-interaction-base.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- Consumer verification (reference-file gate): 2 consumers — `code-review-request/SKILL.md` and `address-request-comments/SKILL.md`. Both explicitly reference the file in their "Reference Files" sections. Description accurate (no stale claims).
+- 10 patterns: Platform Detection, Consolidated Fetch, Terminal State Handling, Incremental Fetch Rules, Comment Identity, Footnote Format, Reply File Naming, Mutual Resolution Filter, Quiet No-Op, Stale Poll Auto-Cancel. All STANDALONE REFERENCE — shared operational logic, not duplicated in either consumer.
+- Variable cross-check: REQUEST_NUMBER/TITLE/HEAD_BRANCH/BASE_BASE_BRANCH defined in Consolidated Fetch ✅; LAST_FETCH_TS/LAST_REVIEW_COUNT defined in Incremental Fetch Rules ✅; POLL_LAST_ACTIVITY_<N> defined in Stale Poll Auto-Cancel ✅; REVIEW_UNIT/CLI supplied by platform-detection.md (deep-dived at iter 15) ✅; YOUR_ROLE/OTHER_ROLE defined in each consumer ✅. No undefined variables.
+- Quiet No-Op format in base reference differs from code-review-request's "no changes since last review" message — these are different scenarios (incremental fetch vs. re-review detection), not duplication.
+- No compression opportunity (110 lines, 10 distinct patterns, no provenance, no redundant rationale).
+- No See also needed — platform-detection.md and cluster files referenced explicitly in Platform Detection section.
+- Key insight: Skill-references serving polling skills need to distinguish between two structurally similar but semantically different no-op scenarios: (a) incremental fetch returned zero new comments (Quiet No-Op), (b) re-review mode detected nothing changed since last review. Don't conflate these — they use different state variables (LAST_FETCH_TS vs LAST_REVIEW_TS) and have different skip conditions. When reviewing polling skill-references, check that these two scenarios are handled separately.
+- Next: candidate 14 = `subagent-patterns.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 15
 
