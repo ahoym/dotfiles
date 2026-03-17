@@ -139,3 +139,7 @@ Split monolithic parallel plans into two sibling files:
 - Executor reads Shared Contract from plan file + Preamble from prompts file, prepends both to each agent's prompt
 - Reviewers only need the plan file; the prompts file is rarely read by humans
 - Shared Contract stays in plan file (single source of truth, not duplicated in preamble)
+
+## See also
+
+- `multi-agent-patterns.md` — agent orchestration patterns, worktree isolation, background agent lifecycle (complements the DAG/plan-level patterns here)

@@ -21,3 +21,7 @@ Structure CI as `lint -> test -> integration` via `needs:`. Lint runs first as a
 When adding a formatter check to CI (`ruff format --check`), expect a one-time batch of formatting-only changes in the same PR. This is a one-time cost that makes all future PRs pass cleanly.
 
 - **Takeaway**: First-time formatter CI = expect a bulk formatting commit.
+
+## See also
+
+- `~/.claude/learnings/ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion)

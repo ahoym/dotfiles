@@ -45,3 +45,7 @@ integration-tests:
   script:
     - mvn verify -DskipUTs=true  # Failsafe only
 ```
+
+## See also
+
+- `~/.claude/learnings/ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion)
