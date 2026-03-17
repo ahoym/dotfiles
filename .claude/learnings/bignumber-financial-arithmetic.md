@@ -47,3 +47,7 @@ items.reduce((sum, item) => sum.plus(item.amount), new BigNumber(0))
 - Trade history aggregation
 - Balance displays and payment amount inputs
 - Any derived numeric value shown to the user
+
+## See also
+
+- `.claude/learnings/financial-applications.md` — Java BigDecimal patterns, fee calculation invariants, DECIMAL(38,18) schema precision (complements the JavaScript BigNumber.js patterns here)

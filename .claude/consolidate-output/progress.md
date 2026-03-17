@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md |
+| DEEP_DIVE_CANDIDATES | java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md |
 
 ## Pre-Flight
 
@@ -58,6 +58,7 @@ Suggested iterations: 15
 | 8 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (Takeaway compression + cross-ref) | spring-boot.md — 205→157 lines (~23% compression). 37 patterns, all keep. Removed 24 redundant Takeaway lines, folded 2 valuable ones into body. Added missing cross-ref to spring-boot-gotchas.md. No duplication with other files. |
 | 9 | DEEP_DIVE | 0 | 3 | 0 | 3 applied (Takeaway compression) | process-conventions.md — 166→163 lines. 28 patterns, all keep. Removed 3 redundant Takeaway lines. Cross-refs valid bidirectional. 7 inbound refs verified. No duplication. |
 | 10 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (Takeaway compression) | code-quality-instincts.md — 131→113 lines (~14% compression). 26 patterns, all keep. Removed 9 redundant Takeaway lines. 12+ inbound refs. 2 outbound cross-refs bidirectional ✓. No duplication. |
+| 11 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (Takeaway compression + cross-ref) | financial-applications.md — 64→52 lines (~19% compression). 9 patterns, all keep. Removed 6 redundant Takeaway lines. Added back-ref from bignumber-financial-arithmetic.md. 3 inbound refs verified. No duplication. |
 
 ## Deep Dive Status
 
@@ -70,7 +71,7 @@ Suggested iterations: 15
 | spring-boot.md | DONE | 8 | 2 MEDIUMs applied: Takeaway compression (205→157 lines, 24 redundant removed, 2 folded into body) + cross-ref to spring-boot-gotchas.md. 37 patterns, all keep. No duplication. |
 | process-conventions.md | DONE | 9 | 3 MEDIUMs applied: Takeaway compression (166→163 lines, 3 redundant removed). Cross-refs valid bidirectional. 28 patterns, all keep. |
 | code-quality-instincts.md | DONE | 10 | 1 MEDIUM applied: Takeaway compression (131→113 lines, 9 redundant removed). 26 patterns, all keep. 12+ inbound refs (hub). 2 outbound cross-refs bidirectional ✓. No duplication. |
-| financial-applications.md | PENDING | — | Polish Opportunity (compression) |
+| financial-applications.md | DONE | 11 | 2 MEDIUMs applied: Takeaway compression (64→52 lines, 6 redundant removed) + cross-ref to bignumber-financial-arithmetic.md. 9 patterns, all keep. No duplication. |
 | java-devops.md | PENDING | — | Modified (de-enrichment in sweep 2) |
 | ci-cd-gotchas.md | PENDING | — | Stale + modified (sweep 1) |
 | parallel-plans.md | PENDING | — | Stale + modified (sweep 1) |
@@ -208,3 +209,13 @@ Suggested iterations: 15
 - **Cross-ref audit**: Both outbound refs bidirectional ✓. testing-patterns.md → code-quality-instincts.md is unidirectional but keyword-discoverable ("test" in patterns #16, #17) — no back-ref needed per convention.
 - **No duplication**: Patterns #1/#5 are conceptually related (don't duplicate / reuse existing) but cover different angles. No overlap with refactoring-patterns.md ("dead code"), testing-patterns.md ("negative test"), or process-conventions.md (different domain level).
 - Next: financial-applications.md (Polish Opportunity — compression)
+
+### Iter 11
+
+**Deep dive: financial-applications.md (2 MEDIUMs applied)**
+- 64 lines, 9 patterns, 2 outbound refs (bignumber-financial-arithmetic.md, resilience-patterns.md), 3 inbound refs (resilience-patterns.md, api-design.md, java-backend.md persona)
+- **Takeaway compression**: 6 patterns had `- **Takeaway**:` lines, all pure restatements of heading+body — removed. 64→52 lines (~19% compression). Iter 1 estimated ~7, actual was 6.
+- **Cross-ref gap**: bignumber-financial-arithmetic.md had no See also section and no back-ref to financial-applications.md. Added bidirectional link (JS BigNumber ↔ Java BigDecimal).
+- **Cross-ref audit**: resilience-patterns.md bidirectional ✓. api-design.md unidirectional (api-design→financial-applications) — acceptable direction (generic→domain). java-backend.md persona ref — no back-ref needed.
+- **No duplication**: All 9 patterns are domain-specific financial/payment patterns. No overlap with resilience-patterns.md (system-level resilience), api-design.md (generic API), or bignumber-financial-arithmetic.md (different language/stack).
+- Next: java-devops.md (Modified — de-enrichment in sweep 2)

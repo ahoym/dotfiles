@@ -31,7 +31,7 @@
     ".claude/commands/ralph/consolidate/init/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/learnings/claude-authoring-content-types.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/process-conventions.md": { "last_deep_dive_run": 11 },
-    ".claude/learnings/financial-applications.md": { "last_deep_dive_run": 8 },
+    ".claude/learnings/financial-applications.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/aws-messaging.md": { "last_deep_dive_run": 8 },
     ".claude/commands/extract-request-learnings/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/commands/git/split-commit/SKILL.md": { "last_deep_dive_run": 8 },
@@ -45,6 +45,7 @@
     ".claude/learnings/spring-boot.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/newman-postman.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/local-dev-seeding.md": { "last_deep_dive_run": 0 },
-    ".claude/commands/set-persona/java-devops.md": { "last_deep_dive_run": 0 }
+    ".claude/commands/set-persona/java-devops.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/bignumber-financial-arithmetic.md": { "last_deep_dive_run": 0 }
   }
 }

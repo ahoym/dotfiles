@@ -7,7 +7,7 @@
 | Started | 2026-03-16T00:00 |
 | Branch | consolidate/2026-03-16 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16 |
-| Iterations | 10 |
+| Iterations | 11 |
 | Status | IN_PROGRESS (DEEP_DIVE phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 5 | 0 | 0 |
 | Skills | 1 | 0 | 1 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 7 | 0 | 8 | 0 | 0 |
-| **Total** | **10** | **0** | **14** | **0** | **0** |
+| Deep Dives | 8 | 0 | 10 | 0 | 0 |
+| **Total** | **11** | **0** | **16** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -39,6 +39,8 @@
 | 8 | DEEP_DIVE | Cross-ref wiring | spring-boot.md (See also) | spring-boot-gotchas.md | MEDIUM |
 | 9 | DEEP_DIVE | Takeaway compression | process-conventions.md (3 patterns) | — | MEDIUM |
 | 10 | DEEP_DIVE | Takeaway compression | code-quality-instincts.md (9 patterns) | — | MEDIUM |
+| 11 | DEEP_DIVE | Takeaway compression | financial-applications.md (6 patterns) | — | MEDIUM |
+| 11 | DEEP_DIVE | Cross-ref wiring | financial-applications.md (See also) | bignumber-financial-arithmetic.md | MEDIUM |
 
 ## Blocked Items
 
