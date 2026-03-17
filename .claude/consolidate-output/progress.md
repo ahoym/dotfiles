@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 29 |
+| SWEEP_COUNT | 30 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md |
+| DEEP_DIVE_CANDIDATES | gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md |
 
 ## Pre-Flight
 
@@ -77,6 +77,7 @@ Suggested iterations: 10
 | 27 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-gotchas.md — added See also (xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md). 44→51 lines, 6 sections, clean. |
 | 28 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-permissioned-domains.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md). Added reverse cross-ref from xrpl-patterns.md. 78→83 lines, was cross-ref island. |
 | 29 | DEEP_DIVE | 0 | 1 | 0 | 1 | bignumber-financial-arithmetic.md — added See also (order-book-pricing.md). 54→55 lines, compact and clean. |
+| 30 | DEEP_DIVE | 3 | 2 | 0 | 5 | ci-cd.md — removed 3 takeaway lines, added See also (gitlab-ci-cd.md, typescript-ci-gotchas.md), added reverse cross-ref from gitlab-ci-cd.md. 27→22 lines. |
 
 ## Deep Dive Status
 
@@ -110,7 +111,7 @@ Suggested iterations: 10
 | xrpl-gotchas.md | done | 27 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md. 51 lines, 6 sections (~20 patterns), clean and compact. |
 | xrpl-permissioned-domains.md | done | 28 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md. Added reverse cross-ref from xrpl-patterns.md. 83 lines, was cross-ref island in XRPL cluster. |
 | bignumber-financial-arithmetic.md | done | 29 | 0H+1M applied: added See also → order-book-pricing.md (primary JS application context). 55 lines, compact and clean. |
-| ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
+| ci-cd.md | done | 30 | 3H+2M applied: removed 3 takeaway lines, added See also → gitlab-ci-cd.md + typescript-ci-gotchas.md, added reverse cross-ref from gitlab-ci-cd.md. 27→22 lines. |
 | gitlab-ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
 
 ## Notes for Next Iteration
@@ -554,3 +555,20 @@ Suggested iterations: 10
 **Tracker**: bignumber-financial-arithmetic.md updated (run 13).
 
 **Next candidate**: ci-cd.md (stale, run 0)
+
+### Iter 30
+
+**Deep dive: ci-cd.md** (27→22 lines, 4 sections)
+
+**Applied actions (5):**
+- HIGH (x3): Removed 3 redundant takeaway lines from §2 "Reusable Composite Actions", §3 "CI Pipeline Structure", §4 "Ruff Formatting Fixes" — same pattern as iters 4,5,7,10,17
+- MEDIUM (auto-applied): Added `## See also` → gitlab-ci-cd.md (GitLab CI counterpart), typescript-ci-gotchas.md (pnpm/Node CI specifics). Existing See also only had ci-cd-gotchas.md.
+- MEDIUM (auto-applied): Added reverse cross-ref from gitlab-ci-cd.md → ci-cd.md. gitlab-ci-cd.md only referenced ci-cd-gotchas.md despite ci-cd-gotchas.md:3 describing all three as companions.
+
+**Quality**: 4 compact sections (Docker staging, composite actions, lint-first pipelines, formatter setup). All standalone references with no overlap. §3 `cancel-in-progress` appears in ci-cd-gotchas.md:7 too — different framing (pipeline architecture vs CI minute-saving), complementary.
+
+**Cross-ref health**: CI/CD cluster now fully bidirectionally connected: ci-cd ↔ ci-cd-gotchas ↔ gitlab-ci-cd, ci-cd → typescript-ci-gotchas → ci-cd (already existed from iter 23).
+
+**Tracker**: ci-cd.md updated (run 13), gitlab-ci-cd.md reset to 0 (modified).
+
+**Next candidate**: gitlab-ci-cd.md (stale, run 0 — last candidate)
