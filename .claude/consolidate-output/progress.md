@@ -1,14 +1,16 @@
+WOOT_COMPLETE_WOOT
+
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 30 |
+| SWEEP_COUNT | 31 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md |
+| DEEP_DIVE_CANDIDATES | (none) |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
 
 ## Pre-Flight
 
@@ -78,6 +80,7 @@ Suggested iterations: 10
 | 28 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-permissioned-domains.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md). Added reverse cross-ref from xrpl-patterns.md. 78→83 lines, was cross-ref island. |
 | 29 | DEEP_DIVE | 0 | 1 | 0 | 1 | bignumber-financial-arithmetic.md — added See also (order-book-pricing.md). 54→55 lines, compact and clean. |
 | 30 | DEEP_DIVE | 3 | 2 | 0 | 5 | ci-cd.md — removed 3 takeaway lines, added See also (gitlab-ci-cd.md, typescript-ci-gotchas.md), added reverse cross-ref from gitlab-ci-cd.md. 27→22 lines. |
+| 31 | DEEP_DIVE | 0 | 2 | 0 | 2 | gitlab-ci-cd.md — added bidirectional cross-refs with gitlab-cli.md. 53→54 lines, 3 sections, clean and compact. COMPLETE. |
 
 ## Deep Dive Status
 
@@ -112,7 +115,7 @@ Suggested iterations: 10
 | xrpl-permissioned-domains.md | done | 28 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md. Added reverse cross-ref from xrpl-patterns.md. 83 lines, was cross-ref island in XRPL cluster. |
 | bignumber-financial-arithmetic.md | done | 29 | 0H+1M applied: added See also → order-book-pricing.md (primary JS application context). 55 lines, compact and clean. |
 | ci-cd.md | done | 30 | 3H+2M applied: removed 3 takeaway lines, added See also → gitlab-ci-cd.md + typescript-ci-gotchas.md, added reverse cross-ref from gitlab-ci-cd.md. 27→22 lines. |
-| gitlab-ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
+| gitlab-ci-cd.md | done | 31 | 0H+2M applied: added bidirectional cross-refs with gitlab-cli.md. 54 lines, 3 sections, clean and compact. |
 
 ## Notes for Next Iteration
 
@@ -572,3 +575,19 @@ Suggested iterations: 10
 **Tracker**: ci-cd.md updated (run 13), gitlab-ci-cd.md reset to 0 (modified).
 
 **Next candidate**: gitlab-ci-cd.md (stale, run 0 — last candidate)
+
+### Iter 31
+
+**Deep dive: gitlab-ci-cd.md** (53→54 lines, 3 sections + See also)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `gitlab-cli.md` to gitlab-ci-cd.md See also — same tool (glab), complementary focus (CI debugging vs CLI flag differences)
+- MEDIUM (auto-applied): Added `## See also` section to gitlab-cli.md → gitlab-ci-cd.md — reverse cross-ref, gitlab-cli.md had no See also
+
+**Quality**: All 3 sections compact and clean. No compression, takeaway, genericization, or redundancy issues. §1 glab API debugging (21 lines with code block), §2 MR endpoint distinction (3 lines), §3 DinD stages (19 lines with YAML).
+
+**Cross-ref health**: CI/CD cluster now fully connected: ci-cd ↔ ci-cd-gotchas ↔ gitlab-ci-cd ↔ gitlab-cli, ci-cd → typescript-ci-gotchas → ci-cd. gitlab-cli was the last unconnected file in the cluster.
+
+**Tracker**: gitlab-ci-cd.md updated (run 13), gitlab-cli.md added (run 0 — modified).
+
+**CONSOLIDATION COMPLETE** — all 28 deep-dive candidates processed. 31 iterations total (3 broad sweeps + 28 deep dives). 16 HIGHs + 43 MEDIUMs applied, 0 blocked, 3 LOWs (all resolved by human review).

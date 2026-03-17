@@ -50,3 +50,4 @@ integration-tests:
 
 - `~/.claude/learnings/ci-cd.md` — general CI/CD patterns (Docker staging, composite actions, lint-first pipelines)
 - `~/.claude/learnings/ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion)
+- `~/.claude/learnings/gitlab-cli.md` — glab CLI flag differences from gh (--all, --raw, --jq workarounds)

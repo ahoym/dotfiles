@@ -50,7 +50,7 @@
     ".claude/commands/set-persona/java-devops.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/bignumber-financial-arithmetic.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/ci-cd.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/gitlab-ci-cd.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/gitlab-ci-cd.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/accessibility-patterns.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/claude-authoring-claude-md.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/claude-authoring-learnings.md": { "last_deep_dive_run": 13 },
@@ -69,6 +69,7 @@
     ".claude/learnings/xrpl-cross-currency-payments.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-dex-data.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-gotchas.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/xrpl-permissioned-domains.md": { "last_deep_dive_run": 13 }
+    ".claude/learnings/xrpl-permissioned-domains.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/gitlab-cli.md": { "last_deep_dive_run": 0 }
   }
 }
