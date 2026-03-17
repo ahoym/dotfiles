@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
+| SWEEP_COUNT | 6 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally needed, no overlap. Transitioned to DEEP_DIVE. |
 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md — clean. Hub confirmed. 11 patterns all KEEP. |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | 0 | communication.md — clean. 14 patterns, all universal behavioral guidelines, KEEP. |
+| 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | context-aware-learnings.md — clean. 8 patterns, all universal protocol sections, KEEP. |
 
 ## Deep Dive Status
 
@@ -63,7 +64,7 @@ Suggested iterations: 15
 |---|------|------|-----------|--------|------|---------|
 | 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | done | 4 | Clean — 11 patterns, all STANDALONE REFERENCE. Hub confirmed well-maintained. |
 | 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | done | 5 | Clean — 14 patterns, all universal behavioral guidelines, KEEP. No duplication, no compression, no cross-refs needed. |
-| 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | pending | — | — |
+| 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | done | 6 | Clean — 8 patterns, all universal protocol sections, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | pending | — | — |
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | pending | — | — |
 | 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | pending | — | — |
@@ -166,6 +167,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 6
+
+**Deep dive 3 of 30**: `context-aware-learnings.md` (guidelines, unreviewed, tier 2) — CLEAN.
+- 8 patterns: Hard Gates, Core search pipeline, Gate-specific notes, Confidence-level gate, Friction-triggered, Keyword-based, Observability, Relationship to Personas. All STANDALONE REFERENCE.
+- Guideline gate passed — all patterns stack-universal (apply equally to Java, Python, TS agents).
+- No duplication with other guidelines (all orthogonal: communication=behavior, path-resolution=tooling, skill-invocation=skill dispatch, context-aware-learnings=search protocol).
+- No compression ≥30% — file is 95 lines, dense, each section distinct and non-redundant.
+- No `## See also` warranted — subagent persona propagation section connects to multi-agent-patterns.md but link is keyword-discoverable via "subagent" vocabulary.
+- Key insight: A guidelines file covering a meta-protocol (when/how to search) is naturally universal and should not have See also refs — it IS the protocol that makes other files discoverable.
+- Next: candidate 4 = `path-resolution.md` (guidelines, unreviewed, tier 2).
 
 ### Iter 5
 

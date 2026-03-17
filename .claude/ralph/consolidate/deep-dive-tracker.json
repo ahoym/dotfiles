@@ -32,6 +32,7 @@
     ".claude/commands/ralph/consolidate/init/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/learnings/claude-authoring-content-types.md": { "last_deep_dive_run": 14 },
     ".claude/guidelines/communication.md": { "last_deep_dive_run": 14 },
+    ".claude/guidelines/context-aware-learnings.md": { "last_deep_dive_run": 14 },
     ".claude/learnings/process-conventions.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/financial-applications.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/aws-patterns.md": { "last_deep_dive_run": 13 },
