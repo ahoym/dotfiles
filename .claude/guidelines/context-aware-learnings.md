@@ -1,5 +1,11 @@
 # Learnings Search Protocol
 
+## Index-Based Loading
+
+`~/.claude/learnings/CLAUDE.md` is a curated index of all learnings files with one-line descriptions grouped by domain. At each gate below, **also read the index** and load any files whose description matches the task domain — in addition to the pipeline search. This runs in parallel with the pipeline during a trial period; retro tracking will show which source is doing more work.
+
+If `~/.claude/learnings-private/CLAUDE.md` exists, read it too. If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-local learnings.
+
 ## Hard Gates (non-negotiable — do not skip under any circumstances)
 
 1. **Session start**: Before your FIRST tool call, glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for `*.md`. Match filenames against ambient context + user message. Announce results (including no-matches).

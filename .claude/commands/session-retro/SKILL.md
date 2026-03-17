@@ -22,6 +22,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
 
    | Source | Meaning |
    |--------|---------|
+   | **Index** | Read via `~/.claude/learnings/CLAUDE.md` index lookup |
    | **Hard gate** | Session-start glob, plan-mode entry, or implementation-start check |
    | **Soft gate** | Confidence-level check, friction-triggered, or keyword-triggered |
    | **Persona proactive** | Listed in the active persona's `## Proactive loads` |

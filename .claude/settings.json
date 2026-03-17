@@ -45,6 +45,7 @@
       "Bash(git switch:*)",
       "Bash(grep:*)",
       "Bash(ls:*)",
+      "Bash(wc:*)",
       "Bash(mkdir:*)",
       "Bash(rm change-request-replies/*)",
       "Edit(.claude/**)",
@@ -80,5 +81,6 @@
       "Write(~/**/change-request-replies/**)",
       "Write(/Users/malcolmahoy/WORKSPACE/dotfiles/.claude/learnings/**)"
     ]
-  }
+  },
+  "model": "sonnet"
 }
