@@ -311,3 +311,11 @@ Suggested iterations: 10
 **Tracker**: claude-authoring-polling-review-skills.md added (run 13).
 
 **Next candidate**: gitlab-cli.md (unreviewed)
+
+### Resume (human review)
+
+**All 3 LOWs resolved**:
+- L-1, L-2: Keep in multi-agent-patterns.md (agent context is primary consumer)
+- L-3: `glab mr diff --name-only` confirmed non-existent. gitlab-cli.md was correct. Fixed `.claude/skill-references/gitlab/fetch-review-data.md` to use `--raw | grep` workaround.
+
+**Next candidate**: java-observability.md (unreviewed)
