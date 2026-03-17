@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md |
+| DEEP_DIVE_CANDIDATES | quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md |
 
 ## Pre-Flight
 
@@ -64,6 +64,7 @@ Suggested iterations: 10
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | gitlab-cli.md — deleted duplicate "Repointing MR Target Branches" section (canonical in git-patterns.md). 1 LOW: `--name-only` flag contradiction with fetch-review-data.md. |
 | 15 | DEEP_DIVE | 0 | 0 | 0 | 0 | java-observability.md — clean. 14 lines, 1 section (Grafana/PromQL patterns). No overlap, already compact. |
 | 16 | DEEP_DIVE | 0 | 2 | 0 | 2 | order-book-pricing.md — added bidirectional cross-refs with xrpl-patterns.md. 44 lines, 4 sections, compact and clean. |
+| 17 | DEEP_DIVE | 1 | 3 | 0 | 4 | python-specific.md — removed 6 takeaway lines, merged 3 migration sections into "Package Manager Migration", added bidirectional cross-refs with api-design.md. 113→~95 lines. |
 
 ## Deep Dive Status
 
@@ -84,7 +85,7 @@ Suggested iterations: 10
 | gitlab-cli.md | done | 14 | 1H applied: deleted duplicate repointing section (canonical in git-patterns.md). 1 LOW: --name-only flag contradiction with fetch-review-data.md. ~8 lines remaining. |
 | java-observability.md | done | 15 | Clean. 14 lines, 1 section. No overlap with corpus. Compact PromQL/Micrometer reference. |
 | order-book-pricing.md | done | 16 | 0H+2M applied: added bidirectional cross-refs with xrpl-patterns.md + bignumber-financial-arithmetic.md. 49 lines, clean and compact. |
-| python-specific.md | pending | — | Unreviewed |
+| python-specific.md | done | 17 | 1H+3M applied: removed 6 takeaway lines, merged 3 migration sections, added bidirectional cross-refs with api-design.md. ~95 lines. |
 | quarkus-kotlin.md | pending | — | Unreviewed |
 | react-frontend-gotchas.md | pending | — | Unreviewed |
 | reactive-data-patterns.md | pending | — | Unreviewed |
@@ -345,3 +346,21 @@ Suggested iterations: 10
 **Tracker**: order-book-pricing.md added (run 13), xrpl-patterns.md reset to 0 (modified).
 
 **Next candidate**: python-specific.md (unreviewed)
+
+### Iter 17
+
+**Deep dive: python-specific.md** (113→~95 lines, 9→7 sections)
+
+**Applied actions (4):**
+- HIGH: Removed 6 redundant takeaway lines (sections 4-9) — same pattern as iters 4,5,7,10
+- MEDIUM (auto-applied): Merged "pyproject.toml as stable anchor" + "Dockerfile updates" + "Migration scripts" → "Package Manager Migration" — three 2-line sections about one event, merged to 3-bullet section. ~8 lines saved, no info loss.
+- MEDIUM (auto-applied): Added `## See also` → api-design.md (Pydantic serialization implements "consistent shapes"), testing-patterns.md (Python singleton isolation)
+- MEDIUM (auto-applied): Added reverse cross-ref from api-design.md → python-specific.md
+
+**Quality**: 7 sections after merge. Pydantic v2 (30 lines) and TypedDict (14 lines) are the densest — justified by code examples. Remaining sections compact (2-6 lines each). "Fix Root Causes" considered for migration to code-quality-instincts.md but the B006/sentinel example is Python-specific — keeps it here.
+
+**Cross-ref health**: api-design.md inline ref formalized as See also. testing-patterns.md has Python module-level singleton section — related but different focus (test isolation vs language patterns). No overlap with explore-repo.md Python/FastAPI content (project-scanning patterns vs language patterns).
+
+**Tracker**: python-specific.md added (run 13), api-design.md reset to 0 (modified).
+
+**Next candidate**: quarkus-kotlin.md (unreviewed)
