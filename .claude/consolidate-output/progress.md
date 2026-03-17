@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 22 |
+| SWEEP_COUNT | 23 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md |
+| DEEP_DIVE_CANDIDATES | xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 10
 | 20 | DEEP_DIVE | 0 | 4 | 0 | 4 | reactive-data-patterns.md — compressed 3 Key Points blocks (folded unique details into prose), added See also (react-patterns.md, order-book-pricing.md). 42→32 lines. |
 | 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | typescript-specific.md — clean. 14 lines, 1 pattern (Record/union key extension). No overlap, all 3 See also valid. |
 | 22 | DEEP_DIVE | 0 | 2 | 0 | 2 | ui-patterns.md — added See also (react-patterns.md, nextjs.md, accessibility-patterns.md), added reverse cross-ref from react-patterns.md. 61→67 lines. |
+| 23 | DEEP_DIVE | 0 | 2 | 0 | 2 | vercel-deployment.md — added See also (typescript-ci-gotchas.md, xrpl-patterns.md). Added See also to typescript-ci-gotchas.md (vercel-deployment.md, ci-cd.md). 14→19 lines. |
 
 ## Deep Dive Status
 
@@ -96,7 +97,7 @@ Suggested iterations: 10
 | reactive-data-patterns.md | done | 20 | 0H+4M applied: compressed 3 Key Points blocks (folded unique details into prose, removed redundant bullets), added See also → react-patterns.md, order-book-pricing.md. 42→32 lines. |
 | typescript-specific.md | done | 21 | Clean. 14 lines, 1 pattern. No overlap, no compression, all See also valid. |
 | ui-patterns.md | done | 22 | 0H+2M applied: added See also → react-patterns.md, nextjs.md, accessibility-patterns.md. Added reverse cross-ref from react-patterns.md. 67 lines, 3 patterns, compact and clean. |
-| vercel-deployment.md | pending | — | Unreviewed |
+| vercel-deployment.md | done | 23 | 0H+2M applied: added See also → typescript-ci-gotchas.md, xrpl-patterns.md. Added See also to typescript-ci-gotchas.md → vercel-deployment.md, ci-cd.md. 19 lines, compact and clean. |
 | xrpl-amm.md | pending | — | Unreviewed |
 | xrpl-cross-currency-payments.md | pending | — | Unreviewed |
 | xrpl-dex-data.md | pending | — | Unreviewed |
@@ -436,3 +437,19 @@ Suggested iterations: 10
 **Tracker**: ui-patterns.md added (run 13), react-patterns.md reset to 0 (modified).
 
 **Next candidate**: vercel-deployment.md (unreviewed)
+
+### Iter 23
+
+**Deep dive: vercel-deployment.md** (14→19 lines, 2 sections, 5 patterns)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` to vercel-deployment.md → typescript-ci-gotchas.md (Vercel serverless cold starts, lockfile gotchas), xrpl-patterns.md (Vercel WebSocket connection management for XRPL apps)
+- MEDIUM (auto-applied): Added `## See also` to typescript-ci-gotchas.md → vercel-deployment.md (cron limits, Postgres driver patterns), ci-cd.md (general CI/CD patterns)
+
+**Quality**: Already maximally compact at 14 lines. Each bullet is dense with specific values (tier pricing, env var names, SQL operator). No compression, genericization, or redundancy issues. `IS NOT DISTINCT FROM` not in postgresql-query-patterns.md (different focus — query optimization vs serverless DB gotchas).
+
+**Cross-ref rationale**: typescript-ci-gotchas has a 2-pattern Vercel/Serverless section — complementary (cold starts + lockfiles vs crons + postgres). xrpl-patterns has Vercel WebSocket section — relevant when deploying XRPL apps. Both discoverable by "vercel" keyword search but See also provides structured navigation consistent with prior decisions (iters 8, 9, 16).
+
+**Tracker**: vercel-deployment.md added (run 13), typescript-ci-gotchas.md added (run 0 — modified, not yet deep-dived).
+
+**Next candidate**: xrpl-amm.md (unreviewed)
