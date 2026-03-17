@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 19 |
+| SWEEP_COUNT | 20 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md |
+| DEEP_DIVE_CANDIDATES | typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md |
 
 ## Pre-Flight
 
@@ -67,6 +67,7 @@ Suggested iterations: 10
 | 17 | DEEP_DIVE | 1 | 3 | 0 | 4 | python-specific.md — removed 6 takeaway lines, merged 3 migration sections into "Package Manager Migration", added bidirectional cross-refs with api-design.md. 113→~95 lines. |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | quarkus-kotlin.md — clean. 8 lines, 1 pattern (Quarkus enum hot-reload). No overlap with spring-boot.md enum patterns (different frameworks). |
 | 19 | DEEP_DIVE | 0 | 1 | 0 | 1 | react-frontend-gotchas.md — added See also (react-patterns.md, nextjs.md, playwright-patterns.md). 27→32 lines, 14 patterns, all condensed refs to source files. |
+| 20 | DEEP_DIVE | 0 | 4 | 0 | 4 | reactive-data-patterns.md — compressed 3 Key Points blocks (folded unique details into prose), added See also (react-patterns.md, order-book-pricing.md). 42→32 lines. |
 
 ## Deep Dive Status
 
@@ -90,7 +91,7 @@ Suggested iterations: 10
 | python-specific.md | done | 17 | 1H+3M applied: removed 6 takeaway lines, merged 3 migration sections, added bidirectional cross-refs with api-design.md. ~95 lines. |
 | quarkus-kotlin.md | done | 18 | Clean. 8 lines, 1 pattern. No overlap, no cross-ref gaps, maximally compact. |
 | react-frontend-gotchas.md | done | 19 | 0H+1M applied: added See also → react-patterns.md, nextjs.md, playwright-patterns.md. 32 lines, 14 condensed patterns. |
-| reactive-data-patterns.md | pending | — | Unreviewed |
+| reactive-data-patterns.md | done | 20 | 0H+4M applied: compressed 3 Key Points blocks (folded unique details into prose, removed redundant bullets), added See also → react-patterns.md, order-book-pricing.md. 42→32 lines. |
 | typescript-specific.md | pending | — | Unreviewed |
 | ui-patterns.md | pending | — | Unreviewed |
 | vercel-deployment.md | pending | — | Unreviewed |
@@ -391,3 +392,21 @@ Suggested iterations: 10
 **Tracker**: react-frontend-gotchas.md added (run 13).
 
 **Next candidate**: reactive-data-patterns.md (unreviewed)
+
+### Iter 20
+
+**Deep dive: reactive-data-patterns.md** (42→32 lines, 4 sections)
+
+**Applied actions (4):**
+- MEDIUM (auto-applied): Compressed §1 "Reactive Refresh Over Polling" Key Points — all 4 bullets restated prose. Removed block.
+- MEDIUM (auto-applied): Compressed §2 "Client-Side Expiration Tracking" Key Points — 3 of 4 bullets restated prose. Folded unique "convert platform-specific epoch" detail into prose paragraph. Removed block.
+- MEDIUM (auto-applied): Compressed §3 "Silent Fetch Pattern" Key Points — 2 of 4 bullets restated prose. Folded unique details (default false for backward compat, silent:true/false usage guidance) into prose paragraph. Removed block.
+- MEDIUM (auto-applied): Added `## See also` → react-patterns.md (hooks, polling, localStorage — already refs this file), order-book-pricing.md (§4 Balance Validation connects to exchange pricing layer).
+
+**Quality**: 4 sections, all now prose-only (except §4 which had no Key Points). §4 "Balance Validation" is about exchange UX not reactive data per se, but only 5 lines and no better home — order-book-pricing covers math, ui-patterns is general UI. Leave it.
+
+**Cross-ref health**: react-patterns.md:228 already has forward ref. New See also completes bidirectional. order-book-pricing.md already has See also pointing to xrpl-patterns — no reverse needed (different relationship: this file is a consumer of pricing concepts, not a source).
+
+**Tracker**: reactive-data-patterns.md added (run 13).
+
+**Next candidate**: typescript-specific.md (unreviewed)
