@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 28 |
+| SWEEP_COUNT | 29 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md |
+| DEEP_DIVE_CANDIDATES | ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md |
 
 ## Pre-Flight
 
@@ -76,6 +76,7 @@ Suggested iterations: 10
 | 26 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-dex-data.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md). 97→103 lines, 2 sections, clean. |
 | 27 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-gotchas.md — added See also (xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md). 44→51 lines, 6 sections, clean. |
 | 28 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-permissioned-domains.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md). Added reverse cross-ref from xrpl-patterns.md. 78→83 lines, was cross-ref island. |
+| 29 | DEEP_DIVE | 0 | 1 | 0 | 1 | bignumber-financial-arithmetic.md — added See also (order-book-pricing.md). 54→55 lines, compact and clean. |
 
 ## Deep Dive Status
 
@@ -108,7 +109,7 @@ Suggested iterations: 10
 | xrpl-dex-data.md | done | 26 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md. 103 lines, 2 sections (OnTheDEX API + protocol reference), clean and compact. |
 | xrpl-gotchas.md | done | 27 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md. 51 lines, 6 sections (~20 patterns), clean and compact. |
 | xrpl-permissioned-domains.md | done | 28 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md. Added reverse cross-ref from xrpl-patterns.md. 83 lines, was cross-ref island in XRPL cluster. |
-| bignumber-financial-arithmetic.md | pending | — | Stale (run 0, never deep-dived) |
+| bignumber-financial-arithmetic.md | done | 29 | 0H+1M applied: added See also → order-book-pricing.md (primary JS application context). 55 lines, compact and clean. |
 | ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
 | gitlab-ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
 
@@ -538,3 +539,18 @@ Suggested iterations: 10
 **Tracker**: xrpl-permissioned-domains.md added (run 13), xrpl-patterns.md reset to 0 (modified).
 
 **Next candidate**: bignumber-financial-arithmetic.md (stale, run 0)
+
+### Iter 29
+
+**Deep dive: bignumber-financial-arithmetic.md** (54→55 lines, 5 sections + See also)
+
+**Applied actions (1):**
+- MEDIUM (auto-applied): Added `order-book-pricing.md` to See also — primary JS application context for BigNumber.js patterns (mid-price computation, slippage estimation, reduce accumulation). Reverse cross-ref already existed from iter 16. Completes bidirectional navigation.
+
+**Quality**: Maximally compact at 54 lines. Code examples are 1-3 lines each — minimum to illustrate. No takeaway lines, no redundancy, no compression candidates. Content is BigNumber.js-generic, not domain-specific.
+
+**Cross-ref analysis**: 5 XRPL files point to this file (xrpl-patterns, xrpl-amm, xrpl-cross-currency-payments, xrpl-gotchas, order-book-pricing). Only order-book-pricing warranted a reverse cross-ref — the others use BigNumber incidentally, adding them would clutter a generic file. financial-applications.md bidirectional ref already existed.
+
+**Tracker**: bignumber-financial-arithmetic.md updated (run 13).
+
+**Next candidate**: ci-cd.md (stale, run 0)

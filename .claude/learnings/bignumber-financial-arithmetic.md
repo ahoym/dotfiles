@@ -51,3 +51,4 @@ items.reduce((sum, item) => sum.plus(item.amount), new BigNumber(0))
 ## See also
 
 - `financial-applications.md` — Java BigDecimal patterns, fee calculation invariants, DECIMAL(38,18) schema precision (complements the JavaScript BigNumber.js patterns here)
+- `order-book-pricing.md` — mid-price computation, slippage estimation, and reduce accumulation using BigNumber.js in orderbook context
