@@ -205,10 +205,6 @@ Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`te
 ## See also
 
 - `xrpl-gotchas.md` — condensed XRPL tripwires (companion)
-- `xrpl-dex-data.md` — external API data patterns
 - `bignumber-financial-arithmetic.md` — BigNumber patterns for orderbook/depth
 - `order-book-pricing.md` — mid-price approaches, slippage estimation, midprice module design
-- `xrpl-amm.md` — AMM liquidity interleaving
-- `xrpl-cross-currency-payments.md` — payment engine two-pass algorithm, pathfinding, TransferRate, SendMax, NoRipple rules
-- `xrpl-permissioned-domains.md` — credentials (XLS-70), permissioned domains (XLS-80), permissioned DEX (XLS-81)
 

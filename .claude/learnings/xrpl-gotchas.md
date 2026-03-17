@@ -45,7 +45,4 @@ Companion to `xrpl-patterns.md`. Condensed tripwires for XRPL integration.
 ## See also
 
 - `xrpl-patterns.md` — full XRPL integration patterns (companion)
-- `xrpl-amm.md` — AMM constant-product formulas, transaction types, error codes
-- `xrpl-dex-data.md` — OnTheDEX API, native DEX protocol reference
-- `xrpl-cross-currency-payments.md` — payment engine, pathfinding, TransferRate, SendMax
 - `bignumber-financial-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations
