@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -67,6 +67,7 @@ Suggested iterations: 15
 | 16 | DEEP_DIVE | 0 | 0 | 0 | 0 | request-interaction-base.md — clean. 10 patterns all STANDALONE REFERENCE. 2 consumers verified (code-review-request, address-request-comments), no duplication. KEEP. |
 | 17 | DEEP_DIVE | 0 | 0 | 0 | 0 | subagent-patterns.md — clean. 3 patterns all STANDALONE REFERENCE. 3 consumers verified, no inline dup. KEEP. |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup, no undefined vars. KEEP. |
+| 19 | DEEP_DIVE | 1 | 0 | 1 | 1 | github/commands.md — index file clean. 1 HIGH: fixed stale path in extractor-prompt.md (referenced non-existent <PLATFORM>-commands.md; updated to <PLATFORM>/comment-interaction.md + <PLATFORM>/fetch-review-data.md). 1 LOW: index description for fetch-review-data.md omits consolidated variants. |
 
 ## Deep Dive Status
 
@@ -89,7 +90,7 @@ Suggested iterations: 15
 | 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | done | 16 | Clean — 10 patterns all STANDALONE REFERENCE. 2 consumers verified, no duplication, no undefined vars. KEEP. |
 | 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | done | 17 | Clean — 3 patterns all STANDALONE REFERENCE. 3 consumers verified (parallel-plan/execute, explore-repo, do-security-audit), no inline dup. Thematic overlap with multi-agent-patterns.md properly handled via existing See also. KEEP. |
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | done | 18 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name, no inline dup. Index description accurate. KEEP. |
-| 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | pending | — | — |
+| 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | done | 19 | 1 HIGH: fixed stale path ref in extractor-prompt.md (<PLATFORM>-commands.md → <PLATFORM>/comment-interaction.md + fetch-review-data.md). 1 LOW: index description omits consolidated variants. Index itself STANDALONE REFERENCE, KEEP. |
 | 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
 | 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | pending | — | — |
@@ -179,6 +180,15 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 19
+
+**Deep dive 16 of 30**: `github/commands.md` (skill-reference index, unreviewed, tier 2) — 1 HIGH applied.
+- Index file: 4 cluster entries (fetch-review-data, comment-interaction, pr-management, batch-operations). All 4 cluster files confirmed present. Index description says "Skills should reference specific cluster files, not this index" — correct navigation guidance.
+- HIGH applied: `extractor-prompt.md:26` referenced `~/.claude/skill-references/<PLATFORM>-commands.md` (flat-file pattern, doesn't exist). Actual structure is `<PLATFORM>/comment-interaction.md` + `<PLATFORM>/fetch-review-data.md`. SKILL.md already uses correct subdirectory pattern — extractor-prompt.md was not updated when directory structure was reorganized.
+- LOW [L-2]: `fetch-review-data.md` index description omits "Fetch Activity Signals (consolidated)" — unclear whether summaries should list all section names or just core categories.
+- Key insight: When a skill has multiple prompt-template files (extractor-prompt.md, writer-prompt.md, plan-template.md) alongside the main SKILL.md, verify each file's paths independently — reorganizations that update SKILL.md often miss the subagent-injected templates.
+- Next: candidate 17 = `github/comment-interaction.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 18
 

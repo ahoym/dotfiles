@@ -49,3 +49,15 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: content-mode.md is not a declared consumer, so the reference-file gate does not cleanly apply. The taxonomies serve similar but different purposes (one maps "implications," one maps to "confidence levels"). Unclear whether this is intentional parallel development or accidental divergence.
 - **Curate command**: `/learnings:curate skill-references/corpus-cross-reference.md`
 
+## [L-2] github/commands.md — fetch-review-data.md index description omits consolidated variants
+
+- **Iter**: 19
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/skill-references/github/commands.md`
+- **Pattern**: Index table — fetch-review-data.md description
+- **Possible classifications**:
+  1. KEEP as-is — "Fetch Activity Signals" and "Fetch Review Details with Reviews" are consolidation variants of existing operations, not separate command categories; the index description is a summary, not exhaustive
+  2. UPDATE — add the consolidated variants to the description so skills referencing the index can see the full API surface: "Fetch Review Details, Diff, Files Changed, Commits, Fetch Activity Signals (consolidated)"
+- **Why LOW**: Whether index descriptions should list all section names (complete) or just the core command categories (summary) is a style decision. The omission is not operationally breaking — skills read the cluster files directly per the index description.
+- **Curate command**: `/learnings:curate skill-references/github/commands.md`
+

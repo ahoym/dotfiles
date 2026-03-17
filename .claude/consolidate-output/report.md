@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 18 |
+| Iterations | 19 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -44,6 +44,7 @@
 | 16 | DEEP_DIVE | clean deep-dive | request-interaction-base.md | — | — |
 | 17 | DEEP_DIVE | clean deep-dive | subagent-patterns.md | — | — |
 | 18 | DEEP_DIVE | clean deep-dive | github/batch-operations.md | — | — |
+| 19 | DEEP_DIVE | fix-stale-path-reference | extractor-prompt.md:26 | <PLATFORM>/comment-interaction.md + fetch-review-data.md | HIGH |
 
 ## Blocked Items
 

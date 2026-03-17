@@ -89,6 +89,8 @@
     ".claude/skill-references/platform-detection.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/request-interaction-base.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/subagent-patterns.md": { "last_deep_dive_run": 14 },
-    ".claude/skill-references/github/batch-operations.md": { "last_deep_dive_run": 14 }
+    ".claude/skill-references/github/batch-operations.md": { "last_deep_dive_run": 14 },
+    ".claude/skill-references/github/commands.md": { "last_deep_dive_run": 14 },
+    ".claude/commands/extract-request-learnings/extractor-prompt.md": { "last_deep_dive_run": 0 }
   }
 }
