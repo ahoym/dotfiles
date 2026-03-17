@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | 8 | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-invocation.md — clean. 2 patterns, both universal behavioral rules, KEEP. |
 | 9 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-author.md — clean. 8 patterns, judgment-lens content, correct authoring-persona structure, KEEP. |
 | 10 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-reviewer.md — clean. 8 review sections, all STANDALONE REFERENCE. Child-only-adds-unique-content pattern (extends reviewer + claude-config-expert). All inline refs valid. |
+| 11 | DEEP_DIVE | 1 | 0 | 0 | 1 | java-infosec.md — removed 7 redundant tripwires (near-verbatim duplicate of proactive-loaded java-infosec-gotchas.md). Compounded: inline-vs-proactive-load redundancy pattern → curation-insights.md. |
 
 ## Deep Dive Status
 
@@ -73,7 +74,7 @@ Suggested iterations: 15
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | done | 8 | Clean — 2 patterns, both universal behavioral rules, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | done | 9 | Clean — 8 patterns, all judgment-lens, correct authoring-persona structure. Known gotchas absent by design (parent covers). No compression, no See also needed. |
 | 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | done | 10 | Clean — 8 review sections, all STANDALONE REFERENCE. Structural deviations intentional (parent coverage pattern). All inline refs valid. |
-| 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | pending | — | — |
+| 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | done | 11 | 1 HIGH applied — removed 7 redundant tripwires duplicating proactive-loaded java-infosec-gotchas.md. Domain priorities + tradeoffs: KEEP. |
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | pending | — | — |
 | 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | pending | — | — |
 | 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | pending | — | — |
@@ -171,6 +172,15 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 11
+
+**Deep dive 8 of 30**: `java-infosec.md` (persona, unreviewed, tier 2) — 1 HIGH applied.
+- Removed lines 13-19: 7 "When reviewing or writing code" bullets that were near-verbatim duplicates of `java-infosec-gotchas.md`. Gotchas file is in Proactive loads — loaded at persona activation, checklist items available at runtime without inlining. Kept: meta-instruction ("Apply tripwires from gotchas file") and mindset bullet ("Think like attacker").
+- Domain priorities (5 focus areas) and When making tradeoffs (4 principles): all lens content, STANDALONE REFERENCE, KEEP.
+- No `## See also` needed — gotchas file explicitly referenced in section text AND Proactive loads; other java files (spring-boot, java-observability) keyword-discoverable.
+- Compound: added persona-inline-vs-proactive-load redundancy pattern to curation-insights.md (Classification Calibration).
+- Next: candidate 9 = `reviewer.md` (persona, unreviewed, tier 2).
 
 ### Iter 10
 
