@@ -67,6 +67,7 @@
     ".claude/learnings/typescript-ci-gotchas.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/xrpl-amm.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-cross-currency-payments.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/xrpl-dex-data.md": { "last_deep_dive_run": 13 }
+    ".claude/learnings/xrpl-dex-data.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/xrpl-gotchas.md": { "last_deep_dive_run": 13 }
   }
 }

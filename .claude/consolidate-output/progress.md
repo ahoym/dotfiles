@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 26 |
+| SWEEP_COUNT | 27 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md |
+| DEEP_DIVE_CANDIDATES | xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md |
 
 ## Pre-Flight
 
@@ -74,6 +74,7 @@ Suggested iterations: 10
 | 24 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-amm.md — folded AMM Account subsection into parent bullet, added See also (xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md). 122→~123 lines. |
 | 25 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-cross-currency-payments.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md). Added reverse cross-ref from xrpl-patterns.md. 48→53 lines. |
 | 26 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-dex-data.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md). 97→103 lines, 2 sections, clean. |
+| 27 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-gotchas.md — added See also (xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md). 44→51 lines, 6 sections, clean. |
 
 ## Deep Dive Status
 
@@ -104,7 +105,7 @@ Suggested iterations: 10
 | xrpl-amm.md | done | 24 | 0H+2M applied: folded AMM Account subsection into parent bullet, added See also → xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md. ~123 lines. |
 | xrpl-cross-currency-payments.md | done | 25 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md. Added reverse cross-ref from xrpl-patterns.md. 53 lines, 8 compact sections. |
 | xrpl-dex-data.md | done | 26 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md. 103 lines, 2 sections (OnTheDEX API + protocol reference), clean and compact. |
-| xrpl-gotchas.md | pending | — | Unreviewed |
+| xrpl-gotchas.md | done | 27 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md. 51 lines, 6 sections (~20 patterns), clean and compact. |
 | xrpl-permissioned-domains.md | pending | — | Unreviewed |
 | bignumber-financial-arithmetic.md | pending | — | Stale (run 0, never deep-dived) |
 | ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
@@ -503,3 +504,20 @@ Suggested iterations: 10
 **Tracker**: xrpl-dex-data.md added (run 13).
 
 **Next candidate**: xrpl-gotchas.md (unreviewed)
+
+### Iter 27
+
+**Deep dive: xrpl-gotchas.md** (44→51 lines, 6 sections, ~20 patterns)
+
+**Applied actions (1):**
+- MEDIUM (auto-applied): Added `## See also` → xrpl-patterns.md (companion — full integration patterns), xrpl-amm.md (AMM constant-product formulas, transaction types, error codes), xrpl-dex-data.md (OnTheDEX API, native DEX protocol reference), xrpl-cross-currency-payments.md (payment engine, pathfinding, TransferRate, SendMax), bignumber-financial-arithmetic.md (BigNumber.js patterns for XRPL financial calculations)
+
+**Quality**: Maximally compact at 44 lines. Each pattern is a single condensed line — consistent with gotchas companion format (same structure as react-frontend-gotchas.md). Every gotcha has a corresponding longer explanation in a sister file by design. No compression, genericization, or redundancy issues.
+
+**Overlap assessment**: Every pattern overlaps with a source file intentionally. AMM section (3 patterns) overlaps with xrpl-amm.md (AMMCreate fee, amm_info order, amm_info errors). RippleState sign convention overlaps with xrpl-patterns.md §51-64. Funded field semantics overlap with xrpl-patterns.md §36-49. All complementary — gotcha is quick tripwire, source file has full explanation.
+
+**Cross-ref health**: 4 files already referenced xrpl-gotchas.md (xrpl-patterns:207, xrpl-dex-data:101, xrpl-amm:122, xrpl-cross-currency-payments:52). New See also completes bidirectional navigation for the entire XRPL cluster.
+
+**Tracker**: xrpl-gotchas.md added (run 13).
+
+**Next candidate**: xrpl-permissioned-domains.md (unreviewed)
