@@ -11,6 +11,7 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 1 | LEARNINGS | Cross-ref wiring | spring-boot.md | postgresql-query-patterns.md | MEDIUM | applied | Migration safety patterns complement Spring Boot Flyway gotchas; not keyword-discoverable |
 | 1 | LEARNINGS | Cross-ref wiring | newman-postman.md | local-dev-seeding.md | MEDIUM | applied | Newman is the API seeding layer in the hybrid architecture; bidirectional discovery value |
 | 1 | LEARNINGS | Cross-ref wiring | local-dev-seeding.md | newman-postman.md | MEDIUM | applied | Bidirectional complement of M4 |
+| 2 | SKILLS | Persona de-enrichment | java-devops.md (Metrics & Observability) | java-observability-gotchas.md | MEDIUM | applied | 4 inline gotchas nearly verbatim from proactive-loaded learning file; replaced with 1-line judgment summary + reference |
 
 ## Methodology Loaded (Iter 1)
 

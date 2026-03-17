@@ -4,8 +4,8 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
-| CONTENT_TYPE | SKILLS |
+| SWEEP_COUNT | 2 |
+| CONTENT_TYPE | GUIDELINES |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -33,9 +33,9 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
-- **MEDIUMs applied**: 0
+- **MEDIUMs applied**: 1
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
@@ -49,6 +49,7 @@ Suggested iterations: 15
 | Iter | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 5 | 0 | 5 applied (1 stale ref removal, 4 cross-ref wirings) | Clean collection — no duplicates, no stale content, no misplaced files. 5 cross-ref graph improvements. |
+| 2 | SKILLS | 0 | 1 | 0 | 1 applied (persona de-enrichment) | 31 skills, 11 personas, 16 skill-refs evaluated. No skill overlap/staleness. 1 cross-persona dedup: java-devops inline gotchas → reference. |
 
 ## Deep Dive Status
 
@@ -91,3 +92,13 @@ Suggested iterations: 15
 - process-conventions.md — Polish Opportunity (compression)
 - code-quality-instincts.md — Polish Opportunity (compression)
 - financial-applications.md — Polish Opportunity (compression)
+
+### Iter 2
+
+**SKILLS sweep findings:**
+- All 31 skills evaluated: Keep. No staleness, overlap, or scope issues.
+- Skill clusters: git:* (10), learnings:* (4), ralph:* (7), parallel-plan:* (2), standalone (8)
+- Cross-skill: request-interaction-base.md properly shared between address-request-comments and code-review-request. No duplication.
+- Co-Authored-By strings: all current (Claude Opus 4.6)
+- Cross-persona: java-devops inline observability gotchas de-enriched → 1-line summary + reference (content already in proactive-loaded java-observability-gotchas.md)
+- Deep dive candidates from SKILLS sweep: java-devops.md (modified — de-enrichment)
