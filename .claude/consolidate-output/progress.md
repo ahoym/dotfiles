@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| SWEEP_COUNT | 3 |
+| CONTENT_TYPE | DEEP_DIVE |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -32,13 +32,13 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -51,12 +51,44 @@ Suggested iterations: 15
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, ~1200 patterns. Well-maintained from run 13. |
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 16 skill-references. All consumers wired, no stale model strings. |
+| 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally needed, no overlap. Transitioned to DEEP_DIVE. |
 
 ## Deep Dive Status
 
-<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweeps complete -->
+<!-- 82 total candidates across all tiers. Max guard = 30. Prioritized by spec. -->
 
-| File | Status | Iter | Summary |
+| # | File | Tier | Criterion | Status | Iter | Summary |
+|---|------|------|-----------|--------|------|---------|
+| 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | pending | — | — |
+| 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | pending | — | — |
+| 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | pending | — | — |
+| 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | pending | — | — |
+| 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | pending | — | — |
+| 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | pending | — | — |
+| 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | pending | — | — |
+| 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | pending | — | — |
+| 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | pending | — | — |
+| 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | pending | — | — |
+| 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | pending | — | — |
+| 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | pending | — | — |
+| 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | pending | — | — |
+| 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | pending | — | — |
+| 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
+| 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | pending | — | — |
+| 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
+| 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
+| 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | pending | — | — |
+| 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
+| 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | pending | — | — |
+| 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
+| 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
+| 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | pending | — | — |
+| 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 28 | .claude/commands/explore-repo/brief/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 30 | .claude/commands/git/cascade-rebase/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 |------|--------|------|---------|
 
 ## Notes for Next Iteration
@@ -106,3 +138,22 @@ Suggested iterations: 15
 - 26 skills never deep-dived (criterion 6)
 - 5 tracked skills stale at threshold (criterion 7): quantum-tunnel-claudes, extract-request-learnings, split-commit, consolidate, ralph:consolidate:init
 - Prioritization: unreviewed skills/skill-refs/guidelines first per spec
+
+### Iter 3
+
+**GUIDELINES sweep** (4 files, all @-referenced from .claude/CLAUDE.md):
+- communication.md (~200 lines) — universal communication patterns, comprehensive
+- context-aware-learnings.md (~120 lines) — learnings search protocol, hard gates + triggers
+- path-resolution.md (~30 lines) — @ references, relative path resolution
+- skill-invocation.md (~25 lines) — always use Skill tool, don't ask permission within skills
+- All behavioral/procedural, universally needed, no domain-specific content, no overlap with learnings/skills/personas
+- No dead weight, no wiring issues
+
+**Deep dive candidate compilation** (all 3 content types complete):
+- Tier 1 (modification-triggered): 1 file (claude-authoring-content-types.md — hub)
+- Tier 2 (unreviewed skills/skill-refs/guidelines/personas): 49 files (4 guidelines, 4 personas, 15 skill-refs, 26 skills)
+- Tier 3 (unreviewed learnings): 7 files
+- Tier 4 (stale skills/skill-refs/personas): 12 files (5 skills, 1 skill-ref, 6 personas)
+- Tier 5 (stale learnings): 11 files
+- Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
+- Remaining 52 carry over to future runs (staleness increases naturally)

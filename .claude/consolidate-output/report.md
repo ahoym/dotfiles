@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 2 |
+| Iterations | 3 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -16,8 +16,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **2** | **0** | **0** | **0** | **0** |
+| Guidelines | 1 | 0 | 0 | 0 | 0 |
+| **Total** | **3** | **0** | **0** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -27,6 +27,8 @@
 |------|-------------|--------|--------|--------|------------|
 | 1 | LEARNINGS | clean sweep | 58 files | — | — |
 | 2 | SKILLS | clean sweep | 31 skills, 16 refs | — | — |
+| 3 | GUIDELINES | clean sweep | 4 files | — | — |
+| 3 | — | transition to DEEP_DIVE | 82 candidates | top 30 queued | — |
 
 ## Blocked Items
 
