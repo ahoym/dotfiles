@@ -69,6 +69,7 @@ Gather collection metrics:
 2. **File counts** (use Glob in the worktree):
    - Learnings: `.claude/worktrees/consolidate-<date>/.claude/learnings/*.md`
    - Skills: `.claude/worktrees/consolidate-<date>/.claude/commands/**/SKILL.md`
+   - Skill references: `.claude/worktrees/consolidate-<date>/.claude/skill-references/**/*.md`
    - Guidelines: `.claude/worktrees/consolidate-<date>/.claude/guidelines/*.md`
    - Personas: `.claude/worktrees/consolidate-<date>/.claude/commands/set-persona/*.md`
 
@@ -82,6 +83,7 @@ Gather collection metrics:
    Recent commits: <last 3 commit summaries>
    Learnings files: N
    Skills count: N
+   Skill references: N
    Guidelines files: N
    Persona files: N
    Cadence: <recent|moderate|stale> (<X> curation commits in last 5)
@@ -104,10 +106,11 @@ Consolidation loop initialized.
 
   Pre-flight:
     Recent commits: <summary — note if recently curated>
-    Learnings:  N files
-    Skills:     N directories
-    Guidelines: N files
-    Personas:   N files
+    Learnings:       N files
+    Skills:          N directories
+    Skill references: N files
+    Guidelines:      N files
+    Personas:        N files
 
   Cadence: <recent|moderate|stale> (<X> curation commits in last 5)
 
@@ -128,10 +131,11 @@ Consolidation loop initialized.
 
   Pre-flight:
     Recent commits: ce44582 Compress allowed-tools... (curation 2 commits ago)
-    Learnings:  12 files
-    Skills:     23 directories
-    Guidelines: 3 files
-    Personas:   4 files
+    Learnings:       12 files
+    Skills:          23 directories
+    Skill references: 16 files
+    Guidelines:      3 files
+    Personas:        4 files
     Cadence: recent (3 curation commits in last 5)
 
   To launch:

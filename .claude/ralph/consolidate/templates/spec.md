@@ -52,7 +52,7 @@ Examples:
 | `.claude/guidelines/*.md` | Guideline files |
 | `.claude/commands/**/SKILL.md` | Skill definitions |
 | `.claude/commands/set-persona/*.md` | Persona files |
-| `.claude/skill-references/*.md` | Shared skill references |
+| `.claude/skill-references/**/*.md` | Shared skill references (deep-dive eligible, content mode with reference-file gate) |
 
 ### Output (working state)
 
@@ -226,12 +226,22 @@ A file is a candidate if it meets ANY of:
 3. **Curate skill criteria**: 5+ patterns AND an action signal (stale, overlap, compression)
 4. **Modified guideline**: Received HIGH/MEDIUM during broad sweeps (always-on context — changes warrant verification)
 5. **Modified skill**: Received HIGH/MEDIUM during broad sweeps (workflow breakage risk)
-6. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
+6. **Unreviewed file**: Not present in `deep-dive-tracker.json` (never deep-dived — unknown quality)
+7. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
 
 Candidacy is determined incrementally per content type sweep. Record all in progress.md as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
-**Minimum per run**: Read `min_deep_dives` from tracker (default 10). If candidates < minimum, fill with: (1) untracked corpus files, (2) stalest tracked files. Full corpus cycles through in ~7 runs.
+**Minimum per run**: Read `min_deep_dives` from tracker (default 20). If candidates < minimum, fill with stalest tracked files. Full corpus cycles through in ~5 runs.
 
-**Prioritization**: modification-triggered (criteria 1–5) first, then staleness-sorted, then fill candidates. Unprocessed carry over — staleness increases naturally.
+**Prioritization** (ordered):
+1. Modification-triggered (criteria 1–5) — any content type
+2. Unreviewed skills, skill-references, guidelines (criterion 6)
+3. Unreviewed learnings (criterion 6)
+4. Stale skills, skill-references, guidelines (criterion 7)
+5. Stale learnings (criterion 7)
+
+Within each tier, sort by staleness (oldest first). Unprocessed carry over — staleness increases naturally.
+
+**Rationale**: Skills drive workflows, guidelines are always-on context cost, skill-references are shared across skills. These are higher-leverage than learnings, which are loaded conditionally by the search protocol.
 
 Per-file methodology, convergence rules, and max guard: `.claude/consolidate-output/deep-dive-methodology.md`.
