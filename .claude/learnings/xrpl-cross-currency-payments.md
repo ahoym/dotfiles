@@ -45,3 +45,9 @@ Useful for diagnosing `tecPATH_DRY` failures caused by rippling misconfiguration
 ## DefaultRipple Timing Requirement
 
 `DefaultRipple` flag (set via `AccountSet`) must be enabled on the issuer account **BEFORE** trust lines are created. Enabling it after trust line creation does NOT retroactively update existing trust lines — those lines retain their original rippling settings. To fix: each holder must individually set `tfSetNoRipple` then `tfClearNoRipple` on their trust line, or create new trust lines after the flag is set.
+
+## See also
+
+- `xrpl-patterns.md` — orderbook fetching, funded offers, WebSocket management, simulate API for payment validation
+- `xrpl-gotchas.md` — condensed XRPL tripwires (companion)
+- `bignumber-financial-arithmetic.md` — BigNumber arithmetic for payment amount calculations and slippage margins

@@ -63,37 +63,19 @@ config = Config(destination_tag=DESTINATION_TAG or None)  # easy to forget
 
 Dataclasses auto-generate `__init__`, so `__post_init__` is the standard hook for computing derived/calculated fields from the initialized values. Don't override `__init__` — use `__post_init__` to keep the dataclass contract intact.
 
-- **Takeaway**: Derived dataclass fields belong in `__post_init__`, not a custom `__init__`.
+## Package Manager Migration
 
-## pyproject.toml as stable anchor across package manager migrations
-
-`pyproject.toml` is the stable artifact across Python package manager changes (requirements.txt -> Poetry -> uv). Lock files and tooling-specific configs are the disposable parts. When migrating, `pyproject.toml` persists while everything else gets replaced.
-
-- **Takeaway**: Build migration plans around pyproject.toml as the anchor file.
-
-## Dockerfile updates alongside package manager changes
-
-Package manager migrations require coordinated Dockerfile updates. The build layer that installs dependencies changes when the tool changes.
-
-- **Takeaway**: Package manager change = Dockerfile change. Always.
-
-## Migration scripts committed alongside the migration
-
-Commit a dedicated migration script (e.g., `scripts/migrate-poetry-to-uv.sh`) alongside the migration PR. Captures the exact steps used, serves as documentation and a reproducible recipe for similar migrations.
-
-- **Takeaway**: Non-trivial tooling migrations deserve a committed migration script.
+- **Anchor on `pyproject.toml`** — the stable artifact across tool changes (requirements.txt → Poetry → uv). Lock files and tooling configs are disposable.
+- **Coordinate Dockerfile updates** — the dependency-install build layer changes when the tool changes. Package manager change = Dockerfile change.
+- **Commit a migration script** (e.g., `scripts/migrate-poetry-to-uv.sh`) alongside the PR. Captures exact steps, serves as documentation and reproducible recipe.
 
 ## Fix Root Causes, Don't Suppress Linter Warnings
 
 When a linter flags a real issue (e.g., B006 mutable default arguments), fix the underlying problem rather than adding `# noqa`. The sentinel pattern (`Optional[list] = None` + `if x is None: x = []`) fixes the bug; `# noqa: B006` hides it. Suppression is appropriate only when the linter is genuinely wrong, not when the fix is straightforward.
 
-- **Takeaway**: `# noqa` is for false positives, not shortcuts — fix the underlying issue when the linter is right.
-
 ## Use `__all__` to Define Explicit Public APIs
 
 In `__init__.py` files, define `__all__` to control what a package exposes. This lets users import directly from the package (`from pkg import Class`) instead of reaching into submodules, signals the intended public API to tooling and linters, and makes the package's surface area explicit and reviewable.
-
-- **Takeaway**: Every `__init__.py` that re-exports should have an `__all__` defining the public API.
 
 ## Custom matcher objects can't be used as Pydantic model field values
 
@@ -110,3 +92,8 @@ assert response == MyResponseModel(
     reference=response.reference,  # works, still verifies other fields
 )
 ```
+
+## See also
+
+- `api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
+- `testing-patterns.md` — Python module-level singleton test isolation

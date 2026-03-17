@@ -153,41 +153,15 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 **Ordering**: List `@` references first, conditional references below. Makes loading behavior scannable at a glance.
 
-**Path resolution**: Use `@filename.md` (skill-directory-relative) or `@~/.claude/...` paths. `@./` relative paths may have resolution issues. Always add explicit read instructions as a defensive backup.
+**Path resolution**: Use `@filename.md` (skill-directory-relative) or `@~/.claude/...` paths. `@./` relative paths may have resolution issues. Always add explicit read instructions as a defensive backup — active reads engage more deliberately than passively injected context.
 
-**Attention pattern**: Even for `@`-loaded content, "Read X before step N" in the relevant step improves reliability — active reads engage more deliberately than passively injected context.
+## Skill Description Optimization & Discoverability
 
-**Format flexibility**: The `@` parser resolves regardless of surrounding formatting — `- @path — description`, `@path — description`, `- @path`, and bare `@path` all work identically. The `- ` prefix and `— description` suffix are purely human-readability conventions.
+The `description:` field serves double duty — documentation for the user and a matching signal for the model. **Every** `.claude/commands/*.md` file should include `description` frontmatter — missing descriptions make skills invisible in the command picker.
 
-## Skill Description Frontmatter Optimization
+**Optimize for searchability:** Use widely understood terms (no internal jargon), include action verbs, use standard dev workflow terminology, list key capabilities for multi-purpose skills.
 
-The `description:` field should be optimized for searchability:
-1. **Remove internal jargon** — Use widely understood terms
-2. **Add action keywords** — Include verbs describing what happens
-3. **Use standard terminology** — Prefer terms from common dev workflows
-4. **Include specific capabilities** — For multi-purpose skills, list key features
-
-## Discoverability via Trigger Phrases
-
-Skills are only invoked when the model recognizes the user's intent maps to a skill. If the skill description is too narrow, the model may execute the task manually instead of invoking the skill.
-
-**Fix:** Add natural-language trigger phrases to the skill's `description` field in the YAML frontmatter. Cover common ways a user might express the intent without naming the skill directly.
-
-Example from `git:create-request`:
-```
-description: Create a merge request [...]. Use when the user asks to push an MR, in any variation (e.g., "commit and push an MR", "branch and push a MR", "create a merge request", "push this as an MR").
-```
-
-The description field serves double duty — documentation for the user and a matching signal for the model. Optimizing for the latter prevents skill bypass. **Every** `.claude/commands/*.md` file should include `description` frontmatter — missing descriptions make skills invisible in the command picker.
-
-### When NOT to Add Routing Hints
-
-Skip routing hints when:
-- The skill name already communicates intent (e.g., `git:create-pr`)
-- The functional description covers it
-- The triggers would just paraphrase the name
-
-Only add "Use when..." routing hints when the skill name + functional description isn't enough for agent inference — e.g., opaque names, overlapping skills needing disambiguation.
+**Add trigger phrases** when the skill name + functional description isn't enough for agent inference — e.g., opaque names or overlapping skills needing disambiguation. Cover common ways a user might express the intent without naming the skill directly. Skip routing hints when the skill name already communicates intent or the functional description covers it.
 
 ## Subagent Prompts: Read Shared References Instead of Hardcoding
 
@@ -207,7 +181,7 @@ Compound = intake (captures new learnings from sessions). Curate = maintenance (
 
 ## Body-Only Templates for Skill Reference Files
 
-When a skill reference file provides message templates (reply bodies, comment text), include only the message content — not the posting command. The command mechanics (`gh api`, `glab mr comment`, etc.) belong in the platform commands reference file. This prevents duplication and keeps templates focused on *what to say* rather than *how to post*. Pattern: `request-reply-templates.md` (body only) vs `github-commands.md` (commands only).
+Template reference files should contain only message body content — not posting commands. See `claude-authoring-content-types.md` § "Skill References & Templates" for the full convention.
 
 ## Skill Maturity Progression
 
@@ -272,8 +246,6 @@ When polling for new items (PR comments, notifications, etc.), set `LAST_FETCH_T
 
 When a skill step says "read template X and use it verbatim," read the template immediately before that step — not minutes earlier as pre-work. Stale context causes improvisation: the agent fills in values from memory rather than from the template's prescriptive instructions, missing critical details like staging directories or routing rules. The longer the gap between reading and using, the more likely the agent substitutes its own assumptions.
 
-- **Takeaway**: Template reads belong at the step that uses them, not in a setup phase.
-
 ## Explicit Variable Continuity Across Skill Steps
 
 Multi-step skills should explicitly name variables when data flows between steps. E.g., "Store as `FILES_TO_EXTRACT`" in step 3, then "For each file in `FILES_TO_EXTRACT`" in step 7. Without this, later steps become ambiguous — "add the files" vs "add `FILES_TO_EXTRACT`." Named variables create a traceable data flow through the skill.
@@ -302,19 +274,13 @@ Guidelines are always-loaded context (`@`-referenced from CLAUDE.md); skills loa
 
 When skill count grows, prefix filenames by domain taxonomy (e.g., `git-create-pr.md`, `git-cascade-rebase.md`) rather than flat names. Pattern: `{domain}-{action}.md`. Apply retroactively in a single atomic PR to avoid transitional inconsistency.
 
-- **Takeaway**: Group skills by domain prefix for scannability.
-
 ### Consolidate guidelines by removing skill commands that duplicate inline knowledge
 
 When guidelines already document how to run commands (e.g., exact CLI invocations), dedicated skill files wrapping those same commands add no value. Delete the skill when the guideline already covers it.
 
-- **Takeaway**: If a guideline already contains the command, a wrapper skill is redundant.
-
 ### Meta-guidelines for skill creation belong in always-loaded context
 
 When converting guidelines to skills, a companion `skill-design.md` guideline codifying skill structure belongs in always-loaded context — it governs the quality of all future skill creation.
-
-- **Takeaway**: Guidelines about how to write skills are universal; keep them always-loaded.
 
 ## User Interaction Points
 

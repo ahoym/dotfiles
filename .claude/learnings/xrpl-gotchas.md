@@ -41,3 +41,8 @@ Companion to `xrpl-patterns.md`. Condensed tripwires for XRPL integration.
 - `Buffer` is Node-only — use `TextEncoder` + `Array.from` in client components for hex encoding
 - Server and client encoding implementations (e.g., credential types) must be tested against shared canonical fixtures
 - URI XSS from ledger-stored credential URIs: validate protocol (`/^https?:\/\//i`) before rendering as `<a href>`
+
+## See also
+
+- `xrpl-patterns.md` — full XRPL integration patterns (companion)
+- `bignumber-financial-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations

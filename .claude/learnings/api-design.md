@@ -114,3 +114,4 @@ Include correlation/request IDs in all log statements for integration operations
 - `financial-applications.md` — idempotency patterns
 - `testing-patterns.md` — validator and route handler testing
 - `code-quality-instincts.md` — parameter naming conventions
+- `python-specific.md` — Pydantic v2 serialization options for the "consistent shapes" principle

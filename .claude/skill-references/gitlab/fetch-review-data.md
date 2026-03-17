@@ -31,8 +31,10 @@ glab mr diff <number>
 ## Fetch Files Changed
 
 ```bash
-glab mr diff <number> --name-only
+glab mr diff <number> --raw | grep '^diff --git' | sed 's|diff --git a/.* b/||'
 ```
+
+Note: `glab mr diff` has no `--name-only` flag. Extract filenames from raw diff output.
 
 ## Fetch Commits
 
