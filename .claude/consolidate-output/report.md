@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 13 |
-| Status | IN_PROGRESS (deep dives: 10/28 complete) |
+| Iterations | 14 |
+| Status | IN_PROGRESS (deep dives: 11/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 10 | 11 | 16 | 0 | 0 |
-| **Total** | **13** | **11** | **16** | **0** | **0** |
+| Deep Dives | 11 | 12 | 16 | 0 | 0 |
+| **Total** | **14** | **12** | **16** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -39,6 +39,7 @@
 | 11 | DEEP_DIVE | compress discoverability stack into cross-ref convention, remove inline examples | claude-authoring-learnings.md | — | 2 MEDIUM |
 | 12 | DEEP_DIVE | clean sweep | claude-authoring-personas.md | — | — |
 | 13 | DEEP_DIVE | clean sweep | claude-authoring-polling-review-skills.md | — | — |
+| 14 | DEEP_DIVE | delete duplicate section | gitlab-cli.md | git-patterns.md (canonical) | 1 HIGH |
 
 ## Blocked Items
 

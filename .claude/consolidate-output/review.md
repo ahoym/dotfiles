@@ -56,3 +56,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Standalone reference in multi-agent-patterns (current), migrate to claude-authoring-learnings.md (learnings protocol design pattern)
 - **Why LOW**: Pattern describes how learnings loading gates should have 3 announcement branches. It's about the learnings protocol design (gate observability), not agent orchestration per se. But it was learned in a multi-agent calibration context and applies to agents running gates.
 - **Curate command**: `/learnings:curate learnings/multi-agent-patterns.md`
+
+## [L-3] `--name-only` flag contradiction (LOW — needs verification)
+
+- **Iter**: 14
+- **Content Type**: LEARNINGS (deep dive)
+- **File**: `.claude/learnings/gitlab-cli.md` vs `.claude/skill-references/gitlab/fetch-review-data.md`
+- **Pattern**: `glab mr diff --name-only` existence
+- **Possible classifications**: gitlab-cli.md is correct (no flag, workaround needed) OR fetch-review-data.md is correct (flag exists)
+- **Why LOW**: Direct contradiction between learning and skill-reference. gitlab-cli.md L14 says "`glab mr diff` has no `--name-only` flag" and provides a workaround. fetch-review-data.md L34 shows `glab mr diff <number> --name-only` as a valid command. Cannot resolve without testing `glab mr diff --name-only` against a real MR.
+- **Curate command**: `/learnings:curate learnings/gitlab-cli.md`

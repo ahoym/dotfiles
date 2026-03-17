@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md |
+| DEEP_DIVE_CANDIDATES | java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md |
 
 ## Pre-Flight
 
@@ -61,6 +61,7 @@ Suggested iterations: 10
 | 11 | DEEP_DIVE | 0 | 2 | 0 | 2 | claude-authoring-learnings.md — merged discoverability stack into cross-ref convention, removed inline examples. ~11 lines saved. |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-personas.md — clean. 108 lines, 14 sections, all standalone references. No redundancy with persona-design.md (complementary). |
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-polling-review-skills.md — clean. 59 lines, 12 sections. No overlap with corpus. All 4 See also valid. |
+| 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | gitlab-cli.md — deleted duplicate "Repointing MR Target Branches" section (canonical in git-patterns.md). 1 LOW: `--name-only` flag contradiction with fetch-review-data.md. |
 
 ## Deep Dive Status
 
@@ -78,7 +79,7 @@ Suggested iterations: 10
 | claude-authoring-learnings.md | done | 11 | 0H+2M applied: compressed discoverability stack into cross-ref convention, removed inline examples. ~103 lines. |
 | claude-authoring-personas.md | done | 12 | Clean. 108 lines, 14 sections, all standalone references. Cross-ref to hub valid. |
 | claude-authoring-polling-review-skills.md | done | 13 | Clean. 59 lines, 12 patterns, all standalone. No overlap with cross-ref targets. |
-| gitlab-cli.md | pending | — | Unreviewed |
+| gitlab-cli.md | done | 14 | 1H applied: deleted duplicate repointing section (canonical in git-patterns.md). 1 LOW: --name-only flag contradiction with fetch-review-data.md. ~8 lines remaining. |
 | java-observability.md | pending | — | Unreviewed |
 | order-book-pricing.md | pending | — | Unreviewed |
 | python-specific.md | pending | — | Unreviewed |

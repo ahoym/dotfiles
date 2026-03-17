@@ -1,13 +1,5 @@
 # GitLab CLI (glab)
 
-## Repointing MR Target Branches
-
-Repoint an MR's target branch (e.g., for stacked MR chains):
-
-```bash
-glab mr update <MR_ID> --target-branch <branch-name>
-```
-
 ## Flag Differences from gh CLI
 
 - `glab mr list --all` shows all states (open/merged/closed). There is no `--state` flag — use `--all` or no flag (defaults to open).

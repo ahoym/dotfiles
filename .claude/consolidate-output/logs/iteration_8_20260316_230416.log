@@ -1,0 +1,6 @@
+✅ **Deep dive 8 complete — accessibility-patterns.md**
+
+- **File**: 70 lines, 6 patterns + checklist — already lean, no compression needed
+- **Actions**: 2 MEDIUMs applied — bidirectional cross-refs between `accessibility-patterns.md` ↔ `react-patterns.md`
+- **Tracker**: accessibility-patterns.md added (run 13), react-patterns.md reset to 0 (modified)
+- **Next candidate**: aws-patterns.md (unreviewed)
