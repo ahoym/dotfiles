@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -58,6 +58,7 @@ Suggested iterations: 15
 | 7 | DEEP_DIVE | 0 | 0 | 0 | 0 | path-resolution.md — clean. 2 patterns, both universal path mechanics, KEEP. |
 | 8 | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-invocation.md — clean. 2 patterns, both universal behavioral rules, KEEP. |
 | 9 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-author.md — clean. 8 patterns, judgment-lens content, correct authoring-persona structure, KEEP. |
+| 10 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-reviewer.md — clean. 8 review sections, all STANDALONE REFERENCE. Child-only-adds-unique-content pattern (extends reviewer + claude-config-expert). All inline refs valid. |
 
 ## Deep Dive Status
 
@@ -71,7 +72,7 @@ Suggested iterations: 15
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | done | 7 | Clean — 2 patterns, both STANDALONE REFERENCE. Guideline gate passed. No compression, no cross-refs needed. |
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | done | 8 | Clean — 2 patterns, both universal behavioral rules, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | done | 9 | Clean — 8 patterns, all judgment-lens, correct authoring-persona structure. Known gotchas absent by design (parent covers). No compression, no See also needed. |
-| 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | pending | — | — |
+| 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | done | 10 | Clean — 8 review sections, all STANDALONE REFERENCE. Structural deviations intentional (parent coverage pattern). All inline refs valid. |
 | 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | pending | — | — |
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | pending | — | — |
 | 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | pending | — | — |
@@ -170,6 +171,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 10
+
+**Deep dive 7 of 30**: `claude-config-reviewer.md` (persona, unreviewed, tier 2) — CLEAN.
+- 8 review sections covering every config content type: Skills, Skill references, Templates, Guidelines, Learnings, Personas, CLAUDE.md, Memory.
+- All STANDALONE REFERENCE — review-lens checklists unique to this persona's scope.
+- Structural pattern: "child only adds what's unique to its domain." No Domain priorities/tradeoffs/proactive loads — inherited from `reviewer` (generic review lens) and `claude-config-expert` (domain knowledge). Same intentional deviation pattern as `claude-config-author.md`.
+- All 6 inline `> Full criteria:` refs to `claude-authoring-*.md` learnings are valid (all present in tracker).
+- No `## See also` needed — parents + inline refs handle lateral discovery.
+- Key insight: When a persona child extends two parents where one supplies domain knowledge (claude-config-expert) and one supplies the review lens (reviewer), the child only needs to add domain-specific review checklists. Don't flag absence of Domain priorities / tradeoffs / proactive loads as gaps — they're structural inheritance, not missing content.
+- Next: candidate 8 = `java-infosec.md` (persona, unreviewed, tier 2).
 
 ### Iter 9
 
