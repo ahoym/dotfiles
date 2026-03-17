@@ -1,0 +1,22 @@
+# Decision Log
+
+All consolidation actions and judgments, logged for auditability and rollback.
+
+**Format**: Every action (HIGH auto-applied, MEDIUM judged, persona enrichment) gets a row. The Decision column shows `applied`, `blocked`, or `skipped`. The Rationale column explains why — especially important for MEDIUM judgments where the agent exercised autonomous discretion.
+
+| Iter | Content Type | Action | Source | Target | Confidence | Decision | Rationale |
+|------|-------------|--------|--------|--------|------------|----------|-----------|
+| 1 | LEARNINGS | Remove stale internal ref | ci-cd-gotchas.md | — | MEDIUM | applied | "See ci-cd.md for full YAML examples" — ci-cd.md has no YAML examples; stale reference |
+| 1 | LEARNINGS | Cross-ref wiring | parallel-plans.md | multi-agent-patterns.md | MEDIUM | applied | Shared agent orchestration concerns; non-obvious lateral link (different mental model — "plans" vs "agents") |
+| 1 | LEARNINGS | Cross-ref wiring | spring-boot.md | postgresql-query-patterns.md | MEDIUM | applied | Migration safety patterns complement Spring Boot Flyway gotchas; not keyword-discoverable |
+| 1 | LEARNINGS | Cross-ref wiring | newman-postman.md | local-dev-seeding.md | MEDIUM | applied | Newman is the API seeding layer in the hybrid architecture; bidirectional discovery value |
+| 1 | LEARNINGS | Cross-ref wiring | local-dev-seeding.md | newman-postman.md | MEDIUM | applied | Bidirectional complement of M4 |
+
+## Methodology Loaded (Iter 1)
+
+First invocation — loaded all methodology references:
+- classification-model.md: 6-bucket model (skill candidate, template, context, guideline candidate, standalone reference, outdated). Migration litmus test: "Would this change how I execute?" Context cost check for @-referenced files.
+- claude-authoring-content-types.md: Content type routing table. Quick decision tree.
+- persona-design.md: 4-section structure, 60-80 line mature size, suggestion criteria (3+ files, 8+ patterns).
+- curation-insights.md: Cadence check, rename=HIGH, inline analysis <25 files, post-prune cross-ref cleanup, compression targets (provenance, self-assessments, debugging trails, verbose code).
+- SKILL.md (curate): Content mode vs skill mode, broad sweep variant, multi-file pipelines.

@@ -199,3 +199,7 @@ Tests may compile with the wrong enum type if both are structurally compatible. 
 ### Entity ID Strategy Must Match Usage Site
 
 When modifying `@Id` generation annotations, grep for all entity creation sites to verify alignment. See also: `@UuidGenerator` silently overwrites application-assigned IDs (above).
+
+## See also
+
+- `postgresql-query-patterns.md` — window functions, CTEs, indexing strategy, migration safety patterns (complements the Spring Boot migration gotchas here)

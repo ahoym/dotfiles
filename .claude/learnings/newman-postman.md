@@ -71,3 +71,7 @@ When a branch re-exports a Postman collection with different indentation (2-spac
 **Root cause:** Postman's export format isn't stable — different Postman versions or export methods produce different whitespace. Git's line-based diff can't match any lines between the two indentation styles.
 
 **Solution:** Use programmatic JSON merge (see `git-patterns.md` → "Programmatic JSON Merge for Rebase Conflicts"). Normalize both versions through `json.loads()`, diff semantically, and reconstruct the merged output.
+
+## See also
+
+- `local-dev-seeding.md` — hybrid API + SQL seeding architecture using Newman as the API seeding layer
