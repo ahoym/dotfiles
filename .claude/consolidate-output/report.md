@@ -40,6 +40,7 @@
 | 12 | DEEP_DIVE | clean deep-dive | reviewer.md | — | — |
 | 13 | DEEP_DIVE | clean deep-dive | code-quality-checklist.md | — | — |
 | 14 | DEEP_DIVE | fix-stale-consumer-description | corpus-cross-reference.md | — | HIGH |
+| 15 | DEEP_DIVE | add-missing-variable | platform-detection.md | Usage in Skills block | HIGH |
 
 ## Blocked Items
 

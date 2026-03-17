@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | reviewer.md — clean. 10 patterns all STANDALONE REFERENCE. Base persona pattern confirmed (no Known gotchas; children add domain gotchas). |
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-checklist.md — clean. 2 patterns both STANDALONE REFERENCE. Extraction heuristics + counter-heuristics. 2 consumers (do-refactor-code, parallel-plan/execute), no inline duplication. KEEP. |
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | corpus-cross-reference.md — 1 HIGH (fixed stale consumer description; learnings:curate not a consumer). 1 LOW: taxonomy overlap with content-mode.md (reference-file gate ambiguous). |
+| 15 | DEEP_DIVE | 1 | 0 | 0 | 1 | platform-detection.md — 1 HIGH (added EDIT_CMD="gh pr edit"|"glab mr update" to Usage in Skills; $EDIT_CMD referenced in create-request but undefined). All 3 patterns STANDALONE REFERENCE, KEEP. |
 
 ## Deep Dive Status
 
@@ -81,7 +82,7 @@ Suggested iterations: 15
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | done | 12 | Clean — 10 patterns, all STANDALONE REFERENCE. Base persona pattern (no Known gotchas; children add domain gotchas). Proactive loads correct. |
 | 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | done | 13 | Clean — 2 patterns both STANDALONE REFERENCE. Extraction heuristics, 2 consumers, no inline duplication in consumers. KEEP. |
 | 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | done | 14 | 1 HIGH applied — fixed stale consumer description (removed learnings:curate claim). 1 LOW: Coverage Match Types taxonomy overlap with content-mode.md step 3. 2 patterns both STANDALONE REFERENCE. KEEP. |
-| 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | pending | — | — |
+| 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | done | 15 | 1 HIGH applied — added EDIT_CMD to Usage in Skills variable block ($EDIT_CMD used in create-request but undefined). 7 consumers confirmed. All 3 patterns STANDALONE REFERENCE, KEEP. |
 | 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | pending | — | — |
 | 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | pending | — | — |
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
@@ -175,6 +176,15 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 15
+
+**Deep dive 12 of 30**: `platform-detection.md` (skill-reference, unreviewed, tier 2) — 1 HIGH applied.
+- Reference-file gate: 7 consumers — create-request, resolve-conflicts, split-request, explore-request, repoint-branch, extract-request-learnings (6 skills) + request-interaction-base.md (skill-ref). Neither inlines detection logic — all delegate to this file.
+- HIGH applied: `$EDIT_CMD` was used in `create-request/SKILL.md:69` but not defined in any reference file. Added `EDIT_CMD="gh pr edit"|"glab mr update"` (GitHub from github/pr-management.md, GitLab from gitlab/pr-management.md).
+- 3 patterns: Detection Logic (ordered checks: git remote → directory markers → ask user), Platform Mapping (lookup table), Usage in Skills (variable naming convention). All STANDALONE REFERENCE, KEEP.
+- Key insight: When a skill-reference defines platform variable names (CLI, REVIEW_UNIT, CREATE_CMD, etc.), verify all variable names used in consumers are actually defined. Self-referential gaps are easy to miss because the variable name ($EDIT_CMD) looks plausible — the missing definition is invisible until you cross-check consumer usage.
+- Next: candidate 13 = `request-interaction-base.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 14
 
