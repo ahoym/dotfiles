@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md |
+| DEEP_DIVE_CANDIDATES | gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md |
 
 ## Pre-Flight
 
@@ -60,6 +60,7 @@ Suggested iterations: 10
 | 10 | DEEP_DIVE | 3 | 0 | 0 | 3 | claude-authoring-claude-md.md — removed 2 takeaway lines, deleted section duplicated by path-resolution.md guideline. ~8 lines saved. |
 | 11 | DEEP_DIVE | 0 | 2 | 0 | 2 | claude-authoring-learnings.md — merged discoverability stack into cross-ref convention, removed inline examples. ~11 lines saved. |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-personas.md — clean. 108 lines, 14 sections, all standalone references. No redundancy with persona-design.md (complementary). |
+| 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-polling-review-skills.md — clean. 59 lines, 12 sections. No overlap with corpus. All 4 See also valid. |
 
 ## Deep Dive Status
 
@@ -76,7 +77,7 @@ Suggested iterations: 10
 | claude-authoring-claude-md.md | done | 10 | 3H applied: removed 2 takeaway lines, deleted @ References section (duplicate of path-resolution.md guideline). ~142 lines. |
 | claude-authoring-learnings.md | done | 11 | 0H+2M applied: compressed discoverability stack into cross-ref convention, removed inline examples. ~103 lines. |
 | claude-authoring-personas.md | done | 12 | Clean. 108 lines, 14 sections, all standalone references. Cross-ref to hub valid. |
-| claude-authoring-polling-review-skills.md | pending | — | Unreviewed |
+| claude-authoring-polling-review-skills.md | done | 13 | Clean. 59 lines, 12 patterns, all standalone. No overlap with cross-ref targets. |
 | gitlab-cli.md | pending | — | Unreviewed |
 | java-observability.md | pending | — | Unreviewed |
 | order-book-pricing.md | pending | — | Unreviewed |
@@ -298,4 +299,14 @@ Suggested iterations: 10
 
 **Tracker**: claude-authoring-personas.md added (run 13).
 
-**Next candidate**: claude-authoring-polling-review-skills.md (unreviewed)
+**Next candidate**: gitlab-cli.md (unreviewed)
+
+### Iter 13
+
+**Deep dive: claude-authoring-polling-review-skills.md** (59 lines, 12 sections)
+
+**No actions** — clean file. All 12 sections are compact standalone references (~4.9 lines/pattern). No overlap with process-conventions.md (footnote template vs detection usage), claude-authoring-skills.md (generic skill design vs polling-specific), or multi-agent-patterns.md (review architecture vs polling mechanics). All 4 See also entries valid and bidirectional. No compression candidates — already maximally compact.
+
+**Tracker**: claude-authoring-polling-review-skills.md added (run 13).
+
+**Next candidate**: gitlab-cli.md (unreviewed)
