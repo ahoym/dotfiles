@@ -4,8 +4,8 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
-| CONTENT_TYPE | SKILLS |
+| SWEEP_COUNT | 2 |
+| CONTENT_TYPE | GUIDELINES |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -50,6 +50,7 @@ Suggested iterations: 15
 | Iter | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, ~1200 patterns. Well-maintained from run 13. |
+| 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 16 skill-references. All consumers wired, no stale model strings. |
 
 ## Deep Dive Status
 
@@ -91,3 +92,17 @@ Suggested iterations: 15
 
 **Deep dive candidates from LEARNINGS** (criterion 1 — hub):
 - claude-authoring-content-types.md (6+ inbound refs)
+
+### Iter 2
+
+**SKILLS sweep** (31 skills, 16 skill-references):
+- 5 clusters: git:* (10), learnings:* (4), ralph:* (7), parallel-plan:* (2), standalone (8)
+- No overlap (80%+) detected between any pair
+- All 16 skill-references have consumers (including transitively via platform cluster pattern)
+- Co-Authored-By strings all current (Claude Opus 4.6)
+- No namespace gaps, no stale references, no scope issues
+
+**Deep dive candidates from SKILLS** (criterion 6 — unreviewed, criterion 7 — stale):
+- 26 skills never deep-dived (criterion 6)
+- 5 tracked skills stale at threshold (criterion 7): quantum-tunnel-claudes, extract-request-learnings, split-commit, consolidate, ralph:consolidate:init
+- Prioritization: unreviewed skills/skill-refs/guidelines first per spec

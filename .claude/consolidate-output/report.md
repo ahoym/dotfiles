@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -15,9 +15,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 0 | 0 | 0 | 0 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **0** | **0** | **0** | **0** |
+| **Total** | **2** | **0** | **0** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -26,6 +26,7 @@
 | Iter | Content Type | Action | Source | Target | Confidence |
 |------|-------------|--------|--------|--------|------------|
 | 1 | LEARNINGS | clean sweep | 58 files | — | — |
+| 2 | SKILLS | clean sweep | 31 skills, 16 refs | — | — |
 
 ## Blocked Items
 
