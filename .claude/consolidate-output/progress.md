@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| SWEEP_COUNT | 3 |
+| CONTENT_TYPE | — (broad sweeps complete) |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -39,7 +39,7 @@ Suggested iterations: 15
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -50,13 +50,25 @@ Suggested iterations: 15
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 5 | 0 | 5 applied (1 stale ref removal, 4 cross-ref wirings) | Clean collection — no duplicates, no stale content, no misplaced files. 5 cross-ref graph improvements. |
 | 2 | SKILLS | 0 | 1 | 0 | 1 applied (persona de-enrichment) | 31 skills, 11 personas, 16 skill-refs evaluated. No skill overlap/staleness. 1 cross-persona dedup: java-devops inline gotchas → reference. |
+| 3 | GUIDELINES | 0 | 0 | 0 | 0 (clean) | 4 guidelines, all @-referenced, all behavioral/universal. No duplication, no compression opportunities. Transitioned to DEEP_DIVE phase with 13 candidates. |
 
 ## Deep Dive Status
 
-<!-- Populated when PHASE transitions to DEEP_DIVE after broad sweeps complete -->
-
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| claude-authoring-content-types.md | PENDING | — | Hub (5+ inbound refs) |
+| multi-agent-patterns.md | PENDING | — | Hub (6 inbound refs) |
+| claude-code.md | PENDING | — | Hub (5 inbound refs) |
+| git-patterns.md | PENDING | — | 234 lines, potential overlap with claude-code.md |
+| spring-boot.md | PENDING | — | Polish Opportunity (compression) |
+| process-conventions.md | PENDING | — | Polish Opportunity (compression) |
+| code-quality-instincts.md | PENDING | — | Polish Opportunity (compression) |
+| financial-applications.md | PENDING | — | Polish Opportunity (compression) |
+| java-devops.md | PENDING | — | Modified (de-enrichment in sweep 2) |
+| ci-cd-gotchas.md | PENDING | — | Stale + modified (sweep 1) |
+| parallel-plans.md | PENDING | — | Stale + modified (sweep 1) |
+| newman-postman.md | PENDING | — | Stale + modified (sweep 1) |
+| local-dev-seeding.md | PENDING | — | Stale + modified (sweep 1) |
 
 ## Notes for Next Iteration
 
@@ -102,3 +114,19 @@ Suggested iterations: 15
 - Co-Authored-By strings: all current (Claude Opus 4.6)
 - Cross-persona: java-devops inline observability gotchas de-enriched → 1-line summary + reference (content already in proactive-loaded java-observability-gotchas.md)
 - Deep dive candidates from SKILLS sweep: java-devops.md (modified — de-enrichment)
+
+### Iter 3
+
+**GUIDELINES sweep findings:**
+- 4 guidelines: communication.md, context-aware-learnings.md, path-resolution.md, skill-invocation.md
+- All @-referenced from `.claude/CLAUDE.md` (always-on context)
+- All behavioral/universal — no domain-specific content, no overlap with learnings/skills/personas
+- No compression opportunities: communication.md is largest but detail = value; context-aware-learnings.md is procedural; other 2 are already terse
+- No unreferenced guidelines, no reference material masquerading as behavioral guideline
+- Clean sweep: 0 HIGHs, 0 MEDIUMs, 0 LOWs
+
+**Transition to DEEP_DIVE:**
+- Broad sweeps complete (L→S→G). 13 deep dive candidates identified:
+  - Modification-triggered (priority): 3 hubs, 1 size concern, 4 Polish Opportunities, 1 modified persona
+  - Staleness fill: 4 files with last_deep_dive_run=0 (all modified in sweep 1)
+- Exceeds min_deep_dives=10

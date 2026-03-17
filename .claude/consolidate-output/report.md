@@ -7,8 +7,8 @@
 | Started | 2026-03-16T00:00 |
 | Branch | consolidate/2026-03-16 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16 |
-| Iterations | 2 |
-| Status | IN_PROGRESS |
+| Iterations | 3 |
+| Status | IN_PROGRESS (DEEP_DIVE phase) |
 
 ## Summary
 
@@ -16,8 +16,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 0 | 5 | 0 | 0 |
 | Skills | 1 | 0 | 1 | 0 | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **2** | **0** | **6** | **0** | **0** |
+| Guidelines | 1 | 0 | 0 | 0 | 0 |
+| **Total** | **3** | **0** | **6** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -29,6 +29,7 @@
 | 1 | LEARNINGS | Cross-ref wiring | newman-postman.md | local-dev-seeding.md | MEDIUM |
 | 1 | LEARNINGS | Cross-ref wiring | local-dev-seeding.md | newman-postman.md | MEDIUM |
 | 2 | SKILLS | Persona de-enrichment | java-devops.md | java-observability-gotchas.md | MEDIUM |
+| 3 | GUIDELINES | (clean sweep) | — | — | — |
 
 ## Blocked Items
 
@@ -44,5 +45,5 @@ See `blockers.md` for details.
 |--------|--------|-------|
 | Learnings files | 58 | 58 |
 | Skills | 31 | 31 |
-| Guidelines files | 4 | — |
+| Guidelines files | 4 | 4 |
 | Persona files | 11 | 11 |
