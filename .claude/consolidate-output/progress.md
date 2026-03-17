@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -56,6 +56,7 @@ Suggested iterations: 15
 | 5 | DEEP_DIVE | 0 | 0 | 0 | 0 | communication.md — clean. 14 patterns, all universal behavioral guidelines, KEEP. |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | context-aware-learnings.md — clean. 8 patterns, all universal protocol sections, KEEP. |
 | 7 | DEEP_DIVE | 0 | 0 | 0 | 0 | path-resolution.md — clean. 2 patterns, both universal path mechanics, KEEP. |
+| 8 | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-invocation.md — clean. 2 patterns, both universal behavioral rules, KEEP. |
 
 ## Deep Dive Status
 
@@ -67,7 +68,7 @@ Suggested iterations: 15
 | 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | done | 5 | Clean — 14 patterns, all universal behavioral guidelines, KEEP. No duplication, no compression, no cross-refs needed. |
 | 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | done | 6 | Clean — 8 patterns, all universal protocol sections, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | done | 7 | Clean — 2 patterns, both STANDALONE REFERENCE. Guideline gate passed. No compression, no cross-refs needed. |
-| 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | pending | — | — |
+| 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | done | 8 | Clean — 2 patterns, both universal behavioral rules, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | pending | — | — |
 | 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | pending | — | — |
 | 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | pending | — | — |
@@ -168,6 +169,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 8
+
+**Deep dive 5 of 30**: `skill-invocation.md` (guidelines, unreviewed, tier 2) — CLEAN.
+- 2 patterns: "Always use the Skill tool for slash commands", "Don't ask permission to invoke skills within a skill's instructions". Both STANDALONE REFERENCE.
+- Guideline gate passed — pure behavioral rules about skill dispatch, applies equally to any agent regardless of stack.
+- No overlap with other guidelines (all 4 guidelines are orthogonal: communication=behavior, path-resolution=tooling, context-aware-learnings=search protocol, skill-invocation=skill dispatch).
+- No compression ≥30% — file is 13 lines, tight.
+- No `## See also` warranted — "skill", "Skill tool", "slash command" vocabulary is keyword-discoverable.
+- Key insight: A small guidelines file (2 patterns, 13 lines) that covers a narrow but critical behavioral rule (always use Skill tool, never bypass) is correctly sized — it's not a thin pointer file. Thin pointers are mostly cross-references; this is pure operational content.
+- Next: candidate 6 = `claude-config-author.md` (persona, unreviewed, tier 2).
 
 ### Iter 7
 

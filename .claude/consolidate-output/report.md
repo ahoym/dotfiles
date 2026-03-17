@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 7 |
+| Iterations | 8 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -33,6 +33,7 @@
 | 5 | DEEP_DIVE | clean deep-dive | communication.md | — | — |
 | 6 | DEEP_DIVE | clean deep-dive | context-aware-learnings.md | — | — |
 | 7 | DEEP_DIVE | clean deep-dive | path-resolution.md | — | — |
+| 8 | DEEP_DIVE | clean deep-dive | skill-invocation.md | — | — |
 
 ## Blocked Items
 
