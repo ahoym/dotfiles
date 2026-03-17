@@ -6,7 +6,7 @@ Read by the consolidation agent when `PHASE` is `DEEP_DIVE`. Not needed during b
 
 Each deep dive invocation processes ONE file (preserves the one-sweep-per-invocation model):
 
-1. **Read `.claude/commands/learnings/curate/SKILL.md`** and follow its Content Mode methodology (steps 2–6) for the target file. Overrides for autonomous context:
+1. **Read `.claude/commands/learnings/curate/SKILL.md`** and follow its Content Mode methodology (steps 2–6) for the target file. For `skill-references/*` files, apply the **reference-file gate** (learnings:curate step 4a): deduplication is removed from consuming skills, not from the reference. Overrides for autonomous context:
    - **Step 1 (target)**: Already determined — use the next file from DEEP_DIVE_CANDIDATES
    - **Step 7 (report)**: Skip — no interactive report needed
    - **Step 8 (approval)**: Instead of `AskUserQuestion`, auto-apply HIGHs and MEDIUMs (log each in decisions.md with rationale). Record LOWs in review.md.

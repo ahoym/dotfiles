@@ -167,10 +167,12 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Write(~/.claude/learnings/**)",
 "Write(~/.claude/learnings-private/**)",
 "Write(~/.claude/guidelines/**)",
+"Write(~/.claude/skill-references/**)",
 "Edit(~/.claude/commands/**)",
 "Edit(~/.claude/learnings/**)",
 "Edit(~/.claude/learnings-private/**)",
-"Edit(~/.claude/guidelines/**)"
+"Edit(~/.claude/guidelines/**)",
+"Edit(~/.claude/skill-references/**)"
 ```
 
 ## Important Notes

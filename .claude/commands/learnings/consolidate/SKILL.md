@@ -56,7 +56,8 @@ Key points from learnings:curate to apply on every sweep:
 - Cross-reference thoroughly before classifying
 - After clustering (learnings phase), run **concept-name collision detection**: grep for identical or near-identical H2/H3 headings across all files. Flag matches as HIGH-confidence duplicate candidates regardless of cluster membership. This catches cross-file duplicates that cluster-level analysis misses.
 - Use the appropriate report format for each content type
-- **Deep dive candidates** are extracted from the broad sweep report's "Suggested Deep Dives" section. After clean VERIFICATION, run targeted per-file analysis via subagents. Only applies to LEARNINGS and GUIDELINES — skills use skill mode (per-skill evaluation), not per-pattern analysis.
+- **Deep dive candidates** are extracted from the broad sweep report's "Suggested Deep Dives" section. After clean VERIFICATION, run targeted per-file analysis via subagents. Applies to LEARNINGS, GUIDELINES, and SKILL-REFERENCES (all use content mode). Skills use skill mode (per-skill evaluation) in the broad sweep but are deep-dive eligible when modified. Skill-references use content mode with the reference-file gate (dedup from consumers, not from the reference).
+- **Deep dive prioritization**: modification-triggered first, then unreviewed (skills/skill-references/guidelines before learnings), then stale (same ordering). Higher-leverage content types are prioritized because they drive workflows and always-on context cost.
 
 ### Content Type Progression
 
@@ -474,6 +475,7 @@ Generate the final consolidation report:
 
 - **Learnings**: N files, ~M patterns
 - **Skills**: K skill directories
+- **Skill references**: R files
 - **Guidelines**: J guideline files
 - **Personas**: P persona files
 - **Status**: [Fully curated | N items remaining for manual review]
@@ -632,10 +634,12 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Write(~/.claude/learnings/**)",
 "Write(~/.claude/learnings-private/**)",
 "Write(~/.claude/guidelines/**)",
+"Write(~/.claude/skill-references/**)",
 "Edit(~/.claude/commands/**)",
 "Edit(~/.claude/learnings/**)",
 "Edit(~/.claude/learnings-private/**)",
-"Edit(~/.claude/guidelines/**)"
+"Edit(~/.claude/guidelines/**)",
+"Edit(~/.claude/skill-references/**)"
 ```
 
 ## Related Skills

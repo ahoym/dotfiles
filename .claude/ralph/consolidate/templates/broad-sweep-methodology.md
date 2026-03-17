@@ -39,7 +39,18 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
 - **Cross-ref wiring**: Add `## See also` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
 
-**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase.
+**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`.claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files.
+
+## SKILL-REFERENCES — Consumer Wiring Check
+
+During the SKILLS broad sweep (step 4 above), also scan skill-references for consumer health:
+
+1. **Read all skill-references**: Glob `.claude/skill-references/**/*.md`
+2. **Consumer wiring**: For each skill-reference, grep skill directories for references to its filename. An unreferenced skill-reference is dead weight — HIGH delete candidate.
+3. **Staleness**: Cross-reference content against the learnings and skills it supports. Stale patterns → HIGH update or delete.
+4. **Duplication with learnings**: Check if a skill-reference duplicates content already in a learnings file. Dedup from the consuming skill (not from the reference) per the reference-file gate.
+
+Record findings inline with the SKILLS sweep classifications. Skill-references share the SKILLS sweep — they don't get a separate broad sweep pass.
 
 ## SKILLS — Skill Mode
 
