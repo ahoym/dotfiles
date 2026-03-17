@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md |
+| DEEP_DIVE_CANDIDATES | ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md |
 
 ## Pre-Flight
 
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | 9 | DEEP_DIVE | 0 | 3 | 0 | 3 applied (Takeaway compression) | process-conventions.md — 166→163 lines. 28 patterns, all keep. Removed 3 redundant Takeaway lines. Cross-refs valid bidirectional. 7 inbound refs verified. No duplication. |
 | 10 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (Takeaway compression) | code-quality-instincts.md — 131→113 lines (~14% compression). 26 patterns, all keep. Removed 9 redundant Takeaway lines. 12+ inbound refs. 2 outbound cross-refs bidirectional ✓. No duplication. |
 | 11 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (Takeaway compression + cross-ref) | financial-applications.md — 64→52 lines (~19% compression). 9 patterns, all keep. Removed 6 redundant Takeaway lines. Added back-ref from bignumber-financial-arithmetic.md. 3 inbound refs verified. No duplication. |
+| 12 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | java-devops.md — 35 lines, 6 sections. Extends platform-engineer. De-enrichment from sweep 2 verified clean. No overlap with java-backend or platform-engineer. All refs valid. |
 
 ## Deep Dive Status
 
@@ -72,7 +73,7 @@ Suggested iterations: 15
 | process-conventions.md | DONE | 9 | 3 MEDIUMs applied: Takeaway compression (166→163 lines, 3 redundant removed). Cross-refs valid bidirectional. 28 patterns, all keep. |
 | code-quality-instincts.md | DONE | 10 | 1 MEDIUM applied: Takeaway compression (131→113 lines, 9 redundant removed). 26 patterns, all keep. 12+ inbound refs (hub). 2 outbound cross-refs bidirectional ✓. No duplication. |
 | financial-applications.md | DONE | 11 | 2 MEDIUMs applied: Takeaway compression (64→52 lines, 6 redundant removed) + cross-ref to bignumber-financial-arithmetic.md. 9 patterns, all keep. No duplication. |
-| java-devops.md | PENDING | — | Modified (de-enrichment in sweep 2) |
+| java-devops.md | DONE | 12 | Clean — 35 lines, 6 sections. Extends platform-engineer correctly (specializes, no duplication). De-enrichment from sweep 2 verified (1-line judgment + reference). No overlap with java-backend. All refs valid. |
 | ci-cd-gotchas.md | PENDING | — | Stale + modified (sweep 1) |
 | parallel-plans.md | PENDING | — | Stale + modified (sweep 1) |
 | newman-postman.md | PENDING | — | Stale + modified (sweep 1) |
@@ -219,3 +220,13 @@ Suggested iterations: 15
 - **Cross-ref audit**: resilience-patterns.md bidirectional ✓. api-design.md unidirectional (api-design→financial-applications) — acceptable direction (generic→domain). java-backend.md persona ref — no back-ref needed.
 - **No duplication**: All 9 patterns are domain-specific financial/payment patterns. No overlap with resilience-patterns.md (system-level resilience), api-design.md (generic API), or bignumber-financial-arithmetic.md (different language/stack).
 - Next: java-devops.md (Modified — de-enrichment in sweep 2)
+
+### Iter 12
+
+**Deep dive: java-devops.md (clean)**
+- Persona file, 35 lines, 6 sections. Extends platform-engineer. Modified in sweep 2 (de-enrichment of inline observability gotchas).
+- **De-enrichment verification**: Known gotchas § Metrics & Observability now has 1-line judgment summary ("Follow the 6-step metrics discussion process...") + reference to java-observability-gotchas.md. Factual content properly in learning file. Clean.
+- **Overlap check**: No duplication with platform-engineer (proper specialization — generic observability narrowed to JVM/Micrometer), java-backend (different lenses — devops=infra/ops, backend=app dev), or any learnings files.
+- **Cross-ref audit**: java-observability-gotchas.md in Known gotchas (context) + Proactive loads (trigger). java-observability.md in Detailed references. All files exist.
+- **Structure**: Observability approach section (lines 10-15) contains lens-type judgment heuristics — proper persona content, not factual gotchas.
+- Next: ci-cd-gotchas.md (Stale + modified in sweep 1)
