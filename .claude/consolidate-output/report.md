@@ -7,7 +7,7 @@
 | Started | 2026-03-16T00:00 |
 | Branch | consolidate/2026-03-16 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16 |
-| Iterations | 3 |
+| Iterations | 4 |
 | Status | IN_PROGRESS (DEEP_DIVE phase) |
 
 ## Summary
@@ -30,6 +30,7 @@
 | 1 | LEARNINGS | Cross-ref wiring | local-dev-seeding.md | newman-postman.md | MEDIUM |
 | 2 | SKILLS | Persona de-enrichment | java-devops.md | java-observability-gotchas.md | MEDIUM |
 | 3 | GUIDELINES | (clean sweep) | — | — | — |
+| 4 | DEEP_DIVE | (clean) | claude-authoring-content-types.md | — | — |
 
 ## Blocked Items
 

@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md |
 
 ## Pre-Flight
 
@@ -51,12 +51,13 @@ Suggested iterations: 15
 | 1 | LEARNINGS | 0 | 5 | 0 | 5 applied (1 stale ref removal, 4 cross-ref wirings) | Clean collection — no duplicates, no stale content, no misplaced files. 5 cross-ref graph improvements. |
 | 2 | SKILLS | 0 | 1 | 0 | 1 applied (persona de-enrichment) | 31 skills, 11 personas, 16 skill-refs evaluated. No skill overlap/staleness. 1 cross-persona dedup: java-devops inline gotchas → reference. |
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 (clean) | 4 guidelines, all @-referenced, all behavioral/universal. No duplication, no compression opportunities. Transitioned to DEEP_DIVE phase with 13 candidates. |
+| 4 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | claude-authoring-content-types.md — hub with 13+ inbound refs. 11 sections all correctly placed. 6 spoke files verified. Hub-spoke layering correct (summary in hub, detail in spokes). No overlap, no compression opportunities. |
 
 ## Deep Dive Status
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
-| claude-authoring-content-types.md | PENDING | — | Hub (5+ inbound refs) |
+| claude-authoring-content-types.md | DONE | 4 | Clean — 11 sections, all keep. 6 spoke refs verified. No overlap/compression. |
 | multi-agent-patterns.md | PENDING | — | Hub (6 inbound refs) |
 | claude-code.md | PENDING | — | Hub (5 inbound refs) |
 | git-patterns.md | PENDING | — | 234 lines, potential overlap with claude-code.md |
@@ -130,3 +131,13 @@ Suggested iterations: 15
   - Modification-triggered (priority): 3 hubs, 1 size concern, 4 Polish Opportunities, 1 modified persona
   - Staleness fill: 4 files with last_deep_dive_run=0 (all modified in sweep 1)
 - Exceeds min_deep_dives=10
+
+### Iter 4
+
+**Deep dive: claude-authoring-content-types.md (clean)**
+- Hub file, 123 lines, 11 sections, 13+ inbound refs from skills, personas, learnings spokes, and curate infrastructure
+- All 6 spoke files in "Authoring Guides" section verified to exist
+- Hub-spoke layering correct: hub has summary/routing, spokes have deep treatment. No duplication.
+- "Converting Guidelines to Skills" and `claude-authoring-skills.md` → "Guidelines-to-Skills Migration" are complementary (hub=mechanical process, spoke=decision criteria)
+- No compression opportunities — 123 lines is lean for a 13-consumer hub
+- Next: multi-agent-patterns.md (hub, 6 inbound refs)
