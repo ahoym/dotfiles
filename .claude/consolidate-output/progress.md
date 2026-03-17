@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md |
+| DEEP_DIVE_CANDIDATES | local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md |
 
 ## Pre-Flight
 
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | java-devops.md — 35 lines, 6 sections. Extends platform-engineer. De-enrichment from sweep 2 verified clean. No overlap with java-backend or platform-engineer. All refs valid. |
 | 13 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (cross-ref wiring) | ci-cd-gotchas.md — 36 lines, 19 patterns. 2 MEDIUMs: added See also back-refs from ci-cd.md and gitlab-ci-cd.md. No overlap with companions or typescript-ci-gotchas.md. |
 | 14 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (cross-ref wiring) | parallel-plans.md — 146 lines, 15 patterns. 1 MEDIUM: added back-ref from multi-agent-patterns.md. No overlap with multi-agent-patterns, claude-code, or process-conventions. No compression opportunities. |
+| 15 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | newman-postman.md — 78 lines, 4 patterns. All standalone reference / keep. Cross-refs valid: local-dev-seeding.md bidirectional ✓, git-patterns.md inline ref ✓. No overlap, no compression. |
 
 ## Deep Dive Status
 
@@ -78,7 +79,7 @@ Suggested iterations: 15
 | java-devops.md | DONE | 12 | Clean — 35 lines, 6 sections. Extends platform-engineer correctly (specializes, no duplication). De-enrichment from sweep 2 verified (1-line judgment + reference). No overlap with java-backend. All refs valid. |
 | ci-cd-gotchas.md | DONE | 13 | 2 MEDIUMs applied: cross-ref wiring to ci-cd.md and gitlab-ci-cd.md (companion back-refs). 19 patterns, all keep. No overlap with companions or typescript-ci-gotchas.md. |
 | parallel-plans.md | DONE | 14 | 1 MEDIUM applied: cross-ref wiring multi-agent-patterns.md back-ref. 15 patterns, all keep. No overlap with multi-agent-patterns.md, claude-code.md, or process-conventions.md. No compression. |
-| newman-postman.md | PENDING | — | Stale + modified (sweep 1) |
+| newman-postman.md | DONE | 15 | Clean — 78 lines, 4 patterns. All keep. Cross-refs valid: local-dev-seeding.md bidirectional ✓, git-patterns.md inline ref ✓. No overlap, no compression. |
 | local-dev-seeding.md | PENDING | — | Stale + modified (sweep 1) |
 
 ## Notes for Next Iteration
@@ -250,3 +251,12 @@ Suggested iterations: 15
 - **Cross-ref audit**: parallel-plans.md → multi-agent-patterns.md ✓ (wired in sweep 1). multi-agent-patterns.md → parallel-plans.md was MISSING. Added back-ref (MEDIUM). multi-agent-patterns See also now has 3 entries: claude-code, claude-authoring-skills, parallel-plans.
 - **No compression opportunities**: All patterns terse, no Takeaway lines, no verbose code blocks.
 - Next: newman-postman.md (Stale + modified in sweep 1)
+
+### Iter 15
+
+**Deep dive: newman-postman.md (clean)**
+- 78 lines, 4 patterns (skipRequest sync-only, conditional assertions, export-environment manifest, Postman rebase conflicts), 1 See also
+- **Cross-ref audit**: local-dev-seeding.md ↔ newman-postman.md bidirectional ✓. git-patterns.md § "Programmatic JSON Merge" inline ref valid ✓ (no back-ref needed — evaluated in iter 7, inline body ref sufficient). java-backend.md persona inbound ref (proactive loads) — no back-ref needed.
+- **Overlap check**: export-environment pattern vs local-dev-seeding.md's bridge pattern are complementary (Newman HOW vs architecture WHY). No duplication.
+- **No compression**: No Takeaway lines, code blocks are essential (show sync vs async race condition), already genericized.
+- Next: local-dev-seeding.md (Stale + modified in sweep 1) — LAST candidate

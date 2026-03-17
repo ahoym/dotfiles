@@ -32,3 +32,9 @@ First invocation — loaded all methodology references:
 - persona-design.md: 4-section structure, 60-80 line mature size, suggestion criteria (3+ files, 8+ patterns).
 - curation-insights.md: Cadence check, rename=HIGH, inline analysis <25 files, post-prune cross-ref cleanup, compression targets (provenance, self-assessments, debugging trails, verbose code).
 - SKILL.md (curate): Content mode vs skill mode, broad sweep variant, multi-file pipelines.
+
+## Iter 15 — Deep Dive: newman-postman.md
+
+| Iter | Type | Action | Source | Target | Confidence | Decision | Rationale |
+|------|------|--------|--------|--------|------------|----------|-----------|
+| 15 | DEEP_DIVE | (clean) | newman-postman.md | — | — | — | 4 patterns, all standalone reference / keep. Cross-refs valid (local-dev-seeding.md bidirectional, git-patterns.md inline). No overlap, no compression. |
