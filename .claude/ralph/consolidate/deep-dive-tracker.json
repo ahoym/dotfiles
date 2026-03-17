@@ -55,6 +55,8 @@
     ".claude/learnings/claude-authoring-learnings.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/claude-authoring-personas.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/claude-authoring-polling-review-skills.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/java-observability.md": { "last_deep_dive_run": 13 }
+    ".claude/learnings/java-observability.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/order-book-pricing.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/xrpl-patterns.md": { "last_deep_dive_run": 0 }
   }
 }

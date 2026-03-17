@@ -207,5 +207,6 @@ Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`te
 - `xrpl-gotchas.md` — condensed XRPL tripwires (companion)
 - `xrpl-dex-data.md` — external API data patterns
 - `bignumber-financial-arithmetic.md` — BigNumber patterns for orderbook/depth
+- `order-book-pricing.md` — mid-price approaches, slippage estimation, midprice module design
 - `xrpl-amm.md` — AMM liquidity interleaving
 

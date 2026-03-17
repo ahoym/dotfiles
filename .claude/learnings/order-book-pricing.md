@@ -41,3 +41,8 @@ This avoids string→BigNumber round-tripping in the UI. The API route calls the
 ## OrderBookEntry.quality Is Optional
 
 xrpl.js `BookOffer.quality` is `string | undefined`. `OrderBookEntry.quality` must be optional to match — otherwise `normalizeOffer` output requires `as OrderBookEntry[]` casts. `buildAsks`/`buildBids` don't use `quality`, so the optionality is safe.
+
+## See also
+
+- `xrpl-patterns.md` — order book fetching (`getOrderbook()`, funded offer fields, depth summary) that feeds into pricing calculations here
+- `bignumber-financial-arithmetic.md` — BigNumber.js arithmetic primitives used in slippage/midprice computations

@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md |
+| DEEP_DIVE_CANDIDATES | python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md |
 
 ## Pre-Flight
 
@@ -63,6 +63,7 @@ Suggested iterations: 10
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-polling-review-skills.md — clean. 59 lines, 12 sections. No overlap with corpus. All 4 See also valid. |
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | gitlab-cli.md — deleted duplicate "Repointing MR Target Branches" section (canonical in git-patterns.md). 1 LOW: `--name-only` flag contradiction with fetch-review-data.md. |
 | 15 | DEEP_DIVE | 0 | 0 | 0 | 0 | java-observability.md — clean. 14 lines, 1 section (Grafana/PromQL patterns). No overlap, already compact. |
+| 16 | DEEP_DIVE | 0 | 2 | 0 | 2 | order-book-pricing.md — added bidirectional cross-refs with xrpl-patterns.md. 44 lines, 4 sections, compact and clean. |
 
 ## Deep Dive Status
 
@@ -82,7 +83,7 @@ Suggested iterations: 10
 | claude-authoring-polling-review-skills.md | done | 13 | Clean. 59 lines, 12 patterns, all standalone. No overlap with cross-ref targets. |
 | gitlab-cli.md | done | 14 | 1H applied: deleted duplicate repointing section (canonical in git-patterns.md). 1 LOW: --name-only flag contradiction with fetch-review-data.md. ~8 lines remaining. |
 | java-observability.md | done | 15 | Clean. 14 lines, 1 section. No overlap with corpus. Compact PromQL/Micrometer reference. |
-| order-book-pricing.md | pending | — | Unreviewed |
+| order-book-pricing.md | done | 16 | 0H+2M applied: added bidirectional cross-refs with xrpl-patterns.md + bignumber-financial-arithmetic.md. 49 lines, clean and compact. |
 | python-specific.md | pending | — | Unreviewed |
 | quarkus-kotlin.md | pending | — | Unreviewed |
 | react-frontend-gotchas.md | pending | — | Unreviewed |
@@ -328,3 +329,19 @@ Suggested iterations: 10
 **No actions** — clean file. Single "Grafana Dashboard Patterns for Micrometer Counters" section with PromQL templates and dashboard structure guidance. Already maximally compact. No overlap anywhere in corpus. Companion gotchas file references this file explicitly.
 
 **Next candidate**: order-book-pricing.md (unreviewed)
+
+### Iter 16
+
+**Deep dive: order-book-pricing.md** (44→49 lines, 4 sections)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` to order-book-pricing.md → xrpl-patterns.md (upstream data: getOrderbook, funded offers, depth summary) + bignumber-financial-arithmetic.md (arithmetic primitives for slippage/midprice)
+- MEDIUM (auto-applied): Added reverse cross-ref from xrpl-patterns.md → order-book-pricing.md (pricing computation layer was missing from existing See also)
+
+**Quality**: Compact file at 44 lines. All 4 sections are standalone references — mid-price approaches (industry standard definitions), slippage estimation (algorithm + code), module design (architecture), OrderBookEntry.quality (xrpl.js type detail). No compression, redundancy, or genericization issues.
+
+**Cross-ref rationale**: xrpl-patterns already referenced bignumber and xrpl-dex-data but not order-book-pricing — the pricing computation layer between raw data and display was a gap. Vocabulary search for "order book" wouldn't find "funded offer fields" or "BigNumber.min".
+
+**Tracker**: order-book-pricing.md added (run 13), xrpl-patterns.md reset to 0 (modified).
+
+**Next candidate**: python-specific.md (unreviewed)

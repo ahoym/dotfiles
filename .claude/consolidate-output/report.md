@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 15 |
-| Status | IN_PROGRESS (deep dives: 12/28 complete) |
+| Iterations | 16 |
+| Status | IN_PROGRESS (deep dives: 13/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 12 | 12 | 16 | 0 | 0 |
-| **Total** | **15** | **12** | **16** | **0** | **0** |
+| Deep Dives | 13 | 12 | 18 | 0 | 0 |
+| **Total** | **16** | **12** | **18** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -41,6 +41,7 @@
 | 13 | DEEP_DIVE | clean sweep | claude-authoring-polling-review-skills.md | — | — |
 | 14 | DEEP_DIVE | delete duplicate section | gitlab-cli.md | git-patterns.md (canonical) | 1 HIGH |
 | 15 | DEEP_DIVE | clean sweep | java-observability.md | — | — |
+| 16 | DEEP_DIVE | add bidirectional cross-refs | order-book-pricing.md ↔ xrpl-patterns.md | — | 2 MEDIUM |
 
 ## Blocked Items
 
