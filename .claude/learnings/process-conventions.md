@@ -119,19 +119,13 @@ Each comment ID is a distinct interaction requiring its own response — even if
 
 Review summaries name themes ("some learnings may not earn their context cost"); inline comments carry the specifics ("this pattern on line 103 is basic OOP"). A reader skimming the summary gets the full picture without clicking into files; a reader reviewing the diff gets details in context. No finding should appear in both places.
 
-- **Takeaway**: Summary = themes grouped by concern; inline = file-specific details. Zero overlap.
-
 ### Emoji reactions for resolved review comments
 
 When re-reviewing a PR and a previous comment has been addressed, react with a 👍 emoji instead of posting a text reply. This signals acknowledgment without creating noise in the comment thread. Reserve text replies for partially-addressed or unresolved findings.
 
-- **Takeaway**: Resolved = emoji react (lightweight); partially addressed = follow-up reply (substantive).
-
 ### Don't post empty reviews
 
 If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
-
-- **Takeaway**: No findings = no post. Silence is a valid review outcome.
 
 ### Verify safeguards survive fixes
 

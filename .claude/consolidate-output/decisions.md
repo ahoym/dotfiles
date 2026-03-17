@@ -16,6 +16,7 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 7 | DEEP_DIVE | Cross-ref wiring | git-patterns.md (See also) | ci-cd-gotchas.md | MEDIUM | applied | git-patterns.md references ci-cd-gotchas.md in See also but ci-cd-gotchas.md had no back-reference. Added See also section with bidirectional link. |
 | 8 | DEEP_DIVE | Takeaway compression | spring-boot.md (24 patterns) | — | MEDIUM | applied | Removed 24 redundant Takeaway lines that restated heading+body. Folded 2 valuable Takeaways into body text (pattern 15: @Data/@Builder recipe; pattern 25: multi-replica safety). Minor body tightening (provenance removal, procedure folding). 205→157 lines (~23% compression). |
 | 8 | DEEP_DIVE | Cross-ref wiring | spring-boot.md (See also) | spring-boot-gotchas.md | MEDIUM | applied | spring-boot-gotchas.md self-describes as "Companion to spring-boot.md" (line 3) but spring-boot.md had no back-reference. Added to See also. |
+| 9 | DEEP_DIVE | Takeaway compression | process-conventions.md (3 patterns) | — | MEDIUM | applied | Removed 3 redundant Takeaway lines (lines 122, 128, 134) that restated heading+body: "Review summary vs inline" (zero overlap = already stated), "Emoji reactions" (resolved=emoji = already stated), "Don't post empty reviews" (silence is signal = already stated). 166→163 lines. Same pattern as spring-boot.md iter 8. |
 
 ## Methodology Loaded (Iter 1)
 

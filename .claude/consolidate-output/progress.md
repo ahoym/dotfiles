@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md |
+| DEEP_DIVE_CANDIDATES | code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md |
 
 ## Pre-Flight
 
@@ -56,6 +56,7 @@ Suggested iterations: 15
 | 6 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (title/framing fix) | claude-code.md — hub with 7 inbound refs, 33 patterns, 292 lines. 1 MEDIUM: "Use TaskOutput" section title/framing contradicted multi-agent-patterns.md re: Bash vs Agent background tasks — clarified. All other patterns standalone reference / keep. 2 outbound cross-refs valid bidirectional. |
 | 7 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (cross-ref wiring) | git-patterns.md — 234 lines, 28 patterns. No overlap with claude-code.md (worktree patterns are complementary). 3 inbound refs (bash-patterns, newman-postman, platform-engineer persona). 2 outbound refs: bash-patterns bidirectional ✓, ci-cd-gotchas unidirectional → added back-ref (MEDIUM). |
 | 8 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (Takeaway compression + cross-ref) | spring-boot.md — 205→157 lines (~23% compression). 37 patterns, all keep. Removed 24 redundant Takeaway lines, folded 2 valuable ones into body. Added missing cross-ref to spring-boot-gotchas.md. No duplication with other files. |
+| 9 | DEEP_DIVE | 0 | 3 | 0 | 3 applied (Takeaway compression) | process-conventions.md — 166→163 lines. 28 patterns, all keep. Removed 3 redundant Takeaway lines. Cross-refs valid bidirectional. 7 inbound refs verified. No duplication. |
 
 ## Deep Dive Status
 
@@ -66,7 +67,7 @@ Suggested iterations: 15
 | claude-code.md | DONE | 6 | 1 MEDIUM applied: TaskOutput section title/framing fix (Bash vs Agent distinction). 33 patterns, all keep. 7 inbound refs, 2 outbound refs verified bidirectional. |
 | git-patterns.md | DONE | 7 | 1 MEDIUM applied: cross-ref wiring ci-cd-gotchas.md. No overlap with claude-code.md confirmed. 28 patterns, all keep. |
 | spring-boot.md | DONE | 8 | 2 MEDIUMs applied: Takeaway compression (205→157 lines, 24 redundant removed, 2 folded into body) + cross-ref to spring-boot-gotchas.md. 37 patterns, all keep. No duplication. |
-| process-conventions.md | PENDING | — | Polish Opportunity (compression) |
+| process-conventions.md | DONE | 9 | 3 MEDIUMs applied: Takeaway compression (166→163 lines, 3 redundant removed). Cross-refs valid bidirectional. 28 patterns, all keep. |
 | code-quality-instincts.md | PENDING | — | Polish Opportunity (compression) |
 | financial-applications.md | PENDING | — | Polish Opportunity (compression) |
 | java-devops.md | PENDING | — | Modified (de-enrichment in sweep 2) |
@@ -188,3 +189,12 @@ Suggested iterations: 15
 - **No duplication**: Checked against spring-boot-gotchas.md (different patterns, different detail level), postgresql-query-patterns.md (cross-ref in place), testing-patterns.md (JS/Python-focused, no overlap with Java test patterns), code-quality-instincts.md (generic, no overlap).
 - **No cross-file content issues**: All 37 patterns are standalone reference / keep. Test naming convention (pattern 34), validation test pattern (pattern 35), enum copy-paste risk (pattern 36) are Spring/Java-specific — correctly placed here, not in testing-patterns.md.
 - Next: process-conventions.md (Polish Opportunity — compression)
+
+### Iter 9
+
+**Deep dive: process-conventions.md (3 MEDIUMs applied)**
+- 166 lines, 28 patterns, 2 outbound refs (multi-agent-patterns.md, code-quality-instincts.md), 7 inbound refs (claude-authoring-polling-review-skills, refactoring-patterns, claude-authoring-skills, code-quality-instincts + 3 personas: reviewer, java-backend, claude-config-expert)
+- **Takeaway compression**: 3 patterns had `- **Takeaway**:` lines, all pure restatements of heading+body — removed. 166→163 lines (~2% compression). Smaller than spring-boot.md (iter 1 estimated ~6, actual was 3).
+- **Cross-ref audit**: Both outbound refs valid. multi-agent-patterns.md is unidirectional (process-conventions→multi-agent-patterns but not reverse) — no back-ref needed because "structured footnote" keyword connects them directly. code-quality-instincts.md is bidirectional ✓.
+- **No duplication**: All 28 patterns are process-level conventions. No overlap with code-quality-instincts.md (code-level), refactoring-patterns.md (refactoring methodology), or claude-authoring-skills.md (skill design).
+- Next: code-quality-instincts.md (Polish Opportunity — compression)
