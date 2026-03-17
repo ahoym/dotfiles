@@ -4,6 +4,7 @@ description: "Activate a named domain persona to set focus, priorities, and gotc
 argument-hint: "[persona-name]"
 allowed-tools:
   - Read
+  - Glob
 ---
 
 # Set Persona
