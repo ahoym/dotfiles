@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 3 |
-| Status | IN_PROGRESS (broad sweeps complete, entering deep dives) |
+| Iterations | 4 |
+| Status | IN_PROGRESS (deep dives: 1/28 complete) |
 
 ## Summary
 
@@ -17,7 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **3** | **0** | **0** | **0** | **0** |
+| Deep Dives | 1 | 2 | 2 | 0 | 0 |
+| **Total** | **4** | **2** | **2** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -28,6 +29,7 @@
 | 1 | LEARNINGS | clean sweep | 58 files | — | — |
 | 2 | SKILLS | clean sweep | 31 skills, 16 refs | — | — |
 | 3 | GUIDELINES | clean sweep | 4 files | — | — |
+| 4 | DEEP_DIVE | remove takeaways, compress duplicate, merge sections, compress section | claude-authoring-skills.md | — | 2 HIGH, 2 MEDIUM |
 
 ## Blocked Items
 

@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 3 |
+| SWEEP_COUNT | 4 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md |
 
 ## Pre-Flight
 
@@ -51,6 +51,7 @@ Suggested iterations: 10
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, 12 clusters, all well-organized |
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 5 clusters, 16 skill-references, no overlap/staleness |
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally applicable. Transitioned to DEEP_DIVE (28 candidates) |
+| 4 | DEEP_DIVE | 2 | 2 | 0 | 4 | claude-authoring-skills.md — removed 4 redundant takeaway lines, compressed body-only templates to cross-ref, merged description sections, compressed @ references section. ~30 lines saved. |
 
 ## Deep Dive Status
 
@@ -58,7 +59,7 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
-| claude-authoring-skills.md | pending | — | Polish opportunity (462 lines, compression) |
+| claude-authoring-skills.md | done | 4 | 2H+2M applied: removed 4 takeaway lines, compressed body-only templates, merged description sections, compressed @ refs. ~432 lines. |
 | multi-agent-patterns.md | pending | — | Polish opportunity (306 lines, compression) |
 | ralph-loop.md | pending | — | Polish opportunity (257 lines, compression) |
 | git-patterns.md | pending | — | Polish opportunity (236 lines, compression) |
@@ -146,3 +147,17 @@ Suggested iterations: 10
 - Priority 3 — Stale tracked (3): bignumber-financial-arithmetic (run 0), ci-cd (run 0), gitlab-ci-cd (run 0)
 
 **Note**: cross-repo-sync and web-session-sync from iter 1 unreviewed list are actually in the tracker (run 9 and 8 respectively) — corrected to 21 unreviewed.
+
+### Iter 4
+
+**Deep dive: claude-authoring-skills.md** (462→~432 lines, ~60 patterns)
+
+**Applied actions (4):**
+- HIGH: Removed 4 redundant `- **Takeaway**:` lines that restated section headings (lines 275, 305, 311, 317)
+- HIGH: Compressed "Body-Only Templates" from 3-line duplicate to 1-line cross-ref to `claude-authoring-content-types.md`
+- MEDIUM (auto-applied): Merged "Skill Description Frontmatter Optimization" + "Discoverability via Trigger Phrases" into single "Skill Description Optimization & Discoverability" section — both about the `description:` field, no information loss
+- MEDIUM (auto-applied): Compressed "`@` References in Skills" — folded "Attention pattern" into "Path resolution" point, removed "Format flexibility" (trivial parsing detail)
+
+**Cross-ref health**: All 5 See Also entries valid and current. No new cross-refs needed — file is the skill design spoke of the authoring hub, well-connected.
+
+**Next candidate**: multi-agent-patterns.md (306 lines, compression)
