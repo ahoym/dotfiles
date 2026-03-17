@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 9 |
-| Status | IN_PROGRESS (deep dives: 6/28 complete) |
+| Iterations | 10 |
+| Status | IN_PROGRESS (deep dives: 7/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 6 | 8 | 14 | 0 | 0 |
-| **Total** | **9** | **8** | **14** | **0** | **0** |
+| Deep Dives | 7 | 11 | 14 | 0 | 0 |
+| **Total** | **10** | **11** | **14** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -35,6 +35,7 @@
 | 7 | DEEP_DIVE | remove 2 takeaways, merge stacked PR sections, fold symlink takeaway, merge stash pop sections | git-patterns.md | — | 2 HIGH, 3 MEDIUM |
 | 8 | DEEP_DIVE | add bidirectional cross-refs | accessibility-patterns.md ↔ react-patterns.md | — | 2 MEDIUM |
 | 9 | DEEP_DIVE | add bidirectional cross-refs | aws-patterns.md ↔ aws-messaging.md | — | 2 MEDIUM |
+| 10 | DEEP_DIVE | remove 2 takeaways, delete duplicate section | claude-authoring-claude-md.md | path-resolution.md (guideline) | 3 HIGH |
 
 ## Blocked Items
 
