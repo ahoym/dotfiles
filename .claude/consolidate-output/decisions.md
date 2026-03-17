@@ -14,6 +14,8 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 2 | SKILLS | Persona de-enrichment | java-devops.md (Metrics & Observability) | java-observability-gotchas.md | MEDIUM | applied | 4 inline gotchas nearly verbatim from proactive-loaded learning file; replaced with 1-line judgment summary + reference |
 | 6 | DEEP_DIVE | Title/framing fix | claude-code.md § "Use TaskOutput" | multi-agent-patterns.md § "TaskOutput Only Works" | MEDIUM | applied | Section title said "Background Agent Progress" but TaskOutput only works for background Bash tasks (not Agent tasks). Title and opening line contradicted multi-agent-patterns.md. Renamed to "Background Bash Tasks" and added explicit cross-ref. |
 | 7 | DEEP_DIVE | Cross-ref wiring | git-patterns.md (See also) | ci-cd-gotchas.md | MEDIUM | applied | git-patterns.md references ci-cd-gotchas.md in See also but ci-cd-gotchas.md had no back-reference. Added See also section with bidirectional link. |
+| 8 | DEEP_DIVE | Takeaway compression | spring-boot.md (24 patterns) | — | MEDIUM | applied | Removed 24 redundant Takeaway lines that restated heading+body. Folded 2 valuable Takeaways into body text (pattern 15: @Data/@Builder recipe; pattern 25: multi-replica safety). Minor body tightening (provenance removal, procedure folding). 205→157 lines (~23% compression). |
+| 8 | DEEP_DIVE | Cross-ref wiring | spring-boot.md (See also) | spring-boot-gotchas.md | MEDIUM | applied | spring-boot-gotchas.md self-describes as "Companion to spring-boot.md" (line 3) but spring-boot.md had no back-reference. Added to See also. |
 
 ## Methodology Loaded (Iter 1)
 
