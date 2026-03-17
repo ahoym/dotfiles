@@ -85,3 +85,27 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: Cannot determine without knowing whether any current or anticipated consumer needs comment editing. No current consumer (`extractor-prompt.md`) uses it. The simplicity of the GitLab endpoint makes the omission less risky than the GitHub version's gotcha, but it's still a potential coverage gap.
 - **Curate command**: `/learnings:curate skill-references/gitlab/comment-interaction.md`
 
+## [L-5] address-request-edge-cases.md — Step number mismatch for when to load the file
+
+- **Iter**: 32
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/commands/git/address-request-comments/address-request-edge-cases.md`
+- **Pattern**: File header — "Read this file when processing comments (step 6+)"
+- **Possible classifications**:
+  1. KEEP as-is — "step 6+" is close enough; the file is read before composing replies and that's the intent
+  2. UPDATE — change to "step 5+" to match SKILL.md Important Notes reference ("Read when processing comments (step 5+)"). Step 5 is "Form independent assessment" where edge-cases guidance is directly needed.
+- **Why LOW**: The discrepancy is between step 5 (SKILL.md Important Notes) and step 6 (edge-cases.md header). Not operationally breaking — the file covers assessment, categorization, and reply guidance spanning steps 5-7.
+- **Curate command**: `/learnings:curate commands/git/address-request-comments/address-request-edge-cases.md`
+
+## [L-6] address-request-edge-cases.md — `git add -A` in Keep Reviews Focused bash example
+
+- **Iter**: 32
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/commands/git/address-request-comments/address-request-edge-cases.md`
+- **Pattern**: Keep Reviews Focused — bash code block (`git add -A && git commit`)
+- **Possible classifications**:
+  1. KEEP as-is — code block is illustrative; agents understand `git add -A` is one approach
+  2. UPDATE — replace with `git add <paths>` pattern to follow project conventions (avoids risk of accidentally staging secrets/binaries)
+- **Why LOW**: Style concern in an example code block for an unusual edge-case workflow. Not operationally breaking. Whether agents follow illustrative code blocks prescriptively is uncertain.
+- **Curate command**: `/learnings:curate commands/git/address-request-comments/address-request-edge-cases.md`
+

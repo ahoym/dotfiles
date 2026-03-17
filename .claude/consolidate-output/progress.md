@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 31 |
+| SWEEP_COUNT | 32 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -80,6 +80,7 @@ Suggested iterations: 15
 | 29 | DEEP_DIVE | 0 | 0 | 0 | 0 | do-security-audit/SKILL.md — clean. KEEP. 1 ref: subagent-patterns.md (iter 17 ✅). 6-step workflow clean, 7-item checklist appropriate scope, allowed-tools match usage, no overlap. |
 | 30 | DEEP_DIVE | 1 | 0 | 0 | 1 | explore-repo/SKILL.md — 1 HIGH (added Bash to allowed-tools). Phase 1 git diff staleness detection and stale file deletion need Bash for autonomous execution. References valid. KEEP. |
 | 31 | DEEP_DIVE | 0 | 0 | 0 | 0 | explore-repo/brief/SKILL.md — clean. 5 phases, all well-designed. No explicit skill-reference reads. Permissive allowed-tools (no declaration = unrestricted, fine for read-only brief). KEEP. |
+| 32 | DEEP_DIVE | 1 | 0 | 2 | 1 | git/address-request-comments — 1 HIGH: removed stale "Your partner approves" bullet + stale tail from "Reply first" bullet; added "Auto-implement on agreement" cross-ref bullet. 2 LOWs: step number mismatch (6+ vs 5+), git add -A in example. |
 
 ## Deep Dive Status
 
@@ -115,7 +116,7 @@ Suggested iterations: 15
 | 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | done | 29 | Clean — SKILL.md only, 1 ref (subagent-patterns.md ✅), 6-step workflow, 7-item checklist, allowed-tools match usage. KEEP. |
 | 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | done | 30 | 1 HIGH applied — added Bash to allowed-tools (needed for git diff staleness detection and file deletion in Phase 1). References valid. KEEP. |
 | 28 | .claude/commands/explore-repo/brief/SKILL.md | 2 | unreviewed (6) | done | 31 | Clean — 5 phases, all well-designed. No refs, no undefined vars, permissive allowed-tools (fine for read-only brief). KEEP. |
-| 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | done | 32 | 1 HIGH: removed stale Core Principles bullets (always-escalate model) contradicting auto-implement logic in same file. 3 refs verified (iter 16 base, iter 14 platform cluster). KEEP. |
 | 30 | .claude/commands/git/cascade-rebase/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 |------|--------|------|---------|
 
@@ -243,6 +244,17 @@ Suggested iterations: 15
 - Overlap: none with explore-repo (generates artifacts), do-security-audit (different domain), any other skill. ✅
 - Key insight: A companion skill to a complex orchestrator may legitimately be simpler and omit explicit allowed-tools — check whether the skill spawns subagents or writes files. If read-only (Glob + Read + Bash for git info), permissive default is fine. The issue in explore-repo/SKILL.md was that Bash was LISTED but missing from an existing allowed-tools block — different from absent entirely.
 - Next: candidate 29 = `git/address-request-comments/SKILL.md` (skill, unreviewed, tier 2).
+
+### Iter 32
+
+**Deep dive 29 of 30**: `git/address-request-comments/SKILL.md` (skill, unreviewed, tier 2) — 1 HIGH applied.
+- Skill package: SKILL.md + 3 reference files (address-request-edge-cases.md, request-lgtm-verification.md, request-reply-templates.md). 13-step workflow.
+- HIGH applied: address-request-edge-cases.md Core Principles had two stale bullets describing the old always-escalate model ("Your partner approves" + stale tail of "Reply first" bullet). These directly contradicted the "When do suggestions get implemented?" section in the same file. Fixed to be internally consistent: removed stale bullet, updated "Reply first" bullet, added "Auto-implement on agreement" cross-ref.
+- References verified: request-interaction-base.md (iter 16 ✅), platform cluster (via base ✅), request-reply-templates.md (model string current ✅).
+- Overlap: none (addresser role is complement to reviewer role in code-review-request, not duplicate).
+- Relevance: HIGH — addressing PR/MR comments is a recurring workflow. KEEP.
+- Key insight: When a reference file has both a summary "Core Principles" section and a detailed "decision criteria" section covering the same behavior, check for consistency. The detailed section is usually authoritative (more specific, more recent) — a contradicting summary is almost always stale framing. One edit to the summary resolves the within-file contradiction cleanly.
+- Next: candidate 30 = `git/cascade-rebase/SKILL.md` (skill, unreviewed, tier 2). This is the 30th and final deep dive — will hit MAX_DEEP_DIVES guard after this.
 
 ### Iter 30
 
