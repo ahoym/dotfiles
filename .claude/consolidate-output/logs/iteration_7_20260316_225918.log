@@ -1,7 +1,0 @@
-✅ **Deep dive 7 complete — git-patterns.md** (236→~222 lines)
-
-**Applied (5 actions):**
-- 🔴 HIGH ×2: Removed redundant takeaways (stacked PR chains, git mv)
-- 🟡 MEDIUM ×3: Merged stacked PR sections (12→3 lines), folded symlink takeaway into body, merged stash pop sections (11→6 lines)
-
-**No LOWs.** Cross-refs healthy. Next candidate: accessibility-patterns.md (unreviewed).

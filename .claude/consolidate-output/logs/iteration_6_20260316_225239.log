@@ -1,6 +1,0 @@
-Done. Deep dive 6 complete: **ralph-loop.md** 257→~237 lines.
-
-- **2 HIGHs**: Merged carryover+MAX_DEEP_DIVES (redundant concepts), merged one-action+validation (problem-solution pair)
-- **2 MEDIUMs**: Merged sentinel+signal-coherence into "Runner-Spec Signal Contract", compressed consolidation variant (removed spec-redundant bullets)
-- **0 LOWs**: Remaining 44 patterns are compact and non-overlapping
-- **Cross-refs**: All 3 valid, no changes needed

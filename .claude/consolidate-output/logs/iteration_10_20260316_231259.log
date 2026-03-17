@@ -1,7 +1,0 @@
-Deep dive 10 complete. ✅
-
-**claude-authoring-claude-md.md** (150→~142 lines) — 3 HIGHs applied:
-- Removed 2 redundant takeaway lines (Refactor Monolithic, Document Conflict Resolution)
-- Deleted `@ References Resolve Relative` section — fully duplicated by always-on `path-resolution.md` guideline
-
-Next candidate: `claude-authoring-learnings.md` (unreviewed).
