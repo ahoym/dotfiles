@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 28 |
+| SWEEP_COUNT | 29 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -77,6 +77,7 @@ Suggested iterations: 15
 | 26 | DEEP_DIVE | 1 | 0 | 0 | 1 | gitlab/fetch-review-data.md — 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments"). 5 patterns all STANDALONE REFERENCE. 3 consumers verified. KEEP. |
 | 27 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/pr-management.md — clean. 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode, address-request-comments, address-request-edge-cases). KEEP. |
 | 28 | DEEP_DIVE | 0 | 0 | 0 | 0 | do-refactor-code/SKILL.md — clean. KEEP. Refs valid: code-quality-checklist.md (iter 13 ✅), refactoring-patterns.md (exists ✅). No overlap, scope correct, description accurate. |
+| 29 | DEEP_DIVE | 0 | 0 | 0 | 0 | do-security-audit/SKILL.md — clean. KEEP. 1 ref: subagent-patterns.md (iter 17 ✅). 6-step workflow clean, 7-item checklist appropriate scope, allowed-tools match usage, no overlap. |
 
 ## Deep Dive Status
 
@@ -109,7 +110,7 @@ Suggested iterations: 15
 | 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | done | 26 | 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments" in comment-interaction.md). 5 patterns all STANDALONE REFERENCE. 3 consumers verified (split-request, explore-request, extractor-prompt.md). KEEP. |
 | 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | done | 27 | Clean — 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode.md, address-request-comments, address-request-edge-cases.md). No undefined vars (:id = glab auto). KEEP. |
 | 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | done | 28 | Clean — SKILL.md only, both refs valid, no overlap, KEEP. |
-| 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | done | 29 | Clean — SKILL.md only, 1 ref (subagent-patterns.md ✅), 6-step workflow, 7-item checklist, allowed-tools match usage. KEEP. |
 | 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 28 | .claude/commands/explore-repo/brief/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | pending | — | — |
@@ -213,6 +214,18 @@ Suggested iterations: 15
 - `jq test("LGTM"; "i")` in Find Approved Reviewers: case-insensitive regex test, not `!=` — does NOT violate the jq `!=` avoidance rule. ✅
 - No compression needed (69 lines, 5 sections with context). No See also needed (discoverable via gitlab/commands.md index).
 - Next: candidate 25 = `do-refactor-code/SKILL.md` (skill, unreviewed, tier 2).
+
+### Iter 29
+
+**Deep dive 26 of 30**: `do-security-audit/SKILL.md` (skill, unreviewed, tier 2) — CLEAN.
+- SKILL.md only (no additional files in directory).
+- References: `~/.claude/skill-references/subagent-patterns.md` (verified iter 17) ✅. Single reference appropriate — skill is a consumer of subagent orchestration patterns.
+- 6-step workflow: identify targets → run checklist (parallel Explore subagents) → check dead security code → assess deployment risk → compare (multi-project only) → report. All distinct, non-overlapping.
+- 7-item security checklist: API input validation, secrets/credentials, CSP/security headers, rate limiting (wired check), CORS, dependency versions (with WebFetch for CVE lookup), error message leakage. Appropriate scope for surface-level web audit.
+- Allowed tools: Read, Glob, Grep (exploration), Task (parallel agents), WebFetch (CVE databases per step 2). All match skill's actual usage.
+- "Important Notes" section correctly scopes the skill: surface-level audit, not pen test, extend for domain-specific risks. Appropriate epistemic framing.
+- Relevance: security audits are a recurring task. KEEP.
+- Next: candidate 27 = `explore-repo/SKILL.md` (skill, unreviewed, tier 2).
 
 ### Iter 28
 

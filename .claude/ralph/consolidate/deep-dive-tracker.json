@@ -101,6 +101,7 @@
     ".claude/skill-references/gitlab/comment-interaction.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/fetch-review-data.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/pr-management.md": { "last_deep_dive_run": 14 },
-    ".claude/commands/do-refactor-code/SKILL.md": { "last_deep_dive_run": 14 }
+    ".claude/commands/do-refactor-code/SKILL.md": { "last_deep_dive_run": 14 },
+    ".claude/commands/do-security-audit/SKILL.md": { "last_deep_dive_run": 14 }
   }
 }
