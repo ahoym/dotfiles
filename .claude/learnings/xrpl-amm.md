@@ -49,15 +49,11 @@ Native AMM support via the XLS-30 amendment, enabled on mainnet 2024-03-22. Key 
 - **LP tokens**: Liquidity providers receive LP tokens proportional to pool share
 - **Votable trading fee**: 0-1% in units of 1/100,000
 - **Auction slot**: 24-hour trading advantage slot that mitigates impermanent loss
-- **Special AMM account**: Dedicated AccountRoot, not subject to reserve, cannot sign transactions
+- **Special AMM account**: Pseudo-random address AccountRoot that holds assets and issues LP tokens. Regular key set to account zero, master key disabled. Not subject to reserve, cannot sign transactions.
 
 ### LP Token Currency Codes
 
 LP tokens use a special 160-bit hex currency code: first 8 bits are `0x03`, remainder is a truncated SHA-512 hash of the two asset currency codes and issuers. Initial LP issuance: `sqrt(Amount1 * Amount2)`. Returning all LP tokens triggers auto-deletion of the AMM.
-
-### AMM Account
-
-Each AMM has a pseudo-random address AccountRoot that holds assets and issues LP tokens. Regular key set to account zero, master key disabled. Not subject to XRP reserve.
 
 ## AMM Transaction Types
 
@@ -119,3 +115,10 @@ When all LP tokens are redeemed: if ≤512 trust lines, AMM auto-deletes. If >51
 ## AMM Liquidity in Transaction Metadata
 
 AMM liquidity consumed during trade execution appears in `AffectedNodes` as `LedgerEntryType: "AMM"` modifications — not as Offer nodes. When parsing metadata to determine fill sources (CLOB vs AMM), check for modified AMM nodes separately from modified/deleted Offer nodes.
+
+## See also
+
+- `xrpl-patterns.md` — XRPL integration patterns (orderbook fetching, funded offers, WebSocket management)
+- `xrpl-gotchas.md` — condensed XRPL tripwires including AMM-specific gotchas
+- `order-book-pricing.md` — mid-price, slippage estimation for interleaved CLOB+AMM fills
+- `bignumber-financial-arithmetic.md` — BigNumber.js patterns for AMM formula computations

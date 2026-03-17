@@ -65,6 +65,7 @@
     ".claude/learnings/reactive-data-patterns.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/typescript-specific.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/vercel-deployment.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/typescript-ci-gotchas.md": { "last_deep_dive_run": 0 }
+    ".claude/learnings/typescript-ci-gotchas.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/xrpl-amm.md": { "last_deep_dive_run": 13 }
   }
 }

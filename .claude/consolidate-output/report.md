@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 23 |
-| Status | IN_PROGRESS (deep dives: 20/28 complete) |
+| Iterations | 24 |
+| Status | IN_PROGRESS (deep dives: 21/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 20 | 13 | 30 | 0 | 0 |
-| **Total** | **23** | **13** | **30** | **0** | **0** |
+| Deep Dives | 21 | 13 | 32 | 0 | 0 |
+| **Total** | **24** | **13** | **32** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -49,6 +49,7 @@
 | 21 | DEEP_DIVE | clean sweep | typescript-specific.md | — | — |
 | 22 | DEEP_DIVE | add See also, add reverse cross-ref | ui-patterns.md ↔ react-patterns.md | nextjs.md, accessibility-patterns.md | 2 MEDIUM |
 | 23 | DEEP_DIVE | add See also (both files) | vercel-deployment.md ↔ typescript-ci-gotchas.md | xrpl-patterns.md, ci-cd.md | 2 MEDIUM |
+| 24 | DEEP_DIVE | fold subsection, add See also | xrpl-amm.md | xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md | 2 MEDIUM |
 
 ## Blocked Items
 
