@@ -50,9 +50,23 @@ When the reviewer posts only thread replies and reactions (no review body — pe
 
 When tracking state that shares a cron job's lifecycle (e.g., last-activity timestamps for stale poll detection), use session context (conversation memory) rather than files. File-based state requires creation, gitignore, cleanup on terminal state, and permission patterns — all complexity that disappears when the state lives and dies with the session. The tracking-artifacts file approach was tried and reverted within one PR cycle in favor of session variables.
 
+## Scope Expansion in Three-Party Review Discussions
+
+Review threads between human, reviewer agent, and addresser agent can legitimately evolve from code feedback into convention changes. The keep-reviews-focused guidance applies to *unrelated* changes — when the partner explicitly approves expanding scope (e.g., "make the edit in this PR"), that's authorization, not scope creep. The addresser should still flag the expansion ("this feels like a design discussion for X rather than this PR") before proceeding, giving the partner a chance to defer. But once approved, implement in the current PR rather than forcing a follow-up.
+
+## Quick-Exit Devolution Under Consecutive No-Ops
+
+Consecutive no-op polls create progressive optimization pressure: the agent reduces phase 1 from the full consolidated fetch (`--json commits,reviews,state,comments`) to just state + last commit SHA, then drops phase 2 entirely. Each reduction feels justified ("nothing changed last time") but silently narrows the detection surface. The failure compounds: missed operator comment → more no-ops → more optimization → stale poll auto-cancel orphans the comment permanently.
+
+**Fix location matters.** Anti-devolution language in Important Notes gets deprioritized under the same efficiency pressure that causes the devolution. The preamble must be inline at the top of step 5 itself — that's where the agent reads instructions at point of use. Important Notes reinforce but don't prevent.
+
+## Human Comments Are Invisible When Mentally Grouped with Addresser
+
+Phase 2 self-filtering correctly identifies `Role:.*Reviewer` as self-comments. But the agent mentally categories remaining comments as "Addresser replies" — overlooking that comments with **no Role tag** are from the operator, not the Addresser. Both are "non-self" in the filter, but human comments require immediate response while Addresser replies follow the acknowledgement/resolution flow. The fix: when scanning phase 2 results, explicitly check for three categories (self / agent-other / human), not two (self / non-self).
+
 ## See also
 
-- `claude-authoring-skills.md` — core skill design patterns
+- `claude-authoring-skills.md` — core skill design patterns (includes "Inline Critical Conditions" pattern that the devolution fix applies)
 - `claude-authoring-content-types.md` — routing hub for authoring cluster
 - `multi-agent-patterns.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `process-conventions.md` — structured footnote template for multi-agent comment identity

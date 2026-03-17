@@ -59,6 +59,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 5. **Quick-exit check** — before fetching the full diff, check if anything has changed. This is the cheapest possible check and should short-circuit polling runs that find nothing new.
 
+   **Non-negotiable: run both phases as specified.** Do not reduce phase 1 fields or skip phase 2 to save tokens. Consecutive no-ops create optimization pressure — resist it. The cost is 1-2 API calls; the failure mode is missed operator comments.
+
    **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
    **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
