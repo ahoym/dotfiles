@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 20 |
+| SWEEP_COUNT | 21 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -69,6 +69,7 @@ Suggested iterations: 15
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup, no undefined vars. KEEP. |
 | 19 | DEEP_DIVE | 1 | 0 | 1 | 1 | github/commands.md — index file clean. 1 HIGH: fixed stale path in extractor-prompt.md (referenced non-existent <PLATFORM>-commands.md; updated to <PLATFORM>/comment-interaction.md + <PLATFORM>/fetch-review-data.md). 1 LOW: index description for fetch-review-data.md omits consolidated variants. |
 | 20 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/comment-interaction.md — clean. 9 patterns all STANDALONE REFERENCE, KEEP. 1 consumer (extractor-prompt.md) delegates by section name. No inline dup, no undefined vars, no compression needed. |
+| 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/fetch-review-data.md — clean. 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md). No inline dup, no undefined vars, no compression needed. |
 
 ## Deep Dive Status
 
@@ -93,7 +94,7 @@ Suggested iterations: 15
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | done | 18 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name, no inline dup. Index description accurate. KEEP. |
 | 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | done | 19 | 1 HIGH: fixed stale path ref in extractor-prompt.md (<PLATFORM>-commands.md → <PLATFORM>/comment-interaction.md + fetch-review-data.md). 1 LOW: index description omits consolidated variants. Index itself STANDALONE REFERENCE, KEEP. |
 | 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | done | 20 | Clean — 9 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md) delegates by section name, no inline dup. No undefined vars, no compression needed. KEEP. |
-| 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
+| 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | done | 21 | Clean — 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md), no inline dup. No undefined vars. KEEP. |
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | pending | — | — |
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | pending | — | — |
@@ -181,6 +182,18 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 21
+
+**Deep dive 18 of 30**: `github/fetch-review-data.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 6 patterns: Fetch Review Details (core metadata), Fetch Review Details with Reviews (consolidated, no --jq), Fetch Activity Signals (consolidated, no --jq), Fetch Diff, Fetch Files Changed (--jq for path extraction), Fetch Commits (--jq with .oid[0:7] truncation). All STANDALONE REFERENCE.
+- Consumer verification (reference-file gate): 3 consumers — `split-request/SKILL.md:26-30`, `explore-request/SKILL.md:28-41` (references by section name: "Fetch Review Details", "Fetch Files Changed"), `extractor-prompt.md:26`. None inline content. ✅
+- Variable check: `<number>` is the only placeholder — all consumers substitute. No state variables, no undefined names. ✅
+- Scope note: `resolve-conflicts` uses inline `gh pr view` commands for different fields (headRefName/baseRefName for rebase workflow, mergeable for post-merge validation). These are not duplication of reference patterns — different purpose, different fields, not a consumer of this file. No action.
+- No compression opportunity (48 lines, 6 templates with context comments, maximally concise).
+- No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
+- Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
+- Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 20
 

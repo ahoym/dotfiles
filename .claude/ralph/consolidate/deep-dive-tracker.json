@@ -92,6 +92,7 @@
     ".claude/skill-references/github/batch-operations.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/github/commands.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/github/comment-interaction.md": { "last_deep_dive_run": 14 },
-    ".claude/commands/extract-request-learnings/extractor-prompt.md": { "last_deep_dive_run": 0 }
+    ".claude/commands/extract-request-learnings/extractor-prompt.md": { "last_deep_dive_run": 0 },
+    ".claude/skill-references/github/fetch-review-data.md": { "last_deep_dive_run": 14 }
   }
 }
