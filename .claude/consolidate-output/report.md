@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 18 |
-| Status | IN_PROGRESS (deep dives: 15/28 complete) |
+| Iterations | 19 |
+| Status | IN_PROGRESS (deep dives: 16/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 15 | 13 | 21 | 0 | 0 |
-| **Total** | **18** | **13** | **21** | **0** | **0** |
+| Deep Dives | 16 | 13 | 22 | 0 | 0 |
+| **Total** | **19** | **13** | **22** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -44,6 +44,7 @@
 | 16 | DEEP_DIVE | add bidirectional cross-refs | order-book-pricing.md ↔ xrpl-patterns.md | — | 2 MEDIUM |
 | 17 | DEEP_DIVE | remove 6 takeaways, merge migration cluster, add bidirectional cross-refs | python-specific.md ↔ api-design.md | — | 1 HIGH, 3 MEDIUM |
 | 18 | DEEP_DIVE | clean sweep | quarkus-kotlin.md | — | — |
+| 19 | DEEP_DIVE | add See also | react-frontend-gotchas.md | react-patterns.md, nextjs.md, playwright-patterns.md | 1 MEDIUM |
 
 ## Blocked Items
 

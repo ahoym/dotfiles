@@ -59,6 +59,7 @@
     ".claude/learnings/java-observability.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/order-book-pricing.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-patterns.md": { "last_deep_dive_run": 0 },
-    ".claude/learnings/quarkus-kotlin.md": { "last_deep_dive_run": 13 }
+    ".claude/learnings/quarkus-kotlin.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/react-frontend-gotchas.md": { "last_deep_dive_run": 13 }
   }
 }

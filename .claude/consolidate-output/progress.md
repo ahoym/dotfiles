@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md |
+| DEEP_DIVE_CANDIDATES | reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md |
 
 ## Pre-Flight
 
@@ -66,6 +66,7 @@ Suggested iterations: 10
 | 16 | DEEP_DIVE | 0 | 2 | 0 | 2 | order-book-pricing.md — added bidirectional cross-refs with xrpl-patterns.md. 44 lines, 4 sections, compact and clean. |
 | 17 | DEEP_DIVE | 1 | 3 | 0 | 4 | python-specific.md — removed 6 takeaway lines, merged 3 migration sections into "Package Manager Migration", added bidirectional cross-refs with api-design.md. 113→~95 lines. |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | quarkus-kotlin.md — clean. 8 lines, 1 pattern (Quarkus enum hot-reload). No overlap with spring-boot.md enum patterns (different frameworks). |
+| 19 | DEEP_DIVE | 0 | 1 | 0 | 1 | react-frontend-gotchas.md — added See also (react-patterns.md, nextjs.md, playwright-patterns.md). 27→32 lines, 14 patterns, all condensed refs to source files. |
 
 ## Deep Dive Status
 
@@ -88,7 +89,7 @@ Suggested iterations: 10
 | order-book-pricing.md | done | 16 | 0H+2M applied: added bidirectional cross-refs with xrpl-patterns.md + bignumber-financial-arithmetic.md. 49 lines, clean and compact. |
 | python-specific.md | done | 17 | 1H+3M applied: removed 6 takeaway lines, merged 3 migration sections, added bidirectional cross-refs with api-design.md. ~95 lines. |
 | quarkus-kotlin.md | done | 18 | Clean. 8 lines, 1 pattern. No overlap, no cross-ref gaps, maximally compact. |
-| react-frontend-gotchas.md | pending | — | Unreviewed |
+| react-frontend-gotchas.md | done | 19 | 0H+1M applied: added See also → react-patterns.md, nextjs.md, playwright-patterns.md. 32 lines, 14 condensed patterns. |
 | reactive-data-patterns.md | pending | — | Unreviewed |
 | typescript-specific.md | pending | — | Unreviewed |
 | ui-patterns.md | pending | — | Unreviewed |
@@ -375,3 +376,18 @@ Suggested iterations: 10
 **Tracker**: quarkus-kotlin.md added (run 13).
 
 **Next candidate**: react-frontend-gotchas.md (unreviewed)
+
+### Iter 19
+
+**Deep dive: react-frontend-gotchas.md** (27→32 lines, 14 patterns across 3 sections)
+
+**Applied actions (1):**
+- MEDIUM (auto-applied): Added `## See also` → react-patterns.md, nextjs.md, playwright-patterns.md. All 14 patterns are condensed 1-line versions of full explanations in these 3 files. Reverse cross-refs already existed in all 3 source files. Forward cross-refs complete the bidirectional navigation.
+
+**Quality**: Maximally compact at 27 lines (now 32 with See also). Each pattern is a single condensed line. No compression, genericization, or redundancy — the file's value IS being a condensed cross-domain quick-ref that loads fewer tokens than all 3 source files combined (~500+ lines).
+
+**Overlap assessment**: Every pattern overlaps with a source file by design. This is a gotchas companion file, not an independent reference. The condensed format serves a different purpose (quick scan vs detailed explanation).
+
+**Tracker**: react-frontend-gotchas.md added (run 13).
+
+**Next candidate**: reactive-data-patterns.md (unreviewed)
