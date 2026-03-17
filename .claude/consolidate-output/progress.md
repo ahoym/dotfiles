@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -53,6 +53,7 @@ Suggested iterations: 15
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 16 skill-references. All consumers wired, no stale model strings. |
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally needed, no overlap. Transitioned to DEEP_DIVE. |
 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-content-types.md — clean. Hub confirmed. 11 patterns all KEEP. |
+| 5 | DEEP_DIVE | 0 | 0 | 0 | 0 | communication.md — clean. 14 patterns, all universal behavioral guidelines, KEEP. |
 
 ## Deep Dive Status
 
@@ -61,7 +62,7 @@ Suggested iterations: 15
 | # | File | Tier | Criterion | Status | Iter | Summary |
 |---|------|------|-----------|--------|------|---------|
 | 1 | .claude/learnings/claude-authoring-content-types.md | 1 | hub (1) | done | 4 | Clean — 11 patterns, all STANDALONE REFERENCE. Hub confirmed well-maintained. |
-| 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | pending | — | — |
+| 2 | .claude/guidelines/communication.md | 2 | unreviewed (6) | done | 5 | Clean — 14 patterns, all universal behavioral guidelines, KEEP. No duplication, no compression, no cross-refs needed. |
 | 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | pending | — | — |
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | pending | — | — |
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | pending | — | — |
@@ -165,3 +166,13 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 5
+
+**Deep dive 2 of 30**: `communication.md` (guidelines, unreviewed, tier 2) — CLEAN.
+- 14 patterns, all universal behavioral guidelines. Guideline gate: passed (no stack-specific content).
+- No duplication with other guidelines (context-aware-learnings, path-resolution, skill-invocation are orthogonal domains).
+- No compression ≥30% found — file is dense but every sub-bullet carries distinct non-redundant guidance.
+- No `## See also` warranted — universal behavioral guideline connects to everything/nothing specifically.
+- Key insight: A guidelines file with this many sub-patterns (~8 lines/pattern) is well-calibrated. Don't flag as "compression candidate" just for size — look at insight density per line, not raw line count.
+- Next: candidate 3 = `context-aware-learnings.md` (guidelines, unreviewed, tier 2).

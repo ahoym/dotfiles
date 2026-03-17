@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 4 |
+| Iterations | 5 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -30,6 +30,7 @@
 | 3 | GUIDELINES | clean sweep | 4 files | — | — |
 | 3 | — | transition to DEEP_DIVE | 82 candidates | top 30 queued | — |
 | 4 | DEEP_DIVE | clean deep-dive | claude-authoring-content-types.md | — | — |
+| 5 | DEEP_DIVE | clean deep-dive | communication.md | — | — |
 
 ## Blocked Items
 
