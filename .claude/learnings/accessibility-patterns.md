@@ -67,3 +67,7 @@ All three attributes (`role`, `tabIndex`, `onKeyDown`) are needed together. Only
 | Icon-only buttons | `aria-label` describing the action |
 | Non-button clickables | `role="button"` + `tabIndex={0}` + `onKeyDown` |
 | Form buttons that don't submit | `type="button"` to prevent default submit |
+
+## See also
+
+- `react-patterns.md` — component patterns that benefit from accessibility awareness

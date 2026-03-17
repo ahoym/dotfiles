@@ -9,7 +9,7 @@
     ".claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 8 },
     ".claude/learnings/ralph-loop.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/claude-code.md": { "last_deep_dive_run": 11 },
-    ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 9 },
+    ".claude/learnings/react-patterns.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/playwright-patterns.md": { "last_deep_dive_run": 9 },
     ".claude/learnings/multi-agent-patterns.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/refactoring-patterns.md": { "last_deep_dive_run": 9 },
@@ -48,6 +48,7 @@
     ".claude/commands/set-persona/java-devops.md": { "last_deep_dive_run": 11 },
     ".claude/learnings/bignumber-financial-arithmetic.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/ci-cd.md": { "last_deep_dive_run": 0 },
-    ".claude/learnings/gitlab-ci-cd.md": { "last_deep_dive_run": 0 }
+    ".claude/learnings/gitlab-ci-cd.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/accessibility-patterns.md": { "last_deep_dive_run": 13 }
   }
 }

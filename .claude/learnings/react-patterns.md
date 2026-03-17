@@ -228,3 +228,4 @@ This pattern is transparent to users and prevents data loss during schema evolut
 - `reactive-data-patterns.md` — refresh, polling, localStorage sync
 - `react-frontend-gotchas.md` — condensed React tripwires
 - `refactoring-patterns.md` — survey methodology for component refactors
+- `accessibility-patterns.md` — aria attributes and keyboard support for interactive components

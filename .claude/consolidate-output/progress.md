@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md |
+| DEEP_DIVE_CANDIDATES | aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md |
 
 ## Pre-Flight
 
@@ -55,6 +55,7 @@ Suggested iterations: 10
 | 5 | DEEP_DIVE | 2 | 3 | 2 | 5 | multi-agent-patterns.md — removed 2 takeaway lines, compressed resume pattern details and code block, merged review architecture sections. 2 LOWs (migration candidates). ~20 lines saved. |
 | 6 | DEEP_DIVE | 2 | 2 | 0 | 4 | ralph-loop.md — merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~20 lines saved. |
 | 7 | DEEP_DIVE | 2 | 3 | 0 | 5 | git-patterns.md — removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~14 lines saved. |
+| 8 | DEEP_DIVE | 0 | 2 | 0 | 2 | accessibility-patterns.md — added bidirectional cross-refs with react-patterns.md. Clean file, no compression needed. |
 
 ## Deep Dive Status
 
@@ -66,7 +67,7 @@ Suggested iterations: 10
 | multi-agent-patterns.md | done | 5 | 2H+3M applied, 2 LOWs. Removed takeaways, compressed resume details+code block, merged review sections. ~286 lines. |
 | ralph-loop.md | done | 6 | 2H+2M applied: merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~237 lines. |
 | git-patterns.md | done | 7 | 2H+3M applied: removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~222 lines. |
-| accessibility-patterns.md | pending | — | Unreviewed |
+| accessibility-patterns.md | done | 8 | 0H+2M applied: added bidirectional cross-refs with react-patterns.md. 70 lines, compact and clean. |
 | aws-patterns.md | pending | — | Unreviewed |
 | claude-authoring-claude-md.md | pending | — | Unreviewed |
 | claude-authoring-learnings.md | pending | — | Unreviewed |
@@ -215,3 +216,19 @@ Suggested iterations: 10
 **No LOWs** — remaining ~20 patterns are compact standalone references. Pre-commit hook sections (git add staging, hooks alter commits, amend picks up extras) are related but cover distinct failure modes and are already compact — merging would lose clarity.
 
 **Next candidate**: accessibility-patterns.md (unreviewed)
+
+### Iter 8
+
+**Deep dive: accessibility-patterns.md** (70 lines, 6 patterns + checklist table)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` to accessibility-patterns.md pointing to react-patterns.md (component patterns complement accessibility awareness)
+- MEDIUM (auto-applied): Added reverse cross-ref from react-patterns.md → accessibility-patterns.md (aria attributes and keyboard support)
+
+**Quality**: Already lean at 70 lines. No compression, genericization, or redundancy issues. Each pattern is a compact code snippet + 1-line explanation. Checklist table serves as scannable audit tool (different purpose from code snippets above).
+
+**Cross-ref rationale**: react-frontend persona wires these files together when active, but cross-refs serve navigation when no persona is active. "accessibility" not discoverable from "react" keyword search.
+
+**Tracker**: accessibility-patterns.md added (run 13), react-patterns.md reset to 0 (modified).
+
+**Next candidate**: aws-patterns.md (unreviewed)
