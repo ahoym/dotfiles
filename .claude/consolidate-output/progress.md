@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md |
+| DEEP_DIVE_CANDIDATES | ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md |
 
 ## Pre-Flight
 
@@ -52,6 +52,7 @@ Suggested iterations: 10
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 5 clusters, 16 skill-references, no overlap/staleness |
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally applicable. Transitioned to DEEP_DIVE (28 candidates) |
 | 4 | DEEP_DIVE | 2 | 2 | 0 | 4 | claude-authoring-skills.md — removed 4 redundant takeaway lines, compressed body-only templates to cross-ref, merged description sections, compressed @ references section. ~30 lines saved. |
+| 5 | DEEP_DIVE | 2 | 3 | 2 | 5 | multi-agent-patterns.md — removed 2 takeaway lines, compressed resume pattern details and code block, merged review architecture sections. 2 LOWs (migration candidates). ~20 lines saved. |
 
 ## Deep Dive Status
 
@@ -60,7 +61,7 @@ Suggested iterations: 10
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | claude-authoring-skills.md | done | 4 | 2H+2M applied: removed 4 takeaway lines, compressed body-only templates, merged description sections, compressed @ refs. ~432 lines. |
-| multi-agent-patterns.md | pending | — | Polish opportunity (306 lines, compression) |
+| multi-agent-patterns.md | done | 5 | 2H+3M applied, 2 LOWs. Removed takeaways, compressed resume details+code block, merged review sections. ~286 lines. |
 | ralph-loop.md | pending | — | Polish opportunity (257 lines, compression) |
 | git-patterns.md | pending | — | Polish opportunity (236 lines, compression) |
 | accessibility-patterns.md | pending | — | Unreviewed |
@@ -161,3 +162,21 @@ Suggested iterations: 10
 **Cross-ref health**: All 5 See Also entries valid and current. No new cross-refs needed — file is the skill design spoke of the authoring hub, well-connected.
 
 **Next candidate**: multi-agent-patterns.md (306 lines, compression)
+
+### Iter 5
+
+**Deep dive: multi-agent-patterns.md** (306→~286 lines, ~30 patterns)
+
+**Applied actions (5):**
+- HIGH: Removed 2 redundant takeaway lines ("Partial Batch Completion", "Staging Directory Pattern")
+- MEDIUM (auto-applied): Compressed "Subagents Cannot Write .md" resume pattern details — 3 sentences → 2, preserved cost comparison and timing data
+- MEDIUM (auto-applied): Compressed "Worktree Agent Merge" code block — removed redundant comments (text above explains both paths), 12 lines → 5
+- MEDIUM (auto-applied): Merged "Mutual Agreement Auto-Implementation" + "Agent-to-Agent Review Cycle" → "Agent-to-Agent Review Architecture" — both about same review architecture, 8 lines → 5
+
+**LOWs (2):** "Iterative Testing for Timing-Dependent Autonomous Features" (possible migration to testing-patterns.md) and "Three-Branch Gate Announcements" (possible migration to claude-authoring-learnings.md). Both borderline — learned in multi-agent context but core principles are broader.
+
+**Cross-ref health**: All 3 See Also entries valid and current. parallel-plans.md has bidirectional ref. No new cross-refs needed.
+
+**Overlap check**: Compared against subagent-patterns.md (skill-reference) and parallel-plans.md. All overlapping topics are complementary (different angles/detail levels), no duplication requiring action.
+
+**Next candidate**: ralph-loop.md (257 lines, compression)

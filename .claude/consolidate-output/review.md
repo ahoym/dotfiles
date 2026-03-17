@@ -36,3 +36,23 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Action needed**: Resume or manual curation
 
 -->
+
+## [L-1] "Iterative Testing for Timing-Dependent Autonomous Features" (LOW — possible migration)
+
+- **Iter**: 5
+- **Content Type**: LEARNINGS (deep dive)
+- **File**: `.claude/learnings/multi-agent-patterns.md`
+- **Pattern**: Iterative Testing for Timing-Dependent Autonomous Features
+- **Possible classifications**: Standalone reference in multi-agent-patterns (current), migrate to testing-patterns.md (general testing principle)
+- **Why LOW**: Pattern was learned in autonomous agent context and examples reference agent behavior, but the core principle (iterative live testing for timing-dependent features) is broader than multi-agent. Could fit either file.
+- **Curate command**: `/learnings:curate learnings/multi-agent-patterns.md`
+
+## [L-2] "Three-Branch Gate Announcements" (LOW — possible migration)
+
+- **Iter**: 5
+- **Content Type**: LEARNINGS (deep dive)
+- **File**: `.claude/learnings/multi-agent-patterns.md`
+- **Pattern**: Three-Branch Gate Announcements
+- **Possible classifications**: Standalone reference in multi-agent-patterns (current), migrate to claude-authoring-learnings.md (learnings protocol design pattern)
+- **Why LOW**: Pattern describes how learnings loading gates should have 3 announcement branches. It's about the learnings protocol design (gate observability), not agent orchestration per se. But it was learned in a multi-agent calibration context and applies to agents running gates.
+- **Curate command**: `/learnings:curate learnings/multi-agent-patterns.md`

@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 4 |
-| Status | IN_PROGRESS (deep dives: 1/28 complete) |
+| Iterations | 5 |
+| Status | IN_PROGRESS (deep dives: 2/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 1 | 2 | 2 | 0 | 0 |
-| **Total** | **4** | **2** | **2** | **0** | **0** |
+| Deep Dives | 2 | 4 | 5 | 0 | 0 |
+| **Total** | **5** | **4** | **5** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -30,6 +30,7 @@
 | 2 | SKILLS | clean sweep | 31 skills, 16 refs | — | — |
 | 3 | GUIDELINES | clean sweep | 4 files | — | — |
 | 4 | DEEP_DIVE | remove takeaways, compress duplicate, merge sections, compress section | claude-authoring-skills.md | — | 2 HIGH, 2 MEDIUM |
+| 5 | DEEP_DIVE | remove takeaways, compress resume details, compress code block, merge review sections | multi-agent-patterns.md | — | 2 HIGH, 3 MEDIUM |
 
 ## Blocked Items
 

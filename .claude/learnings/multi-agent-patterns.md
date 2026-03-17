@@ -182,16 +182,10 @@ Worktree agents may or may not commit their changes — check both `git log` and
 
 **Pattern:**
 ```bash
-# In worktree: check if agent committed
-git log origin/main..HEAD --oneline  # new commits?
-git status --short                    # unstaged changes?
-
-# Uncommitted → patch
-git diff > /tmp/agent-changes.patch
-cd $MAIN_REPO && git apply /tmp/agent-changes.patch
-
-# Committed → cherry-pick
-cd $MAIN_REPO && git cherry-pick <commit-sha>
+git log origin/main..HEAD --oneline   # new commits?
+git status --short                     # unstaged changes?
+# Uncommitted → git diff > patch && git apply
+# Committed   → git cherry-pick <sha>
 ```
 
 ## Subagents Cannot Write .md Files
@@ -204,9 +198,7 @@ The Write tool blocks documentation file creation (`.md`, `README`) unless expli
 3. Use Bash (`cat <<'EOF' > file.md`) in the agent — may also be blocked but worth trying
 4. **Transcript extraction pattern**: after blocked agents complete, launch extraction agents that read the transcript output files (chunked `Read` with offset/limit) and write the actual files from orchestrator context
 
-**Resume pattern details**: When N agents all fail on Write, resume all N in parallel in a single message. Each agent's context already contains the complete analysis — the resume prompt just says "directory exists now, write your file." Cost: N×1 Write calls vs N×(full re-scan). Observed: 7 agents resumed and wrote files in ~60-90s each, vs ~200-370s for the original scans.
-
-The transcript extraction pattern doubles agent count but recovers from permission failures. Launch extraction agents in parallel (one per blocked file) to minimize wall-clock time.
+**Resume pattern details**: When N agents fail on Write, resume all N in parallel — each retains full analysis context, so the resume costs only 1 Write call per agent (observed: ~60-90s vs ~200-370s for fresh scans). The transcript extraction pattern (option 4) doubles agent count but recovers from permission failures; launch extractors in parallel to minimize wall-clock time.
 
 ## Extractor-Writer Subagent Pattern
 
@@ -254,15 +246,11 @@ For implementation tasks touching 10+ reference files (existing infrastructure, 
 
 When parallel extractors fail (API rate limits, permission issues), process completed ones immediately rather than retrying the full batch. Track partial completion explicitly in progress notes ("5 of 10 PRs, #21-#26 deferred") so the next session picks up exactly where it left off. This avoids wasting successful extractor outputs and keeps the workflow moving forward. The progress tracker in the plan file is the single coordination point — partial batches get their own row with clear deferred-item lists.
 
-- **Takeaway**: Design batch workflows to treat partial completion as a first-class state, not an error to retry.
-
 ## Staging Directory Pattern for Out-of-Project Writes
 
 Background agents cannot write to paths outside the project directory — this is a hardcoded restriction that no permission pattern can override. When agents need to produce files destined for external locations (e.g., `~/.claude/learnings/`), have them write to a staging directory inside the project instead. The orchestrator then copies staged files to their final locations in foreground, where the restriction doesn't apply.
 
 Pattern: agent reads from real location (dedup), writes to `docs/learnings/_staging/<scope>/`, orchestrator runs `cp` + `rm -rf` after all agents complete. The staging files are also visible in `git status` before being applied, enabling review.
-
-- **Takeaway**: Stage inside the project, copy to final location from orchestrator — separates analysis (agent) from file placement (orchestrator).
 
 ## Pre-Read External Files Before Launching Agents
 
@@ -282,13 +270,11 @@ Test assumptions with a controlled experiment before writing them as facts acros
 
 When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).
 
-## Mutual Agreement Auto-Implementation
+## Agent-to-Agent Review Architecture
 
-When an addresser agent agrees with a reviewer agent's suggestion, auto-implement without waiting for human approval. Escalate to the human partner only when the addresser disagrees or is uncertain. The human reviews the PR diff and calibrates — they don't need to approve every change both agents converge on. Use the structured footnote (`Role:.*Reviewer`) to distinguish agent comments from human comments; comments without a Role tag are human.
+Reviewer → addresser → human is a viable review cycle. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. When the addresser agrees with a suggestion, auto-implement without human approval; escalate only on disagreement or uncertainty. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
 
-## Agent-to-Agent Review Cycle
-
-Reviewer → addresser → human is a viable review architecture. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. The structured footnote (`Persona + Role`) enables clean separation of comment chains even when both agents post as the same GitHub user. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
+Use structured footnotes (`Persona + Role`) to separate comment chains when both agents post as the same GitHub user. Comments without a Role tag are human.
 
 ## Iterative Testing for Timing-Dependent Autonomous Features
 
