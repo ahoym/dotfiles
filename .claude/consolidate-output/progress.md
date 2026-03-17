@@ -4,10 +4,10 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| CONTENT_TYPE | GUIDELINES |
-| PHASE | BROAD_SWEEP |
-| DEEP_DIVE_CANDIDATES | — |
+| SWEEP_COUNT | 3 |
+| CONTENT_TYPE | DEEP_DIVE |
+| PHASE | DEEP_DIVE |
+| DEEP_DIVE_CANDIDATES | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
 | DEEP_DIVE_COMPLETED | — |
 
 ## Pre-Flight
@@ -37,7 +37,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -50,6 +50,7 @@ Suggested iterations: 10
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, 12 clusters, all well-organized |
 | 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 5 clusters, 16 skill-references, no overlap/staleness |
+| 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally applicable. Transitioned to DEEP_DIVE (28 candidates) |
 
 ## Deep Dive Status
 
@@ -57,6 +58,34 @@ Suggested iterations: 10
 
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
+| claude-authoring-skills.md | pending | — | Polish opportunity (462 lines, compression) |
+| multi-agent-patterns.md | pending | — | Polish opportunity (306 lines, compression) |
+| ralph-loop.md | pending | — | Polish opportunity (257 lines, compression) |
+| git-patterns.md | pending | — | Polish opportunity (236 lines, compression) |
+| accessibility-patterns.md | pending | — | Unreviewed |
+| aws-patterns.md | pending | — | Unreviewed |
+| claude-authoring-claude-md.md | pending | — | Unreviewed |
+| claude-authoring-learnings.md | pending | — | Unreviewed |
+| claude-authoring-personas.md | pending | — | Unreviewed |
+| claude-authoring-polling-review-skills.md | pending | — | Unreviewed |
+| gitlab-cli.md | pending | — | Unreviewed |
+| java-observability.md | pending | — | Unreviewed |
+| order-book-pricing.md | pending | — | Unreviewed |
+| python-specific.md | pending | — | Unreviewed |
+| quarkus-kotlin.md | pending | — | Unreviewed |
+| react-frontend-gotchas.md | pending | — | Unreviewed |
+| reactive-data-patterns.md | pending | — | Unreviewed |
+| typescript-specific.md | pending | — | Unreviewed |
+| ui-patterns.md | pending | — | Unreviewed |
+| vercel-deployment.md | pending | — | Unreviewed |
+| xrpl-amm.md | pending | — | Unreviewed |
+| xrpl-cross-currency-payments.md | pending | — | Unreviewed |
+| xrpl-dex-data.md | pending | — | Unreviewed |
+| xrpl-gotchas.md | pending | — | Unreviewed |
+| xrpl-permissioned-domains.md | pending | — | Unreviewed |
+| bignumber-financial-arithmetic.md | pending | — | Stale (run 0, never deep-dived) |
+| ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
+| gitlab-ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
 
 ## Notes for Next Iteration
 
@@ -104,3 +133,16 @@ Suggested iterations: 10
 **Cross-skill checks**: No overlap within or across namespaces. Producer/consumer contracts validated (consolidate→curate, make→execute, repoint-branch↔split-request). All Co-Authored-By references current (Opus 4.6).
 
 **No deep-dive candidates from skills sweep** — all skills well-scoped and current.
+
+### Iter 3
+
+**GUIDELINES sweep**: 4 files, all @-referenced from .claude/CLAUDE.md. All universally applicable behavioral guidelines — no domain specificity, no duplication with learnings, no staleness. communication.md (~200+ lines) and context-aware-learnings.md (~150+ lines) have justified always-on cost. path-resolution.md (~40 lines) and skill-invocation.md (~25 lines) are compact. CLAUDE.md inline Path Resolution table is intentional quick-ref, not duplication.
+
+**Broad sweeps complete** (L→S→G all clean). Transitioned to DEEP_DIVE phase.
+
+**Deep dive candidates** (28 total, prioritized):
+- Priority 1 — Polish Opportunities (4): claude-authoring-skills.md (462 lines), multi-agent-patterns.md (306 lines), ralph-loop.md (257 lines), git-patterns.md (236 lines)
+- Priority 2 — Unreviewed (21): accessibility-patterns, aws-patterns, claude-authoring-claude-md, claude-authoring-learnings, claude-authoring-personas, claude-authoring-polling-review-skills, gitlab-cli, java-observability, order-book-pricing, python-specific, quarkus-kotlin, react-frontend-gotchas, reactive-data-patterns, typescript-specific, ui-patterns, vercel-deployment, xrpl-amm, xrpl-cross-currency-payments, xrpl-dex-data, xrpl-gotchas, xrpl-permissioned-domains
+- Priority 3 — Stale tracked (3): bignumber-financial-arithmetic (run 0), ci-cd (run 0), gitlab-ci-cd (run 0)
+
+**Note**: cross-repo-sync and web-session-sync from iter 1 unreviewed list are actually in the tracker (run 9 and 8 respectively) — corrected to 21 unreviewed.
