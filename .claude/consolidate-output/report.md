@@ -7,7 +7,7 @@
 | Started | 2026-03-16T00:00 |
 | Branch | consolidate/2026-03-16 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16 |
-| Iterations | 6 |
+| Iterations | 7 |
 | Status | IN_PROGRESS (DEEP_DIVE phase) |
 
 ## Summary
@@ -17,7 +17,8 @@
 | Learnings | 1 | 0 | 5 | 0 | 0 |
 | Skills | 1 | 0 | 1 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **3** | **0** | **7** | **0** | **0** |
+| Deep Dives | 4 | 0 | 2 | 0 | 0 |
+| **Total** | **7** | **0** | **8** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -33,6 +34,7 @@
 | 4 | DEEP_DIVE | (clean) | claude-authoring-content-types.md | — | — |
 | 5 | DEEP_DIVE | (clean) | multi-agent-patterns.md | — | — |
 | 6 | DEEP_DIVE | Title/framing fix | claude-code.md § "Use TaskOutput" | multi-agent-patterns.md | MEDIUM |
+| 7 | DEEP_DIVE | Cross-ref wiring | git-patterns.md (See also) | ci-cd-gotchas.md | MEDIUM |
 
 ## Blocked Items
 

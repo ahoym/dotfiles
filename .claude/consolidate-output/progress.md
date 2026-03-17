@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md |
+| DEEP_DIVE_CANDIDATES | spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md, git-patterns.md |
 
 ## Pre-Flight
 
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | claude-authoring-content-types.md — hub with 13+ inbound refs. 11 sections all correctly placed. 6 spoke files verified. Hub-spoke layering correct (summary in hub, detail in spokes). No overlap, no compression opportunities. |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | multi-agent-patterns.md — hub with 7 inbound refs, 43 patterns, 305 lines. All patterns standalone reference / keep. 2 outbound cross-refs valid. 7 inbound refs all bidirectional. No duplicates, no compression opportunities. |
 | 6 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (title/framing fix) | claude-code.md — hub with 7 inbound refs, 33 patterns, 292 lines. 1 MEDIUM: "Use TaskOutput" section title/framing contradicted multi-agent-patterns.md re: Bash vs Agent background tasks — clarified. All other patterns standalone reference / keep. 2 outbound cross-refs valid bidirectional. |
+| 7 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (cross-ref wiring) | git-patterns.md — 234 lines, 28 patterns. No overlap with claude-code.md (worktree patterns are complementary). 3 inbound refs (bash-patterns, newman-postman, platform-engineer persona). 2 outbound refs: bash-patterns bidirectional ✓, ci-cd-gotchas unidirectional → added back-ref (MEDIUM). |
 
 ## Deep Dive Status
 
@@ -62,7 +63,7 @@ Suggested iterations: 15
 | claude-authoring-content-types.md | DONE | 4 | Clean — 11 sections, all keep. 6 spoke refs verified. No overlap/compression. |
 | multi-agent-patterns.md | DONE | 5 | Clean — 43 patterns, all keep. 7 inbound refs verified bidirectional. 2 outbound refs valid. Hub-spoke layering correct. |
 | claude-code.md | DONE | 6 | 1 MEDIUM applied: TaskOutput section title/framing fix (Bash vs Agent distinction). 33 patterns, all keep. 7 inbound refs, 2 outbound refs verified bidirectional. |
-| git-patterns.md | PENDING | — | 234 lines, potential overlap with claude-code.md |
+| git-patterns.md | DONE | 7 | 1 MEDIUM applied: cross-ref wiring ci-cd-gotchas.md. No overlap with claude-code.md confirmed. 28 patterns, all keep. |
 | spring-boot.md | PENDING | — | Polish Opportunity (compression) |
 | process-conventions.md | PENDING | — | Polish Opportunity (compression) |
 | code-quality-instincts.md | PENDING | — | Polish Opportunity (compression) |
@@ -166,3 +167,13 @@ Suggested iterations: 15
 - Hub-spoke layering confirmed correct: this file = platform mechanics (permissions, tool behavior, CLI quirks); multi-agent-patterns.md = orchestration; claude-code-hooks.md = hooks system; bash-patterns.md = shell command patterns; git-patterns.md = git workflows
 - No compression opportunities — 33 patterns at avg ~7 lines is already dense
 - Next: git-patterns.md (234 lines, potential overlap with claude-code.md on worktree settings)
+
+### Iter 7
+
+**Deep dive: git-patterns.md (1 MEDIUM applied)**
+- 234 lines, 28 patterns, 3 inbound refs (bash-patterns.md, newman-postman.md, platform-engineer.md persona), 2 outbound refs
+- **Overlap check (primary candidacy reason)**: No overlap with claude-code.md. git-patterns covers settings isolation mechanics + parallel rebase worktrees; claude-code covers CWD pinning behavior. Different concerns, complementary.
+- **Cross-ref audit**: bash-patterns.md ↔ git-patterns.md bidirectional ✓. ci-cd-gotchas.md was unidirectional (git-patterns→ci-cd-gotchas but not back). Added See also section to ci-cd-gotchas.md with back-ref.
+- **Pattern-level**: All 28 patterns standalone reference / keep. No stale content, no misplaced content, no duplication. Stacked PR risk patterns (lines 166-176) are closely related but cover distinct angles (chain invalidation vs dependency divergence).
+- No compression opportunities — patterns are already concise
+- Next: spring-boot.md (Polish Opportunity — compression)
