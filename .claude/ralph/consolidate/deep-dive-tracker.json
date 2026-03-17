@@ -1,5 +1,5 @@
 {
-  "run_count": 13,
+  "run_count": 14,
   "threshold": 5,
   "min_deep_dives": 20, origin/main
   "files": {
@@ -70,6 +70,11 @@
     ".claude/learnings/xrpl-dex-data.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-gotchas.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/xrpl-permissioned-domains.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/gitlab-cli.md": { "last_deep_dive_run": 0 }
+    ".claude/learnings/gitlab-cli.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/claude-code-hooks.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/java-infosec-gotchas.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/java-observability-gotchas.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/spring-boot-gotchas.md": { "last_deep_dive_run": 0 },
+    ".claude/learnings/postgresql-query-patterns.md": { "last_deep_dive_run": 0 }
   }
 }
