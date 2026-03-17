@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md |
+| DEEP_DIVE_CANDIDATES | react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md |
 
 ## Pre-Flight
 
@@ -65,6 +65,7 @@ Suggested iterations: 10
 | 15 | DEEP_DIVE | 0 | 0 | 0 | 0 | java-observability.md — clean. 14 lines, 1 section (Grafana/PromQL patterns). No overlap, already compact. |
 | 16 | DEEP_DIVE | 0 | 2 | 0 | 2 | order-book-pricing.md — added bidirectional cross-refs with xrpl-patterns.md. 44 lines, 4 sections, compact and clean. |
 | 17 | DEEP_DIVE | 1 | 3 | 0 | 4 | python-specific.md — removed 6 takeaway lines, merged 3 migration sections into "Package Manager Migration", added bidirectional cross-refs with api-design.md. 113→~95 lines. |
+| 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | quarkus-kotlin.md — clean. 8 lines, 1 pattern (Quarkus enum hot-reload). No overlap with spring-boot.md enum patterns (different frameworks). |
 
 ## Deep Dive Status
 
@@ -86,7 +87,7 @@ Suggested iterations: 10
 | java-observability.md | done | 15 | Clean. 14 lines, 1 section. No overlap with corpus. Compact PromQL/Micrometer reference. |
 | order-book-pricing.md | done | 16 | 0H+2M applied: added bidirectional cross-refs with xrpl-patterns.md + bignumber-financial-arithmetic.md. 49 lines, clean and compact. |
 | python-specific.md | done | 17 | 1H+3M applied: removed 6 takeaway lines, merged 3 migration sections, added bidirectional cross-refs with api-design.md. ~95 lines. |
-| quarkus-kotlin.md | pending | — | Unreviewed |
+| quarkus-kotlin.md | done | 18 | Clean. 8 lines, 1 pattern. No overlap, no cross-ref gaps, maximally compact. |
 | react-frontend-gotchas.md | pending | — | Unreviewed |
 | reactive-data-patterns.md | pending | — | Unreviewed |
 | typescript-specific.md | pending | — | Unreviewed |
@@ -364,3 +365,13 @@ Suggested iterations: 10
 **Tracker**: python-specific.md added (run 13), api-design.md reset to 0 (modified).
 
 **Next candidate**: quarkus-kotlin.md (unreviewed)
+
+### Iter 18
+
+**Deep dive: quarkus-kotlin.md** (8 lines, 1 pattern)
+
+**No actions** — clean file. Single "Enum changes require clean build in dev mode" pattern. Already maximally compact. No overlap with spring-boot.md enum patterns (JPA/PostgreSQL enum column mapping vs Quarkus dev mode incremental compilation). No cross-ref gaps — java-backend persona wires Java/Spring cluster files together when active.
+
+**Tracker**: quarkus-kotlin.md added (run 13).
+
+**Next candidate**: react-frontend-gotchas.md (unreviewed)
