@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
@@ -62,6 +62,7 @@ Suggested iterations: 10
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-personas.md — clean. 108 lines, 14 sections, all standalone references. No redundancy with persona-design.md (complementary). |
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-polling-review-skills.md — clean. 59 lines, 12 sections. No overlap with corpus. All 4 See also valid. |
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | gitlab-cli.md — deleted duplicate "Repointing MR Target Branches" section (canonical in git-patterns.md). 1 LOW: `--name-only` flag contradiction with fetch-review-data.md. |
+| 15 | DEEP_DIVE | 0 | 0 | 0 | 0 | java-observability.md — clean. 14 lines, 1 section (Grafana/PromQL patterns). No overlap, already compact. |
 
 ## Deep Dive Status
 
@@ -80,7 +81,7 @@ Suggested iterations: 10
 | claude-authoring-personas.md | done | 12 | Clean. 108 lines, 14 sections, all standalone references. Cross-ref to hub valid. |
 | claude-authoring-polling-review-skills.md | done | 13 | Clean. 59 lines, 12 patterns, all standalone. No overlap with cross-ref targets. |
 | gitlab-cli.md | done | 14 | 1H applied: deleted duplicate repointing section (canonical in git-patterns.md). 1 LOW: --name-only flag contradiction with fetch-review-data.md. ~8 lines remaining. |
-| java-observability.md | pending | — | Unreviewed |
+| java-observability.md | done | 15 | Clean. 14 lines, 1 section. No overlap with corpus. Compact PromQL/Micrometer reference. |
 | order-book-pricing.md | pending | — | Unreviewed |
 | python-specific.md | pending | — | Unreviewed |
 | quarkus-kotlin.md | pending | — | Unreviewed |
@@ -319,3 +320,11 @@ Suggested iterations: 10
 - L-3: `glab mr diff --name-only` confirmed non-existent. gitlab-cli.md was correct. Fixed `.claude/skill-references/gitlab/fetch-review-data.md` to use `--raw | grep` workaround.
 
 **Next candidate**: java-observability.md (unreviewed)
+
+### Iter 15
+
+**Deep dive: java-observability.md** (14 lines, 1 section)
+
+**No actions** — clean file. Single "Grafana Dashboard Patterns for Micrometer Counters" section with PromQL templates and dashboard structure guidance. Already maximally compact. No overlap anywhere in corpus. Companion gotchas file references this file explicitly.
+
+**Next candidate**: order-book-pricing.md (unreviewed)
