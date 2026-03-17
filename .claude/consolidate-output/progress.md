@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -57,6 +57,7 @@ Suggested iterations: 15
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | context-aware-learnings.md — clean. 8 patterns, all universal protocol sections, KEEP. |
 | 7 | DEEP_DIVE | 0 | 0 | 0 | 0 | path-resolution.md — clean. 2 patterns, both universal path mechanics, KEEP. |
 | 8 | DEEP_DIVE | 0 | 0 | 0 | 0 | skill-invocation.md — clean. 2 patterns, both universal behavioral rules, KEEP. |
+| 9 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-config-author.md — clean. 8 patterns, judgment-lens content, correct authoring-persona structure, KEEP. |
 
 ## Deep Dive Status
 
@@ -69,7 +70,7 @@ Suggested iterations: 15
 | 3 | .claude/guidelines/context-aware-learnings.md | 2 | unreviewed (6) | done | 6 | Clean — 8 patterns, all universal protocol sections, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
 | 4 | .claude/guidelines/path-resolution.md | 2 | unreviewed (6) | done | 7 | Clean — 2 patterns, both STANDALONE REFERENCE. Guideline gate passed. No compression, no cross-refs needed. |
 | 5 | .claude/guidelines/skill-invocation.md | 2 | unreviewed (6) | done | 8 | Clean — 2 patterns, both universal behavioral rules, KEEP. Guideline gate passed. No compression, no cross-refs needed. |
-| 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | pending | — | — |
+| 6 | .claude/commands/set-persona/claude-config-author.md | 2 | unreviewed (6) | done | 9 | Clean — 8 patterns, all judgment-lens, correct authoring-persona structure. Known gotchas absent by design (parent covers). No compression, no See also needed. |
 | 7 | .claude/commands/set-persona/claude-config-reviewer.md | 2 | unreviewed (6) | pending | — | — |
 | 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | pending | — | — |
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | pending | — | — |
@@ -169,6 +170,16 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 9
+
+**Deep dive 6 of 30**: `claude-config-author.md` (persona, unreviewed, tier 2) — CLEAN.
+- 8 patterns across Domain priorities, When creating or modifying (6 subsections: Before writing anything, Skills, Guidelines, Learnings, Personas, CLAUDE.md), When making tradeoffs.
+- All STANDALONE REFERENCE — judgment lens content, correctly typed for a persona.
+- Structural deviation from standard 4-section template is intentional: "When creating or modifying" replaces "When reviewing or writing code" (authoring lens, not review lens). Known gotchas section absent — parent `claude-config-expert` supplies platform gotchas and all learnings references.
+- No duplication with parent: parent covers taxonomy/placement/curation philosophy, child covers when/how to author each content type.
+- Key insight: Persona structural deviations that reflect the domain's fundamental operation (authoring vs reviewing) are correct deviations, not gaps. Don't flag as missing section just because the standard template doesn't match — the lens type drives the section names.
+- Next: candidate 7 = `claude-config-reviewer.md` (persona, unreviewed, tier 2).
 
 ### Iter 8
 
