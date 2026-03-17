@@ -7,8 +7,8 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 32 |
-| Status | IN_PROGRESS |
+| Iterations | 33 |
+| Status | MAX_DEEP_DIVES_HIT |
 
 ## Summary
 
@@ -58,6 +58,8 @@
 | 30 | DEEP_DIVE | add-bash-to-allowed-tools | explore-repo/SKILL.md | allowed-tools frontmatter | HIGH |
 | 31 | DEEP_DIVE | clean deep-dive | explore-repo/brief/SKILL.md | — | — |
 | 32 | DEEP_DIVE | fix-stale-core-principles | address-request-edge-cases.md lines 8-9 | — | HIGH |
+| 33 | DEEP_DIVE | clean deep-dive | git/cascade-rebase/SKILL.md | — | — |
+| 33 | — | MAX_DEEP_DIVES_HIT | 52 candidates remaining | next run | — |
 
 ## Blocked Items
 

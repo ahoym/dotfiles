@@ -106,6 +106,7 @@
     ".claude/commands/explore-repo/SKILL.md": { "last_deep_dive_run": 14 },
     ".claude/commands/explore-repo/brief/SKILL.md": { "last_deep_dive_run": 14 },
     ".claude/commands/git/address-request-comments/SKILL.md": { "last_deep_dive_run": 14 },
-    ".claude/commands/git/address-request-comments/address-request-edge-cases.md": { "last_deep_dive_run": 14 }
+    ".claude/commands/git/address-request-comments/address-request-edge-cases.md": { "last_deep_dive_run": 14 },
+    ".claude/commands/git/cascade-rebase/SKILL.md": { "last_deep_dive_run": 14 }
   }
 }

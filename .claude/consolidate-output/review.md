@@ -109,3 +109,26 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: Style concern in an example code block for an unusual edge-case workflow. Not operationally breaking. Whether agents follow illustrative code blocks prescriptively is uncertain.
 - **Curate command**: `/learnings:curate commands/git/address-request-comments/address-request-edge-cases.md`
 
+## [L-7] rebase-patterns.md — Pattern 3 (Commit Extraction Workflow) may be out of scope
+
+- **Iter**: 33
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/commands/git/cascade-rebase/rebase-patterns.md`
+- **Pattern**: Commit Extraction Workflow — moves a commit from a base branch to a standalone branch via `git reset --hard` on main + force-push
+- **Possible classifications**:
+  1. KEEP as-is — file is labeled "Common rebase patterns and troubleshooting"; commit extraction does use `--onto` and is a rebase pattern; content is correct
+  2. MOVE to `git-patterns.md` learnings — commit extraction is a different workflow from cascade rebase; involves resetting main (destructive); broader audience than cascade-rebase users
+- **Why LOW**: Content is correct and loosely fits the reference file's scope ("common rebase patterns"). Not operationally breaking. Moving would require verifying git-patterns.md content.
+- **Curate command**: `/learnings:curate commands/git/cascade-rebase/rebase-patterns.md`
+
+## [MAX-DEEP-DIVES] Deep dive phase hit 30-invocation limit
+
+- **Iter**: 33
+- **Details**: 30 deep dives completed (all listed candidates in Deep Dive Status table). 52 candidates remain for the next run — they carry over with naturally increasing staleness.
+- **Remaining candidates**:
+  - Tier 2 (unreviewed skills): ~20 files (git:*, learnings:*, ralph:*, parallel-plan:*, standalone)
+  - Tier 3 (unreviewed learnings): 7 files (claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md + others)
+  - Tier 4 (stale skills/skill-refs/personas): 12 files
+  - Tier 5 (stale learnings): 11 files
+- **Action needed**: Next consolidation run will pick up with fresh candidacy assessment. Staleness scores increase naturally — highest-priority files will float to the top.
+

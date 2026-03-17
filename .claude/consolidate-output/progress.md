@@ -1,10 +1,12 @@
+MAX_DEEP_DIVES_HIT
+
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 32 |
+| SWEEP_COUNT | 33 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -81,6 +83,7 @@ Suggested iterations: 15
 | 30 | DEEP_DIVE | 1 | 0 | 0 | 1 | explore-repo/SKILL.md — 1 HIGH (added Bash to allowed-tools). Phase 1 git diff staleness detection and stale file deletion need Bash for autonomous execution. References valid. KEEP. |
 | 31 | DEEP_DIVE | 0 | 0 | 0 | 0 | explore-repo/brief/SKILL.md — clean. 5 phases, all well-designed. No explicit skill-reference reads. Permissive allowed-tools (no declaration = unrestricted, fine for read-only brief). KEEP. |
 | 32 | DEEP_DIVE | 1 | 0 | 2 | 1 | git/address-request-comments — 1 HIGH: removed stale "Your partner approves" bullet + stale tail from "Reply first" bullet; added "Auto-implement on agreement" cross-ref bullet. 2 LOWs: step number mismatch (6+ vs 5+), git add -A in example. |
+| 33 | DEEP_DIVE | 0 | 0 | 1 | 0 | git/cascade-rebase/SKILL.md — clean. 8-step --onto cascade workflow correct. rebase-patterns.md patterns 1+2 KEEP. 1 LOW: Pattern 3 (commit extraction) may be out of scope. MAX_DEEP_DIVES_HIT. |
 
 ## Deep Dive Status
 
@@ -117,7 +120,7 @@ Suggested iterations: 15
 | 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | done | 30 | 1 HIGH applied — added Bash to allowed-tools (needed for git diff staleness detection and file deletion in Phase 1). References valid. KEEP. |
 | 28 | .claude/commands/explore-repo/brief/SKILL.md | 2 | unreviewed (6) | done | 31 | Clean — 5 phases, all well-designed. No refs, no undefined vars, permissive allowed-tools (fine for read-only brief). KEEP. |
 | 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | done | 32 | 1 HIGH: removed stale Core Principles bullets (always-escalate model) contradicting auto-implement logic in same file. 3 refs verified (iter 16 base, iter 14 platform cluster). KEEP. |
-| 30 | .claude/commands/git/cascade-rebase/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 30 | .claude/commands/git/cascade-rebase/SKILL.md | 2 | unreviewed (6) | done | 33 | Clean — SKILL.md + rebase-patterns.md. 8-step --onto cascade correct. 1 LOW: Pattern 3 (commit extraction) may be out of scope for cascade-rebase ref. KEEP. |
 |------|--------|------|---------|
 
 ## Notes for Next Iteration
@@ -244,6 +247,17 @@ Suggested iterations: 15
 - Overlap: none with explore-repo (generates artifacts), do-security-audit (different domain), any other skill. ✅
 - Key insight: A companion skill to a complex orchestrator may legitimately be simpler and omit explicit allowed-tools — check whether the skill spawns subagents or writes files. If read-only (Glob + Read + Bash for git info), permissive default is fine. The issue in explore-repo/SKILL.md was that Bash was LISTED but missing from an existing allowed-tools block — different from absent entirely.
 - Next: candidate 29 = `git/address-request-comments/SKILL.md` (skill, unreviewed, tier 2).
+
+### Iter 33
+
+**Deep dive 30 of 30**: `git/cascade-rebase/SKILL.md` (skill, unreviewed, tier 2) — CLEAN. MAX_DEEP_DIVES_HIT.
+- Skill package: SKILL.md (97 lines) + rebase-patterns.md (54 lines, local reference). 8-step cascade rebase workflow.
+- SKILL.md: Description accurate, $ARGUMENTS parsing correct, step 3 (record old hashes before rebasing) is the critical design for correct --onto fork points, step 7 correctly asks before pushing, --force-with-lease safety correct. All inline --onto syntax explanation correct. ✅
+- rebase-patterns.md: Pattern 1 (ancestor removal — why plain rebase fails) STANDALONE REFERENCE ✅. Pattern 2 (cascade --onto 3-arg form with rationale) STANDALONE REFERENCE ✅. Pattern 3 (commit extraction — moves commit from main via reset --hard) — different workflow, loosely fits "common rebase patterns" but involves resetting main.
+- LOW [L-7]: rebase-patterns.md Pattern 3 (Commit Extraction Workflow) involves `git reset --hard` on main — different workflow from cascade rebase. Could be moved to `git-patterns.md` learnings. Not breaking.
+- Tracker: added cascade-rebase/SKILL.md entry with last_deep_dive_run = 14.
+- Key insight: Local reference files within a skill directory (e.g., rebase-patterns.md, address-request-edge-cases.md) are referenced by relative filename only — different from skill-references/ which use `~/.claude/skill-references/` paths. Both patterns are valid; local refs are skill-specific, shared refs are multi-consumer.
+- MAX_DEEP_DIVES_HIT: 30 invocations completed, 52 candidates remain for next run (20 unreviewed tier-2 skills, 7 unreviewed tier-3 learnings, 12 stale tier-4 skills/refs/personas, 11 stale tier-5 learnings, 2 stale tier-2).
 
 ### Iter 32
 
