@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
+| SWEEP_COUNT | 6 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md |
 
 ## Pre-Flight
 
@@ -53,6 +53,7 @@ Suggested iterations: 10
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 | Clean — 4 files, all @-referenced, universally applicable. Transitioned to DEEP_DIVE (28 candidates) |
 | 4 | DEEP_DIVE | 2 | 2 | 0 | 4 | claude-authoring-skills.md — removed 4 redundant takeaway lines, compressed body-only templates to cross-ref, merged description sections, compressed @ references section. ~30 lines saved. |
 | 5 | DEEP_DIVE | 2 | 3 | 2 | 5 | multi-agent-patterns.md — removed 2 takeaway lines, compressed resume pattern details and code block, merged review architecture sections. 2 LOWs (migration candidates). ~20 lines saved. |
+| 6 | DEEP_DIVE | 2 | 2 | 0 | 4 | ralph-loop.md — merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~20 lines saved. |
 
 ## Deep Dive Status
 
@@ -62,7 +63,7 @@ Suggested iterations: 10
 |------|--------|------|---------|
 | claude-authoring-skills.md | done | 4 | 2H+2M applied: removed 4 takeaway lines, compressed body-only templates, merged description sections, compressed @ refs. ~432 lines. |
 | multi-agent-patterns.md | done | 5 | 2H+3M applied, 2 LOWs. Removed takeaways, compressed resume details+code block, merged review sections. ~286 lines. |
-| ralph-loop.md | pending | — | Polish opportunity (257 lines, compression) |
+| ralph-loop.md | done | 6 | 2H+2M applied: merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~237 lines. |
 | git-patterns.md | pending | — | Polish opportunity (236 lines, compression) |
 | accessibility-patterns.md | pending | — | Unreviewed |
 | aws-patterns.md | pending | — | Unreviewed |
@@ -180,3 +181,19 @@ Suggested iterations: 10
 **Overlap check**: Compared against subagent-patterns.md (skill-reference) and parallel-plans.md. All overlapping topics are complementary (different angles/detail levels), no duplication requiring action.
 
 **Next candidate**: ralph-loop.md (257 lines, compression)
+
+### Iter 6
+
+**Deep dive: ralph-loop.md** (257→~237 lines, 48 patterns)
+
+**Applied actions (4):**
+- HIGH: Merged "Deep Dive Carryover ≠ Unfinished Work" + "MAX_DEEP_DIVES_HIT Is a Completion Signal" — identical concepts from different angles
+- HIGH: Merged "One-Action-Per-Invocation Violations" + "Post-Invocation State Validation" — problem-solution pair, 11→5 lines
+- MEDIUM (auto-applied): Merged "Sentinel Value False Positives" + "Spec-Runner Signal Coherence" → "Runner-Spec Signal Contract" — two failure modes of the same contract, 10→6 lines
+- MEDIUM (auto-applied): Compressed "Consolidation Loop Variant" — removed 3 spec-redundant bullets (output dir, output files, runner/resume), 12→8 lines
+
+**Cross-ref health**: All 3 See Also entries valid and current (curation-insights.md, claude-code.md, multi-agent-patterns.md). No new cross-refs needed.
+
+**No LOWs** — remaining 44 patterns are compact standalone references with no overlap against claude-code.md, process-conventions.md, curation-insights.md, or multi-agent-patterns.md.
+
+**Next candidate**: git-patterns.md (236 lines, compression)

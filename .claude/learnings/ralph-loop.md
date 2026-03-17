@@ -38,14 +38,10 @@ When writing a spec for `claude --print` agents with no conversation history, em
 
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
 
-- **Output directory**: `.claude/consolidate-output/` (not `docs/learnings/<project>/`)
-- **Output files**: 5 files (spec, progress, decisions, report, review) instead of 5 core research files
-- **Security hooks**: Bash restricted to selective git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta (expected 1) after each invocation.
-- **Single-pass broad sweep**: One pass through LEARNINGS → SKILLS → GUIDELINES (one each), then transitions to deep dives. No convergence rounds — cross-type regressions are rare in practice and deep dives provide defense-in-depth.
-- **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; items needing human review surface via `review.md` (LOWs + blocked MEDIUMs)
-- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights directly into the learnings system (worktree `.claude/` paths). These become corpus changes evaluated by deep dives and subsequent consolidation runs.
-- **Runner**: `~/.claude/ralph/consolidate/wiggum.sh` (separate from the research `~/.claude/ralph/research/wiggum.sh`)
-- **Resume**: `/ralph:consolidate:resume` handles review item resolution and relaunch (vs `/ralph:research:resume` for research question answering)
+- **Security hooks**: Bash restricted to git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta after each invocation.
+- **Single-pass broad sweep**: LEARNINGS → SKILLS → GUIDELINES (one each), then deep dives. No convergence rounds — cross-type regressions are rare and deep dives provide defense-in-depth.
+- **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; LOWs + blocked MEDIUMs surface via `review.md`.
+- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights into the corpus (worktree `.claude/` paths). These become corpus changes evaluated by deep dives and subsequent runs.
 
 ## Research Output Pipeline: staged-learnings
 
@@ -79,19 +75,11 @@ The inline methodology: categorize insights using `claude-authoring-content-type
 
 The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Detailed references" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
 
-## One-Action-Per-Invocation Violations
+## One-Action-Per-Invocation Enforcement
 
-Stateless agents may violate one-action-per-invocation constraints when the action is trivially clean — they "helpfully" continue to the next action in the same invocation. Observed in consolidation: agent did SKILLS sweep (clean), then immediately did GUIDELINES sweep instead of exiting. The spec said "one sweep per invocation" but it was a single bullet point — easy for the model to deprioritize when continuing seems efficient.
+Stateless agents may violate one-action-per-invocation constraints when the action is trivially clean — they "helpfully" continue to the next action. Fix: **belt and suspenders.** Strengthen spec language (dedicated section with rationale, explicit "STOP") AND add outer-loop state validation (wiggum.sh reads SWEEP_COUNT pre/post, asserts delta = 1).
 
-**Fix: belt and suspenders.** Strengthen spec language (dedicated section with rationale, explicit "STOP" instruction) AND add outer-loop state validation (read SWEEP_COUNT before/after, assert delta = 1). Spec change reduces frequency; validation catches it when it happens anyway.
-
-## Post-Invocation State Validation
-
-The outer loop (wiggum.sh) should read agent state before and after each invocation and assert expected deltas. For consolidation: read SWEEP_COUNT from progress.md pre/post, verify it incremented by exactly 1.
-
-**Why**: Catches spec violations (double-sweep), provides infrastructure for future optimizations (e.g., fast-path skipping when no files changed), and maintains iteration-count parity between outer loop and agent. Without validation, numbering divergence is silent — only discoverable by reading log contents vs filenames.
-
-**On violation**: log WARNING but continue (don't abort — work is already done, aborting mid-loop leaves inconsistent state).
+Spec change reduces frequency; validation catches it when it happens anyway. On violation: log WARNING but continue (work is already done, aborting mid-loop leaves inconsistent state). Without validation, numbering divergence is silent — only discoverable by reading log contents vs filenames.
 
 ## Worktree-Aware File Editing
 
@@ -120,21 +108,17 @@ Both need explicit methodology in the spec. Defect mode has clear confidence lev
 
 `/ralph:brief` naturally surfaces cleanup work before creating a PR for a research branch. Loading all core files into context reveals: superseded v1 directories to compare and clean up, unique content to port between versions, open questions to document in the PR. Use brief → compare → port → PR as a natural completion sequence.
 
-## Sentinel Value False Positives in Signal Detection
+## Runner-Spec Signal Contract
 
-`grep -q` matches a sentinel value (e.g., `WOOT_COMPLETE_WOOT`) anywhere in the file — including prose mentions in Notes for Next Iteration. Agents naturally write sentinels speculatively ("if clean, streak reaches 2 → WOOT_COMPLETE_WOOT"), triggering premature loop exit.
+Two failure modes in sentinel-based loop control:
 
-**Fix**: Use `grep -qx` (exact line match) instead of `grep -q`. This matches only when the sentinel is the entire content of a line, rejecting it when embedded in prose. Same applies to `MAX_ROUNDS_HIT` or any signal checked by the outer loop.
+1. **False positives**: `grep -q` matches sentinels (e.g., `WOOT_COMPLETE_WOOT`) embedded in prose, not just as stop signals. Fix: use `grep -qx` (exact line match). Root cause is predictable — stateless agents will eventually write sentinels speculatively in notes.
 
-**Root cause is predictable**: stateless agents have no memory that their prose will be `grep`'d by the runner. Any sentinel value used as a signal by the outer loop will eventually appear in agent notes.
+2. **Missing signal checks**: When adding stop signals to a spec (e.g., `MAX_DEEP_DIVES_HIT`), verify the runner checks for all signals. If the runner only checks the original signal, new signals cause the agent to stop but the runner to keep launching until the stalled detector kicks in.
 
-## Spec-Runner Signal Coherence
+## Deep Dive Carryover and MAX_DEEP_DIVES_HIT
 
-When adding stop signals to a spec (e.g., `MAX_DEEP_DIVES_HIT`), verify the runner script checks for all signals. The spec defines agent behavior (write signal, stop sweeping); the runner defines loop termination (grep for signal, exit). If the runner only checks the original signal (`WOOT_COMPLETE_WOOT`), new signals cause the agent to stop but the runner to keep launching iterations until the stalled detector kicks in.
-
-## Deep Dive Carryover ≠ Unfinished Work
-
-When a run exits with `MAX_DEEP_DIVES_HIT` and lists remaining candidates, those are typically staleness-eligible files awaiting periodic review — not incomplete work from the current run. They qualified via `run_count - last_deep_dive_run >= threshold`, not because the current run started and couldn't finish them. Relaunching is optional (they'll be picked up next run with higher priority), not urgent. Frame accordingly during resume.
+`MAX_DEEP_DIVES_HIT` is a completion signal — treat it like `COMPLETE` for resume purposes. Remaining candidates are staleness-eligible files awaiting periodic review (qualified via `run_count - last_deep_dive_run >= threshold`), not incomplete work from the current run. Relaunching is optional (they'll be picked up next run with higher priority). The resume skill should offer the merge path, noting what carries over.
 
 ## Resume Decision vs Action Ambiguity
 
@@ -228,9 +212,6 @@ The consolidation worktree has guard hooks that auto-commit changes and can reve
 
 `/learnings:curate` (interactive) and the consolidation loop (autonomous) both review corpus files. After interactive curation, update the deep-dive tracker (`~/.claude/ralph/consolidate/deep-dive-tracker.json`) by setting `last_deep_dive_run = current run_count` for the curated file. This prevents the next consolidation run from queueing files for deep dives that were just manually reviewed.
 
-## MAX_DEEP_DIVES_HIT Is a Completion Signal
-
-`MAX_DEEP_DIVES_HIT` should be treated as a completion signal (like `COMPLETE`) for resume purposes — the run's substantive work is done. Carryover candidates are staleness-eligible periodic reviews, not blocked work. The resume skill should offer the merge path, noting what carries over to the next run.
 
 ## Session-Start Learnings Search Is Noisy for Consolidation Reviews
 
