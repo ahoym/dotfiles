@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 22 |
+| SWEEP_COUNT | 23 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -71,6 +71,7 @@ Suggested iterations: 15
 | 20 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/comment-interaction.md — clean. 9 patterns all STANDALONE REFERENCE, KEEP. 1 consumer (extractor-prompt.md) delegates by section name. No inline dup, no undefined vars, no compression needed. |
 | 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/fetch-review-data.md — clean. 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md). No inline dup, no undefined vars, no compression needed. |
 | 22 | DEEP_DIVE | 1 | 0 | 0 | 1 | github/pr-management.md — 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (gh/glab list has no positional branch arg; should delegate to "Check for Existing Review" section). Reference file itself KEEP — 5 patterns all STANDALONE REFERENCE. |
+| 23 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. :id is glab-native auto-substitution. KEEP. |
 
 ## Deep Dive Status
 
@@ -97,7 +98,7 @@ Suggested iterations: 15
 | 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | done | 20 | Clean — 9 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md) delegates by section name, no inline dup. No undefined vars, no compression needed. KEEP. |
 | 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | done | 21 | Clean — 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md), no inline dup. No undefined vars. KEEP. |
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | done | 22 | 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (missing `--head` flag). Reference file clean — 5 patterns all STANDALONE REFERENCE. 4 consumers verified (create-request, code-review-request, address-request-comments, address-request-edge-cases.md), all delegate by section name. KEEP. |
-| 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
+| 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | done | 23 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. KEEP. |
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | pending | — | — |
 | 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
 | 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
@@ -195,6 +196,18 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 23
+
+**Deep dive 20 of 30**: `gitlab/batch-operations.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 3 patterns: Fetch Review Metadata (Batch) (batch `glab api` + `jq` pipeline for MR extraction), Verify Platform Access (Batch) (API access check), Count Total Reviews (x-total header via --include). All STANDALONE REFERENCE.
+- Consumer verification (reference-file gate): 1 consumer — `extract-request-learnings/SKILL.md:53-78`. Explicitly listed in Reference Files section. Consumer references by section name (step 2 = "Verify Platform Access (Batch)", step 3 = "Count Total Reviews", step 6 = "Fetch Review Metadata (Batch)"). No inline content duplication. ✅
+- Variable check: `:id` is glab-native auto-substitution (NOT a user placeholder — `glab api` resolves it from git remote automatically); `<SIZE>`/`<PAGE>` are explicit placeholders substituted by consumer (`BATCH_SIZE` from plan file, `NEXT_PAGE` calculated). `$API_CMD` referenced in consumer steps is defined in platform-detection.md. No undefined variables. ✅
+- Structural symmetry with `github/batch-operations.md`: same 3-pattern structure, same pre-section verbatim-use directive. API differences correct: `glab api` vs `gh api`, `projects/:id/merge_requests` vs `repos/{owner}/{repo}/pulls`, `x-total` header vs `x-total-count`. All per-platform conventions. ✅
+- No compression opportunity (29 lines, 3 bash templates with context comments, maximally concise).
+- No See also needed — discoverable via consumer's explicit reference; no second index file present.
+- Key insight: In `glab api`, `:id` is a magic placeholder auto-resolved from the git remote to the URL-encoded project path — it is NOT a user-substituted placeholder like `<SIZE>` or `<PAGE>`. When reviewing GitLab skill-reference files, do not flag `:id` as an "undefined variable" — it is resolved by the CLI, not the agent. Verify that consumer substitutes only `<UPPERCASE>` or `{braced}` placeholders, not `:lowercase` ones.
+- Next: candidate 21 = `gitlab/commands.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 22
 

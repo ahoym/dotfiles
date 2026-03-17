@@ -95,6 +95,7 @@
     ".claude/commands/extract-request-learnings/extractor-prompt.md": { "last_deep_dive_run": 0 },
     ".claude/skill-references/github/fetch-review-data.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/github/pr-management.md": { "last_deep_dive_run": 14 },
+    ".claude/skill-references/gitlab/batch-operations.md": { "last_deep_dive_run": 14 },
     ".claude/commands/git/create-request/SKILL.md": { "last_deep_dive_run": 0 }
   }
 }
