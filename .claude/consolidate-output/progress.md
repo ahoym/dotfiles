@@ -4,8 +4,8 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
-| CONTENT_TYPE | SKILLS |
+| SWEEP_COUNT | 2 |
+| CONTENT_TYPE | GUIDELINES |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -31,7 +31,7 @@ Suggested iterations: 10
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
@@ -49,6 +49,7 @@ Suggested iterations: 10
 | Iter | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 0 | 0 | 0 | 0 | Clean — 58 files, 12 clusters, all well-organized |
+| 2 | SKILLS | 0 | 0 | 0 | 0 | Clean — 31 skills, 5 clusters, 16 skill-references, no overlap/staleness |
 
 ## Deep Dive Status
 
@@ -88,3 +89,18 @@ Suggested iterations: 10
 - git-patterns.md (236 lines) — compression candidate
 
 **Deep-dive unreviewed files** (23 files not in tracker): accessibility-patterns, aws-patterns, claude-authoring-claude-md, claude-authoring-learnings, claude-authoring-personas, claude-authoring-polling-review-skills, cross-repo-sync, gitlab-cli, java-observability, order-book-pricing, python-specific, quarkus-kotlin, react-frontend-gotchas, reactive-data-patterns, typescript-specific, ui-patterns, vercel-deployment, web-session-sync, xrpl-amm, xrpl-cross-currency-payments, xrpl-dex-data, xrpl-gotchas, xrpl-permissioned-domains
+
+### Iter 2
+
+**SKILLS cluster map** (5 clusters, 31 skills, 16 skill-references):
+- git:* (10): address-request-comments, cascade-rebase, code-review-request, create-request, explore-request, prune-merged, repoint-branch, resolve-conflicts, split-commit, split-request
+- learnings:* (4): compound, consolidate, curate, distribute
+- ralph:* (7): consolidate:init/resume, research:brief/cleanup/compare/init/resume
+- parallel-plan:* (2): make, execute
+- standalone (8): do-refactor-code, do-security-audit, explore-repo, explore-repo:brief, extract-request-learnings, quantum-tunnel-claudes, session-retro, set-persona
+
+**Shared references** (16 files, 2 platform clusters): Well-deduplicated. platform-detection (all git skills), request-interaction-base (address+review), agent-prompting/code-quality-checklist/subagent-patterns (orchestration skills), GitHub/GitLab cluster files (4 each, partitioned by function).
+
+**Cross-skill checks**: No overlap within or across namespaces. Producer/consumer contracts validated (consolidate→curate, make→execute, repoint-branch↔split-request). All Co-Authored-By references current (Opus 4.6).
+
+**No deep-dive candidates from skills sweep** — all skills well-scoped and current.
