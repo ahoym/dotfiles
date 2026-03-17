@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 21 |
+| SWEEP_COUNT | 22 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
@@ -69,6 +69,7 @@ Suggested iterations: 10
 | 19 | DEEP_DIVE | 0 | 1 | 0 | 1 | react-frontend-gotchas.md — added See also (react-patterns.md, nextjs.md, playwright-patterns.md). 27→32 lines, 14 patterns, all condensed refs to source files. |
 | 20 | DEEP_DIVE | 0 | 4 | 0 | 4 | reactive-data-patterns.md — compressed 3 Key Points blocks (folded unique details into prose), added See also (react-patterns.md, order-book-pricing.md). 42→32 lines. |
 | 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | typescript-specific.md — clean. 14 lines, 1 pattern (Record/union key extension). No overlap, all 3 See also valid. |
+| 22 | DEEP_DIVE | 0 | 2 | 0 | 2 | ui-patterns.md — added See also (react-patterns.md, nextjs.md, accessibility-patterns.md), added reverse cross-ref from react-patterns.md. 61→67 lines. |
 
 ## Deep Dive Status
 
@@ -94,7 +95,7 @@ Suggested iterations: 10
 | react-frontend-gotchas.md | done | 19 | 0H+1M applied: added See also → react-patterns.md, nextjs.md, playwright-patterns.md. 32 lines, 14 condensed patterns. |
 | reactive-data-patterns.md | done | 20 | 0H+4M applied: compressed 3 Key Points blocks (folded unique details into prose, removed redundant bullets), added See also → react-patterns.md, order-book-pricing.md. 42→32 lines. |
 | typescript-specific.md | done | 21 | Clean. 14 lines, 1 pattern. No overlap, no compression, all See also valid. |
-| ui-patterns.md | pending | — | Unreviewed |
+| ui-patterns.md | done | 22 | 0H+2M applied: added See also → react-patterns.md, nextjs.md, accessibility-patterns.md. Added reverse cross-ref from react-patterns.md. 67 lines, 3 patterns, compact and clean. |
 | vercel-deployment.md | pending | — | Unreviewed |
 | xrpl-amm.md | pending | — | Unreviewed |
 | xrpl-cross-currency-payments.md | pending | — | Unreviewed |
@@ -421,3 +422,17 @@ Suggested iterations: 10
 **Tracker**: typescript-specific.md added (run 13).
 
 **Next candidate**: ui-patterns.md (unreviewed)
+
+### Iter 22
+
+**Deep dive: ui-patterns.md** (61→67 lines, 3 sections)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` → react-patterns.md (component patterns/Tailwind context), nextjs.md (SVG title relates to JSX compilation), accessibility-patterns.md (interaction patterns complement UI styling)
+- MEDIUM (auto-applied): Added reverse cross-ref from react-patterns.md → ui-patterns.md (Tailwind tooltips, design token centralization)
+
+**Quality**: Compact file at 61 lines. All 3 sections are standalone patterns with code examples — CSS tooltip (Tailwind group-hover), SVG title gotcha, design token centralization. No compression candidates — code examples are the value. No redundancy with any other corpus file (Grep confirmed). No genericization issues — all patterns are UI-specific.
+
+**Tracker**: ui-patterns.md added (run 13), react-patterns.md reset to 0 (modified).
+
+**Next candidate**: vercel-deployment.md (unreviewed)
