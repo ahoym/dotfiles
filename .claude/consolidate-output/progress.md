@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
@@ -60,6 +60,7 @@ Suggested iterations: 15
 | 10 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (Takeaway compression) | code-quality-instincts.md — 131→113 lines (~14% compression). 26 patterns, all keep. Removed 9 redundant Takeaway lines. 12+ inbound refs. 2 outbound cross-refs bidirectional ✓. No duplication. |
 | 11 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (Takeaway compression + cross-ref) | financial-applications.md — 64→52 lines (~19% compression). 9 patterns, all keep. Removed 6 redundant Takeaway lines. Added back-ref from bignumber-financial-arithmetic.md. 3 inbound refs verified. No duplication. |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | java-devops.md — 35 lines, 6 sections. Extends platform-engineer. De-enrichment from sweep 2 verified clean. No overlap with java-backend or platform-engineer. All refs valid. |
+| 13 | DEEP_DIVE | 0 | 2 | 0 | 2 applied (cross-ref wiring) | ci-cd-gotchas.md — 36 lines, 19 patterns. 2 MEDIUMs: added See also back-refs from ci-cd.md and gitlab-ci-cd.md. No overlap with companions or typescript-ci-gotchas.md. |
 
 ## Deep Dive Status
 
@@ -74,7 +75,7 @@ Suggested iterations: 15
 | code-quality-instincts.md | DONE | 10 | 1 MEDIUM applied: Takeaway compression (131→113 lines, 9 redundant removed). 26 patterns, all keep. 12+ inbound refs (hub). 2 outbound cross-refs bidirectional ✓. No duplication. |
 | financial-applications.md | DONE | 11 | 2 MEDIUMs applied: Takeaway compression (64→52 lines, 6 redundant removed) + cross-ref to bignumber-financial-arithmetic.md. 9 patterns, all keep. No duplication. |
 | java-devops.md | DONE | 12 | Clean — 35 lines, 6 sections. Extends platform-engineer correctly (specializes, no duplication). De-enrichment from sweep 2 verified (1-line judgment + reference). No overlap with java-backend. All refs valid. |
-| ci-cd-gotchas.md | PENDING | — | Stale + modified (sweep 1) |
+| ci-cd-gotchas.md | DONE | 13 | 2 MEDIUMs applied: cross-ref wiring to ci-cd.md and gitlab-ci-cd.md (companion back-refs). 19 patterns, all keep. No overlap with companions or typescript-ci-gotchas.md. |
 | parallel-plans.md | PENDING | — | Stale + modified (sweep 1) |
 | newman-postman.md | PENDING | — | Stale + modified (sweep 1) |
 | local-dev-seeding.md | PENDING | — | Stale + modified (sweep 1) |
@@ -230,3 +231,12 @@ Suggested iterations: 15
 - **Cross-ref audit**: java-observability-gotchas.md in Known gotchas (context) + Proactive loads (trigger). java-observability.md in Detailed references. All files exist.
 - **Structure**: Observability approach section (lines 10-15) contains lens-type judgment heuristics — proper persona content, not factual gotchas.
 - Next: ci-cd-gotchas.md (Stale + modified in sweep 1)
+
+### Iter 13
+
+**Deep dive: ci-cd-gotchas.md (2 MEDIUMs applied)**
+- 36 lines, 19 patterns across 4 sections (GitHub Actions 6, GitLab CI/CD 12, CI Guards 1, See also 1). Companion to ci-cd.md and gitlab-ci-cd.md.
+- **Overlap check**: No duplication with ci-cd.md (patterns vs gotchas framing — one overlap on `cancel-in-progress` but different contexts), gitlab-ci-cd.md (diagnostic/API vs config gotchas), or typescript-ci-gotchas.md (pnpm/Node specific).
+- **Cross-ref audit**: git-patterns.md ↔ ci-cd-gotchas.md bidirectional ✓ (wired in iter 7). platform-engineer.md inbound (no back-ref needed). ci-cd.md and gitlab-ci-cd.md had NO back-refs despite being declared companions → 2 MEDIUMs applied.
+- **No compression opportunities**: All bullet points, already terse. No Takeaway lines.
+- Next: parallel-plans.md (Stale + modified in sweep 1)
