@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 11 | DEEP_DIVE | 1 | 0 | 0 | 1 | java-infosec.md — removed 7 redundant tripwires (near-verbatim duplicate of proactive-loaded java-infosec-gotchas.md). Compounded: inline-vs-proactive-load redundancy pattern → curation-insights.md. |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | reviewer.md — clean. 10 patterns all STANDALONE REFERENCE. Base persona pattern confirmed (no Known gotchas; children add domain gotchas). |
 | 13 | DEEP_DIVE | 0 | 0 | 0 | 0 | code-quality-checklist.md — clean. 2 patterns both STANDALONE REFERENCE. Extraction heuristics + counter-heuristics. 2 consumers (do-refactor-code, parallel-plan/execute), no inline duplication. KEEP. |
+| 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | corpus-cross-reference.md — 1 HIGH (fixed stale consumer description; learnings:curate not a consumer). 1 LOW: taxonomy overlap with content-mode.md (reference-file gate ambiguous). |
 
 ## Deep Dive Status
 
@@ -79,7 +80,7 @@ Suggested iterations: 15
 | 8 | .claude/commands/set-persona/java-infosec.md | 2 | unreviewed (6) | done | 11 | 1 HIGH applied — removed 7 redundant tripwires duplicating proactive-loaded java-infosec-gotchas.md. Domain priorities + tradeoffs: KEEP. |
 | 9 | .claude/commands/set-persona/reviewer.md | 2 | unreviewed (6) | done | 12 | Clean — 10 patterns, all STANDALONE REFERENCE. Base persona pattern (no Known gotchas; children add domain gotchas). Proactive loads correct. |
 | 10 | .claude/skill-references/code-quality-checklist.md | 2 | unreviewed (6) | done | 13 | Clean — 2 patterns both STANDALONE REFERENCE. Extraction heuristics, 2 consumers, no inline duplication in consumers. KEEP. |
-| 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | pending | — | — |
+| 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | done | 14 | 1 HIGH applied — fixed stale consumer description (removed learnings:curate claim). 1 LOW: Coverage Match Types taxonomy overlap with content-mode.md step 3. 2 patterns both STANDALONE REFERENCE. KEEP. |
 | 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | pending | — | — |
 | 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | pending | — | — |
 | 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | pending | — | — |
@@ -174,6 +175,16 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 14
+
+**Deep dive 11 of 30**: `corpus-cross-reference.md` (skill-reference, unreviewed, tier 2) — 1 HIGH applied.
+- Consumer verification (reference-file gate): only 1 actual consumer — `quantum-tunnel-claudes/SKILL.md` (conditionally, >5 candidates). Despite the file's own body text claiming "Used by learnings:curate," Grep confirmed no reference to `corpus-cross-reference` in `learnings:curate/SKILL.md` or `content-mode.md`. content-mode.md inlines its own corpus loading at step 2.
+- HIGH applied: updated body description to remove stale `learnings:curate` consumer claim and note the inline duplicate in content-mode.md.
+- LOW recorded [L-1]: Coverage Match Types table (Exact/Partial/Thematic/No match) has near-identical taxonomy in content-mode.md step 3 — same vocabulary, different framing. Reference-file gate doesn't cleanly apply since content-mode.md is not a declared consumer. Flagged for human review.
+- Both patterns (Loading the Corpus, Cross-Referencing Content): STANDALONE REFERENCE — KEEP.
+- Key insight: When a skill-reference file's self-description lists consumers, verify against Grep — self-descriptions can drift as consumer skills are refactored. Consumer claims are more reliable when backed by a dedicated "Reference Files" section in the consumer's SKILL.md.
+- Next: candidate 12 = `platform-detection.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 13
 

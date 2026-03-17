@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 13 |
+| Iterations | 14 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -39,6 +39,7 @@
 | 11 | DEEP_DIVE | remove-redundant-tripwires | java-infosec.md | java-infosec-gotchas.md | HIGH |
 | 12 | DEEP_DIVE | clean deep-dive | reviewer.md | — | — |
 | 13 | DEEP_DIVE | clean deep-dive | code-quality-checklist.md | — | — |
+| 14 | DEEP_DIVE | fix-stale-consumer-description | corpus-cross-reference.md | — | HIGH |
 
 ## Blocked Items
 

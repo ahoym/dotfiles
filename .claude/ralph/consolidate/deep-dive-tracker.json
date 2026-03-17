@@ -84,6 +84,7 @@
     ".claude/commands/set-persona/claude-config-reviewer.md": { "last_deep_dive_run": 14 },
     ".claude/commands/set-persona/java-infosec.md": { "last_deep_dive_run": 14 },
     ".claude/commands/set-persona/reviewer.md": { "last_deep_dive_run": 14 },
-    ".claude/skill-references/code-quality-checklist.md": { "last_deep_dive_run": 14 }
+    ".claude/skill-references/code-quality-checklist.md": { "last_deep_dive_run": 14 },
+    ".claude/skill-references/corpus-cross-reference.md": { "last_deep_dive_run": 14 }
   }
 }

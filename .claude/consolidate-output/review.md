@@ -37,3 +37,15 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 
 -->
 
+## [L-1] corpus-cross-reference.md — Coverage Match Types taxonomy overlap with content-mode.md
+
+- **Iter**: 14
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/skill-references/corpus-cross-reference.md`
+- **Pattern**: Cross-Referencing Content → Coverage Match Types table (Exact/Partial/Thematic/No match)
+- **Possible classifications**:
+  1. STANDALONE REFERENCE (keep) — content-mode.md has its own version with different framing (maps to confidence levels, not implications); parallel development, not consumer duplication; adding reference would cost load overhead on every curation
+  2. DEDUPLICATE — wire content-mode.md step 3 to reference this file's table; reduces taxonomy drift risk between the two sources
+- **Why LOW**: content-mode.md is not a declared consumer, so the reference-file gate does not cleanly apply. The taxonomies serve similar but different purposes (one maps "implications," one maps to "confidence levels"). Unclear whether this is intentional parallel development or accidental divergence.
+- **Curate command**: `/learnings:curate skill-references/corpus-cross-reference.md`
+
