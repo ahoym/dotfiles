@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md |
+| DEEP_DIVE_CANDIDATES | claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md |
 
 ## Pre-Flight
 
@@ -58,6 +58,7 @@ Suggested iterations: 10
 | 8 | DEEP_DIVE | 0 | 2 | 0 | 2 | accessibility-patterns.md — added bidirectional cross-refs with react-patterns.md. Clean file, no compression needed. |
 | 9 | DEEP_DIVE | 0 | 2 | 0 | 2 | aws-patterns.md — added bidirectional cross-refs with aws-messaging.md. 14-line file, already compact. |
 | 10 | DEEP_DIVE | 3 | 0 | 0 | 3 | claude-authoring-claude-md.md — removed 2 takeaway lines, deleted section duplicated by path-resolution.md guideline. ~8 lines saved. |
+| 11 | DEEP_DIVE | 0 | 2 | 0 | 2 | claude-authoring-learnings.md — merged discoverability stack into cross-ref convention, removed inline examples. ~11 lines saved. |
 
 ## Deep Dive Status
 
@@ -72,7 +73,7 @@ Suggested iterations: 10
 | accessibility-patterns.md | done | 8 | 0H+2M applied: added bidirectional cross-refs with react-patterns.md. 70 lines, compact and clean. |
 | aws-patterns.md | done | 9 | 0H+2M applied: added bidirectional cross-refs with aws-messaging.md. 18 lines, compact and clean. |
 | claude-authoring-claude-md.md | done | 10 | 3H applied: removed 2 takeaway lines, deleted @ References section (duplicate of path-resolution.md guideline). ~142 lines. |
-| claude-authoring-learnings.md | pending | — | Unreviewed |
+| claude-authoring-learnings.md | done | 11 | 0H+2M applied: compressed discoverability stack into cross-ref convention, removed inline examples. ~103 lines. |
 | claude-authoring-personas.md | pending | — | Unreviewed |
 | claude-authoring-polling-review-skills.md | pending | — | Unreviewed |
 | gitlab-cli.md | pending | — | Unreviewed |
@@ -267,3 +268,19 @@ Suggested iterations: 10
 **Tracker**: claude-authoring-claude-md.md added (run 13).
 
 **Next candidate**: claude-authoring-learnings.md (unreviewed)
+
+### Iter 11
+
+**Deep dive: claude-authoring-learnings.md** (114→~103 lines, 11 sections)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Compressed "Cross-Ref Discoverability Stack" (10 lines) into 2-line "Prioritize islands" rule, folded into "Cross-Reference Convention" section. The 4-level model (persona→inbound→see-also→keyword) was educational but verbose — the actionable conclusion captures the value.
+- MEDIUM (auto-applied): Removed "Example — curation-specific cross-refs" (3 lines) — inline prose-style refs to curation-insights.md that used a different format than the `## See also` convention being taught. Replaced with the folded "Prioritize islands" rule.
+
+**Quality**: Well-structured file with clear section boundaries. Genericization section (25 lines) is the longest but justified — covers table, exceptions, and project-specific instances. Cross-ref convention (now ~30 lines with folded islands rule) is the reference specification for the cross-ref system. No further compression candidates.
+
+**Cross-ref health**: Single See also → `claude-authoring-content-types.md` (hub). Valid. No new cross-refs needed — all authoring cluster files share prefix.
+
+**Tracker**: claude-authoring-learnings.md added (run 13).
+
+**Next candidate**: claude-authoring-personas.md (unreviewed)
