@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
@@ -59,6 +59,7 @@ Suggested iterations: 10
 | 9 | DEEP_DIVE | 0 | 2 | 0 | 2 | aws-patterns.md — added bidirectional cross-refs with aws-messaging.md. 14-line file, already compact. |
 | 10 | DEEP_DIVE | 3 | 0 | 0 | 3 | claude-authoring-claude-md.md — removed 2 takeaway lines, deleted section duplicated by path-resolution.md guideline. ~8 lines saved. |
 | 11 | DEEP_DIVE | 0 | 2 | 0 | 2 | claude-authoring-learnings.md — merged discoverability stack into cross-ref convention, removed inline examples. ~11 lines saved. |
+| 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | claude-authoring-personas.md — clean. 108 lines, 14 sections, all standalone references. No redundancy with persona-design.md (complementary). |
 
 ## Deep Dive Status
 
@@ -74,7 +75,7 @@ Suggested iterations: 10
 | aws-patterns.md | done | 9 | 0H+2M applied: added bidirectional cross-refs with aws-messaging.md. 18 lines, compact and clean. |
 | claude-authoring-claude-md.md | done | 10 | 3H applied: removed 2 takeaway lines, deleted @ References section (duplicate of path-resolution.md guideline). ~142 lines. |
 | claude-authoring-learnings.md | done | 11 | 0H+2M applied: compressed discoverability stack into cross-ref convention, removed inline examples. ~103 lines. |
-| claude-authoring-personas.md | pending | — | Unreviewed |
+| claude-authoring-personas.md | done | 12 | Clean. 108 lines, 14 sections, all standalone references. Cross-ref to hub valid. |
 | claude-authoring-polling-review-skills.md | pending | — | Unreviewed |
 | gitlab-cli.md | pending | — | Unreviewed |
 | java-observability.md | pending | — | Unreviewed |
@@ -284,3 +285,17 @@ Suggested iterations: 10
 **Tracker**: claude-authoring-learnings.md added (run 13).
 
 **Next candidate**: claude-authoring-personas.md (unreviewed)
+
+### Iter 12
+
+**Deep dive: claude-authoring-personas.md** (108 lines, 14 sections)
+
+**No actions** — clean file. All 14 sections are standalone references with no redundancy, no compression candidates, and no cross-ref gaps.
+
+**Cross-ref check**: persona-design.md (curation methodology) covers creation process formally; this learning captures discovery-oriented patterns (evaluation tests, composition strategies, curation checks). Complementary, not duplicative.
+
+**Evaluated merge candidates**: Sections 11-13 (persona curation checks — gotchas duplication, cross-persona duplication, inherited load noise) are distinct failure modes; merging would lose clarity for ~4 lines saved.
+
+**Tracker**: claude-authoring-personas.md added (run 13).
+
+**Next candidate**: claude-authoring-polling-review-skills.md (unreviewed)
