@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 23 |
+| SWEEP_COUNT | 24 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -72,6 +72,7 @@ Suggested iterations: 15
 | 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/fetch-review-data.md — clean. 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md). No inline dup, no undefined vars, no compression needed. |
 | 22 | DEEP_DIVE | 1 | 0 | 0 | 1 | github/pr-management.md — 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (gh/glab list has no positional branch arg; should delegate to "Check for Existing Review" section). Reference file itself KEEP — 5 patterns all STANDALONE REFERENCE. |
 | 23 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. :id is glab-native auto-substitution. KEEP. |
+| 24 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/commands.md — clean index. All 4 cluster files present. No skills reference index directly. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" — same style question as [L-2]. extractor-prompt.md path fix from iter 19 covers gitlab. KEEP. |
 
 ## Deep Dive Status
 
@@ -99,7 +100,7 @@ Suggested iterations: 15
 | 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | done | 21 | Clean — 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md), no inline dup. No undefined vars. KEEP. |
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | done | 22 | 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (missing `--head` flag). Reference file clean — 5 patterns all STANDALONE REFERENCE. 4 consumers verified (create-request, code-review-request, address-request-comments, address-request-edge-cases.md), all delegate by section name. KEEP. |
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | done | 23 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. KEEP. |
-| 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | pending | — | — |
+| 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | done | 24 | Clean index — all 4 cluster files present, no direct consumers, nav guidance correct. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" [L-3]. KEEP. |
 | 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
 | 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
 | 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | pending | — | — |
@@ -196,6 +197,21 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 24
+
+**Deep dive 21 of 30**: `gitlab/commands.md` (skill-reference index, unreviewed, tier 2) — CLEAN.
+- Index file: 4 cluster entries (fetch-review-data, comment-interaction, pr-management, batch-operations). All 4 cluster files confirmed present via Glob. Index description accurate: "Skills should reference specific cluster files, not this index."
+- Consumer verification: Grep for `gitlab/commands` found only logs + progress.md — no skills reference this index directly. ✅ Correct — skills reference cluster files directly per the navigation guidance.
+- Description accuracy check:
+  - batch-operations.md: ✅ (verified iter 23 — 3 patterns match)
+  - pr-management.md: ✅ (visible sections match: Create or Update MR, Post Review)
+  - comment-interaction.md: ✅ (visible sections match: Fetch Inline/Review Comments)
+  - fetch-review-data.md: "Fetch Review Details, Diff, Files Changed, Commits" — omits "Fetch Activity Signals (consolidated)" [L-3]
+- extractor-prompt.md path (iter 19 HIGH fix): Uses `<PLATFORM>/comment-interaction.md` + `<PLATFORM>/fetch-review-data.md` — covers gitlab automatically. ✅ No separate fix needed for gitlab.
+- LOW [L-3]: Same style question as [L-2] (github/commands.md) — whether index descriptions should be exhaustive or summary-level. Not operationally breaking.
+- Key insight: When an index file has a symmetric counterpart (github/commands.md ↔ gitlab/commands.md), the github counterpart's deep dive (iter 19) validates the pattern but NOT the description accuracy of the gitlab version — each index must be checked independently because description accuracy depends on the actual cluster file sections, which may differ between platforms. In this case, `Fetch Activity Signals (consolidated)` exists in both the github AND gitlab `fetch-review-data.md` — the description omission is consistent across both index files and flags the same LOW [L-2] / [L-3] pattern.
+- Next: candidate 22 = `gitlab/comment-interaction.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 23
 

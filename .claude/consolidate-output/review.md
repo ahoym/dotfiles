@@ -61,3 +61,15 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: Whether index descriptions should list all section names (complete) or just the core command categories (summary) is a style decision. The omission is not operationally breaking — skills read the cluster files directly per the index description.
 - **Curate command**: `/learnings:curate skill-references/github/commands.md`
 
+## [L-3] gitlab/commands.md — fetch-review-data.md index description omits "Fetch Activity Signals (consolidated)"
+
+- **Iter**: 24
+- **Content Type**: DEEP_DIVE
+- **File**: `.claude/skill-references/gitlab/commands.md`
+- **Pattern**: Index table — fetch-review-data.md description
+- **Possible classifications**:
+  1. KEEP as-is — "Fetch Activity Signals" is a consolidation variant of "Fetch Review Details" (same glab command), not a separate command category; the index description is a summary, not exhaustive
+  2. UPDATE — add the consolidated variant to the description so skills referencing the index can see the full API surface: "Fetch Review Details, Diff, Files Changed, Commits, Fetch Activity Signals (consolidated)"
+- **Why LOW**: Same style decision as [L-2] for github/commands.md — whether index descriptions should list all section names or just core categories. The omission is not operationally breaking — skills read cluster files directly per the index navigation guidance.
+- **Curate command**: `/learnings:curate skill-references/gitlab/commands.md`
+
