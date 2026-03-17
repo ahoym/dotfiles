@@ -61,10 +61,7 @@ Before creating the review, verify these items are complete:
 
    Skip checks that aren't configured for the project. Don't install new tools.
 
-5. **Check for existing review**:
-   ```bash
-   $LIST_CMD <current-branch>
-   ```
+5. **Check for existing review** — follow **"Check for Existing Review"** in the platform cluster files.
    - If a review already exists, ask user: "$REVIEW_UNIT #N already exists for this branch. Update its description instead of creating new?"
    - If yes, use `$EDIT_CMD` instead of `$CREATE_CMD`
 

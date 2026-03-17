@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 21 |
+| Iterations | 22 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -47,6 +47,7 @@
 | 19 | DEEP_DIVE | fix-stale-path-reference | extractor-prompt.md:26 | <PLATFORM>/comment-interaction.md + fetch-review-data.md | HIGH |
 | 20 | DEEP_DIVE | clean deep-dive | github/comment-interaction.md | — | — |
 | 21 | DEEP_DIVE | clean deep-dive | github/fetch-review-data.md | — | — |
+| 22 | DEEP_DIVE | fix-broken-list-cmd | create-request/SKILL.md:65-66 | step 5 delegation | HIGH |
 
 ## Blocked Items
 

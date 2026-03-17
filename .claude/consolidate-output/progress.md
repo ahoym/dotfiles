@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 21 |
+| SWEEP_COUNT | 22 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 19 | DEEP_DIVE | 1 | 0 | 1 | 1 | github/commands.md — index file clean. 1 HIGH: fixed stale path in extractor-prompt.md (referenced non-existent <PLATFORM>-commands.md; updated to <PLATFORM>/comment-interaction.md + <PLATFORM>/fetch-review-data.md). 1 LOW: index description for fetch-review-data.md omits consolidated variants. |
 | 20 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/comment-interaction.md — clean. 9 patterns all STANDALONE REFERENCE, KEEP. 1 consumer (extractor-prompt.md) delegates by section name. No inline dup, no undefined vars, no compression needed. |
 | 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/fetch-review-data.md — clean. 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md). No inline dup, no undefined vars, no compression needed. |
+| 22 | DEEP_DIVE | 1 | 0 | 0 | 1 | github/pr-management.md — 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (gh/glab list has no positional branch arg; should delegate to "Check for Existing Review" section). Reference file itself KEEP — 5 patterns all STANDALONE REFERENCE. |
 
 ## Deep Dive Status
 
@@ -95,7 +96,7 @@ Suggested iterations: 15
 | 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | done | 19 | 1 HIGH: fixed stale path ref in extractor-prompt.md (<PLATFORM>-commands.md → <PLATFORM>/comment-interaction.md + fetch-review-data.md). 1 LOW: index description omits consolidated variants. Index itself STANDALONE REFERENCE, KEEP. |
 | 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | done | 20 | Clean — 9 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md) delegates by section name, no inline dup. No undefined vars, no compression needed. KEEP. |
 | 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | done | 21 | Clean — 6 patterns all STANDALONE REFERENCE. 3 consumers (split-request, explore-request, extractor-prompt.md), no inline dup. No undefined vars. KEEP. |
-| 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | pending | — | — |
+| 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | done | 22 | 1 HIGH: fixed broken `$LIST_CMD <current-branch>` in create-request step 5 (missing `--head` flag). Reference file clean — 5 patterns all STANDALONE REFERENCE. 4 consumers verified (create-request, code-review-request, address-request-comments, address-request-edge-cases.md), all delegate by section name. KEEP. |
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | pending | — | — |
 | 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
@@ -194,6 +195,18 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 22
+
+**Deep dive 19 of 30**: `github/pr-management.md` (skill-reference, unreviewed, tier 2) — 1 HIGH applied.
+- 5 patterns: Create or Update PR (Body via File), Post Review with Inline Comments, Checkout Review Branch, Check for Existing Review, Find Approved Reviewers. All STANDALONE REFERENCE.
+- Consumer verification (reference-file gate): 4 consumers — `create-request/SKILL.md` (Create or Update PR at step 10), `code-review-request/SKILL.md` (Post Review at step 11), `re-review-mode.md` (Post Review at step c), `address-request-comments/SKILL.md` (Checkout Review Branch at step 3), `address-request-edge-cases.md` (Find Approved Reviewers). All delegate by section name. `request-interaction-base.md` references for platform cluster loading (not a section consumer). ✅
+- HIGH applied: `create-request/SKILL.md:65-66` — `$LIST_CMD <current-branch>` is broken syntax. `gh pr list` and `glab mr list` have no positional branch argument; the `--head` / `--source-branch` filter flag is silently dropped. Fix: replaced inline `$LIST_CMD` invocation with delegation to "Check for Existing Review" section by name, consistent with how steps 10 and 11 reference cluster file sections.
+- Variable check: `{owner}/{repo}` (API path params), `<number>`, `<base-branch>`, `<title>`, `<headRefName>`, `<branch-name>` — all placeholders, substituted by consumers. No undefined state variables. EDIT_CMD defined in platform-detection.md (iter 15). ✅
+- No compression needed (70 lines, 5 templates with context, maximally concise).
+- No See also needed — cluster files discoverable via `github/commands.md` index; consumers reference directly.
+- Key insight: When verifying consumers of a platform cluster file, check that consumers using platform-abstracted variables (e.g., `$LIST_CMD`, `$CREATE_CMD`) actually include the required flags. `$LIST_CMD` is `gh pr list` but does NOT include `--head` — so `$LIST_CMD <branch>` silently drops the filter. The reference file correctly shows the full template with flags; the consumer bypassed the template and lost the flag in the process.
+- Next: candidate 20 = `gitlab/batch-operations.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 20
 
