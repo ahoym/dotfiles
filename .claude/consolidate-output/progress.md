@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 19 |
+| SWEEP_COUNT | 20 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -68,6 +68,7 @@ Suggested iterations: 15
 | 17 | DEEP_DIVE | 0 | 0 | 0 | 0 | subagent-patterns.md — clean. 3 patterns all STANDALONE REFERENCE. 3 consumers verified, no inline dup. KEEP. |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup, no undefined vars. KEEP. |
 | 19 | DEEP_DIVE | 1 | 0 | 1 | 1 | github/commands.md — index file clean. 1 HIGH: fixed stale path in extractor-prompt.md (referenced non-existent <PLATFORM>-commands.md; updated to <PLATFORM>/comment-interaction.md + <PLATFORM>/fetch-review-data.md). 1 LOW: index description for fetch-review-data.md omits consolidated variants. |
+| 20 | DEEP_DIVE | 0 | 0 | 0 | 0 | github/comment-interaction.md — clean. 9 patterns all STANDALONE REFERENCE, KEEP. 1 consumer (extractor-prompt.md) delegates by section name. No inline dup, no undefined vars, no compression needed. |
 
 ## Deep Dive Status
 
@@ -91,7 +92,7 @@ Suggested iterations: 15
 | 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | done | 17 | Clean — 3 patterns all STANDALONE REFERENCE. 3 consumers verified (parallel-plan/execute, explore-repo, do-security-audit), no inline dup. Thematic overlap with multi-agent-patterns.md properly handled via existing See also. KEEP. |
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | done | 18 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name, no inline dup. Index description accurate. KEEP. |
 | 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | done | 19 | 1 HIGH: fixed stale path ref in extractor-prompt.md (<PLATFORM>-commands.md → <PLATFORM>/comment-interaction.md + fetch-review-data.md). 1 LOW: index description omits consolidated variants. Index itself STANDALONE REFERENCE, KEEP. |
-| 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
+| 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | done | 20 | Clean — 9 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md) delegates by section name, no inline dup. No undefined vars, no compression needed. KEEP. |
 | 18 | .claude/skill-references/github/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
 | 19 | .claude/skill-references/github/pr-management.md | 2 | unreviewed (6) | pending | — | — |
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
@@ -180,6 +181,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 20
+
+**Deep dive 17 of 30**: `github/comment-interaction.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 9 patterns: pre-header meta-rules (jq != avoidance, use-verbatim mandate), Fetch Inline/Review Comments (full+incremental), Fetch Recent Inline Comments (quick-exit polling with 3-case interpretation), Fetch General Review Comments (no-since-filter + LAST_REVIEW_COUNT workaround), Fetch Issue/Top-Level Comments, Reply to Inline Comment (write-file-first + absolute paths), Edit Inline Comment (PATCH endpoint path gotcha — `pulls/comments/<id>` not `pulls/<num>/comments/<id>`), React to Comment (-f not -F + dual endpoints for inline vs issue), Post Top-Level Comment. All STANDALONE REFERENCE.
+- Consumer verification (reference-file gate): 1 consumer — `extractor-prompt.md:26`. Delegates to this file by section name ("use these sections from those files"). No inline duplication. Other references in skill-references/ cluster are index entries or cross-reference pointers, not consumers.
+- Variable check: all placeholders (`{owner}/{repo}`, `<number>`, `<TS>`, `<comment_id>`, `<emoji>`) are template params. State vars (`LAST_REVIEW_TS`, `LAST_REVIEW_COUNT`) defined in consumers or `request-interaction-base.md`. No undefined variables.
+- No compression opportunity (~10 lines/pattern including bash code examples — already tight).
+- No See also needed — cluster files discoverable via `github/commands.md` index; consumers reference directly.
+- Key insight: When a skill-reference file has a pre-section meta-instruction block (before any H2 headers), verify it's not duplicated in consumers. In this case, "Never use != in jq" and "Use templates verbatim" are architectural rules for ALL templates in the file — they belong at the top and do NOT need to be repeated per-section. The pre-header location is the correct placement for rules that govern the entire file's usage.
+- Next: candidate 18 = `github/fetch-review-data.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 19
 
