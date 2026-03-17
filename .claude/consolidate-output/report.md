@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 6 |
-| Status | IN_PROGRESS (deep dives: 3/28 complete) |
+| Iterations | 7 |
+| Status | IN_PROGRESS (deep dives: 4/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 3 | 6 | 7 | 0 | 0 |
-| **Total** | **6** | **6** | **7** | **0** | **0** |
+| Deep Dives | 4 | 8 | 10 | 0 | 0 |
+| **Total** | **7** | **8** | **10** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -32,6 +32,7 @@
 | 4 | DEEP_DIVE | remove takeaways, compress duplicate, merge sections, compress section | claude-authoring-skills.md | — | 2 HIGH, 2 MEDIUM |
 | 5 | DEEP_DIVE | remove takeaways, compress resume details, compress code block, merge review sections | multi-agent-patterns.md | — | 2 HIGH, 3 MEDIUM |
 | 6 | DEEP_DIVE | merge 3 section pairs, compress consolidation variant | ralph-loop.md | — | 2 HIGH, 2 MEDIUM |
+| 7 | DEEP_DIVE | remove 2 takeaways, merge stacked PR sections, fold symlink takeaway, merge stash pop sections | git-patterns.md | — | 2 HIGH, 3 MEDIUM |
 
 ## Blocked Items
 

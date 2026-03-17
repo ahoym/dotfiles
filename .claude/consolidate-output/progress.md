@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md |
+| DEEP_DIVE_CANDIDATES | accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md |
 
 ## Pre-Flight
 
@@ -54,6 +54,7 @@ Suggested iterations: 10
 | 4 | DEEP_DIVE | 2 | 2 | 0 | 4 | claude-authoring-skills.md — removed 4 redundant takeaway lines, compressed body-only templates to cross-ref, merged description sections, compressed @ references section. ~30 lines saved. |
 | 5 | DEEP_DIVE | 2 | 3 | 2 | 5 | multi-agent-patterns.md — removed 2 takeaway lines, compressed resume pattern details and code block, merged review architecture sections. 2 LOWs (migration candidates). ~20 lines saved. |
 | 6 | DEEP_DIVE | 2 | 2 | 0 | 4 | ralph-loop.md — merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~20 lines saved. |
+| 7 | DEEP_DIVE | 2 | 3 | 0 | 5 | git-patterns.md — removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~14 lines saved. |
 
 ## Deep Dive Status
 
@@ -64,7 +65,7 @@ Suggested iterations: 10
 | claude-authoring-skills.md | done | 4 | 2H+2M applied: removed 4 takeaway lines, compressed body-only templates, merged description sections, compressed @ refs. ~432 lines. |
 | multi-agent-patterns.md | done | 5 | 2H+3M applied, 2 LOWs. Removed takeaways, compressed resume details+code block, merged review sections. ~286 lines. |
 | ralph-loop.md | done | 6 | 2H+2M applied: merged 3 section pairs (carryover+MAX_DEEP_DIVES, one-action+validation, sentinel+signal-coherence), compressed consolidation variant. ~237 lines. |
-| git-patterns.md | pending | — | Polish opportunity (236 lines, compression) |
+| git-patterns.md | done | 7 | 2H+3M applied: removed 2 takeaways, merged stacked PR sections, folded symlink takeaway, merged stash pop sections. ~222 lines. |
 | accessibility-patterns.md | pending | — | Unreviewed |
 | aws-patterns.md | pending | — | Unreviewed |
 | claude-authoring-claude-md.md | pending | — | Unreviewed |
@@ -197,3 +198,20 @@ Suggested iterations: 10
 **No LOWs** — remaining 44 patterns are compact standalone references with no overlap against claude-code.md, process-conventions.md, curation-insights.md, or multi-agent-patterns.md.
 
 **Next candidate**: git-patterns.md (236 lines, compression)
+
+### Iter 7
+
+**Deep dive: git-patterns.md** (236→~222 lines, ~25 sections)
+
+**Applied actions (5):**
+- HIGH: Removed takeaway line from "Dependent PR Chains" (restated section title)
+- HIGH: Removed takeaway line from "git mv" (restated section content)
+- MEDIUM (auto-applied): Merged "Dependent PR Chains Risk Abandonment" + "Stacked Branch Dependency Model Risks" → "Stacked PR Dependency Risks" — same concern from different angles, 12→3 lines
+- MEDIUM (auto-applied): Folded "Symlinked Dirs" takeaway into body as **Fix:** — actionable guidance in standalone takeaway format inconsistent with rest of file
+- MEDIUM (auto-applied): Merged "Stash Pop Across Diverged Branches" + "Stash Pop After Rebase" → "Stash Pop Conflict Scenarios" — same pattern, different triggers. 11→6 lines
+
+**Cross-ref health**: Both See Also entries valid (bash-patterns.md, ci-cd-gotchas.md). No new cross-refs needed. Checked process-conventions.md for overlap — complementary, no duplication.
+
+**No LOWs** — remaining ~20 patterns are compact standalone references. Pre-commit hook sections (git add staging, hooks alter commits, amend picks up extras) are related but cover distinct failure modes and are already compact — merging would lose clarity.
+
+**Next candidate**: accessibility-patterns.md (unreviewed)

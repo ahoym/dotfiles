@@ -155,25 +155,17 @@ Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address
 
 **Workarounds:** `git add -A` (if all changes are wanted), `git add -- 'app/api/accounts/\[address\]/**'` (escaped), or `noglob git add <path>`.
 
-## Stash Pop Across Diverged Branches Causes Conflicts
+## Stash Pop Conflict Scenarios
 
-`git stash pop` applies the stash as a patch against the current HEAD. If the stash was created on branch A and popped on branch B (which diverged from A), files modified in the divergent commits will conflict — even if the stash itself didn't touch those files.
+`git stash pop` applies the stash as a patch against the current HEAD and conflicts when the stash was created against different content.
 
-**Common scenario:** Stash working changes → `git checkout -b new-branch main` → `git stash pop`. If the original branch had commits modifying files that main also modified differently, those files conflict.
+**Cross-branch:** Stash on branch A, pop on diverged branch B — files modified in the divergent commits conflict even if the stash didn't touch them. For delete/modify conflicts: `git rm <file>`. For text: keep the stash's changes.
 
-**For delete/modify conflicts** (stash deleted a file that the new base modified): `git rm <file>` resolves in favor of the deletion. For text conflicts: resolve normally, keeping the stash's changes.
+**Post-rebase:** Stash dirty files to unblock rebase, pop after completion — conflicts if rebase modified those files. Resolution: keep the rebased version (post-rebase is authoritative), drop the stash.
 
-## Dependent PR Chains Risk Abandonment When Order Is Violated
+## Stacked PR Dependency Risks
 
-When PRs declare dependencies on other PRs, parallel work can make the dependent PR redundant before its dependency chain resolves.
-
-- **Takeaway**: Stacked PRs compound risk — parallel work can invalidate the entire chain.
-
-## Stacked Branch Dependency Model Risks
-
-When a branch carries both its dependency's changes and its own, the dependent branch becomes stale if the dependency is merged separately with a different implementation. Deep copies of parent changes in child branches create divergence risk.
-
-- **Takeaway**: Keep stacked branches minimal — don't carry parent changes forward.
+Stacked PRs compound risk: parallel work can make dependent PRs redundant before the chain resolves. When a branch carries its dependency's changes, it becomes stale if the dependency merges with a different implementation. Keep stacked branches minimal — don't carry parent changes forward; let branch ancestry provide them.
 
 ## GitHub API Pagination Hides Newest Comments
 
@@ -185,13 +177,11 @@ The GitHub PR comments endpoint defaults to `per_page=30` ascending — when a P
 
 When `~/.claude/learnings/` is a symlink to a git-tracked directory (e.g., `dotfiles/.claude/learnings/`), switching branches in that repo reverts all files to the branch's state — including files you edited via the symlink path. Uncommitted edits made through the symlink are silently lost. This also affects worktree creation: `git worktree add` from a branch with uncommitted changes doesn't carry those changes to the worktree.
 
-- **Takeaway**: Commit or stash edits to symlinked paths before any branch operation in the underlying repo. Verify file contents after branch switches.
+**Fix:** Commit or stash edits to symlinked paths before any branch operation in the underlying repo. Verify file contents after branch switches.
 
 ## Use `git mv` for File Renames to Preserve History
 
 Use `git mv` rather than manual delete-and-create to preserve file history through renames. This matters for files that evolve over time (skills, configs, learnings). When applying a naming convention retroactively, batch all renames into a single atomic PR to avoid a transitional period.
-
-- **Takeaway**: `git mv` preserves history; batch related renames into one PR.
 
 ## Verify Staged Files Before `git commit --amend`
 
@@ -214,10 +204,6 @@ When the target branch renamed a file (e.g., `skill-design.md` → `claude-autho
 ## GitHub Reviews Endpoint Has No `since` Filter
 
 The `gh pr view --json reviews` endpoint returns all reviews every time — it doesn't support `since` or `updated_after` filtering. To detect new review submissions on incremental fetches, track `LAST_REVIEW_COUNT` and compare against the current count. Only process reviews beyond the previous count. This is distinct from inline comments and issue comments, which support timestamp-based filtering.
-
-## Stash Pop After Rebase Can Self-Conflict
-
-When you stash dirty files to unblock a rebase, `git stash pop` after rebase completion can conflict if the rebase modified those same files. The stash contains pre-rebase content while the working tree has post-rebase content. Resolution: keep the rebased version (post-rebase is authoritative), mark resolved, drop the stash.
 
 ## Cascade Rebase for Stacked Branches
 
