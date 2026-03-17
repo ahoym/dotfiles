@@ -99,6 +99,7 @@
     ".claude/commands/git/create-request/SKILL.md": { "last_deep_dive_run": 0 },
     ".claude/skill-references/gitlab/commands.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/comment-interaction.md": { "last_deep_dive_run": 14 },
-    ".claude/skill-references/gitlab/fetch-review-data.md": { "last_deep_dive_run": 14 }
+    ".claude/skill-references/gitlab/fetch-review-data.md": { "last_deep_dive_run": 14 },
+    ".claude/skill-references/gitlab/pr-management.md": { "last_deep_dive_run": 14 }
   }
 }

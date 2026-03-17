@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 26 |
+| SWEEP_COUNT | 27 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -75,6 +75,7 @@ Suggested iterations: 15
 | 24 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/commands.md — clean index. All 4 cluster files present. No skills reference index directly. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" — same style question as [L-2]. extractor-prompt.md path fix from iter 19 covers gitlab. KEEP. |
 | 25 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/comment-interaction.md — clean. 8 patterns all STANDALONE REFERENCE. 1 consumer verified (extractor-prompt.md). No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment section vs github counterpart. KEEP. |
 | 26 | DEEP_DIVE | 1 | 0 | 0 | 1 | gitlab/fetch-review-data.md — 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments"). 5 patterns all STANDALONE REFERENCE. 3 consumers verified. KEEP. |
+| 27 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/pr-management.md — clean. 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode, address-request-comments, address-request-edge-cases). KEEP. |
 
 ## Deep Dive Status
 
@@ -105,7 +106,7 @@ Suggested iterations: 15
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | done | 24 | Clean index — all 4 cluster files present, no direct consumers, nav guidance correct. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" [L-3]. KEEP. |
 | 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | done | 25 | Clean — 8 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md), delegates by section name. No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment vs github counterpart. KEEP. |
 | 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | done | 26 | 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments" in comment-interaction.md). 5 patterns all STANDALONE REFERENCE. 3 consumers verified (split-request, explore-request, extractor-prompt.md). KEEP. |
-| 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | pending | — | — |
+| 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | done | 27 | Clean — 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode.md, address-request-comments, address-request-edge-cases.md). No undefined vars (:id = glab auto). KEEP. |
 | 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | pending | — | — |
@@ -199,6 +200,18 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 27
+
+**Deep dive 24 of 30**: `gitlab/pr-management.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- 5 patterns: Create or Update MR (Body via File), Post Review with Inline Comments (3-step: inline discussions POST → summary top-level comment → cleanup), Checkout Review Branch, Check for Existing Review, Find Approved Reviewers (LGTM test with jq). All STANDALONE REFERENCE.
+- Consumer verification (reference-file gate): 5 consumers — `create-request/SKILL.md` (step 10 = Create or Update MR; step 5 = Check for Existing Review), `code-review-request/SKILL.md:150` (Post Review), `re-review-mode.md:79` (Post Review), `address-request-comments/SKILL.md:43` (Checkout Review Branch), `address-request-edge-cases.md:81` (Find Approved Reviewers). All 5 sections have ≥1 consumer delegating by section name. No inline duplication. ✅
+- Variable check: `<BRANCH_NAME>`, `<base-branch>`, `<title>`, `<number>`, `<note_index>`, `<base_sha>`, `<head_sha>`, `<file_path>`, `<line_number>`, `<branch-name>`, `<source_branch>` — all user placeholders, substituted by consumers. `:id` = glab auto-resolution. No undefined state variables. ✅
+- Structural symmetry with `github/pr-management.md`: same 5 sections, platform differences correct (glab commands, `--source-branch` vs `--head`, `--description` vs `--body`, discussions POST vs review API). ✅
+- `$(cat ...)` in `--description` flag: intentional write-file-first pattern to avoid quoting issues — consistent with GitHub counterpart and spec comment in file. ✅
+- `jq test("LGTM"; "i")` in Find Approved Reviewers: case-insensitive regex test, not `!=` — does NOT violate the jq `!=` avoidance rule. ✅
+- No compression needed (69 lines, 5 sections with context). No See also needed (discoverable via gitlab/commands.md index).
+- Next: candidate 25 = `do-refactor-code/SKILL.md` (skill, unreviewed, tier 2).
 
 ### Iter 26
 
