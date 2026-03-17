@@ -18,25 +18,17 @@ When porting code from another repo, adapt to the target's structure. Don't carr
 
 Refactor phases are opportunities to audit and prune. When adding new functionality, check for functions/constants the new code supersedes and remove them along with their tests. Net-negative line counts on feature PRs are a healthy signal.
 
-- **Takeaway**: Every refactor is an audit opportunity — delete what the new code replaces.
-
 ## Reuse existing calculation functions instead of duplicating logic
 
 When implementing new features, check if the calculation you need already exists in the codebase. Inline reimplementations diverge silently from the canonical version.
-
-- **Takeaway**: Search for existing implementations before writing new calculation logic.
 
 ## Use named guard variables for multi-condition early returns
 
 Instead of multiple separate `if ... return` statements, name each condition with a descriptive boolean variable and chain into a single guard. Documents what each condition protects against.
 
-- **Takeaway**: Named guards make multi-condition returns self-documenting.
-
 ## Inline dict values when keys already describe them
 
 Intermediate variables that duplicate dict key names add indirection without value. Inline the function call directly into the dict literal unless the variable is reused elsewhere or the key name doesn't describe the value.
-
-- **Takeaway**: Don't create variables just to name dict values that are already named by their keys.
 
 ## Never log authentication tokens or PII
 
@@ -98,31 +90,21 @@ When downgrading log levels, identify the alternative location where the informa
 
 Instead of maintaining separate guideline sections documenting constructor parameters, add inline comments directly to the code. Co-located documentation reduces staleness risk and trims the guideline file.
 
-- **Takeaway**: If guideline content is restating what's in the code, move it to inline comments.
-
 ## Eliminate duplicate entities through inheritance
 
 When two dataclasses share core fields, create a base dataclass with shared fields and extend for specific attributes. Reduces duplication while preserving semantic distinction.
-
-- **Takeaway**: Shared fields across dataclasses → base class with extensions.
 
 ## Raise exceptions instead of returning None for invalid states
 
 Returning `None` for invalid states is ambiguous — callers can't distinguish "no results" from a bug. Raise a specific exception to make failure explicit and let callers handle it.
 
-- **Takeaway**: Invalid states should raise, not return None.
-
 ## Name the primary method `run()` — demote secondary methods
 
 The primary use case of a class should own the simplest method name (e.g., `run()`). Secondary methods get descriptive names. When a class has multiple public methods, the one representing the core purpose gets the clean name.
 
-- **Takeaway**: Primary method = simplest name; secondary methods = descriptive names.
-
 ## Consolidation: each piece of knowledge in exactly one location
 
 When the same content appears in guidelines, code comments, and documentation, consolidate to the most natural home. The single-source-of-truth principle applies to instructions and reference material, not just code.
-
-- **Takeaway**: Duplicate knowledge across guideline tiers = pick one authoritative location.
 
 ## See also
 
