@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
+| SWEEP_COUNT | 6 |
 | CONTENT_TYPE | — (broad sweeps complete) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-code.md, git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md |
+| DEEP_DIVE_CANDIDATES | git-patterns.md, spring-boot.md, process-conventions.md, code-quality-instincts.md, financial-applications.md, java-devops.md, ci-cd-gotchas.md, parallel-plans.md, newman-postman.md, local-dev-seeding.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-content-types.md, multi-agent-patterns.md, claude-code.md |
 
 ## Pre-Flight
 
@@ -53,6 +53,7 @@ Suggested iterations: 15
 | 3 | GUIDELINES | 0 | 0 | 0 | 0 (clean) | 4 guidelines, all @-referenced, all behavioral/universal. No duplication, no compression opportunities. Transitioned to DEEP_DIVE phase with 13 candidates. |
 | 4 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | claude-authoring-content-types.md — hub with 13+ inbound refs. 11 sections all correctly placed. 6 spoke files verified. Hub-spoke layering correct (summary in hub, detail in spokes). No overlap, no compression opportunities. |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | 0 (clean) | multi-agent-patterns.md — hub with 7 inbound refs, 43 patterns, 305 lines. All patterns standalone reference / keep. 2 outbound cross-refs valid. 7 inbound refs all bidirectional. No duplicates, no compression opportunities. |
+| 6 | DEEP_DIVE | 0 | 1 | 0 | 1 applied (title/framing fix) | claude-code.md — hub with 7 inbound refs, 33 patterns, 292 lines. 1 MEDIUM: "Use TaskOutput" section title/framing contradicted multi-agent-patterns.md re: Bash vs Agent background tasks — clarified. All other patterns standalone reference / keep. 2 outbound cross-refs valid bidirectional. |
 
 ## Deep Dive Status
 
@@ -60,7 +61,7 @@ Suggested iterations: 15
 |------|--------|------|---------|
 | claude-authoring-content-types.md | DONE | 4 | Clean — 11 sections, all keep. 6 spoke refs verified. No overlap/compression. |
 | multi-agent-patterns.md | DONE | 5 | Clean — 43 patterns, all keep. 7 inbound refs verified bidirectional. 2 outbound refs valid. Hub-spoke layering correct. |
-| claude-code.md | PENDING | — | Hub (5 inbound refs) |
+| claude-code.md | DONE | 6 | 1 MEDIUM applied: TaskOutput section title/framing fix (Bash vs Agent distinction). 33 patterns, all keep. 7 inbound refs, 2 outbound refs verified bidirectional. |
 | git-patterns.md | PENDING | — | 234 lines, potential overlap with claude-code.md |
 | spring-boot.md | PENDING | — | Polish Opportunity (compression) |
 | process-conventions.md | PENDING | — | Polish Opportunity (compression) |
@@ -154,3 +155,14 @@ Suggested iterations: 15
 - Minor observation: claude-code.md section "Use TaskOutput, Not Bash, to Check Background Agent Progress" title may tension with this file's "TaskOutput Only Works for Background Bash Tasks" — but bodies are consistent when read carefully. Note for claude-code.md deep dive.
 - No compression opportunities — 43 patterns at ~7 lines avg is already dense for a hub
 - Next: claude-code.md (hub, 5 inbound refs)
+
+### Iter 6
+
+**Deep dive: claude-code.md (1 MEDIUM applied)**
+- Hub file, 292 lines, 33 patterns, 7 inbound refs (ralph-loop, claude-code-hooks, multi-agent-patterns, claude-authoring-skills ×2, bash-patterns, claude-authoring-learnings, skill-platform-portability) + 1 persona ref (claude-config-expert)
+- 2 outbound cross-refs (multi-agent-patterns.md, claude-code-hooks.md) — both valid, both bidirectional
+- 1 MEDIUM applied: "Use TaskOutput, Not Bash, to Check Background Agent Progress" renamed to "Use TaskOutput, Not Bash, to Check Background Bash Tasks" — title and opening line said "background agents" but TaskOutput only works for background Bash tasks per multi-agent-patterns.md § "TaskOutput Only Works for Background Bash Tasks". Added explicit cross-ref to that section.
+- Resolved the tension flagged in iter 5 notes — the inconsistency was real (title-level, not body-level) and is now fixed
+- Hub-spoke layering confirmed correct: this file = platform mechanics (permissions, tool behavior, CLI quirks); multi-agent-patterns.md = orchestration; claude-code-hooks.md = hooks system; bash-patterns.md = shell command patterns; git-patterns.md = git workflows
+- No compression opportunities — 33 patterns at avg ~7 lines is already dense
+- Next: git-patterns.md (234 lines, potential overlap with claude-code.md on worktree settings)

@@ -12,6 +12,7 @@ All consolidation actions and judgments, logged for auditability and rollback.
 | 1 | LEARNINGS | Cross-ref wiring | newman-postman.md | local-dev-seeding.md | MEDIUM | applied | Newman is the API seeding layer in the hybrid architecture; bidirectional discovery value |
 | 1 | LEARNINGS | Cross-ref wiring | local-dev-seeding.md | newman-postman.md | MEDIUM | applied | Bidirectional complement of M4 |
 | 2 | SKILLS | Persona de-enrichment | java-devops.md (Metrics & Observability) | java-observability-gotchas.md | MEDIUM | applied | 4 inline gotchas nearly verbatim from proactive-loaded learning file; replaced with 1-line judgment summary + reference |
+| 6 | DEEP_DIVE | Title/framing fix | claude-code.md § "Use TaskOutput" | multi-agent-patterns.md § "TaskOutput Only Works" | MEDIUM | applied | Section title said "Background Agent Progress" but TaskOutput only works for background Bash tasks (not Agent tasks). Title and opening line contradicted multi-agent-patterns.md. Renamed to "Background Bash Tasks" and added explicit cross-ref. |
 
 ## Methodology Loaded (Iter 1)
 

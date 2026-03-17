@@ -142,9 +142,9 @@ Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any
 
 **Anti-pattern: `Bash(bash:*)`** matches ANY `bash` command including `bash -c '<anything>'` — agents discover this bypass when commands are auto-denied. Always scope with path: `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
 
-## Use TaskOutput, Not Bash, to Check Background Agent Progress
+## Use TaskOutput, Not Bash, to Check Background Bash Tasks
 
-When monitoring background agents launched via `Task` with `run_in_background: true`, always use the `TaskOutput` tool — never fall back to ad-hoc Bash commands (like `tail`, `grep`, or `cat` on agent output files under `/private/tmp/`).
+When monitoring background Bash commands launched with `run_in_background: true`, always use the `TaskOutput` tool — never fall back to ad-hoc Bash commands (like `tail`, `grep`, or `cat` on output files under `/private/tmp/`). Note: `TaskOutput` only works for background Bash tasks — for background Agent tasks, rely on the automatic notification system (see `multi-agent-patterns.md` § "TaskOutput Only Works for Background Bash Tasks").
 
 **Why:**
 - `TaskOutput` with `block: false` gives a non-blocking status check — no Bash permissions needed
