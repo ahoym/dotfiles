@@ -226,12 +226,13 @@ A file is a candidate if it meets ANY of:
 3. **Curate skill criteria**: 5+ patterns AND an action signal (stale, overlap, compression)
 4. **Modified guideline**: Received HIGH/MEDIUM during broad sweeps (always-on context — changes warrant verification)
 5. **Modified skill**: Received HIGH/MEDIUM during broad sweeps (workflow breakage risk)
-6. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
+6. **Unreviewed file**: Not present in `deep-dive-tracker.json` (never deep-dived — unknown quality)
+7. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
 
 Candidacy is determined incrementally per content type sweep. Record all in progress.md as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
 
-**Minimum per run**: Read `min_deep_dives` from tracker (default 10). If candidates < minimum, fill with: (1) untracked corpus files, (2) stalest tracked files. Full corpus cycles through in ~7 runs.
+**Minimum per run**: Read `min_deep_dives` from tracker (default 20). If candidates < minimum, fill with stalest tracked files. Full corpus cycles through in ~5 runs.
 
-**Prioritization**: modification-triggered (criteria 1–5) first, then staleness-sorted, then fill candidates. Unprocessed carry over — staleness increases naturally.
+**Prioritization**: modification-triggered (criteria 1–5) first, then unreviewed (criterion 6), then staleness-sorted (criterion 7). Unprocessed carry over — staleness increases naturally.
 
 Per-file methodology, convergence rules, and max guard: `.claude/consolidate-output/deep-dive-methodology.md`.
