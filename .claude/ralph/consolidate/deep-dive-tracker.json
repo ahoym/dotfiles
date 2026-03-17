@@ -61,6 +61,7 @@
     ".claude/learnings/xrpl-patterns.md": { "last_deep_dive_run": 0 },
     ".claude/learnings/quarkus-kotlin.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/react-frontend-gotchas.md": { "last_deep_dive_run": 13 },
-    ".claude/learnings/reactive-data-patterns.md": { "last_deep_dive_run": 13 }
+    ".claude/learnings/reactive-data-patterns.md": { "last_deep_dive_run": 13 },
+    ".claude/learnings/typescript-specific.md": { "last_deep_dive_run": 13 }
   }
 }

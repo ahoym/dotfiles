@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 20 |
+| SWEEP_COUNT | 21 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md |
+| DEEP_DIVE_CANDIDATES | ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md |
 
 ## Pre-Flight
 
@@ -68,6 +68,7 @@ Suggested iterations: 10
 | 18 | DEEP_DIVE | 0 | 0 | 0 | 0 | quarkus-kotlin.md — clean. 8 lines, 1 pattern (Quarkus enum hot-reload). No overlap with spring-boot.md enum patterns (different frameworks). |
 | 19 | DEEP_DIVE | 0 | 1 | 0 | 1 | react-frontend-gotchas.md — added See also (react-patterns.md, nextjs.md, playwright-patterns.md). 27→32 lines, 14 patterns, all condensed refs to source files. |
 | 20 | DEEP_DIVE | 0 | 4 | 0 | 4 | reactive-data-patterns.md — compressed 3 Key Points blocks (folded unique details into prose), added See also (react-patterns.md, order-book-pricing.md). 42→32 lines. |
+| 21 | DEEP_DIVE | 0 | 0 | 0 | 0 | typescript-specific.md — clean. 14 lines, 1 pattern (Record/union key extension). No overlap, all 3 See also valid. |
 
 ## Deep Dive Status
 
@@ -92,7 +93,7 @@ Suggested iterations: 10
 | quarkus-kotlin.md | done | 18 | Clean. 8 lines, 1 pattern. No overlap, no cross-ref gaps, maximally compact. |
 | react-frontend-gotchas.md | done | 19 | 0H+1M applied: added See also → react-patterns.md, nextjs.md, playwright-patterns.md. 32 lines, 14 condensed patterns. |
 | reactive-data-patterns.md | done | 20 | 0H+4M applied: compressed 3 Key Points blocks (folded unique details into prose, removed redundant bullets), added See also → react-patterns.md, order-book-pricing.md. 42→32 lines. |
-| typescript-specific.md | pending | — | Unreviewed |
+| typescript-specific.md | done | 21 | Clean. 14 lines, 1 pattern. No overlap, no compression, all See also valid. |
 | ui-patterns.md | pending | — | Unreviewed |
 | vercel-deployment.md | pending | — | Unreviewed |
 | xrpl-amm.md | pending | — | Unreviewed |
@@ -410,3 +411,13 @@ Suggested iterations: 10
 **Tracker**: reactive-data-patterns.md added (run 13).
 
 **Next candidate**: typescript-specific.md (unreviewed)
+
+### Iter 21
+
+**Deep dive: typescript-specific.md** (14 lines, 1 pattern)
+
+**No actions** — clean file. Single "Extending a Union Type Used in Record Keys" pattern with actionable search guidance. Already maximally compact. No overlap anywhere in corpus (Grep confirmed). All 3 See also entries valid: nextjs.md (original context), react-frontend-gotchas.md (condensed tripwires), code-quality-instincts.md (single source of truth principle).
+
+**Tracker**: typescript-specific.md added (run 13).
+
+**Next candidate**: ui-patterns.md (unreviewed)
