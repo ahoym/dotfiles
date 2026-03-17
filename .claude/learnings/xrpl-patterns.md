@@ -209,4 +209,5 @@ Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`te
 - `bignumber-financial-arithmetic.md` — BigNumber patterns for orderbook/depth
 - `order-book-pricing.md` — mid-price approaches, slippage estimation, midprice module design
 - `xrpl-amm.md` — AMM liquidity interleaving
+- `xrpl-cross-currency-payments.md` — payment engine two-pass algorithm, pathfinding, TransferRate, SendMax, NoRipple rules
 

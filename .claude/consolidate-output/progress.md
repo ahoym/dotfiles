@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 24 |
+| SWEEP_COUNT | 25 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
@@ -72,6 +72,7 @@ Suggested iterations: 10
 | 22 | DEEP_DIVE | 0 | 2 | 0 | 2 | ui-patterns.md — added See also (react-patterns.md, nextjs.md, accessibility-patterns.md), added reverse cross-ref from react-patterns.md. 61→67 lines. |
 | 23 | DEEP_DIVE | 0 | 2 | 0 | 2 | vercel-deployment.md — added See also (typescript-ci-gotchas.md, xrpl-patterns.md). Added See also to typescript-ci-gotchas.md (vercel-deployment.md, ci-cd.md). 14→19 lines. |
 | 24 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-amm.md — folded AMM Account subsection into parent bullet, added See also (xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md). 122→~123 lines. |
+| 25 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-cross-currency-payments.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md). Added reverse cross-ref from xrpl-patterns.md. 48→53 lines. |
 
 ## Deep Dive Status
 
@@ -100,7 +101,7 @@ Suggested iterations: 10
 | ui-patterns.md | done | 22 | 0H+2M applied: added See also → react-patterns.md, nextjs.md, accessibility-patterns.md. Added reverse cross-ref from react-patterns.md. 67 lines, 3 patterns, compact and clean. |
 | vercel-deployment.md | done | 23 | 0H+2M applied: added See also → typescript-ci-gotchas.md, xrpl-patterns.md. Added See also to typescript-ci-gotchas.md → vercel-deployment.md, ci-cd.md. 19 lines, compact and clean. |
 | xrpl-amm.md | done | 24 | 0H+2M applied: folded AMM Account subsection into parent bullet, added See also → xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md. ~123 lines. |
-| xrpl-cross-currency-payments.md | pending | — | Unreviewed |
+| xrpl-cross-currency-payments.md | done | 25 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md. Added reverse cross-ref from xrpl-patterns.md. 53 lines, 8 compact sections. |
 | xrpl-dex-data.md | pending | — | Unreviewed |
 | xrpl-gotchas.md | pending | — | Unreviewed |
 | xrpl-permissioned-domains.md | pending | — | Unreviewed |
@@ -470,3 +471,19 @@ Suggested iterations: 10
 **Tracker**: xrpl-amm.md added (run 13).
 
 **Next candidate**: xrpl-cross-currency-payments.md (unreviewed)
+
+### Iter 25
+
+**Deep dive: xrpl-cross-currency-payments.md** (48→53 lines, 8 sections)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` → xrpl-patterns.md (simulate API, funded offers, WebSocket management), xrpl-gotchas.md (companion tripwires), bignumber-financial-arithmetic.md (payment amount calculations, slippage margins)
+- MEDIUM (auto-applied): Added reverse cross-ref from xrpl-patterns.md → xrpl-cross-currency-payments.md (payment engine, pathfinding, TransferRate, SendMax, NoRipple rules)
+
+**Quality**: Compact file at 48 lines. All 8 sections are discrete standalone references covering specific XRPL payment mechanics — delivered_amount, two-pass algorithm, pathfinding, TransferRate formula, tfLimitQuality, SendMax ceiling, NoRipple enter-and-exit rule, DefaultRipple timing, noripple_check API. No compression, redundancy, or genericization issues.
+
+**Overlap check**: `delivered_amount` in xrpl-patterns.md:184 (simulate context) and `DefaultRipple` in xrpl-amm.md:64,99 (AMM prerequisites) — different contexts, complementary not duplicative. Zero hits in xrpl-gotchas.md.
+
+**Tracker**: xrpl-cross-currency-payments.md added (run 13), xrpl-patterns.md reset to 0 (modified).
+
+**Next candidate**: xrpl-dex-data.md (unreviewed)
