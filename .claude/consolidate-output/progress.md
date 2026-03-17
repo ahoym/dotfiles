@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -65,6 +65,7 @@ Suggested iterations: 15
 | 14 | DEEP_DIVE | 1 | 0 | 1 | 1 | corpus-cross-reference.md — 1 HIGH (fixed stale consumer description; learnings:curate not a consumer). 1 LOW: taxonomy overlap with content-mode.md (reference-file gate ambiguous). |
 | 15 | DEEP_DIVE | 1 | 0 | 0 | 1 | platform-detection.md — 1 HIGH (added EDIT_CMD="gh pr edit"|"glab mr update" to Usage in Skills; $EDIT_CMD referenced in create-request but undefined). All 3 patterns STANDALONE REFERENCE, KEEP. |
 | 16 | DEEP_DIVE | 0 | 0 | 0 | 0 | request-interaction-base.md — clean. 10 patterns all STANDALONE REFERENCE. 2 consumers verified (code-review-request, address-request-comments), no duplication. KEEP. |
+| 17 | DEEP_DIVE | 0 | 0 | 0 | 0 | subagent-patterns.md — clean. 3 patterns all STANDALONE REFERENCE. 3 consumers verified, no inline dup. KEEP. |
 
 ## Deep Dive Status
 
@@ -85,7 +86,7 @@ Suggested iterations: 15
 | 11 | .claude/skill-references/corpus-cross-reference.md | 2 | unreviewed (6) | done | 14 | 1 HIGH applied — fixed stale consumer description (removed learnings:curate claim). 1 LOW: Coverage Match Types taxonomy overlap with content-mode.md step 3. 2 patterns both STANDALONE REFERENCE. KEEP. |
 | 12 | .claude/skill-references/platform-detection.md | 2 | unreviewed (6) | done | 15 | 1 HIGH applied — added EDIT_CMD to Usage in Skills variable block ($EDIT_CMD used in create-request but undefined). 7 consumers confirmed. All 3 patterns STANDALONE REFERENCE, KEEP. |
 | 13 | .claude/skill-references/request-interaction-base.md | 2 | unreviewed (6) | done | 16 | Clean — 10 patterns all STANDALONE REFERENCE. 2 consumers verified, no duplication, no undefined vars. KEEP. |
-| 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | pending | — | — |
+| 14 | .claude/skill-references/subagent-patterns.md | 2 | unreviewed (6) | done | 17 | Clean — 3 patterns all STANDALONE REFERENCE. 3 consumers verified (parallel-plan/execute, explore-repo, do-security-audit), no inline dup. Thematic overlap with multi-agent-patterns.md properly handled via existing See also. KEEP. |
 | 15 | .claude/skill-references/github/batch-operations.md | 2 | unreviewed (6) | pending | — | — |
 | 16 | .claude/skill-references/github/commands.md | 2 | unreviewed (6) | pending | — | — |
 | 17 | .claude/skill-references/github/comment-interaction.md | 2 | unreviewed (6) | pending | — | — |
@@ -177,6 +178,17 @@ Suggested iterations: 15
 - Tier 5 (stale learnings): 11 files
 - Total: 82 candidates, max guard 30 → top 30 listed in Deep Dive Status
 - Remaining 52 carry over to future runs (staleness increases naturally)
+
+### Iter 17
+
+**Deep dive 14 of 30**: `subagent-patterns.md` (skill-reference, unreviewed, tier 2) — CLEAN.
+- Consumer verification (reference-file gate): 3 consumers — `parallel-plan/execute/SKILL.md`, `explore-repo/SKILL.md`, `do-security-audit/SKILL.md`. All reference via Reference Files sections. No inline content duplication in any consumer.
+- 3 patterns: Verify Output Before Acting (spot-check key claim before acting on subagent output), Write Output to Intermediate Files (agents write to disk, return 2-3 sentence summary, synthesis reads files with clean context), Use Structured Templates Over Hard Size Limits (templates naturally constrain output better than hard line counts). All STANDALONE REFERENCE.
+- Corpus cross-ref: Pattern 2 ("Write Output to Intermediate Files") has thematic overlap with `multi-agent-patterns.md` §"Dedicated Synthesis Context" — but `multi-agent-patterns.md` already has `## See also` pointing here. Relationship properly established; learnings version provides richer orchestration context, reference version is canonical universal guidance. No action.
+- No compression opportunity (40 lines, 3 patterns with Why/Pattern structure, already concise).
+- No See also needed — `multi-agent-patterns.md` → `subagent-patterns.md` already exists; reverse is vocabulary-discoverable via "subagent" keyword.
+- Key insight: When a skill-reference has thematic overlap with a learnings file, check bidirectionality of cross-refs before flagging as redundancy. If `multi-agent-patterns.md` See also already points to the reference, the relationship is properly established — the learnings version provides richer "why/alternative" context while the reference provides concise universal guidance. This is complementary depth, not duplication.
+- Next: candidate 15 = `github/batch-operations.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 16
 

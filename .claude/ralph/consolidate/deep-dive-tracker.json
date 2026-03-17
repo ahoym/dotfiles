@@ -87,6 +87,7 @@
     ".claude/skill-references/code-quality-checklist.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/corpus-cross-reference.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/platform-detection.md": { "last_deep_dive_run": 14 },
-    ".claude/skill-references/request-interaction-base.md": { "last_deep_dive_run": 14 }
+    ".claude/skill-references/request-interaction-base.md": { "last_deep_dive_run": 14 },
+    ".claude/skill-references/subagent-patterns.md": { "last_deep_dive_run": 14 }
   }
 }
