@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 25 |
+| SWEEP_COUNT | 26 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -74,6 +74,7 @@ Suggested iterations: 15
 | 23 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/batch-operations.md — clean. 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. :id is glab-native auto-substitution. KEEP. |
 | 24 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/commands.md — clean index. All 4 cluster files present. No skills reference index directly. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" — same style question as [L-2]. extractor-prompt.md path fix from iter 19 covers gitlab. KEEP. |
 | 25 | DEEP_DIVE | 0 | 0 | 1 | 0 | gitlab/comment-interaction.md — clean. 8 patterns all STANDALONE REFERENCE. 1 consumer verified (extractor-prompt.md). No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment section vs github counterpart. KEEP. |
+| 26 | DEEP_DIVE | 1 | 0 | 0 | 1 | gitlab/fetch-review-data.md — 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments"). 5 patterns all STANDALONE REFERENCE. 3 consumers verified. KEEP. |
 
 ## Deep Dive Status
 
@@ -103,7 +104,7 @@ Suggested iterations: 15
 | 20 | .claude/skill-references/gitlab/batch-operations.md | 2 | unreviewed (6) | done | 23 | Clean — 3 patterns all STANDALONE REFERENCE. 1 consumer (extract-request-learnings) verified, references by section name. No inline dup. KEEP. |
 | 21 | .claude/skill-references/gitlab/commands.md | 2 | unreviewed (6) | done | 24 | Clean index — all 4 cluster files present, no direct consumers, nav guidance correct. 1 LOW: fetch-review-data.md description omits "Fetch Activity Signals (consolidated)" [L-3]. KEEP. |
 | 22 | .claude/skill-references/gitlab/comment-interaction.md | 2 | unreviewed (6) | done | 25 | Clean — 8 patterns all STANDALONE REFERENCE. 1 consumer (extractor-prompt.md), delegates by section name. No inline dup, no undefined vars. 1 LOW: missing Edit Inline Comment vs github counterpart. KEEP. |
-| 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | pending | — | — |
+| 23 | .claude/skill-references/gitlab/fetch-review-data.md | 2 | unreviewed (6) | done | 26 | 1 HIGH: fixed stale cross-reference section name ("Fetch Latest Inline Comment" → "Fetch Recent Inline Comments" in comment-interaction.md). 5 patterns all STANDALONE REFERENCE. 3 consumers verified (split-request, explore-request, extractor-prompt.md). KEEP. |
 | 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | pending | — | — |
 | 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | pending | — | — |
@@ -198,6 +199,17 @@ Suggested iterations: 15
 - No See also needed — discoverable via `github/commands.md` index; consumers reference directly.
 - Key insight: When a skill-reference has some patterns with "No --jq" and some with "--jq", this is intentional design: "No --jq" annotations document patterns that CAN skip jq (full JSON is agent-parseable), while patterns that need jq for extraction use it. The contrast is documented inline — don't flag as inconsistency. A sibling skill with its own inline `gh pr view` commands for different fields (different purpose, not a declared consumer) is NOT duplication — check consumer declarations before flagging inline usage.
 - Next: candidate 19 = `github/pr-management.md` (skill-reference, unreviewed, tier 2).
+
+### Iter 26
+
+**Deep dive 23 of 30**: `gitlab/fetch-review-data.md` (skill-reference, unreviewed, tier 2) — 1 HIGH applied.
+- 5 patterns: Fetch Review Details, Fetch Activity Signals (consolidated), Fetch Diff, Fetch Files Changed (sed pipeline — no `--name-only` flag), Fetch Commits. All STANDALONE REFERENCE.
+- Consumer verification: 3 consumers — `split-request/SKILL.md:26,30`, `explore-request/SKILL.md:28,32,41`, `extractor-prompt.md:26`. All delegate by reference/section name; no inline content. ✅
+- HIGH applied: "Fetch Activity Signals (consolidated)" cross-reference said "Fetch Latest Inline Comment" — but the actual section in `gitlab/comment-interaction.md` is "Fetch Recent Inline Comments (quick-exit check)". Fixed to correct section name.
+- Variable check: `<number>` is the only user placeholder; `:id` is glab auto-resolution. No undefined variables. ✅
+- Note: "Fetch Review Details" and "Fetch Activity Signals" use identical commands (`glab mr view <number> --output json`) — intentional, since `glab mr view` returns comprehensive JSON. Distinction is conceptual guidance for consumers.
+- No compression needed (45 lines, 5 templates). No See also needed — discoverable via gitlab/commands.md index.
+- Next: candidate 24 = `gitlab/pr-management.md` (skill-reference, unreviewed, tier 2).
 
 ### Iter 25
 
