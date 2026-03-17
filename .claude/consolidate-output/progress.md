@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 27 |
+| SWEEP_COUNT | 28 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-permissioned-domains.md, bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
-| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md |
+| DEEP_DIVE_CANDIDATES | bignumber-financial-arithmetic.md, ci-cd.md, gitlab-ci-cd.md |
+| DEEP_DIVE_COMPLETED | claude-authoring-skills.md, multi-agent-patterns.md, ralph-loop.md, git-patterns.md, accessibility-patterns.md, aws-patterns.md, claude-authoring-claude-md.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-polling-review-skills.md, gitlab-cli.md, java-observability.md, order-book-pricing.md, python-specific.md, quarkus-kotlin.md, react-frontend-gotchas.md, reactive-data-patterns.md, typescript-specific.md, ui-patterns.md, vercel-deployment.md, xrpl-amm.md, xrpl-cross-currency-payments.md, xrpl-dex-data.md, xrpl-gotchas.md, xrpl-permissioned-domains.md |
 
 ## Pre-Flight
 
@@ -75,6 +75,7 @@ Suggested iterations: 10
 | 25 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-cross-currency-payments.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md). Added reverse cross-ref from xrpl-patterns.md. 48→53 lines. |
 | 26 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-dex-data.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md). 97→103 lines, 2 sections, clean. |
 | 27 | DEEP_DIVE | 0 | 1 | 0 | 1 | xrpl-gotchas.md — added See also (xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md). 44→51 lines, 6 sections, clean. |
+| 28 | DEEP_DIVE | 0 | 2 | 0 | 2 | xrpl-permissioned-domains.md — added See also (xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md). Added reverse cross-ref from xrpl-patterns.md. 78→83 lines, was cross-ref island. |
 
 ## Deep Dive Status
 
@@ -106,7 +107,7 @@ Suggested iterations: 10
 | xrpl-cross-currency-payments.md | done | 25 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md. Added reverse cross-ref from xrpl-patterns.md. 53 lines, 8 compact sections. |
 | xrpl-dex-data.md | done | 26 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md. 103 lines, 2 sections (OnTheDEX API + protocol reference), clean and compact. |
 | xrpl-gotchas.md | done | 27 | 0H+1M applied: added See also → xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md. 51 lines, 6 sections (~20 patterns), clean and compact. |
-| xrpl-permissioned-domains.md | pending | — | Unreviewed |
+| xrpl-permissioned-domains.md | done | 28 | 0H+2M applied: added See also → xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md. Added reverse cross-ref from xrpl-patterns.md. 83 lines, was cross-ref island in XRPL cluster. |
 | bignumber-financial-arithmetic.md | pending | — | Stale (run 0, never deep-dived) |
 | ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
 | gitlab-ci-cd.md | pending | — | Stale (run 0, never deep-dived) |
@@ -521,3 +522,19 @@ Suggested iterations: 10
 **Tracker**: xrpl-gotchas.md added (run 13).
 
 **Next candidate**: xrpl-permissioned-domains.md (unreviewed)
+
+### Iter 28
+
+**Deep dive: xrpl-permissioned-domains.md** (78→83 lines, 6 sections)
+
+**Applied actions (2):**
+- MEDIUM (auto-applied): Added `## See also` → xrpl-patterns.md (DomainID typing gaps, book_offers domain param), xrpl-gotchas.md (DomainID availability), xrpl-dex-data.md (native DEX protocol reference)
+- MEDIUM (auto-applied): Added reverse cross-ref from xrpl-patterns.md → xrpl-permissioned-domains.md (credentials XLS-70, permissioned domains XLS-80, permissioned DEX XLS-81)
+
+**Quality**: Well-structured file covering 3 XLS standards. Each section is compact and standalone — Status (3 lines), Three Roles (6 lines), Layer Controls (3 lines), Credentials lifecycle+fields (18 lines), Domain mechanics (12 lines), DEX matching+xrpl.js (19 lines). No compression, genericization, or redundancy issues.
+
+**Cross-ref rationale**: File was a complete cross-ref island — no other file referenced it despite DomainID appearing in xrpl-patterns.md (lines 10, 107-110) and xrpl-gotchas.md (line 15). xrpl-patterns.md See also had 6 entries covering all other XRPL files but omitted this one. Now fully connected to XRPL cluster.
+
+**Tracker**: xrpl-permissioned-domains.md added (run 13), xrpl-patterns.md reset to 0 (modified).
+
+**Next candidate**: bignumber-financial-arithmetic.md (stale, run 0)

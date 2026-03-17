@@ -7,8 +7,8 @@
 | Started | 2026-03-16 22:15 |
 | Branch | consolidate/2026-03-16-2215 |
 | Worktree | .claude/worktrees/consolidate-2026-03-16-2215 |
-| Iterations | 27 |
-| Status | IN_PROGRESS (deep dives: 24/28 complete) |
+| Iterations | 28 |
+| Status | IN_PROGRESS (deep dives: 25/28 complete) |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 0 | 0 | 0 | 0 |
 | Skills | 1 | 0 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| Deep Dives | 24 | 13 | 36 | 0 | 0 |
-| **Total** | **27** | **13** | **36** | **0** | **0** |
+| Deep Dives | 25 | 13 | 38 | 0 | 0 |
+| **Total** | **28** | **13** | **38** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -53,6 +53,7 @@
 | 25 | DEEP_DIVE | add See also, add reverse cross-ref | xrpl-cross-currency-payments.md ↔ xrpl-patterns.md | xrpl-gotchas.md, bignumber-financial-arithmetic.md | 2 MEDIUM |
 | 26 | DEEP_DIVE | add See also | xrpl-dex-data.md | xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md | 1 MEDIUM |
 | 27 | DEEP_DIVE | add See also | xrpl-gotchas.md | xrpl-patterns.md, xrpl-amm.md, xrpl-dex-data.md, xrpl-cross-currency-payments.md, bignumber-financial-arithmetic.md | 1 MEDIUM |
+| 28 | DEEP_DIVE | add See also, add reverse cross-ref | xrpl-permissioned-domains.md ↔ xrpl-patterns.md | xrpl-gotchas.md, xrpl-dex-data.md | 2 MEDIUM |
 
 ## Blocked Items
 
