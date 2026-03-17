@@ -7,7 +7,7 @@
 | Started | 2026-03-17 |
 | Branch | consolidate/2026-03-17 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17 |
-| Iterations | 30 |
+| Iterations | 31 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -56,6 +56,7 @@
 | 28 | DEEP_DIVE | clean deep-dive | do-refactor-code/SKILL.md | — | — |
 | 29 | DEEP_DIVE | clean deep-dive | do-security-audit/SKILL.md | — | — |
 | 30 | DEEP_DIVE | add-bash-to-allowed-tools | explore-repo/SKILL.md | allowed-tools frontmatter | HIGH |
+| 31 | DEEP_DIVE | clean deep-dive | explore-repo/brief/SKILL.md | — | — |
 
 ## Blocked Items
 
