@@ -4,7 +4,7 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 29 |
+| SWEEP_COUNT | 30 |
 | CONTENT_TYPE | DEEP_DIVE |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_CANDIDATES | See Deep Dive Status below (82 candidates, max guard 30) |
@@ -78,6 +78,7 @@ Suggested iterations: 15
 | 27 | DEEP_DIVE | 0 | 0 | 0 | 0 | gitlab/pr-management.md — clean. 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode, address-request-comments, address-request-edge-cases). KEEP. |
 | 28 | DEEP_DIVE | 0 | 0 | 0 | 0 | do-refactor-code/SKILL.md — clean. KEEP. Refs valid: code-quality-checklist.md (iter 13 ✅), refactoring-patterns.md (exists ✅). No overlap, scope correct, description accurate. |
 | 29 | DEEP_DIVE | 0 | 0 | 0 | 0 | do-security-audit/SKILL.md — clean. KEEP. 1 ref: subagent-patterns.md (iter 17 ✅). 6-step workflow clean, 7-item checklist appropriate scope, allowed-tools match usage, no overlap. |
+| 30 | DEEP_DIVE | 1 | 0 | 0 | 1 | explore-repo/SKILL.md — 1 HIGH (added Bash to allowed-tools). Phase 1 git diff staleness detection and stale file deletion need Bash for autonomous execution. References valid. KEEP. |
 
 ## Deep Dive Status
 
@@ -111,7 +112,7 @@ Suggested iterations: 15
 | 24 | .claude/skill-references/gitlab/pr-management.md | 2 | unreviewed (6) | done | 27 | Clean — 5 patterns all STANDALONE REFERENCE. 5 consumers verified (create-request, code-review-request, re-review-mode.md, address-request-comments, address-request-edge-cases.md). No undefined vars (:id = glab auto). KEEP. |
 | 25 | .claude/commands/do-refactor-code/SKILL.md | 2 | unreviewed (6) | done | 28 | Clean — SKILL.md only, both refs valid, no overlap, KEEP. |
 | 26 | .claude/commands/do-security-audit/SKILL.md | 2 | unreviewed (6) | done | 29 | Clean — SKILL.md only, 1 ref (subagent-patterns.md ✅), 6-step workflow, 7-item checklist, allowed-tools match usage. KEEP. |
-| 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | pending | — | — |
+| 27 | .claude/commands/explore-repo/SKILL.md | 2 | unreviewed (6) | done | 30 | 1 HIGH applied — added Bash to allowed-tools (needed for git diff staleness detection and file deletion in Phase 1). References valid. KEEP. |
 | 28 | .claude/commands/explore-repo/brief/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 29 | .claude/commands/git/address-request-comments/SKILL.md | 2 | unreviewed (6) | pending | — | — |
 | 30 | .claude/commands/git/cascade-rebase/SKILL.md | 2 | unreviewed (6) | pending | — | — |
@@ -226,6 +227,18 @@ Suggested iterations: 15
 - "Important Notes" section correctly scopes the skill: surface-level audit, not pen test, extend for domain-specific risks. Appropriate epistemic framing.
 - Relevance: security audits are a recurring task. KEEP.
 - Next: candidate 27 = `explore-repo/SKILL.md` (skill, unreviewed, tier 2).
+
+### Iter 30
+
+**Deep dive 27 of 30**: `explore-repo/SKILL.md` (skill, unreviewed, tier 2) — 1 HIGH applied.
+- Directory contains: SKILL.md + agent-prompts.md (sibling reference) + brief/SKILL.md (companion skill). This deep dive covers SKILL.md only.
+- References: @agent-prompts.md (sibling, verified present ✅); `~/.claude/skill-references/subagent-patterns.md` (verified iter 17 ✅).
+- HIGH applied: Added Bash to allowed-tools. Phase 1 step 3 (`git diff --stat <stale-commit>..HEAD`) is core to smart staleness detection — runs before relaunching stale domain agents. Phase 1 step 4 (delete stale SYSTEM_OVERVIEW.md and inconsistencies.md) also needs Bash (no dedicated delete tool). Context section injects HEAD/branch/root via `!` commands at load time — Phase 1 step 2 queries don't need Bash.
+- WebFetch in allowed-tools: orchestrator doesn't use WebFetch directly in any of the 6 phases. Subagents (launched via Task) have their own tool access. WebFetch presence is benign — LOW, no action.
+- 6-phase workflow: mode detection → project detection → parallel exploration (7 domain agents) → scan summary → synthesis → validation & summary. Scan and synthesis are always separate invocations (clean context for synthesis). KEEP.
+- Overlap: none with explore-repo:brief (summary mode, reads existing artifacts, different scope) or do-security-audit (different domain). No duplication.
+- Key insight: When a skill has `!` command injections in the Context header (project root, branch, HEAD), those values are pre-computed at load time and available to the agent as context. Steps that reference "run git rev-parse --short HEAD" are often satisfied by the injected values — but steps that need *dynamic* git operations (diff since a stored commit hash, staleness comparison) still require Bash. The dividing line: static state injected at load = no Bash; dynamic comparison at runtime = Bash needed.
+- Next: candidate 28 = `explore-repo/brief/SKILL.md` (skill, unreviewed, tier 2).
 
 ### Iter 28
 
