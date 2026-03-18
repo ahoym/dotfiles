@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md |
+| DEEP_DIVE_CANDIDATES | learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md |
 
 ## Pre-Flight
 
@@ -64,6 +64,7 @@ Suggested iterations: 15
 | 13 | DEEP_DIVE | 0 | 1 | 0 | updated learnings index description for postgresql-query-patterns.md | postgresql-query-patterns.md — 1 MEDIUM applied: index description was incomplete (omitted JSONB, schema design, migration safety); all 30+ patterns across 8 sections are standalone reference (Keep); no See Also needed |
 | 14 | DEEP_DIVE | 0 | 0 | 0 | none | ralph/consolidate/init/SKILL.md — clean; all 7 templates valid, wiggum.sh path valid, allowed-tools justified, well-scoped vs resume SKILL; Keep |
 | 15 | DEEP_DIVE | 0 | 1 | 0 | generalized hardcoded verification paths | extract-request-learnings/SKILL.md — 1 MEDIUM applied: step 10 verification had hardcoded Java-project filenames (code-review-general.md, spring-boot.md, code-review-patterns.md); replaced with *.md globs; all else clean (producer/consumer contract complete, all refs current); Keep |
+| 16 | DEEP_DIVE | 0 | 1 | 0 | added scope clarification for same-file splits | git/split-commit/SKILL.md — 1 MEDIUM applied: steps 5–6 have logical bug for same-file splits ("restore full versions" would duplicate group 1 in second commit); added Important Notes clarification pointing to git add -p for same-file scenarios; relevant, no overlap with peer skills; Keep |
 
 ## Deep Dive Status
 
@@ -83,7 +84,7 @@ Suggested iterations: 15
 | postgresql-query-patterns.md | complete | 13 | 1 MEDIUM applied — updated learnings index description; file content clean (30+ patterns, 8 sections, all Keep); no See Also needed |
 | ralph/consolidate/init/SKILL.md | complete | 14 | Keep — all 7 templates valid, wiggum.sh path valid, well-scoped vs resume SKILL, no staleness or overlap |
 | extract-request-learnings/SKILL.md | complete | 15 | 1 MEDIUM applied — hardcoded Java-project filenames in step 10 verification replaced with *.md globs; producer/consumer contract verified complete; all refs current; Keep |
-| git/split-commit/SKILL.md | pending | — | stale skill (run=8, gap=7) |
+| git/split-commit/SKILL.md | complete | 16 | 1 MEDIUM applied — added scope clarification: workflow assumes separate-file splits; same-file splits should use git add -p; classification Keep |
 | learnings/consolidate/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | typescript-devops.md | pending | — | stale persona (run=8, gap=7) |
 | agent-prompting.md | pending | — | stale skill-ref (run=9, gap=6) |
@@ -93,6 +94,16 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 16
+
+git/split-commit/SKILL.md deep dive — 1 MEDIUM applied. Key notes:
+- Skill is well-scoped: splits a single commit with mixed changes, distinct from git:repoint-branch (branch-level extraction) and git:split-request (analysis only)
+- No reference files in the skill directory (standalone SKILL.md only)
+- Co-Authored-By shows Claude Opus 4.6 (current); steps 1–7 are logically complete
+- MEDIUM: Steps 5–6 have a logical bug for same-file splits. After committing group 1 (step 5), step 6 "Restore full versions from /tmp/ originals" would OVERWRITE working directory with the full-change version, causing the second commit to include both groups. For separate-file scenarios (the common case: e.g., docstrings + features in different files), the workflow is correct. Added clarification note to Important Notes pointing to `git add -p` as the correct approach for same-file splits.
+- Tracker key: `.claude/commands/git/split-commit/SKILL.md` set to last_deep_dive_run=15
+- Next candidate: learnings/consolidate/SKILL.md (stale skill, run=8, gap=7)
 
 ### Iter 15
 

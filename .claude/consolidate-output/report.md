@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 15 |
+| Iterations | 16 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -35,6 +35,7 @@
 | 12 | DEEP_DIVE | add formal See Also section | spring-boot-gotchas.md | spring-boot.md | MEDIUM |
 | 13 | DEEP_DIVE | update learnings index description | learnings/CLAUDE.md (postgresql-query-patterns.md entry) | — | MEDIUM |
 | 15 | DEEP_DIVE | generalize hardcoded verification paths | extract-request-learnings/SKILL.md | — | MEDIUM |
+| 16 | DEEP_DIVE | add scope clarification for same-file splits | git/split-commit/SKILL.md | — | MEDIUM |
 
 ## Blocked Items
 

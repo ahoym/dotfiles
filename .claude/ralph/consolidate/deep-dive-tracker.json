@@ -40,7 +40,7 @@
     ".claude/learnings/aws-patterns.md": { "last_deep_dive_run": 13 },
     ".claude/learnings/aws-messaging.md": { "last_deep_dive_run": 10 },
     ".claude/commands/extract-request-learnings/SKILL.md": { "last_deep_dive_run": 15 },
-    ".claude/commands/git/split-commit/SKILL.md": { "last_deep_dive_run": 8 },
+    ".claude/commands/git/split-commit/SKILL.md": { "last_deep_dive_run": 15 },
     ".claude/commands/learnings/consolidate/SKILL.md": { "last_deep_dive_run": 8 },
     ".claude/learnings/resilience-patterns.md": { "last_deep_dive_run": 9 },
     ".claude/learnings/ci-cd-gotchas.md": { "last_deep_dive_run": 0 },
