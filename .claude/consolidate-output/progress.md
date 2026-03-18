@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 18 |
+| SWEEP_COUNT | 19 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md |
+| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md |
 
 ## Pre-Flight
 
@@ -67,6 +67,7 @@ Suggested iterations: 15
 | 16 | DEEP_DIVE | 0 | 1 | 0 | added scope clarification for same-file splits | git/split-commit/SKILL.md — 1 MEDIUM applied: steps 5–6 have logical bug for same-file splits ("restore full versions" would duplicate group 1 in second commit); added Important Notes clarification pointing to git add -p for same-file scenarios; relevant, no overlap with peer skills; Keep |
 | 17 | DEEP_DIVE | 0 | 0 | 0 | none | learnings/consolidate/SKILL.md — clean; well-structured 653-line orchestrating skill; all phase logic consistent, ref paths valid, safety caps internally coherent; 2 LOWs (lab/ path example for wiggum.sh, cosmetic step numbering); Keep |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | none | typescript-devops.md — Keep; clean persona, valid Extends:platform-engineer, all refs current (typescript-ci-gotchas run=15, vercel-deployment run=13) |
+| 19 | DEEP_DIVE | 0 | 0 | 1 | none | agent-prompting.md — Keep; 258-line skill-reference, 15 sections all Standalone Reference, consumer wiring fully verified (parallel-plan/execute + make both load by path + named sections), no staleness; 1 LOW: frontmatter description incomplete |
 
 ## Deep Dive Status
 
@@ -89,13 +90,26 @@ Suggested iterations: 15
 | git/split-commit/SKILL.md | complete | 16 | 1 MEDIUM applied — added scope clarification: workflow assumes separate-file splits; same-file splits should use git add -p; classification Keep |
 | learnings/consolidate/SKILL.md | complete | 17 | Keep — well-structured orchestrating skill; all phase logic consistent, ref paths valid, safety caps coherent; 2 LOWs (lab/ path example, cosmetic step numbering) |
 | typescript-devops.md | complete | 18 | Keep — clean persona; Extends:platform-engineer valid; all refs current; no compression opportunity |
-| agent-prompting.md | pending | — | stale skill-ref (run=9, gap=6) |
+| agent-prompting.md | complete | 19 | Keep — 258-line comprehensive reference, 15 sections all Standalone Reference; consumer wiring verified (parallel-plan/execute + make); 1 LOW: frontmatter description incomplete |
 | quantum-tunnel-claudes/SKILL.md | pending | — | stale skill (run=9, gap=6) |
 | xrpl-typescript-fullstack.md | pending | — | stale persona (run=9, gap=6) |
 | react-frontend.md | pending | — | stale persona (run=9, gap=6) |
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 19
+
+agent-prompting.md (skill-references/) deep dive — clean (Keep). Key notes:
+- 258-line comprehensive reference covering 15 sections: verbatim templates, prompt structure, fast/slow agent characteristics, file-size scaling, code landmarks, TDD workflow, code formatting, boundary constraints, shared contract, model selection, completion reports, git workflow, interface-first agents, integration agents
+- All 15 sections are Standalone Reference — specific, actionable, non-overlapping. No compression opportunity.
+- Consumer wiring fully verified: parallel-plan/execute loads via Reference Files section (line 18) + Step 5 (line 207); explicit named section references (§ Model Selection line 209, § Code Formatting line 228, § Git Workflow in Prompts line 243); parallel-plan/make loads via Reference Files (line 18) + Step 11 (line 126). Wiring is bidirectional and strong.
+- Reference-file gate clear: no inappropriate duplication in consumers. execute/SKILL.md model selection reminder (line 380) is a compressed reference back to the authoritative source, not a duplicate. TDD template in make/SKILL.md format rules is a format specification (different function), not a duplicate.
+- No staleness detected: templates match execute/SKILL.md expected structures; Branch Strategy integration consistent.
+- Skill-references don't use `## See also` convention (confirmed — no action needed).
+- LOW: frontmatter description says "(speed, landmarks, boundaries)" — covers sections 1-3/5-6 only, omits TDD workflow, code formatting, completion reports, model selection, git workflow, interface-first/integration agent patterns (~10 additional topics). Impact low (loaded by path, not description). Filed as [L-11].
+- Tracker key: `.claude/skill-references/agent-prompting.md` set to last_deep_dive_run=15
+- Next candidate: quantum-tunnel-claudes/SKILL.md (stale skill, run=9, gap=6)
 
 ### Iter 18
 

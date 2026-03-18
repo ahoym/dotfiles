@@ -129,3 +129,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: Extract methodology details to skill-reference + keep short behavioral rule in guideline vs leave as-is
 - **Why LOW**: Restructuring is blocked — session-start hard gate fires before the first tool call. If details were in a skill-reference, they'd only load during skill invocation, missing the session-start gate entirely. File cannot be shortened without breaking the search protocol. Flag for monitoring: if file grows significantly, reconsider whether the index-based loading section could reference a separate detail file loaded via @-ref.
 - **Curate command**: n/a — structural constraint, not a content issue
+
+## [L-11] agent-prompting.md — frontmatter description incomplete
+
+- **Iter**: 19
+- **Content Type**: SKILL_REFERENCES
+- **File**: `skill-references/agent-prompting.md`
+- **Pattern**: Frontmatter `description` field
+- **Possible classifications**: (1) Update description to enumerate all 15 topic areas; (2) Update to a broader summary ("comprehensive guide to crafting agent prompts — structure, TDD, completion reports, model selection, git workflow, and boundaries"); (3) Leave as-is
+- **Why LOW**: Current description says "best practices for crafting subagent prompts (speed, landmarks, boundaries)" — omits TDD workflow, code formatting, completion reports, model selection, git workflow, interface-first/integration agent patterns (~10 additional topics). Impact is low because consumers load this file by explicit path reference (not description search), so description incompleteness doesn't impair loading. Updating would improve documentation accuracy for new contributors but has no functional consequence.
+- **Curate command**: `/learnings:curate skill-references/agent-prompting.md`
