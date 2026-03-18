@@ -7,7 +7,7 @@
 - Accessibility by default: semantic HTML first, ARIA only when native semantics can't express the interaction, keyboard navigation for all interactive elements
 - Testing strategy: assert side effects over transient UI state, scope selectors to containers, role-based over text-based locators
 - Design system discipline: centralize tokens before component-level changes, extract abstractions only when a second consumer appears
-- Code quality: apply `learnings/code-quality-instincts.md` principles throughout (no duplication, single source of truth, port intent not idioms)
+- Code quality: apply `~/.claude/learnings/code-quality-instincts.md` principles throughout (no duplication, single source of truth, port intent not idioms)
 
 ## When reviewing or writing code
 - Flag any `setState` called synchronously inside `useEffect` — use lazy `useState` initializers for hydration/init, render-time sync (`if (prev !== current)` pattern) for prop changes
@@ -29,21 +29,21 @@
 ## Known gotchas & platform specifics
 
 ### Next.js 16 / Turbopack
-- Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements) — see `learnings/nextjs.md`
+- Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements) — see `~/.claude/learnings/nextjs.md`
 
 ## Proactive loads
 
-- `learnings/react-frontend-gotchas.md`
+- `~/.claude/learnings/react-frontend-gotchas.md`
 
 ## Detailed references
 
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 
-- `learnings/code-quality-instincts.md` — Universal code quality instincts (no duplication, single source of truth, port intent)
-- `learnings/react-patterns.md` — React 19 patterns, hook extraction, component decomposition
-- `learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
-- `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
-- `learnings/accessibility-patterns.md` — ARIA attribute patterns with code examples
-- `learnings/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
-- `learnings/testing-patterns.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
-- `learnings/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions
+- `~/.claude/learnings/code-quality-instincts.md` — Universal code quality instincts (no duplication, single source of truth, port intent)
+- `~/.claude/learnings/react-patterns.md` — React 19 patterns, hook extraction, component decomposition
+- `~/.claude/learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
+- `~/.claude/learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
+- `~/.claude/learnings/accessibility-patterns.md` — ARIA attribute patterns with code examples
+- `~/.claude/learnings/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
+- `~/.claude/learnings/testing-patterns.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
+- `~/.claude/learnings/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions

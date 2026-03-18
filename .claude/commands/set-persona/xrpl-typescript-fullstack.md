@@ -10,9 +10,11 @@
 
 ## When reviewing or writing code
 - For order book display, use `taker_gets_funded ?? taker_gets` AND filter where BOTH amount > 0 AND price > 0 — filtering only on amount misses zero-price rows from `taker_pays_funded: "0"`
-- Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `learnings/bignumber-financial-arithmetic.md` for patterns)
+- Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `~/.claude/learnings/bignumber-financial-arithmetic.md` for patterns)
 - Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
+- Verify trust line exists before any IOU transfer — recipient must have an active trust line to the issuer (EXCEPT sending back to issuer, which burns)
+- Validate XRPL transaction flag bitmasks explicitly — `tf*` transaction flags and `lsf*` ledger object flags use different bit positions (e.g., `tfHybrid = 0x00100000` vs `lsfHybrid = 0x00040000`)
 - Prefer named functions over IIFEs (`(() => { ... })()`) — if logic needs a block, extract a helper
 - Avoid `as` casts — fix the type mismatch at the source (widen the source type, narrow the producer's return type, or add a type guard)
 
@@ -27,33 +29,33 @@
 ## Known gotchas & platform specifics
 
 ### XRPL
-Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `learnings/xrpl-gotchas.md` (Proactive load). For fills detection, RippleState sign convention, and orderbook internals — see `learnings/xrpl-patterns.md`.
+Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `~/.claude/learnings/xrpl-gotchas.md` (Proactive load). For fills detection, RippleState sign convention, and orderbook internals — see `~/.claude/learnings/xrpl-patterns.md`.
 
 ### Next.js 16 / Turbopack
-Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `learnings/nextjs.md` and `learnings/react-frontend-gotchas.md` (Proactive load).
+Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `~/.claude/learnings/nextjs.md` and `~/.claude/learnings/react-frontend-gotchas.md` (Proactive load).
 
 ### Vercel / Serverless
-WebSocket singleton lifetime, in-memory rate limiter scope — see `learnings/xrpl-patterns.md` and `learnings/nextjs.md`.
+WebSocket singleton lifetime, in-memory rate limiter scope — see `~/.claude/learnings/xrpl-patterns.md` and `~/.claude/learnings/nextjs.md`.
 
 ### TypeScript / Browser Boundaries
-Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `learnings/xrpl-gotchas.md`.
+Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `~/.claude/learnings/xrpl-gotchas.md`.
 
 ## Proactive loads
 
-- `learnings/xrpl-gotchas.md`
-- `learnings/react-frontend-gotchas.md`
+- `~/.claude/learnings/xrpl-gotchas.md`
+- `~/.claude/learnings/react-frontend-gotchas.md`
 
 ## Detailed references
 
 Load when working in the specific area:
-- `learnings/react-patterns.md` — React 19 patterns (setState/useEffect, hydration gating, hook extraction, component decomposition)
-- `learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
-- `learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
-- `learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
-- `learnings/xrpl-dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes
-- `learnings/xrpl-permissioned-domains.md` — XLS-70/80/81 permissioned domains, credentials, permissioned DEX
-- `learnings/bignumber-financial-arithmetic.md` — BigNumber.js rules for financial arithmetic, comparison traps, display rounding
-- `learnings/order-book-pricing.md` — Mid-price approaches, slippage estimation, midprice module design
-- `learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch, balance validation for exchange orders
-- `learnings/xrpl-cross-currency-payments.md` — Payment engine two-pass algorithm, pathfinding source_amount, TransferRate, SendMax semantics, NoRipple rules
-- `learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
+- `~/.claude/learnings/react-patterns.md` — React 19 patterns (setState/useEffect, hydration gating, hook extraction, component decomposition)
+- `~/.claude/learnings/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
+- `~/.claude/learnings/xrpl-patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
+- `~/.claude/learnings/xrpl-amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
+- `~/.claude/learnings/xrpl-dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes
+- `~/.claude/learnings/xrpl-permissioned-domains.md` — XLS-70/80/81 permissioned domains, credentials, permissioned DEX
+- `~/.claude/learnings/bignumber-financial-arithmetic.md` — BigNumber.js rules for financial arithmetic, comparison traps, display rounding
+- `~/.claude/learnings/order-book-pricing.md` — Mid-price approaches, slippage estimation, midprice module design
+- `~/.claude/learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch, balance validation for exchange orders
+- `~/.claude/learnings/xrpl-cross-currency-payments.md` — Payment engine two-pass algorithm, pathfinding source_amount, TransferRate, SendMax semantics, NoRipple rules
+- `~/.claude/learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
