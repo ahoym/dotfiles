@@ -44,5 +44,6 @@ Companion to `xrpl-patterns.md`. Condensed tripwires for XRPL integration.
 
 ## See also
 
-- `xrpl-patterns.md` — full XRPL integration patterns (companion)
-- `bignumber-financial-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations
+- `~/.claude/learnings/xrpl-patterns.md` — full XRPL integration patterns (companion)
+- `~/.claude/learnings/bignumber-financial-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations
+- `~/.claude/learnings/xrpl-dex-data.md` — native DEX mechanics (OfferCreate flags, auto-bridging, tick size) that complement these gotchas

@@ -61,6 +61,6 @@ All components import from this file. Changing a constant propagates everywhere 
 
 ## See also
 
-- `react-patterns.md` — component patterns, hooks, and Tailwind usage context
-- `nextjs.md` — Next.js build context (SVG title pattern relates to JSX compilation)
-- `accessibility-patterns.md` — interaction patterns that complement UI styling
+- `~/.claude/learnings/react-patterns.md` — component patterns, hooks, and Tailwind usage context
+- `~/.claude/learnings/nextjs.md` — Next.js build context (SVG title pattern relates to JSX compilation)
+- `~/.claude/learnings/accessibility-patterns.md` — interaction patterns that complement UI styling

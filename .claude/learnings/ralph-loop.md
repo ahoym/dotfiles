@@ -34,6 +34,10 @@ Deep research files (`<topic>.md`) are supplementary — created when a research
 
 When writing a spec for `claude --print` agents with no conversation history, embed methodology inline — not just as file references. The agent can read reference files on the first iteration (when SWEEP_COUNT = 0), but subsequent iterations have no memory of what was read. The spec must be self-sufficient: inline enough analytical framework that later iterations can execute without re-reading references. Use "Notes for Next Iteration" in progress.md as the inter-iteration communication channel for condensed context.
 
+## Consolidation Loop Excludes Uncommitted Changes
+
+The worktree is created from HEAD — staged and unstaged modifications to corpus files are invisible to the consolidation agent. Commit pending changes before running `/ralph:consolidate:init` if they should be included in the run.
+
 ## Consolidation Loop Variant
 
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
