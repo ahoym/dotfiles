@@ -24,4 +24,5 @@ pnpm/Node CI specifics — lockfile handling, action setup, browser caching, lin
 ## See also
 
 - `vercel-deployment.md` — Vercel cron limits, Postgres driver patterns
-- `ci-cd.md` — general CI/CD patterns (companion: `ci-cd-gotchas.md`)
+- `ci-cd.md` — general CI/CD patterns and YAML examples
+- `ci-cd-gotchas.md` — general GitHub Actions and GitLab CI tripwires (stack-agnostic companion)

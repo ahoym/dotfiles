@@ -34,3 +34,4 @@ Companion to `ci-cd.md` and `gitlab-ci-cd.md`. GitHub Actions and GitLab CI trip
 
 - `~/.claude/learnings/git-patterns.md` — git rebase/stash/worktree patterns that interact with CI workflows
 - `ci-cd.md` — full YAML examples for CI guard patterns referenced in the CI Guards section above
+- `typescript-ci-gotchas.md` — pnpm/Node CI specifics (lockfile, action setup, Playwright caching, ESLint+Prettier)

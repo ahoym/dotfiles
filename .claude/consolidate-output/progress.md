@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md |
+| DEEP_DIVE_CANDIDATES | gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md |
 
 ## Pre-Flight
 
@@ -55,6 +55,7 @@ Suggested iterations: 15
 | 4 | DEEP_DIVE | 0 | 0 | 0 | none | git/repoint-branch/SKILL.md — Keep; well-scoped extraction skill, no overlap with split-request, all refs current |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | none | extract-request-learnings/extractor-prompt.md — Keep; Template for skill, verbatim subagent prompt, single consumer, no action needed |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | none | git/create-request/SKILL.md — Keep; well-scoped 12-step PR/MR workflow, all references verified (request-body-template.md direct read; pr-management.md confirmed via tracker+index; platform-detection.md confirmed iter 4) |
+| 7 | DEEP_DIVE | 1 | 0 | 0 | bidirectional cross-ref (typescript-ci-gotchas.md ↔ ci-cd-gotchas.md) | typescript-ci-gotchas.md — 1 HIGH: added bidirectional See Also with ci-cd-gotchas.md; all other patterns standalone reference Keep; vercel-deployment.md and ci-cd.md cross-refs valid |
 
 ## Deep Dive Status
 
@@ -65,7 +66,7 @@ Suggested iterations: 15
 | git/repoint-branch/SKILL.md | complete | 4 | Keep — well-scoped, no overlap, all refs current; stale ref fixed iter 2 |
 | extractor-prompt.md | complete | 5 | Keep — Template for skill (verbatim subagent prompt), single consumer, no corpus overlap, clean |
 | git/create-request/SKILL.md | complete | 6 | Keep — well-scoped 12-step workflow, all references verified, no overlap with peer skills |
-| typescript-ci-gotchas.md | pending | — | never deep-dived (run=0) |
+| typescript-ci-gotchas.md | complete | 7 | 1 HIGH applied — bidirectional cross-ref added with ci-cd-gotchas.md (natural companion pair, pnpm/Node-specific vs stack-agnostic); all other patterns standalone reference, Keep |
 | gitlab-cli.md | pending | — | never deep-dived (run=0) |
 | claude-code-hooks.md | pending | — | never deep-dived (run=0) |
 | java-infosec-gotchas.md | pending | — | never deep-dived (run=0) |
@@ -103,6 +104,17 @@ SKILLS broad sweep complete over all 31 skills + reference files. Corpus is in g
 - skill-references symlink can't be traversed by Glob — consumer wiring check was skipped; needs human verification that skill-references files still exist and are current
 - learnings:consolidate (interactive) and wiggum.sh autonomous loop coexist intentionally — different use cases
 - Next: GUIDELINES sweep (4 files, always-on context cost focus)
+
+### Iter 7
+
+typescript-ci-gotchas.md deep dive — 1 HIGH applied. Key notes:
+- File is compact (28 lines), all 10 patterns are specific and useful — Standalone reference, Keep
+- No cross-file duplicates found (grep confirmed --frozen-lockfile in git-patterns.md is a different use case: conflict resolution vs CI enforcement)
+- See Also staleness check: vercel-deployment.md and ci-cd.md both confirmed in learnings index — valid
+- Missing cross-ref detected: ci-cd-gotchas.md (stack-agnostic companion) not referenced directly; only mentioned parenthetically in ci-cd.md entry. Added bidirectional See Also.
+- ci-cd-gotchas.md tracker entry reset to 0 per "track touched files" rule (modified by HIGH action)
+- Read path constraint reminder: guard blocks tilde reads; must use worktree-absolute paths. Edit requires Read of same path — do NOT mix read path vs edit path.
+- Next candidate: gitlab-cli.md (unreviewed learnings file, run=0)
 
 ### Iter 6
 
