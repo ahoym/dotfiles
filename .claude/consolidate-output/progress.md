@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 11 |
+| SWEEP_COUNT | 12 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md |
+| DEEP_DIVE_CANDIDATES | postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md |
 
 ## Pre-Flight
 
@@ -60,6 +60,7 @@ Suggested iterations: 15
 | 9 | DEEP_DIVE | 0 | 0 | 0 | none | claude-code-hooks.md — clean; 10 sections specific/accurate; bidirectional cross-ref with claude-code.md already in place; Keep |
 | 10 | DEEP_DIVE | 0 | 0 | 0 | none | java-infosec-gotchas.md — clean; 7 security tripwires, compact and actionable; See Also to api-design.md valid (unidirectional asymmetry intentional — general file shouldn't pull Java-specific); Keep |
 | 11 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to java-observability-gotchas.md | java-observability-gotchas.md — 1 MEDIUM applied: added formal See Also → java-observability.md; all 4 patterns specific/actionable; index description accurate |
+| 12 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to spring-boot-gotchas.md | spring-boot-gotchas.md — 1 MEDIUM applied: added formal See Also → spring-boot.md; all 19 patterns standalone reference; bidirectional link now complete |
 
 ## Deep Dive Status
 
@@ -75,7 +76,7 @@ Suggested iterations: 15
 | claude-code-hooks.md | complete | 9 | Keep — 10 sections all specific/accurate; bidirectional cross-ref with claude-code.md confirmed (hooks line 99, code.md line 290); no overlap, no compression needed |
 | java-infosec-gotchas.md | complete | 10 | Keep — compact 7-bullet security tripwire list; See Also to api-design.md valid (unidirectional asymmetry intentional); CORS overlap with spring-boot-gotchas complementary; no missing cross-refs |
 | java-observability-gotchas.md | complete | 11 | 1 MEDIUM applied — added formal See Also → java-observability.md; informal description was present but formal section enables search protocol cross-ref discovery; all 4 patterns Keep |
-| spring-boot-gotchas.md | pending | — | never deep-dived (run=0) |
+| spring-boot-gotchas.md | complete | 12 | 1 MEDIUM applied — added formal See Also → spring-boot.md; all 19 one-liner patterns are standalone reference (Keep); bidirectional link now complete |
 | postgresql-query-patterns.md | pending | — | never deep-dived (run=0) |
 | ralph/consolidate/init/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | extract-request-learnings/SKILL.md | pending | — | stale skill (run=8, gap=7) |
@@ -89,6 +90,16 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 12
+
+spring-boot-gotchas.md deep dive — 1 MEDIUM applied. Key notes:
+- File is compact (19 bullets + new See Also), all patterns specific and actionable one-liners; no corpus overlap with spring-boot.md (the files are genuinely complementary)
+- Pattern coverage: exception handling (@Scheduled/ShedLock), batching, config file format, CORS, Optional misuse, switch-null NPE, Lombok builder, logging, threading (InterruptedException), Map/collection null-safety, timezone, naming convention
+- MEDIUM: added formal See Also → spring-boot.md. File had informal "Companion to spring-boot.md" description but no formal section. Corpus convention clear (all 4 other gotchas files have formal See Also). spring-boot.md already references spring-boot-gotchas.md (line 152) — bidirectional link now complete.
+- No overlap detected with java-infosec-gotchas.md despite CORS pattern presence (implementation guidance vs security review tripwire — complementary, not redundant). No cross-ref from spring-boot-gotchas → java-infosec-gotchas added (CORS is the only connecting pattern, insufficient for a See Also).
+- Tracker key: `.claude/learnings/spring-boot-gotchas.md` set to last_deep_dive_run=15
+- Next candidate: postgresql-query-patterns.md (unreviewed learnings file, run=0)
 
 ### Iter 11
 

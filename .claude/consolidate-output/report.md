@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 11 |
+| Iterations | 12 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,7 +17,7 @@
 | Learnings | 1 | 2 | 1 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **3** | **3** | **1** | **0** | **0** |
+| **Total** | **3** | **3** | **2** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -32,6 +32,7 @@
 | 7 | DEEP_DIVE | add cross-ref See Also (bidirectional) | typescript-ci-gotchas.md ↔ ci-cd-gotchas.md | — | HIGH |
 | 8 | DEEP_DIVE | fix learnings index description | learnings/CLAUDE.md (gitlab-cli.md entry) | — | HIGH |
 | 11 | DEEP_DIVE | add formal See Also section | java-observability-gotchas.md | java-observability.md | MEDIUM |
+| 12 | DEEP_DIVE | add formal See Also section | spring-boot-gotchas.md | spring-boot.md | MEDIUM |
 
 ## Blocked Items
 

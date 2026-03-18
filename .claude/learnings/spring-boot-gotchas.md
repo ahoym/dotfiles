@@ -21,3 +21,7 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 - Null checks on collection-returning methods: per Java convention, these never return null — don't null-check them
 - Hardcoded timezone offsets: use `ZoneId.of("Asia/Singapore")`, not `ZoneOffset.of("+08:00")` — ZoneId handles DST
 - `Impl` suffix: name classes by responsibility, not structural role — `FundingApi` not `FundingApiImpl`
+
+## See also
+
+- `spring-boot.md` — Spring Boot patterns and best practices (companion file)
