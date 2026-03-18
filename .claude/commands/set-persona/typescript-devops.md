@@ -15,9 +15,9 @@
 
 ## Proactive loads
 
-- `~/.claude/learnings/typescript-ci-gotchas.md`
+- `learnings/typescript-ci-gotchas.md`
 
 ## Detailed references
 
 Load when working in the specific area:
-- `~/.claude/learnings/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons
+- `learnings/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons

@@ -95,5 +95,5 @@ assert response == MyResponseModel(
 
 ## See also
 
-- `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
-- `~/.claude/learnings/testing-patterns.md` — Python module-level singleton test isolation
+- `api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
+- `testing-patterns.md` — Python module-level singleton test isolation

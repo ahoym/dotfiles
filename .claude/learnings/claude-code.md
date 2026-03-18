@@ -284,12 +284,6 @@ Claude Code resets CWD to the worktree root after every Bash call — `cd` to an
 
 When Bash output exceeds the inline limit, it's saved to a persisted file under `tool-results/`. Reading that file via Read adds a `N→` line-number prefix. If the Read result itself exceeds the limit and is persisted again, the next Read adds another prefix layer — producing `N→  N→  N→ ...` nesting that's unreadable. Always read the **original** persisted file with `offset` + `limit` parameters rather than re-reading a persisted copy of a persisted copy.
 
-## `~/.claude/worktrees/` Path Trap in Dotfiles Sessions
-
-`~/.claude` resolves to the repo root, so `~/.claude/worktrees/<name>/` expands to `<repo-root>/worktrees/<name>/` — missing the `.claude/` subdirectory. Worktrees live at `.claude/worktrees/` relative to the repo root.
-
-**Fix:** Use CWD-relative paths (`.claude/worktrees/<name>/.claude/consolidate-output/spec.md`) when writing into worktrees from a dotfiles session. Never use `~/.claude/worktrees/<name>/...` — the tilde expansion strips the `.claude/` prefix.
-
 ## See also
 
 - `~/.claude/learnings/multi-agent-patterns.md` — worktree agent isolation, sandbox workarounds, background agent orchestration (complements the permissions/platform angle here)

@@ -8,7 +8,7 @@
 - Data protection: encryption at rest and in transit, PII handling, audit logging
 
 ## When reviewing or writing code
-- Apply the security tripwires from `~/.claude/learnings/java-infosec-gotchas.md` — every endpoint, every input path, every error response
+- Apply the security tripwires from `learnings/java-infosec-gotchas.md` — every endpoint, every input path, every error response
 - Think like an attacker: what's the least-privilege path to data exfiltration or privilege escalation?
 
 ## When making tradeoffs
@@ -19,4 +19,4 @@
 
 ## Proactive loads
 
-- `~/.claude/learnings/java-infosec-gotchas.md`
+- `learnings/java-infosec-gotchas.md`

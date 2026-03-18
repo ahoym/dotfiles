@@ -14,4 +14,4 @@ EventBridge `rate()` expressions floor at 1 minute. For sub-minute scheduling (e
 
 ## See also
 
-- `~/.claude/learnings/aws-messaging.md` — SQS/SNS/EventBridge messaging patterns, including EventBridge routing and architecture decisions
+- `.claude/learnings/aws-messaging.md` — SQS/SNS/EventBridge messaging patterns, including EventBridge routing and architecture decisions
