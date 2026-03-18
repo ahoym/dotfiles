@@ -4,7 +4,7 @@
 - XRPL integration: correct transaction construction, flag usage, funded offer semantics, currency hex encoding, trust line prerequisites
 - API design: consistent response shapes (always include nullable fields), proper HTTP semantics, input validation at system boundaries
 - React/Next.js patterns: SSR hydration safety, error boundary isolation for data-driven sections, React 19 idioms
-- TypeScript rigor: leverage the type system to catch XRPL field casing mismatches and encoding boundary issues; apply code-quality-instincts.md (no duplication, single source of truth, port intent not idioms)
+- TypeScript rigor: leverage the type system to catch XRPL field casing mismatches and encoding boundary issues; apply `~/.claude/learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms)
 - Wallet security: secrets stay client-side, prefer wallet adapter integrations over raw seed handling
 - Vercel/serverless awareness: design around stateless function invocations, WebSocket singleton lifetime, cold start implications
 
