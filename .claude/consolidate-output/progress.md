@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md |
+| DEEP_DIVE_CANDIDATES | ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md |
 
 ## Pre-Flight
 
@@ -61,6 +61,7 @@ Suggested iterations: 15
 | 10 | DEEP_DIVE | 0 | 0 | 0 | none | java-infosec-gotchas.md — clean; 7 security tripwires, compact and actionable; See Also to api-design.md valid (unidirectional asymmetry intentional — general file shouldn't pull Java-specific); Keep |
 | 11 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to java-observability-gotchas.md | java-observability-gotchas.md — 1 MEDIUM applied: added formal See Also → java-observability.md; all 4 patterns specific/actionable; index description accurate |
 | 12 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to spring-boot-gotchas.md | spring-boot-gotchas.md — 1 MEDIUM applied: added formal See Also → spring-boot.md; all 19 patterns standalone reference; bidirectional link now complete |
+| 13 | DEEP_DIVE | 0 | 1 | 0 | updated learnings index description for postgresql-query-patterns.md | postgresql-query-patterns.md — 1 MEDIUM applied: index description was incomplete (omitted JSONB, schema design, migration safety); all 30+ patterns across 8 sections are standalone reference (Keep); no See Also needed |
 
 ## Deep Dive Status
 
@@ -77,7 +78,7 @@ Suggested iterations: 15
 | java-infosec-gotchas.md | complete | 10 | Keep — compact 7-bullet security tripwire list; See Also to api-design.md valid (unidirectional asymmetry intentional); CORS overlap with spring-boot-gotchas complementary; no missing cross-refs |
 | java-observability-gotchas.md | complete | 11 | 1 MEDIUM applied — added formal See Also → java-observability.md; informal description was present but formal section enables search protocol cross-ref discovery; all 4 patterns Keep |
 | spring-boot-gotchas.md | complete | 12 | 1 MEDIUM applied — added formal See Also → spring-boot.md; all 19 one-liner patterns are standalone reference (Keep); bidirectional link now complete |
-| postgresql-query-patterns.md | pending | — | never deep-dived (run=0) |
+| postgresql-query-patterns.md | complete | 13 | 1 MEDIUM applied — updated learnings index description; file content clean (30+ patterns, 8 sections, all Keep); no See Also needed |
 | ralph/consolidate/init/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | extract-request-learnings/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | git/split-commit/SKILL.md | pending | — | stale skill (run=8, gap=7) |
@@ -90,6 +91,17 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 13
+
+postgresql-query-patterns.md deep dive — 1 MEDIUM applied. Key notes:
+- File is well-organized (63 lines, 8 sections, 30+ patterns), all patterns specific and actionable — window functions, CTEs, JSONB, partial indexes, indexing strategy, partitioning, schema design, migration safety
+- All patterns → Standalone Reference (Keep). No cross-file duplicates, no compression opportunity.
+- MEDIUM: Index description said "window functions, CTEs, query optimization patterns" — omitted JSONB operations, schema design patterns, and migration safety patterns (~half the file). Updated to comprehensive description covering all 8 sections. Type: false-negative (vs iter 8 gitlab-cli which was false-positive).
+- Schema Design Patterns section contains project-derived examples ("currency not asset when FK targets currencies") — these are fine as concrete illustrations of general principles.
+- No See Also added: no strong companion file exists. local-dev-seeding.md is different domain (seeding vs query patterns). No migration-specific file in corpus.
+- Tracker key: `.claude/learnings/postgresql-query-patterns.md` set to last_deep_dive_run=15
+- Next candidate: ralph/consolidate/init/SKILL.md (stale skill, run=8, gap=7)
 
 ### Iter 12
 

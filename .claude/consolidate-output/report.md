@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 12 |
+| Iterations | 13 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -33,6 +33,7 @@
 | 8 | DEEP_DIVE | fix learnings index description | learnings/CLAUDE.md (gitlab-cli.md entry) | — | HIGH |
 | 11 | DEEP_DIVE | add formal See Also section | java-observability-gotchas.md | java-observability.md | MEDIUM |
 | 12 | DEEP_DIVE | add formal See Also section | spring-boot-gotchas.md | spring-boot.md | MEDIUM |
+| 13 | DEEP_DIVE | update learnings index description | learnings/CLAUDE.md (postgresql-query-patterns.md entry) | — | MEDIUM |
 
 ## Blocked Items
 

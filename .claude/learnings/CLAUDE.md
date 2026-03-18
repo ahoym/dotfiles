@@ -71,7 +71,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 
 ## Database
 
-- `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, query optimization patterns
+- `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, JSONB, indexing, schema design, and migration safety patterns
 - `local-dev-seeding.md` — Local dev seeding: hybrid API + SQL architecture for repeatable test data
 
 ## Financial
