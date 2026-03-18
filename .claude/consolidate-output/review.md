@@ -81,3 +81,21 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Pattern**: Pydantic v2 optional fields, TypedDict, env var conversion
 - **Why LOW**: All other domain learnings files have at least one matching persona (Java, React, XRPL, Platform). `python-specific.md` has no Python persona. If Python work is recurring, a `python.md` persona would improve discoverability and load consistency. If Python is incidental, no persona needed.
 - **Curate command**: `/learnings:curate python-specific.md`
+
+## [L-6] skill-references consumer wiring unverified
+
+- **Iter**: 2
+- **Content Type**: SKILLS
+- **File**: `~/.claude/skill-references/` (all files)
+- **Pattern**: Consumer wiring check — verifying each skill-reference is referenced by at least one skill
+- **Why LOW**: The `.claude/skill-references/` directory is a symlink — Glob can't traverse it in the worktree. The spec requires a consumer wiring check (unused skill-references are dead weight — HIGH delete candidate), but it couldn't be executed. Files verified as referenced in skills: `subagent-patterns.md`, `code-quality-checklist.md`, `agent-prompting.md`, `platform-detection.md`, `request-interaction-base.md`, `corpus-cross-reference.md`, and platform cluster files. Manual check recommended: `ls ~/.claude/skill-references/` to ensure no orphaned files.
+- **Curate command**: n/a — run `ls ~/.claude/skill-references/` to verify
+
+## [L-7] learnings:consolidate vs autonomous wiggum.sh — parallel consolidation approaches
+
+- **Iter**: 2
+- **Content Type**: SKILLS
+- **File**: `learnings/consolidate/SKILL.md`
+- **Pattern**: Two consolidation workflows — interactive (`/learnings:consolidate` via AskUserQuestion within a single conversation) and autonomous (wiggum.sh loop, multi-invocation, worktree-based)
+- **Why LOW**: Both exist and serve different use cases (interactive vs autonomous). The `learnings:consolidate` SKILL.md is not referenced by ralph:consolidate (which uses wiggum.sh directly). Is learnings:consolidate still actively used? If it's a backup/manual fallback, keep it. If the wiggum.sh path has fully superseded it, it could be pruned. Human judgment needed.
+- **Curate command**: `/learnings:curate learnings/consolidate`

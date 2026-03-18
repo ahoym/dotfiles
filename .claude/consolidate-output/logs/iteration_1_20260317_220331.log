@@ -1,0 +1,19 @@
+Sweep 1 committed. Summary of what was done:
+
+**SWEEP 1 — LEARNINGS BROAD SWEEP** ✅
+
+**Corpus scanned**: 58 learnings files + 11 personas (full read, all domains)
+
+**Actions applied (3 files):**
+- `java-observability.md` — added `## See also → java-observability-gotchas.md` (HIGH): companion pair had no reciprocal link
+- `quarkus-kotlin.md` — added `## See also → spring-boot.md` (HIGH): isolated file, no cross-references
+- `java-infosec-gotchas.md` — added `## See also → api-design.md` (MEDIUM): gotchas file had no companion or cross-ref
+
+**5 LOW items recorded in review.md** (human review needed):
+1. `typescript-specific.md` — very thin (1 pattern)
+2. `quarkus-kotlin.md` — very thin (1 pattern)
+3. `xrpl-dex-data.md` — native DEX section overlaps with xrpl-gotchas.md
+4. Cross-ref path inconsistency (`~/.claude/`, bare, `.claude/` styles mixed)
+5. `python-specific.md` — no matching Python persona
+
+**Deep-dive candidates identified** (run=0, never dived): `typescript-ci-gotchas.md`, `gitlab-cli.md`, `claude-code-hooks.md`, `java-infosec-gotchas.md`, `java-observability-gotchas.md`, `spring-boot-gotchas.md`, `postgresql-query-patterns.md`
