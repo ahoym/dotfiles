@@ -139,3 +139,12 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Possible classifications**: (1) Update description to enumerate all 15 topic areas; (2) Update to a broader summary ("comprehensive guide to crafting agent prompts — structure, TDD, completion reports, model selection, git workflow, and boundaries"); (3) Leave as-is
 - **Why LOW**: Current description says "best practices for crafting subagent prompts (speed, landmarks, boundaries)" — omits TDD workflow, code formatting, completion reports, model selection, git workflow, interface-first/integration agent patterns (~10 additional topics). Impact is low because consumers load this file by explicit path reference (not description search), so description incompleteness doesn't impair loading. Updating would improve documentation accuracy for new contributors but has no functional consequence.
 - **Curate command**: `/learnings:curate skill-references/agent-prompting.md`
+
+## [L-12] quantum-tunnel-claudes/SKILL.md — Reference Files step number metadata wrong
+
+- **Iter**: 20
+- **Content Type**: SKILLS
+- **File**: `commands/quantum-tunnel-claudes/SKILL.md`
+- **Pattern**: Reference Files section — `corpus-cross-reference.md` and `classification-model.md` both say "Read in step 3" but are actually read in step 2 (Analyze incoming content). Step 3 is "Display merge plan."
+- **Why LOW**: Body instructions are authoritative and correct (step 2 explicitly instructs loading both files for their respective cases). The Reference Files section is metadata/summary — agents follow body instructions. No functional impact. Fix would be trivial (change "step 3" to "step 2" in two lines) but inconsistency doesn't impair execution.
+- **Curate command**: `/learnings:curate commands/quantum-tunnel-claudes`

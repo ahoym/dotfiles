@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 19 |
+| SWEEP_COUNT | 20 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md |
+| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md |
 
 ## Pre-Flight
 
@@ -68,6 +68,7 @@ Suggested iterations: 15
 | 17 | DEEP_DIVE | 0 | 0 | 0 | none | learnings/consolidate/SKILL.md — clean; well-structured 653-line orchestrating skill; all phase logic consistent, ref paths valid, safety caps internally coherent; 2 LOWs (lab/ path example for wiggum.sh, cosmetic step numbering); Keep |
 | 18 | DEEP_DIVE | 0 | 0 | 0 | none | typescript-devops.md — Keep; clean persona, valid Extends:platform-engineer, all refs current (typescript-ci-gotchas run=15, vercel-deployment run=13) |
 | 19 | DEEP_DIVE | 0 | 0 | 1 | none | agent-prompting.md — Keep; 258-line skill-reference, 15 sections all Standalone Reference, consumer wiring fully verified (parallel-plan/execute + make both load by path + named sections), no staleness; 1 LOW: frontmatter description incomplete |
+| 20 | DEEP_DIVE | 0 | 0 | 1 | none | quantum-tunnel-claudes/SKILL.md — Keep; actively used sync skill, well-structured 5-step workflow, all references current, no overlap; 1 LOW: Reference Files section says "step 3" for corpus-cross-reference.md + classification-model.md, both are read in step 2 (body instructions correct) |
 
 ## Deep Dive Status
 
@@ -91,12 +92,24 @@ Suggested iterations: 15
 | learnings/consolidate/SKILL.md | complete | 17 | Keep — well-structured orchestrating skill; all phase logic consistent, ref paths valid, safety caps coherent; 2 LOWs (lab/ path example, cosmetic step numbering) |
 | typescript-devops.md | complete | 18 | Keep — clean persona; Extends:platform-engineer valid; all refs current; no compression opportunity |
 | agent-prompting.md | complete | 19 | Keep — 258-line comprehensive reference, 15 sections all Standalone Reference; consumer wiring verified (parallel-plan/execute + make); 1 LOW: frontmatter description incomplete |
-| quantum-tunnel-claudes/SKILL.md | pending | — | stale skill (run=9, gap=6) |
+| quantum-tunnel-claudes/SKILL.md | complete | 20 | Keep — actively used cross-repo sync skill; all references current; 1 LOW: Reference Files metadata has wrong step numbers (step 3 vs step 2) for corpus-cross-reference.md and classification-model.md |
 | xrpl-typescript-fullstack.md | pending | — | stale persona (run=9, gap=6) |
 | react-frontend.md | pending | — | stale persona (run=9, gap=6) |
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 20
+
+quantum-tunnel-claudes/SKILL.md deep dive — clean (Keep). Key notes:
+- Skill is actively used: `sync-source: ~/WORKSPACE/mahoy-claude-stuff` configured in CLAUDE.md; pull-only workflow, never modifies source
+- Well-structured 5-step workflow: 0-detect→1-inventory→2-analyze→3-merge plan→4-execute→5-verify. inventory.sh centralizes the complex file-diff logic (6 classification statuses, git history checks, source-unique diffs in one pass)
+- No scope overlap with peer skills: `/learnings:curate` is explicitly named as a post-sync complement (Important Notes, last bullet)
+- All reference files current: inventory.sh ✅, corpus-cross-reference.md (run=14) ✅, classification-model.md ✅, cross-repo-sync.md (run=9, gap=6 — stale but exists) ✅
+- LOW: Reference Files section metadata says "Read in step 3" for corpus-cross-reference.md and classification-model.md, but both are read in step 2 (Analyze incoming content). Step 3 = "Display merge plan." Body instructions correct — agents follow body. No functional impact. Filed as [L-12].
+- Skill includes permission verification pattern before spawning background agents (step 4) — good defensive design
+- Tracker key: `.claude/commands/quantum-tunnel-claudes/SKILL.md` set to last_deep_dive_run=15
+- Next candidates: xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md (all stale personas, run=9, gap=6)
 
 ### Iter 19
 
