@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 17 |
+| SWEEP_COUNT | 18 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md |
+| DEEP_DIVE_CANDIDATES | agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md |
 
 ## Pre-Flight
 
@@ -66,6 +66,7 @@ Suggested iterations: 15
 | 15 | DEEP_DIVE | 0 | 1 | 0 | generalized hardcoded verification paths | extract-request-learnings/SKILL.md — 1 MEDIUM applied: step 10 verification had hardcoded Java-project filenames (code-review-general.md, spring-boot.md, code-review-patterns.md); replaced with *.md globs; all else clean (producer/consumer contract complete, all refs current); Keep |
 | 16 | DEEP_DIVE | 0 | 1 | 0 | added scope clarification for same-file splits | git/split-commit/SKILL.md — 1 MEDIUM applied: steps 5–6 have logical bug for same-file splits ("restore full versions" would duplicate group 1 in second commit); added Important Notes clarification pointing to git add -p for same-file scenarios; relevant, no overlap with peer skills; Keep |
 | 17 | DEEP_DIVE | 0 | 0 | 0 | none | learnings/consolidate/SKILL.md — clean; well-structured 653-line orchestrating skill; all phase logic consistent, ref paths valid, safety caps internally coherent; 2 LOWs (lab/ path example for wiggum.sh, cosmetic step numbering); Keep |
+| 18 | DEEP_DIVE | 0 | 0 | 0 | none | typescript-devops.md — Keep; clean persona, valid Extends:platform-engineer, all refs current (typescript-ci-gotchas run=15, vercel-deployment run=13) |
 
 ## Deep Dive Status
 
@@ -87,7 +88,7 @@ Suggested iterations: 15
 | extract-request-learnings/SKILL.md | complete | 15 | 1 MEDIUM applied — hardcoded Java-project filenames in step 10 verification replaced with *.md globs; producer/consumer contract verified complete; all refs current; Keep |
 | git/split-commit/SKILL.md | complete | 16 | 1 MEDIUM applied — added scope clarification: workflow assumes separate-file splits; same-file splits should use git add -p; classification Keep |
 | learnings/consolidate/SKILL.md | complete | 17 | Keep — well-structured orchestrating skill; all phase logic consistent, ref paths valid, safety caps coherent; 2 LOWs (lab/ path example, cosmetic step numbering) |
-| typescript-devops.md | pending | — | stale persona (run=8, gap=7) |
+| typescript-devops.md | complete | 18 | Keep — clean persona; Extends:platform-engineer valid; all refs current; no compression opportunity |
 | agent-prompting.md | pending | — | stale skill-ref (run=9, gap=6) |
 | quantum-tunnel-claudes/SKILL.md | pending | — | stale skill (run=9, gap=6) |
 | xrpl-typescript-fullstack.md | pending | — | stale persona (run=9, gap=6) |
@@ -95,6 +96,20 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 18
+
+typescript-devops.md deep dive — clean (Keep). Key notes:
+- Persona is a valid specialization of platform-engineer: inherits 7-priority infra posture, adds TS/Node.js/Playwright/Vercel stack focus
+- `## Extends: platform-engineer` — platform-engineer.md exists and is comprehensive (7 domain priorities, 7 review rules, 4 tradeoff rules); relationship is well-designed
+- Child adds 4 domain priorities (pnpm CI, TypeScript build tooling, Playwright E2E, Vercel/serverless) not present in parent
+- Child adds 3 review rules specific to TS ecosystem: pnpm-lock.yaml, eslint-config-prettier ordering, E2E non-blocking flag — all correct
+- Proactive loads: typescript-ci-gotchas.md (run=15, confirmed clean iter 7) ✅
+- Detailed references: vercel-deployment.md (run=13) ✅
+- No `## When making tradeoffs` section — intentionally inherited from parent, correct
+- No compression: all 24 lines are load-bearing; no duplicate with parent content
+- Tracker key: `.claude/commands/set-persona/typescript-devops.md` set to last_deep_dive_run=15
+- Next candidate: agent-prompting.md (stale skill-ref, run=9, gap=6)
 
 ### Iter 17
 
