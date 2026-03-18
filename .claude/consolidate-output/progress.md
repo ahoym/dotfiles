@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
+| SWEEP_COUNT | 6 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md |
+| DEEP_DIVE_CANDIDATES | typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md |
 
 ## Pre-Flight
 
@@ -54,6 +54,7 @@ Suggested iterations: 15
 | 3 | GUIDELINES | 0 | 0 | 2 | none | Clean sweep; all 4 guidelines healthy, @-referenced; 2 LOWs — large always-on files; transitioning to DEEP_DIVE with 20 candidates |
 | 4 | DEEP_DIVE | 0 | 0 | 0 | none | git/repoint-branch/SKILL.md — Keep; well-scoped extraction skill, no overlap with split-request, all refs current |
 | 5 | DEEP_DIVE | 0 | 0 | 0 | none | extract-request-learnings/extractor-prompt.md — Keep; Template for skill, verbatim subagent prompt, single consumer, no action needed |
+| 6 | DEEP_DIVE | 0 | 0 | 0 | none | git/create-request/SKILL.md — Keep; well-scoped 12-step PR/MR workflow, all references verified (request-body-template.md direct read; pr-management.md confirmed via tracker+index; platform-detection.md confirmed iter 4) |
 
 ## Deep Dive Status
 
@@ -63,7 +64,7 @@ Suggested iterations: 15
 |------|--------|------|---------|
 | git/repoint-branch/SKILL.md | complete | 4 | Keep — well-scoped, no overlap, all refs current; stale ref fixed iter 2 |
 | extractor-prompt.md | complete | 5 | Keep — Template for skill (verbatim subagent prompt), single consumer, no corpus overlap, clean |
-| git/create-request/SKILL.md | pending | — | never deep-dived (run=0) |
+| git/create-request/SKILL.md | complete | 6 | Keep — well-scoped 12-step workflow, all references verified, no overlap with peer skills |
 | typescript-ci-gotchas.md | pending | — | never deep-dived (run=0) |
 | gitlab-cli.md | pending | — | never deep-dived (run=0) |
 | claude-code-hooks.md | pending | — | never deep-dived (run=0) |
@@ -102,6 +103,15 @@ SKILLS broad sweep complete over all 31 skills + reference files. Corpus is in g
 - skill-references symlink can't be traversed by Glob — consumer wiring check was skipped; needs human verification that skill-references files still exist and are current
 - learnings:consolidate (interactive) and wiggum.sh autonomous loop coexist intentionally — different use cases
 - Next: GUIDELINES sweep (4 files, always-on context cost focus)
+
+### Iter 6
+
+git/create-request/SKILL.md deep dive — clean (Keep). Key notes:
+- Skill is well-scoped: 12-step PR/MR creation workflow, distinct from split-request (analyze), code-review-request (review), explore-request (Q&A), repoint-branch (extract to new PR)
+- Grep scope insight: skill-references files can't be globbed (symlink issue) but ARE accessible via Read using worktree `.claude/` path AND Grep finds them. For wiring checks, use Grep for filename patterns rather than Glob.
+- All references verified: request-body-template.md (direct read), github/pr-management.md + gitlab/pr-management.md (confirmed via tracker entry at run=14 + commands.md index listing), platform-detection.md (confirmed iter 4)
+- No compression needed, no cross-refs missing, no corpus overlap
+- Next candidate: typescript-ci-gotchas.md (unreviewed learnings file, run=0)
 
 ### Iter 5
 

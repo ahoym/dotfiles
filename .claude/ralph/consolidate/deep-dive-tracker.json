@@ -96,7 +96,7 @@
     ".claude/skill-references/github/fetch-review-data.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/github/pr-management.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/batch-operations.md": { "last_deep_dive_run": 14 },
-    ".claude/commands/git/create-request/SKILL.md": { "last_deep_dive_run": 0 },
+    ".claude/commands/git/create-request/SKILL.md": { "last_deep_dive_run": 15 },
     ".claude/skill-references/gitlab/commands.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/comment-interaction.md": { "last_deep_dive_run": 14 },
     ".claude/skill-references/gitlab/fetch-review-data.md": { "last_deep_dive_run": 14 },
