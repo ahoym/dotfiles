@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md |
+| DEEP_DIVE_CANDIDATES | java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md |
 
 ## Pre-Flight
 
@@ -57,6 +57,7 @@ Suggested iterations: 15
 | 6 | DEEP_DIVE | 0 | 0 | 0 | none | git/create-request/SKILL.md — Keep; well-scoped 12-step PR/MR workflow, all references verified (request-body-template.md direct read; pr-management.md confirmed via tracker+index; platform-detection.md confirmed iter 4) |
 | 7 | DEEP_DIVE | 1 | 0 | 0 | bidirectional cross-ref (typescript-ci-gotchas.md ↔ ci-cd-gotchas.md) | typescript-ci-gotchas.md — 1 HIGH: added bidirectional See Also with ci-cd-gotchas.md; all other patterns standalone reference Keep; vercel-deployment.md and ci-cd.md cross-refs valid |
 | 8 | DEEP_DIVE | 1 | 0 | 0 | fixed learnings index description for gitlab-cli.md | gitlab-cli.md — 1 HIGH: index entry over-promised (authentication, MR commands); corrected to match actual content; file content clean |
+| 9 | DEEP_DIVE | 0 | 0 | 0 | none | claude-code-hooks.md — clean; 10 sections specific/accurate; bidirectional cross-ref with claude-code.md already in place; Keep |
 
 ## Deep Dive Status
 
@@ -69,7 +70,7 @@ Suggested iterations: 15
 | git/create-request/SKILL.md | complete | 6 | Keep — well-scoped 12-step workflow, all references verified, no overlap with peer skills |
 | typescript-ci-gotchas.md | complete | 7 | 1 HIGH applied — bidirectional cross-ref added with ci-cd-gotchas.md (natural companion pair, pnpm/Node-specific vs stack-agnostic); all other patterns standalone reference, Keep |
 | gitlab-cli.md | complete | 8 | 1 HIGH applied — fixed learnings index description (removed inaccurate "authentication, MR commands"); file content clean (3 flag-diff patterns, See Also valid/bidirectional) |
-| claude-code-hooks.md | pending | — | never deep-dived (run=0) |
+| claude-code-hooks.md | complete | 9 | Keep — 10 sections all specific/accurate; bidirectional cross-ref with claude-code.md confirmed (hooks line 99, code.md line 290); no overlap, no compression needed |
 | java-infosec-gotchas.md | pending | — | never deep-dived (run=0) |
 | java-observability-gotchas.md | pending | — | never deep-dived (run=0) |
 | spring-boot-gotchas.md | pending | — | never deep-dived (run=0) |
@@ -105,6 +106,18 @@ SKILLS broad sweep complete over all 31 skills + reference files. Corpus is in g
 - skill-references symlink can't be traversed by Glob — consumer wiring check was skipped; needs human verification that skill-references files still exist and are current
 - learnings:consolidate (interactive) and wiggum.sh autonomous loop coexist intentionally — different use cases
 - Next: GUIDELINES sweep (4 files, always-on context cost focus)
+
+### Iter 9
+
+claude-code-hooks.md deep dive — clean (Keep). Key notes:
+- File is compact (100 lines), 10 sections all specific, actionable, and non-overlapping
+- Cross-ref with claude-code.md already bidirectional: hooks→code at line 99, code→hooks at line 290 of claude-code.md. No gap.
+- Content is clearly complementary to claude-code.md — hooks API vs permission system are distinct layers; no content overlap
+- PreToolUse hook authoring section includes stdin format, script pattern, settings format — complete reference
+- Selective Allowlist section (lines 80-91) is a sophisticated pattern used by this very consolidation loop
+- No staleness, no compression opportunity, no missing cross-refs
+- tracker key: `.claude/learnings/claude-code-hooks.md` set to last_deep_dive_run=15
+- Next candidate: java-infosec-gotchas.md (unreviewed learnings file, run=0)
 
 ### Iter 8
 
