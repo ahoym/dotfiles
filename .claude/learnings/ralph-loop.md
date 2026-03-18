@@ -248,6 +248,10 @@ All `[L-N]` items in `review.md` are human judgment items — even the ones that
 
 The per-worktree claude config lives at `.claude/worktrees/<name>/.claude/` — not `~/.claude/worktrees/<name>/`. The `.claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/.claude/worktrees/<name>/.claude/<path>`.
 
+## All Content Type Runs Are Roughly Equal Length
+
+`min_deep_dives` (default 20) backfills small corpus runs with stale files from the deep-dive tracker. A GUIDELINES run with 4 files still does 20 deep dives — 16 slots filled from the stalest tracked files across all types. When planning how many iterations to allocate, treat all content type runs as ~same length regardless of corpus size.
+
 ## See also
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
