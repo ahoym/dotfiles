@@ -215,6 +215,10 @@ The `gh pr view --json reviews` endpoint returns all reviews every time — it d
 
 Conflict resolution rounds drive token cost — each round requires reading markers, asking the user, applying, and staging. Merge always costs `N` rounds (N = conflicted files). Rebase can cost more because it replays each commit: if multiple commits touch the same conflicted file, that file re-conflicts per commit. Estimate: `rebase_rounds` = sum of (commits touching each conflicted file); `merge_rounds` = count of conflicted files. Pick merge when `rebase_rounds > merge_rounds × 1.5` (rebase's cleaner history is worth a small premium, but not 2×). Also pick merge unconditionally when the branch has merge commits — rebasing merge commits requires `--rebase-merges` and produces confusing conflict contexts.
 
+## Worktree Branches Diverge from Main
+
+When a worktree branch lives long enough for other sessions to land commits on main, `git diff main` shows phantom "deletions" — files added to main after the branch point that the branch doesn't have. This doesn't affect PR creation (GitHub computes the diff correctly against the merge base), but a naive local merge without rebase would revert those additions. Rebase onto main before merging, not before PR creation.
+
 ## See also
 
 - `bash-patterns.md` — shell escaping gotchas for git commands

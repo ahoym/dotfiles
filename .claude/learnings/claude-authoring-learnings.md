@@ -96,6 +96,25 @@ Filenames are the search protocol's primary index. If a file is named after a re
 
 **Fix:** Name learnings after the *pattern*, not the *source*. `worktree-pr-hygiene.md` > `dotfiles-workflow.md`. If the content is repo-specific and actionable, it belongs in that repo's `CLAUDE.md` instead.
 
+## CLAUDE.md as Curated Directory Index
+
+A `CLAUDE.md` in a reference directory (e.g., `~/.claude/learnings/`) can serve as a curated index: one entry per file with a filename and one-line description grouped by domain. This replaces the glob → derive terms → sniff pipeline with a single read.
+
+**Design:** Federated — each directory owns its `CLAUDE.md`. A parent index conditionally references child indexes (`if ~/.claude/learnings-private/CLAUDE.md exists, read it too`). No eager loading; files are read on demand after scanning the index.
+
+**Why it works:** The sniff step (read 5 lines to check relevance) exists because filenames alone are weak signals. Descriptions make sniffing unnecessary. The pipeline was compensating for missing structure.
+
+**Maintenance cost:** Low when there's a regular consolidation cadence — add an entry when adding a file, remove when removing.
+
+## Cross-Reference Types: Semantic vs Discovery
+
+Two distinct purposes for `## See also` cross-references in learnings files:
+
+- **Discovery** ("this file also exists") — redundant when a curated index is present; the index surfaces all files with descriptions. Can be dropped.
+- **Semantic** ("when using X with Y, the interaction matters because Z") — carries contextual reasoning that no index description can replicate. Keep these; they fire when a file is *already loaded* and provide targeted follow-up context.
+
+**Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
+
 ## See also
 
 - `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

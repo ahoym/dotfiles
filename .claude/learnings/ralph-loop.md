@@ -230,6 +230,12 @@ Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g
 
 File count and cross-cutting scope don't disqualify — only judgment requirements do.
 
+## Recovering from Partial Iteration State
+
+When wiggum.sh errors leave partial state (progress.md updated but no commit), `git reset --hard <last-successful-commit>` is the cleanest recovery. Partial iterations can leave tracker gaps (files marked "done" in progress.md but missing from deep-dive-tracker.json) and decisions.md holes. Resetting to the last committed checkpoint ensures all state files are consistent. The lost iterations are cheap to redo — clean deep dives take ~3 minutes each.
+
+**Diagnosis**: Check `git log --oneline -1` vs progress.md SWEEP_COUNT. If progress.md is ahead of the commit log, the last N iterations partially executed but didn't commit.
+
 ## See also
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)

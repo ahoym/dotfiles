@@ -103,6 +103,8 @@ Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnin
 
 **When files move outside a skill's directory, `@` refs must become Read instructions.** `@` resolves relative to the SKILL.md file's directory — if a referenced file (e.g., a template) is relocated to an infrastructure directory elsewhere, the `@` path breaks silently. Replace with explicit instructions to Read from the new absolute path (e.g., "Read `~/.claude/ralph/research/templates/spec-template.md`"). This is the migration cost of restructuring; `@` gives you eager loading convenience at the cost of co-location coupling.
 
+**When reviewing a consumer that delegates by section name, verify the section exists.** When a PR changes a skill to delegate to a named section in a reference file (e.g., `"follow 'Check for Existing Review' in the platform cluster files"` instead of inlining a command), verify the section actually exists in the reference file. Section-name delegations fail silently — the agent gets no guidance and improvises — while missing file-path references fail loudly with a Read error. Read the reference file and confirm the section heading during review.
+
 ## Producer-Consumer Skill Contracts
 
 When a skill produces structured output intended for another workflow (e.g., curate skill's "Suggested Deep Dives" section), verify the consuming workflow actually reads it. A capability defined in a component skill but not wired into the orchestrating spec is a silent no-op. Check this especially for skills that generate report sections, candidate lists, or action items meant to feed into autonomous loops.
