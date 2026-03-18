@@ -4,6 +4,5 @@
 .claude/worktrees/
 !.claude/worktrees/CLAUDE.md
 .claude/learnings-private/
-change-request-replies/*.md
 .claude/tracking-artifacts/
 tmp/

@@ -47,7 +47,7 @@
       "Bash(ls:*)",
       "Bash(wc:*)",
       "Bash(mkdir:*)",
-      "Bash(rm change-request-replies/*)",
+      "Bash(rm tmp/change-request-replies/*)",
       "Edit(.claude/**)",
       "Edit(~/.claude/commands/**)",
       "Edit(~/.claude/guidelines/**)",
@@ -71,16 +71,14 @@
       "Read(~/WORKSPACE/**)",
       "Read(.claude/**)",
       "Write(.claude/**)",
-      "Write(change-request-replies/**)",
+      "Write(tmp/change-request-replies/**)",
       "Write(~/.claude/commands/**)",
       "Write(~/.claude/guidelines/**)",
       "Write(~/.claude/learnings/**)",
       "Write(~/.claude/learnings-private/**)",
       "Write(~/.claude/skill-references/**)",
       "Write(~/.claude/skills/**)",
-      "Write(~/**/change-request-replies/**)",
-      "Write(/Users/malcolmahoy/WORKSPACE/dotfiles/.claude/learnings/**)"
+      "Write(~/**/tmp/change-request-replies/**)"
     ]
-  },
-  "model": "sonnet"
+  }
 }

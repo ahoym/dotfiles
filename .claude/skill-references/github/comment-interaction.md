@@ -51,14 +51,14 @@ gh api repos/{owner}/{repo}/issues/<number>/comments --paginate --jq '.[] | sele
 
 ## Reply to Inline Comment
 
-Write the message body to `change-request-replies/<comment_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same PR), then pass via `-F body=@`:
+Write the message body to `tmp/change-request-replies/<comment_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same PR), then pass via `-F body=@`:
 
 **Use absolute paths with `-F body=@`** — `gh api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
 
 ```bash
-# Write body to change-request-replies/<comment_id>-<persona>-<role>.md, then:
+# Write body to tmp/change-request-replies/<comment_id>-<persona>-<role>.md, then:
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  -F body=@/absolute/path/to/change-request-replies/<comment_id>-<persona>-<role>.md -F in_reply_to=<comment_id>
+  -F body=@/absolute/path/to/tmp/change-request-replies/<comment_id>-<persona>-<role>.md -F in_reply_to=<comment_id>
 ```
 
 ## Edit Inline Comment
@@ -88,9 +88,9 @@ gh api repos/{owner}/{repo}/issues/comments/<comment_id>/reactions -f content=<e
 
 ## Post Top-Level Comment
 
-Write the message body to `change-request-replies/<pr_number>-<persona>-<role>-top.md` first, then pass via file reference. **Use absolute paths** — same CWD caveat as Reply to Inline Comment.
+Write the message body to `tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md` first, then pass via file reference. **Use absolute paths** — same CWD caveat as Reply to Inline Comment.
 
 ```bash
-# Write body to change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
-gh pr comment <number> --body-file /absolute/path/to/change-request-replies/<pr_number>-<persona>-<role>-top.md
+# Write body to tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
+gh pr comment <number> --body-file /absolute/path/to/tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md
 ```

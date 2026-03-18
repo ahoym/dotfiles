@@ -102,7 +102,7 @@ Bash permission patterns match on the **literal command prefix**. Common breaks:
 
 Write and Edit permission patterns use a different matching mechanism than Bash prefix matching. Gotchas specific to these tools:
 
-1. **Tilde vs absolute paths:** Permission patterns like `Write(~/**/change-request-replies/**)` require the tool call to use `~/...` paths. Passing the expanded absolute path (`/Users/<user>/...`) won't match the tilde-based pattern.
+1. **Tilde vs absolute paths:** Permission patterns like `Write(~/**/tmp/change-request-replies/**)` require the tool call to use `~/...` paths. Passing the expanded absolute path (`/Users/<user>/...`) won't match the tilde-based pattern.
 2. **Symlink CWD-relative normalization:** When `~/.claude` is a symlink (e.g., to `WORKSPACE/dotfiles/.claude`) and CWD is the symlink target, Write/Edit tools may normalize `~/.claude/...` paths through the symlink to CWD-relative (`.claude/...`) before the permission check. Tilde-based patterns like `Edit(~/.claude/skill-references/**)` won't match the normalized path. Fix: add CWD-relative companion patterns (e.g., `Edit(.claude/**)`) alongside tilde patterns when working in symlinked repos.
 3. **Edit tool displays as `Update` in permission prompts.** The tool is called `Edit` in code, but the permission prompt shows `Update(.claude/...)`. `Edit(...)` patterns do NOT match `Update` prompts — they are different permission keys. Fix: add `Update(...)` companion patterns for every `Edit(...)` pattern.
 4. **Write tool `file_path` requires absolute or `~/` paths** per its spec, but permission patterns may use CWD-relative. In symlinked repos, Write normalizes paths unpredictably — prefer Bash for simple file writes (e.g., epoch timestamps) and reserve Write for content files where CWD-relative patterns are pre-configured.
@@ -247,12 +247,12 @@ When a file moves within the repo (e.g., `CLAUDE.md` from root to `.claude/CLAUD
 HEREDOC content with quoted strings in `gh pr create --body "..."` triggers permission prompts on every line. Write the body to a temp file and use `--body-file` instead:
 
 ```bash
-# Write body via Write tool to change-request-replies/pr-body.md, then:
-gh pr create --base main --title "title" --body-file change-request-replies/pr-body.md
-rm -rf change-request-replies
+# Write body via Write tool to tmp/change-request-replies/pr-body.md, then:
+gh pr create --base main --title "title" --body-file tmp/change-request-replies/pr-body.md
+rm -rf tmp/change-request-replies
 ```
 
-Same pattern works for `gh pr edit --body-file`. The `change-request-replies/` directory is already used for comment replies in `github-commands.md`.
+Same pattern works for `gh pr edit --body-file`. The `tmp/change-request-replies/` directory is already used for comment replies in `github-commands.md`.
 
 ## Test Skills for Empirical CLI Behavior Verification
 
@@ -283,6 +283,15 @@ Claude Code resets CWD to the worktree root after every Bash call — `cd` to an
 ## Persisted Tool Output Nests Line-Number Prefixes
 
 When Bash output exceeds the inline limit, it's saved to a persisted file under `tool-results/`. Reading that file via Read adds a `N→` line-number prefix. If the Read result itself exceeds the limit and is persisted again, the next Read adds another prefix layer — producing `N→  N→  N→ ...` nesting that's unreadable. Always read the **original** persisted file with `offset` + `limit` parameters rather than re-reading a persisted copy of a persisted copy.
+
+## Multi-Step Git Ops Across Repos Require `cd` on Every Call
+
+CWD resets to the session's working directory after every Bash call — a `cd` in one call does not persist to the next. For multi-step git operations targeting a different repo (e.g., cherry-picking onto a worktree branch while CWD is the main repo), either:
+
+1. **Chain all steps in one call**: `cd <path> && git cherry-pick <hash> && git push ...`
+2. **Prefix every call with `cd <path>`**: if steps must be separate, start each Bash call with `cd <path>` — never assume CWD carried over
+
+Failing to do this causes commands to silently run against the wrong repo. The symptom is a successful git operation on the wrong branch (e.g., cherry-pick lands on `main` instead of a feature branch).
 
 ## See also
 

@@ -8,28 +8,28 @@ description: "GitHub commands for creating/updating PRs, posting reviews, and br
 
 ## Create or Update PR (Body via File)
 
-Write the PR body to `change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
+Write the PR body to `tmp/change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
 
 ```bash
-# Write body via Write tool to change-request-replies/pr-body.md, then:
-gh pr create --base <base-branch> --title "<title>" --body-file change-request-replies/pr-body.md
+# Write body via Write tool to tmp/change-request-replies/pr-body.md, then:
+gh pr create --base <base-branch> --title "<title>" --body-file tmp/change-request-replies/pr-body.md
 # Or update existing:
-gh pr edit <number> --body-file change-request-replies/pr-body.md
+gh pr edit <number> --body-file tmp/change-request-replies/pr-body.md
 ```
 
 ## Post Review with Inline Comments
 
-Write the review payload to `change-request-replies/review-<number>.json` via the Write tool, then post:
+Write the review payload to `tmp/change-request-replies/review-<number>.json` via the Write tool, then post:
 
 ```bash
-# Write JSON payload to change-request-replies/review-<number>.json, then:
+# Write JSON payload to tmp/change-request-replies/review-<number>.json, then:
 gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  --input change-request-replies/review-<number>.json
+  --input tmp/change-request-replies/review-<number>.json
 # Clean up:
-rm change-request-replies/review-<number>.json
+rm tmp/change-request-replies/review-<number>.json
 ```
 
-**Payload format** (`change-request-replies/review-<number>.json`):
+**Payload format** (`tmp/change-request-replies/review-<number>.json`):
 ```json
 {
   "event": "COMMENT",

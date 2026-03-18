@@ -53,14 +53,14 @@ glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | sele
 
 ## Reply to Inline Comment
 
-Write the message body to `change-request-replies/<note_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same MR), then pass via `-F body=@`:
+Write the message body to `tmp/change-request-replies/<note_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same MR), then pass via `-F body=@`:
 
 **Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
 
 ```bash
-# Write body to change-request-replies/<note_id>-<persona>-<role>.md, then:
+# Write body to tmp/change-request-replies/<note_id>-<persona>-<role>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@/absolute/path/to/change-request-replies/<note_id>-<persona>-<role>.md
+  -X POST -F body=@/absolute/path/to/tmp/change-request-replies/<note_id>-<persona>-<role>.md
 ```
 
 ## React to Comment
@@ -74,11 +74,11 @@ glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POS
 
 ## Post Top-Level Comment
 
-Write the message body to `change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then pass via file reference:
+Write the message body to `tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then pass via file reference:
 
 ```bash
-# Write body to change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
-glab mr comment <number> --message "$(cat /absolute/path/to/change-request-replies/<mr_number>-<persona>-<role>-top.md)"
+# Write body to tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
+glab mr comment <number> --message "$(cat /absolute/path/to/tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md)"
 ```
 
 **Note:** `glab mr comment` has no `--body-file` or `--message-file` equivalent. The `$(cat ...)` subshell pattern is the best available workaround but may trigger permission prompts for complex message bodies with special characters.
