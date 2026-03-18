@@ -70,3 +70,4 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
 - This rewrites history - only use on commits not yet merged
 - Always save files to `/tmp/` BEFORE resetting
 - The original commit is replaced by multiple new commits
+- This workflow assumes the two groups of changes are in **separate files**. If both groups modify the same file, use `git add -p` (interactive patch mode) after step 4 to selectively stage each group instead of restoring from `/tmp/`

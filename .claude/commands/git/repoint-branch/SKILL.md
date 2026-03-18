@@ -102,7 +102,7 @@ Extract independent changes from a compound branch into a new branch targeting m
    git push -u origin <new-branch-name>
    ```
    Ask: "Create a PR to main? (y/n)"
-   If yes, run `/pr` skill or:
+   If yes, run `/git:create-request` or:
    ```bash
    gh pr create --base main --title "<title>" --body "..."
    ```

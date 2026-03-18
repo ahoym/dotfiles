@@ -6,3 +6,7 @@ Companion to `java-observability.md`. Micrometer/metrics tripwires.
 - `DistributionSummary.builder()` and `Timer.builder()` respect `application.properties` SLO bucket config; `meterRegistry.summary()`/`meterRegistry.timer()` bypass it entirely
 - Timer try/finally: use an `outcome` variable instead of duplicating `sample.stop()` at each exit; skip timing for no-op runs (place `Timer.start()` after early return) to keep percentiles clean
 - Testing: use `SimpleMeterRegistry` (in-memory, records real values) — not mocked `MeterRegistry` + stubbed `Counter`
+
+## See also
+
+- `~/.claude/learnings/java-observability.md` — Grafana dashboard PromQL patterns for Micrometer counters (companion)
