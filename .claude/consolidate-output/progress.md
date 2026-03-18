@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 21 |
+| SWEEP_COUNT | 22 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md |
+| DEEP_DIVE_CANDIDATES | platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md |
 
 ## Pre-Flight
 
@@ -70,6 +70,7 @@ Suggested iterations: 15
 | 19 | DEEP_DIVE | 0 | 0 | 1 | none | agent-prompting.md — Keep; 258-line skill-reference, 15 sections all Standalone Reference, consumer wiring fully verified (parallel-plan/execute + make both load by path + named sections), no staleness; 1 LOW: frontmatter description incomplete |
 | 20 | DEEP_DIVE | 0 | 0 | 1 | none | quantum-tunnel-claudes/SKILL.md — Keep; actively used sync skill, well-structured 5-step workflow, all references current, no overlap; 1 LOW: Reference Files section says "step 3" for corpus-cross-reference.md + classification-model.md, both are read in step 2 (body instructions correct) |
 | 21 | DEEP_DIVE | 0 | 1 | 1 | folded Code style into 4-section structure | xrpl-typescript-fullstack.md — 1 MEDIUM applied: non-standard 5th section folded into standard sections; 1 LOW: thin review section (6 items vs ~10-15 recommended) |
+| 22 | DEEP_DIVE | 0 | 1 | 0 | folded Code style into 4-section structure | react-frontend.md — 1 MEDIUM applied: same non-standard Code style section pattern as iter 21; reference moved to Domain priorities as 7th bullet; all refs verified |
 
 ## Deep Dive Status
 
@@ -95,10 +96,23 @@ Suggested iterations: 15
 | agent-prompting.md | complete | 19 | Keep — 258-line comprehensive reference, 15 sections all Standalone Reference; consumer wiring verified (parallel-plan/execute + make); 1 LOW: frontmatter description incomplete |
 | quantum-tunnel-claudes/SKILL.md | complete | 20 | Keep — actively used cross-repo sync skill; all references current; 1 LOW: Reference Files metadata has wrong step numbers (step 3 vs step 2) for corpus-cross-reference.md and classification-model.md |
 | xrpl-typescript-fullstack.md | complete | 21 | 1 MEDIUM applied — folded non-standard Code style section into standard 4-section structure; TypeScript rigor bullet now references code-quality-instincts.md; review section grew from 4 to 6 items; 1 LOW: thin review section |
-| react-frontend.md | pending | — | stale persona (run=9, gap=6) |
+| react-frontend.md | complete | 22 | 1 MEDIUM applied — folded non-standard Code style section into Domain priorities; all 8 Detailed references and 1 Proactive load verified current |
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 22
+
+react-frontend.md deep dive — 1 MEDIUM applied. Key notes:
+- Same non-standard `## Code style` section pattern as iter 21 (xrpl-typescript-fullstack.md). Section contained single line: "Enforce `learnings/code-quality-instincts.md`". No React-specific review checks (unlike xrpl which also had actionable items to move).
+- Folded into Domain priorities as 7th bullet: "Code quality: apply `learnings/code-quality-instincts.md` principles throughout (no duplication, single source of truth, port intent not idioms)". "apply...throughout" preserves always-on enforce intent; Detailed references keeps code-quality-instincts.md for conditional deep-loads. Both signals preserved in different sections.
+- Pattern confirmed: at least 2 personas (react-frontend + xrpl-typescript-fullstack) had this non-standard Code style section. Check remaining persona (platform-engineer.md) for the same pattern.
+- All 8 Detailed references verified current via tracker: code-quality-instincts.md (run=11) ✅, react-patterns.md (run=10) ✅, reactive-data-patterns.md (run=13) ✅, nextjs.md (run=9) ✅, accessibility-patterns.md (run=13) ✅, ui-patterns.md (run=13) ✅, testing-patterns.md (run=9) ✅, playwright-patterns.md (run=9) ✅
+- Proactive load: react-frontend-gotchas.md (run=13) ✅
+- Domain priorities: 7 items (grew from 6). When reviewing or writing code: 9 items (unchanged, acceptable).
+- Known gotchas: Next.js subsection only — React gotchas delegated to proactive load (react-frontend-gotchas.md). Good design.
+- Tracker key: `.claude/commands/set-persona/react-frontend.md` updated to last_deep_dive_run=15
+- Next candidate: platform-engineer.md (stale persona, run=9, gap=6) — check for Code style section pattern
 
 ### Iter 21
 
