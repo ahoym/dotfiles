@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 11 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md |
+| DEEP_DIVE_CANDIDATES | spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md |
 
 ## Pre-Flight
 
@@ -59,6 +59,7 @@ Suggested iterations: 15
 | 8 | DEEP_DIVE | 1 | 0 | 0 | fixed learnings index description for gitlab-cli.md | gitlab-cli.md — 1 HIGH: index entry over-promised (authentication, MR commands); corrected to match actual content; file content clean |
 | 9 | DEEP_DIVE | 0 | 0 | 0 | none | claude-code-hooks.md — clean; 10 sections specific/accurate; bidirectional cross-ref with claude-code.md already in place; Keep |
 | 10 | DEEP_DIVE | 0 | 0 | 0 | none | java-infosec-gotchas.md — clean; 7 security tripwires, compact and actionable; See Also to api-design.md valid (unidirectional asymmetry intentional — general file shouldn't pull Java-specific); Keep |
+| 11 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to java-observability-gotchas.md | java-observability-gotchas.md — 1 MEDIUM applied: added formal See Also → java-observability.md; all 4 patterns specific/actionable; index description accurate |
 
 ## Deep Dive Status
 
@@ -73,7 +74,7 @@ Suggested iterations: 15
 | gitlab-cli.md | complete | 8 | 1 HIGH applied — fixed learnings index description (removed inaccurate "authentication, MR commands"); file content clean (3 flag-diff patterns, See Also valid/bidirectional) |
 | claude-code-hooks.md | complete | 9 | Keep — 10 sections all specific/accurate; bidirectional cross-ref with claude-code.md confirmed (hooks line 99, code.md line 290); no overlap, no compression needed |
 | java-infosec-gotchas.md | complete | 10 | Keep — compact 7-bullet security tripwire list; See Also to api-design.md valid (unidirectional asymmetry intentional); CORS overlap with spring-boot-gotchas complementary; no missing cross-refs |
-| java-observability-gotchas.md | pending | — | never deep-dived (run=0) |
+| java-observability-gotchas.md | complete | 11 | 1 MEDIUM applied — added formal See Also → java-observability.md; informal description was present but formal section enables search protocol cross-ref discovery; all 4 patterns Keep |
 | spring-boot-gotchas.md | pending | — | never deep-dived (run=0) |
 | postgresql-query-patterns.md | pending | — | never deep-dived (run=0) |
 | ralph/consolidate/init/SKILL.md | pending | — | stale skill (run=8, gap=7) |
@@ -88,6 +89,18 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 11
+
+java-observability-gotchas.md deep dive — 1 MEDIUM applied. Key notes:
+- File is compact (4 bullets + new See Also), all patterns specific and actionable; metrics discussion process (6-step) is a useful pre-implementation methodology, not a traditional gotcha but appropriate in the file
+- DistributionSummary.builder() vs meterRegistry.summary() SLO bypass gotcha is classic Micrometer footgun — high value
+- Timer try/finally outcome variable pattern is specific enough to be useful reference
+- SimpleMeterRegistry testing pattern is the canonical "don't mock" gotcha for Micrometer
+- MEDIUM: added formal See Also → java-observability.md. Informal "Companion to..." description was present but doesn't trigger the `## See also` search protocol follow step. All peer gotchas files (java-infosec, typescript-ci, gitlab-cli) use formal sections — corpus convention clear.
+- java-observability.md → java-observability-gotchas.md: already bidirectional at run=13 (confirmed from tracker). Now fully bidirectional via formal sections.
+- Tracker key: `.claude/learnings/java-observability-gotchas.md` set to last_deep_dive_run=15
+- Next candidate: spring-boot-gotchas.md (unreviewed learnings file, run=0)
 
 ### Iter 10
 

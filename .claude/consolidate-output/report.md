@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 10 |
+| Iterations | 11 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -31,6 +31,7 @@
 | 2 | SKILLS | fix stale skill reference | git/repoint-branch/SKILL.md | — | HIGH |
 | 7 | DEEP_DIVE | add cross-ref See Also (bidirectional) | typescript-ci-gotchas.md ↔ ci-cd-gotchas.md | — | HIGH |
 | 8 | DEEP_DIVE | fix learnings index description | learnings/CLAUDE.md (gitlab-cli.md entry) | — | HIGH |
+| 11 | DEEP_DIVE | add formal See Also section | java-observability-gotchas.md | java-observability.md | MEDIUM |
 
 ## Blocked Items
 
