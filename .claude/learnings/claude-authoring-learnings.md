@@ -58,8 +58,8 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 ```markdown
 ## See also
 
-.claude/learnings/postgresql-query-patterns.md — migration patterns overlap with Flyway/Spring Boot
-.claude/learnings/java-observability-gotchas.md — Spring Boot instrumentation pitfalls
+~/.claude/learnings/postgresql-query-patterns.md — migration patterns overlap with Flyway/Spring Boot
+~/.claude/learnings/java-observability-gotchas.md — Spring Boot instrumentation pitfalls
 ```
 
 **Rules:**
@@ -67,7 +67,7 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 - **Only non-obvious relationships.** If keyword search would find the connection (shared vocabulary in filenames or content), a cross-ref adds no value. Reserve for relationships where the agent wouldn't think to search.
 - **1-5 refs max per file.** The number is a guardrail, not a target — each ref must pass the non-obvious test. Hub files that route to a cluster may exceed 5 when each ref adds non-keyword-discoverable value.
 - **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and user) judge relevance without loading the target.
-- **Path format:** `.claude/learnings/<file>.md` (CWD-relative, consistent with Glob/Grep path conventions in this repo)
+- **Path format:** `~/.claude/learnings/<file>.md` (tilde-prefixed, directly loadable by agents in any CWD)
 - **Placement:** Always the last section in the file, after all content sections.
 
 **Hub-spoke rule:** When files form a hub-spoke cluster (e.g., `claude-authoring-content-types.md` routing to `claude-authoring-skills.md`, `claude-authoring-guidelines.md`, etc.), spokes should cross-ref the hub (upward navigation — the agent needs a breadcrumb back to the routing table) but NOT sibling spokes (lateral navigation — the hub already handles that). Spoke-to-spoke refs duplicate hub routing and grow linearly with new spokes.
@@ -115,6 +115,10 @@ Two distinct purposes for `## See also` cross-references in learnings files:
 
 **Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
 
+## Sweep Scope for Path Format Changes
+
+When standardizing the `## See also` path format across learnings files (e.g., updating from `.claude/learnings/foo.md` to `~/.claude/learnings/foo.md`), the same format should be applied in persona files too — persona `Proactive loads` and `Detailed references` sections use the same paths and are loaded by agents under the same constraints. Scope the sweep to both layers in a single pass; leaving one behind creates a two-format system that's confusing to maintain.
+
 ## See also
 
-- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
+- `~/.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

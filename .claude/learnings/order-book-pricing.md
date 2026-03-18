@@ -44,5 +44,5 @@ xrpl.js `BookOffer.quality` is `string | undefined`. `OrderBookEntry.quality` mu
 
 ## See also
 
-- `xrpl-patterns.md` — order book fetching (`getOrderbook()`, funded offer fields, depth summary) that feeds into pricing calculations here
-- `bignumber-financial-arithmetic.md` — BigNumber.js arithmetic primitives used in slippage/midprice computations
+- `~/.claude/learnings/xrpl-patterns.md` — order book fetching (`getOrderbook()`, funded offer fields, depth summary) that feeds into pricing calculations here
+- `~/.claude/learnings/bignumber-financial-arithmetic.md` — BigNumber.js arithmetic primitives used in slippage/midprice computations

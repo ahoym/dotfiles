@@ -34,6 +34,10 @@ Deep research files (`<topic>.md`) are supplementary — created when a research
 
 When writing a spec for `claude --print` agents with no conversation history, embed methodology inline — not just as file references. The agent can read reference files on the first iteration (when SWEEP_COUNT = 0), but subsequent iterations have no memory of what was read. The spec must be self-sufficient: inline enough analytical framework that later iterations can execute without re-reading references. Use "Notes for Next Iteration" in progress.md as the inter-iteration communication channel for condensed context.
 
+## Consolidation Loop Excludes Uncommitted Changes
+
+The worktree is created from HEAD — staged and unstaged modifications to corpus files are invisible to the consolidation agent. Commit pending changes before running `/ralph:consolidate:init` if they should be included in the run.
+
 ## Consolidation Loop Variant
 
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
@@ -235,6 +239,14 @@ File count and cross-cutting scope don't disqualify — only judgment requiremen
 When wiggum.sh errors leave partial state (progress.md updated but no commit), `git reset --hard <last-successful-commit>` is the cleanest recovery. Partial iterations can leave tracker gaps (files marked "done" in progress.md but missing from deep-dive-tracker.json) and decisions.md holes. Resetting to the last committed checkpoint ensures all state files are consistent. The lost iterations are cheap to redo — clean deep dives take ~3 minutes each.
 
 **Diagnosis**: Check `git log --oneline -1` vs progress.md SWEEP_COUNT. If progress.md is ahead of the commit log, the last N iterations partially executed but didn't commit.
+
+## LOW Review Items Require Human Judgment
+
+All `[L-N]` items in `review.md` are human judgment items — even the ones that appear trivially fixable (wrong step number in a skill, stale description, etc.). The LOW tag signals that the autonomous loop deferred to the operator, not that the change is low-stakes. During `/ralph:consolidate:resume`, always use `AskUserQuestion` for every LOW before acting. Autonomously fixing any LOW bypasses the deferral that was intentionally placed there.
+
+## Worktree Claude Config Location
+
+The per-worktree claude config lives at `.claude/worktrees/<name>/.claude/` — not `~/.claude/worktrees/<name>/`. The `.claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/.claude/worktrees/<name>/.claude/<path>`.
 
 ## See also
 

@@ -51,13 +51,13 @@ Read each template from `~/.claude/ralph/consolidate/templates/` and write to th
 
 | Template | Destination |
 |----------|-------------|
-| `spec.md` | `.claude/consolidate-output/spec.md` |
-| `broad-sweep-methodology.md` | `.claude/consolidate-output/broad-sweep-methodology.md` |
-| `deep-dive-methodology.md` | `.claude/consolidate-output/deep-dive-methodology.md` |
-| `progress.md` | `.claude/consolidate-output/progress.md` |
-| `decisions.md` | `.claude/consolidate-output/decisions.md` |
-| `report.md` | `.claude/consolidate-output/report.md` |
-| `review.md` | `.claude/consolidate-output/review.md` |
+| `spec.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/spec.md` |
+| `broad-sweep-methodology.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/broad-sweep-methodology.md` |
+| `deep-dive-methodology.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/deep-dive-methodology.md` |
+| `progress.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/progress.md` |
+| `decisions.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/decisions.md` |
+| `report.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/report.md` |
+| `review.md` | `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/review.md` |
 
 Copy each template as-is first. Pre-flight data is populated next.
 
