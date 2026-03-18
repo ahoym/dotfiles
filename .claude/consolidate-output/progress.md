@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md |
+| DEEP_DIVE_CANDIDATES | claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md |
 
 ## Pre-Flight
 
@@ -56,6 +56,7 @@ Suggested iterations: 15
 | 5 | DEEP_DIVE | 0 | 0 | 0 | none | extract-request-learnings/extractor-prompt.md — Keep; Template for skill, verbatim subagent prompt, single consumer, no action needed |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | none | git/create-request/SKILL.md — Keep; well-scoped 12-step PR/MR workflow, all references verified (request-body-template.md direct read; pr-management.md confirmed via tracker+index; platform-detection.md confirmed iter 4) |
 | 7 | DEEP_DIVE | 1 | 0 | 0 | bidirectional cross-ref (typescript-ci-gotchas.md ↔ ci-cd-gotchas.md) | typescript-ci-gotchas.md — 1 HIGH: added bidirectional See Also with ci-cd-gotchas.md; all other patterns standalone reference Keep; vercel-deployment.md and ci-cd.md cross-refs valid |
+| 8 | DEEP_DIVE | 1 | 0 | 0 | fixed learnings index description for gitlab-cli.md | gitlab-cli.md — 1 HIGH: index entry over-promised (authentication, MR commands); corrected to match actual content; file content clean |
 
 ## Deep Dive Status
 
@@ -67,7 +68,7 @@ Suggested iterations: 15
 | extractor-prompt.md | complete | 5 | Keep — Template for skill (verbatim subagent prompt), single consumer, no corpus overlap, clean |
 | git/create-request/SKILL.md | complete | 6 | Keep — well-scoped 12-step workflow, all references verified, no overlap with peer skills |
 | typescript-ci-gotchas.md | complete | 7 | 1 HIGH applied — bidirectional cross-ref added with ci-cd-gotchas.md (natural companion pair, pnpm/Node-specific vs stack-agnostic); all other patterns standalone reference, Keep |
-| gitlab-cli.md | pending | — | never deep-dived (run=0) |
+| gitlab-cli.md | complete | 8 | 1 HIGH applied — fixed learnings index description (removed inaccurate "authentication, MR commands"); file content clean (3 flag-diff patterns, See Also valid/bidirectional) |
 | claude-code-hooks.md | pending | — | never deep-dived (run=0) |
 | java-infosec-gotchas.md | pending | — | never deep-dived (run=0) |
 | java-observability-gotchas.md | pending | — | never deep-dived (run=0) |
@@ -104,6 +105,16 @@ SKILLS broad sweep complete over all 31 skills + reference files. Corpus is in g
 - skill-references symlink can't be traversed by Glob — consumer wiring check was skipped; needs human verification that skill-references files still exist and are current
 - learnings:consolidate (interactive) and wiggum.sh autonomous loop coexist intentionally — different use cases
 - Next: GUIDELINES sweep (4 files, always-on context cost focus)
+
+### Iter 8
+
+gitlab-cli.md deep dive — 1 HIGH applied. Key notes:
+- File is compact (12 lines), contains exactly 3 flag-difference patterns — all standalone reference, Keep
+- Learnings index description was inaccurate: "authentication, MR commands" — neither exists as a section; "authentication" would cause false-positive index loads. Corrected to precise description matching file scope.
+- See Also: gitlab-ci-cd.md exists and is valid; already bidirectional (gitlab-ci-cd.md → gitlab-cli.md at line 53). No new cross-refs needed.
+- ci-cd-gotchas.md cross-ref not needed (different domain: CI config gotchas vs CLI flag behavior); connected via gitlab-ci-cd.md hub.
+- tracker key: `.claude/learnings/gitlab-cli.md` set to last_deep_dive_run=15
+- Next candidate: claude-code-hooks.md (unreviewed learnings file, run=0)
 
 ### Iter 7
 

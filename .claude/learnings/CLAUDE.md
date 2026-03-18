@@ -67,7 +67,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `ci-cd.md` — CI/CD patterns: Docker build/push stage sharing, pipeline structure
 - `ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion to ci-cd.md and gitlab-ci-cd.md)
 - `gitlab-ci-cd.md` — GitLab CI/CD patterns: diagnosing failures with glab, pipeline structure
-- `gitlab-cli.md` — GitLab CLI (glab): flag differences from gh, authentication, MR commands
+- `gitlab-cli.md` — GitLab CLI (glab): flag differences from gh CLI (--all, --raw diff, --jq workaround)
 
 ## Database
 
