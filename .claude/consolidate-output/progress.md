@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md |
+| DEEP_DIVE_CANDIDATES | git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md |
 
 ## Pre-Flight
 
@@ -53,6 +53,7 @@ Suggested iterations: 15
 | 2 | SKILLS | 1 | 0 | 2 | 1 stale ref fix | All 31 skills healthy; fixed stale /pr reference in git:repoint-branch; skill-refs symlink check skipped |
 | 3 | GUIDELINES | 0 | 0 | 2 | none | Clean sweep; all 4 guidelines healthy, @-referenced; 2 LOWs — large always-on files; transitioning to DEEP_DIVE with 20 candidates |
 | 4 | DEEP_DIVE | 0 | 0 | 0 | none | git/repoint-branch/SKILL.md — Keep; well-scoped extraction skill, no overlap with split-request, all refs current |
+| 5 | DEEP_DIVE | 0 | 0 | 0 | none | extract-request-learnings/extractor-prompt.md — Keep; Template for skill, verbatim subagent prompt, single consumer, no action needed |
 
 ## Deep Dive Status
 
@@ -61,7 +62,7 @@ Suggested iterations: 15
 | File | Status | Iter | Summary |
 |------|--------|------|---------|
 | git/repoint-branch/SKILL.md | complete | 4 | Keep — well-scoped, no overlap, all refs current; stale ref fixed iter 2 |
-| extractor-prompt.md | pending | — | never deep-dived (run=0) |
+| extractor-prompt.md | complete | 5 | Keep — Template for skill (verbatim subagent prompt), single consumer, no corpus overlap, clean |
 | git/create-request/SKILL.md | pending | — | never deep-dived (run=0) |
 | typescript-ci-gotchas.md | pending | — | never deep-dived (run=0) |
 | gitlab-cli.md | pending | — | never deep-dived (run=0) |
@@ -101,6 +102,15 @@ SKILLS broad sweep complete over all 31 skills + reference files. Corpus is in g
 - skill-references symlink can't be traversed by Glob — consumer wiring check was skipped; needs human verification that skill-references files still exist and are current
 - learnings:consolidate (interactive) and wiggum.sh autonomous loop coexist intentionally — different use cases
 - Next: GUIDELINES sweep (4 files, always-on context cost focus)
+
+### Iter 5
+
+extractor-prompt.md deep dive — clean (Keep). Key notes:
+- File is a verbatim subagent prompt template; classification = Template for skill (HIGH)
+- Single consumer: extract-request-learnings/SKILL.md (step 7 + line 19 reference)
+- No corpus overlap, no compression opportunity (all ~68 lines are load-bearing placeholders/instructions)
+- No cross-refs needed (prompt templates don't use cross-refs — not a learnings file)
+- Next candidate: git/create-request/SKILL.md (skill file, last_deep_dive_run=0)
 
 ### Iter 4
 
