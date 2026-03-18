@@ -48,6 +48,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. DEDUPLICATE — wire content-mode.md step 3 to reference this file's table; reduces taxonomy drift risk between the two sources
 - **Why LOW**: content-mode.md is not a declared consumer, so the reference-file gate does not cleanly apply. The taxonomies serve similar but different purposes (one maps "implications," one maps to "confidence levels"). Unclear whether this is intentional parallel development or accidental divergence.
 - **Curate command**: `/learnings:curate skill-references/corpus-cross-reference.md`
+- **Status**: RESOLVED (keep as-is — different purposes, drift caught by future deep dives)
 
 ## [L-2] github/commands.md — fetch-review-data.md index description omits consolidated variants
 
@@ -60,6 +61,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. UPDATE — add the consolidated variants to the description so skills referencing the index can see the full API surface: "Fetch Review Details, Diff, Files Changed, Commits, Fetch Activity Signals (consolidated)"
 - **Why LOW**: Whether index descriptions should list all section names (complete) or just the core command categories (summary) is a style decision. The omission is not operationally breaking — skills read the cluster files directly per the index description.
 - **Curate command**: `/learnings:curate skill-references/github/commands.md`
+- **Status**: RESOLVED (keep as-is — index descriptions are summaries)
 
 ## [L-3] gitlab/commands.md — fetch-review-data.md index description omits "Fetch Activity Signals (consolidated)"
 
@@ -72,6 +74,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. UPDATE — add the consolidated variant to the description so skills referencing the index can see the full API surface: "Fetch Review Details, Diff, Files Changed, Commits, Fetch Activity Signals (consolidated)"
 - **Why LOW**: Same style decision as [L-2] for github/commands.md — whether index descriptions should list all section names or just core categories. The omission is not operationally breaking — skills read cluster files directly per the index navigation guidance.
 - **Curate command**: `/learnings:curate skill-references/gitlab/commands.md`
+- **Status**: RESOLVED (keep as-is — consistent with L-2)
 
 ## [L-4] gitlab/comment-interaction.md — Missing "Edit Inline Comment" section vs github counterpart
 
@@ -84,6 +87,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. ADD section — coverage gap. If consumers ever need to edit inline comments, the template is missing. Add `PATCH` template for completeness.
 - **Why LOW**: Cannot determine without knowing whether any current or anticipated consumer needs comment editing. No current consumer (`extractor-prompt.md`) uses it. The simplicity of the GitLab endpoint makes the omission less risky than the GitHub version's gotcha, but it's still a potential coverage gap.
 - **Curate command**: `/learnings:curate skill-references/gitlab/comment-interaction.md`
+- **Status**: RESOLVED (keep as-is — no consumer needs it, no gotcha to document)
 
 ## [L-5] address-request-edge-cases.md — Step number mismatch for when to load the file
 
@@ -96,6 +100,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. UPDATE — change to "step 5+" to match SKILL.md Important Notes reference ("Read when processing comments (step 5+)"). Step 5 is "Form independent assessment" where edge-cases guidance is directly needed.
 - **Why LOW**: The discrepancy is between step 5 (SKILL.md Important Notes) and step 6 (edge-cases.md header). Not operationally breaking — the file covers assessment, categorization, and reply guidance spanning steps 5-7.
 - **Curate command**: `/learnings:curate commands/git/address-request-comments/address-request-edge-cases.md`
+- **Status**: RESOLVED (updated to "step 5+" — applied)
 
 ## [L-6] address-request-edge-cases.md — `git add -A` in Keep Reviews Focused bash example
 
@@ -108,6 +113,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. UPDATE — replace with `git add <paths>` pattern to follow project conventions (avoids risk of accidentally staging secrets/binaries)
 - **Why LOW**: Style concern in an example code block for an unusual edge-case workflow. Not operationally breaking. Whether agents follow illustrative code blocks prescriptively is uncertain.
 - **Curate command**: `/learnings:curate commands/git/address-request-comments/address-request-edge-cases.md`
+- **Status**: RESOLVED (updated `git add -A` to `git add <paths>` — applied)
 
 ## [L-7] rebase-patterns.md — Pattern 3 (Commit Extraction Workflow) may be out of scope
 
@@ -120,6 +126,7 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
   2. MOVE to `git-patterns.md` learnings — commit extraction is a different workflow from cascade rebase; involves resetting main (destructive); broader audience than cascade-rebase users
 - **Why LOW**: Content is correct and loosely fits the reference file's scope ("common rebase patterns"). Not operationally breaking. Moving would require verifying git-patterns.md content.
 - **Curate command**: `/learnings:curate commands/git/cascade-rebase/rebase-patterns.md`
+- **Status**: RESOLVED (keep as-is — content correct, uses --onto)
 
 ## [MAX-DEEP-DIVES] Deep dive phase hit 30-invocation limit
 

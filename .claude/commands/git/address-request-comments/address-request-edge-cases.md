@@ -1,6 +1,6 @@
 # Address Request Comments — Edge Cases
 
-Read this file when processing comments (step 6+). Skip on quiet no-ops.
+Read this file when processing comments (step 5+). Skip on quiet no-ops.
 
 ## Core Principles
 
@@ -95,7 +95,7 @@ git checkout <target_branch>
 
 # Apply and commit
 git stash pop
-git add -A && git commit -m "<message>"
+git add <paths> && git commit -m "<message>"
 git push origin <target_branch>
 
 # Return to original branch
