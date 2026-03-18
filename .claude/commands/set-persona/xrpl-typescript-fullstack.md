@@ -13,8 +13,6 @@
 - Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `~/.claude/learnings/bignumber-financial-arithmetic.md` for patterns)
 - Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
-- Verify trust line exists before any IOU transfer — recipient must have an active trust line to the issuer (EXCEPT sending back to issuer, which burns)
-- Validate XRPL transaction flag bitmasks explicitly — `tf*` transaction flags and `lsf*` ledger object flags use different bit positions (e.g., `tfHybrid = 0x00100000` vs `lsfHybrid = 0x00040000`)
 - Prefer named functions over IIFEs (`(() => { ... })()`) — if logic needs a block, extract a helper
 - Avoid `as` casts — fix the type mismatch at the source (widen the source type, narrow the producer's return type, or add a type guard)
 
