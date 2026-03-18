@@ -110,6 +110,16 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Why LOW**: File is ~180 lines of always-on context. Each sub-section carries distinct behavioral nuance — compression risks losing precision in rules designed to be unambiguous. Cannot assess acceptable compression boundaries without human judgment on which nuances are load-bearing vs redundant with adjacent rules.
 - **Curate command**: `/learnings:curate communication.md`
 
+## [L-10] extract-request-learnings/SKILL.md — $PLAN_FILENAME convention undefined
+
+- **Iter**: 15
+- **Content Type**: SKILLS
+- **File**: `.claude/commands/extract-request-learnings/SKILL.md`
+- **Pattern**: Continue mode step 3 says "Read the plan file (`docs/plans/$PLAN_FILENAME`)" — but `$PLAN_FILENAME` is never defined in the skill. Init mode step 4 says "Create plan file at `docs/plans/$PLAN_FILENAME`" — but the naming convention isn't specified.
+- **Possible classifications**: (1) Define `$PLAN_FILENAME` as a derived value (e.g., `<repo-name>-review-learnings.md`) in init mode and state it explicitly; (2) Use a glob in continue mode (`docs/plans/*.md`) as the lookup; (3) Leave as-is (implied by context — operators likely understand to use the repo name)
+- **Why LOW**: Not a functional blocker (a single plan file per repo means glob works as workaround), but it's an implicit convention that could confuse an operator running this skill in a repo with multiple plan files. Human judgment on whether to formalize.
+- **Curate command**: `/learnings:curate commands/extract-request-learnings`
+
 ## [L-9] context-aware-learnings.md — large always-on methodology file
 
 - **Iter**: 3

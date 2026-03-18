@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md |
+| DEEP_DIVE_CANDIDATES | git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md |
 
 ## Pre-Flight
 
@@ -63,6 +63,7 @@ Suggested iterations: 15
 | 12 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to spring-boot-gotchas.md | spring-boot-gotchas.md — 1 MEDIUM applied: added formal See Also → spring-boot.md; all 19 patterns standalone reference; bidirectional link now complete |
 | 13 | DEEP_DIVE | 0 | 1 | 0 | updated learnings index description for postgresql-query-patterns.md | postgresql-query-patterns.md — 1 MEDIUM applied: index description was incomplete (omitted JSONB, schema design, migration safety); all 30+ patterns across 8 sections are standalone reference (Keep); no See Also needed |
 | 14 | DEEP_DIVE | 0 | 0 | 0 | none | ralph/consolidate/init/SKILL.md — clean; all 7 templates valid, wiggum.sh path valid, allowed-tools justified, well-scoped vs resume SKILL; Keep |
+| 15 | DEEP_DIVE | 0 | 1 | 0 | generalized hardcoded verification paths | extract-request-learnings/SKILL.md — 1 MEDIUM applied: step 10 verification had hardcoded Java-project filenames (code-review-general.md, spring-boot.md, code-review-patterns.md); replaced with *.md globs; all else clean (producer/consumer contract complete, all refs current); Keep |
 
 ## Deep Dive Status
 
@@ -81,7 +82,7 @@ Suggested iterations: 15
 | spring-boot-gotchas.md | complete | 12 | 1 MEDIUM applied — added formal See Also → spring-boot.md; all 19 one-liner patterns are standalone reference (Keep); bidirectional link now complete |
 | postgresql-query-patterns.md | complete | 13 | 1 MEDIUM applied — updated learnings index description; file content clean (30+ patterns, 8 sections, all Keep); no See Also needed |
 | ralph/consolidate/init/SKILL.md | complete | 14 | Keep — all 7 templates valid, wiggum.sh path valid, well-scoped vs resume SKILL, no staleness or overlap |
-| extract-request-learnings/SKILL.md | pending | — | stale skill (run=8, gap=7) |
+| extract-request-learnings/SKILL.md | complete | 15 | 1 MEDIUM applied — hardcoded Java-project filenames in step 10 verification replaced with *.md globs; producer/consumer contract verified complete; all refs current; Keep |
 | git/split-commit/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | learnings/consolidate/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | typescript-devops.md | pending | — | stale persona (run=8, gap=7) |
@@ -92,6 +93,17 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 15
+
+extract-request-learnings/SKILL.md deep dive — 1 MEDIUM applied. Key notes:
+- Skill is well-designed: init + continue modes, 12-step orchestration, 3 parallel writer subagents, staging dir workaround for background agent write restrictions
+- All 4 reference files current: extractor-prompt.md (run=15), writer-prompt.md (just read), plan-template.md (just read), platform-detection.md (run=14), batch-operations.md (run=14)
+- Producer/consumer contract COMPLETE: extractor-prompt.md line 54 produces `Language:` tag; writer-prompt.md line 37 routes by Language tag; fallback for no-tag ("treat as language-agnostic") present
+- MEDIUM: Step 10 verification hardcoded Java-project filenames: `code-review-general.md`, `spring-boot.md` (wc -l line), `code-review-patterns.md` (spot-check grep). Both GitHub and GitLab variants. Fixed to `~/.claude/learnings/*.md` and `docs/learnings/*.md` globs.
+- $PLAN_FILENAME derivation not defined in SKILL.md — LOW, filed for review (glob docs/plans/*.md works as workaround in practice)
+- Tracker key: `.claude/commands/extract-request-learnings/SKILL.md` set to last_deep_dive_run=15
+- Next candidate: git/split-commit/SKILL.md (stale skill, run=8, gap=7)
 
 ### Iter 14
 

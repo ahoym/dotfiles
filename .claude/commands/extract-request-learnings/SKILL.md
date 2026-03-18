@@ -105,21 +105,21 @@ General/private writers use staging directories inside the project (`docs/learni
     **GitHub:**
     ```bash
     # Confirm files exist and line counts grew
-    wc -l docs/learnings/*.md ~/.claude/learnings/code-review-general.md ~/.claude/learnings/spring-boot.md
+    wc -l docs/learnings/*.md ~/.claude/learnings/*.md
     # Confirm batch review numbers appear in project files
     grep -c '#FIRST_NUMBER\|#LAST_NUMBER' docs/learnings/*.md
     # Spot-check one new entry (5 lines)
-    grep -A5 'PR #<LAST_NUMBER>' docs/learnings/code-review-patterns.md | head -6
+    grep -A5 'PR #<LAST_NUMBER>' docs/learnings/*.md | head -6
     ```
 
     **GitLab:**
     ```bash
     # Confirm files exist and line counts grew
-    wc -l docs/learnings/*.md ~/.claude/learnings/code-review-general.md ~/.claude/learnings/spring-boot.md
+    wc -l docs/learnings/*.md ~/.claude/learnings/*.md
     # Confirm batch review numbers appear in project files
     grep -c '!FIRST_IID\|!LAST_IID' docs/learnings/*.md
     # Spot-check one new entry (5 lines)
-    grep -A5 'MR !<LAST_IID>' docs/learnings/code-review-patterns.md | head -6
+    grep -A5 'MR !<LAST_IID>' docs/learnings/*.md | head -6
     ```
 
     Report any discrepancies before updating progress. Do NOT read full files — use grep for targeted checks only.

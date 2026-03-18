@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 14 |
+| Iterations | 15 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -17,7 +17,7 @@
 | Learnings | 1 | 2 | 1 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 0 | 0 |
-| **Total** | **3** | **3** | **2** | **0** | **0** |
+| **Total** | **3** | **3** | **3** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -34,6 +34,7 @@
 | 11 | DEEP_DIVE | add formal See Also section | java-observability-gotchas.md | java-observability.md | MEDIUM |
 | 12 | DEEP_DIVE | add formal See Also section | spring-boot-gotchas.md | spring-boot.md | MEDIUM |
 | 13 | DEEP_DIVE | update learnings index description | learnings/CLAUDE.md (postgresql-query-patterns.md entry) | — | MEDIUM |
+| 15 | DEEP_DIVE | generalize hardcoded verification paths | extract-request-learnings/SKILL.md | — | MEDIUM |
 
 ## Blocked Items
 
