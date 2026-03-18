@@ -64,6 +64,24 @@ Consecutive no-op polls create progressive optimization pressure: the agent redu
 
 Phase 2 self-filtering correctly identifies `Role:.*Reviewer` as self-comments. But the agent mentally categories remaining comments as "Addresser replies" — overlooking that comments with **no Role tag** are from the operator, not the Addresser. Both are "non-self" in the filter, but human comments require immediate response while Addresser replies follow the acknowledgement/resolution flow. The fix: when scanning phase 2 results, explicitly check for three categories (self / agent-other / human), not two (self / non-self).
 
+## GitHub Review Batch: All Lines Must Be in a Diff Hunk
+
+GitHub rejects an entire review with 422 "Line could not be resolved" if ANY inline comment targets a line outside the PR's diff hunks. Unchanged lines that aren't within a diff hunk context are not commentable — even if they're logically related to the change.
+
+**Fix**: before building the inline comment array, verify each target line appears in the diff. Lines outside any hunk → move to review body or post as a standalone comment. One invalid line tanks the whole batch.
+
+## Force Push: SHA Changes, Dates Don't
+
+When a PR branch is force-pushed, the head SHA changes but all commit author dates remain unchanged. A date-filtered commit fetch (`since=LAST_REVIEW_TS`) returns empty — identical to "no new commits."
+
+**Detection**: head SHA differs from last reviewed SHA AND date filter returns nothing → likely force push, not new code. Handle by processing any new inline/top-level comments but skipping full diff analysis (same code, different graph).
+
+## Commit Pushed During Analysis Window
+
+A commit can land between phase 1 (SHA check) and review posting. If it fixes an issue you're about to flag as "not addressed," your review will be wrong the moment it's posted.
+
+**Mitigation**: before posting any `❌ not addressed` inline comment or "still open" follow-up, re-verify against the latest commit list — not just the SHA captured at phase 1. If a new commit landed since phase 1, check whether it addresses the finding before posting.
+
 ## See also
 
 - `claude-authoring-skills.md` — core skill design patterns (includes "Inline Critical Conditions" pattern that the devolution fix applies)

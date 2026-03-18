@@ -153,6 +153,16 @@ When a correction traces back to a template or reference file, fix the file — 
 
 When mid-review work significantly expands a PR's scope beyond its original intent (e.g., an extraction PR gains cron infrastructure, permission patterns, and new learnings sections), update the PR title and description before shipping. Future readers use the description to set expectations — a mismatch between title and content makes the PR harder to review and reference.
 
+## Verify PR Description Claims Against Git History
+
+Before editing a PR description to say "adds X" or "removes Y", verify with `git log <base>..<branch> -- <file>`. Don't rely on `git diff <base>` — a file that appears "deleted" in the diff may have been added to base *after* the branch was cut, meaning the branch never touched it. `git log` is authoritative; `git diff` can mislead when branches diverge.
+
+```bash
+# Confirm a file was actually touched by this branch
+git log main..HEAD -- path/to/file.md
+# Empty output = branch never touched it (don't claim it in the PR description)
+```
+
 ## See also
 
 - `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here

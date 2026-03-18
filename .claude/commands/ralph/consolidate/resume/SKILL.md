@@ -92,6 +92,8 @@ If there are review items in `review.md`:
 
 If the user wants to skip an item, leave it without a Status line.
 
+**Changes belong on the consolidation branch, not main.** Any file edits made while resolving review items should be committed to the consolidation branch — not to main. The consolidation branch is the PR unit; direct commits to main bypass review. Use `~/.claude/` tilde paths for Edit/Write (they land on the shared filesystem), then stage and commit from the worktree's git context.
+
 **Recommendation framing**: When presenting options, prefer recommending the option that fixes root cause (wire, restructure, merge) over the option that accepts dysfunction (delete, skip). Deletion is irreversible; wiring is reversible. Only recommend cleanup when the content is stale, incorrect, or has no identifiable consumers.
 
 ### 6. Prepare for relaunch

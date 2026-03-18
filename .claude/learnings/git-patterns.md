@@ -219,6 +219,8 @@ Conflict resolution rounds drive token cost — each round requires reading mark
 
 When a worktree branch lives long enough for other sessions to land commits on main, `git diff main` shows phantom "deletions" — files added to main after the branch point that the branch doesn't have. This doesn't affect PR creation (GitHub computes the diff correctly against the merge base), but a naive local merge without rebase would revert those additions. Rebase onto main before merging, not before PR creation.
 
+**PR description implication:** Before claiming a PR adds or removes a file, verify with `git log <base>..<branch> -- <file>`. A file appearing as "deleted" in `git diff main` may simply be a file that was added to main after the branch was cut — the branch never touched it. `git log` won't show it if the branch didn't commit it.
+
 ## See also
 
 - `bash-patterns.md` — shell escaping gotchas for git commands

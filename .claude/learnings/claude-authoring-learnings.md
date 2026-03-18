@@ -67,7 +67,7 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 - **Only non-obvious relationships.** If keyword search would find the connection (shared vocabulary in filenames or content), a cross-ref adds no value. Reserve for relationships where the agent wouldn't think to search.
 - **1-5 refs max per file.** The number is a guardrail, not a target — each ref must pass the non-obvious test. Hub files that route to a cluster may exceed 5 when each ref adds non-keyword-discoverable value.
 - **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and user) judge relevance without loading the target.
-- **Path format:** `.claude/learnings/<file>.md` (CWD-relative, consistent with Glob/Grep path conventions in this repo)
+- **Path format:** `~/.claude/learnings/<file>.md` (absolute tilde path — works outside the repo's CWD and matches Read tool resolution from any context)
 - **Placement:** Always the last section in the file, after all content sections.
 
 **Hub-spoke rule:** When files form a hub-spoke cluster (e.g., `claude-authoring-content-types.md` routing to `claude-authoring-skills.md`, `claude-authoring-guidelines.md`, etc.), spokes should cross-ref the hub (upward navigation — the agent needs a breadcrumb back to the routing table) but NOT sibling spokes (lateral navigation — the hub already handles that). Spoke-to-spoke refs duplicate hub routing and grow linearly with new spokes.

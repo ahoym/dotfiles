@@ -60,6 +60,8 @@ The exception: if you discover something during execution that materially change
 
 **Confirm before acting on ambiguous input.** For multi-part changes, present a structured summary of proposed changes for review before editing — not a bare "should I proceed?" but actual content the user can verify. For freeform input (e.g., "Other" in a multi-select), restate your interpretation concisely before executing. Pre-defined options have unambiguous meaning; freeform input doesn't.
 
+**Pause on format/convention decisions before wide application.** When a decision about naming, path format, or convention will be applied across many files, spend one sentence verifying it's correct before the first edit. Ask: "Does this format work outside this repo's CWD? Is this the canonical form?" The rework cost of getting it wrong scales with how many files the format touches — catching it before the first keystroke is always cheaper than catching it after.
+
 **Parse compound instructions fully before acting.** When an instruction has multiple parts ("do X but also Y"), identify all information needs upfront and read/research them in the same parallel batch. Don't act on the first part then discover the second part requires its own investigation.
 
 ## Think out loud during planning, be concise during execution
