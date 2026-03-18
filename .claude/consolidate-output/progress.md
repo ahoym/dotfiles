@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md |
+| DEEP_DIVE_CANDIDATES | extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md |
 
 ## Pre-Flight
 
@@ -62,6 +62,7 @@ Suggested iterations: 15
 | 11 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to java-observability-gotchas.md | java-observability-gotchas.md — 1 MEDIUM applied: added formal See Also → java-observability.md; all 4 patterns specific/actionable; index description accurate |
 | 12 | DEEP_DIVE | 0 | 1 | 0 | added formal See Also section to spring-boot-gotchas.md | spring-boot-gotchas.md — 1 MEDIUM applied: added formal See Also → spring-boot.md; all 19 patterns standalone reference; bidirectional link now complete |
 | 13 | DEEP_DIVE | 0 | 1 | 0 | updated learnings index description for postgresql-query-patterns.md | postgresql-query-patterns.md — 1 MEDIUM applied: index description was incomplete (omitted JSONB, schema design, migration safety); all 30+ patterns across 8 sections are standalone reference (Keep); no See Also needed |
+| 14 | DEEP_DIVE | 0 | 0 | 0 | none | ralph/consolidate/init/SKILL.md — clean; all 7 templates valid, wiggum.sh path valid, allowed-tools justified, well-scoped vs resume SKILL; Keep |
 
 ## Deep Dive Status
 
@@ -79,7 +80,7 @@ Suggested iterations: 15
 | java-observability-gotchas.md | complete | 11 | 1 MEDIUM applied — added formal See Also → java-observability.md; informal description was present but formal section enables search protocol cross-ref discovery; all 4 patterns Keep |
 | spring-boot-gotchas.md | complete | 12 | 1 MEDIUM applied — added formal See Also → spring-boot.md; all 19 one-liner patterns are standalone reference (Keep); bidirectional link now complete |
 | postgresql-query-patterns.md | complete | 13 | 1 MEDIUM applied — updated learnings index description; file content clean (30+ patterns, 8 sections, all Keep); no See Also needed |
-| ralph/consolidate/init/SKILL.md | pending | — | stale skill (run=8, gap=7) |
+| ralph/consolidate/init/SKILL.md | complete | 14 | Keep — all 7 templates valid, wiggum.sh path valid, well-scoped vs resume SKILL, no staleness or overlap |
 | extract-request-learnings/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | git/split-commit/SKILL.md | pending | — | stale skill (run=8, gap=7) |
 | learnings/consolidate/SKILL.md | pending | — | stale skill (run=8, gap=7) |
@@ -91,6 +92,19 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 14
+
+ralph/consolidate/init/SKILL.md deep dive — clean (Keep). Key notes:
+- Skill creates worktree, scaffolds output files from templates, runs pre-flight checks (file counts + cadence), prints launch command
+- Template table (7 files) exact match with `.claude/ralph/consolidate/templates/` directory contents ✅
+- `bash ~/.claude/ralph/consolidate/wiggum.sh <N>` launch command consistent with resume SKILL step 6 ✅
+- allowed-tools (Read, Write, Bash, Glob) all justified: Bash for mkdir+git worktree, Write for scaffolding, Glob for pre-flight file counts
+- Scope clearly distinct from resume SKILL (init=setup vs resume=evaluate+relaunch). resume already back-references init via error message.
+- Cadence keywords in step 5.3 (`curate`, `compress`, `fold`, `genericize`, `deduplicate`, `prune`, `consolidat`) — not verified against wiggum.sh keyword set, but consistent with actual consolidation commit messages seen in this run's history
+- No See Also added (skill file, not learnings — convention doesn't apply)
+- Tracker key: `.claude/commands/ralph/consolidate/init/SKILL.md` set to last_deep_dive_run=15
+- Next candidate: extract-request-learnings/SKILL.md (stale skill, run=8, gap=7)
 
 ### Iter 13
 
