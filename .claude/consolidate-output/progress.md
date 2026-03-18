@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 16 |
+| SWEEP_COUNT | 17 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md |
+| DEEP_DIVE_CANDIDATES | typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md |
 
 ## Pre-Flight
 
@@ -65,6 +65,7 @@ Suggested iterations: 15
 | 14 | DEEP_DIVE | 0 | 0 | 0 | none | ralph/consolidate/init/SKILL.md — clean; all 7 templates valid, wiggum.sh path valid, allowed-tools justified, well-scoped vs resume SKILL; Keep |
 | 15 | DEEP_DIVE | 0 | 1 | 0 | generalized hardcoded verification paths | extract-request-learnings/SKILL.md — 1 MEDIUM applied: step 10 verification had hardcoded Java-project filenames (code-review-general.md, spring-boot.md, code-review-patterns.md); replaced with *.md globs; all else clean (producer/consumer contract complete, all refs current); Keep |
 | 16 | DEEP_DIVE | 0 | 1 | 0 | added scope clarification for same-file splits | git/split-commit/SKILL.md — 1 MEDIUM applied: steps 5–6 have logical bug for same-file splits ("restore full versions" would duplicate group 1 in second commit); added Important Notes clarification pointing to git add -p for same-file scenarios; relevant, no overlap with peer skills; Keep |
+| 17 | DEEP_DIVE | 0 | 0 | 0 | none | learnings/consolidate/SKILL.md — clean; well-structured 653-line orchestrating skill; all phase logic consistent, ref paths valid, safety caps internally coherent; 2 LOWs (lab/ path example for wiggum.sh, cosmetic step numbering); Keep |
 
 ## Deep Dive Status
 
@@ -85,7 +86,7 @@ Suggested iterations: 15
 | ralph/consolidate/init/SKILL.md | complete | 14 | Keep — all 7 templates valid, wiggum.sh path valid, well-scoped vs resume SKILL, no staleness or overlap |
 | extract-request-learnings/SKILL.md | complete | 15 | 1 MEDIUM applied — hardcoded Java-project filenames in step 10 verification replaced with *.md globs; producer/consumer contract verified complete; all refs current; Keep |
 | git/split-commit/SKILL.md | complete | 16 | 1 MEDIUM applied — added scope clarification: workflow assumes separate-file splits; same-file splits should use git add -p; classification Keep |
-| learnings/consolidate/SKILL.md | pending | — | stale skill (run=8, gap=7) |
+| learnings/consolidate/SKILL.md | complete | 17 | Keep — well-structured orchestrating skill; all phase logic consistent, ref paths valid, safety caps coherent; 2 LOWs (lab/ path example, cosmetic step numbering) |
 | typescript-devops.md | pending | — | stale persona (run=8, gap=7) |
 | agent-prompting.md | pending | — | stale skill-ref (run=9, gap=6) |
 | quantum-tunnel-claudes/SKILL.md | pending | — | stale skill (run=9, gap=6) |
@@ -94,6 +95,20 @@ Suggested iterations: 15
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 17
+
+learnings/consolidate/SKILL.md deep dive — clean (Keep). Key notes:
+- Skill is the interactive orchestrator for multi-sweep consolidation; `disable-model-invocation: true` (slash command only, correct)
+- Phase logic internally consistent: Phase 1 cap=5, overall cap=15, deep dive budget check at 13 (leaves 2 sweeps for deep dive work)
+- All reference paths correct: `../curate/SKILL.md`, `../curate/classification-model.md`, `../curate/persona-design.md` (resolve correctly from commands/learnings/consolidate/)
+- State Variables table covers all 9 variables; reset points verified in Step 3.4 and content type transition step 2
+- Step 4a cluster table is illustrative (dynamic instruction: "group all skill directories") — not stale
+- Related Skills table: all 4 skills current
+- LOW: Step 4a mentions `~/.claude/lab/` with wiggum.sh as example; wiggum.sh is at `~/.claude/ralph/consolidate/wiggum.sh` (confirmed iter 14). Example may mislead, but can't verify lab/ contents from worktree. Not worth acting on without certainty.
+- LOW: Step numbering cosmetically odd (1, 2, 3, 1d, 4, 5, 6) — functionally clear, not worth restructuring
+- Tracker key: `.claude/commands/learnings/consolidate/SKILL.md` set to last_deep_dive_run=15
+- Next candidate: typescript-devops.md (stale persona, run=8, gap=7)
 
 ### Iter 16
 
