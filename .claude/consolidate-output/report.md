@@ -7,7 +7,7 @@
 | Started | 2026-03-17 21:52 |
 | Branch | consolidate/2026-03-17-2152 |
 | Worktree | .claude/worktrees/consolidate-2026-03-17-2152 |
-| Iterations | 2 |
+| Iterations | 3 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -16,8 +16,8 @@
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 2 | 1 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
-| Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **2** | **3** | **1** | **0** | **0** |
+| Guidelines | 1 | 0 | 0 | 0 | 0 |
+| **Total** | **3** | **3** | **1** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -34,8 +34,8 @@
 
 See `review.md` for details.
 
-- Total: 7
-- Open: 7
+- Total: 9
+- Open: 9
 - Resolved: 0
 
 ## Collection Health

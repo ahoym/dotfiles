@@ -99,3 +99,23 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Pattern**: Two consolidation workflows — interactive (`/learnings:consolidate` via AskUserQuestion within a single conversation) and autonomous (wiggum.sh loop, multi-invocation, worktree-based)
 - **Why LOW**: Both exist and serve different use cases (interactive vs autonomous). The `learnings:consolidate` SKILL.md is not referenced by ralph:consolidate (which uses wiggum.sh directly). Is learnings:consolidate still actively used? If it's a backup/manual fallback, keep it. If the wiggum.sh path has fully superseded it, it could be pruned. Human judgment needed.
 - **Curate command**: `/learnings:curate learnings/consolidate`
+
+## [L-8] communication.md — compression opportunity (verbose sub-sections)
+
+- **Iter**: 3
+- **Content Type**: GUIDELINES
+- **File**: `.claude/guidelines/communication.md`
+- **Pattern**: Multiple sub-sections are verbose (e.g., "Stress-test negative conclusions from empirical tests" 3-point checklist, "Calibrate challenge intensity to session phase", several "Autonomy during execution" sub-bullets)
+- **Possible classifications**: Compression (auto-apply MEDIUM) vs leave as-is
+- **Why LOW**: File is ~180 lines of always-on context. Each sub-section carries distinct behavioral nuance — compression risks losing precision in rules designed to be unambiguous. Cannot assess acceptable compression boundaries without human judgment on which nuances are load-bearing vs redundant with adjacent rules.
+- **Curate command**: `/learnings:curate communication.md`
+
+## [L-9] context-aware-learnings.md — large always-on methodology file
+
+- **Iter**: 3
+- **Content Type**: GUIDELINES
+- **File**: `.claude/guidelines/context-aware-learnings.md`
+- **Pattern**: ~130 lines always-on context; file is structured as a methodology reference (pipeline steps, announcement formats, gate details) rather than a short behavioral rule
+- **Possible classifications**: Extract methodology details to skill-reference + keep short behavioral rule in guideline vs leave as-is
+- **Why LOW**: Restructuring is blocked — session-start hard gate fires before the first tool call. If details were in a skill-reference, they'd only load during skill invocation, missing the session-start gate entirely. File cannot be shortened without breaking the search protocol. Flag for monitoring: if file grows significantly, reconsider whether the index-based loading section could reference a separate detail file loaded via @-ref.
+- **Curate command**: n/a — structural constraint, not a content issue
