@@ -12,4 +12,4 @@ Security tripwires — check these before any code review or implementation.
 
 ## See also
 
-- `api-design.md` — API security hardening, input validation, error contracts
+- `~/.claude/learnings/api-design.md` — API security hardening, input validation, error contracts

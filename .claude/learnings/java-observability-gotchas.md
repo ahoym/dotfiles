@@ -9,4 +9,4 @@ Companion to `java-observability.md`. Micrometer/metrics tripwires.
 
 ## See also
 
-- `java-observability.md` — Grafana dashboard PromQL patterns for Micrometer counters (companion)
+- `~/.claude/learnings/java-observability.md` — Grafana dashboard PromQL patterns for Micrometer counters (companion)

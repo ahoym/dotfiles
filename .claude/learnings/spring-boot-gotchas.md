@@ -24,4 +24,4 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 
 ## See also
 
-- `spring-boot.md` — Spring Boot patterns and best practices (companion file)
+- `~/.claude/learnings/spring-boot.md` — Spring Boot patterns and best practices (companion file)

@@ -8,4 +8,4 @@ Quarkus dev mode (`mvn quarkus:dev`) incremental compilation does **not** detect
 
 ## See also
 
-- `spring-boot.md` — Spring Boot patterns (related Java build and runtime ecosystem)
+- `~/.claude/learnings/spring-boot.md` — Spring Boot patterns (related Java build and runtime ecosystem)

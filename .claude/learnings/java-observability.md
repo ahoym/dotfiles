@@ -14,4 +14,4 @@ Structure dashboards by operational question (backwards from alerts), not by met
 
 ## See also
 
-- `java-observability-gotchas.md` — Micrometer/metrics tripwires (companion)
+- `~/.claude/learnings/java-observability-gotchas.md` — Micrometer/metrics tripwires (companion)
