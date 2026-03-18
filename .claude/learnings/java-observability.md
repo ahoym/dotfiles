@@ -11,3 +11,7 @@ When all metrics are counters (no timers/gauges), use these PromQL patterns:
 - **Stat panels:** `reduceOptions.calcs: ["lastNotNull"]` for current value
 
 Structure dashboards by operational question (backwards from alerts), not by metric name. Group: overview stats → throughput over time → failure/protection layers → downstream integration health → recovery jobs.
+
+## See also
+
+- `java-observability-gotchas.md` — Micrometer/metrics tripwires (companion)

@@ -9,3 +9,7 @@ Security tripwires — check these before any code review or implementation.
 - Question any custom crypto — prefer standard library implementations
 - CORS configuration must be restrictive, not wildcard
 - Flag any secret or credential in source, logs, or error messages
+
+## See also
+
+- `api-design.md` — API security hardening, input validation, error contracts

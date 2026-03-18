@@ -1,0 +1,23 @@
+consolidate: sweep 1 — LEARNINGS (broad sweep, 3 cross-refs, 5 LOWs)
+
+Broad sweep over all 58 learnings files + 11 personas. Corpus is healthy.
+
+Actions applied:
+- java-observability.md: add See Also → java-observability-gotchas.md (HIGH)
+  Companion pair had no reciprocal link despite gotchas file saying Companion to...
+- quarkus-kotlin.md: add See Also → spring-boot.md (HIGH)
+  File was isolated with no cross-references
+- java-infosec-gotchas.md: add See Also → api-design.md (MEDIUM)
+  Gotchas file had no companion; api-design.md security hardening is the positive counterpart
+
+5 LOW items recorded in review.md:
+- typescript-specific.md: very thin (1 pattern, 14 lines)
+- quarkus-kotlin.md: very thin (1 pattern, 8 lines)
+- xrpl-dex-data.md: native DEX section overlaps with xrpl-gotchas.md
+- Cross-ref path inconsistency (tilde, bare, .claude/ styles mixed)
+- python-specific.md: no matching Python persona
+
+Deep-dive candidates (run=0): typescript-ci-gotchas, gitlab-cli, claude-code-hooks,
+java-infosec-gotchas, java-observability-gotchas, spring-boot-gotchas, postgresql-query-patterns
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
