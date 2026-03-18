@@ -49,6 +49,7 @@ CLI=gh|glab
 REVIEW_UNIT=PR|MR
 REVIEW_UNIT_LOWER=pr|mr
 CREATE_CMD="gh pr create"|"glab mr create"
+EDIT_CMD="gh pr edit"|"glab mr update"
 VIEW_CMD="gh pr view"|"glab mr view"
 LIST_CMD="gh pr list"|"glab mr list"
 ```

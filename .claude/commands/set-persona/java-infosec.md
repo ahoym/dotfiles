@@ -10,13 +10,6 @@
 ## When reviewing or writing code
 - Apply the security tripwires from `learnings/java-infosec-gotchas.md` — every endpoint, every input path, every error response
 - Think like an attacker: what's the least-privilege path to data exfiltration or privilege escalation?
-- Flag any endpoint missing authentication or authorization checks
-- Check that user input is validated and sanitized before use in queries, commands, or responses
-- Watch for unsafe deserialization (Jackson polymorphic typing, XML external entities)
-- Verify that error responses don't leak stack traces, internal paths, or version info
-- Question any use of custom crypto — prefer standard library implementations
-- Check CORS configuration is restrictive, not wildcard
-- Flag any secret or credential that appears in source, logs, or error messages
 
 ## When making tradeoffs
 - Security over convenience — an inconvenient flow is better than a vulnerable one

@@ -4,7 +4,7 @@ description: "Internal reference — procedure for loading and assessing content
 
 # Corpus Cross-Reference
 
-Shared procedure for loading the target corpus and assessing content coverage. Used by learnings:curate, quantum-tunnel-claudes, and any skill that needs to evaluate content against existing knowledge.
+Shared procedure for loading the target corpus and assessing content coverage. Used by quantum-tunnel-claudes (conditionally, for >5 candidates) and any skill that needs cross-repo corpus evaluation. Note: learnings:curate uses its own inlined corpus loading in content-mode.md (step 2).
 
 ## Loading the Corpus
 

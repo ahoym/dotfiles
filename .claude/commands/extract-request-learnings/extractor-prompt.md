@@ -23,7 +23,7 @@ Review metadata:
 
 ## Data fetching
 
-Read `~/.claude/skill-references/<PLATFORM>-commands.md` (where `<PLATFORM>` is `github` or `gitlab`) for exact command templates. Use these sections from that file:
+Read `~/.claude/skill-references/<PLATFORM>/comment-interaction.md` for comment commands and `~/.claude/skill-references/<PLATFORM>/fetch-review-data.md` for PR metadata commands (where `<PLATFORM>` is `github` or `gitlab`). Use these sections from those files:
 
 **Step 1 (always run):**
 - **Fetch Inline/Review Comments** — use the full fetch variant

@@ -1,12 +1,12 @@
 # Address Request Comments — Edge Cases
 
-Read this file when processing comments (step 6+). Skip on quiet no-ops.
+Read this file when processing comments (step 5+). Skip on quiet no-ops.
 
 ## Core Principles
 
 - Use `/git:explore-request` first if you need to understand the review before addressing comments
-- **Reply to comments on the platform first** — share your analysis with the reviewer, then present suggestions to your partner for approval
-- **Your partner approves** — after replying on the platform, present suggestions and wait for your partner to choose which to implement (they may approve in CLI or via review comments)
+- **Reply to comments on the platform first** — share your analysis with the reviewer before making changes
+- **Auto-implement on agreement** — when you agree with a suggestion, implement it after replying; when you disagree or are uncertain, escalate to your partner (see "When do suggestions get implemented?" below)
 - Typo fixes and obvious bug fixes can be auto-implemented (they're corrections, not debatable suggestions)
 - Always read the file context before making changes
 - Use a friendly, appreciative tone in replies ("Thanks for catching this!", "Good call")
@@ -95,7 +95,7 @@ git checkout <target_branch>
 
 # Apply and commit
 git stash pop
-git add -A && git commit -m "<message>"
+git add <paths> && git commit -m "<message>"
 git push origin <target_branch>
 
 # Return to original branch

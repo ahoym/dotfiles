@@ -20,7 +20,7 @@ Quick-exit check for polling — MR state and latest activity. `glab mr view` re
 glab mr view <number> --output json
 ```
 
-For notes/comments activity, see "Fetch Latest Inline Comment" in comment-interaction.md.
+For notes/comments activity, see "Fetch Recent Inline Comments" in comment-interaction.md.
 
 ## Fetch Diff
 

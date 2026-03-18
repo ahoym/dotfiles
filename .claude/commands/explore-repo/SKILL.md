@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - Bash
   - Task
   - WebFetch
 ---
