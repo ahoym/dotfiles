@@ -148,3 +148,13 @@ Items the autonomous agent couldn't or shouldn't resolve alone. Surfaced during 
 - **Pattern**: Reference Files section — `corpus-cross-reference.md` and `classification-model.md` both say "Read in step 3" but are actually read in step 2 (Analyze incoming content). Step 3 is "Display merge plan."
 - **Why LOW**: Body instructions are authoritative and correct (step 2 explicitly instructs loading both files for their respective cases). The Reference Files section is metadata/summary — agents follow body instructions. No functional impact. Fix would be trivial (change "step 3" to "step 2" in two lines) but inconsistency doesn't impair execution.
 - **Curate command**: `/learnings:curate commands/quantum-tunnel-claudes`
+
+## [L-13] xrpl-typescript-fullstack.md — thin "When reviewing or writing code" section
+
+- **Iter**: 21
+- **Content Type**: DEEP_DIVE (persona)
+- **File**: `commands/set-persona/xrpl-typescript-fullstack.md`
+- **Pattern**: "When reviewing or writing code" section
+- **Possible classifications**: (1) Leave as-is — 6 items (after this iter's merge) cover the most critical XRPL+React+Next.js checks; (2) Expand — add more specific review checks based on known XRPL patterns (offer crossing, flag bit validation, trust line prerequisite checks, hydration gating patterns)
+- **Why LOW**: Adding review checks requires knowing which patterns have surfaced in actual XRPL+React work. The 6 existing items are high-signal and specific. Expanding speculatively risks adding checks that don't reflect real patterns encountered. Human context on which XRPL/Next.js code patterns are most commonly missed would unlock targeted additions.
+- **Curate command**: `/learnings:curate commands/set-persona/xrpl-typescript-fullstack.md`

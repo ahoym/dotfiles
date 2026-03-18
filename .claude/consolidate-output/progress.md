@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 20 |
+| SWEEP_COUNT | 21 |
 | CONTENT_TYPE | (all swept) |
 | PHASE | DEEP_DIVE |
-| DEEP_DIVE_CANDIDATES | xrpl-typescript-fullstack.md, react-frontend.md, platform-engineer.md |
-| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md |
+| DEEP_DIVE_CANDIDATES | react-frontend.md, platform-engineer.md |
+| DEEP_DIVE_COMPLETED | git/repoint-branch/SKILL.md, extract-request-learnings/extractor-prompt.md, git/create-request/SKILL.md, typescript-ci-gotchas.md, gitlab-cli.md, claude-code-hooks.md, java-infosec-gotchas.md, java-observability-gotchas.md, spring-boot-gotchas.md, postgresql-query-patterns.md, ralph/consolidate/init/SKILL.md, extract-request-learnings/SKILL.md, git/split-commit/SKILL.md, learnings/consolidate/SKILL.md, typescript-devops.md, agent-prompting.md, quantum-tunnel-claudes/SKILL.md, xrpl-typescript-fullstack.md |
 
 ## Pre-Flight
 
@@ -69,6 +69,7 @@ Suggested iterations: 15
 | 18 | DEEP_DIVE | 0 | 0 | 0 | none | typescript-devops.md — Keep; clean persona, valid Extends:platform-engineer, all refs current (typescript-ci-gotchas run=15, vercel-deployment run=13) |
 | 19 | DEEP_DIVE | 0 | 0 | 1 | none | agent-prompting.md — Keep; 258-line skill-reference, 15 sections all Standalone Reference, consumer wiring fully verified (parallel-plan/execute + make both load by path + named sections), no staleness; 1 LOW: frontmatter description incomplete |
 | 20 | DEEP_DIVE | 0 | 0 | 1 | none | quantum-tunnel-claudes/SKILL.md — Keep; actively used sync skill, well-structured 5-step workflow, all references current, no overlap; 1 LOW: Reference Files section says "step 3" for corpus-cross-reference.md + classification-model.md, both are read in step 2 (body instructions correct) |
+| 21 | DEEP_DIVE | 0 | 1 | 1 | folded Code style into 4-section structure | xrpl-typescript-fullstack.md — 1 MEDIUM applied: non-standard 5th section folded into standard sections; 1 LOW: thin review section (6 items vs ~10-15 recommended) |
 
 ## Deep Dive Status
 
@@ -93,11 +94,22 @@ Suggested iterations: 15
 | typescript-devops.md | complete | 18 | Keep — clean persona; Extends:platform-engineer valid; all refs current; no compression opportunity |
 | agent-prompting.md | complete | 19 | Keep — 258-line comprehensive reference, 15 sections all Standalone Reference; consumer wiring verified (parallel-plan/execute + make); 1 LOW: frontmatter description incomplete |
 | quantum-tunnel-claudes/SKILL.md | complete | 20 | Keep — actively used cross-repo sync skill; all references current; 1 LOW: Reference Files metadata has wrong step numbers (step 3 vs step 2) for corpus-cross-reference.md and classification-model.md |
-| xrpl-typescript-fullstack.md | pending | — | stale persona (run=9, gap=6) |
+| xrpl-typescript-fullstack.md | complete | 21 | 1 MEDIUM applied — folded non-standard Code style section into standard 4-section structure; TypeScript rigor bullet now references code-quality-instincts.md; review section grew from 4 to 6 items; 1 LOW: thin review section |
 | react-frontend.md | pending | — | stale persona (run=9, gap=6) |
 | platform-engineer.md | pending | — | stale persona (run=9, gap=6) |
 
 ## Notes for Next Iteration
+
+### Iter 21
+
+xrpl-typescript-fullstack.md deep dive — 1 MEDIUM applied. Key notes:
+- Persona had a 5th non-standard `## Code style` section. Folded into standard 4-section structure: TypeScript-specific review checks (named functions over IIFEs, avoid `as` casts) moved to "When reviewing or writing code"; `code-quality-instincts.md` reference merged into the TypeScript rigor Domain priorities bullet.
+- "When reviewing or writing code" grew from 4 to 6 items — still lean vs. recommended 10-15, but all existing items are high-signal XRPL+React+Next.js specific. Filed as [L-13].
+- All 11 Detailed references verified current in tracker (run=13–15): xrpl-gotchas, xrpl-patterns, xrpl-amm, xrpl-dex-data, xrpl-permissioned-domains, xrpl-cross-currency-payments, react-patterns, nextjs, bignumber-financial-arithmetic, order-book-pricing, reactive-data-patterns, api-design ✅
+- 2 Proactive loads current: xrpl-gotchas.md (run=13), react-frontend-gotchas.md (run=13) ✅
+- Known gotchas section appropriate (4 subsections with pointers to learnings — correct per persona-design.md). Sizing 60 lines, within mature range.
+- Tracker key: `.claude/commands/set-persona/xrpl-typescript-fullstack.md` updated to last_deep_dive_run=15
+- Next candidates: react-frontend.md, platform-engineer.md (both stale personas, run=9, gap=6)
 
 ### Iter 20
 

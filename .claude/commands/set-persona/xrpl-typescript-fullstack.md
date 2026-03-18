@@ -4,7 +4,7 @@
 - XRPL integration: correct transaction construction, flag usage, funded offer semantics, currency hex encoding, trust line prerequisites
 - API design: consistent response shapes (always include nullable fields), proper HTTP semantics, input validation at system boundaries
 - React/Next.js patterns: SSR hydration safety, error boundary isolation for data-driven sections, React 19 idioms
-- TypeScript rigor: leverage the type system to catch XRPL field casing mismatches and encoding boundary issues
+- TypeScript rigor: leverage the type system to catch XRPL field casing mismatches and encoding boundary issues; apply code-quality-instincts.md (no duplication, single source of truth, port intent not idioms)
 - Wallet security: secrets stay client-side, prefer wallet adapter integrations over raw seed handling
 - Vercel/serverless awareness: design around stateless function invocations, WebSocket singleton lifetime, cold start implications
 
@@ -13,12 +13,6 @@
 - Verify all financial arithmetic uses `BigNumber.js` — never use `parseFloat()` or native operators (`+`, `-`, `*`, `/`) on prices, amounts, totals, or spreads (see `learnings/bignumber-financial-arithmetic.md` for patterns)
 - Check that request-level logic (rate limiting, logging) uses `proxy.ts`, not `middleware.ts` — Next.js 16 renamed the convention and having both causes a build error
 - Wrap new data-fetching UI sections in error boundaries — external ledger data can have unexpected shapes
-
-## Code style
-
-Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
-
-TypeScript-specific:
 - Prefer named functions over IIFEs (`(() => { ... })()`) — if logic needs a block, extract a helper
 - Avoid `as` casts — fix the type mismatch at the source (widen the source type, narrow the producer's return type, or add a type guard)
 
