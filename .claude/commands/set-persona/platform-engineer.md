@@ -26,13 +26,13 @@
 
 ## Proactive loads
 
-- `~/.claude/learnings/ci-cd-gotchas.md`
+- `learnings/ci-cd-gotchas.md`
 
 ## Detailed references
 
 Load when working in the specific area:
-- `~/.claude/learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
-- `~/.claude/learnings/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
-- `~/.claude/learnings/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
-- `~/.claude/learnings/ci-cd.md` — Generic CI/CD patterns (Docker build/push stage rules)
-- `~/.claude/learnings/gitlab-ci-cd.md` — GitLab CI debugging with glab API, MR API endpoints, build-only vs Docker-capable CI stages
+- `learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
+- `learnings/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
+- `learnings/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
+- `learnings/ci-cd.md` — Generic CI/CD patterns (Docker build/push stage rules)
+- `learnings/gitlab-ci-cd.md` — GitLab CI debugging with glab API, MR API endpoints, build-only vs Docker-capable CI stages

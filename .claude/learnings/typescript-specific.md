@@ -8,6 +8,6 @@ Search for `Record<YourUnionType` across the codebase when extending the union.
 
 ## See also
 
-- `~/.claude/learnings/nextjs.md` — Next.js patterns (original context for union type pattern)
-- `~/.claude/learnings/react-frontend-gotchas.md` — condensed frontend tripwires
-- `~/.claude/learnings/code-quality-instincts.md` — general code quality patterns
+- `nextjs.md` — Next.js patterns (original context for union type pattern)
+- `react-frontend-gotchas.md` — condensed frontend tripwires
+- `code-quality-instincts.md` — general code quality patterns

@@ -1,5 +1,5 @@
 ---
-description: "Internal reference — comprehensive guide to crafting subagent prompts: verbatim templates, TDD workflow, model selection, completion reports, git workflow, boundaries, and interface-first/integration patterns. Used by skills that launch subagents, not invoked directly."
+description: "Internal reference — best practices for crafting subagent prompts (speed, landmarks, boundaries). Used by skills that launch subagents, not invoked directly."
 ---
 
 # Agent Prompting Best Practices

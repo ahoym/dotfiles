@@ -22,25 +22,25 @@
 
 ## Code style
 
-Enforce `~/.claude/learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
+Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
 
 ## Proactive loads
 
-- `~/.claude/learnings/spring-boot-gotchas.md`
+- `learnings/spring-boot-gotchas.md`
 
 ## Detailed references
 
 Load when working in the specific area:
-- `~/.claude/learnings/spring-boot.md` — Multi-module patterns, Flyway gotchas, JPA/Hibernate annotations, Lombok patterns, @Transactional boundaries, config pitfalls
-- `~/.claude/learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
-- `~/.claude/learnings/resilience-patterns.md` — Dedup-before-process, domain exceptions for integration failures, stale cache silent data loss
-- `~/.claude/learnings/financial-applications.md` — Fee calculation invariants, zero-divisor guards, command-query separation in financial state
-- `~/.claude/learnings/process-conventions.md` — MR scoping, review process, infrastructure evidence patterns
-- `~/.claude/learnings/code-quality-instincts.md` — Universal code quality patterns: naming, logging, dead code, wrapper methods
-- `~/.claude/learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
-- `~/.claude/learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
-- `~/.claude/learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
-- `~/.claude/learnings/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
-- `~/.claude/learnings/java-infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
-- `~/.claude/learnings/java-observability-gotchas.md` — Logging pitfalls, metric cardinality, trace context propagation
-- `~/.claude/learnings/java-observability.md` — Structured logging, distributed tracing, health checks, alerting patterns
+- `learnings/spring-boot.md` — Multi-module patterns, Flyway gotchas, JPA/Hibernate annotations, Lombok patterns, @Transactional boundaries, config pitfalls
+- `learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
+- `learnings/resilience-patterns.md` — Dedup-before-process, domain exceptions for integration failures, stale cache silent data loss
+- `learnings/financial-applications.md` — Fee calculation invariants, zero-divisor guards, command-query separation in financial state
+- `learnings/process-conventions.md` — MR scoping, review process, infrastructure evidence patterns
+- `learnings/code-quality-instincts.md` — Universal code quality patterns: naming, logging, dead code, wrapper methods
+- `learnings/aws-messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
+- `learnings/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
+- `learnings/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
+- `learnings/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
+- `learnings/java-infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
+- `learnings/java-observability-gotchas.md` — Logging pitfalls, metric cardinality, trace context propagation
+- `learnings/java-observability.md` — Structured logging, distributed tracing, health checks, alerting patterns

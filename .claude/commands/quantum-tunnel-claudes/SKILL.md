@@ -42,8 +42,8 @@ EXCLUDES=(
 
 ## Reference Files (conditional)
 
-- `~/.claude/skill-references/corpus-cross-reference.md` — Read in step 2 for corpus loading and cross-referencing procedure
-- `~/.claude/commands/learnings/curate/classification-model.md` — Read in step 2 for classifying incoming content
+- `~/.claude/skill-references/corpus-cross-reference.md` — Read in step 3 for corpus loading and cross-referencing procedure
+- `~/.claude/commands/learnings/curate/classification-model.md` — Read in step 3 for classifying incoming content
 - `~/.claude/learnings/cross-repo-sync.md` — Read before step 1 for operational gotchas (path-mismatch gaps, PR→MR triage, grep verification, content-aware merge pitfalls)
 
 ## Parallel Execution

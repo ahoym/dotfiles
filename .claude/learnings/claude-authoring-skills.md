@@ -421,10 +421,6 @@ When fixing a bug in a platform-specific reference file (e.g., `github/comment-i
 
 The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
 
-## Explicit Destination Paths in Skill Instruction Tables
-
-When a skill step lists file destinations in a table, use full CWD-relative paths (e.g., `.claude/worktrees/consolidate-<date>/.claude/consolidate-output/spec.md`) rather than short relative paths (`.claude/consolidate-output/spec.md`). Short paths leave room for prefix inference errors — the agent may choose the wrong base. Full paths have one valid interpretation.
-
 ## See also
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
