@@ -110,4 +110,4 @@ git branch -d batch-import
 
 ## See also
 
-- `skill-platform-portability.md` — cross-platform skill design complements sync-level portability
+- `~/.claude/learnings/skill-platform-portability.md` — cross-platform skill design complements sync-level portability

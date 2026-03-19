@@ -67,5 +67,5 @@ For large refactoring sessions that touch 10+ files:
 
 ## See also
 
-- `cross-repo-sync.md` — bidirectional sync patterns (web-session sync is a one-directional specialization)
-- `skill-platform-portability.md` — platform-neutral skill design (reduces what needs syncing)
+- `~/.claude/learnings/cross-repo-sync.md` — bidirectional sync patterns (web-session sync is a one-directional specialization)
+- `~/.claude/learnings/skill-platform-portability.md` — platform-neutral skill design (reduces what needs syncing)

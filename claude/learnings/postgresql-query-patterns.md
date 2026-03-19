@@ -63,5 +63,5 @@
 
 ## See also
 
-- `spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
-- `financial-applications.md` — DECIMAL precision patterns for financial column design
+- `~/.claude/learnings/spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
+- `~/.claude/learnings/financial-applications.md` — DECIMAL precision patterns for financial column design
