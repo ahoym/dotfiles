@@ -64,3 +64,8 @@ For large refactoring sessions that touch 10+ files:
 | `node` / `npx` | Yes | |
 | `curl` | Yes | Outbound via egress proxy, rate-limited for GitHub API |
 | `apt-get` | Yes | Can install system packages |
+
+## See also
+
+- `cross-repo-sync.md` — bidirectional sync patterns (web-session sync is a one-directional specialization)
+- `skill-platform-portability.md` — platform-neutral skill design (reduces what needs syncing)

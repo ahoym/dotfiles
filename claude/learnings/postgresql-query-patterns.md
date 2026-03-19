@@ -60,3 +60,8 @@
 - **NOT NULL constraints:** Before `SET NOT NULL`, verify the backfill UPDATE has no WHERE clause gaps. Two-step for populated tables (add nullable → backfill → constrain); single step for empty tables with documented assumption.
 - **Validate constraints with SQL tests:** Demonstrate correctness with concrete SQL — happy path, unhappy path, edge cases.
 - **Verify environment state before data-state claims:** When justifying decisions based on "no data exists," specify which table and which environment.
+
+## See also
+
+- `spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
+- `financial-applications.md` — DECIMAL precision patterns for financial column design
