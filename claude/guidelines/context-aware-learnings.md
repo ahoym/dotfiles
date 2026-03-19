@@ -59,25 +59,7 @@ For each match, `Read(file_path, limit=5)` to see the title and description. Ski
    No match: "flyway"
 ```
 
-## Confidence-level gate (soft)
-
-Before drafting substantial domain-specific content (20+ lines), ask: **"Am I working from loaded knowledge or training memory?"** If you haven't read learnings files in this domain during this session, search first. The user's learnings contain calibrated gotchas and decisions that training knowledge misses.
-
-**Binary self-check**: "Have I loaded files in this domain? Yes/no." Fires when creating/modifying skills, guidelines, learnings, personas, CLAUDE.md; writing architecture docs, design proposals, or reviews; synthesizing domain knowledge into structured artifacts.
-
-Announce: `📚 Confidence check — working from training, not loaded knowledge. Searching learnings for "<domain>"...`
-
-Soft because there's no tool-call trigger — it relies on self-awareness at the moment of drafting. Fires inconsistently, but quality improvement is substantial when it does.
-
-## Friction-triggered (soft)
-
-When a tool call fails, is rejected, or requires a workaround, glob learnings filenames for the error domain (e.g., permission rejection → "claude-code", "permission"; API error → the service name). Load matches before retrying.
-
-Fires on: tool errors, permission rejections, unexpected state. Not on expected no-ops.
-
-Announce: `📚 Friction check — <error summary>. Searching learnings...`
-
-## Keyword-based (proactive)
+## Keyword-based (soft, proactive)
 
 When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
 

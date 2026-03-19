@@ -248,6 +248,10 @@ The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — no
 
 `min_deep_dives` (default 20) backfills small corpus runs with stale files from the deep-dive tracker. A GUIDELINES run with 4 files still does 20 deep dives — 16 slots filled from the stalest tracked files across all types. When planning how many iterations to allocate, treat all content type runs as ~same length regardless of corpus size.
 
+## Scaffolding Strategy: cp vs Read+Edit
+
+Before choosing a scaffolding approach for init skills, audit each template for whether it's modified during initialization. Verbatim copies should use a single `cp` (or `cp *.md`) in Bash — reading them into context just to Write them back wastes tool calls and tokens. Only templates that need placeholder substitution or pre-flight data population warrant Read+Edit. The audit is quick (check the init steps for which files get modified) and the savings compound: N verbatim templates = 2N fewer tool calls (N Reads + N Writes → 1 `cp`).
+
 ## See also
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
