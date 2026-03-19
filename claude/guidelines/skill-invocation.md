@@ -11,3 +11,7 @@ When the Skill tool rejects with `disable-model-invocation`, tell the user the s
 ## Don't ask permission to invoke skills within a skill's instructions
 
 When a skill's instructions say "invoke `/other-skill`", just do it — don't ask the user "ready for the next step?" or "should I run this?" first. The skill's instructions are the authorization. This especially applies to orchestrating skills like `/session-retro` that invoke `/learnings:compound` as a defined step. If the user has already signaled they're ready to proceed, that's the green light for everything the current step entails.
+
+## Load reference files before acting on their content
+
+When a skill step says to read a reference file, load it before proceeding — don't substitute training knowledge for documented templates. Reference files encode accumulated fixes that training recall misses.

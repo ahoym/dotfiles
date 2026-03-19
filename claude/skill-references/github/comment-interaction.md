@@ -8,6 +8,8 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
 
+**This file covers fetching and replying to existing comments.** To **create** new inline comments on a review, use the reviews endpoint in `pr-management.md` — the `/pulls/{n}/comments` endpoint requires `position` or `positioning` fields (not `line`), and posting via the reviews endpoint with a `comments` array is the correct pattern.
+
 ## Fetch Inline/Review Comments
 
 ```bash
