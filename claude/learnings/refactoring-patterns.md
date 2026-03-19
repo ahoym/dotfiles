@@ -146,6 +146,10 @@ When a refactor renames, splits, or merges files, run a parallel audit to verify
 
 **When to apply:** Any refactor that deletes or renames 3+ files. The parallel agent cost (~30s) is trivial compared to discovering content loss later.
 
+## Categorize References Before Bulk Renaming
+
+When renaming a directory that's referenced across many files, categorize each reference as "this repo's structure" vs "generic convention" before replacing. Bulk find-and-replace without this step causes over-replacement — e.g., `.claude/` as a Claude Code project convention should stay, but `.claude/` meaning "this repo's config directory" should change. Assign batches to parallel agents with clear category instructions to prevent both under- and over-replacement.
+
 ## Cross-Refs
 
 - `code-quality-instincts.md` — code quality signals that trigger refactors

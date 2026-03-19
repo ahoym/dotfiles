@@ -59,14 +59,23 @@ For each match, `Read(file_path, limit=5)` to see the title and description. Ski
    No match: "flyway"
 ```
 
-## Keyword-based (soft, proactive)
+## Soft gates (proactive)
 
-When a domain keyword appears in conversation (e.g., "Fargate," "Terraform," "Vercel," "BigNumber"), glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching files by filename. Load on first mention of a domain keyword that maps to a learnings file.
+Two structural triggers catch domain keywords that the hard gates miss. Both glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` for matching filenames. Both follow the same dedup rule: don't re-load files already read earlier in the session (when context compression makes load history uncertain, err toward re-checking rather than blindly re-loading).
+
+### User-message domain shift
+
+When a user message introduces a domain not present in earlier messages, treat it as a soft gate trigger **before responding**. The anchor is the user message itself — scan it for domain keywords that map to learnings filenames and haven't been loaded yet. This catches conversational domain shifts (e.g., the user pivots from React work to asking about Fargate).
+
+### Pre-edit domain check
+
+Before your first Edit/Write touching a file whose technology domain hasn't been loaded from learnings yet, glob for matching files. This catches execution-time domain shifts — you're already performing the Edit, so the check piggybacks on an existing action like the hard gates do (e.g., editing a Python file when no Python learnings have been loaded).
+
+### Shared properties
 
 - Learnings filenames are the index — `aws-patterns.md`, `vercel-deployment.md`, `bignumber-financial-arithmetic.md`
 - Works with or without an active persona
 - Cost: low (reading a file). Upside: shapes thinking before decisions are made.
-- **Dedup**: Don't re-load files already read earlier in the session. When context compression makes load history uncertain, err toward re-checking (glob to confirm the file exists and is relevant) rather than blindly re-loading.
 
 ## Observability
 
