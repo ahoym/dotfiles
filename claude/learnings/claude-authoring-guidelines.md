@@ -18,6 +18,8 @@ Enforcement gates for agent self-discipline are only "hard" when tied to discret
 
 When designing enforcement for agent behavior, ask: "What tool call triggers this check?" If there's no tool call, it's a soft layer regardless of how mandatory the language sounds. Soft layers are still valuable (they fire sometimes), but don't count on them for critical checks.
 
+**Upgrading soft layers:** Passive triggers ("when keyword X appears") can be strengthened by anchoring them to actions the agent is already performing. "Before responding to a user message that introduces domain X" anchors to message processing. "Before first Edit in domain X" anchors to the Edit action. Both outperform "whenever X appears" because the agent is already at the decision point — the check piggybacks rather than competing for attention.
+
 ## Unreferenced Guidelines Are Dead Weight
 
 A guideline not `@`-referenced from CLAUDE.md and not referenced by any skill or persona has no delivery mechanism. The content may be valid but it never loads — making it invisible to the agent.
