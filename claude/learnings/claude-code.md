@@ -277,7 +277,7 @@ Claude Code resets CWD to the worktree root after every Bash call — `cd` to an
 **Impact:** Cross-repo operations (e.g., committing to main from a worktree session) require either `cd && <cmd>` chains (don't match permission patterns) or `git -C` (same problem). There is no friction-free path.
 
 **Mitigations:**
-- Surface the constraint to the user before attempting cross-repo operations. See `.claude/worktrees/CLAUDE.md` for the documented constraint and recommended approach.
+- Surface the constraint to the user before attempting cross-repo operations. See `claude/worktrees/CLAUDE.md` for the documented constraint and recommended approach.
 - **Split across sessions:** Make file edits in the worktree session (Edit/Write land on disk at the main repo path), then handle git operations from a separate session rooted in the main repo — no CWD pinning, no permission friction.
 
 ## Persisted Tool Output Nests Line-Number Prefixes

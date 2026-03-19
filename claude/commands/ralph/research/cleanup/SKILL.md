@@ -18,7 +18,7 @@ Prune stale ralph worktrees by checking if their branches have been merged or de
    ```bash
    git worktree list
    ```
-   - Filter for worktrees with paths containing `.claude/worktrees/research-`
+   - Filter for worktrees with paths containing `claude/worktrees/research-`
    - If none found, report "No ralph worktrees found." and exit
 
 2. **Classify each worktree**:

@@ -18,33 +18,33 @@ Create a worktree for autonomous consolidation, scaffold output files from templ
 ### 1. Derive names
 
 - **Date**: today's date in `YYYY-MM-DD` format
-- **Worktree path**: `.claude/worktrees/consolidate-<date>`
+- **Worktree path**: `claude/worktrees/consolidate-<date>`
 - **Branch**: `consolidate/<date>`
 
 ### 2. Check for existing worktree
 
-If `.claude/worktrees/consolidate-<date>/` already exists, offer:
+If `claude/worktrees/consolidate-<date>/` already exists, offer:
 1. **Reuse** — keep existing worktree, skip creation
 2. **Remove and recreate** — `git worktree remove` then create fresh
-3. **New with timestamp** — append `-HHMM` (24h hour+minute) to create `.claude/worktrees/consolidate-<date>-<HHMM>` with branch `consolidate/<date>-<HHMM>`
+3. **New with timestamp** — append `-HHMM` (24h hour+minute) to create `claude/worktrees/consolidate-<date>-<HHMM>` with branch `consolidate/<date>-<HHMM>`
 4. **Abort** — do nothing
 
 ### 3. Create worktree
 
 ```bash
-git worktree add .claude/worktrees/consolidate-<date> -b consolidate/<date> HEAD
+git worktree add claude/worktrees/consolidate-<date> -b consolidate/<date> HEAD
 ```
 
 If the branch `consolidate/<date>` already exists, use it without `-b`:
 ```bash
-git worktree add .claude/worktrees/consolidate-<date> consolidate/<date>
+git worktree add claude/worktrees/consolidate-<date> consolidate/<date>
 ```
 
 ### 4. Scaffold output files
 
 Create the output directory in the worktree:
 ```bash
-mkdir -p .claude/worktrees/consolidate-<date>/.claude/consolidate-output
+mkdir -p claude/worktrees/consolidate-<date>/.claude/consolidate-output
 ```
 
 Read each template from `~/.claude/ralph/consolidate/templates/` and write to the worktree's `.claude/consolidate-output/`:
@@ -67,11 +67,11 @@ Gather collection metrics:
 
 1. **Recent commits**: `git log --oneline -10` — check if collection was recently curated
 2. **File counts** (use Glob in the worktree):
-   - Learnings: `.claude/worktrees/consolidate-<date>/.claude/learnings/*.md`
-   - Skills: `.claude/worktrees/consolidate-<date>/.claude/commands/**/SKILL.md`
-   - Skill references: `.claude/worktrees/consolidate-<date>/.claude/skill-references/**/*.md`
-   - Guidelines: `.claude/worktrees/consolidate-<date>/.claude/guidelines/*.md`
-   - Personas: `.claude/worktrees/consolidate-<date>/.claude/commands/set-persona/*.md`
+   - Learnings: `claude/worktrees/consolidate-<date>/claude/learnings/*.md`
+   - Skills: `claude/worktrees/consolidate-<date>/claude/commands/**/SKILL.md`
+   - Skill references: `claude/worktrees/consolidate-<date>/claude/skill-references/**/*.md`
+   - Guidelines: `claude/worktrees/consolidate-<date>/claude/guidelines/*.md`
+   - Personas: `claude/worktrees/consolidate-<date>/claude/commands/set-persona/*.md`
 
 3. **Cadence analysis** — scan the last 10 commits for curation-related keywords (`curate`, `compress`, `fold`, `genericize`, `deduplicate`, `prune`, `consolidat`). Count how many of the last 5 commits are curation commits. Classify:
    - **Recent** (3+ of last 5): suggest 10 iterations — corpus likely clean
@@ -93,7 +93,7 @@ Gather collection metrics:
 5. **Update report.md** — populate Run Info and Collection Health "Before" column:
    - Started: current timestamp
    - Branch: `consolidate/<date>`
-   - Worktree: `.claude/worktrees/consolidate-<date>`
+   - Worktree: `claude/worktrees/consolidate-<date>`
    - Collection Health Before: file counts from step 2
 
 ### 6. Confirm to user
@@ -101,7 +101,7 @@ Gather collection metrics:
 ```
 Consolidation loop initialized.
 
-  Worktree: .claude/worktrees/consolidate-<date>/
+  Worktree: claude/worktrees/consolidate-<date>/
   Branch:   consolidate/<date>
 
   Pre-flight:
@@ -115,7 +115,7 @@ Consolidation loop initialized.
   Cadence: <recent|moderate|stale> (<X> curation commits in last 5)
 
   To launch:
-    cd .claude/worktrees/consolidate-<date>
+    cd claude/worktrees/consolidate-<date>
     bash ~/.claude/ralph/consolidate/wiggum.sh <suggested_iterations>
 ```
 
@@ -126,7 +126,7 @@ Consolidation loop initialized.
 
 Consolidation loop initialized.
 
-  Worktree: .claude/worktrees/consolidate-2026-02-26/
+  Worktree: claude/worktrees/consolidate-2026-02-26/
   Branch:   consolidate/2026-02-26
 
   Pre-flight:
@@ -139,6 +139,6 @@ Consolidation loop initialized.
     Cadence: recent (3 curation commits in last 5)
 
   To launch:
-    cd .claude/worktrees/consolidate-2026-02-26
+    cd claude/worktrees/consolidate-2026-02-26
     bash ~/.claude/ralph/consolidate/wiggum.sh 10
 ```

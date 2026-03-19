@@ -6,7 +6,7 @@
 # Injects security hooks for the duration of the loop, removes them on exit.
 #
 # Example:
-#   cd .claude/worktrees/consolidate-2026-02-25
+#   cd claude/worktrees/consolidate-2026-02-25
 #   bash ~/.claude/ralph/consolidate/wiggum.sh 20
 
 set -e

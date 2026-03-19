@@ -138,7 +138,7 @@ Initialize:
   /ralph:consolidate:init        → creates worktree, scaffolds output files, runs pre-flight
 
 Launch (in terminal):
-  cd .claude/worktrees/consolidate-<date>
+  cd claude/worktrees/consolidate-<date>
   bash ~/.claude/ralph/consolidate/wiggum.sh 20
                                   → runs claude --print in a loop, one sweep per iteration
                                   → auto-applies HIGHs, judges MEDIUMs autonomously

@@ -83,7 +83,7 @@ Spec change reduces frequency; validation catches it when it happens anyway. On 
 
 ## Worktree-Aware File Editing
 
-When editing files from a worktree context, use the worktree's absolute path (e.g., `.claude/worktrees/consolidate-2026-02-28/.claude/learnings/foo.md`), not the main repo path that `~/.claude/` symlinks resolve to. Both are valid filesystem paths on disk, but they target different git branches. Editing via `~/.claude/learnings/foo.md` modifies main's copy; editing via the worktree path modifies the branch's copy. The Edit/Write tools won't warn you — the file exists at both paths.
+When editing files from a worktree context, use the worktree's absolute path (e.g., `claude/worktrees/consolidate-2026-02-28/claude/learnings/foo.md`), not the main repo path that `~/.claude/` symlinks resolve to. Both are valid filesystem paths on disk, but they target different git branches. Editing via `~/.claude/learnings/foo.md` modifies main's copy; editing via the worktree path modifies the branch's copy. The Edit/Write tools won't warn you — the file exists at both paths.
 
 **Explore agents in worktrees.** When launching an Explore agent from a worktree, include the worktree absolute path in the prompt and instruct it to return paths relative to that CWD (e.g., "CWD is `/path/to/worktree/`, return all paths relative to it"). Otherwise the agent resolves to main-repo absolute paths, and editing those puts changes on the wrong branch — requiring copy-to-worktree + revert-main cleanup.
 
@@ -242,7 +242,7 @@ All `[L-N]` items in `review.md` are human judgment items — even the ones that
 
 ## Worktree Claude Config Location
 
-The per-worktree claude config lives at `.claude/worktrees/<name>/.claude/` — not `~/.claude/worktrees/<name>/`. The `.claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/.claude/worktrees/<name>/.claude/<path>`.
+The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — not `~/.claude/worktrees/<name>/`. The `claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/claude/worktrees/<name>/claude/<path>`.
 
 ## All Content Type Runs Are Roughly Equal Length
 

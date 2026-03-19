@@ -47,7 +47,7 @@ When multiple independent PR branches need rebasing onto updated main, launch on
 
 **Performance:** 9 simultaneous rebases completed in ~50s vs ~7min sequential.
 
-**Gotcha — stale worktrees:** Agents leave worktrees in `.claude/worktrees/` that `git clean` skips. Clean up with `git worktree list` + `git worktree remove --force`. These accumulate and hold refs to old branch HEADs.
+**Gotcha — stale worktrees:** Agents leave worktrees in `claude/worktrees/` that `git clean` skips. Clean up with `git worktree list` + `git worktree remove --force`. These accumulate and hold refs to old branch HEADs.
 
 ## Bulk PR Content Extraction Without Checkout
 
@@ -220,6 +220,10 @@ Conflict resolution rounds drive token cost — each round requires reading mark
 When a worktree branch lives long enough for other sessions to land commits on main, `git diff main` shows phantom "deletions" — files added to main after the branch point that the branch doesn't have. This doesn't affect PR creation (GitHub computes the diff correctly against the merge base), but a naive local merge without rebase would revert those additions. Rebase onto main before merging, not before PR creation.
 
 **PR description implication:** Before claiming a PR adds or removes a file, verify with `git log <base>..<branch> -- <file>`. A file appearing as "deleted" in `git diff main` may simply be a file that was added to main after the branch was cut — the branch never touched it. `git log` won't show it if the branch didn't commit it.
+
+## `git add` with Embedded Git Repos
+
+When `git add`-ing a directory that contains git worktrees (or any nested `.git` repos), git warns about "embedded git repositories" and stages them as gitlinks. Fix: `git rm --cached -rf <path>` to unstage, then add proper `.gitignore` patterns before re-adding. Always check for worktree directories before bulk-staging renamed/moved directories.
 
 ## See also
 

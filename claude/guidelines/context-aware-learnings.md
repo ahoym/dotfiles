@@ -25,7 +25,7 @@ Every search follows the same four steps. Gate-specific overrides are noted inli
 **Step 2: Derive search terms.** Sources vary by gate:
 - **Session start**: ambient context + user message. Ambient context is often a stronger signal than the opening question:
   - **Branch name**: `consolidate/2026-02-28` → "consolidat", "ralph"
-  - **CWD path**: `.claude/worktrees/consolidate-*` → same domain signal
+  - **CWD path**: `claude/worktrees/consolidate-*` → same domain signal
   - **Git status snippet**: branch, recent commits, changed files — scan for domain keywords
   - **CLAUDE.md / project context**: technologies mentioned (e.g., "Spring Boot", "PostgreSQL", "Vault")
   - **User's message**: extract topic terms
