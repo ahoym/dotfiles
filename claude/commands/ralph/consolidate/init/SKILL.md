@@ -4,7 +4,7 @@ description: "Initialize an autonomous consolidation loop with worktree, output 
 disable-model-invocation: true
 allowed-tools:
   - Read
-  - Write
+  - Edit
   - Bash
   - Glob
 ---
@@ -42,24 +42,13 @@ git worktree add claude/worktrees/consolidate-<date> consolidate/<date>
 
 ### 4. Scaffold output files
 
-Create the output directory in the worktree:
+Copy all templates to the worktree in one Bash call:
+
 ```bash
-mkdir -p claude/worktrees/consolidate-<date>/claude/consolidate-output
+mkdir -p claude/worktrees/consolidate-<date>/claude/consolidate-output && cp ~/.claude/ralph/consolidate/templates/*.md claude/worktrees/consolidate-<date>/claude/consolidate-output/
 ```
 
-Read each template from `~/.claude/ralph/consolidate/templates/` and write to the worktree's `claude/consolidate-output/`:
-
-| Template | Destination |
-|----------|-------------|
-| `spec.md` | `claude/consolidate-output/spec.md` |
-| `broad-sweep-methodology.md` | `claude/consolidate-output/broad-sweep-methodology.md` |
-| `deep-dive-methodology.md` | `claude/consolidate-output/deep-dive-methodology.md` |
-| `progress.md` | `claude/consolidate-output/progress.md` |
-| `decisions.md` | `claude/consolidate-output/decisions.md` |
-| `report.md` | `claude/consolidate-output/report.md` |
-| `review.md` | `claude/consolidate-output/review.md` |
-
-Copy each template as-is first. Pre-flight data is populated next.
+This copies all 7 templates (spec.md, broad-sweep-methodology.md, deep-dive-methodology.md, progress.md, decisions.md, report.md, review.md) verbatim. Only progress.md and report.md are modified in the next step — the other 5 are never read by this skill.
 
 ### 5. Run pre-flight
 
@@ -78,7 +67,9 @@ Gather collection metrics:
    - **Moderate** (1-2 of last 5): suggest 15 iterations — some staleness possible
    - **Stale** (0 of last 5): suggest 20 iterations — full sweep warranted
 
-4. **Update progress.md** — replace the Pre-Flight section placeholders with actual values:
+4. **Update progress.md and report.md** — Read both files from the worktree (they were just copied from templates), then Edit each to populate pre-flight data:
+
+   **progress.md** — replace the Pre-Flight section placeholders:
    ```
    Recent commits: <last 3 commit summaries>
    Learnings files: N
@@ -90,7 +81,7 @@ Gather collection metrics:
    Suggested iterations: N
    ```
 
-5. **Update report.md** — populate Run Info and Collection Health "Before" column:
+   **report.md** — populate Run Info and Collection Health "Before" column:
    - Started: current timestamp
    - Branch: `consolidate/<date>`
    - Worktree: `claude/worktrees/consolidate-<date>`
