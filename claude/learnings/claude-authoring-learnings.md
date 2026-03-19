@@ -117,4 +117,4 @@ Two distinct purposes for `## See also` cross-references in learnings files:
 
 ## See also
 
-- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
+- `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

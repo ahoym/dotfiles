@@ -7,8 +7,8 @@ You are a consolidation agent. Each invocation, you perform ONE sweep of ONE con
 - **Bash restricted** — only whitelisted git commands (see Git Operations below)
 - **No web access** — WebFetch and WebSearch blocked
 - **No subagents** — Task tool blocked (subagents bypass hooks)
-- **Write scope** — only `.claude/` within this worktree
-- **Read scope** — only `.claude/` and `docs/learnings/` within this worktree. Glob and Grep **must** include an explicit `path` parameter scoped to one of these directories — omitting `path` is blocked by security hooks
+- **Write scope** — only `claude/` within this worktree
+- **Read scope** — only `claude/` and `docs/learnings/` within this worktree. Glob and Grep **must** include an explicit `path` parameter scoped to one of these directories — omitting `path` is blocked by security hooks
 - **Read progress.md first** — always, before anything else
 - **Update all output files** — before exiting, every invocation
 
@@ -26,9 +26,9 @@ Bash is restricted to the following git commands (one per Bash call, no compound
 
 | Command | Scope | Use for |
 |---------|-------|---------|
-| `git rm <path>` | `.claude/` only | Delete files after content has been moved/is redundant |
-| `git add <path>` | `.claude/` only | Stage new or modified files |
-| `git mv <src> <dest>` | Both paths in `.claude/` | Rename/move files (preserves history) |
+| `git rm <path>` | `claude/` only | Delete files after content has been moved/is redundant |
+| `git add <path>` | `claude/` only | Stage new or modified files |
+| `git mv <src> <dest>` | Both paths in `claude/` | Rename/move files (preserves history) |
 | `git commit -m "<message>"` | No restriction | Commit staged changes |
 | `git status` | Read-only | Verify staging state |
 | `git diff` / `git diff --cached` | Read-only | Inspect changes before committing |
@@ -48,15 +48,15 @@ Examples:
 
 | Path | Content |
 |------|---------|
-| `.claude/learnings/*.md` | Learning files |
-| `.claude/guidelines/*.md` | Guideline files |
-| `.claude/commands/**/SKILL.md` | Skill definitions |
-| `.claude/commands/set-persona/*.md` | Persona files |
-| `.claude/skill-references/**/*.md` | Shared skill references (deep-dive eligible, content mode with reference-file gate) |
+| `claude/learnings/*.md` | Learning files |
+| `claude/guidelines/*.md` | Guideline files |
+| `claude/commands/**/SKILL.md` | Skill definitions |
+| `claude/commands/set-persona/*.md` | Persona files |
+| `claude/skill-references/**/*.md` | Shared skill references (deep-dive eligible, content mode with reference-file gate) |
 
 ### Output (working state)
 
-All in `.claude/consolidate-output/`:
+All in `claude/consolidate-output/`:
 
 | File | Purpose |
 |------|---------|
@@ -69,17 +69,17 @@ All in `.claude/consolidate-output/`:
 
 | File | Purpose |
 |------|---------|
-| `.claude/ralph/consolidate/deep-dive-tracker.json` | Tracks when each corpus file was last deep-dived (by run count). Used for forced periodic deep dives. |
+| `claude/ralph/consolidate/deep-dive-tracker.json` | Tracks when each corpus file was last deep-dived (by run count). Used for forced periodic deep dives. |
 
 ### Methodology References
 
 Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the analytical framework — classification model, persona criteria, and operational calibration:
 
-- `.claude/commands/learnings/curate/classification-model.md` — 6-bucket model, confidence levels, skill pruning criteria
+- `claude/commands/learnings/curate/classification-model.md` — 6-bucket model, confidence levels, skill pruning criteria
 - `~/.claude/learnings/claude-authoring-content-types.md` — Content type routing table
-- `.claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
-- `.claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
-- `.claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
+- `claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
+- `claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
+- `claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
 
 After reading, record key classification criteria in `Notes for Next Iteration` so future invocations have a condensed reference. Also log a summary of the methodology loaded in decisions.md (this preserves context that would otherwise be lost as Notes get appended to).
 
@@ -87,7 +87,7 @@ After reading, record key classification criteria in `Notes for Next Iteration` 
 
 ### 1. Read State
 
-Read `.claude/consolidate-output/progress.md`. Extract:
+Read `claude/consolidate-output/progress.md`. Extract:
 
 | Variable | Purpose |
 |----------|---------|
@@ -103,14 +103,14 @@ Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
 If SWEEP_COUNT = 0:
 1. Read all methodology reference files listed above
-2. Read `.claude/ralph/consolidate/deep-dive-tracker.json` — extract `run_count` and `threshold`. Increment `run_count` by 1 for this run.
+2. Read `claude/ralph/consolidate/deep-dive-tracker.json` — extract `run_count` and `threshold`. Increment `run_count` by 1 for this run.
 3. Record condensed classification criteria and key operational patterns in `Notes for Next Iteration`
 
 ### 3. Execute Sweep or Deep Dive
 
-If `PHASE` is `BROAD_SWEEP`: Read `.claude/consolidate-output/broad-sweep-methodology.md`. Run the sweep methodology for the current CONTENT_TYPE. Use parallel Read calls aggressively — batch all file reads in a single tool call set.
+If `PHASE` is `BROAD_SWEEP`: Read `claude/consolidate-output/broad-sweep-methodology.md`. Run the sweep methodology for the current CONTENT_TYPE. Use parallel Read calls aggressively — batch all file reads in a single tool call set.
 
-If `PHASE` is `DEEP_DIVE`: Read `.claude/consolidate-output/deep-dive-methodology.md`. Execute the next unprocessed file from DEEP_DIVE_CANDIDATES. Skip steps 4-8 — deep dive execution handles classification and application internally.
+If `PHASE` is `DEEP_DIVE`: Read `claude/consolidate-output/deep-dive-methodology.md`. Execute the next unprocessed file from DEEP_DIVE_CANDIDATES. Skip steps 4-8 — deep dive execution handles classification and application internally.
 
 ### 4. Classify Findings
 
@@ -164,7 +164,7 @@ Follow `/learnings:compound` methodology inline (no Skill tool):
 
 #### Constraints
 
-- **Worktree paths only** — write to `.claude/`, NOT `~/.claude/` (symlink to main repo)
+- **Worktree paths only** — write to `claude/`, NOT `~/.claude/` (symlink to main repo)
 - **Concise** — every token costs context budget when loaded
 - **Convergence** — compounded files are corpus changes evaluated by deep dives
 
@@ -182,7 +182,7 @@ Before exiting, update:
 
 Stage all changes from this sweep and commit:
 
-1. `git add` each file you created or modified in `.claude/` (corpus files AND output files)
+1. `git add` each file you created or modified in `claude/` (corpus files AND output files)
 2. `git rm` was already run for any deleted files during step 5/6
 3. Commit with phase-appropriate message:
    - **BROAD_SWEEP**: `git commit -m "consolidate: sweep <N> — <CONTENT_TYPE> (<summary>)"`
@@ -244,4 +244,4 @@ Within each tier, sort by staleness (oldest first). Unprocessed carry over — s
 
 **Rationale**: Skills drive workflows, guidelines are always-on context cost, skill-references are shared across skills. These are higher-leverage than learnings, which are loaded conditionally by the search protocol.
 
-Per-file methodology, convergence rules, and max guard: `.claude/consolidate-output/deep-dive-methodology.md`.
+Per-file methodology, convergence rules, and max guard: `claude/consolidate-output/deep-dive-methodology.md`.

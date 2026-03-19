@@ -82,5 +82,5 @@
 
 ## See also
 
-- `.claude/learnings/resilience-patterns.md` — idempotency, dedup-before-process, and retry patterns that complement SQS consumer design
-- `.claude/learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
+- `claude/learnings/resilience-patterns.md` — idempotency, dedup-before-process, and retry patterns that complement SQS consumer design
+- `claude/learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults

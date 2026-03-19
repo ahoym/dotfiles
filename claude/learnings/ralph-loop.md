@@ -38,10 +38,10 @@ When writing a spec for `claude --print` agents with no conversation history, em
 
 The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
 
-- **Security hooks**: Bash restricted to git allowlist (rm, add, mv, commit, status, diff — scoped to `.claude/`); WebFetch, WebSearch blocked; writes scoped to `.claude/` only. wiggum.sh validates sweep count delta after each invocation.
+- **Security hooks**: Bash restricted to git allowlist (rm, add, mv, commit, status, diff — scoped to `claude/`); WebFetch, WebSearch blocked; writes scoped to `claude/` only. wiggum.sh validates sweep count delta after each invocation.
 - **Single-pass broad sweep**: LEARNINGS → SKILLS → GUIDELINES (one each), then deep dives. No convergence rounds — cross-type regressions are rare and deep dives provide defense-in-depth.
 - **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; LOWs + blocked MEDIUMs surface via `review.md`.
-- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights into the corpus (worktree `.claude/` paths). These become corpus changes evaluated by deep dives and subsequent runs.
+- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights into the corpus (worktree `claude/` paths). These become corpus changes evaluated by deep dives and subsequent runs.
 
 ## Research Output Pipeline: staged-learnings
 
@@ -63,13 +63,13 @@ Standalone reference files risk orphaning when a larger file in the same domain 
 
 ## Convergence as Safety Net for Compounding
 
-Compounded insights go directly into the sweep corpus (worktree's `.claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (a clean round) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
+Compounded insights go directly into the sweep corpus (worktree's `claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (a clean round) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
 
 ## Inline Compounding Over Skill Invocation in Autonomous Loops
 
 When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
 
-The inline methodology: categorize insights using `claude-authoring-content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `.claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
+The inline methodology: categorize insights using `claude-authoring-content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
 
 ## Personas as Execution-Mode Learnings Conduit
 
@@ -180,13 +180,13 @@ When an autonomous loop produces zero items at a classification level (e.g., zer
 
 ## Edit Templates, Not Output Copies
 
-Consolidation output files (`.claude/consolidate-output/spec.md`, `deep-dive-methodology.md`, etc.) are copies scaffolded from `~/.claude/ralph/consolidate/templates/` at init time. To change loop behavior globally (e.g., bump max guard), edit the templates — not the current run's copies. The current run's copies are ephemeral state owned by the loop; editing them mid-run is fragile and won't persist to future runs.
+Consolidation output files (`claude/consolidate-output/spec.md`, `deep-dive-methodology.md`, etc.) are copies scaffolded from `~/.claude/ralph/consolidate/templates/` at init time. To change loop behavior globally (e.g., bump max guard), edit the templates — not the current run's copies. The current run's copies are ephemeral state owned by the loop; editing them mid-run is fragile and won't persist to future runs.
 
 ## Strip Consolidate-Output from PR Branches
 
-`.claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.
+`claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.
 
-Before creating a PR, strip working state from the branch while preserving local copies: `git rm --cached -r .claude/consolidate-output/` (removes from git index, keeps on disk). Add `.claude/consolidate-output/` to `.gitignore` to prevent re-staging. For untracked logs (iterations after last commit), no git action needed — they're already local-only.
+Before creating a PR, strip working state from the branch while preserving local copies: `git rm --cached -r claude/consolidate-output/` (removes from git index, keeps on disk). Add `claude/consolidate-output/` to `.gitignore` to prevent re-staging. For untracked logs (iterations after last commit), no git action needed — they're already local-only.
 
 ## Gotchas Files Are Not Thin Files
 

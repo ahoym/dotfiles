@@ -14,7 +14,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- Fixed paths ---
-PROJECT_DIR=".claude/consolidate-output"
+PROJECT_DIR="claude/consolidate-output"
 SPEC_FILE="${PROJECT_DIR}/spec.md"
 PROGRESS_FILE="${PROJECT_DIR}/progress.md"
 LOG_DIR="${PROJECT_DIR}/logs"
@@ -141,7 +141,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
         echo ════════════════════════════════════════════════════════════
         echo ""
         echo "Review the changes:"
-        echo "  git diff main -- .claude/"
+        echo "  git diff main -- claude/"
         echo ""
         echo "If satisfied, merge to main:"
         echo "  git checkout main"

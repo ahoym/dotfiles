@@ -2,7 +2,7 @@
 # PreToolUse hook: selective git command allowlist for consolidation loops.
 # Usage: guard-bash.sh <worktree_root>
 #
-# Allows specific git commands scoped to .claude/ within the worktree.
+# Allows specific git commands scoped to claude/ within the worktree.
 # All non-git and non-whitelisted commands are blocked.
 # Exit 0 = allow, Exit 2 + stderr = block
 
@@ -29,7 +29,7 @@ if echo "$COMMAND" | grep -qE '&&|\|\||;|\|'; then
   exit 2
 fi
 
-ALLOWED_PREFIX="$WORKTREE_ROOT/.claude/"
+ALLOWED_PREFIX="$WORKTREE_ROOT/claude/"
 
 case "$COMMAND" in
   git\ rm\ *)
@@ -41,7 +41,7 @@ case "$COMMAND" in
           case "$arg" in
             "$ALLOWED_PREFIX"*) ;;
             *)
-              echo "BLOCKED: git rm path outside allowed scope: $arg (allowed: $ALLOWED_PREFIX)" >&2
+              echo "BLOCKED: git rm path outside allowed scope: $arg" >&2
               exit 2
               ;;
           esac
@@ -58,7 +58,7 @@ case "$COMMAND" in
           case "$arg" in
             "$ALLOWED_PREFIX"*) ;;
             *)
-              echo "BLOCKED: git add path outside allowed scope: $arg (allowed: $ALLOWED_PREFIX)" >&2
+              echo "BLOCKED: git add path outside allowed scope: $arg" >&2
               exit 2
               ;;
           esac
@@ -68,7 +68,7 @@ case "$COMMAND" in
     exit 0
     ;;
   git\ mv\ *)
-    # Both source and destination must be in .claude/
+    # Both source and destination must be in claude/
     PATHS=()
     for arg in ${COMMAND#git mv }; do
       case "$arg" in
@@ -80,7 +80,7 @@ case "$COMMAND" in
       case "$path" in
         "$ALLOWED_PREFIX"*) ;;
         *)
-          echo "BLOCKED: git mv path outside allowed scope: $path (allowed: $ALLOWED_PREFIX)" >&2
+          echo "BLOCKED: git mv path outside allowed scope: $path" >&2
           exit 2
           ;;
       esac
@@ -98,7 +98,7 @@ case "$COMMAND" in
     ;;
   *)
     echo "BLOCKED: Command not in consolidation allowlist: $COMMAND" >&2
-    echo "Allowed: git rm, git add, git mv, git commit, git status, git diff (scoped to .claude/)" >&2
+    echo "Allowed: git rm, git add, git mv, git commit, git status, git diff (scoped to claude/)" >&2
     exit 2
     ;;
 esac

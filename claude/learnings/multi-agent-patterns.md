@@ -113,7 +113,7 @@ Every hard gate (session start, plan mode, implementation start) needs three ann
 
 When an agent can't execute certain operations (e.g., Bash blocked by security hooks), delegate via structured intent files: agent writes requests to a dedicated file (one per line), outer loop processes them between iterations. Prefer explicit intent files over parsing action logs — separate concerns, simpler parsing, no coupling to log format.
 
-Example: agent can't `git rm` (Bash blocked) → writes `.claude/consolidate-output/pending-deletions.txt` with paths to delete → wiggum.sh reads the file between iterations and runs `git rm` for each entry. Safety check: only delete files that are truly empty (prevents accidental deletion from wrong paths).
+Example: agent can't `git rm` (Bash blocked) → writes `claude/consolidate-output/pending-deletions.txt` with paths to delete → wiggum.sh reads the file between iterations and runs `git rm` for each entry. Safety check: only delete files that are truly empty (prevents accidental deletion from wrong paths).
 
 ## Front-Load Structural Context in Subagent Prompts
 

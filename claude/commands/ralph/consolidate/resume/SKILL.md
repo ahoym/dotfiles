@@ -25,7 +25,7 @@ Evaluate the quality of a completed or stalled consolidation loop, handle any re
 
 ### 2. Read state
 
-Read from `<worktree>/.claude/consolidate-output/`:
+Read from `<worktree>/claude/consolidate-output/`:
 
 | File | What to extract |
 |------|-----------------|
@@ -104,7 +104,7 @@ Calculate suggested iterations based on pre-flight cadence (from progress.md) an
 
 If COMPLETE or MAX_DEEP_DIVES_HIT signal is present in progress.md:
 - MAX_DEEP_DIVES_HIT: carryover candidates are staleness-eligible periodic review, not unfinished work — merge path applies with a note about what carries over
-- **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r .claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
+- **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
 - Ask if the user wants to review the diff: `git diff main -- claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
 - Do NOT suggest relaunching

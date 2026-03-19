@@ -44,20 +44,20 @@ git worktree add claude/worktrees/consolidate-<date> consolidate/<date>
 
 Create the output directory in the worktree:
 ```bash
-mkdir -p claude/worktrees/consolidate-<date>/.claude/consolidate-output
+mkdir -p claude/worktrees/consolidate-<date>/claude/consolidate-output
 ```
 
-Read each template from `~/.claude/ralph/consolidate/templates/` and write to the worktree's `.claude/consolidate-output/`:
+Read each template from `~/.claude/ralph/consolidate/templates/` and write to the worktree's `claude/consolidate-output/`:
 
 | Template | Destination |
 |----------|-------------|
-| `spec.md` | `.claude/consolidate-output/spec.md` |
-| `broad-sweep-methodology.md` | `.claude/consolidate-output/broad-sweep-methodology.md` |
-| `deep-dive-methodology.md` | `.claude/consolidate-output/deep-dive-methodology.md` |
-| `progress.md` | `.claude/consolidate-output/progress.md` |
-| `decisions.md` | `.claude/consolidate-output/decisions.md` |
-| `report.md` | `.claude/consolidate-output/report.md` |
-| `review.md` | `.claude/consolidate-output/review.md` |
+| `spec.md` | `claude/consolidate-output/spec.md` |
+| `broad-sweep-methodology.md` | `claude/consolidate-output/broad-sweep-methodology.md` |
+| `deep-dive-methodology.md` | `claude/consolidate-output/deep-dive-methodology.md` |
+| `progress.md` | `claude/consolidate-output/progress.md` |
+| `decisions.md` | `claude/consolidate-output/decisions.md` |
+| `report.md` | `claude/consolidate-output/report.md` |
+| `review.md` | `claude/consolidate-output/review.md` |
 
 Copy each template as-is first. Pre-flight data is populated next.
 

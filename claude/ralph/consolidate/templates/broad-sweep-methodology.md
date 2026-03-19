@@ -4,13 +4,13 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 
 ## LEARNINGS — Broad Sweep
 
-1. **Read all learnings**: Glob `.claude/learnings/*.md`, read all files in parallel
-2. **Read cross-reference corpus**: In the same parallel batch, read persona files (`.claude/commands/set-persona/*.md`), guideline files (`.claude/guidelines/*.md`), and skill reference files (`.claude/skill-references/*.md`)
+1. **Read all learnings**: Glob `claude/learnings/*.md`, read all files in parallel
+2. **Read cross-reference corpus**: In the same parallel batch, read persona files (`claude/commands/set-persona/*.md`), guideline files (`claude/guidelines/*.md`), and skill reference files (`claude/skill-references/*.md`)
 3. **Cluster by domain/stack**: Group files by domain (e.g., "XRPL + TypeScript", "Java + Spring", "Python", "Meta/tooling")
 4. **Concept-name collision detection**: Grep for identical or near-identical H2/H3 headings across all learnings files. Matches are HIGH-confidence duplicate candidates regardless of cluster membership.
 5. **Per-cluster analysis**:
    - Count files, patterns, lines per cluster
-   - Check for matching personas in `.claude/commands/set-persona/`
+   - Check for matching personas in `claude/commands/set-persona/`
    - Identify: exact duplicates (HIGH), partial overlaps (MEDIUM), thin pointer files < 20 lines (MEDIUM), stale/outdated content (HIGH), reference wiring opportunities (MEDIUM)
 6. **Per-file quality scan**:
    - **Genericization**: Domain terms appearing in wrong cluster, project-specific names/paths/routes
@@ -39,13 +39,13 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
 - **Cross-ref wiring**: Add `## See also` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
 
-**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`.claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files.
+**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files.
 
 ## SKILL-REFERENCES — Consumer Wiring Check
 
 During the SKILLS broad sweep (step 4 above), also scan skill-references for consumer health:
 
-1. **Read all skill-references**: Glob `.claude/skill-references/**/*.md`
+1. **Read all skill-references**: Glob `claude/skill-references/**/*.md`
 2. **Consumer wiring**: For each skill-reference, grep skill directories for references to its filename. An unreferenced skill-reference is dead weight — HIGH delete candidate.
 3. **Staleness**: Cross-reference content against the learnings and skills it supports. Stale patterns → HIGH update or delete.
 4. **Duplication with learnings**: Check if a skill-reference duplicates content already in a learnings file. Dedup from the consuming skill (not from the reference) per the reference-file gate.
@@ -54,7 +54,7 @@ Record findings inline with the SKILLS sweep classifications. Skill-references s
 
 ## SKILLS — Skill Mode
 
-1. **Read all skills**: Glob `.claude/commands/**/SKILL.md`, read each package (SKILL.md + reference files in same directory)
+1. **Read all skills**: Glob `claude/commands/**/SKILL.md`, read each package (SKILL.md + reference files in same directory)
 2. **Cluster by namespace**: Group by prefix (`git:*`, `learnings:*`, `ralph:*`, `parallel-plan:*`, standalone)
 3. **Also read**: Persona files and shared skill-references
 4. **Per-skill evaluation**:
@@ -72,7 +72,7 @@ Record findings inline with the SKILLS sweep classifications. Skill-references s
 
 ## GUIDELINES — Content Mode
 
-1. **Read all guidelines**: Glob `.claude/guidelines/*.md`, read all in parallel
+1. **Read all guidelines**: Glob `claude/guidelines/*.md`, read all in parallel
 2. **Read CLAUDE.md**: Identify which guidelines are `@`-referenced (always-on context cost)
 3. **Parse patterns**: Identify discrete sections per file
 4. **Cross-reference**: Check each pattern against learnings, skills, and personas for matches

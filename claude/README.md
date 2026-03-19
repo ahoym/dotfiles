@@ -12,7 +12,7 @@ cd dotfiles
 ./setup-claude.sh
 ```
 
-This symlinks everything in `.claude/` into `~/.claude/`, making it available globally across all projects. Existing files are backed up before being replaced.
+This symlinks everything in `claude/` into `~/.claude/`, making it available globally across all projects. Existing files are backed up before being replaced.
 
 ## What's included
 

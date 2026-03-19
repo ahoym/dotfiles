@@ -48,5 +48,5 @@ Nullable fields throw NPE in `reduce(BigDecimal.ZERO, BigDecimal::add)`. Add `.f
 
 ## See also
 
-- `.claude/learnings/bignumber-financial-arithmetic.md` — JavaScript BigNumber.js patterns for frontend financial calculations (complements the Java BigDecimal patterns here)
-- `.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)
+- `claude/learnings/bignumber-financial-arithmetic.md` — JavaScript BigNumber.js patterns for frontend financial calculations (complements the Java BigDecimal patterns here)
+- `claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)

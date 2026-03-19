@@ -104,4 +104,4 @@ When a domain-specific persona extends a base (e.g., `claude-config-reviewer` ex
 
 ## See also
 
-- `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
+- `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
