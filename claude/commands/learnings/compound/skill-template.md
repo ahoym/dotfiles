@@ -89,7 +89,7 @@ Extract content into separate files when:
 
 See `~/.claude/learnings/claude-authoring-skills.md` for conventions when writing skill content.
 
-## Related References
+## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring-content-types.md` - Deciding if something should be a skill, guideline, or learning
 - `~/.claude/learnings/claude-authoring-skills.md` - Conventions for writing effective skills

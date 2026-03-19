@@ -51,7 +51,7 @@ When a guideline specifies announcement formats (emoji prefixes, status messages
 
 Saves ~70% of lines in format-heavy guideline sections. The agent parses inline examples just as reliably as code blocks — the format is the content, not the fencing.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
 - `~/.claude/commands/learnings/curate/curation-insights.md` — operational calibration including "uniform convention" pattern (migrated from here)

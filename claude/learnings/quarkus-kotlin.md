@@ -6,6 +6,6 @@ Quarkus dev mode (`mvn quarkus:dev`) incremental compilation does **not** detect
 
 **Fix**: Use `mvn clean quarkus:dev` whenever adding/removing enum values. Regular code changes (method bodies, new classes) hot-reload fine.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/spring-boot.md` — Spring Boot patterns (related Java build and runtime ecosystem)

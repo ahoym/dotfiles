@@ -16,7 +16,7 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
    - **Genericization**: Domain terms appearing in wrong cluster, project-specific names/paths/routes
    - **Compression**: High line-count vs insight ratio, verbose code blocks, provenance notes, debugging trails
 7. **Cross-reference**: Check if learnings patterns are already fully covered in skills, guidelines, or personas → outdated candidate
-8. **Cross-reference graph health**: Scan all `## See also` sections across learnings files. Full corpus is loaded — best vantage for graph-level analysis.
+8. **Cross-reference graph health**: Scan all `## Cross-Refs` sections across learnings files. Full corpus is loaded — best vantage for graph-level analysis.
    - **Stale refs**: Target gone or relationship decayed. HIGH.
    - **Isolated files**: Zero cross-refs. MEDIUM if a non-obvious lateral link exists.
    - **Missing cross-cluster refs**: Different domain clusters sharing non-obvious conceptual overlap (highest-value cross-refs — keyword search misses these). MEDIUM.
@@ -36,8 +36,8 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 - **Merge for cohesion**: 2+ files in same domain, combined version more discoverable. MEDIUM.
 - **Split for discoverability**: >150 lines AND 3+ distinct sub-topics with independent lookup value. MEDIUM. (A large but thematically unified file should NOT be split — the filename is a natural index.)
 - **Compression for token ROI**: Files where insight-to-token ratio could improve. MEDIUM.
-- **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Detailed references. MEDIUM.
-- **Cross-ref wiring**: Add `## See also` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
+- **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Cross-Refs. MEDIUM.
+- **Cross-ref wiring**: Add `## Cross-Refs` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
 
 **Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files.
 
@@ -99,7 +99,7 @@ All MEDIUMs are judged autonomously. The worktree diff + decisions.md provide fu
 | Deduplication | Same concept in multiple files — merge into authoritative location |
 | Fold thin file | < 20 lines of pointers → fold into target persona/skill |
 | Stale version update | Outdated model strings, deprecated tool references |
-| Reference wiring | Ensure persona has Detailed references section linking to relevant learnings; ensure skill-reference files are wired into skills that would benefit |
+| Reference wiring | Ensure persona has Cross-Refs section linking to relevant learnings; ensure skill-reference files are wired into skills that would benefit |
 | Persona de-enrichment | Extract inline knowledge from persona to learning file, replace with reference |
 | Persona creation | 3+ files, 8+ patterns, no existing persona |
 | Merge for cohesion | 2+ files in same domain cluster, combined version more discoverable |
@@ -126,7 +126,7 @@ Personas are lean judgment layers — priorities, tradeoffs, review instincts. K
 
 ### Reference Wiring
 
-Ensure personas have `## Detailed references` linking to relevant learnings. Don't inline knowledge — reference it.
+Ensure personas have `## Cross-Refs` linking to relevant learnings. Don't inline knowledge — reference it.
 
 ### De-enrichment
 
@@ -148,7 +148,7 @@ Shared domain boundaries → check for duplicated gotchas at content level. More
 - **Always re-read files at sweep start**: Files change between invocations.
 - **Parallel reads over subagents**: Batch all reads as parallel tool calls. Faster than subagents for <25 files.
 - **Clean sweep output**: Terse iteration log — content type, "clean", file/pattern count.
-- **Reference over inline**: Personas use Detailed references, never inline knowledge.
+- **Reference over inline**: Personas use Cross-Refs, never inline knowledge.
 - **Partial overlap**: Decompose rather than downgrade — split into individually unambiguous items.
 - **MEMORY.md is not a safety net**: Prune the MEMORY.md entry, not the learning.
 - **Persona coverage ≠ learning obsolescence**: Keep learnings that prevent specific wrong approaches the persona one-liner can't.

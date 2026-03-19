@@ -73,7 +73,7 @@ The inline methodology: categorize insights using `claude-authoring-content-type
 
 ## Personas as Execution-Mode Learnings Conduit
 
-The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Detailed references" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
+The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Cross-Refs" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
 
 ## One-Action-Per-Invocation Enforcement
 
@@ -202,7 +202,7 @@ The existing retro → compound → curate pipeline provides search protocol per
 
 ## Unreferenced Learnings Are Not Orphans
 
-Not every learning file needs a persona Detailed reference. Context-aware learnings (`context-aware-learnings.md` guideline) discovers files by filename matching at session start and on keyword triggers — no persona wiring required. Only add a learning to a persona's Detailed references when it's highly correlated with the domain (most sessions with that persona would benefit). Niche learnings (e.g., `local-dev-seeding.md`) work better as context-aware discoveries — they get loaded when the topic actually comes up, not on every persona activation. During consolidation sweeps, do NOT wire learnings into personas just because they're unreferenced.
+Not every learning file needs a persona Cross-Refs entry. Context-aware learnings (`context-aware-learnings.md` guideline) discovers files by filename matching at session start and on keyword triggers — no persona wiring required. Only add a learning to a persona's Cross-Refs when it's highly correlated with the domain (most sessions with that persona would benefit). Niche learnings (e.g., `local-dev-seeding.md`) work better as context-aware discoveries — they get loaded when the topic actually comes up, not on every persona activation. During consolidation sweeps, do NOT wire learnings into personas just because they're unreferenced.
 
 ## Consolidation Worktree Hooks Auto-Commit and Can Revert
 
@@ -252,7 +252,7 @@ The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — no
 
 Before choosing a scaffolding approach for init skills, audit each template for whether it's modified during initialization. Verbatim copies should use a single `cp` (or `cp *.md`) in Bash — reading them into context just to Write them back wastes tool calls and tokens. Only templates that need placeholder substitution or pre-flight data population warrant Read+Edit. The audit is quick (check the init steps for which files get modified) and the savings compound: N verbatim templates = 2N fewer tool calls (N Reads + N Writes → 1 `cp`).
 
-## See also
+## Cross-Refs
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
 - `~/.claude/learnings/claude-code.md` — worktree permission mismatches and path resolution mechanics underlying the worktree editing gotchas here

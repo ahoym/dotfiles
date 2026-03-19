@@ -138,7 +138,7 @@ I now have full context on PR #42. You can ask me:
 Ask any questions about this PR, or say "done" to exit.
 ```
 
-## Related Skills
+## Cross-Refs
 
 After exploring a review, you may want to:
 

@@ -315,7 +315,7 @@ For each skill, follow learnings:curate skill mode (steps 2s–4s) with full cro
 
 **Additional cross-cutting checks** (run after individual skill evaluation):
 - **Stale model version strings:** Grep all skill directories for `Co-Authored-By` and `Co-authored with` lines with outdated model versions (e.g., previous model generation). Bulk-update matches.
-- **Post-prune cross-reference cleanup:** After any Prune action is applied, grep remaining skills for the deleted skill's name — check "Related Skills" tables, usage examples, and conditional workflows. Flag stale references as HIGH-confidence follow-up actions.
+- **Post-prune cross-reference cleanup:** After any Prune action is applied, grep remaining skills for the deleted skill's name — check "Cross-Refs" tables, usage examples, and conditional workflows. Flag stale references as HIGH-confidence follow-up actions.
 
 #### 4c. Separate findings by confidence
 
@@ -642,7 +642,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Edit(~/.claude/skill-references/**)"
 ```
 
-## Related Skills
+## Cross-Refs
 
 | Workflow | Skill |
 |----------|-------|

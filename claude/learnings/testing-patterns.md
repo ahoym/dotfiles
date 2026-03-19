@@ -187,7 +187,7 @@ Replace `pytest.raises(Exception)` with specific exception types. Catching broad
 
 When writing plan docs that include integration/router-level tests, explicitly state which env var values mocks should match — default values from `os.getenv("X", "default")` or values from `.env.tests`. This prevents a debugging round where tests fail because mock expectations use `.env.tests` values but the code under test reads module-level singletons initialized with defaults.
 
-## See also
+## Cross-Refs
 
 - `nextjs.md` — route handler test structure
 - `playwright-patterns.md` — E2E test recipes

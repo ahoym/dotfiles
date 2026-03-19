@@ -42,7 +42,7 @@ For each match, `Read(file_path, limit=5)` to see the title and description. Ski
 
 **Plan mode addition**: also grep file *content* for derived terms — filename-only matching misses learnings buried under a broader topic (e.g., a caching gotcha inside `spring-boot.md` when the search term is "Redis").
 
-**Step 4: Follow cross-refs (up to two levels).** After loading matched files, check `## See also` sections for additional files. Follow only when relevant; stop when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
+**Step 4: Follow cross-refs (up to two levels).** After loading matched files, check `## Cross-Refs` sections for additional files. Follow only when relevant; stop when the next file isn't on-topic. Announce cross-ref loads distinctly from keyword loads.
 
 **Plan mode addition**: also announce skipped cross-refs: `📚 Cross-ref from X → Y (skipped: not relevant to current task)`. Too noisy for session-start.
 

@@ -218,7 +218,7 @@ The spec-standard `compatibility:` frontmatter field (max 500 chars) signals int
 - Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
 - CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
 
-## See also
+## Cross-Refs
 
 - `claude-authoring-skills.md` — skill design patterns
 - `claude-code.md` — permission and platform mechanics

@@ -223,7 +223,7 @@ await expect(success.or(notFound).or(empty)).toBeVisible({ timeout: 15_000 });
 
 This is cleaner than try/catch + `test.skip()` when all outcomes are valid — the test passes regardless of which state is reached, but still fails if the component is stuck loading or errors out.
 
-## See also
+## Cross-Refs
 
 - `react-frontend-gotchas.md` — condensed Playwright tripwires
 - `testing-patterns.md` — unit and integration test patterns

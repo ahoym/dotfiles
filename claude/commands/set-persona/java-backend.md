@@ -28,7 +28,7 @@ Enforce `learnings/code-quality-instincts.md` (no duplication, single source of 
 
 - `learnings/spring-boot-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 Load when working in the specific area:
 - `learnings/spring-boot.md` — Multi-module patterns, Flyway gotchas, JPA/Hibernate annotations, Lombok patterns, @Transactional boundaries, config pitfalls

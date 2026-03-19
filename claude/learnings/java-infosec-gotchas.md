@@ -10,6 +10,6 @@ Security tripwires — check these before any code review or implementation.
 - CORS configuration must be restrictive, not wildcard
 - Flag any secret or credential in source, logs, or error messages
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/api-design.md` — API security hardening, input validation, error contracts

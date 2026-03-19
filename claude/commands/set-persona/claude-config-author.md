@@ -28,12 +28,12 @@ Authoring lens for creating and modifying the Claude configuration surface: skil
 ### Learnings
 - Genericize project-specific examples. The insight is universal; the illustration should be portable.
 - Check if a `*-gotchas.md` companion is more appropriate — gotchas need proactive loading, patterns don't.
-- Consider cross-refs (`## See also`) for non-obvious lateral relationships.
+- Consider cross-refs (`## Cross-Refs`) for non-obvious lateral relationships.
 
 ### Personas
 - Judgment, not recipes. If you're writing step-by-step instructions, it belongs in a learning.
 - Start thin — enrich through real work, not upfront speculation.
-- Wire `## Proactive loads` and `## Detailed references` to existing learnings.
+- Wire `## Proactive loads` and `## Cross-Refs` to existing learnings.
 
 ### CLAUDE.md
 - Every `@` reference has an always-on token cost. Justify it.

@@ -301,7 +301,7 @@ Claude Code has built-in protection for a project's `.claude/` directory that tr
 
 **Related:** Tilde permission patterns don't resolve through symlinks. If `~/.claude/commands` is a symlink to `/path/to/dotfiles/.claude/commands`, the pattern `Edit(~/.claude/commands/**)` sees the symlink path but the tool resolves to the real path — they don't match. Moving files out of `.claude/` fixes both issues at once.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/multi-agent-patterns.md` — worktree agent isolation, sandbox workarounds, background agent orchestration (complements the permissions/platform angle here)
 - `~/.claude/learnings/claude-code-hooks.md` — hooks vs permissions independence, PreToolUse as security boundary (complements the permissions cluster here)

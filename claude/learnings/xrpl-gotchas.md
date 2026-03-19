@@ -42,7 +42,7 @@ Companion to `xrpl-patterns.md`. Condensed tripwires for XRPL integration.
 - Server and client encoding implementations (e.g., credential types) must be tested against shared canonical fixtures
 - URI XSS from ledger-stored credential URIs: validate protocol (`/^https?:\/\//i`) before rendering as `<a href>`
 
-## See also
+## Cross-Refs
 
 - `xrpl-patterns.md` — full XRPL integration patterns (companion)
 - `bignumber-financial-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations

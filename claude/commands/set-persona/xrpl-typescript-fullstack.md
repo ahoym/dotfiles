@@ -43,7 +43,7 @@ Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `~/.claude/learnin
 - `~/.claude/learnings/xrpl-gotchas.md`
 - `~/.claude/learnings/react-frontend-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 Load when working in the specific area:
 - `~/.claude/learnings/react-patterns.md` — React 19 patterns (setState/useEffect, hydration gating, hook extraction, component decomposition)

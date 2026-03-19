@@ -22,7 +22,7 @@ When submitting orders that spend a resource, validate the user's available bala
 
 Show an inline error with specific amounts ("Insufficient X — you have Y but need Z") and disable submit when `spendAmount > availableBalance`.
 
-## See also
+## Cross-Refs
 
 - `react-patterns.md` — React hooks, polling with visibility gating, localStorage migration
 - `order-book-pricing.md` — pricing computation layer for exchange UIs (mid-price, slippage)

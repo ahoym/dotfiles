@@ -36,7 +36,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 ## Proactive loads
 - `~/.claude/learnings/claude-authoring-content-types.md`
 
-## Detailed references
+## Cross-Refs
 Load when working in the specific area:
 - `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns, frontmatter, composition
 - `~/.claude/learnings/claude-authoring-guidelines.md` — merging overlaps, enforcement gates, scoping

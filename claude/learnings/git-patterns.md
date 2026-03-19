@@ -225,7 +225,7 @@ When a worktree branch lives long enough for other sessions to land commits on m
 
 When `git add`-ing a directory that contains git worktrees (or any nested `.git` repos), git warns about "embedded git repositories" and stages them as gitlinks. Fix: `git rm --cached -rf <path>` to unstage, then add proper `.gitignore` patterns before re-adding. Always check for worktree directories before bulk-staging renamed/moved directories.
 
-## See also
+## Cross-Refs
 
 - `bash-patterns.md` — shell escaping gotchas for git commands
 - `ci-cd-gotchas.md` — CI pipeline git workflow patterns

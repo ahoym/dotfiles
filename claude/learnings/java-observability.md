@@ -12,6 +12,6 @@ When all metrics are counters (no timers/gauges), use these PromQL patterns:
 
 Structure dashboards by operational question (backwards from alerts), not by metric name. Group: overview stats → throughput over time → failure/protection layers → downstream integration health → recovery jobs.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/java-observability-gotchas.md` — Micrometer/metrics tripwires (companion)

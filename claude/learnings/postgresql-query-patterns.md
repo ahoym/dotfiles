@@ -61,7 +61,7 @@
 - **Validate constraints with SQL tests:** Demonstrate correctness with concrete SQL — happy path, unhappy path, edge cases.
 - **Verify environment state before data-state claims:** When justifying decisions based on "no data exists," specify which table and which environment.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
 - `~/.claude/learnings/financial-applications.md` — DECIMAL precision patterns for financial column design

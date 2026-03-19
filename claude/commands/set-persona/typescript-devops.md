@@ -17,7 +17,7 @@
 
 - `learnings/typescript-ci-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 Load when working in the specific area:
 - `learnings/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons

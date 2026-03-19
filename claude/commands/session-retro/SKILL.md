@@ -29,7 +29,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
    | **Skill reference** | Read because a skill's instructions or reference files pointed to it |
    | **Operator-prompted** | Read because the operator asked a question or raised a topic that required it |
    | **Self-directed** | Read on own initiative to inform a decision, without a gate or prompt triggering it |
-   | **Cross-ref** | Followed from a `## See also` in another loaded file |
+   | **Cross-ref** | Followed from a `## Cross-Refs` in another loaded file |
 
    Include a **Loaded?** column with three states to track actual context cost:
 
@@ -37,7 +37,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
    |-------|---------|------|
    | **Yes** | Full read into context | Real token cost |
    | **Sniffed** | Opened briefly to check relevance (offset+limit read, first few lines) | Small cost |
-   | **No** | Known reference, never opened (e.g., listed in persona's Detailed references) | Zero cost |
+   | **No** | Known reference, never opened (e.g., listed in persona's Cross-Refs) | Zero cost |
 
    This distinction calibrates whether proactive loads are earning their context cost.
 

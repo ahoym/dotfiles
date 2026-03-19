@@ -146,7 +146,7 @@ When a refactor renames, splits, or merges files, run a parallel audit to verify
 
 **When to apply:** Any refactor that deletes or renames 3+ files. The parallel agent cost (~30s) is trivial compared to discovering content loss later.
 
-## See also
+## Cross-Refs
 
 - `code-quality-instincts.md` — code quality signals that trigger refactors
 - `process-conventions.md` — PR splitting and review process

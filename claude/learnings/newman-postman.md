@@ -72,6 +72,6 @@ When a branch re-exports a Postman collection with different indentation (2-spac
 
 **Solution:** Use programmatic JSON merge (see `git-patterns.md` → "Programmatic JSON Merge for Rebase Conflicts"). Normalize both versions through `json.loads()`, diff semantically, and reconstruct the merged output.
 
-## See also
+## Cross-Refs
 
 - `local-dev-seeding.md` — hybrid API + SQL seeding architecture using Newman as the API seeding layer

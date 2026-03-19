@@ -12,6 +12,6 @@ EventBridge `rate()` expressions floor at 1 minute. For sub-minute scheduling (e
 - Secrets Manager with a single JSON secret + ECS `secrets` mapping is cheaper and simpler than N separate secrets.
 - `ignore_changes = [task_definition]` in Terraform lets CI/CD update the task definition without drift.
 
-## See also
+## Cross-Refs
 
 - `claude/learnings/aws-messaging.md` — SQS/SNS/EventBridge messaging patterns, including EventBridge routing and architecture decisions

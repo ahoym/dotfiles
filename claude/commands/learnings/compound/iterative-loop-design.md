@@ -92,7 +92,7 @@ while true; do
 done
 ```
 
-## Related References
+## Cross-Refs
 
 - skill-template.md - Template and file organization for skills
 - `~/.claude/learnings/claude-authoring-skills.md` - Skill writing conventions and design patterns

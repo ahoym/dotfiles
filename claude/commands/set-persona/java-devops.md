@@ -28,7 +28,7 @@
 
 - `learnings/java-observability-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 Load when working in the specific area:
 - `learnings/java-observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC

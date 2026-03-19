@@ -25,7 +25,7 @@ Companion to `react-patterns.md`. Tripwires for React 19, Next.js/Turbopack, and
 - `page.on("dialog")` stacks handlers across serial tests on shared page — use `page.once()` for one-time handling
 - Transient success banners (auto-clear after N seconds) are unreliable assertions — assert the side effect instead
 
-## See also
+## Cross-Refs
 
 - `react-patterns.md` — full React 19 patterns (setState/useEffect, hydration, hooks)
 - `nextjs.md` — full Next.js 16/Turbopack patterns (proxy.ts, dynamic params, rate limiter)

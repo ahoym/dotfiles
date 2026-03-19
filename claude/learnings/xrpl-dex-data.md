@@ -95,7 +95,7 @@ Issuers can set `TickSize` (3-15, or 0 to disable) via `AccountSet`. Truncates e
 
 `Payment` transactions can consume DEX offers to convert currencies. The protocol finds payment paths through intermediary accounts and order books. Payments can use multiple paths simultaneously. Auto-bridging through XRP also applies.
 
-## See also
+## Cross-Refs
 
 - `xrpl-patterns.md` — funded offer fields, OfferCreate fill detection, orderbook fetching, WebSocket management
 - `xrpl-gotchas.md` — TakerGets/TakerPays naming (taker's perspective), funded field absence semantics

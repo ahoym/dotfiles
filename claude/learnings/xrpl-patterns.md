@@ -202,7 +202,7 @@ Dry-run transaction validation without committing fees or sequence numbers. Subm
 
 Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`tem`/`tel`, reuse the same sequence number.
 
-## See also
+## Cross-Refs
 
 - `xrpl-gotchas.md` — condensed XRPL tripwires (companion)
 - `bignumber-financial-arithmetic.md` — BigNumber patterns for orderbook/depth

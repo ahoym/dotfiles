@@ -137,6 +137,6 @@ A monolithic CLAUDE.md (130+ lines) can be refactored into modular files under `
 
 When introducing structural changes that will cause merge conflicts (e.g., switching from inline content to `@` includes), document the conflict resolution strategy in the same PR. Forward-looking documentation prevents confusion when conflicts inevitably arise. Example: "check inline version for NEW additions not yet in modular files, incorporate into the appropriate module, resolve main file to keep `@` includes."
 
-## See also
+## Cross-Refs
 
 - `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

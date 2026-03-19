@@ -83,7 +83,7 @@ function getTier(pathname: string, method: string) {
 
 Route handlers are plain async functions — import and call directly in Vitest without spinning up the server. See `testing-patterns.md` § "Route Handler Test Structure" for the full pattern including `vi.hoisted()` mock setup, import ordering, and dynamic route `Promise.resolve()` params.
 
-## See also
+## Cross-Refs
 
 - `react-patterns.md` — hydration, hooks, component patterns
 - `react-frontend-gotchas.md` — condensed Next.js and React tripwires

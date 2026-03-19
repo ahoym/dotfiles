@@ -50,7 +50,7 @@ UPDATE partners SET screening_id = '<screening-uuid>' WHERE id = '<partner-id>';
 
 This eliminates async wait times (e.g., polling for compliance approval) and removes external service dependencies from local development.
 
-## See also
+## Cross-Refs
 
 - `newman-postman.md` — Newman runtime gotchas (skipRequest sync-only, conditional assertions, export-environment manifest)
 

@@ -93,7 +93,7 @@ assert response == MyResponseModel(
 )
 ```
 
-## See also
+## Cross-Refs
 
 - `api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
 - `testing-patterns.md` — Python module-level singleton test isolation

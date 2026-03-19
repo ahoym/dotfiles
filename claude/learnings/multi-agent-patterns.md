@@ -284,7 +284,7 @@ Autonomous features with timing-dependent side effects (stale poll auto-cancel, 
 
 When independent work items (issues, tasks) could run in parallel, check for file overlap before launching. Issues that touch the same files (e.g., two terminology sweeps both editing persona files) cause merge conflicts in parallel worktree agents. Options: pre-filter conflicting items into sequential batches, accept conflicts and resolve post-merge, or group by file domain and run groups sequentially. File overlap analysis is cheap (grep issue bodies for mentioned paths/patterns) and prevents the most common parallel failure mode.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/claude-code.md` — permission patterns, worktree isolation mismatches, background agent permission gotchas, cron and polling patterns (platform mechanics underlying the agent patterns here)
 - `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

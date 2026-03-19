@@ -176,7 +176,7 @@ Status: IN_PROGRESS | BLOCKED_ON_USER
 WOOT_COMPLETE_WOOT  <!-- Only add when: ALL tasks done AND Questions section populated AND you cannot proceed autonomously -->
 ```
 
-## References
+## Cross-Refs
 
 - Project outputs: `./` (this directory)
 - Repository root: `../../../` (relative to this spec)

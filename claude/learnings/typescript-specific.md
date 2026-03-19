@@ -6,7 +6,7 @@ When adding a new member to a union type used as a `Record` key (e.g., adding `"
 
 Search for `Record<YourUnionType` across the codebase when extending the union.
 
-## See also
+## Cross-Refs
 
 - `nextjs.md` — Next.js patterns (original context for union type pattern)
 - `react-frontend-gotchas.md` — condensed frontend tripwires

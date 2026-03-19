@@ -116,7 +116,7 @@ When all LP tokens are redeemed: if ≤512 trust lines, AMM auto-deletes. If >51
 
 AMM liquidity consumed during trade execution appears in `AffectedNodes` as `LedgerEntryType: "AMM"` modifications — not as Offer nodes. When parsing metadata to determine fill sources (CLOB vs AMM), check for modified AMM nodes separately from modified/deleted Offer nodes.
 
-## See also
+## Cross-Refs
 
 - `xrpl-patterns.md` — XRPL integration patterns (orderbook fetching, funded offers, WebSocket management)
 - `xrpl-gotchas.md` — condensed XRPL tripwires including AMM-specific gotchas

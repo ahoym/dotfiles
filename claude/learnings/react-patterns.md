@@ -223,7 +223,7 @@ When migrating from a legacy single-key format, perform a one-time migration on 
 
 This pattern is transparent to users and prevents data loss during schema evolution.
 
-## See also
+## Cross-Refs
 
 - `reactive-data-patterns.md` — refresh, polling, localStorage sync
 - `react-frontend-gotchas.md` — condensed React tripwires

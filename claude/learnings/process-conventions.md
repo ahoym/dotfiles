@@ -163,7 +163,7 @@ git log main..HEAD -- path/to/file.md
 # Empty output = branch never touched it (don't claim it in the PR description)
 ```
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
 - `~/.claude/learnings/code-quality-instincts.md` — code-level quality patterns (complementary: code vs process)

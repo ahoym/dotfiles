@@ -47,16 +47,16 @@ Extraction subagents classify learnings as "general" when the underlying princip
 
 When creating a new learnings file, first grep `~/.claude/learnings/` for existing files matching the domain. Without this check, near-duplicate files accumulate (e.g., `parallel-planning.md` and `parallel-plans.md` about the same topic). Similarly, check if the insight already exists in a more authoritative location before creating a domain-specific copy — platform behavior patterns compounded from a parallel-plan session may already be covered in `claude-code.md`.
 
-Additionally, when creating a new learnings file, check personas in `~/.claude/commands/set-persona/` for `Detailed references` sections that cover the same domain — a new file won't be discoverable through persona activation unless it's wired in. Suggest adding a reference link to matching personas.
+Additionally, when creating a new learnings file, check personas in `~/.claude/commands/set-persona/` for `Cross-Refs` sections that cover the same domain — a new file won't be discoverable through persona activation unless it's wired in. Suggest adding a reference link to matching personas.
 
-## Cross-Reference Convention (`## See also`)
+## Cross-Reference Convention (`## Cross-Refs`)
 
 Learnings files can cross-reference related files to enable **lateral discovery** — finding files that are relevant to what you already loaded but wouldn't be found by keyword search alone. Cross-refs are conditional (non-`@`) signposts, not eager loads.
 
-**Format:** A `## See also` footer as the last section in the file, with 1-5 refs:
+**Format:** A `## Cross-Refs` footer as the last section in the file, with 1-5 refs:
 
 ```markdown
-## See also
+## Cross-Refs
 
 .claude/learnings/postgresql-query-patterns.md — migration patterns overlap with Flyway/Spring Boot
 .claude/learnings/java-observability-gotchas.md — Spring Boot instrumentation pitfalls
@@ -108,13 +108,13 @@ A `CLAUDE.md` in a reference directory (e.g., `~/.claude/learnings/`) can serve 
 
 ## Cross-Reference Types: Semantic vs Discovery
 
-Two distinct purposes for `## See also` cross-references in learnings files:
+Two distinct purposes for `## Cross-Refs` cross-references in learnings files:
 
 - **Discovery** ("this file also exists") — redundant when a curated index is present; the index surfaces all files with descriptions. Can be dropped.
 - **Semantic** ("when using X with Y, the interaction matters because Z") — carries contextual reasoning that no index description can replicate. Keep these; they fire when a file is *already loaded* and provide targeted follow-up context.
 
 **Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
 
-## See also
+## Cross-Refs
 
 - `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

@@ -21,7 +21,7 @@ pnpm/Node CI specifics — lockfile handling, action setup, browser caching, lin
 - Per-isolate state (in-memory Maps, singletons) doesn't persist across cold starts — meaningful first layer but not globally distributed
 - Missing lockfile commits cause deploy failures — `--frozen-lockfile` passes locally because `pnpm install` silently updates
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/vercel-deployment.md` — Vercel cron limits, Postgres driver patterns
 - `~/.claude/learnings/ci-cd.md` — general CI/CD patterns and YAML examples

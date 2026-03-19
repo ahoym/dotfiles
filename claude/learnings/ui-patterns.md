@@ -59,7 +59,7 @@ All components import from this file. Changing a constant propagates everywhere 
 
 **Incremental experimentation:** When testing a design change on one page before going app-wide, use Tailwind's `!important` modifier to temporarily override the shared constant (e.g., `className={`${cardClass} !rounded-none`}`). Once the change is confirmed, update the shared constant itself and remove the overrides.
 
-## See also
+## Cross-Refs
 
 - `react-patterns.md` — component patterns, hooks, and Tailwind usage context
 - `nextjs.md` — Next.js build context (SVG title pattern relates to JSX compilation)

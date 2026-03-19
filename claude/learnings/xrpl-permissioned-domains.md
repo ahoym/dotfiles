@@ -76,7 +76,7 @@ Extends the DEX with credential-gated order books. Each domain gets its own sepa
 
 Sources: [XLS-80](https://xls.xrpl.org/xls/XLS-0080-permissioned-domains.html), [XLS-81d](https://github.com/XRPLF/XRPL-Standards/discussions/229), [Credentials concept](https://xrpl.org/docs/concepts/decentralized-storage/credentials)
 
-## See also
+## Cross-Refs
 
 - `xrpl-patterns.md` — DomainID typing gaps, book_offers domain param, funded offer fields
 - `xrpl-gotchas.md` — DomainID availability (account_objects vs account_offers)

@@ -108,6 +108,6 @@ git branch -d batch-import
 
 **Why branch+merge over direct extraction:** Direct `tar xzf` into the working tree clobbers local changes to shared files. The branch approach preserves both sides' edits and only requires manual resolution when both sides touched the same file.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/skill-platform-portability.md` — cross-platform skill design complements sync-level portability

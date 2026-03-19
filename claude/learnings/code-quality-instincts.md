@@ -106,7 +106,7 @@ The primary use case of a class should own the simplest method name (e.g., `run(
 
 When the same content appears in guidelines, code comments, and documentation, consolidate to the most natural home. The single-source-of-truth principle applies to instructions and reference material, not just code.
 
-## See also
+## Cross-Refs
 
 - `process-conventions.md` — complementary process-level patterns
 - `refactoring-patterns.md` — refactoring methodology

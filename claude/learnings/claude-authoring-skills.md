@@ -376,9 +376,9 @@ Skills that post to external platforms should include the structured footer from
 
 Skills should reference sections in the platform commands file (e.g., "use **Fetch Diff** from the platform commands file") rather than inlining `gh`/`glab` commands. This keeps skills platform-agnostic — the commands file handles GitHub vs GitLab differences. Inline commands are only appropriate before the commands file is loaded (e.g., platform detection in step 0).
 
-## Cross-Skill Discovery via Related Skills
+## Cross-Skill Discovery via Cross-Refs
 
-1. **Add "Related Skills" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
+1. **Add "Cross-Refs" section** to skills that have natural follow-ups (table with Next Step → Skill columns)
 2. **Reference prerequisite skills** in Important Notes (e.g., "Use `/git:explore-pr` first if you need to understand the PR before splitting")
 
 ## Base Reviewer Persona with Extends
@@ -421,7 +421,7 @@ When fixing a bug in a platform-specific reference file (e.g., `github/comment-i
 
 The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
 - `~/.claude/learnings/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

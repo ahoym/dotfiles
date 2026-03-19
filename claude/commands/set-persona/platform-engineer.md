@@ -28,7 +28,7 @@
 
 - `learnings/ci-cd-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 Load when working in the specific area:
 - `learnings/aws-patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults

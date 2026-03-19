@@ -22,6 +22,6 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 - Hardcoded timezone offsets: use `ZoneId.of("Asia/Singapore")`, not `ZoneOffset.of("+08:00")` — ZoneId handles DST
 - `Impl` suffix: name classes by responsibility, not structural role — `FundingApi` not `FundingApiImpl`
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/spring-boot.md` — Spring Boot patterns and best practices (companion file)

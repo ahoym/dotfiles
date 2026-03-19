@@ -155,7 +155,7 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/claude-code.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
 - `~/.claude/learnings/git-patterns.md` — GitHub API pagination, git operations that use bash scripting patterns

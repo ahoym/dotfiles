@@ -26,6 +26,6 @@ The fix: fresh DB lookup per call (correctness) over O(1) stale lookup (performa
 
 - **Takeaway**: Any filter/validator using cached reference data needs drop-rate metrics. Silent drops are worse than crashes. When correctness and performance conflict, ship correctness first.
 
-## See also
+## Cross-Refs
 
 - `claude/learnings/financial-applications.md` — fee calculation invariants, zero-divisor guards, two-layer idempotency, and "fail loudly" error handling (complements the system-level resilience patterns here)

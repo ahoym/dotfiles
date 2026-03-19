@@ -12,7 +12,7 @@ Vercel cron jobs floor at **1/day on Hobby** (free) and **1/min on Pro** ($20/mo
 - `IS NOT DISTINCT FROM` is required for nullable column comparisons in WHERE clauses. Standard `=` fails because `NULL = NULL` evaluates to false in SQL — queries filtering on nullable columns (e.g., XRP pairs where issuer is NULL) will silently return no results.
 - The `sql` tagged template passes strings to Postgres NUMERIC columns correctly — no need for `parseFloat()` which would lose precision on financial data.
 
-## See also
+## Cross-Refs
 
 - `typescript-ci-gotchas.md` — Vercel serverless cold start and lockfile gotchas
 - `xrpl-patterns.md` — Vercel serverless WebSocket connection management for XRPL apps

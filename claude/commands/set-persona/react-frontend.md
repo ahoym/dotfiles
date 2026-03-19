@@ -35,7 +35,7 @@
 
 - `~/.claude/learnings/react-frontend-gotchas.md`
 
-## Detailed references
+## Cross-Refs
 
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 

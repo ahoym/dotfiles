@@ -82,7 +82,7 @@ A commit can land between phase 1 (SHA check) and review posting. If it fixes an
 
 **Mitigation**: before posting any `❌ not addressed` inline comment or "still open" follow-up, re-verify against the latest commit list — not just the SHA captured at phase 1. If a new commit landed since phase 1, check whether it addresses the finding before posting.
 
-## See also
+## Cross-Refs
 
 - `claude-authoring-skills.md` — core skill design patterns (includes "Inline Critical Conditions" pattern that the devolution fix applies)
 - `claude-authoring-content-types.md` — routing hub for authoring cluster

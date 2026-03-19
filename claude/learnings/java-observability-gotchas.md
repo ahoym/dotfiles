@@ -7,6 +7,6 @@ Companion to `java-observability.md`. Micrometer/metrics tripwires.
 - Timer try/finally: use an `outcome` variable instead of duplicating `sample.stop()` at each exit; skip timing for no-op runs (place `Timer.start()` after early return) to keep percentiles clean
 - Testing: use `SimpleMeterRegistry` (in-memory, records real values) — not mocked `MeterRegistry` + stubbed `Counter`
 
-## See also
+## Cross-Refs
 
 - `~/.claude/learnings/java-observability.md` — Grafana dashboard PromQL patterns for Micrometer counters (companion)
