@@ -46,8 +46,13 @@ integration-tests:
     - mvn verify -DskipUTs=true  # Failsafe only
 ```
 
+## glab CLI Flag Differences from gh
+
+- `glab mr list --all` shows all states (open/merged/closed). There is no `--state` flag — use `--all` or no flag (defaults to open).
+- `glab mr diff` has no `--name-only` flag. Extract filenames from raw diff: `glab mr diff <N> --raw | grep '^diff --git' | sed 's|diff --git a/.* b/||'`.
+- `glab api` has no built-in `--jq` flag (unlike `gh api`). Pipe output to the standalone `jq` CLI: `glab api projects/:id/merge_requests/<N>/commits | jq '.[] | {sha: .short_id}'`.
+
 ## See also
 
 - `~/.claude/learnings/ci-cd.md` — general CI/CD patterns (Docker staging, composite actions, lint-first pipelines)
 - `~/.claude/learnings/ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion)
-- `~/.claude/learnings/gitlab-cli.md` — glab CLI flag differences from gh (--all, --raw, --jq workarounds)
