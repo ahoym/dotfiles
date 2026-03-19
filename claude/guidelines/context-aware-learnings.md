@@ -2,7 +2,7 @@
 
 ## Index-Based Loading
 
-`~/.claude/learnings/CLAUDE.md` is a curated index of all learnings files with one-line descriptions grouped by domain. At each gate below, **also read the index** and load any files whose description matches the task domain — in addition to the pipeline search. This runs in parallel with the pipeline during a trial period; retro tracking will show which source is doing more work.
+`~/.claude/learnings/CLAUDE.md` is a curated index of all learnings files with one-line descriptions grouped by domain. At each gate below, **also read the index** and load any files whose description matches the task domain — in addition to the pipeline search. Both mechanisms run in parallel; source attribution in announcements (see Observability) tracks which is doing the work so we can decide whether to consolidate.
 
 If `~/.claude/learnings-private/CLAUDE.md` exists, read it too. If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-local learnings.
 
@@ -53,8 +53,9 @@ For each match, `Read(file_path, limit=5)` to see the title and description. Ski
 **Plan mode** — filename glob + content grep. Plans lock in decisions that are expensive to reverse, so the extra search cost is justified. Use enhanced announcement format:
 ```
 📚 Plan mode — terms: ["spring boot", "migration", "flyway"] from task scope
-   Matched: spring-boot-gotchas.md, spring-boot.md
-   Cross-ref: → postgresql-query-patterns.md (migration patterns)
+   Matched: spring-boot-gotchas.md (via both)
+   Matched: spring-boot.md (via index)
+   Cross-ref: → postgresql-query-patterns.md (via cross-ref, migration patterns)
    Cross-ref: → java-observability-gotchas.md (skipped: not relevant)
    No match: "flyway"
 ```
@@ -81,7 +82,11 @@ Before your first Edit/Write touching a file whose technology domain hasn't been
 
 Always announce when learnings are loaded or searched — the user needs visibility to iterate on this system. No-match announcements are **mandatory** (they surface gaps and confirm the system is firing).
 
-Formats: `📚 Session start — loaded X (reason)` · `📚 "keyword" → loaded X` · `📚 Searched for "X" — no matches` · `📚 Cross-ref from X → loaded Y (reason)` · `📚 Cross-ref from X → Y (skipped: not relevant)` (plan-mode only)
+**Source attribution** — every load announcement must tag how the file was found. This tracks whether the index or pipeline is doing the work, so we can decide whether to consolidate.
+
+Tags: `(via index)` — matched from index description · `(via pipeline)` — matched from filename glob/sniff · `(via both)` — matched independently by both · `(via content grep)` — plan-mode content search · `(via cross-ref)` — followed from another file's Cross-Refs section · `(via domain shift)` / `(via pre-edit check)` — soft gate triggers
+
+Formats: `📚 Session start — loaded X (via index, reason)` · `📚 Session start — loaded X (via pipeline, reason)` · `📚 "keyword" → loaded X (via index)` · `📚 Searched for "X" — no matches` · `📚 Cross-ref from X → loaded Y (via cross-ref, reason)` · `📚 Cross-ref from X → Y (skipped: not relevant)` (plan-mode only)
 
 Persona checks: `🎭 No persona active — recommending X. Set it?` · `🎭 Persona active: X — proceeding` · `🎭 No persona — none relevant, proceeding without`
 
