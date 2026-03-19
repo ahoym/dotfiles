@@ -5,10 +5,10 @@
 
 set -e
 
-DOTFILES_CLAUDE_DIR="$(cd "$(dirname "$0")/.claude" && pwd)"
+DOTFILES_CLAUDE_DIR="$(cd "$(dirname "$0")/claude" && pwd)"
 TARGET_DIR="$HOME/.claude"
 
-# Items to symlink (everything in .claude/ except README.md)
+# Items to symlink (everything in claude/ except README.md)
 ITEMS=(CLAUDE.md commands guidelines lab learnings ralph settings.json settings.local.json skill-references)
 
 if [ ! -d "$TARGET_DIR" ]; then

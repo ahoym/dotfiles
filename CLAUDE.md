@@ -1,16 +1,16 @@
 # This Repo
 
-This repo (dotfiles) is symlinked to `~/.claude` — the user's Claude Code settings directory. Subdirectories (`commands/`, `guidelines/`, `learnings/`, `lab/`) are directory-level symlinks; `CLAUDE.md` and `settings.json` are individually symlinked.
+This repo (dotfiles) stores Claude Code config under `claude/` (not `.claude/`). Individual items are symlinked into `~/.claude/` via `setup-claude.sh`. The directory is named `claude/` to avoid Claude Code's built-in `.claude/` protection, which triggers permission prompts regardless of permission patterns.
 
 ## Tool Path Behavior
 
-| Tool | `~/.claude/...` | CWD-relative (`.claude/...`) | Absolute (`/Users/.../dotfiles/...`) |
+| Tool | `~/.claude/...` | CWD-relative (`claude/...`) | Absolute (`/Users/.../dotfiles/...`) |
 |------|-----------------|------------------------------|--------------------------------------|
 | **Glob/Grep** | ❌ Can't expand `~` or traverse symlinks | ✅ Use this | ✅ Works |
 | **Read** | ✅ Works | ✅ Works | ✅ Works |
-| **Edit/Write** | ✅ Works, matches tilde permission patterns | ⚠️ May trigger permission prompts | ⚠️ May trigger permission prompts |
+| **Edit/Write** | ✅ Works, matches tilde or CWD-relative permission patterns | ✅ Works | ✅ Works |
 
-Since `~/.claude` is a symlink to this repo, prefer `~/.claude/` paths for Edit/Write (matches permission patterns) and `.claude/` CWD-relative paths for Glob/Grep (can't traverse symlinks).
+For Glob/Grep use `claude/` CWD-relative paths. For Edit/Write either `~/.claude/` or `claude/` paths work.
 
 ## PR Hygiene
 

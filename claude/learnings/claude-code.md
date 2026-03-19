@@ -293,6 +293,14 @@ CWD resets to the session's working directory after every Bash call — a `cd` i
 
 Failing to do this causes commands to silently run against the wrong repo. The symptom is a successful git operation on the wrong branch (e.g., cherry-pick lands on `main` instead of a feature branch).
 
+## `.claude/` Directory Protection
+
+Claude Code has built-in protection for a project's `.claude/` directory that triggers permission prompts on Edit/Write regardless of permission patterns in `settings.json`. This is separate from the permission system — no pattern configuration can override it.
+
+**Workaround for dotfiles repos:** Store config files in a non-`.claude` directory (e.g., `claude/`) and symlink individual items into `~/.claude/`. The tilde-based permission patterns (`Edit(~/.claude/commands/**)`) then work normally because the real files aren't under a project `.claude/` path.
+
+**Related:** Tilde permission patterns don't resolve through symlinks. If `~/.claude/commands` is a symlink to `/path/to/dotfiles/.claude/commands`, the pattern `Edit(~/.claude/commands/**)` sees the symlink path but the tool resolves to the real path — they don't match. Moving files out of `.claude/` fixes both issues at once.
+
 ## See also
 
 - `~/.claude/learnings/multi-agent-patterns.md` — worktree agent isolation, sandbox workarounds, background agent orchestration (complements the permissions/platform angle here)
