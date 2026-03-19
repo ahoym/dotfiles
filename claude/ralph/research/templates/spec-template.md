@@ -183,33 +183,7 @@ WOOT_COMPLETE_WOOT  <!-- Only add when: ALL tasks done AND Questions section pop
 
 ## Assumptions & Questions Format
 
-When creating `assumptions-and-questions.md`, use this structure:
-
-```markdown
-# Assumptions & Questions: <Project Name>
-
-## Assumptions
-
-### A1: <Short Title>
-**Assumption**: <What we're assuming to be true>
-**Rationale**: <Why this assumption is reasonable>
-**Confirmed/Trade-offs/Exception**: <Validation or caveats>
-
-## Questions & Answers
-
-### Q1: <Question Title>
-**Question**: <The question that arose>
-**Answer**: <Resolution based on research>
-
-## Open Items for Implementation
-
-### O1: <Item Title>
-**Item**: <What needs to be done>
-**Approach**: <How to do it>
-**Priority**: <Low/Medium/High - brief justification>
-```
-
-For complex projects with many assumptions (10+), group by criticality (Critical / Moderate / Working) instead of flat numbering. For blocking questions, include a "Default if no answer" field to enable autonomous progress.
+When first creating `assumptions-and-questions.md`, read `~/.claude/ralph/research/templates/assumptions-template.md` for detailed structure guidance (standard vs criticality-based), priority ranking, and default-answer patterns for blocking questions.
 
 ## Initial Tasks
 

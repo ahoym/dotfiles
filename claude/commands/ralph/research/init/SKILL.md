@@ -24,7 +24,6 @@ Read these templates from `~/.claude/ralph/research/templates/` before creating 
 
 - `spec-template.md` - Template for spec.md with v2 features (dynamic tasks, deep research workflow)
 - `progress-template.md` - Template for progress.md with questions section
-- `assumptions-template.md` - Template and guidance for assumptions-and-questions.md
 
 ## Instructions
 
