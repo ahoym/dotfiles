@@ -70,16 +70,16 @@ else
 fi
 echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_EMPTY_PROGRESS[80%]\r"
 
-# [include-nvm]
-# Check for nvm, install if it doesn't exist.
-if [ ! -d ~/.nvm ] ; then
-  echo "[include-nvm] nvm not found, installing"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+# [include-mise]
+# Check for mise, install if it doesn't exist.
+if ! command -v mise &>/dev/null; then
+  echo "[include-mise] mise not found, installing"
+  curl https://mise.run | sh
+  eval "$(~/.local/bin/mise activate bash)"
+  mise use --global node@lts
 else
-  echo "[include-nvm] nvm found, installing stable and setting as default"
-  . ~/.nvm/nvm.sh
-  nvm install stable
-  nvm alias default stable
+  echo "[include-mise] mise found, upgrading"
+  mise self-update
 fi
 echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL[100%]\r"
 
