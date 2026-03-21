@@ -40,9 +40,11 @@ Every gate search follows these steps:
 
 Always announce searches and results. No-match announcements are mandatory.
 
-**Source tags**: `(via index)` · `(via pipeline)` · `(via both)` · `(via content grep)` · `(via cross-ref)` · `(via keyword)` · `(via domain shift)` · `(via pre-edit check)`
+**Gate tags** (which trigger fired): `session-start` · `plan-mode` · `implementation` · `keyword` · `domain-shift` · `pre-edit`
 
-**Formats**: `📚 Session start — loaded X (via tag, reason)` · `📚 "keyword" → loaded X (via tag)` · `📚 Searched for "X" — no matches` · `📚 Skipped <file> (domain mismatch: <reason>)` · `📚 Cross-ref from X → loaded Y (via cross-ref, reason)`
+**Source tags** (how the file was found): `via index` · `via pipeline` · `via both` · `via content grep` · `via cross-ref`
+
+**Format**: `📚 [gate] loaded X (source, reason)` · `📚 [gate] "term" — no matches` · `📚 [gate] skipped X (domain mismatch: reason)`
 
 Plan mode uses block format with per-file matched/skipped lines and explicit no-match terms.
 
