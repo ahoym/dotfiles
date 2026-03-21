@@ -31,6 +31,15 @@ fi
 
 ALLOWED_PREFIX="$WORKTREE_ROOT/claude/"
 
+# Resolve relative paths to absolute using WORKTREE_ROOT as base
+resolve_path() {
+  local p="$1"
+  if [[ "$p" != /* ]]; then
+    p="$WORKTREE_ROOT/$p"
+  fi
+  echo "$p"
+}
+
 case "$COMMAND" in
   git\ rm\ *)
     # Extract path argument(s) — skip flags starting with -
@@ -38,10 +47,11 @@ case "$COMMAND" in
       case "$arg" in
         -*) continue ;;
         *)
-          case "$arg" in
+          resolved=$(resolve_path "$arg")
+          case "$resolved" in
             "$ALLOWED_PREFIX"*) ;;
             *)
-              echo "BLOCKED: git rm path outside allowed scope: $arg" >&2
+              echo "BLOCKED: git rm path outside allowed scope: $arg (resolved: $resolved)" >&2
               exit 2
               ;;
           esac
@@ -55,10 +65,11 @@ case "$COMMAND" in
       case "$arg" in
         -*) continue ;;
         *)
-          case "$arg" in
+          resolved=$(resolve_path "$arg")
+          case "$resolved" in
             "$ALLOWED_PREFIX"*) ;;
             *)
-              echo "BLOCKED: git add path outside allowed scope: $arg" >&2
+              echo "BLOCKED: git add path outside allowed scope: $arg (resolved: $resolved)" >&2
               exit 2
               ;;
           esac
@@ -77,10 +88,11 @@ case "$COMMAND" in
       esac
     done
     for path in "${PATHS[@]}"; do
-      case "$path" in
+      resolved=$(resolve_path "$path")
+      case "$resolved" in
         "$ALLOWED_PREFIX"*) ;;
         *)
-          echo "BLOCKED: git mv path outside allowed scope: $path" >&2
+          echo "BLOCKED: git mv path outside allowed scope: $path (resolved: $resolved)" >&2
           exit 2
           ;;
       esac
