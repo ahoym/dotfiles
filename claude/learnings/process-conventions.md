@@ -163,6 +163,10 @@ git log main..HEAD -- path/to/file.md
 # Empty output = branch never touched it (don't claim it in the PR description)
 ```
 
+### Check git history for prior art before designing new protocol features
+
+When adding features to a protocol or system, check git history for previously removed versions of the same concept. Prior art often contains design decisions, failure modes, and refinements that save reinvention. The removed version may need only a targeted fix rather than a from-scratch redesign.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/multi-agent-patterns.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here

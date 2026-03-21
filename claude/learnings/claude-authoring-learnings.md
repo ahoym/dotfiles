@@ -115,6 +115,18 @@ Two distinct purposes for `## Cross-Refs` cross-references in learnings files:
 
 **Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
 
+## Avoid Catch-All Directories
+
+When organizing files into subdirectories, don't create a `general/` or `misc/` directory for uncategorized files. Keep them at the root instead.
+
+**Why:** A catch-all directory hides clustering signals. When 3+ root files share a theme, the clustering is visible and the promotion path to a new domain directory is obvious. Inside a catch-all, the same signal is buried in a grab-bag that never gets reviewed. The directory name carries no domain signal — it's a category that means "uncategorized."
+
+**Rule:** Files that don't fit a domain directory stay at the root. Promote to a new directory when a theme emerges (3+ files). Review root files during curation passes.
+
+### Keyword gate design: dedup as scoping mechanism
+
+When reintroducing a broad trigger (e.g., keyword-based learnings search), existing narrower gates + dedup can handle scoping naturally — a broad trigger doesn't need its own specificity filter if other gates already cover the common cases and dedup prevents redundant loads. Quoted terms from the operator bypass dedup as an explicit override.
+
 ## Cross-Refs
 
 - `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases

@@ -78,6 +78,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `financial-applications.md` — Financial application patterns: monetary calculation safety, error handling
 - `bignumber-financial-arithmetic.md` — BigNumber.js for JS financial arithmetic: prevents float precision errors in prices and totals
 - `order-book-pricing.md` — Order book pricing: mid-price approaches, slippage calculation, spread
+- `domain-ledger-architecture.md` — Domain ledger architecture: schema design, balance composition, entry lifecycle, deposit/withdrawal patterns
 
 ## General Engineering
 

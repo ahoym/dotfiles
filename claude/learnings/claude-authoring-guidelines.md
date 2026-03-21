@@ -51,6 +51,17 @@ When a guideline specifies announcement formats (emoji prefixes, status messages
 
 Saves ~70% of lines in format-heavy guideline sections. The agent parses inline examples just as reliably as code blocks — the format is the content, not the fencing.
 
+## Condensing Guidelines for Agent Consumption
+
+When a guideline file grows unwieldy, apply these compression patterns:
+
+- **Define constants once.** Repeated values (directory paths, tool names, format strings) should be declared once and referenced. Each repetition wastes load-time tokens and creates drift risk.
+- **Tables over prose for rule sets.** When multiple rules share the same structure (trigger → action → scope), a table scans faster than numbered paragraphs. Agents parse structured formats more reliably.
+- **Cut "why" justifications.** Agents need rules, not motivation. "Plans lock in decisions that are expensive to reverse" doesn't change behavior — the rule "search before `EnterPlanMode`" does. Reserve "why" for cases where it changes how edge cases are handled.
+- **Merge scattered related sections.** If the same concept appears in 3 places (definition, notes, additions), consolidate. Split info forces the agent to reconstruct the full picture.
+
+**When framing affects compliance**: word choice matters. "Soft gates (proactive)" reads as optional/best-effort. "Gates (mandatory when triggered)" reads as required. If a label undermines the rule's authority, change the label.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types

@@ -90,6 +90,10 @@ This is narrower than full Bash access (small, enumerable allowlist of structure
 
 The "blanket > pattern matching" principle still holds for *open-ended* pattern matching (trying to enumerate dangerous commands). A *closed* allowlist of specific command prefixes is fundamentally different — you're enumerating what's allowed, not what's dangerous.
 
+## Resolve Relative Paths in Bash Guard Hooks
+
+Guards that validate Bash command arguments against an absolute `ALLOWED_PREFIX` (e.g., `$WORKTREE_ROOT/claude/`) must resolve relative paths before comparison. Agents unpredictably alternate between absolute (`/full/path/claude/foo.md`) and relative (`claude/foo.md`) paths for `git add`/`rm`/`mv`. A guard that only matches absolute paths will intermittently block valid commands. Fix: resolve non-absolute args against the expected root before the prefix check. This doesn't affect Write/Edit guards — those tools always provide absolute paths in `tool_input.file_path`.
+
 ## Idempotent Hook Injection
 
 When injecting hooks programmatically (e.g., via `jq` into `settings.local.json`), strip existing entries by marker before adding new ones. This handles the case where a previous trap didn't fire (SIGKILL) and the script is re-run. Use a unique substring in command paths as the marker (e.g., `contains("ralph/research/hooks/guard-")`).
