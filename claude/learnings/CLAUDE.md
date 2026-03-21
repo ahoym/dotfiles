@@ -73,12 +73,18 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, JSONB, indexing, schema design, and migration safety patterns
 - `local-dev-seeding.md` — Local dev seeding: hybrid API + SQL architecture for repeatable test data
 
-## Financial
+## Financial / Ledger Engineering
 
+- `domain-ledger-architecture.md` — Core ledger patterns: three-table schema, balance composition, entry lifecycle, reconciliation, multi-entity
 - `financial-applications.md` — Financial application patterns: monetary calculation safety, error handling
 - `bignumber-financial-arithmetic.md` — BigNumber.js for JS financial arithmetic: prevents float precision errors in prices and totals
 - `order-book-pricing.md` — Order book pricing: mid-price approaches, slippage calculation, spread
-- `domain-ledger-architecture.md` — Domain ledger architecture: schema design, balance composition, entry lifecycle, deposit/withdrawal patterns
+- `saga-distributed-transactions.md` — Saga patterns for distributed ledger transactions: orchestration vs choreography, compensation design, transactional outbox
+- `ledger-testing-strategies.md` — Ledger testing: accounting invariants, property-based testing, reconciliation harnesses, chaos testing
+- `chart-of-accounts.md` — Chart of accounts: hierarchy design, GL integration, account lifecycle, multi-entity CoA
+- `period-end-closing.md` — Period-end closing: soft/hard close, snapshots, balance carry-forward, late-arriving transactions
+- `ledger-schema-migration.md` — Ledger migration: balance-first to entry-first, dual-write, zero-downtime cutover, balance recomputation
+- `event-sourcing-cqrs.md` — Event sourcing & CQRS for ledgers: event store design, projections, schema evolution, snapshot strategies
 
 ## General Engineering
 
