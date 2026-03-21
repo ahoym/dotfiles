@@ -13,6 +13,10 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Capture iTerm2 session ID at startup so we can close THIS tab on completion,
+# not whichever tab happens to be focused when the loop finishes.
+ITERM_SID="${ITERM_SESSION_ID:-}"
+
 # --- Args ---
 if [ -z "$1" ]; then
     echo "Usage: $0 <project_directory> [max_iterations]"
@@ -50,7 +54,24 @@ ABS_PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
 
 source "$SCRIPT_DIR/hooks/lib-hooks.sh"
 inject_hooks "$SETTINGS_FILE" "$ABS_PROJECT_DIR"
-trap 'EXIT_CODE=$?; remove_hooks "$SETTINGS_FILE"; if [ $EXIT_CODE -eq 0 ]; then sleep 3; osascript -e "tell application \"iTerm2\" to tell current session of current window to close"; fi' EXIT
+close_tab() {
+    if [ -z "$ITERM_SID" ]; then return; fi
+    sleep 3
+    osascript -e "
+tell application \"iTerm2\"
+    repeat with w in windows
+        repeat with t in tabs of w
+            repeat with s in sessions of t
+                if id of s is \"$ITERM_SID\" then
+                    close s
+                    return
+                end if
+            end repeat
+        end repeat
+    end repeat
+end tell"
+}
+trap 'EXIT_CODE=$?; remove_hooks "$SETTINGS_FILE"; if [ $EXIT_CODE -eq 0 ]; then close_tab; fi' EXIT
 
 # --- Loop ---
 mkdir -p "$LOG_DIR"

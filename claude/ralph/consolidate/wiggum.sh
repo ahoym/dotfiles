@@ -13,6 +13,10 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Capture iTerm2 session ID at startup so we can close THIS session on completion,
+# not whichever session happens to be focused when the loop finishes.
+ITERM_SID="${ITERM_SESSION_ID:-}"
+
 # --- Fixed paths ---
 PROJECT_DIR="claude/consolidate-output"
 SPEC_FILE="${PROJECT_DIR}/spec.md"
@@ -45,7 +49,24 @@ WORKTREE_ROOT="$(pwd)"
 
 source "$SCRIPT_DIR/hooks/lib-hooks.sh"
 inject_hooks "$SETTINGS_FILE" "$WORKTREE_ROOT"
-trap 'EXIT_CODE=$?; remove_hooks "$SETTINGS_FILE"; if [ $EXIT_CODE -eq 0 ]; then sleep 3; osascript -e "tell application \"iTerm2\" to tell current session of current window to close"; fi' EXIT
+close_session() {
+    if [ -z "$ITERM_SID" ]; then return; fi
+    sleep 3
+    osascript -e "
+tell application \"iTerm2\"
+    repeat with w in windows
+        repeat with t in tabs of w
+            repeat with s in sessions of t
+                if id of s is \"$ITERM_SID\" then
+                    close s
+                    return
+                end if
+            end repeat
+        end repeat
+    end repeat
+end tell"
+}
+trap 'EXIT_CODE=$?; remove_hooks "$SETTINGS_FILE"; if [ $EXIT_CODE -eq 0 ]; then close_session; fi' EXIT
 
 # --- Loop ---
 mkdir -p "$LOG_DIR"
