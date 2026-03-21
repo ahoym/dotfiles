@@ -16,7 +16,7 @@ fi
 # [include-git]
 GITCONFIG_PATH="$SCRIPT_DIR/.gitconfig"
 # Extends the base .gitconfig file with the dotfiles .gitconfig
-if ! grep -q "$GITCONFIG_PATH" ~/.gitconfig; then
+if ! grep -q "$GITCONFIG_PATH" ~/.gitconfig 2>/dev/null; then
 echo "[include-git] Adding [include] path for $SCRIPT_DIR/.gitconfig to ~/.gitconfig"
 cat << EOT >> ~/.gitconfig
 
