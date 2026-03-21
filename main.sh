@@ -1,5 +1,6 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASIC_PROGRESS_SIGIL=">>>>>>>>>>"
 BASIC_EMPTY_PROGRESS="          "
 
@@ -13,14 +14,14 @@ else
 fi
 
 # [include-git]
-GITCONFIG_PATH="$(pwd)/.gitconfig"
+GITCONFIG_PATH="$SCRIPT_DIR/.gitconfig"
 # Extends the base .gitconfig file with the dotfiles .gitconfig
-if ! grep -q $GITCONFIG_PATH ~/.gitconfig; then
-echo "[include-git] Adding [include] path for $(pwd)/.gitconfig to ~/.gitconfig"
+if ! grep -q "$GITCONFIG_PATH" ~/.gitconfig; then
+echo "[include-git] Adding [include] path for $SCRIPT_DIR/.gitconfig to ~/.gitconfig"
 cat << EOT >> ~/.gitconfig
 
 [include]
-  path = $(pwd)/.gitconfig
+  path = $SCRIPT_DIR/.gitconfig
 
 EOT
 else
@@ -33,15 +34,16 @@ VIM_COPY_SIGIL="File copied from ahoym/vim_related"
 # Copies vim related files/dirs if not existing
 if [ ! -f ~/.vimrc ] || ! grep -q "$VIM_COPY_SIGIL" ~/.vimrc; then
   echo "[include-vim] Copying vim related files/dirs to root"
+  BACKUP_TS="$(date +%s)"
   if [ -f ~/.vimrc ]; then
-    echo "[include-vim] Backing up existing ~/.vimrc to ~/.vimrc.bak"
-    cp ~/.vimrc ~/.vimrc.bak
+    echo "[include-vim] Backing up existing ~/.vimrc to ~/.vimrc.bak.$BACKUP_TS"
+    cp ~/.vimrc ~/.vimrc.bak."$BACKUP_TS"
   fi
   if [ -d ~/.vim ]; then
-    echo "[include-vim] Backing up existing ~/.vim to ~/.vim.bak"
-    cp -R ~/.vim ~/.vim.bak
+    echo "[include-vim] Backing up existing ~/.vim to ~/.vim.bak.$BACKUP_TS"
+    cp -R ~/.vim ~/.vim.bak."$BACKUP_TS"
   fi
-  cp -R ./vim_related/ ~
+  cp -R "$SCRIPT_DIR/vim_related/" ~
 else
   echo "[include-vim] ahoym/vim_related already exists in ~/.vimrc. Skipping [include-vim]."
 fi
@@ -60,8 +62,7 @@ echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_
 
 # [include-brew]
 # Check for homebrew, install if it doesn't exist. Update if it does
-which -s brew
-if [[ $? != 0 ]] ; then
+if ! command -v brew &>/dev/null; then
   echo "[include-brew] Homebrew not found, installing."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
