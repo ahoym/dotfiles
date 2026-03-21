@@ -17,7 +17,7 @@
   # Places current branch in paste buffer
   brname = "!git rev-parse --abbrev-ref HEAD | pbcopy; echo \"Copied to clippy: $(pbpaste)\";"
   # Pushes current changes up to branch
-  pushcurrent = "!git brname; git push origin $(pbpaste)"
+  pushcurrent = "!git push origin $(git rev-parse --abbrev-ref HEAD)"
 
 [init]
   defaultBranch = main
