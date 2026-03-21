@@ -1,38 +1,25 @@
 set nocompatible
 filetype off
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-" Git
-Plugin 'tpope/vim-fugitive'
+call plug#begin('~/.vim/plugged')
 
 " Text manipulation
-Plugin 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi'
 
 " Syntax highlighting and stuff
-Plugin 'scrooloose/syntastic'
-Plugin 'pangloss/vim-javascript'
-Plugin 'mxw/vim-jsx'
-Plugin 'jelera/vim-javascript-syntax'
-Plugin 'vasconcelloslf/vim-interestingwords'
+Plug 'vasconcelloslf/vim-interestingwords'
 
 " Purrrty choices
-Plugin 'flazz/vim-colorschemes'
+Plug 'flazz/vim-colorschemes'
 
 " File Navigation
-Plugin 'scrooloose/nerdtree'
-Plugin 'ctrlpvim/ctrlp.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
-" snipmate
-Plugin 'MarcWeber/vim-addon-mw-utils'
-Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
+" Snippets
+Plug 'SirVer/ultisnips'
 
-
-call vundle#end()
+call plug#end()
 filetype plugin indent on
 
