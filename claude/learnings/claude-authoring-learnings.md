@@ -155,6 +155,7 @@ No `# Title` — the filename serves as the title. This keeps all three signal l
 - Related filenames come from the `## Cross-Refs` footer (just filenames, not full paths)
 - Files with no cross-refs use `**Related:** none`
 - The `---` divider separates the header from content — purely for readability
+- When delegating learnings creation to subagents, specify the no-title format in the prompt — agents default to `# Title` headers from training, which shifts line positions and breaks `limit=3` sniffing
 
 ## File Splitting and Directory Clustering
 

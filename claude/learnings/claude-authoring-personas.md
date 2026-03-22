@@ -106,6 +106,17 @@ Extracting to a shared learning eliminates the ownership question and follows th
 
 When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive loads fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those loads add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base load is consistently irrelevant for a child persona, consider moving it from proactive to detailed references in the base.
 
+## Layered Persona Composition: Domain Hub + Stack Children
+
+When a domain (e.g., fintech ledgers) applies across multiple tech stacks, decompose into:
+
+- **Domain hub persona** (tech-agnostic): owns judgment — priorities, tradeoffs, review instincts, invariants. Cross-refs all domain learnings files.
+- **Stack-specific child personas**: thin composition layers that `## Extends: domain-hub, stack-base`. Add only intersection content (e.g., `@Transactional` atomicity for entry+balance writes is neither a generic Java pattern nor a generic ledger pattern — it's the intersection).
+
+This differs from Knowledge/Lens decomposition (expert/reviewer/author splits) — here the split is domain × stack, not domain × activity mode. Both patterns can combine: a `fintech-ledger-reviewer` could extend `fintech-ledger-engineer` + `reviewer`.
+
+**Splitting test:** If removing the stack from the persona leaves a coherent domain persona, and removing the domain leaves a coherent stack persona, the coupling is artificial — split them.
+
 ## Cross-Refs
 
 - `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
