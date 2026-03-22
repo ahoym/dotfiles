@@ -1,5 +1,3 @@
-# Java InfoSec Gotchas
-
 Security tripwires — check these before any code review or implementation.
 - **Keywords:** authentication, authorization, CORS, deserialization, Jackson, XXE, input validation, secrets, stack traces, crypto
 - **Related:** api-design.md

@@ -1,5 +1,3 @@
-# Skill Platform & Portability
-
 Official features, cross-platform compatibility, plugins, and agent definitions for the Claude Code skill ecosystem.
 - **Keywords:** commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, $ARGUMENTS, plugins, agents, memory, progressive disclosure, shell preprocessing, baseDir, Agent Skills spec, SkillPort, compatibility field
 - **Related:** claude-authoring-skills.md, claude-code.md

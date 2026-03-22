@@ -1,5 +1,3 @@
-# XRPL Permissioned Domains & Credentials
-
 Permissioned domains (XLS-80), credentials (XLS-70), and proposed permissioned DEX (XLS-81) on the XRP Ledger.
 - **Keywords:** XLS-70, XLS-80, XLS-81, CredentialCreate, CredentialAccept, PermissionedDomainSet, AcceptedCredentials, DomainID, tfHybrid, AuthorizeCredential
 - **Related:** xrpl-patterns.md, xrpl-gotchas.md, xrpl-dex-data.md

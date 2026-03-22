@@ -32,10 +32,10 @@ Every gate search follows these steps:
 
 **2. Derive terms.** Session start: ambient context (branch, CWD, git status, CLAUDE.md) + user message. Plan mode: broad task scope — topics, technologies, adjacent domains. Keyword: domain terms from user message. Soft gates: new domain keywords from message or target file.
 
-**3. Match and sniff.** For each filename match, `Read(file_path, limit=5)`. The header block is structured:
-- Line 3: description (relevance check)
-- Line 4: `**Keywords:**` (term matching against derived terms)
-- Line 5: `**Related:**` (graph edges to adjacent files — check for unloaded matches)
+**3. Match and sniff.** For each filename match, `Read(file_path, limit=3)`. The header block is structured:
+- Line 1: description (relevance check)
+- Line 2: `**Keywords:**` (term matching against derived terms)
+- Line 3: `**Related:**` (graph edges to adjacent files — check for unloaded matches)
 
 Load fully only if description or keywords match derived terms. Plan mode: also grep file content.
 

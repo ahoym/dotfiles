@@ -1,5 +1,3 @@
-# Domain Ledger Architecture
-
 Patterns for fintech ledger systems — schema design, balance composition, and money movement lifecycle.
 - **Keywords:** ledger, double-entry, ledger_entries, ledger_balances, pending, settled, reconciliation, trial balance, FX conversion, multi-entity, intercompany, period close, closing entries
 - **Related:** financial-applications.md, bignumber-financial-arithmetic.md, order-book-pricing.md

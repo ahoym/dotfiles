@@ -1,5 +1,3 @@
-# Process Conventions
-
 Patterns for how engineering work is organized, scoped, and tracked — PR splitting, review etiquette, MR scoping, and multi-agent review identity.
 - **Keywords:** PR review, MR scoping, cherry-pick, code review, structured footnotes, LGTM, self-review, preparatory refactoring, PR splitting, review comments, approval flow
 - **Related:** multi-agent-patterns.md, code-quality-instincts.md

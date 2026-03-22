@@ -1,5 +1,3 @@
-# CLAUDE.md Authoring Patterns
-
 Patterns for writing effective CLAUDE.md files including conditional references, subdirectory criteria, signpost lazy-loading, and modular includes.
 - **Keywords:** CLAUDE.md, @ reference, eager load, lazy load, signpost, subdirectory criteria, symlink, token budget, solatis, navigational hub, modular includes
 - **Related:** claude-authoring-content-types.md, claude-authoring-guidelines.md

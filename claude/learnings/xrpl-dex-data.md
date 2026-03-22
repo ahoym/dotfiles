@@ -1,5 +1,3 @@
-# XRPL DEX Data — External APIs
-
 OnTheDEX API reference and XRPL native DEX protocol mechanics (CLOB, offers, auto-bridging, tick size).
 - **Keywords:** OnTheDEX, OHLC, ticker, onthedex.live, CLOB, OfferCreate, tfPassive, tfImmediateOrCancel, tfFillOrKill, tfSell, auto-bridging, TickSize
 - **Related:** xrpl-patterns.md, xrpl-gotchas.md, xrpl-cross-currency-payments.md, order-book-pricing.md

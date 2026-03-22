@@ -1,5 +1,3 @@
-# Local Dev Environment Seeding
-
 Hybrid API + SQL seeding architecture with Newman manifests, envsubst templating, schema drift detection, and deterministic UUIDs.
 - **Keywords:** Newman, envsubst, psql, SQL template, ON CONFLICT, idempotent seeding, Flyway, schema drift, pg_dump, deterministic UUID, seed data
 - **Related:** newman-postman.md

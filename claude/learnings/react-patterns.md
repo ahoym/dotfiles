@@ -1,5 +1,3 @@
-# React Patterns
-
 React 19 state management, hydration, hook extraction, modal lifecycle, polling, and component decomposition patterns.
 - **Keywords:** React 19, useState, useEffect, lazy initializer, render-time sync, hydration mismatch, localStorage, circular dependency, hooks, modal, refreshKey, polling, Page Visibility API, per-environment state, component decomposition
 - **Related:** reactive-data-patterns.md, react-frontend-gotchas.md, refactoring-patterns.md, accessibility-patterns.md, ui-patterns.md

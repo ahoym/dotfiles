@@ -1,5 +1,3 @@
-# UI Patterns
-
 CSS tooltip patterns, SVG gotchas, and centralized design token strategies for Tailwind-based UIs.
 - **Keywords:** Tailwind, group-hover, tooltip, SVG title, design tokens, cardClass, inputClass, CSS-in-JS
 - **Related:** react-patterns.md, nextjs.md, accessibility-patterns.md

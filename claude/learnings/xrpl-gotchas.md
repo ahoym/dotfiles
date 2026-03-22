@@ -1,5 +1,3 @@
-# XRPL Gotchas
-
 Condensed tripwires for XRPL integration: offer semantics, flag conventions, trust lines, AMM edge cases, and TypeScript boundaries.
 - **Keywords:** TakerGets, TakerPays, taker_gets_funded, lsfSell, RippleState, getBalanceChanges, hex currency, AMMCreate fee, isValidClassicAddress, Buffer, TextEncoder
 - **Related:** xrpl-patterns.md, bignumber-financial-arithmetic.md

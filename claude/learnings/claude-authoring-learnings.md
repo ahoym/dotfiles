@@ -1,5 +1,3 @@
-# Learning Authoring Patterns
-
 Craft patterns for writing learnings files including genericization, scope classification, cross-reference conventions, persona boundary tests, and directory organization.
 - **Keywords:** genericize, project-specific, scope classification, cross-refs, persona-learning boundary, provenance, hub-spoke, discovery vs semantic, catch-all directory, CLAUDE.md index, dedup
 - **Related:** claude-authoring-content-types.md
@@ -133,6 +131,32 @@ When organizing files into subdirectories, don't create a `general/` or `misc/` 
 
 When reintroducing a broad trigger (e.g., keyword-based learnings search), existing narrower gates + dedup can handle scoping naturally — a broad trigger doesn't need its own specificity filter if other gates already cover the common cases and dedup prevents redundant loads. Quoted terms from the operator bypass dedup as an explicit override.
 
+## Standardized Header Format for Learnings Files
+
+Every learnings file must use this header format for structured sniffing (`Read(file_path, limit=3)`):
+
+```markdown
+Description sentence (one or two sentences, what domain this covers).
+- **Keywords:** searchable terms from content, not just title restated
+- **Related:** sibling-file.md, other-file.md
+
+---
+```
+
+No `# Title` — the filename serves as the title. This keeps all three signal lines within `limit=3`.
+
+**Line roles in the sniff window:**
+- Line 1: description — relevance check against derived search terms
+- Line 2: keywords — term matching (technology names, pattern names, specific concepts)
+- Line 3: related — graph edges for cross-ref traversal without full file load
+
+**Guidelines:**
+- Keywords should include terms a searcher would use that aren't obvious from the filename (e.g., `resilience-patterns.md` should include "circuit breaker", "retry")
+- Related filenames come from the `## Cross-Refs` footer (just filenames, not full paths)
+- Files with no cross-refs use `**Related:** none`
+- The `---` divider separates the header from content — purely for readability
+
 ## Cross-Refs
 
 - `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
+- `~/.claude/learnings/claude-authoring-guidelines.md` — eager vs lazy loading framework, complements header format with loading strategy

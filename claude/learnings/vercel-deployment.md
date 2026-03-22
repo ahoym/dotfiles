@@ -1,5 +1,3 @@
-# Vercel Deployment
-
 Vercel platform constraints: cron limits, Postgres (Neon) driver behavior, and serverless gotchas.
 - **Keywords:** Vercel, cron, Neon, @vercel/postgres, POSTGRES_URL, IS NOT DISTINCT FROM, nullable, serverless
 - **Related:** typescript-ci-gotchas.md, xrpl-patterns.md

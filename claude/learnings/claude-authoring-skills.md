@@ -1,5 +1,3 @@
-# Skill Design Patterns
-
 Comprehensive patterns for designing, structuring, and maintaining Claude Code skills — composition, reference files, permissions, token optimization, platform portability, and skill lifecycle.
 - **Keywords:** SKILL.md, skill design, reference files, AskUserQuestion, @ references, conditional load, token optimization, platform commands, hub-and-spoke, skill maturity, producer-consumer, worktree, namespace migration
 - **Related:** claude-authoring-content-types.md, skill-platform-portability.md, multi-agent-patterns.md, process-conventions.md, claude-authoring-polling-review-skills.md

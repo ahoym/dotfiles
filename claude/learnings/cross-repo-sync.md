@@ -1,5 +1,3 @@
-# Cross-Repo Sync Patterns
-
 Patterns for syncing Claude Code config between repos — quantum-tunnel merges, rsync export/import, platform terminology adaptation, and bidirectional sync strategies.
 - **Keywords:** quantum-tunnel, rsync, sync, PR-to-MR, platform-detection, bidirectional, tarball, branch import, BOTH_UNIQUE, SUPERSET, skill naming, write-time separation
 - **Related:** skill-platform-portability.md

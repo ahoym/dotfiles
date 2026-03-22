@@ -1,5 +1,3 @@
-# Resilience Patterns
-
 Fault tolerance patterns for distributed and batch-processing systems.
 - **Keywords:** dedup, retry, idempotency, circuit breaker, stale cache, scheduler decoupling, domain exceptions
 - **Related:** financial-applications.md, aws-messaging.md
