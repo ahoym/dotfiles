@@ -1,3 +1,5 @@
+# Ledger Testing Strategies
+
 Ledger-specific testing patterns — accounting invariants, property-based testing with jqwik, reconciliation harnesses, saga compensation paths, period-end validation, chaos testing, and deterministic simulation.
 - **Keywords:** ledger testing, property-based testing, jqwik, accounting invariant, double-entry, trial balance, reconciliation, golden dataset, chaos testing, Testcontainers, @DataJpaTest, saga compensation, period-end close, deterministic simulation
 - **Related:** domain-ledger-architecture.md, financial-applications.md, resilience-patterns.md, postgresql-query-patterns.md, spring-boot.md

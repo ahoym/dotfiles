@@ -1,3 +1,5 @@
+# Saga & Distributed Transaction Patterns
+
 Patterns for maintaining consistency when ledger entries span multiple services, databases, or legal entities — orchestration vs choreography, compensation design, transactional outbox, and intercompany sagas.
 - **Keywords:** saga, distributed transaction, orchestration, choreography, compensation, transactional outbox, CDC, idempotency key, semantic lock, intercompany, two-phase, Temporal, Spring @Transactional, PostgreSQL
 - **Related:** domain-ledger-architecture.md, resilience-patterns.md, financial-applications.md, postgresql-query-patterns.md
