@@ -106,10 +106,14 @@ Skill instructions should reference artifacts generically, not by the tool that 
 ## Authoring Guides (per-type)
 
 For detailed authoring craft, see the spoke file for the relevant type:
-- `skills.md` — skill design patterns, frontmatter, composition, hooks, references
+- `skill-design.md` — skill composition, creation heuristics, responsibility boundaries, validation
+- `skill-lifecycle.md` — maturity, maintenance, namespace migration, hooks, token optimization
+- `skill-platform-unification.md` — GitHub/GitLab command unification, shared reference files
+- `skill-references-and-loading.md` — @ references, conditional loading, templates, variable continuity
 - `polling-review-skills.md` — polling loops, quick-exit logic, re-review detection, reviewer timestamps
 - `guidelines.md` — merging overlaps, enforcement gates, scoping, separation tiers
-- `learnings.md` — genericization, scope classification, boundary tests
+- `learnings-content.md` — genericization, headers, scope, boundary tests
+- `learnings-organization.md` — cross-refs, directories, indexes, splitting
 - `personas.md` — judgment vs recipes, proactive loads, gotcha files, composition
 - `claude-md.md` — conditional references, relationships, subdirectory criteria
 

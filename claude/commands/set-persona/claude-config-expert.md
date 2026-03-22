@@ -34,18 +34,19 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
 ## Proactive loads
-- `~/.claude/learnings/claude-authoring-content-types.md`
+- `~/.claude/learnings/claude-authoring/content-types.md`
 
 ## Cross-Refs
 Load when working in the specific area:
-- `~/.claude/learnings/claude-authoring-skills.md` — skill design patterns, frontmatter, composition
-- `~/.claude/learnings/claude-authoring-guidelines.md` — merging overlaps, enforcement gates, scoping
-- `~/.claude/learnings/claude-authoring-claude-md.md` — conditional references, relationships, subdirectory criteria
-- `~/.claude/learnings/claude-authoring-personas.md` — judgment vs recipes, proactive loads, composition
-- `~/.claude/learnings/claude-authoring-learnings.md` — genericization, scope classification, cross-refs
-- `~/.claude/learnings/claude-code.md` — permission patterns, path resolution, platform behavior gotchas
-- `~/.claude/learnings/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
+- `~/.claude/learnings/claude-authoring/skill-design.md` — skill composition, creation heuristics, responsibility boundaries
+- `~/.claude/learnings/claude-authoring/guidelines.md` — merging overlaps, enforcement gates, scoping
+- `~/.claude/learnings/claude-authoring/claude-md.md` — conditional references, relationships, subdirectory criteria
+- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive loads, composition
+- `~/.claude/learnings/claude-authoring/learnings-content.md` — genericization, headers, scope, boundary tests
+- `~/.claude/learnings/claude-authoring/learnings-organization.md` — cross-refs, directories, indexes, splitting
+- `~/.claude/learnings/claude-code/platform-permissions.md` — permission patterns, path resolution, platform behavior gotchas
+- `~/.claude/learnings/claude-code/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
 - `~/.claude/learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
 - `~/.claude/learnings/process-conventions.md` — PR scoping, review process, MR conventions
 - `~/.claude/commands/learnings/curate/curation-insights.md` — curation calibration, compression targets
-- `~/.claude/learnings/claude-code-hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists
+- `~/.claude/learnings/claude-code/hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists

@@ -91,7 +91,7 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 
 ## 5b. Cross-reference opportunities
 
-For each file being curated, evaluate its `## Cross-Refs` section and `**Related:**` header line. See `~/.claude/learnings/claude-authoring/learnings.md` → "Cross-Reference Convention" for the full convention.
+For each file being curated, evaluate its `## Cross-Refs` section and `**Related:**` header line. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Cross-Reference Convention" for the full convention.
 
 **Cluster-aware rules:**
 - Files in a cluster should have **no intra-cluster refs** — the cluster `CLAUDE.md` handles sibling discovery.
@@ -148,7 +148,7 @@ When the user selects "all learnings", use a **cluster-first approach**. Learnin
 2. Use existing directory structure as clusters — don't re-derive. Flat files at root form a "general" group.
 3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
 4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
-5. **Split candidates.** Flag files over ~150 lines that have clearly separable sub-topics. See `~/.claude/learnings/claude-authoring/learnings.md` → "File Splitting and Directory Clustering" for conventions. Report as a separate section.
+5. **Split candidates.** Flag files over ~150 lines that have clearly separable sub-topics. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "File Splitting and Directory Clustering" for conventions. Report as a separate section.
 6. Run persona detection (step 6) across all clusters simultaneously
 7. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
    - **Genericization candidates**: A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
@@ -328,12 +328,12 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - Outdated deletions: delete the section from source file (with approval). If all sections in a file are deleted or folded elsewhere, delete the entire file.
 - Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value. When genericizing project-specific content, note in the report which project/domain the content originated from. If the project has a learnings directory (e.g., `docs/claude-learnings/`), suggest creating a project-specific instance there — the global file teaches the generic pattern, the project file preserves the concrete gotcha.
 - Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
-- Split file: for files over ~150 lines with separable sub-topics, propose a split into multiple files within the same cluster directory. Each new file gets a standardized header (description, keywords, related) and only cross-cluster refs. Update the cluster `CLAUDE.md` routing table to include the new files. See `~/.claude/learnings/claude-authoring/learnings.md` → "File Splitting and Directory Clustering" for conventions.
+- Split file: for files over ~150 lines with separable sub-topics, propose a split into multiple files within the same cluster directory. Each new file gets a standardized header (description, keywords, related) and only cross-cluster refs. Update the cluster `CLAUDE.md` routing table to include the new files. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "File Splitting and Directory Clustering" for conventions.
 - Promote to cluster: for flat files at root that share a domain with 2+ other flat files, create a cluster subdirectory with a `CLAUDE.md` routing table, move files in, update top-level `learnings/CLAUDE.md`.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.
-- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `~/.claude/learnings/claude-authoring/learnings.md` → "Cross-Reference Convention". Use full `~/.claude/learnings/...` paths for cross-cluster refs. No intra-cluster refs — the cluster CLAUDE.md handles those.
+- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Cross-Reference Convention". Use full `~/.claude/learnings/...` paths for cross-cluster refs. No intra-cluster refs — the cluster CLAUDE.md handles those.
 - **Remove stale cross-ref**: Delete lines pointing to files that no longer exist or where the relationship decayed. Include the reason (file deleted vs. relationship no longer holds) in the report.
 - **Add reverse cross-ref**: When adding A → B, also add B → A in the target file if the reverse provides lateral discovery value.
 
