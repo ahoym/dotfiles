@@ -54,8 +54,9 @@ Suggested iterations: (pending)
 ## Deep Dive Status
 
 <!-- Populated when PHASE transitions to DEEP_DIVE after broad sweeps complete -->
+<!-- Cluster batches show cluster name + file count; unclustered files show filename -->
 
-| File | Status | Iter | Summary |
+| Cluster/File | Files | Status | Iter | Summary |
 |------|--------|------|---------|
 
 ## Notes for Next Iteration

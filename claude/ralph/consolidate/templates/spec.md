@@ -48,7 +48,7 @@ Examples:
 
 | Path | Content |
 |------|---------|
-| `claude/learnings/*.md` | Learning files |
+| `claude/learnings/**/*.md` | Learning files (recursive — includes cluster subdirectories) |
 | `claude/guidelines/*.md` | Guideline files |
 | `claude/commands/**/SKILL.md` | Skill definitions |
 | `claude/commands/set-persona/*.md` | Persona files |
@@ -76,7 +76,7 @@ All in `claude/consolidate-output/`:
 Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the analytical framework — classification model, persona criteria, and operational calibration:
 
 - `claude/commands/learnings/curate/classification-model.md` — 6-bucket model, confidence levels, skill pruning criteria
-- `~/.claude/learnings/claude-authoring-content-types.md` — Content type routing table
+- `~/.claude/learnings/claude-authoring/content-types.md` — Content type routing table
 - `claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
 - `claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
 - `claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
@@ -94,8 +94,8 @@ Read `claude/consolidate-output/progress.md`. Extract:
 | `SWEEP_COUNT` | Total sweeps executed |
 | `CONTENT_TYPE` | Current: LEARNINGS, SKILLS, or GUIDELINES |
 | `PHASE` | `BROAD_SWEEP` (default) or `DEEP_DIVE` |
-| `DEEP_DIVE_CANDIDATES` | Ordered list of files to deep-dive (populated after broad sweeps) |
-| `DEEP_DIVE_COMPLETED` | Files already processed in deep dive phase |
+| `DEEP_DIVE_CANDIDATES` | Grouped by cluster/unclustered — entries to deep-dive (populated after broad sweeps) |
+| `DEEP_DIVE_COMPLETED` | Clusters/files already processed in deep dive phase |
 
 Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
@@ -110,7 +110,7 @@ If SWEEP_COUNT = 0:
 
 If `PHASE` is `BROAD_SWEEP`: Read `claude/consolidate-output/broad-sweep-methodology.md`. Run the sweep methodology for the current CONTENT_TYPE. Use parallel Read calls aggressively — batch all file reads in a single tool call set.
 
-If `PHASE` is `DEEP_DIVE`: Read `claude/consolidate-output/deep-dive-methodology.md`. Execute the next unprocessed file from DEEP_DIVE_CANDIDATES. Skip steps 4-8 — deep dive execution handles classification and application internally.
+If `PHASE` is `DEEP_DIVE`: Read `claude/consolidate-output/deep-dive-methodology.md`. Execute the next unprocessed entry from DEEP_DIVE_CANDIDATES — either a cluster batch (all files in a cluster directory) or a single unclustered file. Skip steps 4-8 — deep dive execution handles classification and application internally.
 
 ### 4. Classify Findings
 
@@ -154,7 +154,7 @@ If this sweep applied any HIGHs or MEDIUMs, persist meta-insights into the learn
 Follow `/learnings:compound` methodology inline (no Skill tool):
 
 1. **Identify insights** from the sweep. List each briefly.
-2. **Categorize** via `claude-authoring-content-types.md` decision tree: Skill (repeatable steps) / Guideline (behavior change) / Learning (reference info).
+2. **Categorize** via `content-types.md` decision tree: Skill (repeatable steps) / Guideline (behavior change) / Learning (reference info).
 3. **Assign utility**: High (novel, wouldn't know without documenting) / Medium (useful reminder) / Low (standard or documented).
 4. **Persist High and Medium** to worktree paths:
    - Dedup check (Glob + Grep target directory), Read target, Edit to append or Write to create
@@ -174,7 +174,7 @@ Before exiting, update:
 
 - **progress.md**: Increment SWEEP_COUNT. Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
   - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. Advance CONTENT_TYPE (see Transitions below).
-  - **If DEEP_DIVE**: Move current file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table row. Append iteration log row with Content Type = `DEEP_DIVE`. If all candidates processed → set completion. If deep dive invocation count exceeds 30 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
+  - **If DEEP_DIVE**: Move current cluster/file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table rows. Append iteration log row: `| <iter> | DEEP_DIVE | <cluster-name> (K files) | ...` for cluster batches, or `| <iter> | DEEP_DIVE | <filename> | ...` for unclustered files. If all candidates processed → set completion. If deep dive invocation count exceeds 15 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **review.md**: Only if new LOWs or blocked MEDIUMs found.
 
@@ -186,7 +186,8 @@ Stage all changes from this sweep and commit:
 2. `git rm` was already run for any deleted files during step 5/6
 3. Commit with phase-appropriate message:
    - **BROAD_SWEEP**: `git commit -m "consolidate: sweep <N> — <CONTENT_TYPE> (<summary>)"`
-   - **DEEP_DIVE**: `git commit -m "consolidate: deep-dive <N> — <filename> (<summary>)"`
+   - **DEEP_DIVE (cluster)**: `git commit -m "consolidate: deep-dive <N> — <cluster-name> (K files, <summary>)"`
+   - **DEEP_DIVE (unclustered)**: `git commit -m "consolidate: deep-dive <N> — <filename> (<summary>)"`
 
 One git command per Bash call. Verify with `git status` before committing if uncertain about staging state.
 
@@ -215,7 +216,7 @@ Cross-type regressions from broad sweep changes are rare in practice. Deep dives
 
 ## Deep Dive Phase
 
-Deep dives run after broad sweeps complete (L→S→G). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip (cluster level).
+Deep dives run after broad sweeps complete (L→S→G). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip (cluster level). Learnings in cluster subdirectories are batched per cluster; unclustered files are processed one-per-invocation.
 
 ### Candidacy
 
@@ -229,9 +230,30 @@ A file is a candidate if it meets ANY of:
 6. **Unreviewed file**: Not present in `deep-dive-tracker.json` (never deep-dived — unknown quality)
 7. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
 
-Candidacy is determined incrementally per content type sweep. Record all in progress.md as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`.
+### Cluster-Level Pull-In
 
-**Minimum per run**: Read `min_deep_dives` from tracker (default 20). If candidates < minimum, fill with stalest tracked files. Full corpus cycles through in ~5 runs.
+When any learnings file in a cluster subdirectory (e.g., `claude/learnings/frontend/`) qualifies via criteria 1-7, **all files in that cluster become candidates**. The marginal cost of scanning additional small files in a cluster you're already loading is near zero, and having the full cluster in context enables intra-cluster cross-referencing that per-file analysis would miss.
+
+This applies only to learnings cluster subdirectories. Unclustered learnings (top-level `claude/learnings/*.md`), skills, guidelines, and skill-references remain individual candidates.
+
+### Candidate Grouping
+
+After candidacy is determined, group candidates for invocation scheduling:
+
+```
+DEEP_DIVE_CANDIDATES:
+- claude-authoring: [file1.md, file2.md, file3.md]
+- frontend: [file1.md, file2.md]
+- (unclustered): [refactoring-patterns.md]
+- (skills): [commands/git/create-request/SKILL.md]
+- (guidelines): [guidelines/communication.md]
+```
+
+Each cluster group = one invocation. Each unclustered file, skill, guideline, or skill-reference = one invocation.
+
+Candidacy is determined incrementally per content type sweep. Record all in progress.md using the grouped format above.
+
+**Minimum per run**: Read `min_deep_dives` from tracker (default 20). This is a **file count** floor, not an invocation count. If candidates < minimum, fill with stalest tracked files. Full corpus cycles through in ~5 runs.
 
 **Prioritization** (ordered):
 1. Modification-triggered (criteria 1–5) — any content type
@@ -244,4 +266,4 @@ Within each tier, sort by staleness (oldest first). Unprocessed carry over — s
 
 **Rationale**: Skills drive workflows, guidelines are always-on context cost, skill-references are shared across skills. These are higher-leverage than learnings, which are loaded conditionally by the search protocol.
 
-Per-file methodology, convergence rules, and max guard: `claude/consolidate-output/deep-dive-methodology.md`.
+Per-invocation methodology, convergence rules, and max guard: `claude/consolidate-output/deep-dive-methodology.md`.

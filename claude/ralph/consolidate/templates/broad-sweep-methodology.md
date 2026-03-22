@@ -4,19 +4,19 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 
 ## LEARNINGS — Broad Sweep
 
-1. **Read all learnings**: Glob `claude/learnings/*.md`, read all files in parallel
+1. **Read all learnings**: Glob `claude/learnings/**/*.md` (recursive — catches cluster subdirectories), read all files in parallel. Skip `CLAUDE.md` index files.
 2. **Read cross-reference corpus**: In the same parallel batch, read persona files (`claude/commands/set-persona/*.md`), guideline files (`claude/guidelines/*.md`), and skill reference files (`claude/skill-references/*.md`)
-3. **Cluster by domain/stack**: Group files by domain (e.g., "XRPL + TypeScript", "Java + Spring", "Python", "Meta/tooling")
-4. **Concept-name collision detection**: Grep for identical or near-identical H2/H3 headings across all learnings files. Matches are HIGH-confidence duplicate candidates regardless of cluster membership.
-5. **Per-cluster analysis**:
+3. **Concept-name collision detection**: Grep for identical or near-identical H2/H3 headings across all learnings files. Matches are HIGH-confidence duplicate candidates regardless of cluster membership.
+4. **Per-cluster analysis** (using filesystem cluster directories):
    - Count files, patterns, lines per cluster
    - Check for matching personas in `claude/commands/set-persona/`
    - Identify: exact duplicates (HIGH), partial overlaps (MEDIUM), thin pointer files < 20 lines (MEDIUM), stale/outdated content (HIGH), reference wiring opportunities (MEDIUM)
-6. **Per-file quality scan**:
+   - Also analyze unclustered top-level files (`claude/learnings/*.md` excluding `CLAUDE.md`)
+5. **Per-file quality scan**:
    - **Genericization**: Domain terms appearing in wrong cluster, project-specific names/paths/routes
    - **Compression**: High line-count vs insight ratio, verbose code blocks, provenance notes, debugging trails
-7. **Cross-reference**: Check if learnings patterns are already fully covered in skills, guidelines, or personas → outdated candidate
-8. **Cross-reference graph health**: Scan all `## Cross-Refs` sections across learnings files. Full corpus is loaded — best vantage for graph-level analysis.
+6. **Cross-reference**: Check if learnings patterns are already fully covered in skills, guidelines, or personas → outdated candidate
+7. **Cross-reference graph health**: Scan all `## Cross-Refs` sections across learnings files. Full corpus is loaded — best vantage for graph-level analysis.
    - **Stale refs**: Target gone or relationship decayed. HIGH.
    - **Isolated files**: Zero cross-refs. MEDIUM if a non-obvious lateral link exists.
    - **Missing cross-cluster refs**: Different domain clusters sharing non-obvious conceptual overlap (highest-value cross-refs — keyword search misses these). MEDIUM.
@@ -33,13 +33,20 @@ Read by the consolidation agent when `PHASE` is `BROAD_SWEEP`. Not needed during
 **Mature persona check**: When a persona's gotchas comprehensively cover a domain's patterns (e.g., 15/15 match), the learning file is fully redundant → delete rather than pattern-by-pattern migration.
 
 **Opportunity scan** (after defect analysis):
-- **Merge for cohesion**: 2+ files in same domain, combined version more discoverable. MEDIUM.
-- **Split for discoverability**: >150 lines AND 3+ distinct sub-topics with independent lookup value. MEDIUM. (A large but thematically unified file should NOT be split — the filename is a natural index.)
 - **Compression for token ROI**: Files where insight-to-token ratio could improve. MEDIUM.
 - **Reference wiring**: Learnings relevant to a persona's domain but not in that persona's Cross-Refs. MEDIUM.
-- **Cross-ref wiring**: Add `## Cross-Refs` entries for non-obvious cross-cluster relationships identified in step 8. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
+- **Cross-ref wiring**: Add `## Cross-Refs` entries for non-obvious cross-cluster relationships identified in step 7. Check bidirectionality — if adding A → B, also add B → A when the reverse provides discovery value. MEDIUM.
 
-**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration` as `DEEP_DIVE_CANDIDATES: [file1, file2, ...]`. These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files.
+**Note**: Merge-for-cohesion and split-for-discoverability scans happen during cluster deep dives (not here) — cluster batches have all files at pattern-level detail, which is the right vantage point for structural decisions.
+
+**Deep dive candidate recording**: Record files meeting deep dive candidacy criteria (see spec.md > Deep Dive Candidacy) in `Notes for Next Iteration`, grouped by cluster:
+```
+DEEP_DIVE_CANDIDATES:
+- claude-authoring: [file1.md, file2.md]
+- frontend: [file1.md]
+- (unclustered): [refactoring-patterns.md]
+```
+These are used after GUIDELINES completes to populate the deep dive phase. Include skill-reference files (`claude/skill-references/**/*.md`) — they follow the same candidacy criteria as other corpus files. Remember: when any file in a learnings cluster qualifies, all files in that cluster become candidates (see spec.md > Cluster-Level Pull-In).
 
 ## SKILL-REFERENCES — Consumer Wiring Check
 

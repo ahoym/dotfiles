@@ -56,7 +56,7 @@ Gather collection metrics:
 
 1. **Recent commits**: `git log --oneline -10` — check if collection was recently curated
 2. **File counts** (use Glob in the worktree):
-   - Learnings: `claude/worktrees/consolidate-<date>/claude/learnings/*.md`
+   - Learnings: `claude/worktrees/consolidate-<date>/claude/learnings/**/*.md` (recursive — catches cluster subdirectories; exclude `CLAUDE.md` index files from count)
    - Skills: `claude/worktrees/consolidate-<date>/claude/commands/**/SKILL.md`
    - Skill references: `claude/worktrees/consolidate-<date>/claude/skill-references/**/*.md`
    - Guidelines: `claude/worktrees/consolidate-<date>/claude/guidelines/*.md`
