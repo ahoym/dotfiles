@@ -19,5 +19,5 @@ Base persona for all code review workflows. Provides universal review instincts 
 - Silence is a valid review outcome — no findings = no post
 
 ## Proactive loads
-- `learnings/code-quality-instincts.md`
-- `learnings/process-conventions.md`
+- `~/.claude/learnings/code-quality-instincts.md`
+- `~/.claude/learnings/process-conventions.md`
