@@ -1,4 +1,8 @@
-# Chart of Accounts Design
+Chart of accounts design patterns — hierarchy structures, GL integration, account numbering, templates, lifecycle states, multi-entity CoA, and reporting hierarchies.
+- **Keywords:** chart of accounts, CoA, GL integration, account hierarchy, ltree, materialized path, account lifecycle, account template, multi-entity, intercompany, hub-and-spoke, reporting hierarchy, JPA, PostgreSQL
+- **Related:** domain-ledger-architecture.md, financial-applications.md, postgresql-query-patterns.md, spring-boot.md
+
+---
 
 ## Flat vs Hierarchical: Choose by Use Case
 
