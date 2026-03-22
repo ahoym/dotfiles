@@ -7,7 +7,7 @@ All searches target these directories (when they exist):
 - `~/.claude/learnings-private/` (private)
 - `docs/learnings/` (project-local)
 
-Each may have a `CLAUDE.md` index — read it at every gate for index-based matching alongside the pipeline.
+Each has a `CLAUDE.md` index — read it at every gate for index-based matching alongside the pipeline. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`), each with its own `CLAUDE.md` routing table. Read cluster `CLAUDE.md` files when the cluster is relevant to derived terms.
 
 ## Gates
 
@@ -28,18 +28,18 @@ All gates are mandatory when their trigger fires. No exceptions.
 
 Every gate search follows these steps:
 
-**1. Glob filenames.** `*.md` across all directories. Don't embed search terms in glob patterns (`*spring*` misses `spring-boot-gotchas.md`).
+**1. Glob filenames.** `**/*.md` across all directories (recursive — catches cluster subdirectories). Don't embed search terms in glob patterns (`*spring*` misses `spring-boot-gotchas.md`). Cluster `CLAUDE.md` files appear in glob results — treat them as indexes (read for routing), not as sniff targets.
 
 **2. Derive terms.** Session start: ambient context (branch, CWD, git status, CLAUDE.md) + user message. Plan mode: broad task scope — topics, technologies, adjacent domains. Keyword: domain terms from user message. Soft gates: new domain keywords from message or target file.
 
-**3. Match and sniff.** For each filename match, `Read(file_path, limit=3)`. The header block is structured:
+**3. Match and sniff.** For each non-index filename match, `Read(file_path, limit=3)`. The header block is structured:
 - Line 1: description (relevance check)
 - Line 2: `**Keywords:**` (term matching against derived terms)
 - Line 3: `**Related:**` (graph edges to adjacent files — check for unloaded matches)
 
 Load fully only if description or keywords match derived terms. Plan mode: also grep file content.
 
-**4. Follow cross-refs** (up to 2 levels). Check `**Related:**` in sniffed headers first (cheap). Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Plan mode: also announce skipped cross-refs.
+**4. Follow cross-refs** (up to 2 levels). Check `**Related:**` in sniffed headers first (cheap) — these contain full `~/.claude/learnings/...` paths for cross-cluster refs only. Intra-cluster discovery is handled by the cluster `CLAUDE.md`, not by individual file cross-refs. Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Plan mode: also announce skipped cross-refs.
 
 ## Observability
 
