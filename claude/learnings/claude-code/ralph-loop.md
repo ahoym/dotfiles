@@ -1,6 +1,6 @@
-Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research and consolidation loops.
-- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, deep dive, consolidation, worktree, compounding, sweep, curation, persona, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, cluster batch
-- **Related:** none
+Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research loop — resuming, state management, core files, research branches, stateless iteration, one-action enforcement, worktree mechanics, and runner-spec contracts.
+- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, worktree, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, runner-spec, one-action
+- **Related:** `~/.claude/learnings/claude-code/ralph-curation.md`
 
 ---
 
@@ -38,47 +38,6 @@ Deep research files (`<topic>.md`) are supplementary — created when a research
 
 When writing a spec for `claude --print` agents with no conversation history, embed methodology inline — not just as file references. The agent can read reference files on the first iteration (when SWEEP_COUNT = 0), but subsequent iterations have no memory of what was read. The spec must be self-sufficient: inline enough analytical framework that later iterations can execute without re-reading references. Use "Notes for Next Iteration" in progress.md as the inter-iteration communication channel for condensed context.
 
-## Consolidation Loop Variant
-
-The consolidation loop (`/ralph:consolidate:init`) is a ralph-style autonomous loop specialized for learnings curation. Key differences from the research loop:
-
-- **Security hooks**: Bash restricted to git allowlist (rm, add, mv, commit, status, diff — scoped to `claude/`); WebFetch, WebSearch blocked; writes scoped to `claude/` only. wiggum.sh validates sweep count delta after each invocation.
-- **Single-pass broad sweep**: LEARNINGS → SKILLS → GUIDELINES (one each), then deep dives. No convergence rounds — cross-type regressions are rare and deep dives provide defense-in-depth.
-- **Autonomous MEDIUM judgment**: Agent decides HIGHs and MEDIUMs autonomously; LOWs + blocked MEDIUMs surface via `review.md`.
-- **Compounded learnings**: After sweeps with findings, agent compounds meta-insights into the corpus (worktree `claude/` paths). These become corpus changes evaluated by deep dives and subsequent runs.
-
-## Research Output Pipeline: staged-learnings
-
-Research output goes to `docs/staged-learnings/<project>/` inside the worktree — not `docs/learnings/`. The naming creates an explicit pipeline: research produces staged learnings that can later be filtered/promoted into `docs/learnings/`. This separates raw research artifacts from curated knowledge.
-
-## Pre-Flight Cadence Analysis
-
-Count curation-related commits in recent git history to right-size iteration counts. Recent curation (3+ of last 5 commits) → suggest fewer iterations (corpus likely clean). Stale (0 of last 5) → suggest full sweep. Avoids wasting iterations on corpora that were just curated.
-
-**Known limitation:** The heuristic matches commit message keywords (e.g., "consolidat"), not actual corpus file changes. Meta-tooling commits ("Improve consolidation loop") inflate the curation count without cleaning the corpus. Overshooting iterations is preferred to undershooting (cheap clean sweeps vs missed findings), so this is acceptable.
-
-## Small Files Gravitate Toward Larger Domain Files
-
-Standalone reference files risk orphaning when a larger file in the same domain independently accumulates the same patterns with more context. Example: all 3 patterns from `research-methodology.md` were re-discovered and expanded in `~/.claude/learnings/claude-authoring/skills.md`, making the small file fully redundant. This is a natural corpus decay vector — the consolidation loop detects it, but it explains why thin files tend to need folding over time.
-
-## Nested Skill Glob Pattern
-
-`commands/*/SKILL.md` only matches top-level skill directories. For repos with multi-level nesting (e.g., `commands/ralph/consolidate/init/SKILL.md`), use `commands/**/SKILL.md`. This applies anywhere skills are inventoried — init pre-flight, spec corpus definitions, sweep methodology.
-
-## Convergence as Safety Net for Compounding
-
-Compounded insights go directly into the sweep corpus (worktree's `claude/learnings/`, guidelines, or skills) rather than a staging file. The round-based convergence mechanism (a clean round) is the circuit breaker — if compounding introduces issues, they surface as findings in the next sweep, resetting the clean streak. This trades isolation for directness: no post-loop `/learnings:compound` step needed, but the loop may take an extra round to re-converge if a compounded insight needs adjustment.
-
-## Inline Compounding Over Skill Invocation in Autonomous Loops
-
-When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
-
-The inline methodology: categorize insights using `~/.claude/learnings/claude-authoring/content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
-
-## Personas as Execution-Mode Learnings Conduit
-
-The implementation-start gate only checks personas, not learnings directly. This is intentional: well-wired personas have "Cross-Refs" sections pointing to relevant learnings. Setting the persona *is* the learnings trigger for execution — the agent loads the persona, sees the references, and pulls knowledge just-in-time. Direct learnings search happens at session start and plan-mode entry; by execution time, the persona layer handles it.
-
 ## One-Action-Per-Invocation Enforcement
 
 Stateless agents may violate one-action-per-invocation constraints when the action is trivially clean — they "helpfully" continue to the next action. Fix: **belt and suspenders.** Strengthen spec language (dedicated section with rationale, explicit "STOP") AND add outer-loop state validation (wiggum.sh reads SWEEP_COUNT pre/post, asserts delta = 1).
@@ -98,19 +57,6 @@ When working in a worktree and the user wants changes on main, apply directly to
 ## Diagnosing Iteration Count Divergence
 
 When outer-loop iteration count diverges from agent sweep count (e.g., 8 log files but agent reports 9 sweeps), check log *contents* against log *filenames*. The root cause is likely the agent doing multiple actions per invocation — not a missing log file or race condition. In the observed case, `iteration_2.log` contained "Iteration 3 complete" — the agent did sweeps 2+3 in wiggum's iteration 2.
-
-## Defect Mode vs Opportunity Mode in Curation
-
-Curation systems that only find defects (duplicates, staleness, project-specific content, broken references) miss optimization opportunities. The distinction:
-
-- **Defect mode**: "Is anything wrong here?" — duplicates, overlaps, stale content, misplaced files
-- **Opportunity mode**: "Could this be better?" — merges for cohesion, splits for discoverability, compression for token ROI, reference wiring, persona de-enrichment
-
-Both need explicit methodology in the spec. Defect mode has clear confidence levels (a duplicate is a duplicate). Opportunity mode is inherently more subjective — classify as MEDIUM auto-apply when reversible (content moves, not lost). Without explicit opportunity methodology, the agent concludes "clean" when nothing is broken, even when the corpus could be meaningfully improved.
-
-## Brief as Pre-PR Workflow
-
-`/ralph:brief` naturally surfaces cleanup work before creating a PR for a research branch. Loading all core files into context reveals: superseded v1 directories to compare and clean up, unique content to port between versions, open questions to document in the PR. Use brief → compare → port → PR as a natural completion sequence.
 
 ## Runner-Spec Signal Contract
 
@@ -134,10 +80,6 @@ The consolidation agent misinterpreted a resume commit (which recorded human dec
 
 When an autonomous agent fails to produce expected output despite qualifying conditions, diagnose which gate blocked: structural (spec rules) vs behavioral (agent judgment/prompting). Example: compounding produced zero insights even on action sweeps — the spec gate (only after HIGHs/MEDIUMs) was correct, but the agent's judgment gate (novelty threshold for what counts as an insight) was too high. Fix was prompting within the gate, not changing the gate itself.
 
-## Broad Sweep Per-Pattern Blind Spot
-
-Cluster-level analysis can't catch per-pattern duplicates when: (a) headings use different wording for the same concept (no collision), (b) the duplicate lives in a different cluster's file, and (c) the source file is medium-sized (not thin enough to fold, not large enough to auto-flag). This is the gap that per-file content-mode curation (deep dives) fills — it cross-references each pattern against the full corpus, catching duplicates that cluster-level thematic matching misses.
-
 ## Failure Diagnostics in Outer Loops
 
 When an outer-loop iteration produces a 0 sweep-count delta, the log should capture the agent's stdout, not just the post-hoc validation warning. Without this, post-run analysis identifies *that* failures occurred (via log timestamps and delta checks) but not *why*. Current `wiggum.sh` logs only the warning line — the agent's actual output is lost.
@@ -150,41 +92,6 @@ When running multi-iteration research (ralph loops, deep dives), explicitly log 
 
 Consolidation output files (`claude/consolidate-output/spec.md`, `deep-dive-methodology.md`, etc.) are copies scaffolded from `~/.claude/ralph/consolidate/templates/` at init time. To change loop behavior globally (e.g., bump max guard), edit the templates — not the current run's copies. The current run's copies are ephemeral state owned by the loop; editing them mid-run is fragile and won't persist to future runs.
 
-## Strip Consolidate-Output from PR Branches
-
-`claude/consolidate-output/` files (spec, progress, decisions, blockers, report, lows, iteration logs) are working artifacts — they track loop state, not deliverables. The actual value of a consolidation branch is the edits to learnings, guidelines, skills, and personas.
-
-Before creating a PR, strip working state from the branch while preserving local copies: `git rm --cached -r claude/consolidate-output/` (removes from git index, keeps on disk). Add `claude/consolidate-output/` to `.gitignore` to prevent re-staging. For untracked logs (iterations after last commit), no git action needed — they're already local-only.
-
-## Gotchas Files Are Not Thin Files
-
-`*-gotchas.md` files must never be merged into their parent domain files (e.g., `spring-boot-gotchas.md` → `spring-boot.md`) during consolidation sweeps. They serve different architectural roles: gotchas files are small, cheap proactive-load files loaded on every persona activation; parent learnings files are larger detailed references loaded on-demand. A thin gotchas file (2-4 bullets) is working as designed, not a merge candidate. The consolidation spec's thin-file heuristic must explicitly exclude `*-gotchas.md` files.
-
-## Resume Should Check for Uncommitted Deep-Dive Changes
-
-The resume skill should run `git status` before cleanup and check for uncommitted modifications from the deep-dive phase. Deep-dive iterations may leave changes that weren't committed by the autonomous agent (e.g., agent-prompting compression, new learnings sections). These need to be committed before `git rm -r consolidate-output/` to avoid losing work or creating a confusing commit history.
-
-## Retro → Compound → Curate as Search Protocol Feedback Loop
-
-The existing retro → compound → curate pipeline provides search protocol performance feedback without needing a dedicated log file. Session retro reviews which learnings were loaded and whether they influenced the work. Compound captures insights ("this file keeps being noise," "this domain had no match"). Curate reads those insights and restructures files accordingly. The signal is qualitative (prose) rather than quantitative (tallies), but curation doesn't need quantitative precision to act.
-
-## Unreferenced Learnings Are Not Orphans
-
-Not every learning file needs a persona Cross-Refs entry. Context-aware learnings (`context-aware-learnings.md` guideline) discovers files by filename matching at session start and on keyword triggers — no persona wiring required. Only add a learning to a persona's Cross-Refs when it's highly correlated with the domain (most sessions with that persona would benefit). Niche learnings (e.g., `local-dev-seeding.md`) work better as context-aware discoveries — they get loaded when the topic actually comes up, not on every persona activation. During consolidation sweeps, do NOT wire learnings into personas just because they're unreferenced.
-
-## Consolidation Worktree Hooks Auto-Commit and Can Revert
-
-The consolidation worktree has guard hooks that auto-commit changes and can revert uncommitted modifications to match the last committed state. When making multiple sequential changes in an interactive session, commit after each logical change — don't batch. Uncommitted changes between tool calls may be silently reverted by hooks, requiring the work to be redone.
-
-## Interactive-Autonomous Tracker Coordination
-
-`/learnings:curate` (interactive) and the consolidation loop (autonomous) both review corpus files. After interactive curation, update the deep-dive tracker (`~/.claude/ralph/consolidate/deep-dive-tracker.json`) by setting `last_deep_dive_run = current run_count` for the curated file. This prevents the next consolidation run from queueing files for deep dives that were just manually reviewed.
-
-
-## Session-Start Learnings Search Is Noisy for Consolidation Reviews
-
-When evaluating a consolidation run, every file the loop touched appears in recent commit messages. The session-start learnings search matches those commit messages, loading files that are irrelevant to the *evaluation* task (e.g., `multi-agent-patterns.md` loaded because the loop edited it, not because the review session needed multi-agent knowledge). Low cost per false positive (~500 tokens), but worth noting as a known noise vector.
-
 ## Rate Limit Detection in Outer Loops
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.
@@ -195,27 +102,9 @@ When wiggum.sh errors leave partial state (progress.md updated but no commit), `
 
 **Diagnosis**: Check `git log --oneline -1` vs progress.md SWEEP_COUNT. If progress.md is ahead of the commit log, the last N iterations partially executed but didn't commit.
 
-## LOW Review Items Require Human Judgment
-
-All `[L-N]` items in `review.md` are human judgment items — even the ones that appear trivially fixable (wrong step number in a skill, stale description, etc.). The LOW tag signals that the autonomous loop deferred to the operator, not that the change is low-stakes. During `/ralph:consolidate:resume`, always use `AskUserQuestion` for every LOW before acting. Autonomously fixing any LOW bypasses the deferral that was intentionally placed there.
-
 ## Worktree Claude Config Location
 
 The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — not `~/.claude/worktrees/<name>/`. The `claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/claude/worktrees/<name>/claude/<path>`.
-
-## Cluster-Batched Deep Dives
-
-Deep dives batch per learnings cluster directory — all candidate files in `claude/learnings/frontend/` are processed in one invocation, amortizing methodology loading and context setup. Unclustered files (top-level `claude/learnings/*.md`) remain one-per-invocation since they tend to be larger cross-cutting files.
-
-**Cluster-level candidacy**: When any file in a cluster qualifies via the standard 7 criteria, all files in that cluster become candidates. The marginal cost of scanning additional small files in a cluster you're already loading is near zero, and having the full cluster in context enables intra-cluster cross-referencing that per-file analysis misses.
-
-**Structural scans at cluster level**: Merge-for-cohesion and split-for-discoverability opportunity scans happen during cluster deep dives (not broad sweeps). The cluster batch is the best vantage point — all files at pattern-level detail, in the context of their neighbors.
-
-**Max guard**: 15 invocations (down from 30). With cluster batching, 15 invocations covers significantly more files. The `min_deep_dives` floor (default 20) remains a file count, not invocation count.
-
-## All Content Type Runs Are Roughly Equal Length
-
-`min_deep_dives` (default 20) backfills small corpus runs with stale files from the deep-dive tracker. A GUIDELINES run with 4 files still does 20 deep dives — 16 slots filled from the stalest tracked files across all types. When planning how many iterations to allocate, treat all content type runs as ~same length regardless of corpus size.
 
 ## Scaffolding Strategy: cp vs Read+Edit
 
@@ -223,4 +112,4 @@ Before choosing a scaffolding approach for init skills, audit each template for 
 
 ## Cross-Refs
 
-- `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)
+- `~/.claude/learnings/claude-code/ralph-curation.md` — curation-specific patterns: compounding, deep dives, defect vs opportunity mode, consolidation loop variant, staged-learnings pipeline, gotchas files policy

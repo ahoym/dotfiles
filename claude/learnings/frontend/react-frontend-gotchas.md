@@ -1,6 +1,6 @@
-Companion to `react-patterns.md`. Tripwires for React 19, Next.js/Turbopack, and Playwright.
+Companion to `react-state-effects.md` and `react-hooks-and-ui.md`. Tripwires for React 19, Next.js/Turbopack, and Playwright.
 - **Keywords:** React 19, setState, useEffect, hydration, suppressHydrationWarning, Next.js 16, Turbopack, proxy.ts, dynamic route params, Playwright, getByRole, aria-label, .first()
-- **Related:** ~/.claude/learnings/playwright-patterns.md
+- **Related:** ~/.claude/learnings/testing/playwright-patterns.md
 
 ---
 
@@ -29,4 +29,4 @@ Companion to `react-patterns.md`. Tripwires for React 19, Next.js/Turbopack, and
 
 ## Cross-Refs
 
-- `~/.claude/learnings/playwright-patterns.md` — full Playwright patterns (getByRole, dialog handlers, .first())
+- `~/.claude/learnings/testing/playwright-patterns.md` — full Playwright patterns (getByRole, dialog handlers, .first())

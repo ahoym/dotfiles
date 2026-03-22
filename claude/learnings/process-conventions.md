@@ -1,6 +1,6 @@
-Patterns for how engineering work is organized, scoped, and tracked — PR splitting, review etiquette, MR scoping, and multi-agent review identity.
-- **Keywords:** PR review, MR scoping, cherry-pick, code review, structured footnotes, LGTM, self-review, preparatory refactoring, PR splitting, review comments, approval flow
-- **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md, ~/.claude/learnings/code-quality-instincts.md
+Patterns for how engineering work is organized, scoped, and tracked — PR splitting, MR scoping, phased delivery, and preparatory refactoring.
+- **Keywords:** PR splitting, MR scoping, cherry-pick, preparatory refactoring, scope creep, staged renames, plan-first PR, PR description, git history, safeguards
+- **Related:** ~/.claude/learnings/review-conventions.md, ~/.claude/learnings/code-quality-instincts.md
 
 ---
 
@@ -28,10 +28,6 @@ Ship the client (HTTP wrapper, DTOs, auth) as a standalone MR before the orchest
 
 For larger MRs, state which files contain the important business logic. Guides reviewers to spend time where it matters.
 
-### Author self-annotation and self-review as quality gate
-
-When no reviewers are available, authors annotating their own code with design decisions creates a written record. Self-review on the diff view catches issues invisible during implementation — the diff presentation surfaces patterns (like repeated mock data) that aren't obvious in the editor. Not a substitute for external review, but better than no documentation.
-
 ### Migration conflict resolution should be documented
 
 State the original version and new version in the MR description. Makes it easy for reviewers to verify without digging through diffs.
@@ -44,34 +40,6 @@ Prioritize internal renames to unblock dependent MRs, deferring deployment-visib
 
 "Make the change easy, then make the easy change." Separating refactoring from feature work keeps both MRs focused. The refactoring MR establishes the new structure; the feature MR builds on it.
 
-### Reviewers picking up adjacent work
-
-When a reviewer identifies work they can do to unblock or improve the MR, they create a parallel MR. Healthy collaboration pattern.
-
-### Review summaries must accurately reflect changes
-
-Superficial LGTMs with inaccurate summaries are worse than no summary. Verify your summary matches the actual diff.
-
-### Two-step review: question placement, then request extraction
-
-First ask "does this need to be here?" with a concrete test. Get analysis back, then decide whether to request extraction. Avoids premature refactoring requests.
-
-### Automated reviewers can create false sense of coverage
-
-AI catches mechanical issues (null checks, config formatting, constraint/message mismatches). Humans catch architectural and security concerns. Both are complementary. Monitor whether automated tools supplement or replace human review.
-
-### E2E evidence in MR comments for infrastructure changes
-
-Infrastructure changes should include screenshots and DB query results before merge. Concrete proof the change works in a real environment.
-
-### Reviewer-initiated regression analysis on data model changes
-
-When changes affect data model relationships, reviewers should independently trace the full data flow to verify no regressions.
-
-### Commented-out code in migrations needs context
-
-Migrations are immutable after deployment. Commented-out SQL needs context about why and whether it should be re-enabled.
-
 ### READMEs should lead with prerequisites
 
 Users need to know what to install before following setup steps. Structure: prerequisites first, then setup, then usage.
@@ -79,14 +47,6 @@ Users need to know what to install before following setup steps. Structure: prer
 ### Sensitive data audit checklist for shared dotfiles
 
 Audit for: internal project/repo names, MR/PR numbers, absolute paths with usernames, internal tool names, team names, org-specific identifiers. Focus effort on tracked files; `settings.local.json` is gitignored.
-
-### PR review response etiquette: reference fixing commit hash
-
-When addressing PR review feedback, reply to each comment with the commit hash that fixes it (e.g., "Fixed in abc123"). Use an appreciative tone ("Thanks for catching this!"). When unclear, state your understanding then ask rather than guessing. When pushing back, explain context and ask for clarification rather than dismissing.
-
-### Codify review feedback as reusable guidelines
-
-Treat review feedback as a source of reusable guidelines rather than one-off corrections. After a review cycle, capture patterns into the project's guideline files (e.g., `.claude/guidelines/`) while context is fresh. Ship via lightweight docs-only PRs with zero-discussion, same-day merge.
 
 ### PR splitting strategy for large PRs
 
@@ -96,56 +56,11 @@ When splitting a large PR, separate refactors and structural changes first (inde
 
 When a decision framework (e.g., "separating universal from specific") lives in a general guideline but is only needed at one specific moment (e.g., capturing learnings), move it to the skill where it's actually used. Location should match the moment of use.
 
-### LGTM response patterns
-
-When addressing PR reviews that include "LGTM" summaries: (1) When the reviewer's summary doesn't match the actual implementation, reply politely indicating the mismatch and hint at where to look — don't reveal implementation details. (2) When the summary is accurate, confirm with a short acknowledgment.
-
-### Structured footnotes for multi-agent comment identity
-
-When multiple agents (addresser, reviewer) post comments from the same account, use structured metadata in comment footers to distinguish them:
-
-```
----
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* <persona or "none">
-*Role:* <Addresser|Reviewer|...>
-```
-
-The `Role` field enables role-based filtering: `select(.body | test("Role: Addresser"))` skips self-replies without false-positiving on reviewer bot comments. Better than content-based heuristics ("Co-authored") which can't distinguish between agents sharing an account.
-
-### Never dismiss review comments as duplicates based on topic
-
-Each comment ID is a distinct interaction requiring its own response — even if a previous comment covered the same topic. "Duplicate" means the exact same comment ID being re-processed, not a different comment about the same subject. Comments from different review passes are separate interactions, not redundant noise.
-
-### Review summary vs inline comments: no duplication
-
-Review summaries name themes ("some learnings may not earn their context cost"); inline comments carry the specifics ("this pattern on line 103 is basic OOP"). A reader skimming the summary gets the full picture without clicking into files; a reader reviewing the diff gets details in context. No finding should appear in both places.
-
-### Emoji reactions for resolved review comments
-
-When re-reviewing a PR and a previous comment has been addressed, react with a 👍 emoji instead of posting a text reply. This signals acknowledgment without creating noise in the comment thread. Reserve text replies for partially-addressed or unresolved findings.
-
-### Don't post empty reviews
-
-If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
-
 ### Verify safeguards survive fixes
 
 When fixing one problem, verify the original problem's safeguards are preserved or replaced. Pattern: when removing a workaround, ask "what was this protecting against?" before deleting. After the fix, test that the original safeguard still works — not just that the symptom is gone.
 
 Example: removing `?per_page=100` from URLs to fix quoting issues silently reverted to the 30-result default, hiding comments beyond page 1. The fix (`--paginate`) replaced the safeguard — but verification ("command runs without permission prompt" ✅ but "command still returns all results" ❌) would have caught the regression immediately.
-
-### Keep Approval Flows On-Platform
-
-When a skill interacts with a review platform (GitHub/GitLab), post suggestion summaries and approval requests as PR/MR comments — not CLI prompts. This keeps review context unified and enables async workflows (e.g., polling loops where the reviewer approves via the PR itself). The agent should only implement changes when explicit approval appears in a subsequent platform comment.
-
-### Separate identification from suggestion in review comments
-
-Identifying an issue ("this looks off") and suggesting a fix ("change it to X") are two distinct steps that require independent reasoning. Don't let the identification drive the suggestion mechanically — a rule that flags the issue may not prescribe the right fix, or may not even apply. The suggestion compounds: the addresser implements it, the reviewer confirms it, and both roles gain false confidence in a wrong fix. The operator then has to unwind multiple layers.
-
-- **Verify rule scope before citing it.** A rule about "numbered steps in skills" doesn't apply to numbered lists in reference documents. Surface-level pattern matches ("3a looks like a half-step") are not sufficient — check that the rule's stated context matches.
-- **Think independently about what would make the content better.** Even within a correctly-applied rule, the default remedy may be wrong. "Renumber sequentially" flattens a deliberate grouping; "restructure as sub-items" preserves the author's intent. Lead with the suggestion that improves the content, not the one the rule defaults to.
-- **When uncertain, identify without prescribing.** "This `3a` numbering looks odd — is the intent to group these as variants of the same gotcha, or are they independent items?" surfaces the issue without committing to a fix direction.
 
 ### Fix the source, not just the behavior
 
@@ -171,5 +86,5 @@ When adding features to a protocol or system, check git history for previously r
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
+- `~/.claude/learnings/review-conventions.md` — code review patterns (complementary: workflow vs review)
 - `~/.claude/learnings/code-quality-instincts.md` — code-level quality patterns (complementary: code vs process)

@@ -2,7 +2,8 @@ XRPL integration patterns: orderbook mechanics, AMM, cross-currency payments, DE
 
 | File | When to read |
 |------|-------------|
-| patterns.md | Orderbook fetching, funded offers, WebSocket management, fill detection, xrpl.js |
+| patterns.md | Orderbook fetching, funded offers, WebSocket management, fill detection |
+| utilities.md | xrpl.js type gaps, currency encoding, fee helpers, getBalanceChanges, simulate API |
 | gotchas.md | Condensed XRPL integration tripwires |
 | amm.md | Automated Market Maker: constant-product formulas, LP tokens, fee mechanics |
 | cross-currency-payments.md | Cross-currency payments: delivered_amount, path finding, slippage |
