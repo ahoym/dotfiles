@@ -1,5 +1,11 @@
 # Testing Patterns
 
+Testing recipes for Vitest/React Testing Library, Next.js route handlers, cross-implementation fixtures, Python test isolation, and mock design.
+**Keywords:** Vitest, React Testing Library, renderHook, vi.mock, vi.hoisted, jsdom, localStorage, pytest, pytest.raises, module-level singleton, import side effects, UTC, datetime, cross-implementation fixtures, mock coupling, test helpers
+**Related:** nextjs.md, playwright-patterns.md, code-quality-instincts.md, react-frontend-gotchas.md
+
+---
+
 ## Vitest + React Testing Library Stack
 
 - **Vitest** with `jsdom` environment (`vitest.config.ts`)

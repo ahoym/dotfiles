@@ -1,5 +1,11 @@
 # Python-Specific Patterns
 
+Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
+**Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression
+**Related:** api-design.md, testing-patterns.md
+
+---
+
 ## Pydantic v2: Optional Fields and Serialization
 
 In Pydantic v2, there are two distinct concepts for "optional":

@@ -1,5 +1,11 @@
 # Claude Code
 
+Platform mechanics for Claude Code — permissions, worktrees, Task tool isolation, Bash prefix matching, @ references, cron patterns, and settings merge behavior.
+**Keywords:** permissions, worktree, Task tool, isolation, Bash prefix matching, @ reference, cron, settings.json, settings.local.json, symlink, background agent, WebFetch, subagent, context continuation
+**Related:** multi-agent-patterns.md, claude-code-hooks.md
+
+---
+
 ## Task Tool: `isolation: "worktree"` Limitations
 
 The `isolation: "worktree"` parameter on the Task tool creates a git worktree from the **HEAD commit** of the current branch with an auto-generated branch name (e.g., `worktree-agent-a41c89bc`). There is no way to:

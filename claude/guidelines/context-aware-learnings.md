@@ -32,9 +32,14 @@ Every gate search follows these steps:
 
 **2. Derive terms.** Session start: ambient context (branch, CWD, git status, CLAUDE.md) + user message. Plan mode: broad task scope — topics, technologies, adjacent domains. Keyword: domain terms from user message. Soft gates: new domain keywords from message or target file.
 
-**3. Match and sniff.** For each filename match, `Read(file_path, limit=5)`. Load fully only if relevant. Plan mode: also grep file content.
+**3. Match and sniff.** For each filename match, `Read(file_path, limit=5)`. The header block is structured:
+- Line 3: description (relevance check)
+- Line 4: `**Keywords:**` (term matching against derived terms)
+- Line 5: `**Related:**` (graph edges to adjacent files — check for unloaded matches)
 
-**4. Follow cross-refs** (up to 2 levels). Check `## Cross-Refs` in loaded files. Plan mode: also announce skipped cross-refs.
+Load fully only if description or keywords match derived terms. Plan mode: also grep file content.
+
+**4. Follow cross-refs** (up to 2 levels). Check `**Related:**` in sniffed headers first (cheap). Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Plan mode: also announce skipped cross-refs.
 
 ## Observability
 

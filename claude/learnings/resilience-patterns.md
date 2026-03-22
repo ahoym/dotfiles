@@ -1,5 +1,11 @@
 # Resilience Patterns
 
+Fault tolerance patterns for distributed and batch-processing systems.
+**Keywords:** dedup, retry, idempotency, circuit breaker, stale cache, scheduler decoupling, domain exceptions
+**Related:** financial-applications.md, aws-messaging.md
+
+---
+
 ### Mark items as processed before processing to prevent reprocessing loops
 
 In reconciliation or batch-processing services, add the item ID to the dedup set (e.g., processedTransactionIds) before attempting processing. If processing throws an exception with the original order (add after processing), the ID is never recorded and the item retries infinitely. Marking first means failed items won't auto-retry, which is the safer default -- failed items should be investigated, not silently retried in a loop.

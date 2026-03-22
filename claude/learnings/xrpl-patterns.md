@@ -1,5 +1,11 @@
 # XRPL Patterns
 
+XRPL integration patterns: orderbook fetching, funded offers, WebSocket management, fill detection, xrpl.js type gaps, and simulate API.
+**Keywords:** getOrderbook, book_offers, funded offer, RippleState, OfferCreate, account_tx, getBalanceChanges, simulate, submitAndWait, xrpl.js, currency encoding, credential type, TransactionMetadata
+**Related:** xrpl-gotchas.md, bignumber-financial-arithmetic.md, order-book-pricing.md
+
+---
+
 ## `getOrderbook()` vs raw `book_offers`
 
 `client.getOrderbook()` (xrpl.js v4.5.0) does significantly more than two `book_offers` calls:

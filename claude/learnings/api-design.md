@@ -1,5 +1,11 @@
 # API Design Guidelines
 
+Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
+**Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID
+**Related:** financial-applications.md, testing-patterns.md, code-quality-instincts.md, python-specific.md
+
+---
+
 ## Consistent Response Shapes
 
 Always return the same fields in API responses, even when the value is `null`. Do not suppress optional fields from serialization.

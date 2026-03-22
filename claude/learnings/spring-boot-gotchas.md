@@ -1,6 +1,10 @@
 # Spring Boot Gotchas
 
 Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistakes.
+**Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException
+**Related:** spring-boot.md
+
+---
 
 - `@Scheduled` + `@SchedulerLock` (ShedLock): swallow exceptions — Spring catches/logs, ShedLock releases lock, job retries next tick; rethrowing produces duplicate error logs
 - Inner loops processing independent items: catch per-item to prevent one failure from killing the batch

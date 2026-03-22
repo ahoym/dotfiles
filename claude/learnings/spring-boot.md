@@ -1,5 +1,11 @@
 # Spring Boot
 
+Spring Boot patterns covering JPA/Hibernate, Flyway migrations, PostgreSQL enums, Jackson DTOs, multi-module builds, and test conventions.
+**Keywords:** Spring Boot, JPA, Hibernate, Flyway, PostgreSQL, Mockito, Lombok, @Builder.Default, @Transactional, @UuidGenerator, @PostConstruct, Jackson, @NoArgsConstructor, H2, Testcontainers, VARCHAR CHECK constraint, multi-module, init container
+**Related:** spring-boot-gotchas.md, postgresql-query-patterns.md
+
+---
+
 ### Mockito 5+ (Spring Boot 3.5.x): Drop mockito-inline
 
 Spring Boot 3.5.x uses Mockito 5+ which includes inline mocking in `mockito-core` by default. The separate `mockito-inline` artifact is unnecessary and will fail to resolve if the parent BOM no longer manages its version. Safe to remove -- `MockedStatic` and static mocking still work via `mockito-core`.

@@ -1,5 +1,11 @@
 # Vercel Deployment
 
+Vercel platform constraints: cron limits, Postgres (Neon) driver behavior, and serverless gotchas.
+**Keywords:** Vercel, cron, Neon, @vercel/postgres, POSTGRES_URL, IS NOT DISTINCT FROM, nullable, serverless
+**Related:** typescript-ci-gotchas.md, xrpl-patterns.md
+
+---
+
 ## Cron job frequency limits
 
 Vercel cron jobs floor at **1/day on Hobby** (free) and **1/min on Pro** ($20/mo). Sub-minute scheduling is not possible with Vercel crons — requires an always-on external process (e.g., ECS Fargate, Railway, Fly.io).

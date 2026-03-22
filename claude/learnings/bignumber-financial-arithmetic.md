@@ -1,6 +1,10 @@
 # BigNumber.js for Financial Arithmetic
 
-Financial calculations should use **BigNumber.js** (`bignumber.js`) instead of native JavaScript arithmetic. This prevents floating-point precision errors in prices, totals, cumulative sums, spread, and basis-point calculations.
+Financial calculations should use BigNumber.js instead of native JavaScript arithmetic to prevent floating-point precision errors in prices, totals, and basis-point calculations.
+**Keywords:** BigNumber.js, bignumber.js, parseFloat, floating-point, precision, toFixed, reduce accumulation, financial arithmetic, order book, spread
+**Related:** financial-applications.md, order-book-pricing.md
+
+---
 
 ## Rules
 

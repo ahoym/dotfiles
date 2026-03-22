@@ -1,5 +1,11 @@
 # Financial Application Patterns
 
+Calculation safety, idempotency, decimal precision, and fee logic patterns for financial and payment systems.
+**Keywords:** BigDecimal, DECIMAL precision, fee calculation, idempotency, FeeMode, division by zero, null safety, currency enum, vendor separation, off-by-one, settlement cutoff
+**Related:** bignumber-financial-arithmetic.md, resilience-patterns.md, domain-ledger-architecture.md
+
+---
+
 ### Never silently default monetary calculations to zero on error
 
 When fee calculations or amount transformations throw exceptions, failing silently with a zero or pass-through value can cause transactions to process incorrectly (e.g., zero fees). Always fail loudly — throw, log, or block the transaction.

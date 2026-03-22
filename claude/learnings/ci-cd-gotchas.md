@@ -1,6 +1,10 @@
 # CI/CD Gotchas
 
-Companion to `ci-cd.md` and `gitlab-ci-cd.md`. GitHub Actions and GitLab CI tripwires.
+GitHub Actions and GitLab CI tripwires covering concurrency, permissions, caching, artifact expiry, and CI guard patterns.
+**Keywords:** GitHub Actions, GitLab CI, concurrency, cancel-in-progress, paths-ignore, continue-on-error, needs, cache, artifacts, interruptible, protected variables, GIT_DEPTH, retry, DinD
+**Related:** git-patterns.md, ci-cd.md, typescript-ci-gotchas.md
+
+---
 
 ## GitHub Actions
 

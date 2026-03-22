@@ -1,5 +1,11 @@
 # Guideline Authoring Patterns
 
+Craft patterns for writing, merging, scoping, and compressing guidelines including enforcement gate design, eager vs lazy loading, and pseudocode conventions.
+**Keywords:** guideline merge, enforcement gate, tool-call trigger, eager load, lazy load, pseudocode, condensing, soft gate, hard gate, unreferenced guideline, redundant guideline
+**Related:** claude-authoring-content-types.md, claude-authoring-claude-md.md
+
+---
+
 ## Merging overlapping guidelines
 
 When two guidelines cover similar territory, merge them into a single section rather than keeping both.
@@ -62,7 +68,28 @@ When a guideline file grows unwieldy, apply these compression patterns:
 
 **When framing affects compliance**: word choice matters. "Soft gates (proactive)" reads as optional/best-effort. "Gates (mandatory when triggered)" reads as required. If a label undermines the rule's authority, change the label.
 
+## Eager vs Lazy Loading Decision Framework
+
+Guidelines split into two categories for loading strategy:
+
+- **Behavioral** (shapes every response): confidence calibration, pushback norms, autonomy boundaries, communication style → eager-load via `@`
+- **Procedural** (steps for specific actions): path resolution, skill chaining rules, format specs → lazy-load via trigger table
+
+**Test**: "If I miss this on the first message, will the interaction feel wrong?" Yes → eager. No → lazy-load with a trigger.
+
+**Trigger table format** in CLAUDE.md:
+```markdown
+| File | When to read |
+|------|-------------|
+| guidelines/path-resolution.md | When resolving relative paths in SKILL.md files |
+```
+
+**Edge case**: A file mixing both types (e.g., skill-invocation.md with a behavioral rule + procedural details) → inline the behavioral rule (~2-3 lines) in CLAUDE.md, lazy-load the rest.
+
+**Context-aware-learnings is behavioral, not procedural.** The session-start gate fires before the first tool call, making the entire file load-bearing from moment zero. Gates that fire reactively (keyword, domain-shift) also need the format/observability spec available at all times.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring-content-types.md` — routing hub for the authoring cluster; boundary cases between content types
 - `~/.claude/commands/learnings/curate/curation-insights.md` — operational calibration including "uniform convention" pattern (migrated from here)
+- `~/.claude/learnings/claude-authoring-claude-md.md` — CLAUDE.md patterns including signpost/lazy-load pattern

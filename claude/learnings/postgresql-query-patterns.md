@@ -1,5 +1,11 @@
 # PostgreSQL Query Patterns
 
+Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema design, and migration safety patterns for PostgreSQL.
+**Keywords:** PostgreSQL, window functions, ROW_NUMBER, CTE, WITH RECURSIVE, JSONB, GIN index, partial index, CONCURRENTLY, partitioning, composite PK, Flyway, NOT NULL, migration
+**Related:** spring-boot.md, financial-applications.md
+
+---
+
 ## Window Functions
 
 - Use `ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)` for "latest per group" queries — more efficient than correlated subqueries.

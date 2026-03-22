@@ -1,5 +1,11 @@
 # Next.js Learnings
 
+Next.js 16 migration patterns: proxy.ts convention, async dynamic route params, Turbopack gotchas, and rate limiter wiring.
+**Keywords:** Next.js 16, proxy.ts, middleware, Turbopack, dynamic route params, async params, rate limiter, token bucket, selectOption, route handler testing, Vitest
+**Related:** react-patterns.md, react-frontend-gotchas.md, testing-patterns.md, typescript-specific.md
+
+---
+
 ## Next.js 16: `middleware.ts` → `proxy.ts`
 
 In Next.js 16, `middleware.ts` is deprecated and renamed to `proxy.ts`. Key differences:

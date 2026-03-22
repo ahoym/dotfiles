@@ -1,5 +1,11 @@
 # Cross-Repo Sync Patterns
 
+Patterns for syncing Claude Code config between repos — quantum-tunnel merges, rsync export/import, platform terminology adaptation, and bidirectional sync strategies.
+**Keywords:** quantum-tunnel, rsync, sync, PR-to-MR, platform-detection, bidirectional, tarball, branch import, BOTH_UNIQUE, SUPERSET, skill naming, write-time separation
+**Related:** skill-platform-portability.md
+
+---
+
 ## Quantum-tunnel-claudes path-mismatch gap
 
 The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. **Solved:** unified platform-neutral skills (`create-request`, `address-request-comments`, `explore-request`, `split-request`, `extract-request-learnings`) replace the divergent pairs.

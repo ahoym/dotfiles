@@ -1,5 +1,11 @@
 # Order Book Pricing & Slippage
 
+Mid-price calculations (simple, micro-price, VWAP), walk-the-book slippage estimation, and midprice module design with BigNumber helpers.
+**Keywords:** mid-price, micro-price, VWAP, slippage, walk-the-book, BigNumber, order book, IOC, FOK, xrpl.js, BookOffer, OrderBookEntry
+**Related:** xrpl-patterns.md, bignumber-financial-arithmetic.md
+
+---
+
 ## Mid-Price Approaches
 
 - **Simple mid** `(bestAsk + bestBid) / 2` — industry standard for exchange UIs (Binance, Coinbase, CME). Use this for display.

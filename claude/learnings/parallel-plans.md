@@ -1,5 +1,11 @@
 # Parallel Plan Execution Learnings
 
+DAG-based parallel plan design: critical path analysis, agent splitting, branch strategies, fan-in cherry-pick, and plan file structure.
+**Keywords:** DAG, critical path, parallel agents, fast/slow track, worktree, cherry-pick, fan-in, haiku, model selection, strict file ownership, plan splitting, prompts file
+**Related:** multi-agent-patterns.md
+
+---
+
 ## DAG Shape Bounds Speedup
 
 Parallel plan speedup is bounded by the **DAG shape** (critical path), not by tooling or agent speed. Before optimizing agent prompts or model selection, analyze the critical path to know the ceiling.

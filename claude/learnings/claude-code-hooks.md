@@ -1,5 +1,11 @@
 # Claude Code Hooks
 
+Mechanics and gotchas for PreToolUse/PostToolUse hooks — guard scripts, permission independence, selective allowlists, performance, and idempotent injection.
+**Keywords:** PreToolUse, PostToolUse, hooks, guard script, exit 2, matcher, blanket block, allowlist, settings.local.json, process spawn, AND gate, idempotent injection
+**Related:** claude-code.md
+
+---
+
 ## PreToolUse Hook Authoring
 
 Guard hooks receive JSON on stdin with the tool invocation, exit 0 to allow or exit 2 + stderr message to block.

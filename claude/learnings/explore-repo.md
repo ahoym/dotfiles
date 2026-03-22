@@ -1,5 +1,11 @@
 # explore-repo Learnings
 
+Patterns for the `/explore-repo` skill — parallel multi-agent scanning, domain file structure, synthesis output, staleness detection, and CLAUDE.md generation.
+**Keywords:** explore-repo, multi-agent scan, domain files, synthesis, SYSTEM_OVERVIEW, inconsistencies, CLAUDE.md generation, staleness detection, cross-domain dedup, greenfield
+**Related:** multi-agent-patterns.md, claude-authoring-skills.md
+
+---
+
 ## Parallel Multi-Agent Exploration for Unfamiliar Repos
 
 When mapping an unfamiliar codebase, launch 5 specialized Explore agents in parallel across orthogonal dimensions:

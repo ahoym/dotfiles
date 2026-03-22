@@ -1,6 +1,10 @@
 # CLAUDE.md Authoring Patterns
 
-Patterns for writing effective CLAUDE.md files that help AI agents navigate codebases.
+Patterns for writing effective CLAUDE.md files including conditional references, subdirectory criteria, signpost lazy-loading, and modular includes.
+**Keywords:** CLAUDE.md, @ reference, eager load, lazy load, signpost, subdirectory criteria, symlink, token budget, solatis, navigational hub, modular includes
+**Related:** claude-authoring-content-types.md, claude-authoring-guidelines.md
+
+---
 
 ## Conditional `@` Reference Pattern
 
@@ -137,6 +141,22 @@ A monolithic CLAUDE.md (130+ lines) can be refactored into modular files under `
 
 When introducing structural changes that will cause merge conflicts (e.g., switching from inline content to `@` includes), document the conflict resolution strategy in the same PR. Forward-looking documentation prevents confusion when conflicts inevitably arise. Example: "check inline version for NEW additions not yet in modular files, incorporate into the appropriate module, resolve main file to keep `@` includes."
 
+## Solatis Two-File Pattern for Context Budgeting
+
+Community pattern (solatis/claude-config) using strict token budgets per documentation layer:
+
+| Layer | Budget | Content |
+|-------|--------|---------|
+| CLAUDE.md | ~200 tokens | Pure tabular index: `\| File \| What \| When to read \|`. No prose. |
+| README.md | ~500 tokens | "Invisible knowledge" — architecture decisions, invariants, tradeoffs that can't be learned from source |
+| Function docs | ~100 tokens | One-line summary + "use when..." trigger |
+| Module docs | ~150 tokens | Top-of-file docstring: what + why it's separate |
+
+**Enforcement**: technical-writer and quality-reviewer sub-agents run in a planner pipeline. Content test: "Could a developer learn this by reading source?" If yes, delete.
+
+**Comparison with signpost pattern**: Solatis budgets the *writing* (caps on doc size). The signpost/lazy-load pattern budgets the *reading* (defer loading until relevant). Both reduce context cost — they're complementary, not competing.
+
 ## Cross-Refs
 
 - `.claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
+- `~/.claude/learnings/claude-authoring-guidelines.md` — eager vs lazy loading decision framework

@@ -1,6 +1,10 @@
 # Java InfoSec Gotchas
 
 Security tripwires — check these before any code review or implementation.
+**Keywords:** authentication, authorization, CORS, deserialization, Jackson, XXE, input validation, secrets, stack traces, crypto
+**Related:** api-design.md
+
+---
 
 - Flag any endpoint missing authentication or authorization checks
 - Validate and sanitize user input before use in queries, commands, or responses

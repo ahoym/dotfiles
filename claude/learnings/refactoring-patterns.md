@@ -1,5 +1,11 @@
 # Refactoring Guidelines
 
+Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
+**Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, parallel batch
+**Related:** code-quality-instincts.md, process-conventions.md, testing-patterns.md
+
+---
+
 ## Survey Before Acting
 
 Before proposing any refactoring changes, do a full survey:

@@ -1,5 +1,11 @@
 # XRPL Cross-Currency Payments
 
+Payment engine mechanics: delivered_amount, two-pass algorithm, pathfinding, TransferRate, SendMax, and NoRipple rules.
+**Keywords:** delivered_amount, two-pass, reverse pass, forward pass, ripple_path_find, SendMax, TransferRate, tfLimitQuality, NoRipple, DefaultRipple, tecPATH_DRY, noripple_check
+**Related:** xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md
+
+---
+
 ## `delivered_amount` in Payment Metadata
 
 `delivered_amount` (in `metaData`) is always available for payments after 2014-01-20. For partial payments, `Amount` is the *maximum* — only `delivered_amount` reflects what was actually received. Always use `delivered_amount` for the actual transfer amount.

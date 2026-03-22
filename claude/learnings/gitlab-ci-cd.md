@@ -1,5 +1,11 @@
 # GitLab CI/CD Patterns
 
+GitLab-specific CI/CD patterns — `glab` CLI debugging, MR API endpoints, shared pipeline stage splitting, and CLI flag differences from `gh`.
+**Keywords:** GitLab, glab, CI/CD, job trace, merge request, DinD, Testcontainers, Surefire, Failsafe, glab api, pipeline stages
+**Related:** ci-cd.md, ci-cd-gotchas.md
+
+---
+
 ## Diagnosing GitLab CI Failures with glab
 
 `glab api` provides full access to job metadata, logs, and artifacts for CI debugging:

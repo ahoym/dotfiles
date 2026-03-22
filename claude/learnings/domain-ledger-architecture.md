@@ -1,6 +1,10 @@
 # Domain Ledger Architecture
 
 Patterns for fintech ledger systems — schema design, balance composition, and money movement lifecycle.
+**Keywords:** ledger, double-entry, ledger_entries, ledger_balances, pending, settled, reconciliation, trial balance, FX conversion, multi-entity, intercompany, period close, closing entries
+**Related:** financial-applications.md, bignumber-financial-arithmetic.md, order-book-pricing.md
+
+---
 
 ## Core Schema: Three Tables
 
@@ -138,6 +142,19 @@ Progression to avoid primary DB load:
 **Replica lag handling**: skip entries newer than N seconds in cadenced checks, use threshold tolerance for small drift, only hit primary for on-demand definitive checks.
 
 **Operational nuances**: alert fatigue from false positives (replica lag, timing mismatches) is the main risk — tune thresholds continuously. Adjust cadence by business hours (tighter during peak, looser off-peak). Intercompany recon needs wider tolerance windows — two entities posting their sides asynchronously creates a natural mismatch window. Bank webhook reliability varies by institution (tier 1 banks: real-time; smaller banks: hourly batches or missing events). Golden record rule: entries win over materialized balances (auto-correct), but entries vs. bank requires investigation before correction (could be bank's error).
+
+## Period Close and Closing Entries
+
+Revenue and Expense are **temporary equity accounts** — they track period-scoped detail (earned/spent *this quarter*) then reset. Assets, Liabilities, and Equity are permanent (point-in-time balances that accumulate forever).
+
+**Closing entries** zero out Revenue and Expense into Retained Earnings (equity) at period end:
+- Debit each Revenue account (zeroing it), Credit Retained Earnings
+- Debit Retained Earnings, Credit each Expense account (zeroing it)
+- Net effect: Retained Earnings changes by the period's profit/loss
+
+Mechanically just normal double-entry transactions — no special ledger engine support needed. Some systems use an intermediate **Income Summary** account (Revenue/Expense → Income Summary → Retained Earnings) for audit clarity.
+
+The full equation during a period: `Assets = Liabilities + Equity + (Revenue - Expenses)`. After close: Revenue and Expense are zero, their net has rolled into Equity.
 
 ## Cross-Refs
 

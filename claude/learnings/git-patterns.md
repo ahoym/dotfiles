@@ -1,5 +1,11 @@
 # Git Patterns
 
+Git workflow patterns — rebase strategies, stacked PRs, worktree isolation, lockfile conflicts, bulk extraction, and GitHub API pagination.
+**Keywords:** rebase, stacked PR, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, cascade rebase, git mv, soft reset, zsh glob, GitHub API pagination, symlink
+**Related:** bash-patterns.md, ci-cd-gotchas.md
+
+---
+
 ## Commit-Message-Based Identification for Rebase
 
 When you need to find and drop a specific commit during rebase, use a known commit message instead of positional logic (`tail -1`, `head -1`):

@@ -1,5 +1,11 @@
 # Persona Authoring Patterns
 
+Patterns for designing and structuring Claude Code personas — judgment layers, gotcha files, cross-refs, extends inheritance, and knowledge/lens decomposition.
+**Keywords:** persona, judgment layer, gotchas, proactive loads, extends, cross-refs, knowledge decomposition, reviewer persona, companion file, dedup
+**Related:** claude-authoring-content-types.md
+
+---
+
 ## Judgment Layer, Not Recipe Catalog
 
 A persona's value comes from changing how you *think* about a domain — priorities, tradeoffs, review instincts. Recipe-heavy content (step-by-step patterns, code templates) belongs in learning files, not personas. When creating a persona from a cluster of learnings:
