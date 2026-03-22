@@ -16,9 +16,9 @@
 4. Store as `PATTERNS` list
 
 **Pre-load** — In the same parallel batch as the parse reads above:
-1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). **Read all files in each directory** — don't pre-filter or skip files based on name/size.
+1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` and its cluster subdirectories (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). Use recursive glob (`**/*.md`) to catch cluster subdirectories. **Read all files** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
-3. Read classification-model.md and `~/.claude/learnings/claude-authoring-content-types.md` (needed for step 5)
+3. Read classification-model.md and `~/.claude/learnings/claude-authoring/content-types.md` (needed for step 5)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -60,7 +60,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
 - **All patterns are universal** → Proceed to step 5 normally.
 
-See `claude-authoring-content-types.md` → "Evaluating Existing Guidelines" for the full migration signal table.
+See `~/.claude/learnings/claude-authoring/content-types.md` → "Evaluating Existing Guidelines" for the full migration signal table.
 
 ## 5. Classify each pattern
 
@@ -91,15 +91,20 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 
 ## 5b. Cross-reference opportunities
 
-For each file being curated, evaluate its `## Cross-Refs` section (or lack thereof). See `claude-authoring-learnings.md` → "Cross-Reference Convention" for the full convention.
+For each file being curated, evaluate its `## Cross-Refs` section and `**Related:**` header line. See `~/.claude/learnings/claude-authoring/learnings.md` → "Cross-Reference Convention" for the full convention.
+
+**Cluster-aware rules:**
+- Files in a cluster should have **no intra-cluster refs** — the cluster `CLAUDE.md` handles sibling discovery.
+- Cross-cluster refs use full `~/.claude/learnings/...` paths.
+- Flag any intra-cluster cross-refs for removal.
 
 **Staleness check** (if `## Cross-Refs` exists):
-1. **Existence:** Glob to confirm each target file still exists. Flag missing targets for removal.
-2. **Relationship decay:** For each cross-ref, check whether the stated reason still describes a real overlap between the two files. Curate is already reading both files deeply — this is a lightweight verification, not a new analysis pass. Flag cross-refs where the reason no longer holds (e.g., the target was refactored to cover different topics).
+1. **Existence:** Glob to confirm each target file still exists at its full path. Flag missing targets for removal (files may have moved into clusters).
+2. **Relationship decay:** For each cross-ref, check whether the stated reason still describes a real overlap between the two files. Flag cross-refs where the reason no longer holds.
 
 **New cross-ref suggestions:**
+- Only suggest **cross-cluster** refs — relationships between files in different clusters or between cluster files and flat files
 - Identify 1-3 related files where the relationship is **non-obvious from vocabulary** (wouldn't be found by keyword search)
-- Check bidirectionality — if suggesting A → B, also evaluate whether B → A provides lateral discovery value
 - Don't suggest cross-refs where shared vocabulary already connects the files (the keyword search protocol handles those)
 
 Store findings as `CROSSREF_ACTIONS` (stale removals + new suggestions). Report alongside other classifications in step 7.
@@ -137,29 +142,30 @@ Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SU
 
 ## Broad Sweep (all learnings)
 
-When the user selects "all learnings", use a **cluster-first approach** instead of per-file pattern analysis:
+When the user selects "all learnings", use a **cluster-first approach**. Learnings are already organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) with flat files at root.
 
-1. Read all learnings files (use parallel Read calls for all files in one batch)
-2. Cluster files by domain/stack (e.g., "XRPL + TypeScript", "Java + Spring", "Python", "Meta/tooling")
+1. Read all learnings files recursively (use parallel Read calls). Read each cluster's `CLAUDE.md` for its routing table.
+2. Use existing directory structure as clusters — don't re-derive. Flat files at root form a "general" group.
 3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
 4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
-5. Run persona detection (step 6) across all clusters simultaneously
-6. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
-   - **Genericization candidates**: Extract domain terms from persona file names (e.g., "xrpl", "java", "spring"). Grep each learnings file for these terms. A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
-   - **Compression candidates**: Files with patterns that have high line-count relative to insight count (e.g., 30+ line patterns with large code blocks, multi-line JSON examples). Flag files where estimated compression >= 30%.
+5. **Split candidates.** Flag files over ~150 lines that have clearly separable sub-topics. See `~/.claude/learnings/claude-authoring/learnings.md` → "File Splitting and Directory Clustering" for conventions. Report as a separate section.
+6. Run persona detection (step 6) across all clusters simultaneously
+7. **Per-file quality scan.** During the file read phase (or as a parallel pass after clustering), check each file for:
+   - **Genericization candidates**: A file containing domain-specific terms that isn't in that domain's cluster → genericization candidate. Also check for project-specific patterns: hardcoded app names, route paths, class names that aren't framework-standard.
+   - **Compression candidates**: Files with patterns that have high line-count relative to insight count (e.g., 30+ line patterns with large code blocks). Flag files where estimated compression >= 30%.
+   - **Cluster promotion candidates**: Flat files at root that share a domain with 2+ other flat files → suggest promoting to a cluster subdirectory.
 
    Store as `POLISH_CANDIDATES`. These are reported separately from HIGH/MEDIUM/LOW findings — they're quality signals, not classification changes.
-7. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
-8. Use the **broad sweep report format** below
+8. Only classify individual patterns when they need action (outdated, migrate, enhance persona, genericize)
+9. Use the **broad sweep report format** below
 
-9. **Cross-reference graph health.** After cluster analysis, scan all `## Cross-Refs` sections across learnings files and report a topology summary:
-   - **Isolated nodes:** Files with zero inbound or outbound refs (self-contained or orphaned knowledge?)
-   - **Dense clusters:** Files with 3+ mutual refs (merge candidates or missing synthesis file?)
-   - **Hub files:** High inbound count (foundational knowledge — keep especially clean and current)
-   - **Cross-cluster refs:** Cross-refs that link files in different domain clusters (these are the highest-value refs — flag missing ones)
-   - Format as a summary line, not a full table (e.g., "Graph: 12 connected, 5 isolated, 2 dense clusters (XRPL, claude-authoring), 1 hub (claude-code.md)")
+10. **Cross-reference graph health.** After cluster analysis, scan `## Cross-Refs` and `**Related:**` across learnings files and report:
+   - **Stale intra-cluster refs:** Files with sibling cross-refs that should have been removed (cluster CLAUDE.md handles these)
+   - **Isolated nodes:** Files with zero cross-cluster refs (self-contained or orphaned?)
+   - **Missing cross-cluster refs:** Files that share concepts across clusters but aren't linked
+   - Format as a summary line (e.g., "Graph: 3 stale intra-cluster, 5 isolated, 2 missing cross-cluster links")
 
-**Why cluster-first:** Classifying all ~50 patterns individually produces an unreadable table. Most are "standalone reference / keep." Clustering surfaces the high-value actions (persona enhancements, thin file cleanup, staleness) without the noise.
+**Why cluster-first:** Clusters already exist as directories. The sweep validates their health (split candidates, cluster promotion, cross-ref hygiene) rather than re-deriving structure from scratch.
 
 **Consecutive sweeps compound:** Each sweep's actions (enhanced personas, deleted files, moved content) create new state for the next sweep to evaluate. For example, after folding `spring-patterns.md` content into `java-backend`, a follow-up sweep can check whether `spring-patterns.md` is now partially redundant. Run 2-3 consecutive sweeps to fully distill.
 
@@ -247,12 +253,20 @@ The destination grouping makes the actual decision ("where does this go?") the o
 ```
 ## Broad Sweep: All Learnings (N files, ~M patterns)
 
-### Domain/Stack Clusters
+### Clusters
 
-| Cluster | Files | Patterns | Existing Persona |
-|---------|-------|----------|-----------------|
-| XRPL + TypeScript | xrpl-patterns, react-patterns, ... | 13 | xrpl-typescript-fullstack |
-| Java + Spring | spring-patterns, ... | 5 | java-backend, java-devops |
+| Cluster | Files | Patterns | Existing Persona | Split Candidates |
+|---------|-------|----------|-----------------|-----------------|
+| xrpl/ | 6 | 22 | xrpl-typescript-fullstack | patterns.md (214 lines) |
+| claude-authoring/ | 7 | 61 | — | skills.md (434 lines) |
+| frontend/ | 7 | 18 | — | react-patterns.md (236 lines) |
+
+### Split Candidates (files over ~150 lines with separable sub-topics)
+
+| File | Lines | Sections | Suggested Split |
+|------|-------|----------|----------------|
+| claude-authoring/skills.md | 434 | 61 | ~7 files by sub-topic |
+| claude-code/platform.md | 312 | 36 | ~4 files by area |
 
 ### Thin Pointer Files (fold-and-delete candidates)
 
@@ -285,8 +299,8 @@ Omit this section if no candidates found.
 
 | File | Why | Command |
 |------|-----|---------|
-| `parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/learnings:curate learnings/parallel-plans.md` |
-| `claude-authoring-skills.md` | 11 patterns, several skill-context candidates | `/learnings:curate learnings/claude-authoring-skills.md` |
+| `claude-code/parallel-plans.md` | 2 medium-confidence items, 3 new sections | `/learnings:curate learnings/claude-code/parallel-plans.md` |
+| `claude-authoring/skills.md` | 434 lines, split candidate | `/learnings:curate learnings/claude-authoring/skills.md` |
 
 ### Recommended Actions
 ...
@@ -314,10 +328,12 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - Outdated deletions: delete the section from source file (with approval). If all sections in a file are deleted or folded elsewhere, delete the entire file.
 - Standalone reference: no action, pattern stays in place. If examples use project-specific names, genericize them while preserving the pattern's teaching value. When genericizing project-specific content, note in the report which project/domain the content originated from. If the project has a learnings directory (e.g., `docs/claude-learnings/`), suggest creating a project-specific instance there — the global file teaches the generic pattern, the project file preserves the concrete gotcha.
 - Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
+- Split file: for files over ~150 lines with separable sub-topics, propose a split into multiple files within the same cluster directory. Each new file gets a standardized header (description, keywords, related) and only cross-cluster refs. Update the cluster `CLAUDE.md` routing table to include the new files. See `~/.claude/learnings/claude-authoring/learnings.md` → "File Splitting and Directory Clustering" for conventions.
+- Promote to cluster: for flat files at root that share a domain with 2+ other flat files, create a cluster subdirectory with a `CLAUDE.md` routing table, move files in, update top-level `learnings/CLAUDE.md`.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.
-- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `claude-authoring-learnings.md` → "Cross-Reference Convention".
+- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `~/.claude/learnings/claude-authoring/learnings.md` → "Cross-Reference Convention". Use full `~/.claude/learnings/...` paths for cross-cluster refs. No intra-cluster refs — the cluster CLAUDE.md handles those.
 - **Remove stale cross-ref**: Delete lines pointing to files that no longer exist or where the relationship decayed. Include the reason (file deleted vs. relationship no longer holds) in the report.
 - **Add reverse cross-ref**: When adding A → B, also add B → A in the target file if the reverse provides lateral discovery value.
 

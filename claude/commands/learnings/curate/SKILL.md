@@ -41,7 +41,7 @@ Curation serves a dual purpose: organizing content AND minimizing baseline conte
 - content-mode.md — Content mode execution steps (2–6), report formats, and apply actions — read after step 1 when mode = content
 - skill-mode.md — Skill mode execution steps (2–4), report format, and apply actions — read after step 1 when mode = skill
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
-- `~/.claude/learnings/claude-authoring-content-types.md` — Content type routing table (for reorganization) — read in step 4
+- `~/.claude/learnings/claude-authoring/content-types.md` — Content type routing table (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
 - curation-insights.md — Operational calibration and phase-specific patterns from prior consolidation runs — read in step 4
 
@@ -65,22 +65,27 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 
 **If `$ARGUMENTS` provided**:
 - Parse as space-separated file paths (relative to `~/.claude/`)
-- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `guidelines/`, `commands/`)
+- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `learnings/xrpl/`, `guidelines/`, `commands/`)
 - Determine the **curation mode** per file:
-  - `learnings/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
+  - `learnings/*` or `learnings/<cluster>/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
   - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
   - `commands/*` reference files (e.g., `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
   - `skill-references/*` → **Content mode** with **reference-file gate** (step 4a). These are authoritative shared references — duplication is removed from consuming skills, not from the reference.
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/`, `~/.claude/learnings-private/`, `docs/learnings/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
+- List available files under `~/.claude/learnings/` (including cluster subdirectories), `~/.claude/learnings-private/`, `docs/learnings/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
 - Use `AskUserQuestion` to prompt user:
   ```
   What would you like to curate?
 
-  Learnings:
-  - learnings/nextjs.md
+  Learnings (clusters):
+  - learnings/xrpl/ (6 files)
+  - learnings/frontend/ (7 files)
+  - ...
+
+  Learnings (flat):
+  - learnings/testing-patterns.md
   - ...
 
   Guidelines:
