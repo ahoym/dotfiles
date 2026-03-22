@@ -1,8 +1,8 @@
 # Playwright E2E Testing Patterns
 
 Patterns and gotchas for Playwright E2E tests: shared browser contexts, dialog handlers, role selectors, storageState, strict mode, and dynamic file inputs.
-**Keywords:** Playwright, BrowserContext, serial tests, localStorage, storageState, getByRole, aria-label, strict mode, selectOption, filechooser, page.once, exact true, locator scoping
-**Related:** react-frontend-gotchas.md, testing-patterns.md, react-patterns.md
+- **Keywords:** Playwright, BrowserContext, serial tests, localStorage, storageState, getByRole, aria-label, strict mode, selectOption, filechooser, page.once, exact true, locator scoping
+- **Related:** react-frontend-gotchas.md, testing-patterns.md, react-patterns.md
 
 ---
 

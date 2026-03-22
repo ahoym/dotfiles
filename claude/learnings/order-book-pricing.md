@@ -1,8 +1,8 @@
 # Order Book Pricing & Slippage
 
 Mid-price calculations (simple, micro-price, VWAP), walk-the-book slippage estimation, and midprice module design with BigNumber helpers.
-**Keywords:** mid-price, micro-price, VWAP, slippage, walk-the-book, BigNumber, order book, IOC, FOK, xrpl.js, BookOffer, OrderBookEntry
-**Related:** xrpl-patterns.md, bignumber-financial-arithmetic.md
+- **Keywords:** mid-price, micro-price, VWAP, slippage, walk-the-book, BigNumber, order book, IOC, FOK, xrpl.js, BookOffer, OrderBookEntry
+- **Related:** xrpl-patterns.md, bignumber-financial-arithmetic.md
 
 ---
 

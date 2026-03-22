@@ -1,8 +1,8 @@
 # Quarkus + Kotlin
 
 Quarkus dev mode incremental compilation gotchas when working with Kotlin enums.
-**Keywords:** quarkus, kotlin, enum, dev mode, hot reload, incremental compilation, mvn clean
-**Related:** spring-boot.md
+- **Keywords:** quarkus, kotlin, enum, dev mode, hot reload, incremental compilation, mvn clean
+- **Related:** spring-boot.md
 
 ---
 

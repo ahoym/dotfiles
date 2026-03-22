@@ -1,8 +1,8 @@
 # Spring Boot
 
 Spring Boot patterns covering JPA/Hibernate, Flyway migrations, PostgreSQL enums, Jackson DTOs, multi-module builds, and test conventions.
-**Keywords:** Spring Boot, JPA, Hibernate, Flyway, PostgreSQL, Mockito, Lombok, @Builder.Default, @Transactional, @UuidGenerator, @PostConstruct, Jackson, @NoArgsConstructor, H2, Testcontainers, VARCHAR CHECK constraint, multi-module, init container
-**Related:** spring-boot-gotchas.md, postgresql-query-patterns.md
+- **Keywords:** Spring Boot, JPA, Hibernate, Flyway, PostgreSQL, Mockito, Lombok, @Builder.Default, @Transactional, @UuidGenerator, @PostConstruct, Jackson, @NoArgsConstructor, H2, Testcontainers, VARCHAR CHECK constraint, multi-module, init container
+- **Related:** spring-boot-gotchas.md, postgresql-query-patterns.md
 
 ---
 

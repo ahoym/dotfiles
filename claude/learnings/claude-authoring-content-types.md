@@ -1,8 +1,8 @@
 # Content Type Taxonomy
 
 Routing guide for the Claude configuration surface — decide where content belongs (skill, guideline, learning, persona, memory) then follow the per-type authoring guide.
-**Keywords:** content type, skill, guideline, learning, persona, memory, skill reference, template, decision tree, boundary case, universal vs language-specific, always-on vs conditional
-**Related:** claude-authoring-skills.md, claude-authoring-guidelines.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-claude-md.md
+- **Keywords:** content type, skill, guideline, learning, persona, memory, skill reference, template, decision tree, boundary case, universal vs language-specific, always-on vs conditional
+- **Related:** claude-authoring-skills.md, claude-authoring-guidelines.md, claude-authoring-learnings.md, claude-authoring-personas.md, claude-authoring-claude-md.md
 
 ---
 

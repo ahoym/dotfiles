@@ -1,8 +1,8 @@
 # React Frontend Gotchas
 
 Companion to `react-patterns.md`. Tripwires for React 19, Next.js/Turbopack, and Playwright.
-**Keywords:** React 19, setState, useEffect, hydration, suppressHydrationWarning, Next.js 16, Turbopack, proxy.ts, dynamic route params, Playwright, getByRole, aria-label, .first()
-**Related:** react-patterns.md, nextjs.md, playwright-patterns.md
+- **Keywords:** React 19, setState, useEffect, hydration, suppressHydrationWarning, Next.js 16, Turbopack, proxy.ts, dynamic route params, Playwright, getByRole, aria-label, .first()
+- **Related:** react-patterns.md, nextjs.md, playwright-patterns.md
 
 ---
 

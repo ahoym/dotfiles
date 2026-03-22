@@ -1,8 +1,8 @@
 # Guideline Authoring Patterns
 
 Craft patterns for writing, merging, scoping, and compressing guidelines including enforcement gate design, eager vs lazy loading, and pseudocode conventions.
-**Keywords:** guideline merge, enforcement gate, tool-call trigger, eager load, lazy load, pseudocode, condensing, soft gate, hard gate, unreferenced guideline, redundant guideline
-**Related:** claude-authoring-content-types.md, claude-authoring-claude-md.md
+- **Keywords:** guideline merge, enforcement gate, tool-call trigger, eager load, lazy load, pseudocode, condensing, soft gate, hard gate, unreferenced guideline, redundant guideline
+- **Related:** claude-authoring-content-types.md, claude-authoring-claude-md.md
 
 ---
 

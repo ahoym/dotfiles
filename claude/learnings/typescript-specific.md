@@ -1,8 +1,8 @@
 # TypeScript-Specific Patterns
 
 TypeScript patterns for union types, Record keys, and type-level constraints.
-**Keywords:** union type, Record key, codebase search, type extension, PascalCase
-**Related:** nextjs.md, react-frontend-gotchas.md, code-quality-instincts.md
+- **Keywords:** union type, Record key, codebase search, type extension, PascalCase
+- **Related:** nextjs.md, react-frontend-gotchas.md, code-quality-instincts.md
 
 ---
 

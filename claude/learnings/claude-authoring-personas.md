@@ -1,8 +1,8 @@
 # Persona Authoring Patterns
 
 Patterns for designing and structuring Claude Code personas — judgment layers, gotcha files, cross-refs, extends inheritance, and knowledge/lens decomposition.
-**Keywords:** persona, judgment layer, gotchas, proactive loads, extends, cross-refs, knowledge decomposition, reviewer persona, companion file, dedup
-**Related:** claude-authoring-content-types.md
+- **Keywords:** persona, judgment layer, gotchas, proactive loads, extends, cross-refs, knowledge decomposition, reviewer persona, companion file, dedup
+- **Related:** claude-authoring-content-types.md
 
 ---
 

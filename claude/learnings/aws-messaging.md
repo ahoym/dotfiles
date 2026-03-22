@@ -1,8 +1,8 @@
 # AWS Messaging (SQS / SNS / EventBridge)
 
 Design patterns for SQS consumers, DLQ configuration, SNS fan-out, EventBridge routing, and Spring Cloud AWS integration.
-**Keywords:** SQS, SNS, EventBridge, FIFO, deduplication, visibility timeout, dead letter queue, DLQ, idempotent consumer, backpressure, Spring Cloud AWS, SqsListener, correlation ID, at-least-once
-**Related:** resilience-patterns.md, aws-patterns.md
+- **Keywords:** SQS, SNS, EventBridge, FIFO, deduplication, visibility timeout, dead letter queue, DLQ, idempotent consumer, backpressure, Spring Cloud AWS, SqsListener, correlation ID, at-least-once
+- **Related:** resilience-patterns.md, aws-patterns.md
 
 ---
 

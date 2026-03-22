@@ -1,8 +1,8 @@
 # Reactive Data Patterns
 
 Patterns for real-time data updates, background refreshes, and resource validation in data-driven UIs.
-**Keywords:** reactive refresh, polling, silent fetch, expiration tracking, setTimeout, setInterval, useRef, balance validation, exchange orders, loading skeleton
-**Related:** react-patterns.md, order-book-pricing.md
+- **Keywords:** reactive refresh, polling, silent fetch, expiration tracking, setTimeout, setInterval, useRef, balance validation, exchange orders, loading skeleton
+- **Related:** react-patterns.md, order-book-pricing.md
 
 ---
 

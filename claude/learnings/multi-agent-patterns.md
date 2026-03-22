@@ -1,8 +1,8 @@
 # Multi-Agent Patterns
 
 Orchestration patterns for parallel subagents: synthesis, worktree isolation, file ownership, context compaction, and agent-to-agent review.
-**Keywords:** subagent, orchestrator, worktree, cherry-pick, staging directory, extractor-writer, context compaction, TaskOutput, sandbox, intermediate files, parallel agents, trust arc
-**Related:** claude-code.md, claude-authoring-skills.md, parallel-plans.md
+- **Keywords:** subagent, orchestrator, worktree, cherry-pick, staging directory, extractor-writer, context compaction, TaskOutput, sandbox, intermediate files, parallel agents, trust arc
+- **Related:** claude-code.md, claude-authoring-skills.md, parallel-plans.md
 
 ---
 

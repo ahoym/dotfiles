@@ -1,8 +1,8 @@
 # Learning Authoring Patterns
 
 Craft patterns for writing learnings files including genericization, scope classification, cross-reference conventions, persona boundary tests, and directory organization.
-**Keywords:** genericize, project-specific, scope classification, cross-refs, persona-learning boundary, provenance, hub-spoke, discovery vs semantic, catch-all directory, CLAUDE.md index, dedup
-**Related:** claude-authoring-content-types.md
+- **Keywords:** genericize, project-specific, scope classification, cross-refs, persona-learning boundary, provenance, hub-spoke, discovery vs semantic, catch-all directory, CLAUDE.md index, dedup
+- **Related:** claude-authoring-content-types.md
 
 ---
 

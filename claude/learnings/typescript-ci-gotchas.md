@@ -1,8 +1,8 @@
 # TypeScript CI Gotchas
 
 pnpm/Node CI specifics — lockfile handling, action setup, browser caching, linting config.
-**Keywords:** pnpm, GitHub Actions, frozen-lockfile, Playwright browser cache, ESLint, Prettier, eslint-config-prettier, Vercel, serverless, cold start, tsc, tsconfig, dependency-review-action
-**Related:** vercel-deployment.md, ci-cd.md, ci-cd-gotchas.md
+- **Keywords:** pnpm, GitHub Actions, frozen-lockfile, Playwright browser cache, ESLint, Prettier, eslint-config-prettier, Vercel, serverless, cold start, tsc, tsconfig, dependency-review-action
+- **Related:** vercel-deployment.md, ci-cd.md, ci-cd-gotchas.md
 
 ---
 

@@ -1,8 +1,8 @@
 # Newman / Postman Patterns
 
 Newman/Postman runtime gotchas: skipRequest sync-only behavior, conditional assertions for idempotent seeding, export-environment manifests, and collection rebase conflicts.
-**Keywords:** Newman, Postman, skipRequest, pm.execution, pm.sendRequest, export-environment, idempotent seeding, JSON merge, collection rebase, env-var
-**Related:** local-dev-seeding.md
+- **Keywords:** Newman, Postman, skipRequest, pm.execution, pm.sendRequest, export-environment, idempotent seeding, JSON merge, collection rebase, env-var
+- **Related:** local-dev-seeding.md
 
 ---
 

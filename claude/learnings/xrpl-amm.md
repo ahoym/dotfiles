@@ -1,8 +1,8 @@
 # XRPL AMM Learnings
 
 XRPL Automated Market Maker mechanics: constant-product formulas, CLOB+AMM interleaving, LP tokens, and error codes.
-**Keywords:** AMM, XLS-30, constant product, LP token, AMMCreate, AMMDeposit, AMMWithdraw, AMMVote, AMMBid, amm_info, impermanent loss, auction slot, trading fee
-**Related:** xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md
+- **Keywords:** AMM, XLS-30, constant product, LP token, AMMCreate, AMMDeposit, AMMWithdraw, AMMVote, AMMBid, amm_info, impermanent loss, auction slot, trading fee
+- **Related:** xrpl-patterns.md, xrpl-gotchas.md, order-book-pricing.md, bignumber-financial-arithmetic.md
 
 ---
 

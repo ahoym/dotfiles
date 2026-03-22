@@ -1,8 +1,8 @@
 # Code Quality Instincts
 
 Fundamental practices that apply across languages and frameworks. These are the filters that should run on every line of code — during implementation, not just refactoring.
-**Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming
-**Related:** process-conventions.md, refactoring-patterns.md
+- **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming
+- **Related:** process-conventions.md, refactoring-patterns.md
 
 ---
 

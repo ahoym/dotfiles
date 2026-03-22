@@ -1,8 +1,8 @@
 # Git Patterns
 
 Git workflow patterns — rebase strategies, stacked PRs, worktree isolation, lockfile conflicts, bulk extraction, and GitHub API pagination.
-**Keywords:** rebase, stacked PR, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, cascade rebase, git mv, soft reset, zsh glob, GitHub API pagination, symlink
-**Related:** bash-patterns.md, ci-cd-gotchas.md
+- **Keywords:** rebase, stacked PR, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, cascade rebase, git mv, soft reset, zsh glob, GitHub API pagination, symlink
+- **Related:** bash-patterns.md, ci-cd-gotchas.md
 
 ---
 

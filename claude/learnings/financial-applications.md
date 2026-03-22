@@ -1,8 +1,8 @@
 # Financial Application Patterns
 
 Calculation safety, idempotency, decimal precision, and fee logic patterns for financial and payment systems.
-**Keywords:** BigDecimal, DECIMAL precision, fee calculation, idempotency, FeeMode, division by zero, null safety, currency enum, vendor separation, off-by-one, settlement cutoff
-**Related:** bignumber-financial-arithmetic.md, resilience-patterns.md, domain-ledger-architecture.md
+- **Keywords:** BigDecimal, DECIMAL precision, fee calculation, idempotency, FeeMode, division by zero, null safety, currency enum, vendor separation, off-by-one, settlement cutoff
+- **Related:** bignumber-financial-arithmetic.md, resilience-patterns.md, domain-ledger-architecture.md
 
 ---
 

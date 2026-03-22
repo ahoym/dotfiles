@@ -1,8 +1,8 @@
 # CI/CD Patterns
 
 Reusable CI pipeline structures including composite actions, lint-first dependency chains, and Docker build-push colocation.
-**Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress
-**Related:** ci-cd-gotchas.md, gitlab-ci-cd.md, typescript-ci-gotchas.md
+- **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress
+- **Related:** ci-cd-gotchas.md, gitlab-ci-cd.md, typescript-ci-gotchas.md
 
 ---
 

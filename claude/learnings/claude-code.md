@@ -1,8 +1,8 @@
 # Claude Code
 
 Platform mechanics for Claude Code — permissions, worktrees, Task tool isolation, Bash prefix matching, @ references, cron patterns, and settings merge behavior.
-**Keywords:** permissions, worktree, Task tool, isolation, Bash prefix matching, @ reference, cron, settings.json, settings.local.json, symlink, background agent, WebFetch, subagent, context continuation
-**Related:** multi-agent-patterns.md, claude-code-hooks.md
+- **Keywords:** permissions, worktree, Task tool, isolation, Bash prefix matching, @ reference, cron, settings.json, settings.local.json, symlink, background agent, WebFetch, subagent, context continuation
+- **Related:** multi-agent-patterns.md, claude-code-hooks.md
 
 ---
 

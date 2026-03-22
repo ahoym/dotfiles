@@ -1,8 +1,8 @@
 # AWS Patterns
 
 Cost-aware defaults and scheduling workarounds for ECS Fargate and EventBridge.
-**Keywords:** EventBridge, rate expression, sub-minute scheduling, Lambda, ECS Fargate, NAT Gateway, Secrets Manager, Terraform, public subnet, cost optimization
-**Related:** aws-messaging.md
+- **Keywords:** EventBridge, rate expression, sub-minute scheduling, Lambda, ECS Fargate, NAT Gateway, Secrets Manager, Terraform, public subnet, cost optimization
+- **Related:** aws-messaging.md
 
 ---
 

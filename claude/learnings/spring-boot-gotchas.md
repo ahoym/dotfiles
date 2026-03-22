@@ -1,8 +1,8 @@
 # Spring Boot Gotchas
 
 Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistakes.
-**Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException
-**Related:** spring-boot.md
+- **Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException
+- **Related:** spring-boot.md
 
 ---
 

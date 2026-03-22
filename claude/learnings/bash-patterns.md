@@ -1,8 +1,8 @@
 # Bash Patterns
 
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-**Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown
-**Related:** claude-code.md, git-patterns.md
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown
+- **Related:** claude-code.md, git-patterns.md
 
 ---
 

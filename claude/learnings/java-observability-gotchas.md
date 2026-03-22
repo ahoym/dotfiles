@@ -1,8 +1,8 @@
 # Java Observability Gotchas
 
 Micrometer metrics tripwires: builder bypasses, timer patterns, cardinality, and testing with SimpleMeterRegistry.
-**Keywords:** Micrometer, DistributionSummary, Timer, SimpleMeterRegistry, SLO buckets, cardinality, metrics testing, application.properties
-**Related:** java-observability.md
+- **Keywords:** Micrometer, DistributionSummary, Timer, SimpleMeterRegistry, SLO buckets, cardinality, metrics testing, application.properties
+- **Related:** java-observability.md
 
 ---
 

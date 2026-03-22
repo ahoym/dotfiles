@@ -1,8 +1,8 @@
 # XRPL Cross-Currency Payments
 
 Payment engine mechanics: delivered_amount, two-pass algorithm, pathfinding, TransferRate, SendMax, and NoRipple rules.
-**Keywords:** delivered_amount, two-pass, reverse pass, forward pass, ripple_path_find, SendMax, TransferRate, tfLimitQuality, NoRipple, DefaultRipple, tecPATH_DRY, noripple_check
-**Related:** xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md
+- **Keywords:** delivered_amount, two-pass, reverse pass, forward pass, ripple_path_find, SendMax, TransferRate, tfLimitQuality, NoRipple, DefaultRipple, tecPATH_DRY, noripple_check
+- **Related:** xrpl-patterns.md, xrpl-gotchas.md, bignumber-financial-arithmetic.md
 
 ---
 

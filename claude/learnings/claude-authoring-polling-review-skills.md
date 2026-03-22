@@ -1,8 +1,8 @@
 # Polling and Review Skill Patterns
 
 Patterns for `/loop` polling skills, quick-exit optimization, re-review detection, reviewer timestamps, and three-party review discussions.
-**Keywords:** polling, quick-exit, re-review, SHA check, self-filter, cron, stale poll, force push, footnote, GitHub review API, 422
-**Related:** claude-authoring-skills.md, claude-authoring-content-types.md, multi-agent-patterns.md, process-conventions.md
+- **Keywords:** polling, quick-exit, re-review, SHA check, self-filter, cron, stale poll, force push, footnote, GitHub review API, 422
+- **Related:** claude-authoring-skills.md, claude-authoring-content-types.md, multi-agent-patterns.md, process-conventions.md
 
 ---
 

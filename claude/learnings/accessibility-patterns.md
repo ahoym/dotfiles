@@ -1,8 +1,8 @@
 # Accessibility Attribute Patterns
 
 Quick reference for common accessibility gaps in React/Next.js components and their fixes.
-**Keywords:** aria-current, aria-expanded, aria-pressed, aria-label, role button, tabIndex, onKeyDown, screen reader, a11y, React, Next.js
-**Related:** react-patterns.md
+- **Keywords:** aria-current, aria-expanded, aria-pressed, aria-label, role button, tabIndex, onKeyDown, screen reader, a11y, React, Next.js
+- **Related:** react-patterns.md
 
 ---
 

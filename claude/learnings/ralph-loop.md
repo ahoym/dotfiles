@@ -1,8 +1,8 @@
 # Ralph Loop
 
 Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research and consolidation loops.
-**Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, deep dive, consolidation, worktree, compounding, sweep, curation, persona, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT
-**Related:** claude-code.md, multi-agent-patterns.md
+- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, deep dive, consolidation, worktree, compounding, sweep, curation, persona, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT
+- **Related:** claude-code.md, multi-agent-patterns.md
 
 ---
 

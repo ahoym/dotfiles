@@ -1,8 +1,8 @@
 # Web Session Sync
 
 Patterns for syncing skills and commands into Claude Code web sessions via branch workflows.
-**Keywords:** web session, sync-web-session, web-skills, guard-commands, web-create-pr, force-with-lease, pnpm typecheck, context window
-**Related:** cross-repo-sync.md, skill-platform-portability.md
+- **Keywords:** web session, sync-web-session, web-skills, guard-commands, web-create-pr, force-with-lease, pnpm typecheck, context window
+- **Related:** cross-repo-sync.md, skill-platform-portability.md
 
 ---
 

@@ -1,8 +1,8 @@
 # Java Observability
 
 Grafana dashboard PromQL patterns for Micrometer counters: rate, increase, ratio panels, and dashboard structure.
-**Keywords:** Grafana, PromQL, Micrometer, counters, rate, increase, clamp_min, stat panel, dashboard structure
-**Related:** java-observability-gotchas.md
+- **Keywords:** Grafana, PromQL, Micrometer, counters, rate, increase, clamp_min, stat panel, dashboard structure
+- **Related:** java-observability-gotchas.md
 
 ---
 
