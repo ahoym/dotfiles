@@ -1,5 +1,3 @@
-# Event Sourcing & CQRS for Ledgers
-
 Event sourcing and CQRS patterns for financial ledger systems — event store design, CQRS separation, snapshot strategies, projection rebuilds, schema evolution, and how ES layers onto the three-table schema.
 - **Keywords:** event sourcing, CQRS, event store, projection, snapshot, schema evolution, upcasting, global_position, correlation_id, causation_id, read-your-own-writes, blue-green rebuild, Axon, Spring @TransactionalEventListener, JPA @Immutable, PostgreSQL
 - **Related:** domain-ledger-architecture.md, resilience-patterns.md, financial-applications.md, postgresql-query-patterns.md, spring-boot.md

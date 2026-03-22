@@ -1,5 +1,3 @@
-# Ledger Schema Migration Patterns
-
 Ledger migration patterns — balance-first to entry-first retrofit, dual-write architectures, zero-downtime cutover, balance recomputation, schema evolution, and multi-entity rollout strategies.
 - **Keywords:** ledger migration, balance-first, entry-first, dual-write, CDC, strangler fig, shadow ledger, genesis entry, balance recomputation, Flyway, Spring Batch, PostgreSQL bulk import, idempotency key retrofit, multi-entity rollout
 - **Related:** domain-ledger-architecture.md, postgresql-query-patterns.md, spring-boot.md, financial-applications.md, resilience-patterns.md

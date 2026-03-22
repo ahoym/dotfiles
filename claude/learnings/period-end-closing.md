@@ -1,5 +1,3 @@
-# Period-End Closing Patterns
-
 Period-end close procedures for fintech ledger systems — soft/hard close, closing entries, snapshot implementation, period state machines, balance carry-forward, late-arriving transactions, and continuous accounting.
 - **Keywords:** period close, soft close, hard close, closing entries, retained earnings, snapshot, balance carry-forward, late-arriving transaction, prior-period adjustment, accrual reversal, subledger, GL, continuous accounting, @Scheduled, ShedLock, PostgreSQL partitioning
 - **Related:** domain-ledger-architecture.md, financial-applications.md, postgresql-query-patterns.md, spring-boot.md, resilience-patterns.md
