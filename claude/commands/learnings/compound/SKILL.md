@@ -21,9 +21,9 @@ Save new patterns and learnings from the current session into global skills, gui
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/learnings/claude-authoring-content-types.md` — Read if categorization is ambiguous
+- `~/.claude/learnings/claude-authoring/content-types.md` — Read if categorization is ambiguous
 - `skill-template.md` — Read only when a Skill-type learning is selected
-- `~/.claude/learnings/claude-authoring-skills.md` — Read only when a Skill-type learning is selected
+- `~/.claude/learnings/claude-authoring/skill-design.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
 - `public-release-review.md` — Read when learning will be shared publicly or across repos
 
@@ -36,6 +36,7 @@ Save new patterns and learnings from the current session into global skills, gui
    - List each learning with a brief description
    - Categorize using this decision tree:
      - Command with clear, repeatable steps? → **Skill**
+     - Gap in a skill you just ran? → **Fix the skill** (not a learning about the gap)
      - Changes behavior or approach? → **Guideline**
      - Reference info, patterns, or examples? → **Learning**
    - Assess scope for each learning:

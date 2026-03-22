@@ -107,7 +107,14 @@ For each file being curated, evaluate its `## Cross-Refs` section and `**Related
 - Identify 1-3 related files where the relationship is **non-obvious from vocabulary** (wouldn't be found by keyword search)
 - Don't suggest cross-refs where shared vocabulary already connects the files (the keyword search protocol handles those)
 
-Store findings as `CROSSREF_ACTIONS` (stale removals + new suggestions). Report alongside other classifications in step 7.
+**Inbound reference check (consuming personas and skills):**
+Grep `~/.claude/commands/set-persona/` for paths referencing files in the curated cluster — Proactive loads, Cross-Refs, and `> Full criteria:` section refs. Check for:
+1. **Stale paths** from pre-cluster flat naming (e.g., `claude-authoring-skills.md` → should be `claude-authoring/skill-design.md`). These cause silent knowledge loss — the persona loads nothing instead of the intended file.
+2. **Split casualties** — refs to a file that was split this session (e.g., `learnings.md` → `learnings-content.md` + `learnings-organization.md`). Update to point to the appropriate successor file.
+
+Flag stale inbound refs as HIGH confidence actions — they're unambiguous and high-impact.
+
+Store findings as `CROSSREF_ACTIONS` (stale removals + new suggestions + stale inbound refs). Report alongside other classifications in step 7.
 
 ## 6. Check underutilized skills and detect persona opportunities
 
