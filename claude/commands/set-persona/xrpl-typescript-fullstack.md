@@ -57,3 +57,4 @@ Load when working in the specific area:
 - `~/.claude/learnings/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch, balance validation for exchange orders
 - `~/.claude/learnings/xrpl-cross-currency-payments.md` — Payment engine two-pass algorithm, pathfinding source_amount, TransferRate, SendMax semantics, NoRipple rules
 - `~/.claude/learnings/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
+- `~/.claude/learnings/domain-ledger-architecture.md` — core ledger schema, balance composition, reconciliation (via fintech-ledger-engineer persona for crypto ledger work)

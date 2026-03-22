@@ -156,6 +156,12 @@ The full equation during a period: `Assets = Liabilities + Equity + (Revenue - E
 
 ## Cross-Refs
 
-- `financial-applications.md` — calculation safety, idempotency, decimal precision (complements the structural/schema patterns here)
-- `bignumber-financial-arithmetic.md` — frontend financial arithmetic precision
-- `order-book-pricing.md` — pricing patterns for trading domain ledgers
+- `~/.claude/learnings/financial-applications.md` — calculation safety, idempotency, decimal precision (complements the structural/schema patterns here)
+- `~/.claude/learnings/bignumber-financial-arithmetic.md` — frontend financial arithmetic precision
+- `~/.claude/learnings/order-book-pricing.md` — pricing patterns for trading domain ledgers
+- `~/.claude/learnings/saga-distributed-transactions.md` — distributed transaction patterns when entries span multiple services
+- `~/.claude/learnings/ledger-testing-strategies.md` — testing invariants, property-based testing, reconciliation test harnesses
+- `~/.claude/learnings/event-sourcing-cqrs.md` — event sourcing as enhancement layer over three-table schema, CQRS separation
+- `~/.claude/learnings/chart-of-accounts.md` — CoA hierarchy, GL integration, account lifecycle states
+- `~/.claude/learnings/period-end-closing.md` — close mechanics, snapshots, late-arriving transactions, carry-forward
+- `~/.claude/learnings/ledger-schema-migration.md` — balance-first to entry-first retrofit, zero-downtime ledger cutover
