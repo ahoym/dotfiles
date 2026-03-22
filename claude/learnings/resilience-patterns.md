@@ -1,6 +1,6 @@
 Fault tolerance patterns for distributed and batch-processing systems.
 - **Keywords:** dedup, retry, idempotency, circuit breaker, stale cache, scheduler decoupling, domain exceptions
-- **Related:** financial-applications.md, aws-messaging.md
+- **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/aws/messaging.md
 
 ---
 
@@ -32,4 +32,4 @@ The fix: fresh DB lookup per call (correctness) over O(1) stale lookup (performa
 
 ## Cross-Refs
 
-- `claude/learnings/financial-applications.md` — fee calculation invariants, zero-divisor guards, two-layer idempotency, and "fail loudly" error handling (complements the system-level resilience patterns here)
+- `~/.claude/learnings/financial/applications.md` — fee calculation invariants, zero-divisor guards, two-layer idempotency, and "fail loudly" error handling (complements the system-level resilience patterns here)

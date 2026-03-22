@@ -1,6 +1,6 @@
 Fundamental practices that apply across languages and frameworks. These are the filters that should run on every line of code — during implementation, not just refactoring.
 - **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming
-- **Related:** process-conventions.md, refactoring-patterns.md
+- **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/refactoring-patterns.md
 
 ---
 
@@ -110,5 +110,5 @@ When the same content appears in guidelines, code comments, and documentation, c
 
 ## Cross-Refs
 
-- `process-conventions.md` — complementary process-level patterns
-- `refactoring-patterns.md` — refactoring methodology
+- `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
+- `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology

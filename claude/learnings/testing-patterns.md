@@ -1,6 +1,6 @@
 Testing recipes for Vitest/React Testing Library, Next.js route handlers, cross-implementation fixtures, Python test isolation, and mock design.
 - **Keywords:** Vitest, React Testing Library, renderHook, vi.mock, vi.hoisted, jsdom, localStorage, pytest, pytest.raises, module-level singleton, import side effects, UTC, datetime, cross-implementation fixtures, mock coupling, test helpers
-- **Related:** nextjs.md, playwright-patterns.md, code-quality-instincts.md, react-frontend-gotchas.md
+- **Related:** ~/.claude/learnings/frontend/nextjs.md, ~/.claude/learnings/playwright-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/frontend/react-frontend-gotchas.md
 
 ---
 
@@ -193,7 +193,7 @@ When writing plan docs that include integration/router-level tests, explicitly s
 
 ## Cross-Refs
 
-- `nextjs.md` — route handler test structure
-- `playwright-patterns.md` — E2E test recipes
-- `code-quality-instincts.md` — test quality instincts
-- `react-frontend-gotchas.md` — Vitest stack context
+- `~/.claude/learnings/frontend/nextjs.md` — route handler test structure
+- `~/.claude/learnings/playwright-patterns.md` — E2E test recipes
+- `~/.claude/learnings/code-quality-instincts.md` — test quality instincts
+- `~/.claude/learnings/frontend/react-frontend-gotchas.md` — Vitest stack context

@@ -1,6 +1,6 @@
 Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema design, and migration safety patterns for PostgreSQL.
 - **Keywords:** PostgreSQL, window functions, ROW_NUMBER, CTE, WITH RECURSIVE, JSONB, GIN index, partial index, CONCURRENTLY, partitioning, composite PK, Flyway, NOT NULL, migration
-- **Related:** spring-boot.md, financial-applications.md
+- **Related:** ~/.claude/learnings/java/spring-boot.md, ~/.claude/learnings/financial/applications.md
 
 ---
 
@@ -67,5 +67,5 @@ Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema 
 
 ## Cross-Refs
 
-- `~/.claude/learnings/spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
-- `~/.claude/learnings/financial-applications.md` — DECIMAL precision patterns for financial column design
+- `~/.claude/learnings/java/spring-boot.md` — Flyway migration safety patterns overlap with migration safety above
+- `~/.claude/learnings/financial/applications.md` — DECIMAL precision patterns for financial column design

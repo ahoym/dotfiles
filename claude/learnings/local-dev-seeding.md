@@ -1,6 +1,6 @@
 Hybrid API + SQL seeding architecture with Newman manifests, envsubst templating, schema drift detection, and deterministic UUIDs.
 - **Keywords:** Newman, envsubst, psql, SQL template, ON CONFLICT, idempotent seeding, Flyway, schema drift, pg_dump, deterministic UUID, seed data
-- **Related:** newman-postman.md
+- **Related:** ~/.claude/learnings/newman-postman.md
 
 ---
 
@@ -56,5 +56,5 @@ This eliminates async wait times (e.g., polling for compliance approval) and rem
 
 ## Cross-Refs
 
-- `newman-postman.md` — Newman runtime gotchas (skipRequest sync-only, conditional assertions, export-environment manifest)
+- `~/.claude/learnings/newman-postman.md` — Newman runtime gotchas (skipRequest sync-only, conditional assertions, export-environment manifest)
 

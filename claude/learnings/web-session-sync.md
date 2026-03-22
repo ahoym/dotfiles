@@ -1,6 +1,6 @@
 Patterns for syncing skills and commands into Claude Code web sessions via branch workflows.
 - **Keywords:** web session, sync-web-session, web-skills, guard-commands, web-create-pr, force-with-lease, pnpm typecheck, context window
-- **Related:** cross-repo-sync.md, skill-platform-portability.md
+- **Related:** ~/.claude/learnings/claude-code/cross-repo-sync.md, ~/.claude/learnings/claude-code/skill-platform-portability.md
 
 ---
 
@@ -71,5 +71,5 @@ For large refactoring sessions that touch 10+ files:
 
 ## Cross-Refs
 
-- `~/.claude/learnings/cross-repo-sync.md` — bidirectional sync patterns (web-session sync is a one-directional specialization)
-- `~/.claude/learnings/skill-platform-portability.md` — platform-neutral skill design (reduces what needs syncing)
+- `~/.claude/learnings/claude-code/cross-repo-sync.md` — bidirectional sync patterns (web-session sync is a one-directional specialization)
+- `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform-neutral skill design (reduces what needs syncing)

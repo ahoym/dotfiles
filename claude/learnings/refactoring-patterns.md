@@ -1,6 +1,6 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
 - **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, parallel batch
-- **Related:** code-quality-instincts.md, process-conventions.md, testing-patterns.md
+- **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
 
 ---
 
@@ -156,6 +156,6 @@ When renaming a directory that's referenced across many files, categorize each r
 
 ## Cross-Refs
 
-- `code-quality-instincts.md` — code quality signals that trigger refactors
-- `process-conventions.md` — PR splitting and review process
-- `testing-patterns.md` — test recipes for refactoring safety
+- `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
+- `~/.claude/learnings/process-conventions.md` — PR splitting and review process
+- `~/.claude/learnings/testing-patterns.md` — test recipes for refactoring safety

@@ -1,103 +1,40 @@
 # Learnings Index
 
-Read this file when starting domain-relevant work. Load the files that match your task, then follow their cross-references.
+Read this file when starting domain-relevant work. For clusters, read the cluster's CLAUDE.md to discover individual files.
 
 If `~/.claude/learnings-private/CLAUDE.md` exists, read it too — it contains private project-specific learnings.
 If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-local learnings.
 
 ---
 
-## Claude Authoring
+## Clusters
 
-- `claude-authoring-claude-md.md` — Patterns for writing effective CLAUDE.md files that help agents navigate codebases
-- `claude-authoring-content-types.md` — Routing guide: decide whether content belongs in skills, guidelines, learnings, or personas
-- `claude-authoring-guidelines.md` — Patterns for writing, merging, and maintaining guidelines
-- `claude-authoring-learnings.md` — Patterns for authoring and curating learnings files (genericize, structure, dedup)
-- `claude-authoring-personas.md` — Patterns for writing domain personas (judgment layer, not recipe catalog)
-- `claude-authoring-skills.md` — Core skill design patterns (structure, allowed-tools, operator/agent distinction)
-- `claude-authoring-polling-review-skills.md` — Patterns specific to polling and review skill design
-
-## Claude Code & Agent Infrastructure
-
-- `claude-code.md` — Claude Code tool gotchas: Task tool worktree limitations, permission edge cases
-- `claude-code-hooks.md` — PreToolUse hook authoring and hook configuration patterns
-- `skill-platform-portability.md` — Official features, cross-platform compatibility, plugins, agent definitions
-- `multi-agent-patterns.md` — Multi-agent orchestration: background agents, output verification, intermediate files
-- `parallel-plans.md` — Parallel plan execution: DAG shape, speedup bounds, dependency ordering
-- `ralph-loop.md` — Ralph loop: resuming completed loops, loop state management
-- `explore-repo.md` — explore-repo skill patterns: parallel multi-agent exploration for unfamiliar repos
-- `cross-repo-sync.md` — Cross-repo sync patterns and path-mismatch gotchas
-
-## XRPL
-
-- `xrpl-patterns.md` — XRPL patterns: getOrderbook vs raw book_offers, xrpl.js v4 specifics
-- `xrpl-gotchas.md` — Condensed XRPL integration tripwires (companion to xrpl-patterns.md)
-- `xrpl-amm.md` — XRPL AMM: constant-product formulas with fee, LP token mechanics
-- `xrpl-cross-currency-payments.md` — Cross-currency payments: delivered_amount, path finding, slippage
-- `xrpl-dex-data.md` — XRPL DEX external APIs: OnTheDEX token data, market data sources
-- `xrpl-permissioned-domains.md` — XRPL permissioned domains and credentials (feature status, setup)
-
-## Java / Spring Boot
-
-- `spring-boot.md` — Spring Boot patterns and best practices (Mockito 5+, BOM, testing)
-- `spring-boot-gotchas.md` — Spring Boot tripwires: common one-liner mistakes (companion to spring-boot.md)
-- `java-observability.md` — Java observability: Micrometer counters, Grafana dashboard patterns
-- `java-observability-gotchas.md` — Micrometer/metrics tripwires (companion to java-observability.md)
-- `java-infosec-gotchas.md` — Java security tripwires: check before any code review or implementation
-- `quarkus-kotlin.md` — Quarkus + Kotlin: enum hot-reload, dev mode gotchas, build quirks
-
-## Frontend / React
-
-- `react-patterns.md` — React patterns: React 19 hooks rules, state management, render behavior
-- `react-frontend-gotchas.md` — React 19, Next.js/Turbopack, and Playwright tripwires (companion to react-patterns.md)
-- `nextjs.md` — Next.js learnings: middleware rename, routing, app router patterns
-- `ui-patterns.md` — UI patterns: CSS tooltips, Tailwind group-hover, component layout
-- `accessibility-patterns.md` — Common accessibility gaps in React/Next.js components and their fixes
-- `typescript-specific.md` — TypeScript patterns: union types, Record keys, type narrowing
-- `typescript-ci-gotchas.md` — pnpm/Node CI: lockfile handling, action setup, browser caching, linting config
-
-## AWS / Infrastructure
-
-- `aws-patterns.md` — AWS patterns: EventBridge scheduler, IAM, Lambda gotchas
-- `aws-messaging.md` — AWS messaging: SQS/SNS/EventBridge queue selection and configuration
-- `vercel-deployment.md` — Vercel deployment: cron job limits, environment variables, edge config
-
-## CI/CD
-
-- `ci-cd.md` — CI/CD patterns: Docker build/push stage sharing, pipeline structure
-- `ci-cd-gotchas.md` — GitHub Actions and GitLab CI tripwires (companion to ci-cd.md and gitlab-ci-cd.md)
-- `gitlab-ci-cd.md` — GitLab CI/CD patterns: diagnosing failures with glab, pipeline structure, glab CLI flag differences
+- `claude-authoring/CLAUDE.md` — Authoring skills, guidelines, learnings, personas, and CLAUDE.md files
+- `claude-code/CLAUDE.md` — Claude Code platform mechanics, agent infrastructure, orchestration
+- `xrpl/CLAUDE.md` — XRPL integration: orderbook, AMM, cross-currency payments, DEX data
+- `java/CLAUDE.md` — Java/JVM: Spring Boot, Quarkus/Kotlin, observability, security
+- `frontend/CLAUDE.md` — React 19, Next.js, TypeScript, UI components, accessibility
+- `aws/CLAUDE.md` — AWS infrastructure: EventBridge, SQS/SNS, Lambda, Vercel
+- `cicd/CLAUDE.md` — CI/CD: GitHub Actions, GitLab CI, pipeline patterns
+- `financial/CLAUDE.md` — Financial/ledger engineering: monetary calculations, architecture, accounting
 
 ## Database
 
-- `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, JSONB, indexing, schema design, and migration safety patterns
+- `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, JSONB, indexing, schema design, migration safety
 - `local-dev-seeding.md` — Local dev seeding: hybrid API + SQL architecture for repeatable test data
-
-## Financial / Ledger Engineering
-
-- `domain-ledger-architecture.md` — Core ledger patterns: three-table schema, balance composition, entry lifecycle, reconciliation, multi-entity
-- `financial-applications.md` — Financial application patterns: monetary calculation safety, error handling
-- `bignumber-financial-arithmetic.md` — BigNumber.js for JS financial arithmetic: prevents float precision errors in prices and totals
-- `order-book-pricing.md` — Order book pricing: mid-price approaches, slippage calculation, spread
-- `saga-distributed-transactions.md` — Saga patterns for distributed ledger transactions: orchestration vs choreography, compensation design, transactional outbox
-- `ledger-testing-strategies.md` — Ledger testing: accounting invariants, property-based testing, reconciliation harnesses, chaos testing
-- `chart-of-accounts.md` — Chart of accounts: hierarchy design, GL integration, account lifecycle, multi-entity CoA
-- `period-end-closing.md` — Period-end closing: soft/hard close, snapshots, balance carry-forward, late-arriving transactions
-- `ledger-schema-migration.md` — Ledger migration: balance-first to entry-first, dual-write, zero-downtime cutover, balance recomputation
-- `event-sourcing-cqrs.md` — Event sourcing & CQRS for ledgers: event store design, projections, schema evolution, snapshot strategies
 
 ## General Engineering
 
 - `api-design.md` — API design: consistent response shapes, versioning, error contracts
-- `code-quality-instincts.md` — Fundamental code quality practices that apply across all languages and frameworks
-- `refactoring-patterns.md` — Refactoring guidelines: survey before acting, scope discipline
-- `testing-patterns.md` — Testing patterns: Vitest + React Testing Library, test structure, mocking
+- `code-quality-instincts.md` — Fundamental code quality practices across all languages
+- `refactoring-patterns.md` — Refactoring: survey before acting, scope discipline
+- `testing-patterns.md` — Testing: Vitest + React Testing Library, test structure, mocking
 - `playwright-patterns.md` — Playwright E2E testing: patterns, gotchas, best practices
 - `newman-postman.md` — Newman/Postman: skipRequest synchronous constraint, collection patterns
-- `git-patterns.md` — Git patterns: commit-message-based identification, rebase, branch management
-- `bash-patterns.md` — Bash patterns: shell env default ordering, quoting gotchas
-- `python-specific.md` — Python patterns: Pydantic v2 optional fields, serialization
-- `resilience-patterns.md` — Resilience patterns: idempotent processing, reprocessing loop prevention
+- `git-patterns.md` — Git: commit-message-based identification, rebase, branch management
+- `bash-patterns.md` — Bash: shell env default ordering, quoting gotchas
+- `python-specific.md` — Python: Pydantic v2 optional fields, serialization
+- `resilience-patterns.md` — Resilience: idempotent processing, reprocessing loop prevention
 - `reactive-data-patterns.md` — Reactive data patterns for real-time UIs: background refresh, resource validation
 - `web-session-sync.md` — Web session sync: when sync is needed vs not, implementation patterns
 - `process-conventions.md` — Engineering process conventions: scoping, tracking, work organization

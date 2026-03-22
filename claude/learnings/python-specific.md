@@ -1,6 +1,6 @@
 Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
 - **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression
-- **Related:** api-design.md, testing-patterns.md
+- **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing-patterns.md
 
 ---
 
@@ -99,5 +99,5 @@ assert response == MyResponseModel(
 
 ## Cross-Refs
 
-- `api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
-- `testing-patterns.md` — Python module-level singleton test isolation
+- `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
+- `~/.claude/learnings/testing-patterns.md` — Python module-level singleton test isolation

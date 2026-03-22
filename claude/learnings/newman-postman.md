@@ -1,6 +1,6 @@
 Newman/Postman runtime gotchas: skipRequest sync-only behavior, conditional assertions for idempotent seeding, export-environment manifests, and collection rebase conflicts.
 - **Keywords:** Newman, Postman, skipRequest, pm.execution, pm.sendRequest, export-environment, idempotent seeding, JSON merge, collection rebase, env-var
-- **Related:** local-dev-seeding.md
+- **Related:** ~/.claude/learnings/local-dev-seeding.md
 
 ---
 
@@ -78,4 +78,4 @@ When a branch re-exports a Postman collection with different indentation (2-spac
 
 ## Cross-Refs
 
-- `local-dev-seeding.md` — hybrid API + SQL seeding architecture using Newman as the API seeding layer
+- `~/.claude/learnings/local-dev-seeding.md` — hybrid API + SQL seeding architecture using Newman as the API seeding layer

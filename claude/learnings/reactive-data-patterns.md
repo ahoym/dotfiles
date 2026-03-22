@@ -1,6 +1,6 @@
 Patterns for real-time data updates, background refreshes, and resource validation in data-driven UIs.
 - **Keywords:** reactive refresh, polling, silent fetch, expiration tracking, setTimeout, setInterval, useRef, balance validation, exchange orders, loading skeleton
-- **Related:** react-patterns.md, order-book-pricing.md
+- **Related:** ~/.claude/learnings/frontend/react-patterns.md, ~/.claude/learnings/financial/order-book-pricing.md
 
 ---
 
@@ -26,5 +26,5 @@ Show an inline error with specific amounts ("Insufficient X — you have Y but n
 
 ## Cross-Refs
 
-- `react-patterns.md` — React hooks, polling with visibility gating, localStorage migration
-- `order-book-pricing.md` — pricing computation layer for exchange UIs (mid-price, slippage)
+- `~/.claude/learnings/frontend/react-patterns.md` — React hooks, polling with visibility gating, localStorage migration
+- `~/.claude/learnings/financial/order-book-pricing.md` — pricing computation layer for exchange UIs (mid-price, slippage)
