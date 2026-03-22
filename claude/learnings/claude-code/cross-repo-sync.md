@@ -6,7 +6,7 @@ Patterns for syncing Claude Code config between repos — quantum-tunnel merges,
 
 ## Quantum-tunnel-claudes path-mismatch gap
 
-The inventory script compares files by relative path. Skills that exist in both repos under different names (e.g., `create-pr` ↔ `create-mr`, `address-pr-review` ↔ `address-mr-review`) won't be detected as common files — they show up as "only in source" / "only in target" instead. **Solved:** unified platform-neutral skills (`create-request`, `address-request-comments`, `explore-request`, `split-request`, `extract-request-learnings`) replace the divergent pairs.
+Inventory comparison by relative path misses skills with different names across repos (e.g., `create-pr` ↔ `create-mr`). **Solved** by unified platform-neutral names (`create-request`, `address-request-comments`, etc.).
 
 ## Platform-detection.md is intentionally dual-platform
 
@@ -78,11 +78,9 @@ For **export** (working repo → dotfiles), `--delete` is correct — dotfiles s
 
 ## PR↔MR Skill Names Are Invisible to rsync — Solved by Unification
 
-Skill directories named differently across repos (`git/create-pr/` ↔ `git/create-mr/`) are unrelated paths to rsync. **Solved:** unify into platform-neutral names (`create-request`, `explore-request`, etc.) with runtime platform detection via `skill-references/platform-detection.md`. Same file, same path, same content — rsync/tar just works. The detection (`git remote get-url origin`) is a local file read, not a network call — sub-millisecond, no caching needed.
+Platform-divergent skill directory names are unrelated paths to rsync. **Solved** by unifying into platform-neutral names with runtime detection via `skill-references/platform-detection.md`.
 
-**Naming convention:** Use "request" — the shared root of "pull request" and "merge request." Avoid "review" as the noun — it means the act of code review, creating ambiguity (e.g., "address review comments on a review"). Good: `create-request`, `explore-request`, `split-request`, `address-request-comments`.
-
-**Pressure-test unified names before writing.** Naming propagates fast — once a name lands in a SKILL.md, it cascades into cross-references, template filenames, descriptions, and related skills tables. Check the candidate noun against all contexts it'll appear in.
+**Naming convention:** Use "request" (shared root of "pull request" and "merge request"). Avoid "review" as noun — ambiguous with code review. **Pressure-test names before writing** — naming cascades into cross-references, templates, descriptions, and related skills tables.
 
 ## Within-File Section Removals Are Invisible to PREVIOUSLY_REMOVED
 

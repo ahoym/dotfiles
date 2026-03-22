@@ -81,13 +81,17 @@ Write and Edit permission patterns use a different matching mechanism than Bash 
 4. **Write tool `file_path` requires absolute or `~/` paths** per its spec, but permission patterns may use CWD-relative. In symlinked repos, Write normalizes paths unpredictably — prefer Bash for simple file writes (e.g., epoch timestamps) and reserve Write for content files where CWD-relative patterns are pre-configured.
 5. **`replace_all: true` on Edit replaces ALL occurrences in the file** — not just in the target section. When a variable name appears in both definition and usage sections, use targeted `replace_all: false` edits to avoid collateral damage.
 
-## `.claude/` Path Protection: Project-Scoped Write/Edit Guard
+## `.claude/` Directory Protection
 
-Direct Write/Edit calls to paths containing `.claude/` prompt when the session's CWD is inside that `.claude/` directory (e.g., a dotfiles repo symlinked to `~/.claude/`). Not configurable via permission patterns, `settings.local.json`, or auto-accept mode.
+Claude Code has built-in protection for a project's `.claude/` directory that triggers permission prompts on Edit/Write regardless of permission patterns in `settings.json`. Not configurable via permission patterns, `settings.local.json`, or auto-accept mode.
 
 **Scope:** Project-scoped, not global. Sessions in other repos can write to `~/.claude/` paths via normal permission patterns without prompting.
 
 **Skill bypass:** Skills with `allowed-tools: [Write, Edit]` in SKILL.md frontmatter bypass the guard entirely — Write/Edit to `.claude/` paths auto-allow. This is why `/learnings:compound` works without prompting.
+
+**Workaround for dotfiles repos:** Store config files in a non-`.claude` directory (e.g., `claude/`) and symlink individual items into `~/.claude/`. The tilde-based permission patterns (`Edit(~/.claude/commands/**)`) then work normally because the real files aren't under a project `.claude/` path.
+
+**Symlink caveat:** Tilde permission patterns don't resolve through symlinks. If `~/.claude/commands` is a symlink to `/path/to/dotfiles/.claude/commands`, the pattern `Edit(~/.claude/commands/**)` sees the symlink path but the tool resolves to the real path — they don't match. Moving files out of `.claude/` fixes both issues at once.
 
 **Remaining friction:** Only affects ad-hoc direct Write/Edit calls during dotfiles sessions. For any repeatable workflow, wrapping it in a skill with `allowed-tools` eliminates the prompts.
 
@@ -108,14 +112,6 @@ git -C "$1" add -A && git -C "$1" commit -m "$2"
 Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any arguments, without exposing broad `git -C` permissions.
 
 **Anti-pattern: `Bash(bash:*)`** matches ANY `bash` command including `bash -c '<anything>'` — agents discover this bypass when commands are auto-denied. Always scope with path: `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
-
-## `.claude/` Directory Protection
-
-Claude Code has built-in protection for a project's `.claude/` directory that triggers permission prompts on Edit/Write regardless of permission patterns in `settings.json`. This is separate from the permission system — no pattern configuration can override it.
-
-**Workaround for dotfiles repos:** Store config files in a non-`.claude` directory (e.g., `claude/`) and symlink individual items into `~/.claude/`. The tilde-based permission patterns (`Edit(~/.claude/commands/**)`) then work normally because the real files aren't under a project `.claude/` path.
-
-**Related:** Tilde permission patterns don't resolve through symlinks. If `~/.claude/commands` is a symlink to `/path/to/dotfiles/.claude/commands`, the pattern `Edit(~/.claude/commands/**)` sees the symlink path but the tool resolves to the real path — they don't match. Moving files out of `.claude/` fixes both issues at once.
 
 ## Cross-Refs
 

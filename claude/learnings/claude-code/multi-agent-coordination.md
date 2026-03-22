@@ -4,8 +4,6 @@ Multi-agent file coordination — worktree commit/merge, staging directories, sa
 
 ---
 
-See also: `~/.claude/skill-references/subagent-patterns.md` for universal patterns (output verification, intermediate files, structured templates).
-
 ## Coordinating Interface Changes Across Parallel Subagents
 
 When removing a parameter/prop from many modules using parallel subagents, each agent must update **both** the module's interface and any call sites within the same file.
@@ -121,3 +119,7 @@ When merging diverged files with many structural changes (new sections, reordere
 ## File Overlap as Parallel Conflict Predictor
 
 When independent work items (issues, tasks) could run in parallel, check for file overlap before launching. Issues that touch the same files (e.g., two terminology sweeps both editing persona files) cause merge conflicts in parallel worktree agents. Options: pre-filter conflicting items into sequential batches, accept conflicts and resolve post-merge, or group by file domain and run groups sequentially. File overlap analysis is cheap (grep issue bodies for mentioned paths/patterns) and prevents the most common parallel failure mode.
+
+## Cross-Refs
+
+- `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)

@@ -1,5 +1,5 @@
 Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research and consolidation loops.
-- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, deep dive, consolidation, worktree, compounding, sweep, curation, persona, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT
+- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, deep dive, consolidation, worktree, compounding, sweep, curation, persona, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, cluster batch
 - **Related:** none
 
 ---
@@ -146,42 +146,6 @@ When an outer-loop iteration produces a 0 sweep-count delta, the log should capt
 
 When running multi-iteration research (ralph loops, deep dives), explicitly log assumptions with confidence ratings (High/Medium/Low) and a validation tracker table. This prevents later iterations from re-investigating settled questions or proceeding on shaky foundations. Format: assumption statement, confidence level, whether validated, and resolution. Cross-reference assumptions from the ID (A1, A2...) in other documents.
 
-## Absence of Documentation ≠ Absence of Feature
-
-When docs describe a feature only in the context of X (e.g., "auto-discovery works with `skills/`"), do NOT conclude that Y (e.g., `commands/`) lacks the feature. Silence is not exclusion. Require **explicit** evidence — a statement like "X does not support Y" — before claiming a capability difference. If the docs also contain a general equivalence statement (e.g., "both work the same way"), that should be the default position until contradicted.
-
-**When asserting "X can't do Y":** actively search for evidence that X *can* do Y before committing to the claim. This is the adversarial/red-team step that catches false negatives.
-
-## Broaden Primary Source Coverage in Research
-
-Don't rely on a single doc page. When researching a feature area, traverse **related** official pages (e.g., researching skills? also read plugins, settings, reference docs). Key findings often live on adjacent pages — e.g., the plugin structure table that confirmed `commands/` support was on the plugins page, not the skills page.
-
-## Validate Factual Claims About Runtime Behavior
-
-Research that asserts capability differences (e.g., "directory X supports feature Y but directory Z doesn't") should be validated empirically when possible, not just inferred from docs. If the research loop constraints prevent code execution, flag the claim as **low-confidence/unverified** and note that empirical testing is needed before acting on it.
-
-## Skill-as-Methodology for Autonomous Agents
-
-Autonomous agents (`claude --print`) can't invoke the Skill tool, but they can read a SKILL.md file and follow its steps as inline methodology. Override only the interactive steps (AskUserQuestion → auto-apply, report generation → skip, results → skip). The skill drives classification, cross-referencing, and analysis; the spec provides the autonomous overrides. When the skill evolves, the agent gets improvements for free.
-
-## Lazy-Load Phase-Specific Methodology in Specs
-
-Stateless agent specs benefit from splitting phase-specific methodology into separate files loaded on-demand. The core spec (constraints, workflow, transitions) stays as the prompt; the agent reads the relevant methodology file only when entering that phase. Keep shared decision criteria (e.g., candidacy rules referenced by multiple phases) in core — only extract sections used exclusively by one phase.
-
-## "Validate" Means Run It
-
-When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the user says so.
-
-When creating docs that mirror code-defined data (enums, config, topology), run the source code to validate claims programmatically. Counting items, listing values, or computing derived facts via `poetry run python3 -c "..."` catches misclassifications that manual review misses.
-
-## Confidence Calibration Diagnostic for Autonomous Loops
-
-When an autonomous loop produces zero items at a classification level (e.g., zero LOWs across all iterations), diagnose whether it's genuine clarity or systematic under-reporting:
-
-1. **Audit the level above**: Check MEDIUM decisions for borderline calls that should have been LOWs. Were any "auto-applied" where the rationale required non-trivial judgment?
-2. **Check the classification funnel**: Count action types per level. If the auto-apply bucket has 14 action types and the block/escalate bucket has 4, the funnel structurally prevents items from reaching the lower level.
-3. **Spot-check "clean" items**: Pick 2-3 files the agent called clean and review manually. If a human finds things the agent missed, the agent is resolving ambiguity silently rather than surfacing it.
-
 ## Edit Templates, Not Output Copies
 
 Consolidation output files (`claude/consolidate-output/spec.md`, `deep-dive-methodology.md`, etc.) are copies scaffolded from `~/.claude/ralph/consolidate/templates/` at init time. To change loop behavior globally (e.g., bump max guard), edit the templates — not the current run's copies. The current run's copies are ephemeral state owned by the loop; editing them mid-run is fragile and won't persist to future runs.
@@ -225,15 +189,6 @@ When evaluating a consolidation run, every file the loop touched appears in rece
 
 Outer loops (wiggum.sh) should grep agent output for known failure messages (e.g., "hit your limit") and exit immediately rather than retrying. Without this, the loop burns through remaining iterations on predictable failures — the rate limit won't clear mid-loop. The sweep-count delta check (expected 1, got 0) logs a warning but doesn't stop the loop; the rate limit check should.
 
-## Issue Simplicity Heuristic for Implementer Loops
-
-"Simple" = low-judgment, regardless of surface area. A 30-file mechanical rename is simpler than a 3-file architectural decision. Criteria:
-
-- **In**: issue body contains enough context to execute without questions; clear done state; no external dependencies
-- **Out**: requires design decisions not in the issue; requires empirical testing against external systems; body says "research"/"investigate"/"explore" without a concrete action plan
-
-File count and cross-cutting scope don't disqualify — only judgment requirements do.
-
 ## Recovering from Partial Iteration State
 
 When wiggum.sh errors leave partial state (progress.md updated but no commit), `git reset --hard <last-successful-commit>` is the cleanest recovery. Partial iterations can leave tracker gaps (files marked "done" in progress.md but missing from deep-dive-tracker.json) and decisions.md holes. Resetting to the last committed checkpoint ensures all state files are consistent. The lost iterations are cheap to redo — clean deep dives take ~3 minutes each.
@@ -247,6 +202,16 @@ All `[L-N]` items in `review.md` are human judgment items — even the ones that
 ## Worktree Claude Config Location
 
 The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — not `~/.claude/worktrees/<name>/`. The `claude/` subdirectory is nested *inside* the worktree directory, not at the `~/.claude/` level. When editing worktree-specific persona files, commands, or guidelines, the absolute path is `/Users/<user>/WORKSPACE/<repo>/claude/worktrees/<name>/claude/<path>`.
+
+## Cluster-Batched Deep Dives
+
+Deep dives batch per learnings cluster directory — all candidate files in `claude/learnings/frontend/` are processed in one invocation, amortizing methodology loading and context setup. Unclustered files (top-level `claude/learnings/*.md`) remain one-per-invocation since they tend to be larger cross-cutting files.
+
+**Cluster-level candidacy**: When any file in a cluster qualifies via the standard 7 criteria, all files in that cluster become candidates. The marginal cost of scanning additional small files in a cluster you're already loading is near zero, and having the full cluster in context enables intra-cluster cross-referencing that per-file analysis misses.
+
+**Structural scans at cluster level**: Merge-for-cohesion and split-for-discoverability opportunity scans happen during cluster deep dives (not broad sweeps). The cluster batch is the best vantage point — all files at pattern-level detail, in the context of their neighbors.
+
+**Max guard**: 15 invocations (down from 30). With cluster batching, 15 invocations covers significantly more files. The `min_deep_dives` floor (default 20) remains a file count, not invocation count.
 
 ## All Content Type Runs Are Roughly Equal Length
 
