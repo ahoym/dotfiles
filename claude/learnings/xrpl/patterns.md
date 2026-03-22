@@ -1,6 +1,6 @@
 XRPL integration patterns: orderbook fetching, funded offers, WebSocket management, fill detection, xrpl.js type gaps, and simulate API.
 - **Keywords:** getOrderbook, book_offers, funded offer, RippleState, OfferCreate, account_tx, getBalanceChanges, simulate, submitAndWait, xrpl.js, currency encoding, credential type, TransactionMetadata
-- **Related:** ~/.claude/learnings/financial/bignumber-arithmetic.md, ~/.claude/learnings/financial/order-book-pricing.md
+- **Related:** ~/.claude/learnings/financial/numeric-precision-strategy.md, ~/.claude/learnings/financial/order-book-pricing.md
 
 ---
 
@@ -208,6 +208,6 @@ Critical for retry logic: after `tec`, increment sequence; after `tef`/`ter`/`te
 
 ## Cross-Refs
 
-- `~/.claude/learnings/financial/bignumber-arithmetic.md` — BigNumber patterns for orderbook/depth
+- `~/.claude/learnings/financial/numeric-precision-strategy.md` — BigNumber patterns for orderbook/depth
 - `~/.claude/learnings/financial/order-book-pricing.md` — mid-price approaches, slippage estimation, midprice module design
 

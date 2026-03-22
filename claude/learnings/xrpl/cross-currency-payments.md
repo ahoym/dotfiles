@@ -1,6 +1,6 @@
 Payment engine mechanics: delivered_amount, two-pass algorithm, pathfinding, TransferRate, SendMax, and NoRipple rules.
 - **Keywords:** delivered_amount, two-pass, reverse pass, forward pass, ripple_path_find, SendMax, TransferRate, tfLimitQuality, NoRipple, DefaultRipple, tecPATH_DRY, noripple_check
-- **Related:** ~/.claude/learnings/financial/bignumber-arithmetic.md
+- **Related:** ~/.claude/learnings/financial/numeric-precision-strategy.md
 
 ---
 
@@ -52,4 +52,4 @@ Useful for diagnosing `tecPATH_DRY` failures caused by rippling misconfiguration
 
 ## Cross-Refs
 
-- `~/.claude/learnings/financial/bignumber-arithmetic.md` — BigNumber arithmetic for payment amount calculations and slippage margins
+- `~/.claude/learnings/financial/numeric-precision-strategy.md` — BigNumber arithmetic for payment amount calculations and slippage margins

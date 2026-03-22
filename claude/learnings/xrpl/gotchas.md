@@ -1,6 +1,6 @@
 Condensed tripwires for XRPL integration: offer semantics, flag conventions, trust lines, AMM edge cases, and TypeScript boundaries.
 - **Keywords:** TakerGets, TakerPays, taker_gets_funded, lsfSell, RippleState, getBalanceChanges, hex currency, AMMCreate fee, isValidClassicAddress, Buffer, TextEncoder
-- **Related:** ~/.claude/learnings/financial/bignumber-arithmetic.md
+- **Related:** ~/.claude/learnings/financial/numeric-precision-strategy.md
 
 ---
 
@@ -46,4 +46,4 @@ Condensed tripwires for XRPL integration: offer semantics, flag conventions, tru
 
 ## Cross-Refs
 
-- `~/.claude/learnings/financial/bignumber-arithmetic.md` — BigNumber.js patterns for XRPL financial calculations
+- `~/.claude/learnings/financial/numeric-precision-strategy.md` — BigNumber.js patterns for XRPL financial calculations

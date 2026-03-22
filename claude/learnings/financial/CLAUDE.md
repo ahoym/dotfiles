@@ -4,7 +4,7 @@ Financial and ledger engineering: monetary calculations, ledger architecture, pr
 |------|-------------|
 | domain-ledger-architecture.md | Core ledger patterns: three-table schema, balance composition, entry lifecycle |
 | applications.md | Monetary calculation safety, error handling |
-| bignumber-arithmetic.md | BigNumber.js for JS financial arithmetic, float precision prevention |
+| numeric-precision-strategy.md | Cross-layer precision: DB NUMERIC, wire strings, BigDecimal/BigNumber.js, crypto decimals, sizing rationale |
 | order-book-pricing.md | Mid-price approaches, slippage calculation, spread |
 | saga-distributed-transactions.md | Saga patterns: orchestration vs choreography, compensation, transactional outbox |
 | ledger-testing-strategies.md | Accounting invariants, property-based testing, reconciliation harnesses |

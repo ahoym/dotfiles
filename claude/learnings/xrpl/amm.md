@@ -1,6 +1,6 @@
 XRPL Automated Market Maker mechanics: constant-product formulas, CLOB+AMM interleaving, LP tokens, and error codes.
 - **Keywords:** AMM, XLS-30, constant product, LP token, AMMCreate, AMMDeposit, AMMWithdraw, AMMVote, AMMBid, amm_info, impermanent loss, auction slot, trading fee
-- **Related:** ~/.claude/learnings/financial/order-book-pricing.md, ~/.claude/learnings/financial/bignumber-arithmetic.md
+- **Related:** ~/.claude/learnings/financial/order-book-pricing.md, ~/.claude/learnings/financial/numeric-precision-strategy.md
 
 ---
 
@@ -123,4 +123,4 @@ AMM liquidity consumed during trade execution appears in `AffectedNodes` as `Led
 ## Cross-Refs
 
 - `~/.claude/learnings/financial/order-book-pricing.md` — mid-price, slippage estimation for interleaved CLOB+AMM fills
-- `~/.claude/learnings/financial/bignumber-arithmetic.md` — BigNumber.js patterns for AMM formula computations
+- `~/.claude/learnings/financial/numeric-precision-strategy.md` — BigNumber.js patterns for AMM formula computations
