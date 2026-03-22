@@ -1,6 +1,6 @@
 Official features, cross-platform compatibility, plugins, and agent definitions for the Claude Code skill ecosystem.
 - **Keywords:** commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, $ARGUMENTS, plugins, agents, memory, progressive disclosure, shell preprocessing, baseDir, Agent Skills spec, SkillPort, compatibility field
-- **Related:** ~/.claude/learnings/claude-authoring/skills.md
+- **Related:** ~/.claude/learnings/claude-authoring/skill-platform-unification.md
 
 ---
 
@@ -222,4 +222,4 @@ The spec-standard `compatibility:` frontmatter field (max 500 chars) signals int
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-authoring/skills.md` — skill design patterns
+- `~/.claude/learnings/claude-authoring/skill-platform-unification.md` — skill design patterns

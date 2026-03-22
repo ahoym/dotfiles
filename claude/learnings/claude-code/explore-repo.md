@@ -1,6 +1,6 @@
 Patterns for the `/explore-repo` skill — parallel multi-agent scanning, domain file structure, synthesis output, staleness detection, and CLAUDE.md generation.
 - **Keywords:** explore-repo, multi-agent scan, domain files, synthesis, SYSTEM_OVERVIEW, inconsistencies, CLAUDE.md generation, staleness detection, cross-domain dedup, greenfield
-- **Related:** ~/.claude/learnings/claude-authoring/skills.md
+- **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
 
@@ -152,4 +152,4 @@ Adding `## Cross-references` sections to domain scan files creates a navigable d
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-authoring/skills.md` — stateful mode detection patterns
+- `~/.claude/learnings/claude-authoring/skill-design.md` — stateful mode detection patterns

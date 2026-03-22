@@ -2,7 +2,8 @@ Frontend patterns: React 19, Next.js, TypeScript, UI components, accessibility, 
 
 | File | When to read |
 |------|-------------|
-| react-patterns.md | React 19 hooks rules, state management, render behavior |
+| react-state-effects.md | React 19 setState rules, hydration, lazy initializers, per-environment state |
+| react-hooks-and-ui.md | Hook extraction, two-tier design, modals, polling, page decomposition |
 | react-frontend-gotchas.md | React 19, Next.js/Turbopack, Playwright tripwires |
 | nextjs.md | Next.js middleware, routing, app router patterns |
 | ui-patterns.md | CSS tooltips, Tailwind group-hover, component layout |

@@ -175,6 +175,8 @@ When learnings files grow large, the sniff becomes imprecise — loading 400 lin
 
 **Search pipeline impact:** Directory structure enables glob scoping — "does this session involve XRPL?" → no → skip entire `xrpl/` directory. Reduces sniff cost from "all files" to "relevant cluster files."
 
+**Split grouping heuristic:** Group sections by co-search likelihood: "if someone is searching for topic A, what other topics would they also need in the same work context?" Sections that co-occur during the same task belong in the same file. Dense files (under ~6 lines/section average) resist splitting — the sections are too interleaved and short to form coherent standalone files. Skip these even if they exceed the line threshold.
+
 ## Cross-Refs
 
 No cross-cluster references.

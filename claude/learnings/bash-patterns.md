@@ -1,6 +1,6 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
 - **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown
-- **Related:** ~/.claude/learnings/claude-code/platform.md, ~/.claude/learnings/git-patterns.md
+- **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
 
@@ -161,5 +161,5 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/platform.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
+- `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
 - `~/.claude/learnings/git-patterns.md` — GitHub API pagination, git operations that use bash scripting patterns

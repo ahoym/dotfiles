@@ -1,6 +1,6 @@
 Patterns and gotchas for Playwright E2E tests: shared browser contexts, dialog handlers, role selectors, storageState, strict mode, and dynamic file inputs.
 - **Keywords:** Playwright, BrowserContext, serial tests, localStorage, storageState, getByRole, aria-label, strict mode, selectOption, filechooser, page.once, exact true, locator scoping
-- **Related:** ~/.claude/learnings/frontend/react-frontend-gotchas.md, ~/.claude/learnings/testing-patterns.md, ~/.claude/learnings/frontend/react-patterns.md
+- **Related:** ~/.claude/learnings/frontend/react-frontend-gotchas.md, ~/.claude/learnings/testing-patterns.md, ~/.claude/learnings/frontend/react-hooks-and-ui.md
 
 ---
 
@@ -229,4 +229,4 @@ This is cleaner than try/catch + `test.skip()` when all outcomes are valid — t
 
 - `~/.claude/learnings/frontend/react-frontend-gotchas.md` — condensed Playwright tripwires
 - `~/.claude/learnings/testing-patterns.md` — unit and integration test patterns
-- `~/.claude/learnings/frontend/react-patterns.md` — modal timing and UI interaction patterns
+- `~/.claude/learnings/frontend/react-hooks-and-ui.md` — modal timing and UI interaction patterns
