@@ -1,6 +1,6 @@
 Patterns for `/loop` polling skills, quick-exit optimization, re-review detection, reviewer timestamps, and three-party review discussions.
 - **Keywords:** polling, quick-exit, re-review, SHA check, self-filter, cron, stale poll, force push, footnote, GitHub review API, 422
-- **Related:** ~/.claude/learnings/claude-code/multi-agent-orchestration.md, ~/.claude/learnings/process-conventions.md
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md, ~/.claude/learnings/process-conventions.md
 
 ---
 
@@ -88,5 +88,5 @@ A commit can land between phase 1 (SHA check) and review posting. If it fixes an
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/multi-agent-orchestration.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity

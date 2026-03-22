@@ -6,7 +6,7 @@
     "claude/learnings/claude-code/skill-platform-portability.md": { "last_deep_dive_run": 15 },
     "claude/learnings/claude-code/agent-definitions.md": { "last_deep_dive_run": 15 },
     "claude/learnings/claude-code/plugin-packaging.md": { "last_deep_dive_run": 15 },
-    "claude/learnings/claude-code/autonomous-agent-patterns.md": { "last_deep_dive_run": 15 },
+    "claude/learnings/claude-code/multi-agent/autonomous-patterns.md": { "last_deep_dive_run": 15 },
     "claude/learnings/frontend/nextjs.md": { "last_deep_dive_run": 9 },
     "claude/learnings/web-session-sync.md": { "last_deep_dive_run": 8 },
     "claude/commands/set-persona/typescript-devops.md": { "last_deep_dive_run": 15 },
@@ -46,7 +46,7 @@
     "claude/learnings/git-patterns.md": { "last_deep_dive_run": 13 },
     "claude/commands/set-persona/java-backend.md": { "last_deep_dive_run": 9 },
     "claude/commands/set-persona/claude-config-expert.md": { "last_deep_dive_run": 9 },
-    "claude/learnings/claude-code/parallel-plans.md": { "last_deep_dive_run": 12 },
+    "claude/learnings/claude-code/multi-agent/parallel-plans.md": { "last_deep_dive_run": 12 },
     "claude/learnings/java/spring-boot.md": { "last_deep_dive_run": 11 },
     "claude/learnings/newman-postman.md": { "last_deep_dive_run": 12 },
     "claude/learnings/local-dev-seeding.md": { "last_deep_dive_run": 12 },
@@ -108,6 +108,6 @@
     "claude/commands/git/cascade-rebase/SKILL.md": { "last_deep_dive_run": 14 },
     "claude/commands/git/repoint-branch/SKILL.md": { "last_deep_dive_run": 15 },
     "claude/learnings/claude-code/platform-permissions.md": { "last_deep_dive_run": 15 },
-    "claude/learnings/claude-code/multi-agent-coordination.md": { "last_deep_dive_run": 15 }
+    "claude/learnings/claude-code/multi-agent/coordination.md": { "last_deep_dive_run": 15 }
   }
 }

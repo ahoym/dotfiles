@@ -1,6 +1,6 @@
 Patterns for how engineering work is organized, scoped, and tracked — PR splitting, review etiquette, MR scoping, and multi-agent review identity.
 - **Keywords:** PR review, MR scoping, cherry-pick, code review, structured footnotes, LGTM, self-review, preparatory refactoring, PR splitting, review comments, approval flow
-- **Related:** ~/.claude/learnings/claude-code/multi-agent-orchestration.md, ~/.claude/learnings/code-quality-instincts.md
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md, ~/.claude/learnings/code-quality-instincts.md
 
 ---
 
@@ -171,5 +171,5 @@ When adding features to a protocol or system, check git history for previously r
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/multi-agent-orchestration.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
 - `~/.claude/learnings/code-quality-instincts.md` — code-level quality patterns (complementary: code vs process)

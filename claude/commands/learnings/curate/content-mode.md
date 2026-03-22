@@ -94,8 +94,8 @@ Flag patterns where meaningful compression (~30%+) is achievable. Include as a "
 For each file being curated, evaluate its `## Cross-Refs` section and `**Related:**` header line. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Cross-Reference Convention" for the full convention.
 
 **Cluster-aware rules:**
-- Files in a cluster should have **no intra-cluster refs** — the cluster `CLAUDE.md` handles sibling discovery.
-- Cross-cluster refs use full `~/.claude/learnings/...` paths.
+- Files in a cluster or sub-cluster should have **no intra-cluster refs** — the nearest `CLAUDE.md` (sub-cluster or cluster) handles sibling discovery.
+- Cross-cluster refs use full `~/.claude/learnings/...` paths. This includes refs from a sub-cluster file to a sibling file in the parent cluster — these cross a cluster boundary.
 - Flag any intra-cluster cross-refs for removal.
 
 **Staleness check** (if `## Cross-Refs` exists):
@@ -149,11 +149,11 @@ Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SU
 
 ## Broad Sweep (all learnings)
 
-When the user selects "all learnings", use a **cluster-first approach**. Learnings are already organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) with flat files at root.
+When the user selects "all learnings", use a **cluster-first approach**. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) which may contain sub-clusters (e.g., `claude-code/multi-agent/`), with flat files at root.
 
-1. Read all learnings files recursively (use parallel Read calls). Read each cluster's `CLAUDE.md` for its routing table.
-2. Use existing directory structure as clusters — don't re-derive. Flat files at root form a "general" group.
-3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
+1. Read all learnings files recursively (use parallel Read calls). Read each cluster's and sub-cluster's `CLAUDE.md` for its routing table.
+2. Use existing directory structure as clusters — don't re-derive. Sub-clusters are independent curation units alongside top-level clusters. Flat files at root form a "general" group. Flat files within a cluster (not in any sub-cluster) form that cluster's own curation unit.
+3. **⚡ Parallel: per-cluster analysis.** Launch one **Task subagent per cluster and per sub-cluster** to run steps 3–6 independently. Each subagent: counts files & patterns, checks for matching personas, flags thin pointer files, classifies patterns needing action, and detects persona opportunities. Merge all subagent results for the report.
 4. Flag thin pointer files (< 20 lines, mostly cross-references) as fold-and-delete candidates
 5. **Split candidates.** Flag files over ~150 lines that have clearly separable sub-topics. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "File Splitting and Directory Clustering" for conventions. Report as a separate section.
 6. Run persona detection (step 6) across all clusters simultaneously
@@ -337,10 +337,11 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - Compress: rewrite the section to express the same insight more concisely — remove redundant phrasing, trim excessive examples, tighten explanations. Preserve the core insight and any code examples essential to understanding.
 - Split file: for files over ~150 lines with separable sub-topics, propose a split into multiple files within the same cluster directory. Each new file gets a standardized header (description, keywords, related) and only cross-cluster refs. Update the cluster `CLAUDE.md` routing table to include the new files. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "File Splitting and Directory Clustering" for conventions.
 - Promote to cluster: for flat files at root that share a domain with 2+ other flat files, create a cluster subdirectory with a `CLAUDE.md` routing table, move files in, update top-level `learnings/CLAUDE.md`.
+- Promote to sub-cluster: for files within a cluster that share a narrower domain with 2+ siblings, create a sub-cluster subdirectory with its own `CLAUDE.md` routing table. Move files in, update the parent cluster's `CLAUDE.md` to list the sub-cluster as a pointer. See `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Sub-Cluster Nesting" for when to nest vs promote to top-level.
 - Thin pointer file: fold substantive content into the target persona/skill, delete the source file
 - **New persona**: read `persona-design.md`, mine relevant learnings files, draft persona using the 4-section structure, write to `~/.claude/commands/set-persona/<name>.md`
 - **Enhance persona**: read `persona-design.md` for section descriptions, then read the target persona file. For each pattern, map it to the appropriate section: gotchas/platform facts → "Known gotchas & platform specifics", actionable checks → "When reviewing or writing code", decision principles → "When making tradeoffs", focus areas → "Domain priorities". Append to the matching section.
-- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Cross-Reference Convention". Use full `~/.claude/learnings/...` paths for cross-cluster refs. No intra-cluster refs — the cluster CLAUDE.md handles those.
+- **Add cross-ref**: Append to or create `## Cross-Refs` section as the last section of the file. Follow the format in `~/.claude/learnings/claude-authoring/learnings-organization.md` → "Cross-Reference Convention". Use full `~/.claude/learnings/...` paths for cross-cluster refs. No intra-cluster refs — the nearest `CLAUDE.md` (sub-cluster or cluster) handles those. Refs from a sub-cluster file to a parent cluster sibling are cross-cluster.
 - **Remove stale cross-ref**: Delete lines pointing to files that no longer exist or where the relationship decayed. Include the reason (file deleted vs. relationship no longer holds) in the report.
 - **Add reverse cross-ref**: When adding A → B, also add B → A in the target file if the reverse provides lateral discovery value.
 

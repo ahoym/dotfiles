@@ -120,6 +120,10 @@ When merging diverged files with many structural changes (new sections, reordere
 
 When independent work items (issues, tasks) could run in parallel, check for file overlap before launching. Issues that touch the same files (e.g., two terminology sweeps both editing persona files) cause merge conflicts in parallel worktree agents. Options: pre-filter conflicting items into sequential batches, accept conflicts and resolve post-merge, or group by file domain and run groups sequentially. File overlap analysis is cheap (grep issue bodies for mentioned paths/patterns) and prevents the most common parallel failure mode.
 
+## Background Agents Can Commit Foreground Changes
+
+When a background agent shares a working tree with the foreground session, `git add` in the background agent stages whatever is on disk — including uncommitted foreground edits. If the background agent commits, foreground changes get bundled into the background commit with its unrelated message. The foreground session then sees its files as "already committed" with no diff against HEAD. Mitigation: use `isolation: "worktree"` for background agents that will commit, or ensure the foreground commits its changes before launching background work on the same files.
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)

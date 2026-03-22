@@ -10,7 +10,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - **Memory minimalism**: prefer guidelines (for rules), learnings (for knowledge), or skill references (for shared patterns) over memory. Memory is for facts that don't fit anywhere else — if the content would be useful to a skill or persona, it belongs in a discoverable file, not always-on context
 
 ## Content type placement
-> Full criteria: `~/.claude/learnings/claude-authoring-content-types.md`
+> Full criteria: `~/.claude/learnings/claude-authoring/content-types.md`
 - Behavioral rule ("always do X") → guideline, not learning or memory
 - Domain knowledge (gotcha, recipe, pattern) → learning
 - Shared patterns consumed by 2+ skills → skill reference (`skill-references/`), not inlined in each skill
@@ -50,3 +50,7 @@ Load when working in the specific area:
 - `~/.claude/learnings/process-conventions.md` — PR scoping, review process, MR conventions
 - `~/.claude/commands/learnings/curate/curation-insights.md` — curation calibration, compression targets
 - `~/.claude/learnings/claude-code/hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — work distribution, synthesis, parallelization, context compaction
+- `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree commit/merge, staging, file coordination
+- `~/.claude/learnings/claude-code/multi-agent/quality.md` — verification, trust arc, agent-to-agent review
+- `~/.claude/learnings/claude-code/multi-agent/parallel-plans.md` — parallel plan execution, DAG shape, speedup bounds

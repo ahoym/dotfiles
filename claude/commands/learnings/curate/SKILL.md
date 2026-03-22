@@ -67,7 +67,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 - Parse as space-separated file paths (relative to `~/.claude/`)
 - Verify each file exists under `~/.claude/` (e.g., `learnings/`, `learnings/xrpl/`, `guidelines/`, `commands/`)
 - Determine the **curation mode** per file:
-  - `learnings/*` or `learnings/<cluster>/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
+  - `learnings/*` or `learnings/<cluster>/*` or `learnings/<cluster>/<subcluster>/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
   - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
   - `commands/*` reference files (e.g., `classification-model.md`) → **Content mode** (pattern-level analysis). These are content files with discrete patterns, not skill packages. Skill mode is only for SKILL.md files and their parent directories.
   - `skill-references/*` → **Content mode** with **reference-file gate** (step 4a). These are authoritative shared references — duplication is removed from consuming skills, not from the reference.

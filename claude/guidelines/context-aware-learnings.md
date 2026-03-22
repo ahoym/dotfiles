@@ -7,7 +7,7 @@ All searches target these directories (when they exist):
 - `~/.claude/learnings-private/` (private)
 - `docs/learnings/` (project-local)
 
-Each has a `CLAUDE.md` index — read it at every gate for index-based matching alongside the pipeline. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`), each with its own `CLAUDE.md` routing table. Read cluster `CLAUDE.md` files when the cluster is relevant to derived terms.
+Each has a `CLAUDE.md` index — read it at every gate for index-based matching alongside the pipeline. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`), which may contain sub-clusters (e.g., `claude-code/multi-agent/`). Each cluster and sub-cluster has its own `CLAUDE.md` routing table. Read cluster `CLAUDE.md` files when the cluster is relevant to derived terms; follow sub-cluster pointers when the sub-cluster's domain matches.
 
 ## Gates
 

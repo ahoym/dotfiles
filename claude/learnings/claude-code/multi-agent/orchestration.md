@@ -75,7 +75,7 @@ When forking or adapting an existing codebase into a new project, systematically
 
 ## Context Compaction in Multi-Agent Workflows
 
-Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files) can exceed the orchestrator's context window. Background agents continue running independently — they have their own context and are decoupled from the orchestrator's context lifecycle. On resumption, the compaction summary preserves agent IDs, completion statuses, and file-level progress. You'll be notified automatically when background agents complete — don't poll with `TaskOutput` (it only works for background Bash commands; see "TaskOutput Only Works for Background Bash Tasks" in ~/.claude/learnings/claude-code/multi-agent-quality.md).
+Long-running orchestrations (e.g., 4 parallel merge agents processing 30+ files) can exceed the orchestrator's context window. Background agents continue running independently — they have their own context and are decoupled from the orchestrator's context lifecycle. On resumption, the compaction summary preserves agent IDs, completion statuses, and file-level progress. You'll be notified automatically when background agents complete — don't poll with `TaskOutput` (it only works for background Bash commands; see "TaskOutput Only Works for Background Bash Tasks" in ~/.claude/learnings/claude-code/multi-agent/quality.md).
 
 **Risk with 10+ agents:** Some may complete after compaction, losing original agent IDs and notifications. Mitigations: (1) batch in waves of 5-6 so each wave completes within the context window, (2) use a status tracking table updated after each notification, (3) record agent IDs in a file for the continuation session.
 

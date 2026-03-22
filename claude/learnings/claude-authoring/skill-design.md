@@ -145,4 +145,4 @@ Skills should work across different projects. Periodically audit skills to remov
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/multi-agent-orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)

@@ -9,11 +9,10 @@ Claude Code platform mechanics, agent infrastructure, and orchestration patterns
 | skill-platform-portability.md | Official skill features, frontmatter, context fork, shell preprocessing |
 | agent-definitions.md | Custom agent definitions (~/.claude/agents/), memory scopes, skill preloading |
 | plugin-packaging.md | Plugin caching, settings limits, namespace, cross-platform compatibility |
-| autonomous-agent-patterns.md | General autonomous agent patterns: research methodology, validation, confidence |
-| multi-agent-orchestration.md | Work distribution, synthesis, parallelization, context compaction |
-| multi-agent-coordination.md | Worktree commit/merge, staging, sandbox workarounds, file coordination |
-| multi-agent-quality.md | Verification, trust arc, agent-to-agent review, prompt design |
-| parallel-plans.md | Parallel plan execution, DAG shape, speedup bounds |
 | ralph-loop.md | Ralph loop mechanics, resuming, state management |
 | explore-repo.md | Parallel multi-agent exploration for unfamiliar repos |
 | cross-repo-sync.md | Cross-repo sync patterns and path-mismatch gotchas |
+
+## Sub-clusters
+
+- `multi-agent/CLAUDE.md` — Orchestration, coordination, quality, parallelization, autonomous patterns

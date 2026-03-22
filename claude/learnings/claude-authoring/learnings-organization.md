@@ -96,6 +96,33 @@ When learnings files grow large, the sniff becomes imprecise — loading 400 lin
 
 **Split grouping heuristic:** Group sections by co-search likelihood: "if someone is searching for topic A, what other topics would they also need in the same work context?" Sections that co-occur during the same task belong in the same file. Dense files (under ~6 lines/section average) resist splitting — the sections are too interleaved and short to form coherent standalone files. Skip these even if they exceed the line threshold.
 
+## Sub-Cluster Nesting
+
+Clusters can contain sub-clusters when a tighter domain emerges within an existing cluster. The same 3+ file threshold applies: when 3+ files within a cluster share a narrower domain than the parent, promote them to a sub-cluster.
+
+**Depth cap:** Maximum 2 directory levels below `learnings/` — i.e., `learnings/cluster/subcluster/file.md`. If a sub-cluster would itself need sub-clusters, promote the sub-cluster to a top-level cluster instead. Deeper nesting adds navigation cost that outweighs the organizational benefit.
+
+**When to nest vs promote to top-level:**
+- **Nest** when the sub-cluster's content is genuinely specific to the parent domain. Test: "Would someone searching for this sub-topic always also be in the parent domain?" If yes, nest. Example: `claude-code/multi-agent/` — multi-agent orchestration in the learnings corpus is Claude Code–specific, not general-purpose.
+- **Promote** when the sub-cluster has independent search value outside the parent domain, or when the content applies across multiple parent domains. Example: if `multi-agent/` patterns applied to arbitrary agent frameworks, it belongs at the top level.
+
+**Sub-cluster CLAUDE.md:** Each sub-cluster gets its own `CLAUDE.md` with a routing table for its files. The parent cluster's `CLAUDE.md` lists sub-clusters as pointers (like the top-level `learnings/CLAUDE.md` lists clusters), not individual sub-cluster files:
+
+```markdown
+## Sub-clusters
+
+- `multi-agent/CLAUDE.md` — Work distribution, coordination, quality, parallelization
+```
+
+**Cross-ref semantics at depth:**
+- Refs between files within the same sub-cluster → intra-cluster (handled by sub-cluster `CLAUDE.md`, no explicit cross-refs needed)
+- Refs from a sub-cluster file to a sibling file in the parent cluster → cross-cluster (explicit file-to-file, full `~/.claude/learnings/...` path)
+- Refs from a sub-cluster file to a file in a different top-level cluster → cross-cluster (same as today)
+
+**Curate scoping:** Sub-clusters are treated as independent curation units. In broad sweeps, each sub-cluster gets its own subagent alongside top-level clusters. The parent cluster's flat files (those not in any sub-cluster) form their own curation unit.
+
+**Residual files:** Files that don't fit any sub-cluster stay flat in the parent cluster directory. The same "avoid catch-all" rule applies — don't create a `general/` sub-cluster for leftovers.
+
 ## Cross-Refs
 
 No cross-cluster references.
