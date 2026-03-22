@@ -156,6 +156,24 @@ No `# Title` — the filename serves as the title. This keeps all three signal l
 - Files with no cross-refs use `**Related:** none`
 - The `---` divider separates the header from content — purely for readability
 
+## File Splitting and Directory Clustering
+
+When learnings files grow large, the sniff becomes imprecise — loading 400 lines to find one 8-line section wastes context.
+
+**Split threshold:** Flag files over ~150 lines during curation. Files under 150 lines are cheap enough to load fully.
+
+**Split criteria:** Split when a file has clearly separable sub-topics. Leave dense files with many short sections (e.g., `code-quality-instincts.md` at 4.2 lines/section) — they're already atomic, just co-located.
+
+**Directory promotion:** When a domain accumulates 3+ files (from splitting or natural growth), promote to a subdirectory: `learnings/skill-authoring/`, `learnings/xrpl/`, etc.
+
+**Cluster index pattern:** Each subdirectory gets an `INDEX.md` (like `claude-authoring-content-types.md` serves for the authoring cluster). The index handles intra-cluster navigation — individual files point `**Related:**` back to their index rather than cross-referencing every sibling. This keeps cross-ref counts manageable as file count grows.
+
+**Cross-cluster refs:** Remain file-to-file for precision. `skill-authoring/contracts.md → multi-agent/orchestration.md` is a genuine domain intersection that should be explicit, not abstracted to cluster-to-cluster.
+
+**Curate skill scoping:** Curate operates on one cluster at a time. Within a cluster: maintain the index, verify internal consistency. Between clusters: verify cross-cluster refs still resolve, but don't reorganize the target cluster.
+
+**Search pipeline impact:** Directory structure enables glob scoping — "does this session involve XRPL?" → no → skip entire `xrpl/` directory. Reduces sniff cost from "all files" to "relevant cluster files."
+
 ## Cross-Refs
 
 - `claude/learnings/claude-authoring-content-types.md` — hub: content type taxonomy, routing table, boundary cases
