@@ -23,6 +23,7 @@ This skill delegates analysis methodology to learnings:curate. Read these files 
 - `../curate/SKILL.md` — Read at Step 0. Contains broad sweep analysis methodology (learnings), skill mode methodology (2s–4s), and content mode methodology (2–5a). Follow its analysis steps for each sweep, but replace its approval flow (step 7) with the loop defined below.
 - `../curate/classification-model.md` — Read via learnings:curate step 4. Contains the 6-bucket classification model and confidence level definitions.
 - `../curate/persona-design.md` — Read when persona clusters are detected during a sweep (via learnings:curate step 5a).
+- `../curate/diff-routed-triage.md` — Read at the deep dive phase (after all broad sweeps complete). Contains diff-routed triage methodology for deep dive candidacy.
 - `~/.claude/learnings/claude-authoring-content-types.md` — Read via learnings:curate step 4. Content type routing table.
 
 ## State Variables
@@ -38,8 +39,8 @@ Track these across all sweeps:
 | `HIGH_SWEEP_COUNT` | Sweeps within the current HIGH_SWEEP phase (resets per content type) | 0 |
 | `PHASE_TRANSITIONS` | Log of phase transitions with sweep number, content type, and reason | Empty list |
 | `CONTENT_TYPE_SUMMARIES` | Per-type action counts and sweep counts for final summary | Empty map |
-| `DEEP_DIVE_CANDIDATES` | Files flagged by broad sweep's "Suggested Deep Dives" | Empty list |
-| `DEEP_DIVE_SWEEP_COUNT` | Deep dive sweeps for current content type (resets per type) | 0 |
+| `DEEP_DIVE_GROUPS` | Grouped candidates from diff-routed triage (populated after all broad sweeps complete) | Empty list |
+| `DEEP_DIVE_SWEEP_COUNT` | Deep dive sweeps (resets when deep dive phase starts) | 0 |
 
 ## Instructions
 
@@ -81,7 +82,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 
 **Loop** (max 5 iterations):
 
-1. **Run broad sweep analysis** — follow learnings:curate steps 1–6 (broad sweep mode). Generate the full broad sweep report. Extract any "Suggested Deep Dives" entries into `DEEP_DIVE_CANDIDATES` (overwrite previous — state changes invalidate earlier suggestions).
+1. **Run broad sweep analysis** — follow learnings:curate steps 1–6 (broad sweep mode). Generate the full broad sweep report. (Deep dive candidates are no longer extracted from broad sweep suggestions — they come from diff-routed triage after all broad sweeps complete.)
 
 2. **Separate findings by confidence:**
    - `HIGH_FINDINGS` — classifications with High confidence
@@ -202,42 +203,70 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 4. **Evaluate results:**
    - **New HIGHs found** → log transition: "Changes surfaced N new HIGH items." Reset `HIGH_SWEEP_COUNT` to 0. Return to **Step 1**.
    - **New MEDIUMs found** → log transition: "Changes surfaced N new MEDIUM items." Return to **Step 2**.
-   - **Clean sweep** (no HIGHs or MEDIUMs) → check `DEEP_DIVE_CANDIDATES`. If non-empty and content type is LEARNINGS, proceed to **Step 1d** (Deep Dive). If empty or content type is SKILLS, record summary and proceed to next content type.
+   - **Clean sweep** (no HIGHs or MEDIUMs) → record summary and proceed to next content type. (Deep dives run after ALL content types complete — see Step 5d.)
 
-### Step 1d: Learnings Deep Dive Phase
+### Step 5d: Diff-Routed Deep Dive Phase
 
-**Goal:** Run targeted per-file analysis on files flagged during the broad sweep, catching within-file opportunities (compression, genericization, section-level reorganization) that broad sweeps miss.
+**Goal:** Run targeted per-file analysis using diff-routed triage to select deep dive candidates. Runs once, after all broad sweeps (L→S→G) complete. Replaces the previous per-content-type deep dive candidacy from broad sweep suggestions.
+
+Read `../curate/diff-routed-triage.md` for the full triage methodology.
 
 Set `PHASE` to `DEEP_DIVE`.
 
-1. **Check candidates** — if `DEEP_DIVE_CANDIDATES` is empty, log "No deep dive candidates — proceeding to next content type." and proceed. This is the common case.
+1. **Run diff-routed triage** — follow the triage methodology:
+   a. Git diff scoping (changed files since `last_consolidation_commit`)
+   b. Term extraction from diff content
+   c. Keyword index lookup → comparison targets
+   d. Header sniff to filter false positives
+   e. Graph extension with relevance gating
+   f. Adaptive stale rotation budget
+   g. Group assembly (curation targets + comparison context)
+
+   If cold start (no `last_consolidation_commit`): fall back to full-corpus candidacy (current behavior).
 
 2. **Display plan:**
 
+   Present the triage output for operator review:
+
    ```
-   ## Deep Dive Phase (Learnings)
+   ## Diff-Routed Deep Dive Candidates
 
-   | # | File | Patterns | Reason |
-   |---|------|----------|--------|
-   | 1 | parallel-plans.md | 8 | 2 medium-confidence items, 3 new sections |
-   | 2 | claude-authoring-skills.md | 11 | Several skill-context candidates |
+   ### Group 1: ralph loop changes
+   **Curation targets:**
+   | File | Flag | Reason |
+   |------|------|--------|
+   | ralph-loop.md | changed | Modified since last consolidation |
+   | orchestration.md | stale | Last deep dive: run 8 (current: 16) |
+
+   **Comparison context:**
+   | File | Source |
+   |------|--------|
+   | ralph-curation.md | Related: header cross-ref |
+   | coordination.md | keyword overlap: "worktree", "subagent" |
    ```
 
-3. **Safety cap budget check** — if `SWEEP_COUNT` >= 13 before launching, warn and use `AskUserQuestion`:
-   - **Run deep dives** — "Proceed with deep dive analysis (budget: N sweeps remaining)"
-   - **Skip and list** — "Skip deep dives, list files for manual `/learnings:curate <file>`"
-   - **Skip entirely** — "Skip deep dives, proceed to next content type"
+   Use `AskUserQuestion`:
+   - **Run all groups** — proceed with all deep dive groups
+   - **Select groups** — choose which groups to run
+   - **Skip** — skip deep dives, proceed to cumulative summary
 
-4. **Launch subagents** — one Task subagent per candidate file (parallel, max 5 concurrent). Each subagent runs learnings:curate content mode (steps 2–5a) on its file with the pre-loaded corpus. Subagents return per-pattern classification tables — they analyze and report, they do NOT apply changes.
+3. **Safety cap budget check** — if `SWEEP_COUNT` >= 13 before launching, warn and include budget info in the display.
 
-5. **Merge results** — collect classification tables across subagents. Separate into HIGH_FINDINGS, MEDIUM_FINDINGS, LOW_FINDINGS. Remove candidates where the subagent returned no findings (log "classification confirmed" for each).
+4. **Launch subagents** — one Task subagent per group (parallel, max 5 concurrent). Each subagent:
+   - Full-reads all files in the group (curation targets + comparison context)
+   - Runs learnings:curate content mode (steps 2–5a) on curation targets only
+   - Returns per-pattern classification tables
+   - Emits enriched keyword lists for each curated file (see `diff-routed-triage.md` § Enriched keyword output contract)
+   - Subagents analyze and report — they do NOT apply changes
+
+5. **Merge results** — collect classification tables and enriched keywords across subagents. Separate findings into HIGH_FINDINGS, MEDIUM_FINDINGS, LOW_FINDINGS. Remove groups where the subagent returned no findings (log "classification confirmed" for each).
 
 6. **Deep dive HIGH sweep** (max 3 iterations, tracked by `DEEP_DIVE_SWEEP_COUNT`):
    - If no HIGHs → skip to substep 7.
    - Auto-apply HIGHs. Display between-sweep report:
 
    ```
-   ## Sweep N ([Content Type] — Deep Dive HIGHs)
+   ## Sweep N (Deep Dive HIGHs)
 
    | # | File | Pattern | Action | Target | Detail |
    |---|------|---------|--------|--------|--------|
@@ -245,12 +274,12 @@ Set `PHASE` to `DEEP_DIVE`.
    ```
 
    - Record actions to `CUMULATIVE_ACTIONS`. Increment `SWEEP_COUNT` and `DEEP_DIVE_SWEEP_COUNT`.
-   - Re-run subagents only for affected files. If `DEEP_DIVE_SWEEP_COUNT` >= 3, stop and move remaining HIGHs to MEDIUM batch.
+   - Re-run subagents only for affected groups. If `DEEP_DIVE_SWEEP_COUNT` >= 3, stop and move remaining HIGHs to MEDIUM batch.
 
-7. **Deep dive MEDIUM batch** — present all MEDIUMs across files in a single `AskUserQuestion` (multi-select):
+7. **Deep dive MEDIUM batch** — present all MEDIUMs across groups in a single `AskUserQuestion` (multi-select):
 
    ```
-   ## [Content Type] — Deep Dive MEDIUMs
+   ## Deep Dive MEDIUMs
 
    | # | File | Pattern | Action | Target | Rationale | Concern |
    |---|------|---------|--------|--------|-----------|---------|
@@ -273,7 +302,14 @@ Set `PHASE` to `DEEP_DIVE`.
 
    Do NOT trigger a broad re-sweep.
 
-9. **Record and transition** — save deep dive results to `CONTENT_TYPE_SUMMARIES`. Proceed to next content type.
+9. **Housekeeping** — after deep dives complete, follow `diff-routed-triage.md` § Housekeeping steps:
+   - Rebuild keyword index (mechanical extraction, skip enriched unless changed)
+   - Merge enriched keywords from subagent output
+   - Update `last_consolidation_commit` to current HEAD
+   - Update `last_deep_dive_run` for all curated files
+   - Update `last_change_run` for all files that appeared in the diff
+
+10. **Record and proceed** — save deep dive results to `CONTENT_TYPE_SUMMARIES`. Proceed to **Step 6** (Cumulative Summary).
 
 ---
 
@@ -404,9 +440,9 @@ Run the same three-phase loop as learnings (Steps 1–3 pattern), with these dif
 
 **Guideline-specific actions:** Compress, Extract to conditional, Migrate to persona, Delete unwired, Keep (standard content mode classifications plus the additional checks above).
 
-After the guidelines VERIFICATION loop exits clean: check `DEEP_DIVE_CANDIDATES`. If non-empty, run the same deep dive phase as Step 1d (substituting GUIDELINES for the content type). If empty, proceed to **Step 6**.
+After the guidelines VERIFICATION loop exits clean, record summary and proceed to **Step 5d** (Diff-Routed Deep Dive Phase). Deep dives run once after all broad sweeps complete, not per-content-type.
 
-After guidelines sweep completes (including any deep dive phase), proceed to **Step 6** (Cumulative Summary).
+After the deep dive phase completes (or is skipped), proceed to **Step 6** (Cumulative Summary).
 
 ---
 

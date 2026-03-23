@@ -345,6 +345,30 @@ Omit this section if no files meet the criteria (collection is fully curated).
 - **Remove stale cross-ref**: Delete lines pointing to files that no longer exist or where the relationship decayed. Include the reason (file deleted vs. relationship no longer holds) in the report.
 - **Add reverse cross-ref**: When adding A → B, also add B → A in the target file if the reverse provides lateral discovery value.
 
+## Deep Dive Enriched Keyword Output
+
+When running as a deep dive subagent (invoked from consolidate's diff-routed deep dive phase), append an enriched keyword section after the classification table. This feeds the keyword index's LLM-assisted enrichment.
+
+**When to emit**: only when the subagent is processing curation targets (not comparison context files). The consolidate orchestrator will specify which files are curation targets.
+
+**What to extract**: for each curated file, emit the terms that best describe its content for routing purposes. Focus on:
+- Load-bearing concepts (not incidental mentions)
+- Terms that would help someone find this file when working on a related problem
+- Synonyms and related terms that mechanical extraction would miss
+- Multi-word phrases that capture specific patterns (e.g., "stale rotation", "cross-ref graph")
+
+**Format**:
+```
+## Enriched Keywords
+
+| File | Keywords |
+|------|----------|
+| ralph-loop.md | stateless agent, convergence, worktree sentinel, runner-spec contract, one-action enforcement, wiggum |
+| orchestration.md | work distribution, synthesis, parallel agents, context compaction, three-phase refactoring |
+```
+
+Aim for 8-20 keywords per file. Prefer specific over generic.
+
 ## Content Mode Example
 
 ```

@@ -80,6 +80,7 @@ Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the
 - `claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
 - `claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
 - `claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
+- `claude/commands/learnings/curate/diff-routed-triage.md` — Diff-routed triage methodology for deep dive candidacy (read at deep dive phase transition)
 
 After reading, record key classification criteria in `Notes for Next Iteration` so future invocations have a condensed reference. Also log a summary of the methodology loaded in decisions.md (this preserves context that would otherwise be lost as Notes get appended to).
 
@@ -94,8 +95,8 @@ Read `claude/consolidate-output/progress.md`. Extract:
 | `SWEEP_COUNT` | Total sweeps executed |
 | `CONTENT_TYPE` | Current: LEARNINGS, SKILLS, or GUIDELINES |
 | `PHASE` | `BROAD_SWEEP` (default) or `DEEP_DIVE` |
-| `DEEP_DIVE_CANDIDATES` | Grouped by cluster/unclustered — entries to deep-dive (populated after broad sweeps) |
-| `DEEP_DIVE_COMPLETED` | Clusters/files already processed in deep dive phase |
+| `DEEP_DIVE_GROUPS` | Grouped by diff-routed triage — curation targets + comparison context (populated after GUIDELINES sweep) |
+| `DEEP_DIVE_COMPLETED` | Groups already processed in deep dive phase |
 
 Also read `Notes for Next Iteration` for guidance from the previous invocation.
 
@@ -174,7 +175,8 @@ Before exiting, update:
 
 - **progress.md**: Increment SWEEP_COUNT. Append to Notes for Next Iteration (do NOT overwrite previous notes — prepend `### Iter N` heading and add new notes below, preserving all prior entries. This creates a visible history of inter-iteration context).
   - **If BROAD_SWEEP**: Update content type status (sweeps count, HIGHs applied, MEDIUMs applied/blocked). Append iteration log row: `| <iter> | <type> | <highs> | <mediums> | <lows> | <actions_taken> | <notes> |`. Advance CONTENT_TYPE (see Transitions below).
-  - **If DEEP_DIVE**: Move current cluster/file from DEEP_DIVE_CANDIDATES to DEEP_DIVE_COMPLETED. Update Deep Dive Status table rows. Append iteration log row: `| <iter> | DEEP_DIVE | <cluster-name> (K files) | ...` for cluster batches, or `| <iter> | DEEP_DIVE | <filename> | ...` for unclustered files. If all candidates processed → set completion. If deep dive invocation count exceeds 15 → set MAX_DEEP_DIVES_HIT (see Deep Dive Phase > Max Guard).
+  - **If DEEP_DIVE (triage)**: Record triage results in `DEEP_DIVE_GROUPS`. Append iteration log row: `| <iter> | TRIAGE | N groups, M curation targets | ...`.
+  - **If DEEP_DIVE (group execution)**: Move current group from DEEP_DIVE_GROUPS to DEEP_DIVE_COMPLETED. Record enriched keywords in Notes. Append iteration log row: `| <iter> | DEEP_DIVE | <group-name> (K targets, J context) | ...`. If all groups processed → run housekeeping, then set completion. If deep dive invocation count exceeds 15 → set MAX_DEEP_DIVES_HIT.
 - **report.md**: Update iteration count and summary table. Append actions to chronological log. Update collection health "After" column with current file counts.
 - **review.md**: Only if new LOWs or blocked MEDIUMs found.
 
@@ -202,10 +204,11 @@ One git command per Bash call. Verify with `git status` before committing if unc
 
 **Skip empty content types**: If a content type has 0 files, mark `skipped (empty)` and advance to the next type.
 
-**After GUIDELINES sweep** (check deep dive candidacy):
-1. Review the LEARNINGS broad sweep's per-file quality scan for Polish Opportunity files and cross-reference hub files (see Deep Dive Phase below)
-2. If candidates exist → set `PHASE` to `DEEP_DIVE`, populate `DEEP_DIVE_CANDIDATES`, continue to deep dive phase
-3. If no candidates → completion (below)
+**After GUIDELINES sweep** (transition to deep dive):
+1. Read `claude/commands/learnings/curate/diff-routed-triage.md` for triage methodology
+2. Run diff-routed triage (see Deep Dive Phase below) — this is one invocation
+3. If triage produces candidates → set `PHASE` to `DEEP_DIVE`, populate `DEEP_DIVE_GROUPS`, continue to deep dive phase
+4. If no candidates → completion (below)
 
 Cross-type regressions from broad sweep changes are rare in practice. Deep dives provide defense-in-depth for per-file issues, making a second confirmation pass unnecessary.
 
@@ -216,54 +219,65 @@ Cross-type regressions from broad sweep changes are rare in practice. Deep dives
 
 ## Deep Dive Phase
 
-Deep dives run after broad sweeps complete (L→S→G). They perform per-pattern cross-referencing within individual files — analysis that broad sweeps skip (cluster level). Learnings in cluster subdirectories are batched per cluster; unclustered files are processed one-per-invocation.
+Deep dives run after broad sweeps complete (L→S→G). Candidates are selected via **diff-routed triage** — using git diffs, a keyword index, and graph extension to surgically target files impacted by recent changes, supplemented by adaptive stale rotation.
 
-### Candidacy
+Full triage methodology: `claude/commands/learnings/curate/diff-routed-triage.md`
 
-A file is a candidate if it meets ANY of:
+### Triage Invocation
 
-1. **Cross-reference hub**: Referenced by 2+ other files as canonical source
-2. **Polish Opportunity**: Flagged in broad sweep's per-file quality scan (genericization/compression)
-3. **Curate skill criteria**: 5+ patterns AND an action signal (stale, overlap, compression)
-4. **Modified guideline**: Received HIGH/MEDIUM during broad sweeps (always-on context — changes warrant verification)
-5. **Modified skill**: Received HIGH/MEDIUM during broad sweeps (workflow breakage risk)
-6. **Unreviewed file**: Not present in `deep-dive-tracker.json` (never deep-dived — unknown quality)
-7. **Stale tracked file**: `run_count - last_deep_dive_run >= threshold` in `deep-dive-tracker.json`
+The first deep dive invocation runs diff-routed triage:
 
-### Cluster-Level Pull-In
+1. **Diff scoping**: `git diff <last_consolidation_commit>..HEAD --name-only -- claude/learnings/ claude/guidelines/ claude/commands/ claude/skill-references/`
+   - Cold start (no `last_consolidation_commit`): fall back to full-corpus candidacy using the legacy criteria (cross-ref hubs, polish opportunities, unreviewed, stale). Set anchor at end of run.
 
-When any learnings file in a cluster subdirectory (e.g., `claude/learnings/frontend/`) qualifies via criteria 1-7, **all files in that cluster become candidates**. The marginal cost of scanning additional small files in a cluster you're already loading is near zero, and having the full cluster in context enables intra-cluster cross-referencing that per-file analysis would miss.
+2. **Term extraction**: For each changed file, extract terms from diff content (H2/H3 headings, keywords lines, significant nouns).
 
-This applies only to learnings cluster subdirectories. Unclustered learnings (top-level `claude/learnings/*.md`), skills, guidelines, and skill-references remain individual candidates.
+3. **Index lookup**: Read `claude/learnings/.keyword-index.json`. Match extracted terms against index → comparison targets.
+
+4. **Header sniff**: Read first 3 lines of each comparison target. Drop targets where description/keywords don't match diff terms.
+
+5. **Graph extension**: Follow cross-refs from comparison targets with relevance gating. Stop when keywords no longer match derived terms. Extension sources: Related headers, Cross-Refs footers, reverse refs, persona co-refs.
+
+6. **Stale rotation**: `rotation_slots = max(5, min(15, 20 - diff_routed_files))`. Fill with least-recently-curated files from tracker.
+
+7. **Group assembly**: Organize into groups:
+   - **Curation targets** (3-5 per group): changed files, stale rotation picks, files with quality flags
+   - **Comparison context** (read-only, unbounded): files from index lookup and graph extension
+   - Record groups in progress.md
 
 ### Candidate Grouping
 
-After candidacy is determined, group candidates for invocation scheduling:
-
 ```
-DEEP_DIVE_CANDIDATES:
-- claude-authoring: [file1.md, file2.md, file3.md]
-- frontend: [file1.md, file2.md]
-- (unclustered): [refactoring-patterns.md]
-- (skills): [commands/git/create-request/SKILL.md]
-- (guidelines): [guidelines/communication.md]
+DEEP_DIVE_GROUPS:
+- Group 1 (ralph changes): targets=[ralph-loop.md, orchestration.md], context=[ralph-curation.md, coordination.md]
+- Group 2 (frontend staleness): targets=[nextjs.md, ui-patterns.md], context=[react-hooks-and-ui.md]
+- Group 3 (stale rotation): targets=[bash-patterns.md, resilience-patterns.md], context=[]
 ```
 
-Each cluster group = one invocation. Each unclustered file, skill, guideline, or skill-reference = one invocation.
+Each group = one invocation. The agent reads all files in the group (targets + context) and curates only the targets.
 
-Candidacy is determined incrementally per content type sweep. Record all in progress.md using the grouped format above.
+**Minimum per run**: Read `min_deep_dives` from tracker (default 20). This is a **curation target count** floor, not an invocation count. If diff-routed targets + stale rotation < minimum, expand stale rotation to fill.
 
-**Minimum per run**: Read `min_deep_dives` from tracker (default 20). This is a **file count** floor, not an invocation count. If candidates < minimum, fill with stalest tracked files. Full corpus cycles through in ~5 runs.
+### Deep Dive Execution
 
-**Prioritization** (ordered):
-1. Modification-triggered (criteria 1–5) — any content type
-2. Unreviewed skills, skill-references, guidelines (criterion 6)
-3. Unreviewed learnings (criterion 6)
-4. Stale skills, skill-references, guidelines (criterion 7)
-5. Stale learnings (criterion 7)
+Each invocation after the triage invocation processes one group:
 
-Within each tier, sort by staleness (oldest first). Unprocessed carry over — staleness increases naturally.
+1. Read all files in the group (curation targets + comparison context)
+2. Run content mode (steps 2–5a from curate methodology) on curation targets only
+3. Classify findings as HIGH/MEDIUM/LOW
+4. Apply HIGHs and judge MEDIUMs (same as broad sweep steps 5-6)
+5. Emit enriched keywords for each curated file (see `diff-routed-triage.md` § Enriched keyword output contract)
+6. Record enriched keywords in Notes for Next Iteration (for housekeeping merge)
 
-**Rationale**: Skills drive workflows, guidelines are always-on context cost, skill-references are shared across skills. These are higher-leverage than learnings, which are loaded conditionally by the search protocol.
+### Housekeeping
+
+The final deep dive invocation (or a dedicated housekeeping invocation after all groups are processed) runs:
+
+1. **Rebuild keyword index**: mechanical extraction across all corpus files. Skip files marked `enriched` in `_meta.file_sources` unless modified since last enrichment.
+2. **Merge enriched keywords**: update index entries for files that were curated in this run's deep dives, mark as `enriched` in `_meta.file_sources`.
+3. **Update tracker**:
+   - `last_consolidation_commit` → current HEAD
+   - `last_deep_dive_run` → current `run_count` for all curated files
+   - `last_change_run` → current `run_count` for all files that appeared in the git diff
 
 Per-invocation methodology, convergence rules, and max guard: `claude/consolidate-output/deep-dive-methodology.md`.
