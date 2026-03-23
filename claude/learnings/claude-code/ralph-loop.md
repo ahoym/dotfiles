@@ -1,5 +1,5 @@
 Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research loop — resuming, state management, core files, research branches, stateless iteration, one-action enforcement, worktree mechanics, and runner-spec contracts.
-- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, worktree, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, runner-spec, one-action
+- **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, worktree, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, runner-spec, one-action, diff-routed, keyword-index, graph-extension
 - **Related:** `~/.claude/learnings/claude-code/ralph-curation.md`
 
 ---
@@ -109,6 +109,14 @@ The per-worktree claude config lives at `claude/worktrees/<name>/claude/` — no
 ## Scaffolding Strategy: cp vs Read+Edit
 
 Before choosing a scaffolding approach for init skills, audit each template for whether it's modified during initialization. Verbatim copies should use a single `cp` (or `cp *.md`) in Bash — reading them into context just to Write them back wastes tool calls and tokens. Only templates that need placeholder substitution or pre-flight data population warrant Read+Edit. The audit is quick (check the init steps for which files get modified) and the savings compound: N verbatim templates = 2N fewer tool calls (N Reads + N Writes → 1 `cp`).
+
+## Diff-Routed Curation Architecture
+
+Full-corpus reads don't scale — token cost grows linearly with corpus size regardless of change volume. Replace with diff-routed curation: git diff identifies changed files, terms extracted from diff content route to relevant corpus slices via an inverted keyword index (`learnings/.keyword-index.json`), then graph extension follows cross-refs to impacted neighbors. Full reads become targeted, not exhaustive.
+
+**Key components:** (1) inverted keyword index — derived from headers, rebuilt each run, maps terms to file paths; (2) git-diff scoping via `last_consolidation_commit` in tracker; (3) relevance-gated graph extension — follow cross-refs while headers match derived terms, no hard depth cap; (4) grouped curation — related files read in same subagent context for direct comparison, curated in one pass (no separate deep-dive re-read); (5) stale rotation for baseline coverage of unchanged files.
+
+**Scaling:** effort proportional to change volume, not corpus size. A 200-file corpus with 3 changes reads the same ~15 files as an 80-file corpus with 3 changes. Design doc: `docs/plans/diff-routed-curation.md`.
 
 ## Cross-Refs
 

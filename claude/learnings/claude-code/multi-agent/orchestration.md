@@ -120,6 +120,14 @@ The plan file is the single source of truth across sessions — it should contai
 
 When parallel extractors fail (API rate limits, permission issues), process completed ones immediately rather than retrying the full batch. Track partial completion explicitly in progress notes ("5 of 10 PRs, #21-#26 deferred") so the next session picks up exactly where it left off. This avoids wasting successful extractor outputs and keeps the workflow moving forward. The progress tracker in the plan file is the single coordination point — partial batches get their own row with clear deferred-item lists.
 
+## Explore Agent Can't Access ~/.claude/ Paths
+
+The Explore agent type fails to glob or read files under `~/.claude/` (symlinked config directories). Use general-purpose agents for file operations on these paths. The Explore agent is fast for repo-scoped searches but its tool access doesn't resolve symlinks outside the working directory.
+
+## File Splits via Parallel Subagents
+
+For mechanical file splits (read → determine boundary → write 2 files), launch one general-purpose subagent per file in parallel. Each subagent independently reads, splits, and writes — no coordination needed since they target different files. The orchestrator handles shared resources (CLAUDE.md index updates) after all subagents complete. Validated at 6 concurrent splits with zero conflicts.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

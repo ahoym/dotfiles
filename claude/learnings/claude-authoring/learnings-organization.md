@@ -106,6 +106,8 @@ Clusters can contain sub-clusters when a tighter domain emerges within an existi
 - **Nest** when the sub-cluster's content is genuinely specific to the parent domain. Test: "Would someone searching for this sub-topic always also be in the parent domain?" If yes, nest. Example: `claude-code/multi-agent/` — multi-agent orchestration in the learnings corpus is Claude Code–specific, not general-purpose.
 - **Promote** when the sub-cluster has independent search value outside the parent domain, or when the content applies across multiple parent domains. Example: if `multi-agent/` patterns applied to arbitrary agent frameworks, it belongs at the top level.
 
+**Post-promotion cross-ref cascade:** Moving files into clusters requires grepping *all* personas and learnings for the old flat paths — not just those in the reorganized cluster. Stale refs are often in personas for adjacent domains (e.g., moving `nextjs.md` to `frontend/` breaks refs in `xrpl-typescript-fullstack.md`). Run `grep -r 'learnings/<old-name>' ~/.claude/commands/set-persona/` immediately after any file move.
+
 **Sub-cluster CLAUDE.md:** Each sub-cluster gets its own `CLAUDE.md` with a routing table for its files. The parent cluster's `CLAUDE.md` lists sub-clusters as pointers (like the top-level `learnings/CLAUDE.md` lists clusters), not individual sub-cluster files:
 
 ```markdown

@@ -39,7 +39,7 @@ Every gate search follows these steps:
 
 Load fully only if description or keywords match derived terms. Plan mode: also grep file content.
 
-**4. Follow cross-refs** (up to 2 levels). Check `**Related:**` in sniffed headers first (cheap) — these contain full `~/.claude/learnings/...` paths for cross-cluster refs only. Intra-cluster discovery is handled by the cluster `CLAUDE.md`, not by individual file cross-refs. Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Plan mode: also announce skipped cross-refs.
+**4. Follow cross-refs** while the target's header keywords match derived terms. Stop when they don't. Check `**Related:**` in sniffed headers first (cheap) — these contain full `~/.claude/learnings/...` paths for cross-cluster refs only. Intra-cluster discovery is handled by the cluster `CLAUDE.md`, not by individual file cross-refs. Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Announce when following 3+ hops from the original match. Plan mode: also announce skipped cross-refs.
 
 ## Observability
 

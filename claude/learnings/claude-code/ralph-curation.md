@@ -114,6 +114,10 @@ Deep dives batch per learnings cluster directory — all candidate files in `cla
 
 `min_deep_dives` (default 20) backfills small corpus runs with stale files from the deep-dive tracker. A GUIDELINES run with 4 files still does 20 deep dives — 16 slots filled from the stalest tracked files across all types. When planning how many iterations to allocate, treat all content type runs as ~same length regardless of corpus size.
 
+## Stale Persona Paths Are the Dominant Curation Finding
+
+Cluster reorganization silently breaks proactive loads and cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/ralph-loop.md` — core loop mechanics: resuming, state management, stateless iteration, one-action enforcement, worktree mechanics, runner-spec contracts
