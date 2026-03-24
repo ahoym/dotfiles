@@ -118,6 +118,10 @@ Deep dives batch per learnings cluster directory — all candidate files in `cla
 
 Cluster reorganization silently breaks proactive loads and cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
 
+## Curation Targets vs Comparison Context
+
+In diff-routed deep dives, the 3-5 file group cap applies to **curation targets** (files actively curated — classified, actioned, keyword-enriched), not to **comparison context** (files loaded read-only for overlap/duplicate detection). A group might read 10-15 files total but only curate 3-5. The cap constrains curation *work*, not context *reads* — comparison context is unbounded because it's read-only and the cost is tokens, not curation complexity.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/ralph-loop.md` — core loop mechanics: resuming, state management, stateless iteration, one-action enforcement, worktree mechanics, runner-spec contracts
