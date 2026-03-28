@@ -8,6 +8,7 @@
       "Bash(find:*)",
       "Bash(gh api:*)",
       "Bash(gh auth:*)",
+      "Bash(gh issue comment:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
@@ -78,7 +79,8 @@
       "Write(~/.claude/learnings-private/**)",
       "Write(~/.claude/skill-references/**)",
       "Write(~/.claude/skills/**)",
-      "Write(~/**/tmp/change-request-replies/**)"
+      "Write(~/**/tmp/change-request-replies/**)",
+      "Write(~/**/tmp/sweep-work-items/**)"
     ]
   }
 }
