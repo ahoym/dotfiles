@@ -83,6 +83,10 @@ Skills that glob learnings for domain context should search all three locations:
 
 The signal to extract shared logic into `skill-references/` is **having to make the same change in two skills** — not a stability analysis of the shared code. If the patterns are still evolving, that's fine — evolving in one place is cheaper than evolving in two. Organize shared references topically (sections skills read selectively) rather than procedurally (step numbers that couple to consumer skills).
 
+## Sibling Cross-References Are Drift Risks
+
+When skill A's reference file says "same criteria as skill B's reference file," that's a coupling that silently breaks when B evolves. The fix: extract the shared criteria into `skill-references/` and have both skills consume it. The signal is any phrase like "same as," "same criteria as," or "see `<other-skill>/`" pointing at a sibling skill's internals rather than a shared reference.
+
 ## Cross-Refs
 
 No cross-cluster references.

@@ -91,8 +91,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and derived domain terms against learnings filenames:
    - Glob `~/.claude/learnings/**/*.md`, `~/.claude/learnings-private/**/*.md`, and `docs/learnings/**/*.md`
    - Using the same domain terms derived in step 5, match against learnings filenames and cluster directory names
-   - Read matched files
-   - Announce: `📚 Loaded domain learnings: <list>`
+   - Read matched files, skipping any whose content isn't relevant to the changed files' domains
+   - Announce: `📚 Loaded domain learnings: <list>` or `📚 No domain learnings matched (derived terms: <terms>)`
 
 8. **Launch parallel reviewer subagents** — read `reviewer-prompt-template.md` from this skill's directory. For each selected persona, launch a **foreground** Agent (all in one message for parallel execution). Each subagent prompt includes:
    - The reviewer prompt template with placeholders filled:

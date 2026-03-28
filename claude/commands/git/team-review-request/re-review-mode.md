@@ -31,11 +31,11 @@ Fetch replies for each by filtering for `in_reply_to_id` matching the comment ID
 
 ## Analyze Previous Comment Responses
 
-**Reviewer acknowledgement is terminal — for agent replies only.** Same rule as single-persona re-review: if a thread already has a Team-Reviewer acknowledgement, skip subsequent Addresser closing remarks. Operator comments (no Role footnote) always reopen the thread.
+Read `~/.claude/skill-references/review-comment-classification.md` for the terminal acknowledgement rule and classification criteria (Resolved, Acknowledged, Partially addressed, Not addressed).
 
-For each comment in `PREVIOUS_COMMENTS`:
+For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule):
 - Read the reply (if any) and check whether corresponding code changed in `NEW_COMMITS`
-- Classify: **Resolved**, **Acknowledged**, **Partially addressed**, **Not addressed** (same criteria as `code-review-request/re-review-mode.md`)
+- Classify using the shared criteria and apply the corresponding reaction/reply actions
 
 Route follow-ups: partially-addressed and not-addressed comments are handled by the originating persona's subagent (identified from the comment's persona attribution). If the originating persona is not in `RE_REVIEW_PERSONAS`, the orchestrator handles the follow-up directly.
 

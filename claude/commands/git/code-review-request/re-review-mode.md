@@ -22,21 +22,17 @@ Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 
 ## Analyze previous comment responses
 
-**Reviewer acknowledgement is terminal — for agent replies only.** If a thread already contains a Reviewer acknowledgement (reaction or text reply classifying the thread as resolved/acknowledged), skip subsequent *Addresser* closing remarks (identified by `*Role:* Addresser` footnote). This prevents infinite back-and-forth loops between agents. However, comments **without a Role footnote are from the operator** — they always reopen the thread regardless of prior acknowledgements. An operator follow-up question on a "resolved" thread is new activity that requires a reviewer response.
+Read `~/.claude/skill-references/review-comment-classification.md` for the terminal acknowledgement rule and classification criteria (Resolved, Acknowledged, Partially addressed, Not addressed).
 
-For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per above):
+For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule):
 - Read the author's reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`
-- Classify the response:
-  - **Resolved** — concern addressed by a code change (with or without a reply). The fix is verifiable in the diff. Action: react to the *reply* comment (not our original comment) with 🎉 emoji (see "React to Comment" in platform commands), AND post a short text reply acknowledging the resolution (e.g., "Confirmed — resolved by [description]. 🎉"). If resolved by code change with no reply, react to our own comment instead and post the text reply as a self-reply.
-  - **Acknowledged** — reply agrees with the finding and states intent to fix, but no code change yet. Action: react to the reply with 👍 emoji, AND post a short text reply acknowledging (e.g., "Acknowledged — thanks for confirming. 👍"). The finding stays open until a code change lands (at which point it becomes **Resolved**).
-  - **Partially addressed** — some progress but original concern not fully resolved. Action: post a follow-up reply explaining what's still open.
-  - **Not addressed** — no code change and no substantive reply, or reply disagrees without resolution. Action: re-raise with additional context.
+- Classify using the shared criteria and apply the corresponding reaction/reply actions
 
 Also review new code: analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
 
 Build the output lists:
 - `INLINE_COMMENTS`: new findings on new/changed code.
-- `REACTIONS`: list of `{comment_id, emoji}` for resolved and acknowledged comments. For **resolved**: `comment_id` is the reply's ID (not our original comment's ID), emoji is `hooray`. If no reply exists (resolved by code change alone), use our original comment's ID. For **acknowledged**: `comment_id` is the reply's ID, emoji is `+1`.
+- `REACTIONS`: list of `{comment_id, emoji}` per the shared classification's reaction summary table.
 - `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
 - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
