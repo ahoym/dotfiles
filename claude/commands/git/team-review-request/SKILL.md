@@ -73,7 +73,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 5. **Select reviewer personas** — read `persona-routing.md` from this skill's directory, then:
    - Glob `~/.claude/commands/set-persona/*.md` to get all persona files
    - Read the first 5-10 lines of each (name + description + domain priorities heading)
-   - Derive domain terms from `CHANGED_FILES` paths using the domain term derivation table
+   - Derive domain terms from `CHANGED_FILES` paths using judgment (see persona-routing.md)
    - Match terms against persona descriptions using the matching heuristic
    - Apply constraints: min 1, max 3. Don't select both a child and its parent persona.
    - If no domain persona matches → `reviewer` alone (N=1)
@@ -88,10 +88,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - If it (or its parents) has `## Proactive loads`, read each listed file
    - Store the combined content as `PERSONA_CONTENT[persona_name]`
 
-7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and domains against learnings filenames:
-   - Glob `~/.claude/learnings/*.md`, `~/.claude/learnings-private/*.md`, and `docs/learnings/*.md`
-   - For each changed file, derive domain terms from the path
-   - Match domain terms against learnings filenames
+7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and derived domain terms against learnings filenames:
+   - Glob `~/.claude/learnings/**/*.md`, `~/.claude/learnings-private/**/*.md`, and `docs/learnings/**/*.md`
+   - Using the same domain terms derived in step 5, match against learnings filenames and cluster directory names
    - Read matched files
    - Announce: `📚 Loaded domain learnings: <list>`
 

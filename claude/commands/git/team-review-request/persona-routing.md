@@ -4,24 +4,17 @@ Reference file for the orchestrator's persona selection (step 5) and finding mer
 
 ## Domain Term Derivation
 
-Derive domain keywords from `CHANGED_FILES` paths. Use the most specific match:
+Derive domain keywords from `CHANGED_FILES` paths using judgment — consider file extensions, directory names, content signals, and naming conventions. The goal is to produce terms that match against persona descriptions and learnings filenames.
 
-| Path pattern | Domain terms |
-|---|---|
-| `src/ledger/`, `**/accounting/`, `**/balance/` | ledger, fintech, accounting |
-| `src/api/`, `**/controller/`, `**/service/` | backend, api |
-| `src/components/`, `src/pages/`, `src/app/`, `**/*.tsx`, `**/*.jsx` | frontend, react |
-| `.github/workflows/`, `.gitlab-ci*`, `**/ci/`, `**/deploy/` | ci-cd, devops |
-| `**/security/`, `**/auth/`, `**/oauth/` | security, infosec |
-| `.claude/`, `**/personas/`, `**/learnings/`, `**/skills/` | claude-config |
-| `**/xrpl/`, `**/ripple/` | xrpl |
-| `tests/`, `**/*test*`, `**/*spec*` | testing |
-| `*.java`, `**/spring/`, `pom.xml`, `build.gradle*` | java |
-| `*.ts`, `*.tsx`, `tsconfig*`, `package.json` | typescript |
-| `*.py`, `pyproject.toml`, `requirements*.txt` | python |
-| `infra/`, `terraform/`, `*.tf`, `docker*`, `k8s/` | infrastructure, devops |
+Examples of the kind of reasoning expected (not an exhaustive table):
+- `src/ledger/balance.java` → ledger, fintech, java, backend
+- `src/components/Dashboard.tsx` → frontend, react, typescript
+- `.github/workflows/deploy.yml` → ci-cd, devops
+- `main.sh`, `.bash_profile` → shell, bash, scripting, devops
+- `.claude/learnings/foo.md` → claude-config
+- `Dockerfile`, `terraform/main.tf` → infrastructure, devops
 
-When a file matches multiple patterns, include all derived terms. The more terms a persona matches, the stronger the signal.
+When a file suggests multiple domains, include all of them. The more terms a persona matches, the stronger the signal.
 
 ## Matching Heuristic
 
