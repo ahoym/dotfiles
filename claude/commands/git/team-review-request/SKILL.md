@@ -29,6 +29,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 "Bash(gh api:*)",
 "Bash(gh pr review:*)",
 "Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/commands/set-persona/**)",
 "Read(~/.claude/skill-references/**)",
 "Write(~/**/tmp/change-request-replies/**)"

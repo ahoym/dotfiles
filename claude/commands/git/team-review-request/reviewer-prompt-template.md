@@ -67,7 +67,7 @@ Write a JSON file with this structure:
 ## Constraints
 
 - Review ONLY through your persona's lens — don't try to cover domains outside your expertise.
-- Aim for 5-15 findings. Prioritize the most significant ones. Quality over quantity.
+- Prioritize the most significant findings. For substantial PRs, 5-15 is typical; for small changes, fewer is expected. Quality over quantity.
 - Every finding must have a file + line reference. No vague observations.
 - Do not post anything to the PR yourself — write findings to the output file. The orchestrator handles posting.
 - Do not read files from the repository — work only with the diff provided. The orchestrator has already fetched everything you need.
