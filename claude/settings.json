@@ -1,5 +1,16 @@
 {
   "permissions": {
+    "deny": [
+      "Read(~/Applications/**)",
+      "Read(~/Desktop/**)",
+      "Read(~/Documents/**)",
+      "Read(~/Downloads/**)",
+      "Read(~/Library/**)",
+      "Read(~/Movies/**)",
+      "Read(~/Music/**)",
+      "Read(~/Pictures/**)",
+      "Read(~/Public/**)"
+    ],
     "allow": [
       "Bash(bash ~/.claude/commands/**)",
       "Bash(chmod:*)",

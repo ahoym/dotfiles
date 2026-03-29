@@ -1,5 +1,5 @@
 Claude Code permission system — Bash prefix matching, Read/Write/Edit pattern gotchas, settings merge, worktree permission mismatches, and .claude/ path protection.
-- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch
+- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch, deny precedence, deny-first, allow override, filesystem deny, personal directories
 - **Related:** none
 
 ---
@@ -94,6 +94,22 @@ Claude Code has built-in protection for a project's `.claude/` directory that tr
 **Symlink caveat:** Tilde permission patterns don't resolve through symlinks. If `~/.claude/commands` is a symlink to `/path/to/dotfiles/.claude/commands`, the pattern `Edit(~/.claude/commands/**)` sees the symlink path but the tool resolves to the real path — they don't match. Moving files out of `.claude/` fixes both issues at once.
 
 **Remaining friction:** Only affects ad-hoc direct Write/Edit calls during dotfiles sessions. For any repeatable workflow, wrapping it in a skill with `allowed-tools` eliminates the prompts.
+
+## Deny-First Precedence Is Absolute (Empirically Verified 2026-03-29)
+
+Deny rules **always win** over allow rules regardless of specificity. A deny on `Read(//$HOME/**)` blocks `Read(//$HOME/.claude/**)` and `Read(//$HOME/WORKSPACE/**)` even when those are explicitly in the allow list. Tested across `~` and `//` syntaxes — same result.
+
+**Implication:** You cannot "deny broad, allow narrow" for filesystem access. To protect personal directories while allowing code/config access, deny each personal directory individually:
+
+```json
+"deny": [
+  "Read(~/Applications/**)", "Read(~/Desktop/**)", "Read(~/Documents/**)",
+  "Read(~/Downloads/**)", "Read(~/Library/**)", "Read(~/Movies/**)",
+  "Read(~/Music/**)", "Read(~/Pictures/**)", "Read(~/Public/**)"
+]
+```
+
+The `sandbox.filesystem.denyRead` + `allowRead` arrays may offer allow-overrides-deny at the sandbox level (the schema says allowRead "takes precedence"), but this is untested.
 
 ## Settings File Merge Behavior
 
