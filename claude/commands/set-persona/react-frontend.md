@@ -31,7 +31,7 @@
 ### Next.js 16 / Turbopack
 - Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements) — see `~/.claude/learnings/frontend/nextjs.md`
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/frontend/react-frontend-gotchas.md`
 

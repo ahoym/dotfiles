@@ -33,7 +33,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - `allowed-tools` frontmatter is functional — restricts tool access during skill execution (confirmed 2026-03-16)
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
-## Proactive loads
+## Proactive Cross-Refs
 - `~/.claude/learnings/claude-authoring/content-types.md`
 
 ## Cross-Refs

@@ -38,7 +38,7 @@ WebSocket singleton lifetime, in-memory rate limiter scope — see `~/.claude/le
 ### TypeScript / Browser Boundaries
 Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `~/.claude/learnings/xrpl/gotchas.md`.
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/xrpl/gotchas.md`
 - `~/.claude/learnings/frontend/react-frontend-gotchas.md`
