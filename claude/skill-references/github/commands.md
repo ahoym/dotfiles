@@ -12,5 +12,6 @@ Commands are split into clusters so skills load only what they need:
 | **Comment interaction** | `comment-interaction.md` | Fetch/Reply/Edit/React to comments (inline, review, top-level) |
 | **PR management** | `pr-management.md` | Create/Update PR, Post Review, Checkout, Check Existing, Find Approvers |
 | **Batch operations** | `batch-operations.md` | Fetch Review Metadata, Verify Access, Count Total (for extract-request-learnings) |
+| **Issue operations** | `issue-operations.md` | List Issues, Fetch Details, Post Comments, Check Linked PRs, Detect Sweeper Comments |
 
 Skills reference clusters by name in their Reference Files section. After platform detection, read from `~/.claude/skill-references/{github,gitlab}/`.
