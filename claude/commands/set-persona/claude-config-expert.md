@@ -10,7 +10,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - **Memory minimalism**: prefer guidelines (for rules), learnings (for knowledge), or skill references (for shared patterns) over memory. Memory is for facts that don't fit anywhere else — if the content would be useful to a skill or persona, it belongs in a discoverable file, not always-on context
 
 ## Content type placement
-> Full criteria: `~/.claude/learnings/claude-authoring/content-types.md`
+> Full criteria: `~/.claude/learnings/claude-authoring/routing-table.md`
 - Behavioral rule ("always do X") → guideline, not learning or memory
 - Domain knowledge (gotcha, recipe, pattern) → learning
 - Shared patterns consumed by 2+ skills → skill reference (`skill-references/`), not inlined in each skill
@@ -34,7 +34,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
 ## Proactive Cross-Refs
-- `~/.claude/learnings/claude-authoring/content-types.md`
+- `~/.claude/learnings/claude-authoring/routing-table.md`
 
 ## Cross-Refs
 Load when working in the specific area:

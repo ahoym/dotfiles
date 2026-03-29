@@ -24,7 +24,7 @@ This skill delegates analysis methodology to learnings:curate. Read these files 
 - `../curate/classification-model.md` — Read via learnings:curate step 4. Contains the 6-bucket classification model and confidence level definitions.
 - `../curate/persona-design.md` — Read when persona clusters are detected during a sweep (via learnings:curate step 5a).
 - `../curate/diff-routed-triage.md` — Read at the deep dive phase (after all broad sweeps complete). Contains diff-routed triage methodology for deep dive candidacy.
-- `~/.claude/learnings/claude-authoring/content-types.md` — Read via learnings:curate step 4. Content type routing table.
+- `~/.claude/learnings/claude-authoring/routing-table.md` — Read via learnings:curate step 4. Content type routing table.
 
 ## State Variables
 

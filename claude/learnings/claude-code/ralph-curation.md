@@ -39,7 +39,7 @@ Compounded insights go directly into the sweep corpus (worktree's `claude/learni
 
 When an autonomous agent needs to compound learnings mid-loop, inline the compound methodology rather than invoking `/learnings:compound` via the Skill tool. The agent already has the required tools (Read, Glob, Grep, Edit, Write) and the judgment context from the sweep it just completed. The compound skill adds: Skill tool dependency (may be hook-blocked), `~/.claude/` path assumptions (wrong in worktrees), AskUserQuestion (no user present), and ~120 lines of context per invocation. None of these are needed.
 
-The inline methodology: categorize insights using `~/.claude/learnings/claude-authoring/content-types.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
+The inline methodology: categorize insights using `~/.claude/learnings/claude-authoring/routing-table.md` (Skill/Guideline/Learning), assign utility (High/Medium/Low), dedup-grep target directory before creating, write to worktree `claude/` paths, log what was compounded in `decisions.md`. Compounded files are corpus changes — deep dives and subsequent consolidation runs evaluate them.
 
 ## Personas as Execution-Mode Learnings Conduit
 
