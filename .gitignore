@@ -1,7 +1,12 @@
 .DS_Store
 *.swp
 *.swo
-.claude/worktrees/
-.claude/learnings-private/
-change-request-replies/
+claude/worktrees/
+!claude/worktrees/CLAUDE.md
+claude/learnings-private/
+claude/tracking-artifacts/
+claude/settings.local.json
 tmp/
+
+.claude/worktrees
+

@@ -1,0 +1,133 @@
+Official skill features and frontmatter for the Claude Code skill ecosystem — allowed-tools, context fork, shell preprocessing, progressive disclosure, and built-in skills.
+- **Keywords:** commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, progressive disclosure, shell preprocessing, baseDir, skill description budget, built-in skills
+- **Related:** ~/.claude/learnings/claude-authoring/skill-platform-unification.md
+
+---
+
+## `commands/` and `skills/` Are Fully Feature-Equivalent
+
+The official docs state both "work the same way" and "support the same frontmatter." Every feature works in `commands/` — no directory rename needed. Previously assumed `skills/`-exclusive features (monorepo auto-discovery, `--add-dir` hot-reload, plugin packaging) were confirmed to work in `commands/` too — via user testing (auto-discovery, hot-reload) and the [plugin docs](https://code.claude.com/docs/en/plugins) explicitly listing both directories. The only difference is naming convention.
+
+## Unused Official Frontmatter Features
+
+This repo's skills use only `description:` from SKILL.md frontmatter. Official features not yet adopted:
+
+- **`allowed-tools`** — Scoped tool permissions active only during skill execution. **Confirmed working** (tested 2026-03-16: skill with `allowed-tools: [Read, Glob, Grep, Edit, Write]` successfully blocked Bash calls). **Recommended syntax: YAML list.** Use bare tool names (not scoped `Bash(git:*)`).
+- **`context: fork` + `agent:`** — Run skill in isolated subagent. See "`context: fork` vs Task Subagents" section below.
+- **`model:`** — Override session model per skill (e.g., `haiku` for simple tasks, `opus` for complex reasoning).
+- **`disable-model-invocation: true`** — See "`disable-model-invocation` Removes Skill from Context" section below.
+- **`{baseDir}`** — Resolves to skill's own installation directory (e.g., `~/.claude/commands/<skill>/`). Works for intra-skill references (scripts/, references/, assets/) but **cannot** replace `~/.claude/` for cross-directory references to `~/.claude/learnings/`, `~/.claude/skill-references/`, etc.
+
+## `disable-model-invocation` Removes Skill from Context
+
+Setting `disable-model-invocation: true` does more than prevent auto-invocation — it **completely removes the skill's description from Claude's context**. This means Claude won't know the skill exists until manually invoked. Trade-off: saves context budget but loses auto-discovery. Use for skills that are only invoked explicitly (e.g., `/ralph:init`, `/learnings:consolidate`).
+
+## Add Broken/Experimental Features for Intent-Signaling
+
+When an official frontmatter feature exists but enforcement status is uncertain, it can still be worth adding — as documentation of design intent and (when working) runtime enforcement. Criteria: (1) it communicates the skill's intended tool surface to human readers, (2) it enforces the constraint at runtime when supported. Only do this for features where the *intended* behavior matches your *actual* intent — don't add `allowed-tools: Read, Glob` if the skill legitimately needs Write sometimes.
+
+## Progressive Disclosure: Three Token-Cost Tiers
+
+Anthropic's official model for skill content budgeting:
+
+| Tier | What | Token Cost | Budget |
+|------|------|------------|--------|
+| Metadata | name + description | Always loaded | ~100 words |
+| SKILL.md body | Instructions | On trigger | <5k words |
+| Bundled resources | scripts/, references/, assets/ | On demand | Unlimited |
+
+Key distinction: `scripts/` files execute without reading into context (zero token cost). `references/` files are loaded into context (token cost). `assets/` are referenced by path only (zero token cost). Our repo uses only references — no scripts or assets.
+
+## Dynamic Context Injection via Shell Preprocessing
+
+The `` !`command` `` syntax in SKILL.md runs shell commands as preprocessing — output replaces the placeholder before Claude sees the prompt. Not cached; re-runs every invocation.
+
+### Evaluation Framework
+
+A good `` !`command` `` candidate must pass ALL five criteria:
+
+1. **Reliability** — Command rarely fails regardless of repo state
+2. **Output size** — Small, bounded (<5 lines ideal)
+3. **Always needed** — Used every invocation, not just conditional branches
+4. **Saves a step** — Claude would run the same command as its first action anyway
+5. **Read-only** — No side effects or mutations
+
+### Disqualifiers
+
+- Unbounded output (e.g., `git log` without `| head`, `gh pr diff`)
+- Network-dependent commands that may timeout (e.g., `gh api ...`)
+- State-dependent commands that only work in specific states (e.g., `git diff --name-only --diff-filter=U` only works mid-merge)
+
+### Best Injection: `git branch --show-current`
+
+The single highest-value injection across the skill collection. 7/9 git skills need it as their first context. ~5 tokens, always succeeds, saves 1 Bash call per invocation.
+
+### Implementation Pattern
+
+Add `## Context` section immediately after frontmatter. Always append `2>/dev/null` for graceful degradation outside git repos:
+
+```markdown
+## Context
+- Current branch: !`git branch --show-current 2>/dev/null`
+- Project root: !`git rev-parse --show-toplevel 2>/dev/null`
+```
+
+For network-dependent commands, provide fallback: `|| echo "unknown"`.
+
+## `context: fork` vs Task Subagents
+
+Two isolation mechanisms, different use cases:
+
+- **`context: fork`** — Skill delivery. The *entire skill* runs as a subagent. User invokes `/skill-name`, gets a result back. No conversation history, no mid-task interaction. Best for self-contained, one-shot analysis (input → summary).
+- **Task subagents** — Orchestration. The skill runs inline and *delegates subtasks* to workers. Skill stays in main context, coordinates multiple agents, synthesizes results. Best for parallel work, multi-step workflows, anything needing user interaction or conversation history.
+
+They conflict: a forked skill can't spawn Task subagents (no nesting). So skills that orchestrate workers (explore-repo, do-security-audit, parallel-plan:execute) must stay inline with Task subagents — they can't use `context: fork`.
+
+**Choose fork when:** entire skill is a pure function (args in, report out). **Choose Task when:** skill needs to coordinate, interact, or delegate.
+
+### Viability Checklist
+
+A skill is viable for `context: fork` only if ALL of these are true:
+
+1. **No internal subagent spawning** — skill doesn't use Task tool (subagents can't nest)
+2. **No conversation history dependency** — skill operates from $ARGUMENTS alone, not prior discussion
+3. **No mid-task user interaction** — no AskUserQuestion or confirmation prompts during execution
+4. **Task-based, not reference-based** — skill has actionable instructions, not just guidelines
+5. **Output is a deliverable** — produces a summary/report that returns to the main conversation
+
+Failing any one eliminates the skill. In practice, most interactive or orchestrating skills fail criteria 1-3.
+
+## Skill Field Constraints (from Anthropic's Official Guide)
+
+- **`name`**: Max 64 characters, lowercase with hyphens. Must not contain "claude" or "anthropic".
+- **`description`**: Max 1,024 characters. Must not contain XML angle brackets (`<` or `>`).
+- **`dependencies`**: Declares skills this one requires (not yet observed in the wild).
+
+Source: [The Complete Guide to Building Skills for Claude (PDF)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+
+## Skills Are Cross-Platform
+
+Skills work across **Claude.ai, Claude Code, and the API** — same folder, no modification needed. Distribution varies by surface: ZIP upload (Claude.ai Settings > Capabilities > Skills), directory placement (`~/.claude/commands/` or `~/.claude/skills/`), `/v1/skills` REST endpoint (CI/CD), org-level workspace deployment (teams, shipped Dec 2025).
+
+## Skill Description Context Budget
+
+All skill descriptions share a budget of **2% of the context window** (~16,000 chars fallback). Skills exceeding the budget are silently excluded. Check with `/context`. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var.
+
+**Per-entry overhead is ~109 chars** (XML tags ~85, skill name ~16 avg, location field ~4) beyond description text. Formula: `chars_per_skill = description_length + ~109`. Budget fills at ~15,700 chars total.
+
+At typical collection sizes (20-30 skills), utilization is well under 50% with ample headroom. No aggressive description compression needed — `disable-model-invocation` should be motivated by preventing unwanted auto-invocation, not budget savings.
+
+| Avg Desc Length | Max Skills Capacity |
+|----------------|-------------------|
+| 250 chars | ~45 |
+| 150 chars | ~62 |
+| 103 chars | ~75 |
+| 80 chars | ~85 |
+
+## Built-In Bundled Skills
+
+`keybindings-help` is a built-in skill (~337 chars, ~50 tokens/cycle) always loaded by Claude Code, even with `--disable-slash-commands` ([bug #24156](https://github.com/anthropics/claude-code/issues/24156)). Skills are injected as user-message attachments, not in the system prompt. Bundled skills bypass all settings-based filtering — they load after plugin/user/managed skill filtering occurs.
+
+## Cross-Refs
+
+- `~/.claude/learnings/claude-authoring/skill-platform-unification.md` — skill design patterns

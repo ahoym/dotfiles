@@ -12,6 +12,11 @@ tar czf "$TARBALL" \
   --exclude='.claude/learnings-private' \
   --exclude='.git' \
   --exclude='.claude/settings.local.json' \
+  --exclude='.claude/worktrees' \
+  --exclude='.claude/tracking-artifacts' \
+  --exclude='.claude/ralph' \
+  --exclude='.claude/plans' \
+  --exclude='.claude/scheduled_tasks.lock' \
   .claude/
 
 echo "Exported: $TARBALL"
