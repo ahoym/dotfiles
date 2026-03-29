@@ -124,6 +124,14 @@ When independent work items (issues, tasks) could run in parallel, check for fil
 
 When a background agent shares a working tree with the foreground session, `git add` in the background agent stages whatever is on disk — including uncommitted foreground edits. If the background agent commits, foreground changes get bundled into the background commit with its unrelated message. The foreground session then sees its files as "already committed" with no diff against HEAD. Mitigation: use `isolation: "worktree"` for background agents that will commit, or ensure the foreground commits its changes before launching background work on the same files.
 
+## Reuse Existing Worktrees Instead of Creating New Ones
+
+When sweep skills need worktrees for PR branches, check `git worktree list` first. Prior sweeps (review, work-items) often leave worktrees checked out to the same branches. Reusing avoids "branch already used by worktree" errors and skips creation/cleanup overhead. Only create new worktrees for PRs without existing ones; only clean up worktrees the current run created.
+
+## Propagate Persona to Subagent Sessions
+
+When launching `claude -p` sessions that will invoke domain-specific skills (addressing review comments, implementing features), include a `set-persona` invocation in the prompt based on the PR's domain. Auto-detect from PR title, branch name, and changed file paths. This gives the subagent the right domain lens (priorities, gotchas, proactive loads) without manual intervention.
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)
