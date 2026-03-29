@@ -35,9 +35,9 @@ End-of-session routine that captures learnings and facilitates a retrospective.
 
    | Value | Meaning | Cost |
    |-------|---------|------|
-   | **Yes** | Full read into context | Real token cost |
-   | **Sniffed** | Opened briefly to check relevance (offset+limit read, first few lines) | Small cost |
-   | **No** | Known reference, never opened (e.g., listed in persona's Cross-Refs) | Zero cost |
+   | **Yes** | Full read into context (by me directly, not an agent) | Real token cost |
+   | **Sniffed** | I directly issued a `Read(file, limit=3)` to check the header — not "an agent read it and I saw the summary" | Small cost |
+   | **No** | Known reference, never opened. Includes files read by subagents — their reads don't count as my context cost | Zero cost |
 
    This distinction calibrates whether proactive loads are earning their context cost.
 
