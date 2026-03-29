@@ -81,14 +81,14 @@
       "Write(~/.claude/skills/**)",
       "Write(~/**/tmp/change-request-replies/**)",
       "Write(~/**/tmp/sweep-work-items/**)",
-      "Write(tmp/sweep-reviews/**)",
-      "Edit(tmp/sweep-reviews/**)",
       "Read(~/**/tmp/sweep-reviews/**)",
       "Read(~/**/tmp/sweep-address/**)",
       "Write(~/**/tmp/sweep-reviews/**)",
-      "Edit(~/**/tmp/sweep-reviews/**)",
       "Write(~/**/tmp/sweep-address/**)",
-      "Edit(~/**/tmp/sweep-address/**)"
+      "Edit(~/**/tmp/sweep-reviews/**)",
+      "Edit(~/**/tmp/sweep-address/**)",
+      "Update(~/**/tmp/sweep-reviews/**)",
+      "Update(~/**/tmp/sweep-address/**)"
     ]
   }
 }
