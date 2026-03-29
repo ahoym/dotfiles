@@ -46,7 +46,10 @@ setup_worktrees() {
         local wt
         wt=$(worktree_for "$pr_num")
         if [ ! -d "$wt" ]; then
-            git -C "$PROJECT_ROOT" worktree add "$wt" "$branch"
+            git -C "$PROJECT_ROOT" worktree add "$wt" "$branch" || {
+                echo "WARNING: Failed to create worktree for PR $pr_num, skipping"
+                continue
+            }
         else
             git -C "$wt" pull --ff-only origin "$branch" 2>/dev/null || true
         fi
@@ -90,6 +93,13 @@ process_pr() {
     local status_file="${pr_dir}/status.md"
     local start_time=$(date +%s)
     local ts=$(date +%H:%M:%S)
+
+    # Pre-flight: skip if rate-limited
+    if [ -f "${RUN_DIR}/.rate-limited" ]; then
+        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
+        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
+        return
+    fi
 
     # Pre-flight: skip merged/closed PRs
     local state
