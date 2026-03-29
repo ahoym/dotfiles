@@ -132,6 +132,26 @@ For mechanical file splits (read → determine boundary → write 2 files), laun
 
 When a skill needs to run N times in parallel (e.g., team-review per PR), subagents can't help — they can't invoke skills or nest agents. Instead, generate a bash script that launches parallel `claude -p` sessions, each invoking the skill via the Skill tool. Each `claude -p` is a full top-level session with complete tool access (Skill, Agent, everything). Use `xargs -P` for bounded concurrency. Write per-invocation prompts to files and pipe to `claude -p` to avoid shell escaping issues. This pattern decouples assessment (interactive skill) from execution (bash script) from retro (read artifacts).
 
+## Generated Script UX Checklist
+
+When generating bash scripts for operators to run (especially long-running parallel `claude -p` sessions), verify before writing:
+
+1. **Immediate output on launch** — header banner with run parameters (PR count, concurrency, run dir)
+2. **Timestamped per-item status** — `[HH:MM:SS] PR #N: launching...` and `[HH:MM:SS] PR #N: DONE (Xs)`
+3. **External monitoring tip** — a one-liner the operator can run in another terminal to watch progress files
+4. **macOS portability** — no `watch`, no GNU-specific flags. Use `while clear; do ...; sleep N; done` for polling loops
+5. **Error visibility** — failures print immediately, don't get swallowed by tee/redirect
+
+A script that runs 5-10 minutes with zero output erodes operator confidence. The operator's terminal experience is a first-class UX concern.
+
+## Shared Runner Templates for Parallel Skills
+
+When multiple skills generate structurally identical bash scripts (same concurrency control, logging, rate-limit detection), extract a shared template with mustache-style placeholders (`{{MODE}}`, `{{PRS}}`, `{{CONCURRENCY}}`) and conditional blocks (`{{#WORKTREES}}...{{/WORKTREES}}`). Each skill fills its specifics; improvements to the runner happen in one place. See `~/.claude/skill-references/parallel-claude-runner-template.sh`.
+
+## Pre-flight State Check in Rerunnable Runners
+
+When a generated script is designed to be rerun (e.g., after an address-review cycle), add a cheap pre-flight check before launching each `claude -p` session: `gh pr view $N --json state -q '.state'`. Skip merged/closed PRs immediately — one API call is far cheaper than spinning up a session that detects terminal state and exits. The inner skill's own terminal-state handling remains as a safety net.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
