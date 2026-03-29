@@ -66,7 +66,7 @@ Before creating a PR, strip working state from the branch while preserving local
 
 ## Gotchas Files Are Not Thin Files
 
-`*-gotchas.md` files must never be merged into their parent domain files (e.g., `spring-boot-gotchas.md` → `spring-boot.md`) during consolidation sweeps. They serve different architectural roles: gotchas files are small, cheap proactive-load files loaded on every persona activation; parent learnings files are larger detailed references loaded on-demand. A thin gotchas file (2-4 bullets) is working as designed, not a merge candidate. The consolidation spec's thin-file heuristic must explicitly exclude `*-gotchas.md` files.
+`*-gotchas.md` files must never be merged into their parent domain files (e.g., `spring-boot-gotchas.md` → `spring-boot.md`) during consolidation sweeps. They serve different architectural roles: gotchas files are small, cheap proactive cross-ref files loaded on every persona activation; parent learnings files are larger reactive cross-refs loaded on-demand. A thin gotchas file (2-4 bullets) is working as designed, not a merge candidate. The consolidation spec's thin-file heuristic must explicitly exclude `*-gotchas.md` files.
 
 ## Resume Should Check for Uncommitted Deep-Dive Changes
 
@@ -116,7 +116,7 @@ Deep dives batch per learnings cluster directory — all candidate files in `cla
 
 ## Stale Persona Paths Are the Dominant Curation Finding
 
-Cluster reorganization silently breaks proactive loads and cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
+Cluster reorganization silently breaks proactive cross-refs and cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
 
 ## Curation Targets vs Comparison Context
 

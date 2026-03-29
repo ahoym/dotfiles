@@ -44,7 +44,7 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - Apply the priorities and focus areas from that point forward in the session
 
 5. **Load proactive knowledge**:
-   - Scan adopted persona (and parent if extended) for `## Proactive loads` sections
+   - Scan adopted persona (and parent if extended) for `## Proactive Cross-Refs` sections
    - Read each listed file (resolve relative to `~/.claude/`)
    - If a file doesn't exist, warn but don't fail
    - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`, `react-frontend-gotchas.md`"

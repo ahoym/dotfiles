@@ -24,7 +24,7 @@
 
 Enforce `learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/java/spring-boot-gotchas.md`
 

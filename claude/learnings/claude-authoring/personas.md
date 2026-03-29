@@ -1,5 +1,5 @@
 Patterns for designing and structuring Claude Code personas — judgment layers, gotcha files, cross-refs, extends inheritance, and knowledge/lens decomposition.
-- **Keywords:** persona, judgment layer, gotchas, proactive loads, extends, cross-refs, knowledge decomposition, reviewer persona, companion file, dedup
+- **Keywords:** persona, judgment layer, gotchas, proactive cross-refs, extends, cross-refs, knowledge decomposition, reviewer persona, companion file, dedup
 - **Related:** none
 
 ---
@@ -53,10 +53,10 @@ This distinction matters because reactive-only loading has a failure mode: the a
 
 Proactive gotchas live in dedicated `learnings/*-gotchas.md` files — small (10-30 lines) one-liner tripwires. They're **companions** to `*-patterns.md` files when one exists (e.g., `xrpl-patterns-gotchas.md` alongside `xrpl-patterns.md`), **standalone** when no patterns file exists (e.g., `java-infosec-gotchas.md`).
 
-Personas reference gotcha files via a `## Proactive loads` section — loaded deterministically at persona activation. This is distinct from `## Cross-Refs` which are reactive/on-demand.
+Personas reference gotcha files via a `## Proactive Cross-Refs` section — loaded deterministically at persona activation. This is distinct from `## Cross-Refs` which are reactive/on-demand.
 
 ```markdown
-## Proactive loads
+## Proactive Cross-Refs
 - `learnings/xrpl-gotchas.md`
 - `learnings/react-frontend-gotchas.md`
 
@@ -74,9 +74,9 @@ Child personas that declare `## Extends: <parent>` or `## Extends: <parent1>, <p
 
 **Multi-parent extends:** A persona can extend multiple parents (comma-separated). Parents are loaded in declaration order. Use this when a persona needs knowledge from one base and judgment posture from another — e.g., `claude-config-reviewer` extends both `reviewer` (review instincts) and `claude-config-expert` (config domain knowledge). Still no chaining — parents cannot themselves extend other personas.
 
-## Proactive Loads Require Agent Behavior, Not @ References
+## Proactive Cross-Refs Require Agent Behavior, Not @ References
 
-Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
+Persona `## Proactive Cross-Refs` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive cross-ref file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
 
 ## Knowledge/Lens Decomposition
 
@@ -92,9 +92,9 @@ The implementation-start gate matches persona filenames against the task domain,
 
 **Proposed improvement (pending more data):** During the implementation-start persona check, read persona descriptions (not just filenames) and match against the task's *domain*, not its *activity mode*.
 
-## Persona Gotchas Duplicating Proactive Loads
+## Persona Gotchas Duplicating Proactive Cross-Refs
 
-When a persona has both an inline "Known gotchas & platform specifics" section AND a `## Proactive loads` entry for a `*-gotchas.md` file covering the same domain, the inline section is likely a near-exact duplicate. Detection: compare inline items against the proactive-loaded file. Resolution: port any unique items from the persona to the gotchas file, then remove the inline section. This is a systematic pattern — check all personas with both inline gotchas and proactive loads.
+When a persona has both an inline "Known gotchas & platform specifics" section AND a `## Proactive Cross-Refs` entry for a `*-gotchas.md` file covering the same domain, the inline section is likely a near-exact duplicate. Detection: compare inline items against the proactive cross-ref file. Resolution: port any unique items from the persona to the gotchas file, then remove the inline section. This is a systematic pattern — check all personas with both inline gotchas and proactive cross-refs.
 
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
@@ -102,9 +102,9 @@ When two peer personas share duplicated content (e.g., both have React/Next.js g
 
 Extracting to a shared learning eliminates the ownership question and follows the lean-persona philosophy: personas reference knowledge, they don't inline it. Both personas get a Cross-Refs entry pointing to the same learning file.
 
-## Inherited Proactive Loads May Be Noise for Child Personas
+## Inherited Proactive Cross-Refs May Be Noise for Child Personas
 
-When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive loads fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those loads add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base load is consistently irrelevant for a child persona, consider moving it from proactive to detailed references in the base.
+When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive cross-refs fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those cross-refs add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base cross-ref is consistently irrelevant for a child persona, consider moving it from proactive to reactive cross-refs in the base.
 
 ## Layered Persona Composition: Domain Hub + Stack Children
 

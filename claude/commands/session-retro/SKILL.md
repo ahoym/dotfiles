@@ -25,7 +25,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
    | **Index** | Read via `~/.claude/learnings/CLAUDE.md` index lookup |
    | **Hard gate** | Session-start glob, plan-mode entry, or implementation-start check |
    | **Soft gate** | Confidence-level check, friction-triggered, or keyword-triggered |
-   | **Persona proactive** | Listed in the active persona's `## Proactive loads` |
+   | **Persona proactive** | Listed in the active persona's `## Proactive Cross-Refs` |
    | **Skill reference** | Read because a skill's instructions or reference files pointed to it |
    | **Operator-prompted** | Read because the operator asked a question or raised a topic that required it |
    | **Self-directed** | Read on own initiative to inform a decision, without a gate or prompt triggering it |
@@ -39,7 +39,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
    | **Sniffed** | Opened briefly to check relevance (offset+limit read, first few lines) | Small cost |
    | **No** | Known reference, never opened (e.g., listed in persona's Cross-Refs) | Zero cost |
 
-   This distinction calibrates whether proactive loads are earning their context cost.
+   This distinction calibrates whether proactive cross-refs are earning their context cost.
 
    This surfaces whether the search protocol is doing its job or whether useful files are only reached via persona coverage or manual reads. Also note: which files influenced decisions, which were noise, whether any useful files were missed, and whether any soft gates *should have* fired but didn't.
 

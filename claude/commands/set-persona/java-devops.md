@@ -24,7 +24,7 @@
 ### Metrics & Observability
 - Follow the 6-step metrics discussion process (gather → map → gap-analyze → propose → prune → cardinality-check) before adding any metric — see `~/.claude/learnings/java/observability-gotchas.md` for the full checklist and Micrometer API traps
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/java/observability-gotchas.md`
 

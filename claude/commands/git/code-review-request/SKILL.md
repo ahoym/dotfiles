@@ -103,7 +103,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Match domain terms against learnings filenames (e.g., "ci" matches `ci-cd.md`, "test" matches `testing-patterns.md`)
    - Read matched files to ground the review in established knowledge
    - Announce: `📚 Loaded domain learnings: <list>`
-   - This supplements the persona's proactive loads with PR-specific knowledge
+   - This supplements the persona's proactive cross-refs with PR-specific knowledge
 
 9. **Analyze changes** — review through the active persona's lens.
 

@@ -13,7 +13,7 @@
 - Check that ESLint and Prettier configs don't conflict — `eslint-config-prettier` must be last
 - Ensure E2E tests are non-blocking (`continue-on-error: true`) unless the project has stabilized them
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/frontend/typescript-ci-gotchas.md`
 

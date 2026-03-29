@@ -108,7 +108,7 @@ For each file being curated, evaluate its `## Cross-Refs` section and `**Related
 - Don't suggest cross-refs where shared vocabulary already connects the files (the keyword search protocol handles those)
 
 **Inbound reference check (consuming personas and skills):**
-Grep `~/.claude/commands/set-persona/` for paths referencing files in the curated cluster — Proactive loads, Cross-Refs, and `> Full criteria:` section refs. Check for:
+Grep `~/.claude/commands/set-persona/` for paths referencing files in the curated cluster — Proactive Cross-Refs, Cross-Refs, and `> Full criteria:` section refs. Check for:
 1. **Stale paths** from pre-cluster flat naming (e.g., `claude-authoring-skills.md` → should be `claude-authoring/skill-design.md`). These cause silent knowledge loss — the persona loads nothing instead of the intended file.
 2. **Split casualties** — refs to a file that was split this session (e.g., `learnings.md` → `learnings-content.md` + `learnings-organization.md`). Update to point to the appropriate successor file.
 

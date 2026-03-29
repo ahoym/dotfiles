@@ -4,7 +4,7 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
 ## Flow
 
-1. **Front-load persona content** — Read the selected persona file + `Extends` parents + `Proactive loads`. Store as `PERSONA_CONTENT`.
+1. **Front-load persona content** — Read the selected persona file + `Extends` parents + `Proactive Cross-Refs`. Store as `PERSONA_CONTENT`.
 
 2. **Load domain learnings** — Same as step 7 in the main flow. Glob learnings dirs, match against `CHANGED_FILES` domains.
 
