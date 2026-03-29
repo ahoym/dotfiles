@@ -2,7 +2,7 @@ Patterns for authoring Claude Code configuration: skills, guidelines, learnings,
 
 | File | When to read |
 |------|-------------|
-| content-types.md | Deciding where content belongs (skill vs guideline vs learning vs persona) |
+| routing-table.md | Deciding where content belongs (skill vs guideline vs learning vs persona) |
 | skill-design.md | Skill composition, creation heuristics, responsibility boundaries |
 | skill-references-and-loading.md | @ references, conditional loading, templates, variable continuity |
 | skill-platform-unification.md | GitHub/GitLab command unification, shared reference files |

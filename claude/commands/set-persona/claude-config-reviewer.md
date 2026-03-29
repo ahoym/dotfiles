@@ -64,7 +64,7 @@ Review lens for PRs that modify the Claude configuration surface: skills, guidel
 - Use pointers for fast-growing directories, inventories for stable ones
 
 ### Memory (last resort)
-> Full criteria: `learnings/claude-authoring/content-types.md`
+> Full criteria: `learnings/claude-authoring/routing-table.md`
 - Challenge every memory addition: could this live in a guideline, learning, skill reference, or persona instead?
 - Memory is always-on context cost — learnings/guidelines are conditional and discoverable
 - Is this actually a fact/context, or a behavioral rule? Rules → guidelines
