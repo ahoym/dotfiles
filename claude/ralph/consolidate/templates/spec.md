@@ -76,7 +76,7 @@ All in `claude/consolidate-output/`:
 Read these on the FIRST invocation only (when SWEEP_COUNT = 0). They provide the analytical framework — classification model, persona criteria, and operational calibration:
 
 - `claude/commands/learnings/curate/classification-model.md` — 6-bucket model, confidence levels, skill pruning criteria
-- `~/.claude/learnings/claude-authoring/content-types.md` — Content type routing table
+- `~/.claude/learnings/claude-authoring/routing-table.md` — Content type routing table
 - `claude/commands/learnings/curate/persona-design.md` — Persona 4-section structure, naming, suggestion criteria (3+ files, 8+ patterns)
 - `claude/commands/learnings/curate/curation-insights.md` — Operational calibration from prior runs
 - `claude/commands/learnings/curate/SKILL.md` — Analysis methodology (broad sweep, skill mode, content mode)
@@ -155,7 +155,7 @@ If this sweep applied any HIGHs or MEDIUMs, persist meta-insights into the learn
 Follow `/learnings:compound` methodology inline (no Skill tool):
 
 1. **Identify insights** from the sweep. List each briefly.
-2. **Categorize** via `content-types.md` decision tree: Skill (repeatable steps) / Guideline (behavior change) / Learning (reference info).
+2. **Categorize** via `routing-table.md` decision tree: Skill (repeatable steps) / Guideline (behavior change) / Learning (reference info).
 3. **Assign utility**: High (novel, wouldn't know without documenting) / Medium (useful reminder) / Low (standard or documented).
 4. **Persist High and Medium** to worktree paths:
    - Dedup check (Glob + Grep target directory), Read target, Edit to append or Write to create

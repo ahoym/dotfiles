@@ -18,7 +18,7 @@
 **Pre-load** — In the same parallel batch as the parse reads above:
 1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` and its cluster subdirectories (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). Use recursive glob (`**/*.md`) to catch cluster subdirectories. **Read all files** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
-3. Read classification-model.md and `~/.claude/learnings/claude-authoring/content-types.md` (needed for step 5)
+3. Read classification-model.md and `~/.claude/learnings/claude-authoring/routing-table.md` (needed for step 5)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -60,7 +60,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
 - **All patterns are universal** → Proceed to step 5 normally.
 
-See `~/.claude/learnings/claude-authoring/content-types.md` → "Evaluating Existing Guidelines" for the full migration signal table.
+See `~/.claude/learnings/claude-authoring/routing-table.md` → "Evaluating Existing Guidelines" for the full migration signal table.
 
 ## 5. Classify each pattern
 
