@@ -92,9 +92,9 @@ The consolidation worktree has guard hooks that auto-commit changes and can reve
 
 When evaluating a consolidation run, every file the loop touched appears in recent commit messages. The session-start learnings search matches those commit messages, loading files that are irrelevant to the *evaluation* task (e.g., `multi-agent-patterns.md` loaded because the loop edited it, not because the review session needed multi-agent knowledge). Low cost per false positive (~500 tokens), but worth noting as a known noise vector.
 
-## LOW Review Items Require Human Judgment
+## LOW Review Items Require Operator Judgment
 
-All `[L-N]` items in `review.md` are human judgment items — even the ones that appear trivially fixable (wrong step number in a skill, stale description, etc.). The LOW tag signals that the autonomous loop deferred to the operator, not that the change is low-stakes. During `/ralph:consolidate:resume`, always use `AskUserQuestion` for every LOW before acting. Autonomously fixing any LOW bypasses the deferral that was intentionally placed there.
+All `[L-N]` items in `review.md` are operator judgment items — even the ones that appear trivially fixable (wrong step number in a skill, stale description, etc.). The LOW tag signals that the autonomous loop deferred to the operator, not that the change is low-stakes. During `/ralph:consolidate:resume`, always use `AskUserQuestion` for every LOW before acting. Autonomously fixing any LOW bypasses the deferral that was intentionally placed there.
 
 ## Broad Sweep Per-Pattern Blind Spot
 

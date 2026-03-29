@@ -44,7 +44,7 @@ Before creating the review, verify these items are complete:
    - `git diff origin/main..HEAD --stat` - See files changed
 
 3. **Check for uncommitted changes**:
-   - If there are uncommitted changes, ask user if they want to commit first
+   - If there are uncommitted changes, ask the operator if they want to commit first
    - Do not proceed with review creation if there are uncommitted changes
 
 4. **Run verifications**:
@@ -57,23 +57,23 @@ Before creating the review, verify these items are complete:
    Run available checks in parallel. If any fail:
    - **Auto-fixable** (lint/format): fix, commit the fix, and re-run to confirm
    - **Test/type failures**: fix, commit, re-run
-   - **Unfixable**: report to user and ask whether to proceed
+   - **Unfixable**: report to the operator and ask whether to proceed
 
    Skip checks that aren't configured for the project. Don't install new tools.
 
 5. **Check for existing review** — follow **"Check for Existing Review"** in the platform cluster files.
-   - If a review already exists, ask user: "$REVIEW_UNIT #N already exists for this branch. Update its description instead of creating new?"
+   - If a review already exists, ask the operator: "$REVIEW_UNIT #N already exists for this branch. Update its description instead of creating new?"
    - If yes, use `$EDIT_CMD` instead of `$CREATE_CMD`
 
 6. **Determine base branch**:
    - If `$ARGUMENTS` provided, use that as base
-   - If branch name suggests a parent (e.g., `feature/foo-part2` might be based on `feature/foo`), ask user
+   - If branch name suggests a parent (e.g., `feature/foo-part2` might be based on `feature/foo`), ask the operator
    - Default to `main`
 
 7. **Infer Jira ticket** (if applicable):
    - Extract Jira ticket ID from the branch name (common patterns: `feature/PROJ-123`, `bugfix/PROJ-456`, `PROJ-789-description`)
    - Look for Jira ticket references in commit messages
-   - If no ticket can be inferred, leave the URL incomplete for the user to fill in
+   - If no ticket can be inferred, leave the URL incomplete for the operator to fill in
 
 8. **Check if push needed**:
    - If local is ahead of remote, push first: `git push -u origin <branch>`
@@ -84,4 +84,4 @@ Before creating the review, verify these items are complete:
 
 11. **Clean up** — remove the temp body file and empty `tmp/change-request-replies/` directory (per the platform commands section).
 
-12. **Return the review URL** to the user.
+12. **Return the review URL** to the operator.

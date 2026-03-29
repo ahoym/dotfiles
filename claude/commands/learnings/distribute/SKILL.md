@@ -73,11 +73,11 @@ Copy or merge global learnings and guidelines from `~/.claude/` into the current
 
    - **Summary** column: brief description of the file's content. For "Differs" items, note what's new in the global version.
 
-   Use `AskUserQuestion` with multi-select to let user choose which items to distribute.
+   Use `AskUserQuestion` with multi-select to let the operator choose which items to distribute.
    **Include the status and relevance in each option's `description` field** (e.g., `"New, Relevant — Git commit and PR conventions"` or `"Differs, General — global has new sections on rebase workflow"`).
    Store selected items as `SELECTED_ITEMS`.
 
-   **Do NOT proceed until user selects.** If no items selected, inform user and exit.
+   **Do NOT proceed until the operator selects.** If no items selected, inform the operator and exit.
 
 5. **Distribute selected items**:
    - For each item in `SELECTED_ITEMS`:

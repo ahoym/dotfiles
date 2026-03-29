@@ -86,11 +86,11 @@ Flag anything warranting discussion. Spec compliance uses `Glob` (not Bash).
 If there are review items in `review.md`:
 
 1. Present each item with its title, context, tag, and options
-2. Use `AskUserQuestion` to collect the user's decision for each
+2. Use `AskUserQuestion` to collect the operator's decision for each
 3. Update review.md: append `**Status**: RESOLVED (<chosen option>)` to the item
 4. If the resolution requires an action (e.g., "apply option A"), add guidance to progress.md's `Notes for Next Iteration` section so the next loop iteration picks it up
 
-If the user wants to skip an item, leave it without a Status line.
+If the operator wants to skip an item, leave it without a Status line.
 
 **Changes belong on the consolidation branch, not main.** Any file edits made while resolving review items should be committed to the consolidation branch — not to main. The consolidation branch is the PR unit; direct commits to main bypass review. Use `~/.claude/` tilde paths for Edit/Write (they land on the shared filesystem), then stage and commit from the worktree's git context.
 
@@ -105,7 +105,7 @@ Calculate suggested iterations based on pre-flight cadence (from progress.md) an
 If COMPLETE or MAX_DEEP_DIVES_HIT signal is present in progress.md:
 - MAX_DEEP_DIVES_HIT: carryover candidates are staleness-eligible periodic review, not unfinished work — merge path applies with a note about what carries over
 - **Clean up working files**: Remove `consolidate-output/` from the branch — these are working state, not deliverables. Run `git rm -r claude/consolidate-output/` and commit with message `consolidate: remove working files before merge`.
-- Ask if the user wants to review the diff: `git diff main -- claude/`
+- Ask if the operator wants to review the diff: `git diff main -- claude/`
 - Suggest merging: `git checkout main && git merge <branch>`
 - Do NOT suggest relaunching
 

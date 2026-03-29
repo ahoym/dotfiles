@@ -17,7 +17,7 @@ Authoring lens for creating and modifying the Claude configuration surface: skil
 - Is the scope right? Too narrow = won't be reused. Too broad = won't be loaded selectively.
 
 ### Skills
-- Start with the user's workflow, not the implementation. What triggers this? What does the user expect?
+- Start with the operator's workflow, not the implementation. What triggers this? What does the operator expect?
 - Reference existing patterns in `skill-references/` rather than inlining shared logic
 - Include permission prerequisites — omitting them guarantees a bad first-run experience
 

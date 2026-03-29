@@ -55,7 +55,7 @@ This skill has several steps that can run concurrently. **Use parallel tool call
 | **Multi-file pipelines** | 2+ target files in content mode | Launch one Task subagent per file for steps 2→6, merge results at step 7 |
 | **Step 6** | Single-file content mode | Run underutilized-skill check and persona detection as parallel tool calls after step 5 |
 | **Broad sweep clusters** | "All learnings" mode | After clustering (step 2), launch one Task subagent per domain/stack cluster for analysis |
-| **Apply actions** | Step 8, after user approval | Execute independent file writes (different target files) as parallel tool calls |
+| **Apply actions** | Step 8, after operator approval | Execute independent file writes (different target files) as parallel tool calls |
 
 Detailed instructions for each opportunity are inline in the relevant steps (marked with **⚡ Parallel**).
 
@@ -75,7 +75,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 
 **If no arguments**:
 - List available files under `~/.claude/learnings/` (including cluster subdirectories), `~/.claude/learnings-private/`, `docs/learnings/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
-- Use `AskUserQuestion` to prompt user:
+- Use `AskUserQuestion` to prompt the operator:
   ```
   What would you like to curate?
 
@@ -103,7 +103,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
   ```
 - Store selection as `TARGET_FILES`
 
-**If user selects "all learnings" (broad sweep mode)**:
+**If operator selects "all learnings" (broad sweep mode)**:
 
 This is a content mode variant. Read `content-mode.md` and follow the **Broad Sweep** section.
 
@@ -123,9 +123,9 @@ Display the full report inline in the CLI. Use the report format from the loaded
 
 ### 8. Apply changes (with approval)
 
-For each recommended action, use `AskUserQuestion` with **multi-select** to let the user pick which actions to apply. Each action should be a separate selectable option (not a table followed by a generic "apply?" prompt). Always include a **Discuss** option as one of the choices, especially for medium-confidence items.
+For each recommended action, use `AskUserQuestion` with **multi-select** to let the operator pick which actions to apply. Each action should be a separate selectable option (not a table followed by a generic "apply?" prompt). Always include a **Discuss** option as one of the choices, especially for medium-confidence items.
 
-**If user approves**:
+**If operator approves**:
 
 **⚡ Parallel: apply actions.** Group approved actions by target file. Actions targeting **different files** are independent — execute them as parallel tool calls. Actions targeting the **same file** must be sequential (to avoid edit conflicts).
 
@@ -182,9 +182,9 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ## Important Notes
 
-- **User approval required**: Always use `AskUserQuestion` before applying changes
+- **Operator approval required**: Always use `AskUserQuestion` before applying changes
 - **Discuss option**: Always include for medium-confidence items
-- **Deletion with approval**: Content/skills can be deleted if user approves
+- **Deletion with approval**: Content/skills can be deleted if the operator approves
 - **Preserve context**: When migrating, ensure content retains enough context to be useful standalone
 - **Update cross-references**: If content is migrated, update any internal links in the source file
 - **Frequency**: Designed for regular use to prevent bloat across learnings, guidelines, and skills

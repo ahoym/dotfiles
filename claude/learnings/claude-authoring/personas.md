@@ -17,7 +17,7 @@ The test: "Would activating this persona before a task actually change what I do
 
 ## Reviewer Personas vs Working-in-Repo Personas
 
-A "working in this repo" persona encodes things the user already knows — low value. A reviewer persona encodes the design philosophy and quality bar so a *reviewer agent* can evaluate changes against the user's standards without them being spelled out each time. The test: "does this persona give knowledge to someone who doesn't already have it?" Reviewer personas pass because the reviewer (the agent) is the one who needs the domain context, not the author.
+A "working in this repo" persona encodes things the operator already knows — low value. A reviewer persona encodes the design philosophy and quality bar so a *reviewer agent* can evaluate changes against the operator's standards without them being spelled out each time. The test: "does this persona give knowledge to someone who doesn't already have it?" Reviewer personas pass because the reviewer (the agent) is the one who needs the domain context, not the author.
 
 ## Tools Must Encode the Philosophy They Curate
 

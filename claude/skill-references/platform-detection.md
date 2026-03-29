@@ -21,7 +21,7 @@ Run these checks in order and use the first match:
    - `.github/` directory exists → **GitHub**
    - `.gitlab-ci.yml` file exists → **GitLab**
 
-3. **Default:** If no signals found, ask the user.
+3. **Default:** If no signals found, ask the operator.
 
 ## Platform Mapping
 

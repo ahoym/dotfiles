@@ -107,7 +107,7 @@ Determine what work needs to be done by checking existing output files.
    - If scan mode: list which domains will be scanned and why (missing vs. stale vs. affected by changes)
    - If smart staleness narrowed the re-scan scope, mention which domains were skipped and why
    - If stale synthesis files were cleaned up, mention it
-   - If up-to-date: inform the user and stop
+   - If up-to-date: inform the operator and stop
 
 ---
 
@@ -308,7 +308,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    Based on the synthesized understanding, update documentation for better agent traversal:
 
-   - **Root CLAUDE.md**: Be opinionated. Don't just add new sections — actively improve existing content based on what the scan revealed. If the scan found that a section is misleading, incomplete, or poorly organized, fix it. Add counts, correct inaccuracies, add missing cross-references. Don't clobber the user's structure, but do make it more accurate and useful.
+   - **Root CLAUDE.md**: Be opinionated. Don't just add new sections — actively improve existing content based on what the scan revealed. If the scan found that a section is misleading, incomplete, or poorly organized, fix it. Add counts, correct inaccuracies, add missing cross-references. Don't clobber the operator's structure, but do make it more accurate and useful.
 
    - **Subdirectory CLAUDE.md files** — Evaluate candidates and create where valuable:
 

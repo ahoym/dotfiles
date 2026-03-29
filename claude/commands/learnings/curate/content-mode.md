@@ -34,7 +34,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Thematic match**: Related concept in the same domain but different specific insight → LOW confidence
 - **No match**: Novel pattern not covered elsewhere
 
-**Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
+**Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the operator approves actions based on incorrect information.
 
 ## 4. File-level gates
 
@@ -149,7 +149,7 @@ Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SU
 
 ## Broad Sweep (all learnings)
 
-When the user selects "all learnings", use a **cluster-first approach**. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) which may contain sub-clusters (e.g., `claude-code/multi-agent/`), with flat files at root.
+When the operator selects "all learnings", use a **cluster-first approach**. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) which may contain sub-clusters (e.g., `claude-code/multi-agent/`), with flat files at root.
 
 1. Read all learnings files recursively (use parallel Read calls). Read each cluster's and sub-cluster's `CLAUDE.md` for its routing table.
 2. Use existing directory structure as clusters — don't re-derive. Sub-clusters are independent curation units alongside top-level clusters. Flat files at root form a "general" group. Flat files within a cluster (not in any sub-cluster) form that cluster's own curation unit.
@@ -253,7 +253,7 @@ When a single file has 20+ patterns, the flat classification table becomes unrea
 
 The destination grouping makes the actual decision ("where does this go?") the organizing principle instead of the classification taxonomy. Each destination group is self-contained and actionable.
 
-**Confirmation checkpoint:** When the approved actions will touch 10+ files, confirm interpretation of user selections before executing — especially when the user provided freeform input rather than selecting a pre-defined option.
+**Confirmation checkpoint:** When the approved actions will touch 10+ files, confirm interpretation of operator selections before executing — especially when the operator provided freeform input rather than selecting a pre-defined option.
 
 ### Broad sweep report (when curating all learnings)
 
