@@ -60,7 +60,7 @@ When tracking state that shares a cron job's lifecycle (e.g., last-activity time
 
 ## Scope Expansion in Three-Party Review Discussions
 
-Review threads between human, reviewer agent, and addresser agent can legitimately evolve from code feedback into convention changes. The keep-reviews-focused guidance applies to *unrelated* changes — when the partner explicitly approves expanding scope (e.g., "make the edit in this PR"), that's authorization, not scope creep. The addresser should still flag the expansion ("this feels like a design discussion for X rather than this PR") before proceeding, giving the partner a chance to defer. But once approved, implement in the current PR rather than forcing a follow-up.
+Review threads between operator, reviewer agent, and addresser agent can legitimately evolve from code feedback into convention changes. The keep-reviews-focused guidance applies to *unrelated* changes — when the partner explicitly approves expanding scope (e.g., "make the edit in this PR"), that's authorization, not scope creep. The addresser should still flag the expansion ("this feels like a design discussion for X rather than this PR") before proceeding, giving the partner a chance to defer. But once approved, implement in the current PR rather than forcing a follow-up.
 
 ## Quick-Exit Devolution Under Consecutive No-Ops
 
@@ -68,9 +68,9 @@ Consecutive no-op polls create progressive optimization pressure: the agent redu
 
 **Fix location matters.** Anti-devolution language in Important Notes gets deprioritized under the same efficiency pressure that causes the devolution. The preamble must be inline at the top of step 5 itself — that's where the agent reads instructions at point of use. Important Notes reinforce but don't prevent.
 
-## Human Comments Are Invisible When Mentally Grouped with Addresser
+## Operator Comments Are Invisible When Mentally Grouped with Addresser
 
-Phase 2 self-filtering correctly identifies `Role:.*Reviewer` as self-comments. But the agent mentally categories remaining comments as "Addresser replies" — overlooking that comments with **no Role tag** are from the operator, not the Addresser. Both are "non-self" in the filter, but human comments require immediate response while Addresser replies follow the acknowledgement/resolution flow. The fix: when scanning phase 2 results, explicitly check for three categories (self / agent-other / human), not two (self / non-self).
+Phase 2 self-filtering correctly identifies `Role:.*Reviewer` as self-comments. But the agent mentally categories remaining comments as "Addresser replies" — overlooking that comments with **no Role tag** are from the operator, not the Addresser. Both are "non-self" in the filter, but operator comments require immediate response while Addresser replies follow the acknowledgement/resolution flow. The fix: when scanning phase 2 results, explicitly check for three categories (self / agent-other / operator), not two (self / non-self).
 
 ## GitHub Review Batch: All Lines Must Be in a Diff Hunk
 

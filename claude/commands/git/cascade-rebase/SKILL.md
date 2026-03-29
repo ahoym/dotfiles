@@ -59,7 +59,7 @@ Rebase a chain of compound feature branches when the base (main) is updated.
    - User can abort: `git rebase --abort`
 
 7. **Push all branches**:
-   Ask user: "Rebase complete. Push all branches with --force-with-lease?"
+   Ask the operator: "Rebase complete. Push all branches with --force-with-lease?"
    ```bash
    git push origin <branch1> --force-with-lease
    git push origin <branch2> --force-with-lease

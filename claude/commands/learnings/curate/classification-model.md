@@ -19,7 +19,7 @@ The 6-bucket model for classifying learning patterns during curation.
 
 A pattern is a **skill candidate** when:
 - It describes a multi-step procedure with clear inputs/outputs
-- It's invokable (user would say "do X" or "run the X process")
+- It's invokable (operator would say "do X" or "run the X process")
 - It's repeatable (used weekly or more frequently)
 - Steps are procedural, not heavily judgment-based
 
@@ -118,7 +118,7 @@ After passing the litmus test, also consider **where** the content will land and
 |-------|---------|--------|
 | **High** | Classification is clear, criteria strongly match | Apply without additional verification |
 | **Medium** | Likely correct but some ambiguity | Note rationale, offer discussion before asking for commit/skip |
-| **Low** | Uncertain, multiple classifications could fit | Ask user to decide |
+| **Low** | Uncertain, multiple classifications could fit | Ask operator to decide |
 
 ## Cross-Reference Matching
 
@@ -166,7 +166,7 @@ When reviewing existing skills (step 5 of learnings:curate), evaluate whether sk
 2. Rate each: High (core workflow), Medium (useful), Low (specialized/rare)
 3. For Low-rated skills, check if any "Keep Despite Low Usage" criteria apply
 4. Propose pruning for remaining Low-rated skills
-5. Get user confirmation before removing
+5. Get operator confirmation before removing
 
 **Note:** Pruning skills is about maintenance, not failure. A skill that served its purpose and is no longer needed was still valuable.
 

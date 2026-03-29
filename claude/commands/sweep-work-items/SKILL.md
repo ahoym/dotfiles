@@ -36,7 +36,7 @@ The main agent acts as orchestrator — it reads issues, decides implement vs cl
 
 ## Prerequisites
 
-Background agents cannot prompt for permissions. The following patterns must be allowed in project-level `.claude/settings.local.json` or global `~/.claude/settings.json`:
+Background agents cannot prompt for permissions. The following patterns must be allowed in **project-level** `.claude/settings.local.json`. Global `~/.claude/settings.json` patterns are not sufficient — worktree agents inherit the project-level settings, not global.
 
 ```json
 "permissions": {
@@ -94,16 +94,16 @@ gh pr list --state open --json headRefName,number,url
 ```
 Filter client-side. If match found: mark item as `SKIP(PR exists (#N))`.
 
-**b. Sweeper already commented, no human reply.** Fetch issue comments and scan for the Sweeper footnote (`Role:.*Sweeper` in body). If found, check if any non-Sweeper comment was posted after it. If no human reply since: mark as `SKIP(Awaiting reply)`.
+**b. Sweeper already commented, no human reply.** Fetch issue comments and scan for the Sweeper footnote (`Role:.*Sweeper` in body). If found, check if any non-Sweeper comment was posted after it. If no operator reply since: mark as `SKIP(Awaiting reply)`.
 
-**c. Sweeper commented AND human replied.** If both a Sweeper comment and a subsequent non-Sweeper comment exist, the item is **eligible** for re-assessment — the human's reply may provide enough detail to implement.
+**c. Sweeper commented AND human replied.** If both a Sweeper comment and a subsequent non-Sweeper comment exist, the item is **eligible** for re-assessment — the operator's reply may provide enough detail to implement.
 
 Present a skip summary before proceeding:
 ```
 Fetched N issues. M eligible, K skipped:
 - #15: Skip — PR exists (#42)
 - #7: Skip — Awaiting reply (asked 2d ago)
-- #3: Re-assess — human replied to previous questions
+- #3: Re-assess — operator replied to previous questions
 ```
 
 ### Phase 4: Repo Summary
@@ -192,7 +192,7 @@ If any agents failed, include their error context in the table's Result column.
 
 - **Agents are independent.** Each agent operates as if it's the only one working on the repo. They don't know about each other, even though the orchestrator does. This means parallel implementers may create PRs that conflict — the operator resolves conflicts manually.
 - **`Relates to` not `Closes`.** PRs reference their issue with `Relates to #{N}` or `Relates to <URL>`, never `Closes` or `Fixes`. The operator decides when to close the issue after reviewing the PR.
-- **Footnote identity.** All comments posted by clarifier agents end with the standard footnote using `Role: Sweeper`. This enables re-run skip detection and distinguishes sweep comments from human comments.
+- **Footnote identity.** All comments posted by clarifier agents end with the standard footnote using `Role: Sweeper`. This enables re-run skip detection and distinguishes sweep comments from operator comments.
 - **One-shot operation.** This skill runs once per invocation. If clarifying questions are posted, re-run the skill later after the operator or issue author has responded — the skip detection in Phase 3 will pick up the replies and re-assess.
 - **Partial failure is normal.** If some agents fail (API errors, test failures, permission issues), the sweep continues with remaining agents. Failed items appear in the summary table with error context.
 - **Temp files.** All ephemeral files (comment bodies, PR bodies) are written to `tmp/sweep-work-items/`. This directory can be cleaned up after the sweep.

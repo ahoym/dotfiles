@@ -181,16 +181,16 @@ K files identical. J files local-only. P files where target is already ahead.
 
 **Assessment** column: the recommendation from step 2 with a brief rationale.
 
-Use `AskUserQuestion` with multi-select to let user choose which items to pull.
+Use `AskUserQuestion` with multi-select to let the operator choose which items to pull.
 Include the assessment and detail in each option's `description` field.
 
-**Do NOT proceed until user selects.** If no items selected, inform user and exit.
+**Do NOT proceed until the operator selects.** If no items selected, inform the operator and exit.
 
 If `$ARGUMENTS` is "diff", display both tables and exit without prompting.
 
 ### 4. Execute sync
 
-**Verify agent write permissions before launching.** Before spawning any background merge agents, grep `<TARGET>/.claude/settings.local.json` (or the project's settings file) for `Write(.claude/**)` and `Edit(.claude/**)` allow patterns. Background agents can't prompt for permissions — missing patterns cause silent failures where the agent completes analysis but can't write results. If patterns are missing, either add them (with user confirmation) or fall back to coordinator-managed merges (agents analyze, coordinator applies edits).
+**Verify agent write permissions before launching.** Before spawning any background merge agents, grep `<TARGET>/.claude/settings.local.json` (or the project's settings file) for `Write(.claude/**)` and `Edit(.claude/**)` allow patterns. Background agents can't prompt for permissions — missing patterns cause silent failures where the agent completes analysis but can't write results. If patterns are missing, either add them (with operator confirmation) or fall back to coordinator-managed merges (agents analyze, coordinator applies edits).
 
 **Route by divergence size.** For diverged items with >15 source-unique lines, use background agents for parallel merges. For ≤15 source-unique lines, triage directly from the inventory diff — many will be skips (terminology-only, target already evolved past source). This mirrors the analysis-phase threshold in step 2b.
 

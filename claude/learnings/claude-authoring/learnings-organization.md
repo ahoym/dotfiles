@@ -21,11 +21,11 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 - **Scope:** Learnings-only (`~/.claude/learnings/`) for now — not cross-type to skills or guidelines
 - **Only non-obvious relationships.** If keyword search would find the connection (shared vocabulary in filenames or content), a cross-ref adds no value. Reserve for relationships where the agent wouldn't think to search.
 - **1-5 refs max per file.** The number is a guardrail, not a target — each ref must pass the non-obvious test. Hub files that route to a cluster may exceed 5 when each ref adds non-keyword-discoverable value.
-- **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and user) judge relevance without loading the target.
+- **Include a reason.** The one-liner after the path explains *why* the relationship exists, which helps the agent (and operator) judge relevance without loading the target.
 - **Path format:** `~/.claude/learnings/<file>.md` (absolute tilde path — works outside the repo's CWD and matches Read tool resolution from any context)
 - **Placement:** Always the last section in the file, after all content sections.
 
-**Hub-spoke rule:** When files form a hub-spoke cluster (e.g., `content-types.md` routing to `skills.md`, `guidelines.md`, etc.), spokes should cross-ref the hub (upward navigation — the agent needs a breadcrumb back to the routing table) but NOT sibling spokes (lateral navigation — the hub already handles that). Spoke-to-spoke refs duplicate hub routing and grow linearly with new spokes.
+**Hub-spoke rule:** When files form a hub-spoke cluster (e.g., `routing-table.md` routing to `skills.md`, `guidelines.md`, etc.), spokes should cross-ref the hub (upward navigation — the agent needs a breadcrumb back to the routing table) but NOT sibling spokes (lateral navigation — the hub already handles that). Spoke-to-spoke refs duplicate hub routing and grow linearly with new spokes.
 
 **Bidirectionality:** When adding A → B, check whether B → A is also valuable. Relationships can be asymmetric — "spring-boot-gotchas relates to postgresql for migrations" doesn't necessarily mean postgresql needs to link back to spring-boot. Add the reverse only when both directions provide lateral discovery value.
 
@@ -86,7 +86,7 @@ When learnings files grow large, the sniff becomes imprecise — loading 400 lin
 
 **Directory promotion:** When a domain accumulates 3+ files (from splitting or natural growth), promote to a subdirectory: `learnings/skill-authoring/`, `learnings/xrpl/`, etc.
 
-**Cluster index pattern:** Each subdirectory gets an `INDEX.md` (like `content-types.md` serves for the authoring cluster). The index handles intra-cluster navigation — individual files point `**Related:**` back to their index rather than cross-referencing every sibling. This keeps cross-ref counts manageable as file count grows.
+**Cluster index pattern:** Each subdirectory gets an `INDEX.md` (like `routing-table.md` serves for the authoring cluster). The index handles intra-cluster navigation — individual files point `**Related:**` back to their index rather than cross-referencing every sibling. This keeps cross-ref counts manageable as file count grows.
 
 **Cross-cluster refs:** Remain file-to-file for precision. `skill-authoring/contracts.md → multi-agent/orchestration.md` is a genuine domain intersection that should be explicit, not abstracted to cluster-to-cluster.
 

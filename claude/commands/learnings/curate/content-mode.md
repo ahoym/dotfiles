@@ -18,7 +18,7 @@
 **Pre-load** — In the same parallel batch as the parse reads above:
 1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` and its cluster subdirectories (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). Use recursive glob (`**/*.md`) to catch cluster subdirectories. **Read all files** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
-3. Read classification-model.md and `~/.claude/learnings/claude-authoring/content-types.md` (needed for step 5)
+3. Read classification-model.md and `~/.claude/learnings/claude-authoring/routing-table.md` (needed for step 5)
 
 Store all pre-loaded content for use in subsequent steps.
 
@@ -34,7 +34,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Thematic match**: Related concept in the same domain but different specific insight → LOW confidence
 - **No match**: Novel pattern not covered elsewhere
 
-**Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the user approves actions based on incorrect information.
+**Do NOT present the classification table (step 7) until this step is fully complete.** Getting this wrong means the operator approves actions based on incorrect information.
 
 ## 4. File-level gates
 
@@ -60,7 +60,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 - **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
 - **All patterns are universal** → Proceed to step 5 normally.
 
-See `~/.claude/learnings/claude-authoring/content-types.md` → "Evaluating Existing Guidelines" for the full migration signal table.
+See `~/.claude/learnings/claude-authoring/routing-table.md` → "Evaluating Existing Guidelines" for the full migration signal table.
 
 ## 5. Classify each pattern
 
@@ -108,7 +108,7 @@ For each file being curated, evaluate its `## Cross-Refs` section and `**Related
 - Don't suggest cross-refs where shared vocabulary already connects the files (the keyword search protocol handles those)
 
 **Inbound reference check (consuming personas and skills):**
-Grep `~/.claude/commands/set-persona/` for paths referencing files in the curated cluster — Proactive loads, Cross-Refs, and `> Full criteria:` section refs. Check for:
+Grep `~/.claude/commands/set-persona/` for paths referencing files in the curated cluster — Proactive Cross-Refs, Cross-Refs, and `> Full criteria:` section refs. Check for:
 1. **Stale paths** from pre-cluster flat naming (e.g., `claude-authoring-skills.md` → should be `claude-authoring/skill-design.md`). These cause silent knowledge loss — the persona loads nothing instead of the intended file.
 2. **Split casualties** — refs to a file that was split this session (e.g., `learnings.md` → `learnings-content.md` + `learnings-organization.md`). Update to point to the appropriate successor file.
 
@@ -149,7 +149,7 @@ Store matches as `DOMAIN_SUGGESTIONS` (learnings reorganization) and `PERSONA_SU
 
 ## Broad Sweep (all learnings)
 
-When the user selects "all learnings", use a **cluster-first approach**. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) which may contain sub-clusters (e.g., `claude-code/multi-agent/`), with flat files at root.
+When the operator selects "all learnings", use a **cluster-first approach**. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`, `claude-authoring/`) which may contain sub-clusters (e.g., `claude-code/multi-agent/`), with flat files at root.
 
 1. Read all learnings files recursively (use parallel Read calls). Read each cluster's and sub-cluster's `CLAUDE.md` for its routing table.
 2. Use existing directory structure as clusters — don't re-derive. Sub-clusters are independent curation units alongside top-level clusters. Flat files at root form a "general" group. Flat files within a cluster (not in any sub-cluster) form that cluster's own curation unit.
@@ -253,7 +253,7 @@ When a single file has 20+ patterns, the flat classification table becomes unrea
 
 The destination grouping makes the actual decision ("where does this go?") the organizing principle instead of the classification taxonomy. Each destination group is self-contained and actionable.
 
-**Confirmation checkpoint:** When the approved actions will touch 10+ files, confirm interpretation of user selections before executing — especially when the user provided freeform input rather than selecting a pre-defined option.
+**Confirmation checkpoint:** When the approved actions will touch 10+ files, confirm interpretation of operator selections before executing — especially when the operator provided freeform input rather than selecting a pre-defined option.
 
 ### Broad sweep report (when curating all learnings)
 

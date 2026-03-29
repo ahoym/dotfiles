@@ -39,7 +39,7 @@ Before building a full parallel plan, evaluate whether parallelization is worthw
 | Estimated speedup | < 1.3x | Flag: marginal benefit |
 | Estimated sequential time | < 3 minutes | Flag: fast enough without parallelism |
 
-**None of these are hard blockers.** Parallelization still provides value through contract enforcement (agents can't accidentally couple files) and context window pressure reduction. But the user should be informed when the speedup is marginal so they can make an informed choice.
+**None of these are hard blockers.** Parallelization still provides value through contract enforcement (agents can't accidentally couple files) and context window pressure reduction. But the operator should be informed when the speedup is marginal so they can make an informed choice.
 
 ### How to evaluate
 
@@ -48,13 +48,13 @@ Before building a full parallel plan, evaluate whether parallelization is worthw
 3. Sketch the DAG mentally: how many steps can run at the same time?
 4. If the answer is "mostly 1 at a time with occasional overlap," the DAG is essentially linear
 
-### What to tell the user
+### What to tell the operator
 
 When the gate fails, be transparent:
 
 > "This plan has ~200 lines across 8 files. The DAG is mostly linear (A → B → C), giving ~1.2x speedup. The main benefits would be contract enforcement and context isolation, not speed. Want to proceed with parallelization, or execute sequentially?"
 
-Do NOT silently produce a plan with marginal speedup. The user deserves to know.
+Do NOT silently produce a plan with marginal speedup. The operator deserves to know.
 
 ## Pre-flight Dependency Verification
 
@@ -87,7 +87,7 @@ If the project has no test framework (no vitest/jest/mocha/pytest in dependencie
 ### When a dependency is missing
 
 Do NOT add "install X if not available" to an agent prompt. Instead:
-1. Flag it to the user before generating the plan
+1. Flag it to the operator before generating the plan
 2. Ask them to install it first, or adjust the testing approach
 3. If the library is genuinely optional (e.g., can test a pure function without `renderHook`), adjust the agent prompt to use the simpler approach
 
@@ -297,7 +297,7 @@ Two agents are merge candidates when ANY of these apply:
 4. Combine the TDD steps
 5. Merge the prompts (keep both sets of instructions, combine TDD workflows)
 6. **Recalculate the critical path** — the speedup number may have changed
-7. **Re-run the parallelization gate** — if the speedup drops below 1.3x, inform the user
+7. **Re-run the parallelization gate** — if the speedup drops below 1.3x, inform the operator
 
 ### When NOT to merge
 
@@ -330,7 +330,7 @@ After building the DAG, performing the soft dependency audit, and resolving merg
 ### Structural checks
 
 - [ ] **No orphaned agents** — every agent is either depended on by another agent, or is the final integration/wiring agent. An orphaned agent's failure goes undetected until final verification.
-- [ ] **No linear-only DAG without justification** — if DAG depth equals agent count (the graph is a chain with no branching), the parallelism benefit is marginal. Either find a way to introduce branching, or inform the user.
+- [ ] **No linear-only DAG without justification** — if DAG depth equals agent count (the graph is a chain with no branching), the parallelism benefit is marginal. Either find a way to introduce branching, or inform the operator.
 - [ ] **No agents under 50 lines of meaningful changes** — merge them into an adjacent agent. The agent startup overhead (~15-20s) makes tiny agents counterproductive.
 - [ ] **No two agents share a file** — double-check the creates/modifies/deletes lists for overlaps.
 

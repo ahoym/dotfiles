@@ -82,7 +82,7 @@ Pull down a review to understand its changes, get context, and ask questions.
    ```
 
 7. **Enter Q&A mode**:
-   Present to user:
+   Present to the operator:
    ```
    I now have full context on $REVIEW_UNIT $REVIEW_PREFIX<number>. You can ask me:
    - What does this $REVIEW_UNIT change?

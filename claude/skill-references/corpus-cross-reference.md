@@ -47,5 +47,5 @@ For each incoming pattern:
 | Level | Meaning | Action |
 |-------|---------|--------|
 | **High** | Coverage assessment is clear — strong exact match or clearly no match | Act on assessment directly |
-| **Medium** | Likely correct but some ambiguity — partial or thematic match | Note rationale, flag for user review |
-| **Low** | Uncertain — multiple interpretations possible | Present to user with context for decision |
+| **Medium** | Likely correct but some ambiguity — partial or thematic match | Note rationale, flag for operator review |
+| **Low** | Uncertain — multiple interpretations possible | Present to operator with context for decision |

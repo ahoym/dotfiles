@@ -28,7 +28,7 @@ Stateless agent specs benefit from splitting phase-specific methodology into sep
 
 ## "Validate" Means Run It
 
-When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the user says so.
+When asked to validate that scripts/workflows work, **execute them** — don't just lint. Static analysis (`bash -n`, file existence checks, cross-reference verification) catches structural issues but misses runtime bugs: wrong env values, ordering problems, integration failures. Default escalation: syntax check → dry-run (if available) → actual execution. Only stop at static analysis if execution is explicitly impossible or the operator says so.
 
 When creating docs that mirror code-defined data (enums, config, topology), run the source code to validate claims programmatically. Counting items, listing values, or computing derived facts via `poetry run python3 -c "..."` catches misclassifications that manual review misses.
 
@@ -38,7 +38,7 @@ When an autonomous loop produces zero items at a classification level (e.g., zer
 
 1. **Audit the level above**: Check MEDIUM decisions for borderline calls that should have been LOWs. Were any "auto-applied" where the rationale required non-trivial judgment?
 2. **Check the classification funnel**: Count action types per level. If the auto-apply bucket has 14 action types and the block/escalate bucket has 4, the funnel structurally prevents items from reaching the lower level.
-3. **Spot-check "clean" items**: Pick 2-3 files the agent called clean and review manually. If a human finds things the agent missed, the agent is resolving ambiguity silently rather than surfacing it.
+3. **Spot-check "clean" items**: Pick 2-3 files the agent called clean and review manually. If an operator finds things the agent missed, the agent is resolving ambiguity silently rather than surfacing it.
 
 ## Issue Simplicity Heuristic for Implementer Loops
 

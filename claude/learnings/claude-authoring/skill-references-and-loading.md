@@ -37,11 +37,11 @@ Then in the step itself, explicitly instruct: "Read `template.md` from the skill
 
 ## Skill Description Optimization & Discoverability
 
-The `description:` field serves double duty — documentation for the user and a matching signal for the model. **Every** `.claude/commands/*.md` file should include `description` frontmatter — missing descriptions make skills invisible in the command picker.
+The `description:` field serves double duty — documentation for the operator and a matching signal for the model. **Every** `.claude/commands/*.md` file should include `description` frontmatter — missing descriptions make skills invisible in the command picker.
 
 **Optimize for searchability:** Use widely understood terms (no internal jargon), include action verbs, use standard dev workflow terminology, list key capabilities for multi-purpose skills.
 
-**Add trigger phrases** when the skill name + functional description isn't enough for agent inference — e.g., opaque names or overlapping skills needing disambiguation. Cover common ways a user might express the intent without naming the skill directly. Skip routing hints when the skill name already communicates intent or the functional description covers it.
+**Add trigger phrases** when the skill name + functional description isn't enough for agent inference — e.g., opaque names or overlapping skills needing disambiguation. Cover common ways an operator might express the intent without naming the skill directly. Skip routing hints when the skill name already communicates intent or the functional description covers it.
 
 ## Subagent Prompts: Read Shared References Instead of Hardcoding
 
@@ -49,7 +49,7 @@ When a subagent prompt needs platform-specific commands (API calls, CLI syntax),
 
 ## Body-Only Templates for Skill Reference Files
 
-Template reference files should contain only message body content — not posting commands. See `content-types.md` § "Skill References & Templates" for the full convention.
+Template reference files should contain only message body content — not posting commands. See `routing-table.md` § "Skill References & Templates" for the full convention.
 
 ## Inline Critical Conditions — Don't Defer to Lazy-Loaded Files
 

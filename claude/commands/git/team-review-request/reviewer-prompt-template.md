@@ -62,7 +62,7 @@ Write a JSON file with this structure:
 - **severity**: `critical` = will break production or introduce security vulnerability. `high` = significant correctness or design issue. `medium` = should fix but not blocking. `low` = minor improvement. `info` = observation, no action needed.
 - **category**: Choose the primary category. If a finding spans multiple, pick the most important one.
 - **recommendation**: Set to `null` when you've identified an issue but aren't confident in the right fix. This is better than a wrong suggestion.
-- **inline_comment**: This is what gets posted on the PR. Write it for a human reader — include the reasoning, not just the recommendation. Keep it concise but complete.
+- **inline_comment**: This is what gets posted on the PR. Write it for an operator reader — include the reasoning, not just the recommendation. Keep it concise but complete.
 
 ## Constraints
 

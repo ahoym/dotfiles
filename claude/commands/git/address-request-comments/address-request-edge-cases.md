@@ -12,15 +12,15 @@ Read this file when processing comments (step 5+). Skip on quiet no-ops.
 - Use a friendly, appreciative tone in replies ("Thanks for catching this!", "Good call")
 - If you disagree with a comment, explain your reasoning respectfully and ask for clarification
 - Group related changes into a single commit when possible
-- If a comment is unclear, ask the user before responding
+- If a comment is unclear, ask the operator before responding
 
 ## When do suggestions get implemented?
 
-**Mutual agreement = auto-implement.** When the addresser agrees with a reviewer's suggestion, implement it without waiting for human approval. The partner can review the changes in the PR diff and calibrate.
+**Mutual agreement = auto-implement.** When the addresser agrees with a reviewer's suggestion, implement it without waiting for operator approval. The partner can review the changes in the PR diff and calibrate.
 
 **Disagreement = escalate.** When the addresser disagrees or is uncertain, present the suggestion to the partner and wait for their decision. Approval can come via CLI or review comments — either channel is valid.
 
-To identify agent vs human comments, check for `Role:.*Reviewer` or `Role:.*Addresser` in the comment body. Comments without a Role tag are from humans.
+To identify agent vs operator comments, check for `Role:.*Reviewer` or `Role:.*Addresser` in the comment body. Comments without a Role tag are from the operator.
 
 ## Conditional Requests
 
@@ -80,7 +80,7 @@ After pushing new changes, search for ALL reviewers who gave LGTM comments and t
 
 Follow **Find Approved Reviewers** in the platform cluster files to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
 
-**Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the human is also reviewing the code changes made by the agent.
+**Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the operator is also reviewing the code changes made by the agent.
 
 ## Keep Reviews Focused
 
@@ -106,4 +106,4 @@ This keeps the review focused on its intended scope and makes reviews easier.
 
 ## After LGTM Verification
 
-After verifying and confirming an LGTM, note to the user that the review is approved and further comment monitoring is unlikely to be needed. An approved review rarely receives new comments.
+After verifying and confirming an LGTM, note to the operator that the review is approved and further comment monitoring is unlikely to be needed. An approved review rarely receives new comments.

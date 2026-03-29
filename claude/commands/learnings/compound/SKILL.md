@@ -21,7 +21,7 @@ Save new patterns and learnings from the current session into global skills, gui
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/learnings/claude-authoring/content-types.md` — Read if categorization is ambiguous
+- `~/.claude/learnings/claude-authoring/routing-table.md` — Read if categorization is ambiguous
 - `skill-template.md` — Read only when a Skill-type learning is selected
 - `~/.claude/learnings/claude-authoring/skill-design.md` — Read only when a Skill-type learning is selected
 - `iterative-loop-design.md` — Read only when learning involves iterative/loop patterns
@@ -70,7 +70,7 @@ Save new patterns and learnings from the current session into global skills, gui
 
    **Auto-save High and Medium-utility learnings.** High and Medium learnings are automatically included — they represent patterns worth preserving without asking.
 
-   **Low-utility learnings — skip the prompt.** Show them in the table for visibility but do NOT prompt the user to select. If all identified learnings are Low, state "No High/Medium learnings identified — nothing to save." and exit the compound step. The table provides the transparency; the prompt adds friction with a predictable "none" answer.
+   **Low-utility learnings — skip the prompt.** Show them in the table for visibility but do NOT prompt the operator to select. If all identified learnings are Low, state "No High/Medium learnings identified — nothing to save." and exit the compound step. The table provides the transparency; the prompt adds friction with a predictable "none" answer.
 
    **When High/Medium learnings exist alongside Low ones**, auto-save the High/Medium and skip the Low without prompting.
 
@@ -81,7 +81,7 @@ Save new patterns and learnings from the current session into global skills, gui
 
    Combine the auto-saved items into `SELECTED_LEARNINGS`.
 
-   **Do NOT proceed until auto-save list is confirmed (or no learnings qualify).** If no learnings are High/Medium, inform user and exit.
+   **Do NOT proceed until auto-save list is confirmed (or no learnings qualify).** If no learnings are High/Medium, inform the operator and exit.
 
 3. **Write learnings to files**:
    - If any Skill-type learning is selected: read `skill-template.md` and `~/.claude/learnings/claude-authoring-skills.md` first

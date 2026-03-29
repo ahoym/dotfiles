@@ -17,7 +17,7 @@ Authoring lens for creating and modifying the Claude configuration surface: skil
 - Is the scope right? Too narrow = won't be reused. Too broad = won't be loaded selectively.
 
 ### Skills
-- Start with the user's workflow, not the implementation. What triggers this? What does the user expect?
+- Start with the operator's workflow, not the implementation. What triggers this? What does the operator expect?
 - Reference existing patterns in `skill-references/` rather than inlining shared logic
 - Include permission prerequisites — omitting them guarantees a bad first-run experience
 
@@ -33,7 +33,7 @@ Authoring lens for creating and modifying the Claude configuration surface: skil
 ### Personas
 - Judgment, not recipes. If you're writing step-by-step instructions, it belongs in a learning.
 - Start thin — enrich through real work, not upfront speculation.
-- Wire `## Proactive loads` and `## Cross-Refs` to existing learnings.
+- Wire `## Proactive Cross-Refs` and `## Cross-Refs` to existing learnings.
 
 ### CLAUDE.md
 - Every `@` reference has an always-on token cost. Justify it.

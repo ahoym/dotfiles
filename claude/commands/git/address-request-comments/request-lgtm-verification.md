@@ -3,7 +3,7 @@
 When a reviewer posts an "LGTM" (Looks Good To Me) comment that includes their understanding of the review:
 
 1. **Compare their summary against actual implementation** - Create a checklist matching each point they mentioned to what was actually implemented
-2. **Flag any mismatches** - If the reviewer's understanding doesn't match what was implemented, alert the user before proceeding
+2. **Flag any mismatches** - If the reviewer's understanding doesn't match what was implemented, alert the operator before proceeding
 3. **Note items not mentioned** - If significant features were implemented but not mentioned in the LGTM, note these as well
 
 ## Example Verification
