@@ -33,9 +33,11 @@ Score each persona by the number of matching terms. Select the top personas up t
 
 ## Exclusions
 
-Skip personas that are not review-appropriate:
+Skip personas that are not domain reviewers:
 - `claude-config-author` — authoring lens, not review
 - `claude-config-expert` — knowledge base, not review lens
+- `team-lead` — coordination persona, used by the orchestrator directly (not a subagent)
+- `reviewer` — base review persona, used by the orchestrator directly (not a subagent)
 
 **Exception:** If `CHANGED_FILES` include `.claude/` paths, include `claude-config-reviewer`.
 

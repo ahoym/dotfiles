@@ -117,6 +117,16 @@ This differs from Knowledge/Lens decomposition (expert/reviewer/author splits) �
 
 **Splitting test:** If removing the stack from the persona leaves a coherent domain persona, and removing the domain leaves a coherent stack persona, the coupling is artificial — split them.
 
+## Agent Definition vs Persona: Content Boundaries
+
+When porting content from an agent definition (`.claude/agents/`) to a persona, only judgment heuristics transfer — execution mechanics stay in the agent.
+
+**Persona material** (judgment lens): reversibility weighting, prioritization axes, one-way door identification, scope challenge heuristics, tradeoff framing. These change *how you evaluate*, not *how you execute*.
+
+**Agent-only material** (execution mechanics): phase breakdown structures, communication style rules, quality checklists, anti-pattern lists, project coordination templates. These govern *how the agent works*, not *how it thinks*.
+
+**Reframe, don't port verbatim.** Generic frameworks need domain-specific translation. Project-management prioritization axes (urgency, dependencies, risk, learning) become review-specific finding-ranking axes (blocking dependencies, merge risk, teaching value, scope fit). The underlying insight transfers; the framing must match the persona's domain.
+
 ## Cross-Refs
 
 No cross-cluster references.

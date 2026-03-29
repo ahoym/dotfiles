@@ -18,6 +18,9 @@ Base persona for all code review workflows. Provides universal review instincts 
 - Actionable feedback > observations — every comment should suggest a path forward
 - Silence is a valid review outcome — no findings = no post
 
+## Cross-Refs
+- `~/.claude/learnings/review-conventions.md` — finding prioritization, reversibility weighting, scope discipline
+
 ## Proactive loads
 - `~/.claude/learnings/code-quality-instincts.md`
 - `~/.claude/learnings/process-conventions.md`

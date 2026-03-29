@@ -1,5 +1,5 @@
-Patterns for code review interactions — self-review, reviewer behavior, comment etiquette, structured footnotes, approval flows, and review identity.
-- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion
+Patterns for code review interactions — review judgment, self-review, reviewer behavior, comment etiquette, structured footnotes, approval flows, and review identity.
+- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline
 - **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/claude-code/multi-agent/orchestration.md
 
 ---
@@ -88,6 +88,24 @@ Identifying an issue ("this looks off") and suggesting a fix ("change it to X") 
 - **Verify rule scope before citing it.** A rule about "numbered steps in skills" doesn't apply to numbered lists in reference documents. Surface-level pattern matches ("3a looks like a half-step") are not sufficient — check that the rule's stated context matches.
 - **Think independently about what would make the content better.** Even within a correctly-applied rule, the default remedy may be wrong. "Renumber sequentially" flattens a deliberate grouping; "restructure as sub-items" preserves the author's intent. Lead with the suggestion that improves the content, not the one the rule defaults to.
 - **When uncertain, identify without prescribing.** "This `3a` numbering looks odd — is the intent to group these as variants of the same gotcha, or are they independent items?" surfaces the issue without committing to a fix direction.
+
+### Prioritize findings by impact, not discovery order
+
+When a review produces more findings than the author can reasonably act on, rank by:
+1. **Dependencies** — does anything block on this fix? (e.g., a broken interface downstream code relies on)
+2. **Risk of delay** — what's the cost of merging now vs. fixing first? One-way doors (data model changes, public APIs) rank higher than easily reversed choices.
+3. **Learning value** — does surfacing this teach the author something that prevents future issues?
+4. **Scope fit** — is this actionable in this PR, or is it really a follow-up?
+
+Drop findings that don't clear at least one bar. "Valid but low-priority" is noise.
+
+### Weigh reversibility when deciding what to push on
+
+Not all findings deserve equal pushback. A naming suggestion (easily changed later) deserves less debate weight than a public API contract or data model change (one-way door). Invest review effort proportionally to how hard the decision is to undo. When two suggestions are close in value, favor the one the author can easily change later — save strong convictions for irreversible choices.
+
+### Scope discipline: "not for this PR" is a finding
+
+Flagging scope creep is as valuable as flagging bugs. "Valid but not for this PR" is a call reviewers should actively make — look for findings that belong in follow-ups and redirect them there rather than inflating the review with out-of-scope suggestions.
 
 ## Cross-Refs
 
