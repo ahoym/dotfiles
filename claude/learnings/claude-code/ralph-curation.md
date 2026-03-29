@@ -116,7 +116,7 @@ Deep dives batch per learnings cluster directory — all candidate files in `cla
 
 ## Stale Persona Paths Are the Dominant Curation Finding
 
-Cluster reorganization silently breaks proactive cross-refs and cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
+Cluster reorganization silently breaks proactive and reactive cross-refs across *all* personas — not just those in the reorganized cluster. In a 13-persona collection, 10 had stale paths after learnings were clustered. This was the #1 finding across learnings, skills, and guidelines sweeps. Prioritize a bulk `grep` for flat-style paths (`learnings/<name>.md` without cluster prefix) as the first action in any post-reorg sweep.
 
 ## Curation Targets vs Comparison Context
 

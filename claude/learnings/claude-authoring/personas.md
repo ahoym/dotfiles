@@ -104,7 +104,7 @@ Extracting to a shared learning eliminates the ownership question and follows th
 
 ## Inherited Proactive Cross-Refs May Be Noise for Child Personas
 
-When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive cross-refs fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those loads add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base load is consistently irrelevant for a child persona, consider moving it from proactive to reactive cross-refs in the base.
+When a domain-specific persona extends a base (e.g., `claude-config-reviewer` extends `reviewer`), the base's proactive cross-refs fire on every activation. If the base is calibrated for code review (`code-quality-instincts.md`) but the child reviews config/content, those cross-refs add context cost without value. This is a known tradeoff — the shared process conventions from the base are worth the noise. Monitor during retros; if a base cross-ref is consistently irrelevant for a child persona, consider moving it from proactive to reactive cross-refs in the base.
 
 ## Layered Persona Composition: Domain Hub + Stack Children
 

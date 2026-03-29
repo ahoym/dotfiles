@@ -41,7 +41,7 @@ Load when working in the specific area:
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill composition, creation heuristics, responsibility boundaries
 - `~/.claude/learnings/claude-authoring/guidelines.md` — merging overlaps, enforcement gates, scoping
 - `~/.claude/learnings/claude-authoring/claude-md.md` — conditional references, relationships, subdirectory criteria
-- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive loads, composition
+- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive cross-refs, composition
 - `~/.claude/learnings/claude-authoring/learnings-content.md` — genericization, headers, scope, boundary tests
 - `~/.claude/learnings/claude-authoring/learnings-organization.md` — cross-refs, directories, indexes, splitting
 - `~/.claude/learnings/claude-code/platform-permissions.md` — permission patterns, path resolution, platform behavior gotchas
