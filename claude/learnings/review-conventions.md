@@ -22,7 +22,7 @@ First ask "does this need to be here?" with a concrete test. Get analysis back, 
 
 ### Automated reviewers can create false sense of coverage
 
-AI catches mechanical issues (null checks, config formatting, constraint/message mismatches). Operators catch architectural and security concerns. Both are complementary. Monitor whether automated tools supplement or replace operator review.
+AI catches mechanical issues (null checks, config formatting, constraint/message mismatches). Humans catch architectural and security concerns. Both are complementary. Monitor whether automated tools supplement or replace human review.
 
 ### E2E evidence in MR comments for infrastructure changes
 
