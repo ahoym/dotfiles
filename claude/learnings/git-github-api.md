@@ -1,5 +1,5 @@
 GitHub-specific API patterns — PR management, stacked PRs, pagination gotchas, reviews endpoint, and bulk extraction via gh CLI.
-- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease
+- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to
 - **Related:** ~/.claude/learnings/git-patterns.md, ~/.claude/learnings/cicd/gotchas.md
 
 ---
@@ -51,6 +51,16 @@ Stacked PRs compound risk: parallel work can make dependent PRs redundant before
 - `checkout -B` resets local to remote, then rebase on updated base; `--force-with-lease` for safe push
 - After rebasing stacked branches, retarget: `glab mr update <N> --target-branch <new-base>` (GitLab) / `gh pr edit <N> --base <new-base>` (GitHub)
 - `checkout -B` is safer than `checkout` for stacked workflows — avoids stale local state
+
+## PR Inline Comment Reply Endpoint
+
+Reply to an inline review comment with `POST /repos/{owner}/{repo}/pulls/{number}/comments` using `-F in_reply_to=<comment_id>`. The endpoint `/repos/{owner}/{repo}/pulls/comments/{id}/replies` does **not** exist (returns 404).
+
+```bash
+gh api repos/{owner}/{repo}/pulls/{number}/comments \
+  -f body="reply text" \
+  -F in_reply_to=<comment_id>
+```
 
 ## Cross-Refs
 

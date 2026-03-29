@@ -7,3 +7,6 @@ claude/learnings-private/
 claude/tracking-artifacts/
 claude/settings.local.json
 tmp/
+
+.claude/worktrees
+

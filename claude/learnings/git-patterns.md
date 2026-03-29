@@ -181,6 +181,24 @@ When a worktree branch lives long enough for other sessions to land commits on m
 
 When `git add`-ing a directory that contains git worktrees (or any nested `.git` repos), git warns about "embedded git repositories" and stages them as gitlinks. Fix: `git rm --cached -rf <path>` to unstage, then add proper `.gitignore` patterns before re-adding. Always check for worktree directories before bulk-staging renamed/moved directories.
 
+## Worktree at Remote Ref for Diverged PR Branches
+
+When local branch has diverged from the remote PR branch (unrelated commits on top, possibly deleting PR files), create a worktree at the remote ref to make review-driven changes without disturbing local state:
+
+```bash
+git worktree add .claude/worktrees/fix origin/<pr-branch>
+cd .claude/worktrees/fix
+git checkout -B temp-branch <remote-sha>
+# ... make changes, commit ...
+git push origin temp-branch:<pr-branch>
+```
+
+**Why not EnterWorktree:** `EnterWorktree` always bases on HEAD. When you need a specific ref (e.g., the remote branch state), use `git worktree add` directly.
+
+**Branch naming:** Can't checkout a branch name that already exists in another worktree. Use a temp branch name and push via refspec (`local:remote`).
+
+**Cleanup:** `git worktree remove .claude/worktrees/fix` — temp branch is local to the worktree and is cleaned up automatically.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

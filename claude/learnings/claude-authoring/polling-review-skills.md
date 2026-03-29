@@ -18,6 +18,10 @@ Skills designed for `/loop` polling must hit the API on every invocation — nev
 
 Polling skills should check for changes with the cheapest possible API call before fetching full diffs or comment histories. Compare the latest commit SHA and reply count against the last review's timestamp — if both are unchanged, emit a one-liner and stop. This avoids wasting context budget on the full diff fetch when nothing has changed.
 
+## Compact Summary Queries for Repeated Polling
+
+On repeated poll cycles, use `--jq` to extract a compact summary object from the consolidated fetch instead of parsing full JSON in-agent. Example: `gh pr view <N> --json commits,reviews,state,comments --jq '{state, latest_commit: .commits[-1].oid[0:7], latest_commit_date: .commits[-1].committedDate, num_reviews: (.reviews | length), num_comments: (.comments | length), latest_review_body_ts: [.reviews[] | select(.body | length > 0) | .submittedAt] | sort | last}'`. This reduces a multi-KB JSON response to ~200 bytes — significant savings across 20+ poll cycles. Works when `Bash(gh pr view:*)` is already in allow patterns (the `--jq` flag doesn't change the command match).
+
 ## Quick-Exit Must Filter Self-Comments
 
 Quick-exit checks must fetch N recent comments (`per_page=10`), filter out self-comments (`Role:.*<YOUR_ROLE>`), then interpret: non-self present and all old → no activity; non-self present and some new → proceed; all self → inconclusive, fall through to full fetch. This catches operator comments sandwiched between agent replies and prevents false-triggers from the agent's own post-review activity.
