@@ -113,6 +113,12 @@ Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any
 
 **Anti-pattern: `Bash(bash:*)`** matches ANY `bash` command including `bash -c '<anything>'` — agents discover this bypass when commands are auto-denied. Always scope with path: `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
 
+## `claude -p` `--allowedTools` Needs Edit for File Updates
+
+`Write` creates files but `Edit` is needed to update them. When `claude -p` sessions write a file (e.g., `status.md`) then update it at milestones, `--allowedTools` must include both `Write(path/**)` and `Edit(path/**)`. Missing the Edit pattern causes silent permission failures — the session creates the file but can't modify it afterward.
+
+**Checklist for `--allowedTools`:** For every `Write(...)` pattern where the session will modify files after creation, add a matching `Edit(...)` pattern.
+
 ## Cross-Refs
 
 No cross-cluster references.

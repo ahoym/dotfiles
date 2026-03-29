@@ -1,5 +1,5 @@
 Worktree mechanics and Task tool isolation — CWD pinning, subagent context, mid-flight messaging limitations, and cross-repo operations.
-- **Keywords:** worktree, Task tool, isolation, CWD pinning, subagent, context continuation, skill discovery, persisted tool output
+- **Keywords:** worktree, Task tool, isolation, CWD pinning, subagent, context continuation, skill discovery, persisted tool output, symlink, background agent permissions, settings.local.json
 - **Related:** none
 
 ---
@@ -67,6 +67,25 @@ Subagents launched via the Agent tool receive CLAUDE.md and all `@`-referenced g
 ## Persisted Tool Output Nests Line-Number Prefixes
 
 When Bash output exceeds the inline limit, it's saved to a persisted file under `tool-results/`. Reading that file via Read adds a `N→` line-number prefix. If the Read result itself exceeds the limit and is persisted again, the next Read adds another prefix layer — producing `N→  N→  N→ ...` nesting that's unreadable. Always read the **original** persisted file with `offset` + `limit` parameters rather than re-reading a persisted copy of a persisted copy.
+
+## Symlinked Directories Bypass Worktree Isolation
+
+When a repo symlinks a directory (e.g., `claude/` → `~/.claude/`), worktree agents using `~/.claude/` or main repo absolute paths write to the **main repo**, not the worktree copy. The symlink resolves to the main repo's physical path regardless of which worktree the agent is running in.
+
+**Safe path**: CWD-relative (e.g., `claude/foo.md`) — resolves correctly because the worktree's CWD is the worktree root.
+**Unsafe paths**: `~/.claude/foo.md` (follows symlink to main), `/absolute/path/to/main-repo/claude/foo.md` (literal main repo path).
+
+The fix is repo-specific: add a worktree path warning to the repo's CLAUDE.md instructing agents to use CWD-relative paths. The warning propagates automatically since worktrees get a copy of CLAUDE.md.
+
+## Background Agents Need Project-Level Permission Patterns
+
+Permission patterns in global `~/.claude/settings.json` are not sufficient for background/worktree agents. The patterns must also exist in **project-level** `.claude/settings.local.json`. Without project-level patterns, background agents (which cannot prompt for approval) get denied even when the identical pattern exists globally.
+
+Worktree agents inherit a copy of the project-level `settings.local.json` — so adding the pattern there covers both worktree and non-worktree background agents.
+
+## Worktree Agent Completion Can Shift Parent CWD
+
+After a worktree agent completes, the parent session's shell CWD may end up inside the worktree directory instead of the main repo. Symptom: `git status` shows the worktree's branch, not `main`. Fix: `cd /path/to/main-repo` after agent completions. Check `pwd` if git state looks unexpected.
 
 ## Cross-Refs
 

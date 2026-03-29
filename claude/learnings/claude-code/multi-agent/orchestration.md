@@ -1,9 +1,5 @@
 Multi-agent orchestration — work distribution, synthesis, parallelization strategy, context compaction, and session-resumable workflows.
-<<<<<<< Updated upstream
-- **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison
-=======
 - **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison, claude -p, parallel skill invocation, watermark, rerun, directives, append-only, sweep
->>>>>>> Stashed changes
 - **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
@@ -131,6 +127,10 @@ The Explore agent type fails to glob or read files under `~/.claude/` (symlinked
 ## File Splits via Parallel Subagents
 
 For mechanical file splits (read → determine boundary → write 2 files), launch one general-purpose subagent per file in parallel. Each subagent independently reads, splits, and writes — no coordination needed since they target different files. The orchestrator handles shared resources (CLAUDE.md index updates) after all subagents complete. Validated at 6 concurrent splits with zero conflicts.
+
+## Parallel Skill Invocation via `claude -p` Sessions
+
+When a skill needs to run N times in parallel (e.g., team-review per PR), subagents can't help — they can't invoke skills or nest agents. Instead, generate a bash script that launches parallel `claude -p` sessions, each invoking the skill via the Skill tool. Each `claude -p` is a full top-level session with complete tool access (Skill, Agent, everything). Use `xargs -P` for bounded concurrency. Write per-invocation prompts to files and pipe to `claude -p` to avoid shell escaping issues. This pattern decouples assessment (interactive skill) from execution (bash script) from retro (read artifacts).
 
 ## Cross-Refs
 

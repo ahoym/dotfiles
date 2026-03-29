@@ -27,6 +27,7 @@ Custom agents are Markdown files with YAML frontmatter in `~/.claude/agents/` (u
 
 - Agents loaded at **session start** — manual file additions require restart (or use `/agents`).
 - Subagents **cannot spawn other subagents** (no Task nesting). Skills using `general-purpose` specifically to allow sub-delegation cannot migrate to custom agents.
+- Subagents **cannot use the Skill tool** — permission denied regardless of `tools` frontmatter. The Skill tool is not in the available tool set for subagents. To run skills from subagents, read the SKILL.md and follow its steps as inline methodology (but note: any skill steps requiring Agent will also fail due to nesting).
 - When agents share the same name, priority: CLI flag > project > user > plugin.
 
 ## Agent `memory:` for Persistent Cross-Session Learning

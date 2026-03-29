@@ -12,6 +12,12 @@ This repo (dotfiles) stores Claude Code config under `claude/` (not `.claude/`).
 
 For Glob/Grep use `claude/` CWD-relative paths. For Edit/Write either `~/.claude/` or `claude/` paths work.
 
+## Worktree Path Warning
+
+When running in a git worktree (e.g., via `isolation: "worktree"` agents), **`~/.claude/` and main repo absolute paths bypass worktree isolation**. The `~/.claude/` symlink always points to the main repo's `claude/` directory — it doesn't know about worktrees. Edits using those paths land in the main repo, not the worktree copy.
+
+**In worktrees, always use CWD-relative paths** (`claude/...`) for Edit/Write. CWD-relative paths resolve correctly because the worktree's CWD is the worktree root.
+
 ## PR Hygiene
 
 Before creating a PR in this repo, check for unrelated uncommitted changes (learnings, skills, guidelines from other sessions). If present, offer to commit them separately or stash them so the PR only contains the intended work.
