@@ -41,7 +41,7 @@ Curation serves a dual purpose: organizing content AND minimizing baseline conte
 - content-mode.md — Content mode execution steps (2–6), report formats, and apply actions — read after step 1 when mode = content
 - skill-mode.md — Skill mode execution steps (2–4), report format, and apply actions — read after step 1 when mode = skill
 - classification-model.md — The 6-bucket classification model with decision criteria (learnings/guidelines) and skill pruning criteria (skills) — read in step 4
-- `~/.claude/learnings/claude-authoring/routing-table.md` — Content type routing table (for reorganization) — read in step 4
+- `~/.claude/learnings/claude-authoring/content-types.md` — Content type routing table (for reorganization) — read in step 4
 - persona-design.md — Persona structure, naming, sizing, and suggestion criteria — read in step 5a when persona clusters are detected
 - curation-insights.md — Operational calibration and phase-specific patterns from prior consolidation runs — read in step 4
 

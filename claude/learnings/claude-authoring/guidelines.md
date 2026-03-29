@@ -44,7 +44,7 @@ A guideline is redundant when skills already handle the behavior as part of thei
 
 ## Pseudocode at the Universal Tier
 
-When extracting universal guidelines (see `routing-table.md` → "Universal vs Language-Specific" for the tier taxonomy), use pseudocode examples rather than language-specific ones. Pseudocode makes the universal tier portable across projects — language-specific examples anchor it to one stack.
+When extracting universal guidelines (see `content-types.md` → "Universal vs Language-Specific" for the tier taxonomy), use pseudocode examples rather than language-specific ones. Pseudocode makes the universal tier portable across projects — language-specific examples anchor it to one stack.
 
 ## Inline Format Examples Over Fenced Code Blocks
 

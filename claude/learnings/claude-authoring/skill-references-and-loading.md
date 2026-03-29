@@ -49,7 +49,7 @@ When a subagent prompt needs platform-specific commands (API calls, CLI syntax),
 
 ## Body-Only Templates for Skill Reference Files
 
-Template reference files should contain only message body content — not posting commands. See `routing-table.md` § "Skill References & Templates" for the full convention.
+Template reference files should contain only message body content — not posting commands. See `content-types.md` § "Skill References & Templates" for the full convention.
 
 ## Inline Critical Conditions — Don't Defer to Lazy-Loaded Files
 
