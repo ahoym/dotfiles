@@ -33,7 +33,7 @@ Authoring lens for creating and modifying the Claude configuration surface: skil
 ### Personas
 - Judgment, not recipes. If you're writing step-by-step instructions, it belongs in a learning.
 - Start thin — enrich through real work, not upfront speculation.
-- Wire `## Proactive loads` and `## Cross-Refs` to existing learnings.
+- Wire `## Proactive Cross-Refs` and `## Cross-Refs` to existing learnings.
 
 ### CLAUDE.md
 - Every `@` reference has an always-on token cost. Justify it.

@@ -17,6 +17,6 @@
 - Principle of least privilege for service accounts, database roles, and API scopes
 - Prefer denylists to allowlists only when the domain is well-bounded; default to allowlists
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/java/infosec-gotchas.md`

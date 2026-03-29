@@ -43,7 +43,7 @@ Git skills that operate on a PR/MR should treat a numeric positional arg as a PR
 
 ## Base Reviewer Persona with Extends
 
-Universal review knowledge (code quality instincts, process conventions) belongs in a base `reviewer` persona that domain-specific reviewer personas extend via `## Extends: reviewer`. This ensures every reviewer gets the baseline quality bar without each persona duplicating the same proactive loads. Domain-specific personas add only their unique loads and judgment lens.
+Universal review knowledge (code quality instincts, process conventions) belongs in a base `reviewer` persona that domain-specific reviewer personas extend via `## Extends: reviewer`. This ensures every reviewer gets the baseline quality bar without each persona duplicating the same proactive cross-refs. Domain-specific personas add only their unique cross-refs and judgment lens.
 
 ## Skill Decomposition by Execution Path
 

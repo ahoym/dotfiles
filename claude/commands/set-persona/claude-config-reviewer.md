@@ -51,7 +51,7 @@ Review lens for PRs that modify the Claude configuration surface: skills, guidel
 ### Personas
 > Full criteria: `learnings/claude-authoring/personas.md`
 - Judgment, not recipes — if >50% is step-by-step patterns, it belongs in learnings
-- Proactive loads section for gotcha files? Every persona's domain gets one
+- Proactive Cross-Refs section for gotcha files? Every persona's domain gets one
 - Does it reference shared learnings for cross-cutting instincts (code-quality-instincts.md)?
 - If it extends parents: are parent refs duplicated? (They shouldn't be — inherited)
 - Inline short gotchas (~6 steps or fewer), cross-reference longer ones

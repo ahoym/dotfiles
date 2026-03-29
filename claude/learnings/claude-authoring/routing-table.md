@@ -114,7 +114,7 @@ For detailed authoring craft, see the spoke file for the relevant type:
 - `guidelines.md` — merging overlaps, enforcement gates, scoping, separation tiers
 - `learnings-content.md` — genericization, headers, scope, boundary tests
 - `learnings-organization.md` — cross-refs, directories, indexes, splitting
-- `personas.md` — judgment vs recipes, proactive loads, gotcha files, composition
+- `personas.md` — judgment vs recipes, proactive cross-refs, gotcha files, composition
 - `claude-md.md` — conditional references, relationships, subdirectory criteria
 
 ## Converting Guidelines to Skills

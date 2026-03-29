@@ -33,7 +33,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - `allowed-tools` frontmatter is functional — restricts tool access during skill execution (confirmed 2026-03-16)
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
-## Proactive loads
+## Proactive Cross-Refs
 - `~/.claude/learnings/claude-authoring/routing-table.md`
 
 ## Cross-Refs
@@ -41,7 +41,7 @@ Load when working in the specific area:
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill composition, creation heuristics, responsibility boundaries
 - `~/.claude/learnings/claude-authoring/guidelines.md` — merging overlaps, enforcement gates, scoping
 - `~/.claude/learnings/claude-authoring/claude-md.md` — conditional references, relationships, subdirectory criteria
-- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive loads, composition
+- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive cross-refs, composition
 - `~/.claude/learnings/claude-authoring/learnings-content.md` — genericization, headers, scope, boundary tests
 - `~/.claude/learnings/claude-authoring/learnings-organization.md` — cross-refs, directories, indexes, splitting
 - `~/.claude/learnings/claude-code/platform-permissions.md` — permission patterns, path resolution, platform behavior gotchas

@@ -21,6 +21,6 @@ Base persona for all code review workflows. Provides universal review instincts 
 ## Cross-Refs
 - `~/.claude/learnings/review-conventions.md` — finding prioritization, reversibility weighting, scope discipline
 
-## Proactive loads
+## Proactive Cross-Refs
 - `~/.claude/learnings/code-quality-instincts.md`
 - `~/.claude/learnings/process-conventions.md`
