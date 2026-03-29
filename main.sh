@@ -75,7 +75,8 @@ echo -ne "$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_PROGRESS_SIGIL$BASIC_
 # Check for mise, install if it doesn't exist.
 if ! command -v mise &>/dev/null; then
   echo "[include-mise] mise not found, installing"
-  curl https://mise.run | sh
+  curl -fsSL https://mise.run | sh
+  # Explicit path required: mise isn't on PATH yet after fresh install
   eval "$(~/.local/bin/mise activate bash)"
   mise use --global node@lts
 else
