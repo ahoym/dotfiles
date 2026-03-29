@@ -30,10 +30,9 @@ The main agent acts as orchestrator — it reads issues, decides implement vs cl
 - @~/.claude/skill-references/platform-detection.md — Platform detection (GitHub vs GitLab)
 - `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment, link check commands
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
-- @implementer-prompt.md — Read when spawning implementer agents
-- @clarifier-prompt.md — Read when spawning clarifier agents
+- `implementer-prompt.md` — Read when spawning implementer agents
+- `clarifier-prompt.md` — Read when spawning clarifier agents
 - `~/.claude/skill-references/agent-prompting.md` — Completion report format reference
-- `~/.claude/skill-references/code-quality-checklist.md` — Include in implementer agent prompts
 
 ## Prerequisites
 
@@ -115,7 +114,7 @@ Build a compressed repository context (target ~150 lines) that every agent recei
 2. Read `CLAUDE.md` or `.claude/CLAUDE.md` (if exists)
 3. Run `ls` at project root to capture top-level structure
 4. Detect: primary language, framework, build system, test command, entry points
-5. Check for existing `docs/learnings/SYSTEM_OVERVIEW.md` (from `/explore-repo`) — if present, read it (rich context source)
+5. Check for existing `docs/learnings/SYSTEM_OVERVIEW.md` — if present, read it (rich context source)
 
 Assemble findings into `REPO_SUMMARY` — a concise text block agents can use as their starting map for code exploration.
 
@@ -131,6 +130,11 @@ For each eligible work item, make the implement-vs-clarify decision:
 > If all three: **implement**. If any is missing: **clarify**.
 
 Process items in waves of `CONCURRENCY` (default 5).
+
+Bootstrap the temp directory before launching any agents:
+```bash
+mkdir -p tmp/sweep-work-items
+```
 
 **For each wave:**
 
