@@ -1,9 +1,5 @@
 Multi-agent orchestration — work distribution, synthesis, parallelization strategy, context compaction, and session-resumable workflows.
-<<<<<<< Updated upstream
-- **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison
-=======
 - **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison, claude -p, parallel skill invocation, watermark, rerun, directives, append-only, sweep
->>>>>>> Stashed changes
 - **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
