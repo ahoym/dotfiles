@@ -43,6 +43,11 @@ For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the termina
 
 Route follow-ups: partially-addressed and not-addressed comments are handled by the originating persona's subagent (identified from the comment's persona attribution). If the originating persona is not in `RE_REVIEW_PERSONAS`, the orchestrator handles the follow-up directly.
 
+Build output lists:
+- `REACTIONS`: `{comment_id, emoji}` — hooray for resolved, +1 for acknowledged
+- `FOLLOW_UPS`: `{comment_id, body, persona}` — for partially/not addressed
+- Text replies for resolved/acknowledged (same pattern as single-persona re-review)
+
 ## Launch Scoped Reviewers
 
 For each persona in `RE_REVIEW_PERSONAS`:
