@@ -50,7 +50,7 @@ When running review and address sweeps concurrently, offset their loop cadences 
 
 ## Active-Branch PR Workaround
 
-`git worktree add` can't check out a branch that's already checked out. For PRs on the director's active branch, use the Agent tool with `isolation: "worktree"` to address findings. The agent gets an isolated copy, makes changes, and pushes. This is ad-hoc — the sweep loop can't automate it.
+See `coordination.md` § "Agent Worktree Isolation for Active-Branch PRs" for the `Agent(isolation: "worktree")` workaround when `git worktree add` can't check out the director's active branch.
 
 ## Convergence Rules by Loop Type
 

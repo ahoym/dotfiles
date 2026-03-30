@@ -139,4 +139,4 @@ When launching `claude -p` sessions that will invoke domain-specific skills (add
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns including active-branch workaround
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns (watermark rerun, directives, convergence rules)
