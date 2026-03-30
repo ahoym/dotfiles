@@ -16,7 +16,7 @@ Assess open PRs, then generate `let-it-rip.sh` — a bash script that launches p
 1. **Assessment** (this skill, run once) — produces manifest + let-it-rip.sh + per-PR prompts
 2. **Execution** (rerunnable) — operator runs `bash let-it-rip.sh` from terminal, repeatedly if needed
 
-`let-it-rip.sh` is the loop target, not this skill. Each `claude -p` session invokes `team-review-request`, which has re-review and quick-exit detection built in — if no changes since the last review, the session exits cleanly with `status=skipped`.
+`let-it-rip.sh` is the loop target, not this skill. Rerun it after address passes until all reviews are current.
 
 ## Usage
 
@@ -143,7 +143,7 @@ Create run directory: `tmp/sweep-reviews/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/
 
 Each prompt tells the `claude -p` session to:
 
-1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist. These are instructions from the directors (operator + orchestrating agent) — incorporate them into this review pass. Directives may override skip logic (e.g., "review even if watermark matches"), add focus areas, or provide context not visible in the PR itself.
+1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist and incorporate them. Directives override skip logic when present.
 
 2. **Read existing watermark.** If `status.md` exists, read `last_reviewed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
 
@@ -245,7 +245,7 @@ Include: skipped PRs from assessment, stacked PR relationships, aggregated learn
 
 - **Concurrency depth.** Default 3 x up to 3 reviewer subagents = 9 concurrent API sessions. Lower if hitting rate limits.
 - **No auto-approve.** Reviews post as COMMENT. Operator decides the verdict.
-- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly after address passes. The pre-flight state check skips merged/closed PRs. Each `claude -p` session reads the watermark from `status.md` (last reviewed SHA + last comment ID) and compares against current PR state — if nothing changed, it skips; if the PR moved, it performs a new review and appends a dated section to `result.md` and `learnings.md`.
+- **Rerunnable.** Sessions use watermarks in `status.md` to skip when nothing changed. See prompt template steps 2-3 for details.
 - **Stacked PRs.** Reviewed independently against their base branch. No ordering needed.
 - **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary. Running sessions are not killed.
 - **Crash recovery.** Missing result files (hard crash) → retro reports as "unknown/crashed" by diffing manifest against actual results.

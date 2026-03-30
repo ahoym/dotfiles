@@ -16,7 +16,7 @@ Assess open PRs for unaddressed review comments, then generate `let-it-rip.sh` �
 1. **Assessment** (this skill, run once) — produces manifest + let-it-rip.sh + per-PR prompts
 2. **Execution** (rerunnable) — operator runs `bash let-it-rip.sh` from terminal, repeatedly if needed
 
-`let-it-rip.sh` is the loop target, not this skill. Each `claude -p` session invokes `address-request-comments`, which has its own quiet no-op detection — if no new comments exist since the last addressing pass, the session exits cleanly with `status=skipped`. Run the same script after each review cycle until all conversations converge.
+`let-it-rip.sh` is the loop target, not this skill. Rerun it after each review cycle until all conversations converge.
 
 ## Usage
 
@@ -75,12 +75,7 @@ For each PR, also fetch inline review comments:
 
 **Worktree discovery:** Run `git worktree list` and build a map of branch → existing worktree path. For each eligible PR, check if a worktree already exists for its `headRefName` branch. If so, record the path for reuse — the address session will `cd` into it directly instead of creating a new worktree. Only PRs without an existing worktree need new worktree creation.
 
-**Persona detection:** For each eligible PR, determine the best persona from available personas (glob `~/.claude/commands/set-persona/*.md`, excluding `SKILL.md`). Match based on:
-1. PR title and branch name keywords (e.g., `claude-config`, `react`, `java`, `xrpl`)
-2. Changed file paths from `gh pr diff --stat` (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
-3. Review comment content domains
-
-If no persona matches confidently, leave as `none` — the address session will proceed without a persona lens. Record the detected persona per PR for the summary and prompt generation.
+**Persona detection:** Match available personas (glob `~/.claude/commands/set-persona/*.md`, excluding `SKILL.md`) against each PR's title, branch name, changed file paths (`gh pr diff --stat`), and comment domains. Default to `none` if no confident match. Record per PR for summary and prompt generation.
 
 For each PR:
 
@@ -155,7 +150,7 @@ Create run directory: `tmp/sweep-address/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/
 
 Each prompt tells the `claude -p` session to:
 
-1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist. These are instructions from the directors (operator + orchestrating agent) — incorporate them into this addressing pass. Directives may override skip logic (e.g., "address even if watermark matches"), add focus areas, or provide context not visible in the PR itself.
+1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist and incorporate them. Directives override skip logic when present.
 
 2. **Read existing watermark.** If `status.md` exists, read `last_addressed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
 
@@ -263,7 +258,7 @@ Include: skipped PRs, aggregated learnings by theme, and summary line.
 
 - **Concurrency depth.** Default 3. Each session works in its own worktree — no conflicts.
 - **Worktree reuse.** During assessment, `git worktree list` is checked for existing worktrees on each PR's branch. If found (e.g., from a prior review sweep), the address session reuses that worktree — no creation or cleanup needed. Only PRs without an existing worktree get new ones created under `<RUN_DIR>/worktrees/`. New worktrees are cleaned up after completion (or on Ctrl+C via trap); reused worktrees are left untouched.
-- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly as review conversations evolve. New worktree setup is idempotent (existing ones pull latest). Each `claude -p` session reads the watermark from `status.md` (last addressed SHA + last comment ID) and compares against current PR state — if nothing changed, it skips; if new activity exists, it performs a new pass and appends a dated section to `result.md` and `learnings.md`.
+- **Rerunnable.** Sessions use watermarks in `status.md` to skip when nothing changed. See prompt template steps 2-3 for details.
 - **Escalation.** `address-request-comments` auto-implements suggestions it agrees with and escalates disagreements. The retro surfaces escalated items for operator review.
 - **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary.
 - **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
