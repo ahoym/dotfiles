@@ -159,6 +159,41 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.
 
+## macOS Bash 3.x Compatibility
+
+macOS ships bash 3.2. Two common bash 4+ features that silently fail or error:
+
+- **`declare -A`** (associative arrays): Use a `case` function instead:
+  ```bash
+  # Wrong — bash 3.x: "declare: -A: invalid option"
+  declare -A MAP=([key1]="val1" [key2]="val2")
+  echo "${MAP[$key]}"
+
+  # Right — works on bash 3.x
+  map_lookup() { case "$1" in key1) echo "val1" ;; key2) echo "val2" ;; esac; }
+  val=$(map_lookup "$key")
+  ```
+
+- **`${VAR^}`** (uppercase first letter): Use a pre-computed variable:
+  ```bash
+  # Wrong — bash 3.x: "bad substitution"
+  echo "${mode^}"
+
+  # Right — set at generation time
+  MODE_LABEL="Address"
+  echo "$MODE_LABEL"
+  ```
+
+When generating shell scripts that will run on macOS (e.g., `let-it-rip.sh` from sweep skills), avoid all bash 4+ features. `xargs`, `export -f`, and `bash -c` all invoke `/bin/bash` (3.x) on macOS.
+
+## Validate Generated Scripts Before Presenting
+
+When a skill generates a bash script the operator will run outside of Claude's context (e.g., `let-it-rip.sh`), run `bash -n <script>` to syntax-check it before announcing it as ready. This catches bash version incompatibilities, quoting errors, and missing variables at generation time rather than at runtime — saving the operator a round-trip for every syntax-level failure.
+
+## `local` Only Valid Inside Functions
+
+`local` keyword is invalid at script top level — bash exits with an error. Common in generated scripts where cleanup loops are written both inside a function (trap handler) and at script end (post-completion). The trap handler's `local` is fine; the top-level copy isn't. Use plain variable assignment at script level.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

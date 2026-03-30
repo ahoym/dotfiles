@@ -18,9 +18,11 @@ Don't rely on a single doc page. When researching a feature area, traverse **rel
 
 Research that asserts capability differences (e.g., "directory X supports feature Y but directory Z doesn't") should be validated empirically when possible, not just inferred from docs. If the research loop constraints prevent code execution, flag the claim as **low-confidence/unverified** and note that empirical testing is needed before acting on it.
 
-## Skill-as-Methodology for Autonomous Agents
+## Skill Invocation in Autonomous Agents
 
-Autonomous agents (`claude --print`) can't invoke the Skill tool, but they can read a SKILL.md file and follow its steps as inline methodology. Override only the interactive steps (AskUserQuestion → auto-apply, report generation → skip, results → skip). The skill drives classification, cross-referencing, and analysis; the spec provides the autonomous overrides. When the skill evolves, the agent gets improvements for free.
+`claude --print` **can** invoke the Skill tool (tested 2026-03-28). This means autonomous sessions can invoke skills directly rather than reading SKILL.md as inline methodology. However, not all skills support model invocation — some return `disable-model-invocation` and can only be run as slash commands.
+
+**Skill-as-methodology** remains useful when: (a) the skill blocks model invocation, or (b) you need to override interactive steps (AskUserQuestion → auto-apply, report generation → skip). The skill drives classification, cross-referencing, and analysis; the spec provides the autonomous overrides. When the skill evolves, the agent gets improvements for free.
 
 ## Lazy-Load Phase-Specific Methodology in Specs
 

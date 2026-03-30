@@ -59,7 +59,7 @@ Background agents cannot prompt for permissions. The following patterns must be 
 }
 ```
 
-Before launching agents, verify these patterns are present. If any are missing, list them and ask the operator to add them before proceeding.
+Before launching agents, read `.claude/settings.local.json` and check each required pattern against the `permissions.allow` array. List any missing patterns explicitly and ask the operator to add them before proceeding. Do not rely on global settings — they are not inherited by worktree agents.
 
 ## Instructions
 
@@ -196,3 +196,4 @@ If any agents failed, include their error context in the table's Result column.
 - **One-shot operation.** This skill runs once per invocation. If clarifying questions are posted, re-run the skill later after the operator or issue author has responded — the skip detection in Phase 3 will pick up the replies and re-assess.
 - **Partial failure is normal.** If some agents fail (API errors, test failures, permission issues), the sweep continues with remaining agents. Failed items appear in the summary table with error context.
 - **Temp files.** All ephemeral files (comment bodies, PR bodies) are written to `tmp/sweep-work-items/`. This directory can be cleaned up after the sweep.
+- **Worktrees are preserved.** Implementer worktrees at `.claude/worktrees/agent-*` remain after the sweep so follow-up work (e.g., addressing PR review comments) can be done directly in them. Clean up with `git worktree remove` after PRs merge.

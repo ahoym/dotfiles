@@ -1,5 +1,5 @@
 Claude Code permission system — Bash prefix matching, Read/Write/Edit pattern gotchas, settings merge, worktree permission mismatches, and .claude/ path protection.
-- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch
+- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch, deny precedence, deny-first, allow override, filesystem deny, personal directories
 - **Related:** none
 
 ---
@@ -95,6 +95,22 @@ Claude Code has built-in protection for a project's `.claude/` directory that tr
 
 **Remaining friction:** Only affects ad-hoc direct Write/Edit calls during dotfiles sessions. For any repeatable workflow, wrapping it in a skill with `allowed-tools` eliminates the prompts.
 
+## Deny-First Precedence Is Absolute (Empirically Verified 2026-03-29)
+
+Deny rules **always win** over allow rules regardless of specificity. A deny on `Read(//$HOME/**)` blocks `Read(//$HOME/.claude/**)` and `Read(//$HOME/WORKSPACE/**)` even when those are explicitly in the allow list. Tested across `~` and `//` syntaxes — same result.
+
+**Implication:** You cannot "deny broad, allow narrow" for filesystem access. To protect personal directories while allowing code/config access, deny each personal directory individually:
+
+```json
+"deny": [
+  "Read(~/Applications/**)", "Read(~/Desktop/**)", "Read(~/Documents/**)",
+  "Read(~/Downloads/**)", "Read(~/Library/**)", "Read(~/Movies/**)",
+  "Read(~/Music/**)", "Read(~/Pictures/**)", "Read(~/Public/**)"
+]
+```
+
+The `sandbox.filesystem.denyRead` + `allowRead` arrays may offer allow-overrides-deny at the sandbox level (the schema says allowRead "takes precedence"), but this is untested.
+
 ## Settings File Merge Behavior
 
 `settings.json` (project) and `settings.local.json` (local) **merge additively** for permission arrays. Duplicating patterns across both is harmless but redundant. Precedence (highest → lowest): managed → CLI args → `settings.local.json` → `settings.json` → `~/.claude/settings.json`. Deny at any level cannot be overridden by allow at another.
@@ -112,6 +128,12 @@ git -C "$1" add -A && git -C "$1" commit -m "$2"
 Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any arguments, without exposing broad `git -C` permissions.
 
 **Anti-pattern: `Bash(bash:*)`** matches ANY `bash` command including `bash -c '<anything>'` — agents discover this bypass when commands are auto-denied. Always scope with path: `Bash(bash ~/.claude/commands/<skill>/lifecycle.sh:*)`.
+
+## `claude -p` `--allowedTools` Needs Edit for File Updates
+
+`Write` creates files but `Edit` is needed to update them. When `claude -p` sessions write a file (e.g., `status.md`) then update it at milestones, `--allowedTools` must include both `Write(path/**)` and `Edit(path/**)`. Missing the Edit pattern causes silent permission failures — the session creates the file but can't modify it afterward.
+
+**Checklist for `--allowedTools`:** For every `Write(...)` pattern where the session will modify files after creation, add a matching `Edit(...)` pattern.
 
 ## Cross-Refs
 

@@ -132,6 +132,11 @@ When sweep skills need worktrees for PR branches, check `git worktree list` firs
 
 When launching `claude -p` sessions that will invoke domain-specific skills (addressing review comments, implementing features), include a `set-persona` invocation in the prompt based on the PR's domain. Auto-detect from PR title, branch name, and changed file paths. This gives the subagent the right domain lens (priorities, gotchas, proactive loads) without manual intervention.
 
+## Agent Worktree Isolation for Active-Branch PRs
+
+`git worktree add` can't check out a branch already checked out in another worktree. For sweep addressing of PRs on the director's active branch, use `Agent(isolation: "worktree")` — it creates a temporary worktree, the agent addresses findings and pushes, then the worktree is cleaned up. This is ad-hoc (not integrated into `let-it-rip.sh`) but reliable. The agent gets a full isolated copy and can invoke skills normally.
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns (watermark rerun, directives, convergence rules)
