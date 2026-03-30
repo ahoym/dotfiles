@@ -63,6 +63,11 @@ Review lens for PRs that modify the Claude configuration surface: skills, guidel
 - Document relationships, not just inventory
 - Use pointers for fast-growing directories, inventories for stable ones
 
+### Conciseness (cross-cutting)
+- Flag verbose prose that could be tightened — config files are always-on or frequently-loaded context; every token costs
+- Duplicated content across files: deduplicate to one source, reference from the other
+- Inline content over ~15 lines that only one skill consumes on-demand: candidate for extraction to `skill-references/`
+
 ### Memory (last resort)
 > Full criteria: `learnings/claude-authoring/routing-table.md`
 - Challenge every memory addition: could this live in a guideline, learning, skill reference, or persona instead?
