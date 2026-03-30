@@ -99,10 +99,10 @@ Assessed N PRs. M eligible, K skipped:
 | 45 | Update deps | Skip | -- | No activity since review |
 | 43 | Auth tokens | First review | -> #47 | -- |
 
-Generate let-it-rip.sh for M PRs (concurrency: CONCURRENCY)?
+Generating let-it-rip.sh for M PRs (concurrency: CONCURRENCY)...
 ```
 
-Wait for confirmation. Operator may exclude PRs before proceeding.
+Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 6: Generate Artifacts
 

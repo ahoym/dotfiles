@@ -13,6 +13,8 @@
     ],
     "allow": [
       "Bash(bash ~/.claude/commands/**)",
+      "Bash(bash tmp/sweep-address/**)",
+      "Bash(bash tmp/sweep-reviews/**)",
       "Bash(chmod:*)",
       "Bash(curl:*)",
       "Bash(date:*)",
@@ -51,6 +53,7 @@
       "Bash(git merge:*)",
       "Bash(git mv:*)",
       "Bash(git push:*)",
+      "Bash(git rebase:*)",
       "Bash(git remote:*)",
       "Bash(git stash:*)",
       "Bash(git status:*)",

@@ -115,12 +115,12 @@ Assessed N PRs. M eligible, K skipped:
 | 45 | Update deps | Skip | -- | -- | -- | Addressed, no new comments |
 | 43 | Auth tokens | Skip | -- | -- | -- | No comments |
 
-Generate let-it-rip.sh for M PRs (concurrency: CONCURRENCY)?
+Generating let-it-rip.sh for M PRs (concurrency: CONCURRENCY)...
 ```
 
 The **Conflicts** column only appears when `--resolve-conflicts` is passed. When absent, omit the column entirely.
 
-Wait for confirmation. Operator may exclude PRs before proceeding.
+Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 5: Generate Artifacts
 
