@@ -28,6 +28,10 @@ When delegating classification or evaluation tasks to subagents, include structu
 
 Test assumptions with a controlled experiment before writing them as facts across multiple files. Run a minimal reproducer that isolates the specific claim. If testing "agents can't use X", test with a known-working variant first before concluding it's a platform issue.
 
+## Verify Shared Reference Conformance in Consuming Files
+
+When multiple files consume a shared reference (e.g., re-review modes consuming `review-comment-classification.md`), the consuming files can restate the reference's logic with subtle errors — especially data model mismatches like using the wrong comment ID as a reaction target. Verify by tracing the actual data flow: what ID does the consuming file use? Does it match the shared reference's specification? API verification (`gh api`) confirms whether the action hit the right target, catching bugs that code review alone misses.
+
 ## Cross-Check Subagent Inventory Comparisons
 
 When subagents compare file inventories across two directories, they may report files as "unique to X" that actually exist in both — especially with large file counts (50+). Always cross-check subagent diff results against a canonical source you control (e.g., a glob you ran yourself). The error compounds when the over-reported "unique" files drive downstream decisions (what to copy, what to merge).

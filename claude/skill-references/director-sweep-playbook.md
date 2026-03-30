@@ -6,6 +6,12 @@ description: "Playbook for directing sweep workflows: loop setup, monitoring, co
 
 Structured guidance for the director (operator + main agent) when orchestrating review and address sweep loops.
 
+## Director Principles
+
+**Directors observe and direct — they don't touch the working tree.** All code changes flow through agents via directives or targeted `Agent(isolation: "worktree")` launches. The director writes only: directives, monitoring state, and sweep artifacts. This eliminates `git stash` friction from mixing local edits with agent-pushed commits on the same branch.
+
+**Standard path: director runs from `main`.** This avoids the active-branch workaround entirely — `git worktree add` works for every PR branch when the director isn't on one of them.
+
 ## Prerequisites Checklist
 
 Before starting any sweep session:
@@ -22,7 +28,12 @@ Run review and address sweeps on offset schedules:
 
 The 3-minute offset ensures review findings are posted before the address sweep reads them. Same-time firing wastes a full cycle on handoff.
 
-Launch review first. While review sessions run, assess address candidates and generate address artifacts. This parallelizes cycle 0.
+**Cycle 0 launch sequence:**
+1. Assess both review and address candidates (generate both artifact sets)
+2. Launch review runner immediately
+3. After the offset interval, launch address runner/agent
+
+Assess both upfront so artifacts are ready. The address assessment may show "no comments" if review hasn't posted yet — this is expected. Address sessions handle no-op gracefully and pick up comments on the next cycle.
 
 ## Monitoring Table Format
 
@@ -73,6 +84,16 @@ PR has merge conflicts with base branch. Invoke `/git:resolve-conflicts <base-br
 Review for conciseness: identify verbose prose, duplication, and extraction candidates. Post findings as inline comments.
 ```
 
+### Summary-Only Review Finding
+**When:** latest review result.md section has `findings > 0` AND `inline_comments == 0` (finding on unchanged lines, documented in summary only).
+**Why:** the address loop can't pick this up — no inline comment means no comment ID change, so the address agent's watermark matches and it skips.
+**Write to:** `<ADDRESS_RUN_DIR>/pr-<N>/directives.md`
+
+```markdown
+## <ISO timestamp>
+Review found a summary-only finding (no inline comment). Finding: <description from review summary>. Expected fix: <what to change and where>. This directive overrides skip logic.
+```
+
 ### Sensitive File Escalation
 **When:** addresser escalates a finding on a protected/sensitive file.
 **Write to:** per-PR directives, after operator reviews and approves.
@@ -100,9 +121,28 @@ Re-run the sweep skill (not just the runner) when:
 
 Do NOT re-assess just because a cycle skipped — that is normal convergence behavior. Re-running the runner script is sufficient for ongoing cycles.
 
-## Active-Branch Workaround
+## Active-Branch Workaround (ad-hoc only)
 
-When the director's session is on a branch that is also a PR target, `git worktree add` fails ("branch already checked out"). The address sweep skill detects and reuses existing worktrees. For PRs on the director's active branch where no worktree exists, use `Agent(isolation: "worktree")` to work from an isolated context.
+When running ad-hoc from a branch that is also a PR target, `git worktree add` fails ("branch already checked out"). The address sweep skill detects and reuses existing worktrees. For PRs on the director's active branch where no worktree exists, use `Agent(isolation: "worktree")` to work from an isolated context.
+
+The standard path (director on `main`) avoids this entirely. This section applies only to ad-hoc sessions where the director happens to be on a PR branch.
+
+## Director State
+
+After each cycle, update `<RUN_DIR>/director-state.md`:
+
+```yaml
+cycle: <N>
+review_cycles: <N>
+address_cycles: <N>
+convergence:
+  review: converged | not-converged | auto-cancelled
+  address: converged | not-converged
+context_tokens_approx: <estimate from task outputs>
+last_updated: <ISO timestamp>
+```
+
+Followed by the current monitoring table snapshot. This persists the director's view across cycles — useful for handoff to a fresh session if context runs low. The `context_tokens_approx` field signals when to consider compounding learnings and handing off.
 
 ## Single Source of Truth
 

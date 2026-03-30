@@ -1,5 +1,5 @@
 Director-layer patterns for multi-agent workflows — run lifecycle, inter-run communication, state management across stateless workers.
-- **Keywords:** director, manager, directives, watermark, rerun, append-only, sweep, run lifecycle, inter-run, stateless workers, claude -p
+- **Keywords:** director, manager, directives, watermark, rerun, append-only, sweep, run lifecycle, inter-run, stateless workers, claude -p, summary-only finding, git stash, active-branch
 - **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md
 
 ---
@@ -71,6 +71,16 @@ When running review and address concurrently, the review sweep may skip if the a
 ## Launch Review Before Address Assessment
 
 After generating review sweep artifacts, launch `let-it-rip.sh` immediately — don't wait for address assessment to complete. The review sessions start working while the director assesses address candidates. Parallelizes cycle 0.
+
+## Summary-Only Finding Gap
+
+When a re-review produces findings on unchanged lines, it documents them in the review summary (top-level comment) but posts no inline comment. The address agent's watermark uses `MAX(inline_comment_id, top_level_comment_id)`. If the inline ID is already higher than the new top-level comment ID, the watermark doesn't change and the address agent skips — it sees no new work.
+
+**Workaround**: The director must launch a targeted `Agent(isolation: "worktree")` with explicit instructions describing the finding and the fix. This is a director-initiated address pass — the normal loop can't pick it up because there's no addressable inline comment.
+
+## Director Local State During Worktree Pushes
+
+When worktree agents push commits to the director's active branch, `git pull` fails if the director has uncommitted local changes. Use `git stash && git pull --ff-only && git stash pop` to sync. This is recurring friction during director sessions — expect it whenever mixing local edits with agent-pushed commits on the same branch.
 
 ## Cross-Refs
 
