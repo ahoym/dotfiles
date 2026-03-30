@@ -1,5 +1,5 @@
 Multi-agent orchestration — work distribution, synthesis, parallelization strategy, context compaction, and session-resumable workflows.
-- **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison
+- **Keywords:** subagent, orchestrator, synthesis, parallel agents, context compaction, three-phase refactoring, session-resumable, partial batch, explore agent, codebase comparison, claude -p, parallel skill invocation, watermark, rerun, directives, append-only, sweep
 - **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
@@ -131,3 +131,4 @@ For mechanical file splits (read → determine boundary → write 2 files), laun
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns: watermark rerun, directives channel, append-only artifacts, run lifecycle
