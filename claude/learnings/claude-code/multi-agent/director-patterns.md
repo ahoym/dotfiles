@@ -28,10 +28,6 @@ Solves the "no way to pass instructions down to running managers" problem. Eithe
 <context and instructions for the manager>
 ```
 
-## Composition
-
-The three mechanisms compose: watermarks handle automatic change detection, append-only artifacts preserve history, and directives handle human-in-the-loop steering.
-
 ## Quick Rerun Without Regenerating
 
 When only a subset of work items need updated prompts (e.g., to add the directives step), edit `pr-<N>/prompt.txt` in-place rather than re-running the sweep skill. Avoids creating a new run directory and preserves existing artifacts. Regeneration is better when the template changed substantially or all items need new prompts.
