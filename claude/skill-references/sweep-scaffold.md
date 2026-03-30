@@ -153,4 +153,4 @@ Summary:
 - **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly as conversations evolve. The pre-flight state check skips merged/closed PRs. Each `claude -p` session reads the watermark from `status.md` and compares against current PR state — if nothing changed, it skips; if new activity exists, it performs a new pass and appends a dated section to `result.md` and `learnings.md`.
 - **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary.
 - **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
-- **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/sweep-<mode>/<timestamp>/`
+- **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/claude-artifacts/sweep-<mode>/<timestamp>/`

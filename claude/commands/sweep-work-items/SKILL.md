@@ -54,7 +54,7 @@ Background agents cannot prompt for permissions. The following patterns must be 
     "Bash(git status:*)",
     "Bash(git diff:*)",
     "Bash(git log:*)",
-    "Write(~/**/tmp/sweep-work-items/**)"
+    "Write(~/**/tmp/claude-artifacts/**)"
   ]
 }
 ```
@@ -195,5 +195,5 @@ If any agents failed, include their error context in the table's Result column.
 - **Footnote identity.** All comments posted by clarifier agents end with the standard footnote using `Role: Sweeper`. This enables re-run skip detection and distinguishes sweep comments from operator comments.
 - **One-shot operation.** This skill runs once per invocation. If clarifying questions are posted, re-run the skill later after the operator or issue author has responded — the skip detection in Phase 3 will pick up the replies and re-assess.
 - **Partial failure is normal.** If some agents fail (API errors, test failures, permission issues), the sweep continues with remaining agents. Failed items appear in the summary table with error context.
-- **Temp files.** All ephemeral files (comment bodies, PR bodies) are written to `tmp/sweep-work-items/`. This directory can be cleaned up after the sweep.
+- **Temp files.** All ephemeral files (comment bodies, PR bodies) are written to `tmp/claude-artifacts/sweep-work-items/`. This directory can be cleaned up after the sweep.
 - **Worktrees are preserved.** Implementer worktrees at `.claude/worktrees/agent-*` remain after the sweep so follow-up work (e.g., addressing PR review comments) can be done directly in them. Clean up with `git worktree remove` after PRs merge.

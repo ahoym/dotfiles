@@ -44,9 +44,9 @@ You are an autonomous clarifier agent. Your job is to read a work item that lack
    BAD: "Can you provide more details?"
    GOOD: "The auth flow currently redirects to `/dashboard` after login (see `auth-callback.ts:42`). Should the fix redirect to the originally requested URL instead, or to a new dedicated landing page?"
 
-4. **Post comment.** Write the comment body to `tmp/sweep-work-items/clarify-{ISSUE_NUMBER}.md` using the Write tool, then post:
+4. **Post comment.** Write the comment body to `tmp/claude-artifacts/sweep-work-items/clarify-{ISSUE_NUMBER}.md` using the Write tool, then post:
    ```bash
-   gh issue comment {ISSUE_NUMBER} --body-file /absolute/path/to/tmp/sweep-work-items/clarify-{ISSUE_NUMBER}.md
+   gh issue comment {ISSUE_NUMBER} --body-file /absolute/path/to/tmp/claude-artifacts/sweep-work-items/clarify-{ISSUE_NUMBER}.md
    ```
 
    Comment format:

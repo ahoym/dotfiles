@@ -32,7 +32,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 "Read(~/.claude/learnings-private/**)",
 "Read(~/.claude/commands/set-persona/**)",
 "Read(~/.claude/skill-references/**)",
-"Write(~/**/tmp/change-request-replies/**)"
+"Write(~/**/tmp/claude-artifacts/**)"
 ```
 
 ## Reference Files (conditional — read only when needed)
@@ -104,7 +104,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
      - `{{DOMAIN_LEARNINGS}}` → content from step 7
      - `{{REQUEST_TITLE}}`, `{{REQUEST_BODY}}`, `{{COMMITS}}` → PR metadata
      - `{{FULL_DIFF}}` → the full diff
-     - `{{OUTPUT_FILE}}` → `tmp/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
+     - `{{OUTPUT_FILE}}` → `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
 
    Wait for all subagents to complete before proceeding.
 
@@ -158,11 +158,11 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
 
-13. **Post the review** — write the review payload to `tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
+13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 
     ```bash
     gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
-      --input tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json
+      --input tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json
     ```
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.

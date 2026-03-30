@@ -57,10 +57,10 @@ You are an autonomous implementer agent. Your job is to read a work item, unders
       Where `<type>` is one of: fix, feat, refactor, docs, test, chore
    d. Push: `git push -u origin sweep/{ISSUE_NUMBER}-<slug>`
    e. Create PR:
-      - Write body to `tmp/sweep-work-items/pr-body-{ISSUE_NUMBER}.md` first
+      - Write body to `tmp/claude-artifacts/sweep-work-items/pr-body-{ISSUE_NUMBER}.md` first
       - Title: `<type>: <description> (#{ISSUE_NUMBER})`
       - Body must include `Relates to {ISSUE_URL}` (NOT `Closes` or `Fixes`)
-      - Run: `gh pr create --base {DEFAULT_BRANCH} --title "<title>" --body-file /absolute/path/to/tmp/sweep-work-items/pr-body-{ISSUE_NUMBER}.md`
+      - Run: `gh pr create --base {DEFAULT_BRANCH} --title "<title>" --body-file /absolute/path/to/tmp/claude-artifacts/sweep-work-items/pr-body-{ISSUE_NUMBER}.md`
 
 ## Boundaries
 

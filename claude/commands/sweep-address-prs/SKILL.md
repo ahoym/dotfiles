@@ -39,9 +39,9 @@ Assess open PRs for unaddressed review comments, then generate `let-it-rip.sh` �
 "Bash(mkdir:*)",
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
-"Read(~/**/tmp/sweep-address/**)",
-"Write(~/**/tmp/change-request-replies/**)", "Write(~/**/tmp/sweep-address/**)",
-"Edit(~/**/tmp/sweep-address/**)"
+"Read(~/**/tmp/claude-artifacts/**)",
+"Write(~/**/tmp/claude-artifacts/**)",
+"Edit(~/**/tmp/claude-artifacts/**)"
 ```
 
 If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not continue until resolved.
@@ -124,7 +124,7 @@ Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 5: Generate Artifacts
 
-Create run directory: `tmp/sweep-address/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
+Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 

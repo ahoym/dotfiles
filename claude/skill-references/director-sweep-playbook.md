@@ -11,8 +11,8 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 Before starting any sweep session:
 1. `gh auth status` succeeds
 2. `~/.claude/settings.json` has all required permission patterns (see sweep skill prerequisites sections)
-3. `tmp/change-request-replies/` write access — address sessions write reply payloads here. Verify the Write permission pattern matches at runtime (known friction point: tilde-path patterns may not resolve)
-4. `tmp/sweep-reviews/` and `tmp/sweep-address/` exist or can be created
+3. `tmp/claude-artifacts/change-request-replies/` write access — address sessions write reply payloads here. Verify the Write permission pattern matches at runtime (known friction point: tilde-path patterns may not resolve)
+4. `tmp/claude-artifacts/sweep-reviews/` and `tmp/claude-artifacts/sweep-address/` exist or can be created
 
 ## Loop Setup: Offset Cadence
 

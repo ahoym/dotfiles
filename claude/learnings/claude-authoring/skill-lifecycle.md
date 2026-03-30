@@ -74,7 +74,7 @@ Skills that span multiple sessions and create PRs between runs (e.g., batch extr
 
 ## Persist Staging Directories with .gitkeep
 
-Skills that write temp files to a staging directory (e.g., `tmp/change-request-replies/`) should persist the directory with a `.gitkeep` and gitignore the contents (`*.md`, `*.json`). This avoids `mkdir -p` permission prompts on every invocation. Remove `mkdir -p` from skill templates once the directory is tracked.
+Skills that write temp files to a staging directory (e.g., `tmp/claude-artifacts/change-request-replies/`) should persist the directory with a `.gitkeep` and gitignore the contents (`*.md`, `*.json`). This avoids `mkdir -p` permission prompts on every invocation. Remove `mkdir -p` from skill templates once the directory is tracked.
 
 ## Worktree Branches Block `gh pr checkout`
 

@@ -69,9 +69,9 @@ Use the model you're currently running (e.g., "Claude Opus 4.6"). This footnote 
 
 ## Reply File Naming
 
-Write reply bodies to `tmp/change-request-replies/<id>-<persona>-<role>.md` before posting. The persona+role suffix prevents file conflicts when multiple agents operate on the same PR concurrently.
+Write reply bodies to `tmp/claude-artifacts/change-request-replies/<id>-<persona>-<role>.md` before posting. The persona+role suffix prevents file conflicts when multiple agents operate on the same PR concurrently.
 
-Top-level comments: `tmp/change-request-replies/<number>-<persona>-<role>-top.md`.
+Top-level comments: `tmp/claude-artifacts/change-request-replies/<number>-<persona>-<role>-top.md`.
 
 **Path selection for tool calls (Read, Write, Edit/Update):** Use CWD-relative paths when CWD is a symlinked `~/.claude` repo (tilde paths normalize through the symlink and fail permission matching). Use `~/` paths in non-symlinked contexts. Never use absolute `/Users/.../` paths — they match neither pattern style. Note: the Edit tool displays as `Update` in permission prompts — `Edit(...)` allow patterns don't match `Update` prompts. Add `Update(...)` companion patterns for every `Edit(...)` pattern.
 

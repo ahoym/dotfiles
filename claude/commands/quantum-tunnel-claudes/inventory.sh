@@ -9,6 +9,8 @@ SOURCE="${1:?Usage: inventory.sh <source> <target>}"
 TARGET="${2:?Usage: inventory.sh <source> <target>}"
 EXCLUDES="personas/|lab/|worktrees/|settings\.json|settings\.local\.json|README\.md"
 
+mkdir -p tmp/claude-artifacts/quantum-tunnel
+
 # Verify paths exist
 [[ -d "$SOURCE" ]] || { echo "ERROR: Source not found: $SOURCE"; exit 1; }
 [[ -d "$TARGET" ]] || { echo "ERROR: Target not found: $TARGET"; exit 1; }
@@ -20,7 +22,7 @@ tgt_files=$(cd "$TARGET" && find .claude/commands .claude/guidelines .claude/lea
 # Bucket files
 only_source=$(comm -23 <(echo "$src_files") <(echo "$tgt_files"))
 only_target=$(comm -13 <(echo "$src_files") <(echo "$tgt_files"))
-comm -12 <(echo "$src_files") <(echo "$tgt_files") > /tmp/qtc-common.txt
+comm -12 <(echo "$src_files") <(echo "$tgt_files") > tmp/claude-artifacts/quantum-tunnel/qtc-common.txt
 
 echo "=== ONLY IN SOURCE ==="
 echo "$only_source"
@@ -47,7 +49,7 @@ while IFS= read -r f; do
       echo "BOTH_UNIQUE|$f|source +${s_only}, target +${t_only}"
     fi
   fi
-done < /tmp/qtc-common.txt
+done < tmp/claude-artifacts/quantum-tunnel/qtc-common.txt
 
 echo ""
 echo "IDENTICAL: $identical"
@@ -81,6 +83,6 @@ while IFS= read -r f; do
       diff "$TARGET/$f" "$SOURCE/$f" | grep '^> ' | head -30 || true
     fi
   fi
-done < /tmp/qtc-common.txt
+done < tmp/claude-artifacts/quantum-tunnel/qtc-common.txt
 
-rm -f /tmp/qtc-common.txt
+rm -f tmp/claude-artifacts/quantum-tunnel/qtc-common.txt

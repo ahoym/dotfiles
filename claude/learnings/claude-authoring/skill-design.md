@@ -125,9 +125,10 @@ Mark steps where operator input is needed:
 ## File Operations in Skills
 
 Keep temp files within repo scope rather than system directories:
-- **Use `./tmp/`** instead of `/tmp/` for skill-generated files
+- **Use `tmp/claude-artifacts/<skill-name>/`** instead of `/tmp/` for skill-generated files
 - Add `tmp/` to `.gitignore`
-- Create the directory with `mkdir -p ./tmp` before use
+- Create the directory with `mkdir -p tmp/claude-artifacts/<skill-name>` before use
+- All skills share the `tmp/claude-artifacts/` root — one permission pattern (`tmp/claude-artifacts/**`) covers everything
 
 This keeps operations contained to the repo context and avoids permission issues.
 
