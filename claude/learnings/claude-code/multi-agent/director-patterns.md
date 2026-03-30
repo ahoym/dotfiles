@@ -60,6 +60,14 @@ Review and address loops have different termination conditions:
 
 The address loop doubles as a conflict monitor — each cycle should read `mergeable` from review status.md files and write directives when CONFLICTING detected.
 
+## Skip Confirmation in Sweep Skills
+
+Sweep skills should present the assessment summary table (for visibility) but proceed directly to artifact generation without prompting for confirmation. Operator curates by passing specific PR numbers (`/sweep-review-prs #49 #47`), not by interactive exclusion after assessment. The confirmation gate adds friction with no value when the operator already specified their intent.
+
+## Concurrent Review/Address Timing
+
+When running review and address concurrently, the review sweep may skip if the address agent hasn't pushed its changes yet — the watermark still matches. This costs one extra cycle but is harmless. Mitigation options: offset start times (review first, address 3min later), or accept the extra cycle as normal operating mode. In practice, a single-PR sweep converges in 3-4 cycles regardless.
+
 ## Launch Review Before Address Assessment
 
 After generating review sweep artifacts, launch `let-it-rip.sh` immediately — don't wait for address assessment to complete. The review sessions start working while the director assesses address candidates. Parallelizes cycle 0.
@@ -68,3 +76,4 @@ After generating review sweep artifacts, launch `let-it-rip.sh` immediately — 
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)
 - `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree coordination, Agent isolation workaround
+- `~/.claude/skill-references/director-sweep-playbook.md` — operationalized playbook consolidating patterns from this file

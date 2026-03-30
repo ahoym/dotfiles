@@ -115,16 +115,16 @@ Assessed N PRs. M eligible, K skipped:
 | 45 | Update deps | Skip | -- | -- | -- | Addressed, no new comments |
 | 43 | Auth tokens | Skip | -- | -- | -- | No comments |
 
-Generate let-it-rip.sh for M PRs (concurrency: CONCURRENCY)?
+Generating let-it-rip.sh for M PRs (concurrency: CONCURRENCY)...
 ```
 
 The **Conflicts** column only appears when `--resolve-conflicts` is passed. When absent, omit the column entirely.
 
-Wait for confirmation. Operator may exclude PRs before proceeding.
+Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 5: Generate Artifacts
 
-Create run directory: `tmp/sweep-address/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR. Follow **Artifact Structure** in `sweep-scaffold.md`.
+Create run directory: `tmp/sweep-address/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
@@ -188,4 +188,10 @@ Follow the corresponding sections in `sweep-scaffold.md`. Mode-specific retro ta
 - **Concurrency depth.** Default 3. Each session works in its own worktree — no conflicts.
 - **Worktree reuse.** During assessment, `git worktree list` is checked for existing worktrees on each PR's branch. If found, the address session reuses that worktree — no creation or cleanup needed. Only PRs without an existing worktree get new ones under `<RUN_DIR>/worktrees/`. New worktrees are cleaned up after completion (or on Ctrl+C via trap); reused worktrees are left untouched.
 - **Escalation.** `address-request-comments` auto-implements suggestions it agrees with and escalates disagreements. The retro surfaces escalated items for operator review.
+- **Conflict monitoring (director responsibility).** When running address sweeps in a loop, the director should read `mergeable` from review `status.md` files each cycle. If CONFLICTING on an open PR, write a directive to `<ADDRESS_RUN_DIR>/pr-<N>/directives.md` instructing the session to resolve conflicts before addressing. Directive format:
+  ```markdown
+  ## <ISO timestamp>
+  PR has merge conflicts with base branch. Invoke `/git:resolve-conflicts <base-branch>` before addressing comments.
+  ```
+  This catches conflicts that develop between cycles (e.g., main advancing after a PR was last addressed). The address session reads directives in step 1 and acts on them.
 - See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.

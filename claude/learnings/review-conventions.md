@@ -73,9 +73,9 @@ Review summaries name themes ("some learnings may not earn their context cost");
 
 When re-reviewing a PR and a previous comment has been addressed, react with a 👍 emoji instead of posting a text reply. This signals acknowledgment without creating noise in the comment thread. Reserve text replies for partially-addressed or unresolved findings.
 
-### Don't post empty reviews
+### Don't post empty reviews — unless triggered by new commits
 
-If analysis produces no findings, no inline comments, no reactions, and no follow-ups, skip posting entirely. An empty review that says "no concerns" or "all findings resolved" adds noise to the PR thread without value. This applies to both first-review and re-review modes. The absence of a review is itself a signal — it means the reviewer found nothing to flag.
+If analysis produces no findings, no inline comments, no reactions, and no follow-ups, the default is to skip posting entirely. However, when the review was triggered by new commits (not just a rerun with no activity), post a brief confirmation (e.g., "Reviewed `<sha>` — no new findings") so operators can verify the commit was actually reviewed. The absence of a review is ambiguous — it could mean "nothing to review" or "review ran and found nothing." New-commit re-reviews should disambiguate by posting.
 
 ### Keep Approval Flows On-Platform
 

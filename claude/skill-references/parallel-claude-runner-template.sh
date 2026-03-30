@@ -101,11 +101,21 @@ process_pr() {
         return
     fi
 
-    # Pre-flight: skip merged/closed PRs
+    # Pre-flight: skip if status.md shows terminal state (no API call needed)
+    if [ -f "$status_file" ]; then
+        local cached_state
+        cached_state=$(grep '^pr_state:' "$status_file" 2>/dev/null | awk '{print $2}')
+        if [ "$cached_state" = "MERGED" ] || [ "$cached_state" = "CLOSED" ]; then
+            echo "[$ts] PR #${pr_num}: SKIPPED ($cached_state, from status.md)"
+            return
+        fi
+    fi
+
+    # Pre-flight: skip merged/closed PRs (API fallback for first run or missing status.md)
     local state
     state=$(gh pr view "$pr_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
     if [ "$state" != "OPEN" ]; then
-        printf '# PR #%s\nmilestone: skipped\nreason: %s\n' "$pr_num" "$state" > "$status_file"
+        printf '# PR #%s\nmilestone: skipped\nreason: %s\npr_state: %s\n' "$pr_num" "$state" "$state" > "$status_file"
         echo "[$ts] PR #${pr_num}: SKIPPED ($state)"
         return
     fi

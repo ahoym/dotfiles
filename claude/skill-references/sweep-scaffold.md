@@ -105,15 +105,10 @@ Address mode additionally fills `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKT
 
 ### Pre-flight State Check
 
-The generated script MUST include a **pre-flight state check** in the PR loop, before launching each session:
-```bash
-pr_state=$(gh pr view "$pr" --json state --jq '.state' 2>/dev/null)
-if [ "$pr_state" = "MERGED" ] || [ "$pr_state" = "CLOSED" ]; then
-    echo "[PR #${pr}] SKIPPED — ${pr_state} (no session launched)"
-    continue
-fi
-```
-This avoids launching `claude -p` sessions for terminal-state PRs — saves process overhead and API cost on rerun cycles where PRs have been merged between runs.
+The generated script has a two-tier pre-flight before launching each session:
+
+1. **Local status.md check (free).** Read `pr_state` from the PR's existing `status.md`. If MERGED or CLOSED, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
+2. **API fallback (1 API call).** If no `status.md` exists or `pr_state` is not terminal, call `gh pr view` to check current state. This covers first runs and PRs whose state changed externally. The API fallback also writes `pr_state` to `status.md` so subsequent cycles use the local check.
 
 Address mode: the same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees.
 
@@ -144,6 +139,14 @@ Read all `pr-*/status.md` files, present:
 ## Retro
 
 Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note that `result.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+
+## Convergence
+
+Convergence is a director-layer concern — individual sessions do not decide convergence. For full convergence rules, monitoring table format, and directive patterns, see `director-sweep-playbook.md`.
+
+Summary:
+- **Review loop**: converged when all sessions skip for 30m wall-clock (reviews are reactive to changes)
+- **Address loop**: converged when all PRs are terminal (MERGED or CLOSED). Open PRs with `mergeable: CONFLICTING` are NOT converged — the director must write conflict resolution directives
 
 ## Shared Important Notes
 

@@ -99,14 +99,14 @@ Assessed N PRs. M eligible, K skipped:
 | 45 | Update deps | Skip | -- | No activity since review |
 | 43 | Auth tokens | First review | -> #47 | -- |
 
-Generate let-it-rip.sh for M PRs (concurrency: CONCURRENCY)?
+Generating let-it-rip.sh for M PRs (concurrency: CONCURRENCY)...
 ```
 
-Wait for confirmation. Operator may exclude PRs before proceeding.
+Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 6: Generate Artifacts
 
-Create run directory: `tmp/sweep-reviews/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR. Follow **Artifact Structure** in `sweep-scaffold.md`.
+Create run directory: `tmp/sweep-reviews/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
