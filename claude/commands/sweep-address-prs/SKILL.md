@@ -51,6 +51,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/sweep-scaffold.md` — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
 
 ## Instructions
 
@@ -123,22 +124,7 @@ Wait for confirmation. Operator may exclude PRs before proceeding.
 
 ### Phase 5: Generate Artifacts
 
-Create run directory: `tmp/sweep-address/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR.
-
-**Artifact structure:**
-```
-<RUN_DIR>/
-├── manifest.json
-├── let-it-rip.sh
-├── directives.md       # optional — global instructions from directors (read by all sessions)
-└── pr-<N>/
-    ├── prompt.txt      # input to claude -p
-    ├── directives.md   # optional — per-PR instructions from directors (read by this session)
-    ├── output.log      # stdout+stderr (written by let-it-rip.sh)
-    ├── status.md       # watermark + milestone (written by claude -p)
-    ├── result.md       # append-only addressing rounds (written by claude -p)
-    └── learnings.md    # append-only observations (written by claude -p)
-```
+Create run directory: `tmp/sweep-address/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
@@ -163,25 +149,7 @@ The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present whe
 
 #### pr-\<N\>/prompt.txt
 
-Each prompt tells the `claude -p` session to:
-
-1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist. These are instructions from the directors (operator + orchestrating agent) — incorporate them into this addressing pass. Directives may override skip logic (e.g., "address even if watermark matches"), add focus areas, or provide context not visible in the PR itself.
-
-2. **Read existing watermark.** If `status.md` exists, read `last_addressed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
-
-3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) via `gh`:
-   - Inline: `gh api repos/{owner}/{repo}/pulls/<N>/comments --jq '.[-1].id // empty'`
-   - Top-level + state: `gh pr view <N> --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
-   - Use the MAX of inline and top-level comment IDs as the effective `last_comment_id` for watermark comparison. Top-level comments include operator directives that inline-only checks miss.
-
-   **State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `status.md` and exit immediately.
-
-   Compare against watermark values:
-   - HEAD SHA differs OR latest comment ID differs → new addressing needed, proceed to step 4
-   - Both match AND no directives → no changes since last pass, set `milestone: skipped` in `status.md` and exit
-   - Both match BUT directives present → directives override skip, proceed to step 4
-
-4. **Update `status.md`** with `milestone: started` and current timestamp.
+Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_addressed_sha` as the watermark key. Then continue with address-specific steps:
 
 5. **`cd` into the worktree directory** (passed as a variable in the prompt — either a reused existing worktree path or `<RUN_DIR>/worktrees/pr-<N>` for newly created ones).
 
@@ -191,114 +159,30 @@ Each prompt tells the `claude -p` session to:
 
 8. **Invoke address skill.** Skill tool: `skill="git:address-request-comments"`, `args="<N>"`. Update `status.md` milestone to `addressing`, then `pushing`, then `done`.
 
-9. **Append to `result.md`.** Add a new dated section (append, do not overwrite):
-
-   ```markdown
-   ## Address — <ISO timestamp>
-
-   **Trigger**: <first run | N new comments since last pass | new commits (old_sha → new_sha) | both | directive>
+9. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
 
    | Field | Value |
    |-------|-------|
-   | Status | success / skipped / error |
    | Conflicts resolved | yes / no / n/a |
-   | Auto-implemented | <count> |
-   | Escalated | <count> |
-   | Commits | <count> |
-   | Addressed SHA | <HEAD SHA> |
-   | Last Comment ID | <latest comment ID> |
-   | Error | <none or message> |
-   ```
+   | Auto-implemented | `<count>` |
+   | Escalated | `<count>` |
+   | Commits | `<count>` |
 
-   On the very first run, also prepend a file header before the first section:
-
-   ```markdown
-   # PR #<N> — <title>
-   ```
-
-10. **Append to `learnings.md`.** Add a dated section with patterns discovered, code quality observations, review interaction notes. Write "No learnings from this pass." if nothing notable.
-
-11. **Update `status.md` watermark.** Write final status:
-
-    ```yaml
-    milestone: done  # or errored / skipped
-    pr: <N>
-    pr_state: <OPEN / MERGED / CLOSED>
-    mergeable: <MERGEABLE / CONFLICTING / UNKNOWN>
-    last_addressed_sha: <HEAD SHA at time of addressing>
-    last_comment_id: <MAX of inline and top-level comment IDs at time of addressing>
-    updated_at: <ISO timestamp>
-    ```
-
-Error handling: always write all artifacts before exiting, even on failure. On error, still update `status.md` watermark with `milestone: errored` so the next run retries.
+10. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
 
 #### let-it-rip.sh
 
-Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and generate `let-it-rip.sh` by filling placeholders:
-- `{{MODE}}` → `address`
-- `{{RUN_DIR}}` → absolute path to run directory
-- `{{CONCURRENCY}}` → from parsed arguments
-- `{{PRS}}` → space-separated eligible PR numbers
-- `{{TIMESTAMP}}` → current timestamp
-- `{{PROJECT_ROOT}}` → absolute path to repo root
-- `{{BRANCH_CASES}}` → case statements mapping PR numbers to branch names (e.g., `48) echo "feat/auth" ;;`)
-- `{{WORKTREE_CASES}}` → case statements mapping PR numbers to worktree paths (reused or new)
-- `{{NEW_WORKTREE_PRS}}` → space-separated PR numbers that need new worktrees (empty if all reused)
-- Keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (address mode uses worktrees)
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `address`. Additionally fill `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks.
 
-The generated script MUST include a **pre-flight state check** in the PR loop, before launching each session:
-```bash
-pr_state=$(gh pr view "$pr" --json state --jq '.state' 2>/dev/null)
-if [ "$pr_state" = "MERGED" ] || [ "$pr_state" = "CLOSED" ]; then
-    echo "[PR #${pr}] SKIPPED — ${pr_state} (no session launched)"
-    continue
-fi
-```
-This avoids launching `claude -p` sessions for terminal-state PRs — saves process overhead and API cost on rerun cycles where PRs have been merged between runs.
+The worktree setup loop (`setup_worktrees`) must also include the pre-flight state check from the scaffold, before fetching or creating worktrees. Without it, the script fails on `git fetch` for merged branches before the launch loop's skip ever fires.
 
-The same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees. Without it, the script fails on `git fetch` for merged branches before the launch loop's skip ever fires.
+### Phase 6: Announce, Progress Check, Retro
 
-### Phase 6: Announce
-
-```
-Artifacts written to <RUN_DIR>/
-
-  manifest.json    — <M> eligible, <K> skipped
-  let-it-rip.sh    — concurrency: <CONCURRENCY>
-  pr-<N>/          — <M> PR directories with prompts
-
-To launch:        bash <RUN_DIR>/let-it-rip.sh
-Re-run (loop):    bash <RUN_DIR>/let-it-rip.sh  (same command — sessions with no new comments exit cleanly)
-Progress:         "Check progress on <RUN_DIR>"
-Retro:            "Retro on <RUN_DIR>"
-```
-
-## Post-Execution: Progress Check
-
-Read all `pr-*/status.md` files, present:
-
-| PR | Milestone | Started |
-|----|-----------|---------|
-| #47 | addressing | 2m ago |
-| #46 | pushing | 1m ago |
-
-## Post-Execution: Retro
-
-Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note that `result.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count:
-
-| PR | Title | Rounds | Latest Status | Auto-implemented | Escalated | Commits |
-|----|-------|--------|---------------|------------------|-----------|---------|
-| #47 | Add auth | 2 | success | 1 | 0 | 1 |
-| #46 | Fix race | 1 | success | 2 | 0 | 1 |
-
-Include: skipped PRs, aggregated learnings by theme, and summary line.
+Follow the corresponding sections in `sweep-scaffold.md`.
 
 ## Important Notes
 
 - **Concurrency depth.** Default 3. Each session works in its own worktree — no conflicts.
-- **Worktree reuse.** During assessment, `git worktree list` is checked for existing worktrees on each PR's branch. If found (e.g., from a prior review sweep), the address session reuses that worktree — no creation or cleanup needed. Only PRs without an existing worktree get new ones created under `<RUN_DIR>/worktrees/`. New worktrees are cleaned up after completion (or on Ctrl+C via trap); reused worktrees are left untouched.
-- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly as review conversations evolve. New worktree setup is idempotent (existing ones pull latest). Each `claude -p` session reads the watermark from `status.md` (last addressed SHA + last comment ID) and compares against current PR state — if nothing changed, it skips; if new activity exists, it performs a new pass and appends a dated section to `result.md` and `learnings.md`.
+- **Worktree reuse.** During assessment, `git worktree list` is checked for existing worktrees on each PR's branch. If found, the address session reuses that worktree — no creation or cleanup needed. Only PRs without an existing worktree get new ones under `<RUN_DIR>/worktrees/`. New worktrees are cleaned up after completion (or on Ctrl+C via trap); reused worktrees are left untouched.
 - **Escalation.** `address-request-comments` auto-implements suggestions it agrees with and escalates disagreements. The retro surfaces escalated items for operator review.
-- **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary.
-- **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
-- **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/sweep-address/<timestamp>/`
+- See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.

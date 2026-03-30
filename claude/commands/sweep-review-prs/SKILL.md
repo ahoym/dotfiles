@@ -47,6 +47,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/sweep-scaffold.md` — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
 
 ## Instructions
 
@@ -105,22 +106,7 @@ Wait for confirmation. Operator may exclude PRs before proceeding.
 
 ### Phase 6: Generate Artifacts
 
-Create run directory: `tmp/sweep-reviews/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR.
-
-**Artifact structure:**
-```
-<RUN_DIR>/
-├── manifest.json
-├── let-it-rip.sh
-├── directives.md       # optional — global instructions from directors (read by all sessions)
-└── pr-<N>/
-    ├── prompt.txt      # input to claude -p
-    ├── directives.md   # optional — per-PR instructions from directors (read by this session)
-    ├── output.log      # stdout+stderr (written by let-it-rip.sh)
-    ├── status.md       # watermark + milestone (written by claude -p)
-    ├── result.md       # append-only review rounds (written by claude -p)
-    └── learnings.md    # append-only observations (written by claude -p)
-```
+Create run directory: `tmp/sweep-reviews/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/` subdirectory per eligible PR. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
@@ -141,131 +127,33 @@ Create run directory: `tmp/sweep-reviews/$(date +%Y-%m-%d-%H%M)` with a `pr-<N>/
 
 #### pr-\<N\>/prompt.txt
 
-Each prompt tells the `claude -p` session to:
-
-1. **Read directives.** Read `${RUN_DIR}/directives.md` and `${PR_DIR}/directives.md` if they exist. These are instructions from the directors (operator + orchestrating agent) — incorporate them into this review pass. Directives may override skip logic (e.g., "review even if watermark matches"), add focus areas, or provide context not visible in the PR itself.
-
-2. **Read existing watermark.** If `status.md` exists, read `last_reviewed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
-
-3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) via `gh`:
-   - Inline: `gh api repos/{owner}/{repo}/pulls/<N>/comments --jq '.[-1].id // empty'`
-   - Top-level + state: `gh pr view <N> --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
-   - Use the MAX of inline and top-level comment IDs as the effective `last_comment_id` for watermark comparison. Top-level comments include operator directives that inline-only checks miss.
-
-   **State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `status.md` and exit immediately.
-
-   Compare against watermark values:
-   - HEAD SHA differs OR latest comment ID differs → new review needed, proceed to step 4
-   - Both match AND no directives → no changes since last review, set `milestone: skipped` in `status.md` and exit
-   - Both match BUT directives present → directives override skip, proceed to step 4
-
-4. **Update `status.md`** with `milestone: started` and current timestamp.
+Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_reviewed_sha` as the watermark key. Then continue with review-specific steps:
 
 5. **Invoke team review.** Skill tool: `skill="git:team-review-request"`, `args="<N>"`. Update `status.md` milestone to `reviewing`, then `posted` after the review is posted.
 
-6. **Append to `result.md`.** Add a new dated section (append, do not overwrite):
-
-   ```markdown
-   ## Review — <ISO timestamp>
-
-   **Trigger**: <first run | N new commits (old_sha → new_sha) | N new comments | both>
+6. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
 
    | Field | Value |
    |-------|-------|
-   | Status | success / skipped / error |
    | Mode | first-review / re-review |
-   | Personas | <list> |
-   | Findings | <count> |
-   | Inline Comments | <count> |
-   | Review URL | <url or N/A> |
-   | Reviewed SHA | <HEAD SHA> |
-   | Last Comment ID | <latest comment ID> |
-   | Error | <none or message> |
-   ```
+   | Personas | `<list>` |
+   | Findings | `<count>` |
+   | Inline Comments | `<count>` |
+   | Review URL | `<url or N/A>` |
 
-   On the very first run, also prepend a file header before the first section:
-
-   ```markdown
-   # PR #<N> — <title>
-   ```
-
-7. **Append to `learnings.md`.** Add a dated section with surprising patterns, architectural observations, recurring issues, or skill performance notes. Write "No learnings from this review." if nothing notable.
-
-8. **Update `status.md` watermark.** Write final status:
-
-   ```yaml
-   milestone: done  # or errored / skipped
-   pr: <N>
-   pr_state: <OPEN / MERGED / CLOSED>
-   mergeable: <MERGEABLE / CONFLICTING / UNKNOWN>
-   last_reviewed_sha: <HEAD SHA at time of review>
-   last_comment_id: <MAX of inline and top-level comment IDs at time of review>
-   updated_at: <ISO timestamp>
-   ```
-
-Error handling: always write all artifacts before exiting, even on failure. On error, still update `status.md` watermark with `milestone: errored` so the next run retries.
+7. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
 
 #### let-it-rip.sh
 
-Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and generate `let-it-rip.sh` by filling placeholders:
-- `{{MODE}}` → `review`
-- `{{RUN_DIR}}` → absolute path to run directory
-- `{{CONCURRENCY}}` → from parsed arguments
-- `{{PRS}}` → space-separated eligible PR numbers
-- `{{TIMESTAMP}}` → current timestamp
-- Remove `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (review mode doesn't use worktrees)
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `review`. Remove `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (review mode doesn't use worktrees).
 
-The generated script MUST include a **pre-flight state check** in the PR loop, before launching each session:
-```bash
-pr_state=$(gh pr view "$pr" --json state --jq '.state' 2>/dev/null)
-if [ "$pr_state" = "MERGED" ] || [ "$pr_state" = "CLOSED" ]; then
-    echo "[PR #${pr}] SKIPPED — ${pr_state} (no session launched)"
-    continue
-fi
-```
-This avoids launching `claude -p` sessions for terminal-state PRs — saves process overhead and API cost on rerun cycles where PRs have been merged between runs.
+### Phase 7: Announce, Progress Check, Retro
 
-### Phase 7: Announce
-
-```
-Artifacts written to <RUN_DIR>/
-
-  manifest.json    — <M> eligible, <K> skipped
-  let-it-rip.sh    — concurrency: <CONCURRENCY>
-  pr-<N>/          — <M> PR directories with prompts
-
-To launch:        bash <RUN_DIR>/let-it-rip.sh
-Re-run (loop):    bash <RUN_DIR>/let-it-rip.sh  (same command — sessions with no changes since last review exit cleanly)
-Progress:         "Check progress on <RUN_DIR>"
-Retro:            "Retro on <RUN_DIR>"
-```
-
-## Post-Execution: Progress Check
-
-Read all `pr-*/status.md` files, present:
-
-| PR | Milestone | Started |
-|----|-----------|---------|
-| #47 | reviewing | 2m ago |
-| #46 | posted | 1m ago |
-
-## Post-Execution: Retro
-
-Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note that `result.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count:
-
-| PR | Title | Rounds | Latest Mode | Personas | Findings | Status |
-|----|-------|--------|-------------|----------|----------|--------|
-| #47 | Add auth | 2 | Re-review | security, java | 2 | Posted |
-| #46 | Fix race | 1 | First | go, security | 5 | Posted |
-
-Include: skipped PRs from assessment, stacked PR relationships, aggregated learnings grouped by theme, and summary line.
+Follow the corresponding sections in `sweep-scaffold.md`. Retro table includes stacked PR relationships.
 
 ## Important Notes
 
 - **Concurrency depth.** Default 3 x up to 3 reviewer subagents = 9 concurrent API sessions. Lower if hitting rate limits.
 - **No auto-approve.** Reviews post as COMMENT. Operator decides the verdict.
-- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly after address passes. The pre-flight state check skips merged/closed PRs. Each `claude -p` session reads the watermark from `status.md` (last reviewed SHA + last comment ID) and compares against current PR state — if nothing changed, it skips; if the PR moved, it performs a new review and appends a dated section to `result.md` and `learnings.md`.
 - **Stacked PRs.** Reviewed independently against their base branch. No ordering needed.
-- **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary. Running sessions are not killed.
-- **Crash recovery.** Missing result files (hard crash) → retro reports as "unknown/crashed" by diffing manifest against actual results.
-- **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/sweep-reviews/<timestamp>/`
+- See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.
