@@ -46,4 +46,4 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
 - Use `Role: Team-Reviewer` (not `Role: Reviewer`) — same identity as multi-reviewer mode for consistent detection
 - No duplication between summary and inline comments — summary names themes, inline carries specifics
-- Don't post empty reviews — if no findings, skip posting entirely
+- Don't post empty reviews — if no findings, skip posting entirely. **Exception**: when triggered by new commits, post a brief confirmation (e.g., "Reviewed `<sha>` — no new findings")

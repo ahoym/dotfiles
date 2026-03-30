@@ -182,7 +182,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 - If the diff is too large to fit in subagent context, tell the operator rather than silently truncating
 - Re-review mode is automatic — the skill detects previous team reviews by checking for `Role:.*Team-Reviewer` in review bodies
 - `Role: Team-Reviewer` is distinct from `Role: Reviewer` — the two skills do not detect each other's reviews
-- **Don't post empty reviews** — if the merge produces no findings, no inline comments, and no follow-ups, skip posting entirely
+- **Don't post empty reviews** — if the merge produces no findings, no inline comments, and no follow-ups, skip posting entirely. **Exception**: when the review was triggered by new commits, post a brief confirmation (e.g., "Reviewed `<sha>` — no new findings") so operators can verify the commit was reviewed
 - **Always run the API-based quick-exit check (step 3) in re-review.** Never skip it based on session memory.
 - **Handle all activity types in one invocation.** When multiple signals are present (new replies AND new commits), handle them all — reply to comments first, then review new code
 - **Advance `LAST_REVIEW_TS` after reaction-only cycles.** When a re-review posts only reactions and thread replies (no review body), advance `LAST_REVIEW_TS` to the newest non-self comment processed
