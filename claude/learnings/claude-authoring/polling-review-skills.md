@@ -90,7 +90,12 @@ A commit can land between phase 1 (SHA check) and review posting. If it fixes an
 
 **Mitigation**: before posting any `❌ not addressed` inline comment or "still open" follow-up, re-verify against the latest commit list — not just the SHA captured at phase 1. If a new commit landed since phase 1, check whether it addresses the finding before posting.
 
+## Watermark Must Track Both Comment Channels
+
+GitHub has two separate comment endpoints: inline review comments (`/pulls/{N}/comments`) and top-level PR comments (`/issues/{N}/comments`). Watermarks that only track inline comment IDs are blind to operator directives posted as top-level comments. The watermark's `last_comment_id` must be the MAX of both endpoints. `gh pr view --json comments` includes top-level comments; combine with the inline endpoint for full coverage.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer convergence, offset loops, pre-flight checks

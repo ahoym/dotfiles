@@ -147,7 +147,14 @@ Each prompt tells the `claude -p` session to:
 
 2. **Read existing watermark.** If `status.md` exists, read `last_reviewed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
 
-3. **Compare against current PR state.** Fetch the PR's current HEAD SHA and latest comment ID via `gh`. Compare against watermark values:
+3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) via `gh`:
+   - Inline: `gh api repos/{owner}/{repo}/pulls/<N>/comments --jq '.[-1].id // empty'`
+   - Top-level + state: `gh pr view <N> --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
+   - Use the MAX of inline and top-level comment IDs as the effective `last_comment_id` for watermark comparison. Top-level comments include operator directives that inline-only checks miss.
+
+   **State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `status.md` and exit immediately.
+
+   Compare against watermark values:
    - HEAD SHA differs OR latest comment ID differs → new review needed, proceed to step 4
    - Both match AND no directives → no changes since last review, set `milestone: skipped` in `status.md` and exit
    - Both match BUT directives present → directives override skip, proceed to step 4
@@ -189,8 +196,10 @@ Each prompt tells the `claude -p` session to:
    ```yaml
    milestone: done  # or errored / skipped
    pr: <N>
+   pr_state: <OPEN / MERGED / CLOSED>
+   mergeable: <MERGEABLE / CONFLICTING / UNKNOWN>
    last_reviewed_sha: <HEAD SHA at time of review>
-   last_comment_id: <latest comment ID at time of review>
+   last_comment_id: <MAX of inline and top-level comment IDs at time of review>
    updated_at: <ISO timestamp>
    ```
 
@@ -205,6 +214,16 @@ Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and genera
 - `{{PRS}}` → space-separated eligible PR numbers
 - `{{TIMESTAMP}}` → current timestamp
 - Remove `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (review mode doesn't use worktrees)
+
+The generated script MUST include a **pre-flight state check** in the PR loop, before launching each session:
+```bash
+pr_state=$(gh pr view "$pr" --json state --jq '.state' 2>/dev/null)
+if [ "$pr_state" = "MERGED" ] || [ "$pr_state" = "CLOSED" ]; then
+    echo "[PR #${pr}] SKIPPED — ${pr_state} (no session launched)"
+    continue
+fi
+```
+This avoids launching `claude -p` sessions for terminal-state PRs — saves process overhead and API cost on rerun cycles where PRs have been merged between runs.
 
 ### Phase 7: Announce
 

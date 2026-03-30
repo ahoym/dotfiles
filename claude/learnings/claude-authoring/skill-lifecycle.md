@@ -80,6 +80,10 @@ Skills that write temp files to a staging directory (e.g., `tmp/change-request-r
 
 `gh pr checkout` fails when the target branch is already checked out in a worktree (`fatal: '<branch>' is already used by worktree at '<path>'`). Skills should detect this and work from the worktree path instead. Check `git worktree list` for the branch name, extract the worktree path, and use `git -C <worktree-path>` for subsequent operations. Avoid `cd` into the worktree — it shifts the shell's CWD, breaking relative paths in later commands. See also: `claude-code.md` for worktree platform mechanics.
 
+## Runtime Fix → Source Fix Reflex
+
+Every fix to a runtime artifact (generated prompt, `let-it-rip.sh`, status.md format) should immediately prompt: "does the source (SKILL.md) need this too?" Runtime artifacts are ephemeral — the SKILL.md generates new ones each run. A fix that only lands in the runtime artifact will be lost on the next invocation.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

@@ -190,6 +190,10 @@ When generating shell scripts that will run on macOS (e.g., `let-it-rip.sh` from
 
 When a skill generates a bash script the operator will run outside of Claude's context (e.g., `let-it-rip.sh`), run `bash -n <script>` to syntax-check it before announcing it as ready. This catches bash version incompatibilities, quoting errors, and missing variables at generation time rather than at runtime — saving the operator a round-trip for every syntax-level failure.
 
+## `local` Only Valid Inside Functions
+
+`local` keyword is invalid at script top level — bash exits with an error. Common in generated scripts where cleanup loops are written both inside a function (trap handler) and at script end (post-completion). The trap handler's `local` is fine; the top-level copy isn't. Use plain variable assignment at script level.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
