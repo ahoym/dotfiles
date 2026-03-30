@@ -178,7 +178,10 @@ The worktree setup loop (`setup_worktrees`) must also include the pre-flight sta
 
 ### Phase 6: Announce, Progress Check, Retro
 
-Follow the corresponding sections in `sweep-scaffold.md`.
+Follow the corresponding sections in `sweep-scaffold.md`. Mode-specific retro table columns:
+
+| PR | Title | Rounds | Latest Status | Auto-implemented | Escalated | Commits |
+|----|-------|--------|---------------|------------------|-----------|---------|
 
 ## Important Notes
 

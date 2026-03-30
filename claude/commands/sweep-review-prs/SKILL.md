@@ -149,7 +149,10 @@ Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `
 
 ### Phase 7: Announce, Progress Check, Retro
 
-Follow the corresponding sections in `sweep-scaffold.md`. Retro table includes stacked PR relationships.
+Follow the corresponding sections in `sweep-scaffold.md`. Retro table includes stacked PR relationships. Mode-specific retro table columns:
+
+| PR | Title | Rounds | Latest Mode | Personas | Findings | Status |
+|----|-------|--------|-------------|----------|----------|--------|
 
 ## Important Notes
 
