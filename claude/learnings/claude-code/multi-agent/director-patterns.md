@@ -76,3 +76,4 @@ After generating review sweep artifacts, launch `let-it-rip.sh` immediately — 
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)
 - `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree coordination, Agent isolation workaround
+- `~/.claude/skill-references/director-sweep-playbook.md` — operationalized playbook consolidating patterns from this file

@@ -24,16 +24,9 @@ Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 
 Read `~/.claude/skill-references/review-comment-classification.md` for the terminal acknowledgement rule and classification criteria (Resolved, Acknowledged, Partially addressed, Not addressed).
 
-For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule):
-- Read the author's reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`
-- Classify using the shared criteria and apply the corresponding reaction/reply actions
+For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule), classify per the shared reference and apply its reaction targets, emoji, and text reply actions.
 
 Also review new code: analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
-
-Build the output lists:
-- `INLINE_COMMENTS`: new findings on new/changed code.
-- `REACTIONS`: list of `{comment_id, emoji}` per the shared classification's reaction summary table.
-- `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
 - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
 ## Re-review body template

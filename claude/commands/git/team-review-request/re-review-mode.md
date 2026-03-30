@@ -39,16 +39,9 @@ Fetch replies for each by filtering for `in_reply_to_id` matching the comment ID
 
 Read `~/.claude/skill-references/review-comment-classification.md` for the terminal acknowledgement rule and classification criteria (Resolved, Acknowledged, Partially addressed, Not addressed).
 
-For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule):
-- Read the reply (if any) and check whether corresponding code changed in `NEW_COMMITS`
-- Classify using the shared criteria and apply the corresponding reaction/reply actions
+For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule), classify per the shared reference and apply its reaction targets, emoji, and text reply actions.
 
 Route follow-ups: partially-addressed and not-addressed comments are handled by the originating persona's subagent (identified from the comment's persona attribution). If the originating persona is not in `RE_REVIEW_PERSONAS`, the orchestrator handles the follow-up directly.
-
-Build output lists:
-- `REACTIONS`: `{comment_id, emoji}` — hooray for resolved, +1 for acknowledged
-- `FOLLOW_UPS`: `{comment_id, body, persona}` — for partially/not addressed
-- Text replies for resolved/acknowledged (same pattern as single-persona re-review)
 
 ## Launch Scoped Reviewers
 
