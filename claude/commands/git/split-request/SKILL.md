@@ -13,7 +13,7 @@ allowed-tools:
 
 # Split Large Review
 
-Analyze a large review and propose how to split it into smaller, reviewable units for easier human review.
+Analyze a large review and propose how to split it into smaller, reviewable units for easier operator review.
 
 ## Usage
 
@@ -49,7 +49,7 @@ Analyze a large review and propose how to split it into smaller, reviewable unit
    - Does this change modify files created by another change?
    - What's the minimum merge order?
 
-5. **Propose split** — Present a table to the user:
+5. **Propose split** — Present a table to the operator:
    ```
    | $REVIEW_UNIT | Description | Branch | Target | ~Lines | Dependencies |
    |--------------|-------------|--------|--------|--------|--------------|
@@ -61,7 +61,7 @@ Analyze a large review and propose how to split it into smaller, reviewable unit
 
 6. **Ask for confirmation**:
    - Present the proposal
-   - Ask if user wants to proceed, modify, or post as review comment
+   - Ask if operator wants to proceed, modify, or post as review comment
    - Confirm branching strategy (independent vs stacked)
 
 7. **For stacked reviews** (when review B modifies files review A creates):

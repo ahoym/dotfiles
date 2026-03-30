@@ -138,7 +138,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
    **Rebase-specific: check for file renames.** If the base branch renamed files, conflicts appear under the new filename but contain content from the old. Check both filenames on the base branch to determine what content is already covered before resolving.
 
-   - Ask user: "How should this conflict be resolved?"
+   - Ask the operator: "How should this conflict be resolved?"
      - Keep ours (current branch in merge / base branch in rebase)
      - Keep theirs (base branch in merge / your commit in rebase)
      - Combine both

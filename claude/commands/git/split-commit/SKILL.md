@@ -38,7 +38,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
 
 5. **Apply first group of changes**:
    - Using the saved files in `/tmp/` as reference, apply only the first group
-   - Ask user for commit message
+   - Ask the operator for commit message
    ```bash
    git add <files>
    git commit -m "<message>
@@ -48,7 +48,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
 
 6. **Apply remaining changes**:
    - Restore full versions from `/tmp/` originals
-   - Ask user for commit message
+   - Ask the operator for commit message
    ```bash
    git add <files>
    git commit -m "<message>
@@ -60,7 +60,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    ```bash
    git log --oneline -3
    ```
-   Ask user: "Ready to force push these changes?"
+   Ask the operator: "Ready to force push these changes?"
    ```bash
    git push origin <branch> --force-with-lease
    ```

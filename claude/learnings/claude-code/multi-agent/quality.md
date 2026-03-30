@@ -34,17 +34,17 @@ When subagents compare file inventories across two directories, they may report 
 
 ## Agent-to-Agent Review Architecture
 
-Reviewer → addresser → human is a viable review cycle. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. When the addresser agrees with a suggestion, auto-implement without human approval; escalate only on disagreement or uncertainty. The human's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
+Reviewer → addresser → operator is a viable review cycle. The addresser investigates deeper than the reviewer (reads full files, not just the diff) and can surface issues the reviewer missed. When the addresser agrees with a suggestion, auto-implement without operator approval; escalate only on disagreement or uncertainty. The operator's role shifts from approving every change to reviewing the PR diff and calibrating agent judgment over time.
 
-Use structured footnotes (`Persona + Role`) to separate comment chains when both agents post as the same GitHub user. Comments without a Role tag are human.
+Use structured footnotes (`Persona + Role`) to separate comment chains when both agents post as the same GitHub user. Comments without a Role tag are from the operator.
 
 ## Iterative Testing for Timing-Dependent Autonomous Features
 
-Autonomous features with timing-dependent side effects (stale poll auto-cancel, timeout-based cleanup, rate-limiting) need iterative testing with a human watching. The spec gets ~70% right, but edge cases only surface in production: premature cancellation, clock access limitations, permission friction on state persistence. Design the first version, run it live, observe failures, fix, repeat. The loop itself is the test harness.
+Autonomous features with timing-dependent side effects (stale poll auto-cancel, timeout-based cleanup, rate-limiting) need iterative testing with an operator watching. The spec gets ~70% right, but edge cases only surface in production: premature cancellation, clock access limitations, permission friction on state persistence. Design the first version, run it live, observe failures, fix, repeat. The loop itself is the test harness.
 
-## Trust-Building Arc as Human-Agent Collaboration Model
+## Trust-Building Arc as Operator-Agent Collaboration Model
 
-The manager-report trust pattern maps directly to human-agent autonomy calibration: small scoped tasks with close review → demonstrate good judgment → gradually expand scope → occasional mistakes that are caught and learned from. Learnings, guidelines, and personas are trust artifacts — accumulated evidence of calibration, not just rules for an agent. This frame is useful for evaluating system changes: does this change help build trust (positive signals, outcome tracking) or just constrain behavior (more rules)?
+The manager-report trust pattern maps directly to operator-agent autonomy calibration: small scoped tasks with close review → demonstrate good judgment → gradually expand scope → occasional mistakes that are caught and learned from. Learnings, guidelines, and personas are trust artifacts — accumulated evidence of calibration, not just rules for an agent. This frame is useful for evaluating system changes: does this change help build trust (positive signals, outcome tracking) or just constrain behavior (more rules)?
 
 ## Verification: Targeted Grep Over Full File Reads
 

@@ -65,7 +65,7 @@ Remove local branches that have already been merged into remote main.
 
    - Use `AskUserQuestion` to confirm:
      - "Delete all" - Delete all listed branches
-     - "Select branches" - Let user choose which to delete
+     - "Select branches" - Let the operator choose which to delete
      - "Cancel" - Exit without deleting
 
 5. **Delete confirmed branches**:

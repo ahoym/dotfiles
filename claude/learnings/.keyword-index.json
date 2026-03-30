@@ -140,7 +140,7 @@
   },
   "persona": ["learnings/claude-authoring/personas.md", "learnings/claude-authoring/routing-table.md", "learnings/claude-authoring/skill-evolution.md", "learnings/claude-code/ralph-curation.md", "commands/set-persona/SKILL.md"],
   "judgment layer": ["learnings/claude-authoring/personas.md"],
-  "proactive load": ["learnings/claude-authoring/personas.md"],
+  "proactive cross-ref": ["learnings/claude-authoring/personas.md"],
   "companion file": ["learnings/claude-authoring/personas.md"],
   "knowledge decomposition": ["learnings/claude-authoring/personas.md"],
   "reviewer persona": ["learnings/claude-authoring/personas.md", "learnings/claude-authoring/skill-evolution.md"],

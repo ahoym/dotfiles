@@ -4,7 +4,7 @@ Universal patterns for skills that launch parallel or sequential subagents.
 
 ## Verify Output Before Acting
 
-When acting on subagent output (presenting to user, making edits, merging, recommending), spot-check the key claim first.
+When acting on subagent output (presenting to the operator, making edits, merging, recommending), spot-check the key claim first.
 
 **Why:** Subagent output sounds authoritative — structured, detailed, confident — but subagents can misread files, confuse labels, or draw wrong conclusions. Passing unverified output through amplifies errors with your own credibility.
 

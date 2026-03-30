@@ -27,10 +27,10 @@
 ## Known gotchas & platform specifics
 
 ### XRPL
-Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `~/.claude/learnings/xrpl/gotchas.md` (Proactive load). For fills detection, RippleState sign convention, and orderbook internals — see `~/.claude/learnings/xrpl/patterns.md`.
+Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `~/.claude/learnings/xrpl/gotchas.md` (Proactive Cross-Ref). For fills detection, RippleState sign convention, and orderbook internals — see `~/.claude/learnings/xrpl/patterns.md`.
 
 ### Next.js 16 / Turbopack
-Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `~/.claude/learnings/frontend/nextjs.md` and `~/.claude/learnings/frontend/react-frontend-gotchas.md` (Proactive load).
+Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `~/.claude/learnings/frontend/nextjs.md` and `~/.claude/learnings/frontend/react-frontend-gotchas.md` (Proactive Cross-Ref).
 
 ### Vercel / Serverless
 WebSocket singleton lifetime, in-memory rate limiter scope — see `~/.claude/learnings/xrpl/patterns.md` and `~/.claude/learnings/frontend/nextjs.md`.
@@ -38,7 +38,7 @@ WebSocket singleton lifetime, in-memory rate limiter scope — see `~/.claude/le
 ### TypeScript / Browser Boundaries
 Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `~/.claude/learnings/xrpl/gotchas.md`.
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/xrpl/gotchas.md`
 - `~/.claude/learnings/frontend/react-frontend-gotchas.md`

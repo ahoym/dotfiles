@@ -25,7 +25,7 @@ Skills that analyze, explore, or audit a codebase should produce reports but NOT
 **Pattern:**
 - Skill produces output files and prints a console summary
 - Skill ends — no `AskUserQuestion` for "which fixes to apply"
-- If the user wants fixes, they initiate that as a separate task
+- If the operator wants fixes, they initiate that as a separate task
 
 ## Stateful Mode Detection via File Existence
 
@@ -60,13 +60,13 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.json`
 
 ## Compose Skills, Don't Couple Them
 
-When two skills share setup (e.g., locating a project, reading files) but diverge in purpose (one exploratory, one operational), keep them separate and composable. Duplicate the shared setup in each skill (~10 lines of instructions is fine) rather than making one depend on the other. Add a hint in the operational skill pointing to the exploratory one for users who need context first. Example: `/ralph:resume` mentions `/ralph:brief` but doesn't invoke it — the user composes them when needed.
+When two skills share setup (e.g., locating a project, reading files) but diverge in purpose (one exploratory, one operational), keep them separate and composable. Duplicate the shared setup in each skill (~10 lines of instructions is fine) rather than making one depend on the other. Add a hint in the operational skill pointing to the exploratory one for operators who need context first. Example: `/ralph:resume` mentions `/ralph:brief` but doesn't invoke it — the operator composes them when needed.
 
 ## Merging Diverged Skills Across Repos
 
 When two repos have independently evolved the same skill, merge by keeping unique features from both sides. Use the more complete version as the base, append unique sections from the other. For platform-specific commands (gh vs glab), parameterize via a shared reference file with detection logic and a mapping table. One codebase to maintain means no future drift.
 
-**When to unify vs keep separate:** Unify when the workflow is shared and only the plumbing differs (CLI commands, API field names, terminology). Keep separate when the workflows themselves diverge — different steps, decision points, or user interactions with no equivalent on the other platform.
+**When to unify vs keep separate:** Unify when the workflow is shared and only the plumbing differs (CLI commands, API field names, terminology). Keep separate when the workflows themselves diverge — different steps, decision points, or operator interactions with no equivalent on the other platform.
 
 ## Skill Improvement: Fix and Assess In-Session
 
@@ -74,12 +74,12 @@ Apply skill improvements in the same session they surface — context fades acro
 
 ## AskUserQuestion Has a 4-Option Maximum
 
-`AskUserQuestion` enforces `maxItems: 4` on the options array. This is a hard schema constraint — not configurable. Skills that present learnings, tasks, or choices to the user will fail at runtime if they try to offer >4 options.
+`AskUserQuestion` enforces `maxItems: 4` on the options array. This is a hard schema constraint — not configurable. Skills that present learnings, tasks, or choices to the operator will fail at runtime if they try to offer >4 options.
 
 **Workarounds (in order of preference):**
 1. **Auto-save high-confidence items** — Remove them from the selection set entirely. Only prompt for uncertain items, which usually fit in 4 options.
 2. **Group by theme** — Combine related items into a single option (e.g., "CI patterns (3 items)" instead of 3 separate options).
-3. **Use free-text input** — Present a numbered table and let the user type "1,3,5" or "all" as a regular message instead of using the widget.
+3. **Use free-text input** — Present a numbered table and let the operator type "1,3,5" or "all" as a regular message instead of using the widget.
 4. **Multi-round prompting** — Split into batches of 4, though this adds friction.
 
 **Where this bites:** `/learnings:compound` when a session produces >4 learnings. The fix applied there: auto-save High-utility learnings (they're almost always worth keeping) and only prompt for Medium/Low.
@@ -90,7 +90,7 @@ When deciding whether to codify a pattern, the question isn't "can the model exe
 
 ## "Reduces Typing" Is Sufficient Justification for a Skill
 
-Don't overthink whether a repeated sequence "deserves" to be a skill. If the user types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.
+Don't overthink whether a repeated sequence "deserves" to be a skill. If the operator types the same N commands every session in the same order, a skill that runs them sequentially is a valid simplification — even if individual steps are conversational or already invoke other skills. The bar is consistency of the sequence, not complexity of the automation.
 
 ## Skill Responsibility Boundaries: Compound, Curate, Retro
 
@@ -115,9 +115,9 @@ After modifying or creating skills, verify before committing:
 - Show prerequisite commands (fetch, checkout) explicitly
 - Use HEREDOC for multi-line commit messages
 
-## User Interaction Points
+## Operator Interaction Points
 
-Mark steps where user input is needed:
+Mark steps where operator input is needed:
 - **Ask for confirmation**: Before destructive operations (force push, reset)
 - **Ask for selection**: When multiple paths are possible
 - **Show and confirm**: Before committing or pushing

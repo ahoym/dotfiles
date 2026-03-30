@@ -141,14 +141,14 @@ If no persona is active:
    - Shared: `~/.claude/commands/set-persona/*.md` (exclude `SKILL.md`)
 3. Match using **filenames only** — compare language + framework keywords from the scan against persona filenames (e.g., a Java Spring Boot repo → `java-backend`). Do NOT read persona file contents for matching.
 4. **One clear match** → suggest it with a one-liner: `A **<persona-name>** persona is available that matches this stack. Activate with \`/set-persona <name>\`.`
-5. **Multiple plausible matches or ambiguous** → ask the user which fits best rather than guessing. List the options with their filenames.
+5. **Multiple plausible matches or ambiguous** → ask the operator which fits best rather than guessing. List the options with their filenames.
 6. **No match** → omit the `## 💡 Persona Suggestion` section entirely
 
 ---
 
 ### 5. Ready for Q&A
 
-After outputting the brief, all core context is loaded. When the user asks follow-up questions:
+After outputting the brief, all core context is loaded. When the operator asks follow-up questions:
 
 - Answer from SYSTEM_OVERVIEW.md + domain file previews (already loaded) first
 - If a question requires deeper detail from a specific domain, read the full domain file on demand
@@ -157,7 +157,7 @@ After outputting the brief, all core context is loaded. When the user asks follo
 ## Design Notes
 
 - **No output file** — the brief is printed to conversation, not saved. It's ephemeral context-loading, not a persistent artifact.
-- **SYSTEM_OVERVIEW.md is the gate** — without it, the brief can't produce Architecture, Cross-Cutting Patterns, Critical Path, or Documentation Health. Rather than a degraded brief, push the user to complete the scan.
+- **SYSTEM_OVERVIEW.md is the gate** — without it, the brief can't produce Architecture, Cross-Cutting Patterns, Critical Path, or Documentation Health. Rather than a degraded brief, push the operator to complete the scan.
 - **Domain files are lazy-loaded** — reading through the end of Key Findings gives enough for the summary table. Full content loads on demand during Q&A to preserve context budget.
 - **No branch fallback** — unlike ralph:brief, scan artifacts live in the repo (not on separate research branches), so a path argument is sufficient for multi-repo/worktree cases.
 - **Persona detection is conversation-based** — the agent checks its own conversation history for prior `/set-persona` activation. No state file needed.

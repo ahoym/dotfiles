@@ -24,7 +24,7 @@
 - Optimize for mean time to recovery, not just mean time between failures
 - Favor explicit configuration over convention when it affects deployment behavior
 
-## Proactive loads
+## Proactive Cross-Refs
 
 - `~/.claude/learnings/cicd/gotchas.md`
 

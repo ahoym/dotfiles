@@ -66,7 +66,7 @@ Read these templates from `~/.claude/ralph/research/templates/` before creating 
    - Write to `claude/worktrees/research-<project-name>/docs/staged-learnings/<project-name>/progress.md`
    - Replace `<TOPIC>` with the topic
 
-8. **Confirm to user**:
+8. **Confirm to the operator**:
    ```
    Created Ralph research project in worktree.
 

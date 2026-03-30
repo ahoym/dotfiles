@@ -91,7 +91,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 
 3. **Check termination conditions:**
    - If `HIGH_FINDINGS` is empty → Phase 1 complete. Log transition, proceed to **Step 2**.
-   - If `HIGH_SWEEP_COUNT` >= 5 → safety cap reached. Display the cap report (see Edge Cases) and pause for user input.
+   - If `HIGH_SWEEP_COUNT` >= 5 → safety cap reached. Display the cap report (see Edge Cases) and pause for operator input.
 
 4. **Display between-sweep report:**
 
@@ -112,7 +112,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
    Applying N HIGH actions...
    ```
 
-5. **Auto-apply all HIGH actions** — execute the actions from learnings:curate step 7 (apply changes), but **without user confirmation**. Use parallel tool calls for independent file writes (different target files). Sequential writes for actions targeting the same file.
+5. **Auto-apply all HIGH actions** — execute the actions from learnings:curate step 7 (apply changes), but **without operator confirmation**. Use parallel tool calls for independent file writes (different target files). Sequential writes for actions targeting the same file.
 
 6. **Record actions** — append each applied action to `CUMULATIVE_ACTIONS` with sweep number, content type (`LEARNINGS`), action type, source, target, and confidence.
 
@@ -122,7 +122,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
 
 ### Step 2: Learnings — MEDIUM Batch
 
-**Goal:** Present all current MEDIUM-confidence recommendations as a single batch for user approval.
+**Goal:** Present all current MEDIUM-confidence recommendations as a single batch for operator approval.
 
 **Important:** Do NOT reuse MEDIUMs accumulated during Phase 1 sweeps when HIGHs were applied — the state has changed and needs fresh analysis.
 
@@ -154,7 +154,7 @@ After the final content type completes (GUIDELINES), proceed to the Cumulative S
    **Always include options:**
    - Each MEDIUM item as a selectable option
    - A **Discuss** description note — "Select items you want to discuss before deciding"
-   - A **Skip all** option — user may decide the current state is good enough
+   - A **Skip all** option — operator may decide the current state is good enough
 
    **Also present LOW items for awareness** (not selectable, just informational):
 
@@ -648,7 +648,7 @@ Orchestrator sequences conflicting actions — same pattern as broad sweep (para
 - **Always broad sweep** — this skill does not support targeted files. Use `/learnings:curate <file>` for that.
 - **Fixed content type ordering** — LEARNINGS → SKILLS → GUIDELINES. This is not configurable; the ordering ensures each type benefits from prior cleanup.
 - **HIGHs are auto-applied** — that's the value proposition. If uncomfortable, use `/learnings:curate` instead.
-- **MEDIUMs always get approval** — the batch in Phase 2 is the primary user interaction point.
+- **MEDIUMs always get approval** — the batch in Phase 2 is the primary operator interaction point.
 - **LOWs are never auto-applied** — they appear in reports for awareness but require explicit `/learnings:curate` runs.
 - **Fresh analysis per phase** — MEDIUMs are NOT accumulated across sweeps. Each transition triggers fresh analysis because state has changed.
 - **Corpus refresh at content type boundaries** — when transitioning between content types, re-read files modified by prior phases rather than the full corpus. This keeps subsequent analysis current without the cost of a full re-read.

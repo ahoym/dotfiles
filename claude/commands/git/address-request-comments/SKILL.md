@@ -48,7 +48,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    - **Multi-part comments:** Enumerate every distinct point the reviewer raises. Map your proposed change to each one. If your plan doesn't cover a point, either address it or push back on why.
    - **Multi-option suggestions:** When a reviewer offers alternatives, evaluate each against the content's structure. Don't default to the simplest fix.
-   - **Push back when warranted:** If the reviewer's suggestion is wrong, incomplete, or misses context, say so — respectfully, with reasoning. This applies to both agent and human reviewers.
+   - **Push back when warranted:** If the reviewer's suggestion is wrong, incomplete, or misses context, say so — respectfully, with reasoning. This applies to both agent and operator reviewers.
 
 6. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
@@ -68,7 +68,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - For typo/bug fixes: Acknowledge and confirm you'll fix it
    - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
 
-   **IMPORTANT:** Do NOT prompt the user in CLI for approval at this step. Always reply to comments on the platform first.
+   **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
    Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
 
@@ -78,7 +78,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
    **Escalate to partner** when the addresser disagrees or is uncertain about a reviewer suggestion. Do NOT implement — wait for explicit approval in a subsequent PR comment (e.g., "go ahead", "all", "1,2") or in CLI.
 
-   Use **Comment Identity** from the base reference to distinguish reviewer/human comments. Human suggestions follow the same escalation logic (agree = implement, disagree = escalate).
+   Use **Comment Identity** from the base reference to distinguish reviewer/operator comments. Operator suggestions follow the same escalation logic (agree = implement, disagree = escalate).
 
 9. **Post review actions summary on the platform**:
    After processing, post a top-level comment summarizing what was done and what needs the partner's input:
@@ -123,9 +123,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically
-    - Let the user handle these manually or in a follow-up
+    - Let the operator handle these manually or in a follow-up
 
-13. **Summary**: Report to user:
+13. **Summary**: Report to the operator:
     - Number of suggestions auto-implemented (mutual agreement)
     - Number of typo/bug fixes addressed
     - Number of comments replied to with clarification

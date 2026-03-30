@@ -87,7 +87,7 @@ Gather collection metrics:
    - Worktree: `claude/worktrees/consolidate-<date>`
    - Collection Health Before: file counts from step 2
 
-### 6. Confirm to user
+### 6. Confirm to the operator
 
 ```
 Consolidation loop initialized.

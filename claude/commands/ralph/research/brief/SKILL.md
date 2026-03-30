@@ -21,12 +21,12 @@ Load all core research files into context and produce a concise synthesis. After
 ### 1. Locate the project
 
 - If `$ARGUMENTS` provided, use as the project path
-- Otherwise, list directories under `docs/staged-learnings/` and ask the user to pick one
+- Otherwise, list directories under `docs/staged-learnings/` and ask the operator to pick one
 - If the path exists locally (on the current branch), read from the filesystem
 - If not, check for a `research/<basename>` branch:
   - Extract the basename from the path (e.g., `claude-skills-best-practices-v2` from `docs/staged-learnings/claude-skills-best-practices-v2`)
   - Check if a `research/<basename>` branch exists via `git branch -a --list *research/<basename>*`
-  - If found, read files via `git show <branch>:<path>` and note to the user: "📡 Reading from branch `research/<basename>` (files not on current branch)"
+  - If found, read files via `git show <branch>:<path>` and note to the operator: "📡 Reading from branch `research/<basename>` (files not on current branch)"
   - If neither local nor branch, error: "Project not found locally or on a research branch."
 
 ### 2. Read core files (loads context for Q&A)
@@ -87,7 +87,7 @@ Print the following to the conversation (do NOT write to a file):
 
 ### 5. Ready for Q&A
 
-After output, all core files are in context. When the user asks about a specific topic:
+After output, all core files are in context. When the operator asks about a specific topic:
 
 - Answer from already-loaded context (core files) when possible
 - Read the full deep research file on demand if the question requires deeper detail
@@ -96,4 +96,4 @@ After output, all core files are in context. When the user asks about a specific
 
 - **No output file** — the brief is printed to conversation, not saved. It's ephemeral context-loading, not a persistent artifact.
 - **Deep research files are lazy-loaded** — reading all 8+ deep research files upfront would be excessive. Headers give enough for the brief; full content loads on demand during Q&A.
-- **Branch support** — ralph loops push to `research/<topic>` branches. The brief works whether the user is on that branch or not, using `git show` as fallback.
+- **Branch support** — ralph loops push to `research/<topic>` branches. The brief works whether the operator is on that branch or not, using `git show` as fallback.

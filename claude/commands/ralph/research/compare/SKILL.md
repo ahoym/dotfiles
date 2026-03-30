@@ -34,7 +34,7 @@ Compare multiple Ralph loop directories that cover the same topic to determine w
    - For each directory, list files on the local filesystem first
    - **If a directory appears empty or has only boilerplate** (just `spec.md` + `progress.md` with no completed tasks): check for a `research/<basename>` branch via `git branch -a --list *research/<basename>*`
    - If a research branch exists, read files via `git show <branch>:<path>` and list files via `git ls-tree --name-only <branch> <path>/`
-   - Note to the user which source is being used: local filesystem vs research branch
+   - Note to the operator which source is being used: local filesystem vs research branch
    - Ralph loops push research to `research/<topic>` branches — the local directory may only have initialization boilerplate while the branch has the full output
 
 3. **Read key files from each project** (from whichever source resolved in step 2):

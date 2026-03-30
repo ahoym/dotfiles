@@ -63,7 +63,7 @@ Extract independent changes from a compound branch into a new branch targeting m
      - Filter to only files that actually changed
    - If no paths:
      - Show all changed files
-     - Ask user: "Which files/directories should be extracted to the new branch?"
+     - Ask the operator: "Which files/directories should be extracted to the new branch?"
    - Store the resulting file list as `FILES_TO_EXTRACT` for use in later steps
 
 4. **Validate independence**:
@@ -73,7 +73,7 @@ Extract independent changes from a compound branch into a new branch targeting m
 5. **Determine new branch name**:
    - If `--name` provided, use it
    - Otherwise, suggest based on current branch: `<current-branch>-lite`
-   - Ask user to confirm or provide alternative
+   - Ask the operator to confirm or provide alternative
 
 6. **Create new branch from main**:
    ```bash
@@ -111,7 +111,7 @@ Extract independent changes from a compound branch into a new branch targeting m
    ```bash
    git checkout <original-branch>
    ```
-   Inform user: "Created `<new-branch-name>` with extracted changes. Your original branch is unchanged."
+   Inform the operator: "Created `<new-branch-name>` with extracted changes. Your original branch is unchanged."
 
 ## Example Session
 

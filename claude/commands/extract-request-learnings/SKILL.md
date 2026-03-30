@@ -61,15 +61,15 @@ General/private writers use staging directories inside the project (`docs/learni
    - Fill in repo name, review count, output locations
    - Create output directories: `docs/learnings/`, `~/.claude/learnings/`, and `~/.claude/learnings-private/` (if not existing)
 
-5. **Confirm with user** before proceeding to first batch.
+5. **Confirm with the operator** before proceeding to first batch.
 
 ### Continue mode (default)
 
 1. **Detect platform** (same as init step 1).
 
-2. **Sync with remote** — `git fetch origin main`. If the current branch is behind or diverged from `origin/main`, tell the user and suggest creating a fresh branch from `origin/main`. Multi-session workflows accumulate PRs between sessions — stale branches are the expected case.
+2. **Sync with remote** — `git fetch origin main`. If the current branch is behind or diverged from `origin/main`, tell the operator and suggest creating a fresh branch from `origin/main`. Multi-session workflows accumulate PRs between sessions — stale branches are the expected case.
 
-3. **Read the plan file** (`docs/plans/$PLAN_FILENAME`). If it doesn't exist, tell the user to run `/extract-review-learnings init` first.
+3. **Read the plan file** (`docs/plans/$PLAN_FILENAME`). If it doesn't exist, tell the operator to run `/extract-review-learnings init` first.
 
 4. **Check progress** — find the last completed batch in the progress tracker. Calculate `NEXT_PAGE`.
 

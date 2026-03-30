@@ -52,7 +52,7 @@ When editing files from a worktree context, use the worktree's absolute path (e.
 
 ## Worktree Commit-to-Main Workflow
 
-When working in a worktree and the user wants changes on main, apply directly to the main repo (`git -C <main-repo-path>`) rather than commit-on-branch then cherry-pick. Cherry-picking requires stashing main's uncommitted changes first, and stash-pop conflicts are likely when main has dirty state on the same files. Direct application avoids the stash/cherry-pick/conflict-resolution chain entirely.
+When working in a worktree and the operator wants changes on main, apply directly to the main repo (`git -C <main-repo-path>`) rather than commit-on-branch then cherry-pick. Cherry-picking requires stashing main's uncommitted changes first, and stash-pop conflicts are likely when main has dirty state on the same files. Direct application avoids the stash/cherry-pick/conflict-resolution chain entirely.
 
 ## Diagnosing Iteration Count Divergence
 
@@ -72,7 +72,7 @@ Two failure modes in sentinel-based loop control:
 
 ## Resume Decision vs Action Ambiguity
 
-The consolidation agent misinterpreted a resume commit (which recorded human decisions in progress.md notes) as having already applied the L-2 extraction. This caused it to verify stability of changes that never happened, then report "clean."
+The consolidation agent misinterpreted a resume commit (which recorded operator decisions in progress.md notes) as having already applied the L-2 extraction. This caused it to verify stability of changes that never happened, then report "clean."
 
 **Fix**: Notes for resume decisions must clearly distinguish state. Use explicit phrasing like "decision recorded, action pending — apply during next LEARNINGS sweep" rather than just stating the resolution. The agent reads Notes literally and will treat "RESOLVED — extract shared gotchas" as "already extracted."
 

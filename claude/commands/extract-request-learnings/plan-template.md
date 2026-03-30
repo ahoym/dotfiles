@@ -14,7 +14,7 @@ Systematically extract learnings from all <REVIEW_COUNT> reviews in the <REPO_NA
 - **Categories**: Emerge organically from the data
 - **Deduplication**: Consolidate recurring themes into patterns with frequency tags
 - **Progress**: Update tracker after each batch (never lose work)
-- **Review**: Autonomous extraction — user reviews learnings files periodically
+- **Review**: Autonomous extraction — operator reviews learnings files periodically
 - **Output locations**:
   - Project-specific: `<PROJECT_LEARNINGS_DIR>`
   - General engineering: `~/.claude/learnings/`

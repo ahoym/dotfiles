@@ -34,7 +34,7 @@ Domain lens for ledger work — technology-agnostic. Stack-specific child person
 
 Enforce `~/.claude/learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
 
-## Proactive loads
+## Proactive Cross-Refs
 
 None at this time. A `learnings/fintech-ledger-gotchas.md` file should be created as operational gotchas accumulate.
 

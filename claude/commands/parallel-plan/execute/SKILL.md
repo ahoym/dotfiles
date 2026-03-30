@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Execute a structured parallel plan by launching concurrent subagents with DAG-based scheduling. Use when the user references a parallel plan file to execute.
+description: Execute a structured parallel plan by launching concurrent subagents with DAG-based scheduling. Use when the operator references a parallel plan file to execute.
 disable-model-invocation: true
 ---
 
@@ -47,24 +47,24 @@ This step has two phases: **strategic review** (do we understand what we're buil
    - Sibling directories or parent directories for ralph research output (`spec.md`, `progress.md`, `implementation-plan.md`, `assumptions-and-questions.md`, `info.md`)
    - The plan file's own directory for related `.md` files
 
-   If source research is found, read the key artifacts: `implementation-plan.md` (or equivalent), `assumptions-and-questions.md`, and `progress.md`. These contain the user-confirmed decisions that the parallel plan must faithfully implement.
+   If source research is found, read the key artifacts: `implementation-plan.md` (or equivalent), `assumptions-and-questions.md`, and `progress.md`. These contain the operator-confirmed decisions that the parallel plan must faithfully implement.
 
 3. **Cross-reference research decisions** — if source research was found, verify that confirmed decisions carried through into the parallel plan:
-   - **Resolved questions** → check that the answers are reflected in agent prompts (e.g., if the user confirmed "panel goes in the left column," verify the UI agent's prompt says that, not "center column")
+   - **Resolved questions** → check that the answers are reflected in agent prompts (e.g., if the operator confirmed "panel goes in the left column," verify the UI agent's prompt says that, not "center column")
    - **Confirmed assumptions** → check that the shared contract's types, API shapes, and import paths match what the research specified
    - **Scope boundaries** → check that features marked "out of scope" or "future work" in the research are NOT included in any agent's prompt
    - **Specific technical decisions** → check that implementation choices (error handling approach, dynamic vs hardcoded values, specific flag/mode support) match the research
 
-   Flag any mismatches — these are high-priority issues because they mean the plan diverged from user-confirmed decisions.
+   Flag any mismatches — these are high-priority issues because they mean the plan diverged from operator-confirmed decisions.
 
-4. **Present strategic summary** — before diving into technical details, give the user a concise overview:
+4. **Present strategic summary** — before diving into technical details, give the operator a concise overview:
    - **What we're building**: 2-3 sentence description of the feature/change
    - **How it's parallelized**: DAG shape in plain language (e.g., "Agent A does types, then B/C/D do API routes in parallel, then E does the hook, then F/G do UI components, then H wires everything together")
-   - **Key decisions reflected**: list 3-5 user decisions from research that the plan implements (so the user can quickly confirm they carried through)
+   - **Key decisions reflected**: list 3-5 operator decisions from research that the plan implements (so the operator can quickly confirm they carried through)
    - **Strategic concerns**: anything that looks off from a feature/product perspective (not technical issues — those come in Phase B)
    - If no source research was found, note this and present just the DAG summary
 
-5. **Get strategic approval** — wait for the user to confirm the strategic summary is correct before proceeding to technical verification. If the user identifies mismatches with their intent, update the plan before continuing. This is the "are we building the right thing?" gate.
+5. **Get strategic approval** — wait for the operator to confirm the strategic summary is correct before proceeding to technical verification. If the operator identifies mismatches with their intent, update the plan before continuing. This is the "are we building the right thing?" gate.
 
 #### Phase B: Technical verification
 
@@ -75,15 +75,15 @@ This step has two phases: **strategic review** (do we understand what we're buil
 7. **Audit dependencies** — for each `depends_on` (hard dependency), ask: does the downstream agent truly need the upstream to be fully completed and verified, or would it suffice for the upstream's files to exist on disk (soft dependency)? Flag any hard dependencies that could be downgraded.
 8. **Check agent scope balance** — flag agents that seem too large (> 200s estimated, touching 5+ files) or too small (< 30 lines of changes). Suggest splits or merges.
 9. **Review the Review Notes** — if the planner included a **Review Notes** section, examine each flagged uncertainty and form your own judgment.
-10. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the user — agents will silently fail without these permissions.
+10. **Check Required Bash Permissions** — read the plan's **Required Bash Permissions** section. Verify each listed command pattern has a matching allow rule in `.claude/settings.local.json`. If any are missing, stop and tell the operator — agents will silently fail without these permissions.
 11. **Verify persona assignments** — for each agent with a `persona` field, check that the assigned persona matches the agent's actual scope (file paths, technologies, domain). Flag mismatches (e.g., a `react-frontend` persona on an agent that only writes backend API routes). Verify the persona file exists in `~/.claude/commands/set-persona/` or `.claude/personas/`. For agents with `persona: none`, confirm no available persona would be a strong fit.
-12. **Present technical findings** — report your review to the user:
+12. **Present technical findings** — report your review to the operator:
    - Issues found (stale landmarks, wrong dependencies, scope imbalances, persona mismatches)
    - Proposed adjustments (with rationale)
    - Planner's flagged uncertainties and your assessment
    - Permission gaps (if any)
    - Or: "Plan looks good, no issues found" — don't invent problems
-13. **Get final approval** — wait for the user to approve the plan (with or without your suggested adjustments) before proceeding. If the user approves adjustments, apply them to the plan file before continuing.
+13. **Get final approval** — wait for the operator to approve the plan (with or without your suggested adjustments) before proceeding. If the operator approves adjustments, apply them to the plan file before continuing.
 
 Do NOT skip this step. The value of a fresh session is the fresh perspective — use it.
 
@@ -95,9 +95,9 @@ Also check for a code formatter:
 - Look for `.prettierrc`, `.prettierrc.json`, `biome.json`, or a `format`/`format:check` script in `package.json` (or equivalents for other ecosystems)
 - If found, note the format command — you'll need to either include it in each agent's prompt or run it as a post-completion step in Step 8
 
-**Check Edit/Write permissions:** Background agents cannot prompt for tool permissions. Read `.claude/settings.local.json` and verify that `"Edit"` and `"Write"` appear in the `permissions.allow` array. If either is missing, stop and tell the user — agents need these to modify files and will silently fail without them.
+**Check Edit/Write permissions:** Background agents cannot prompt for tool permissions. Read `.claude/settings.local.json` and verify that `"Edit"` and `"Write"` appear in the `permissions.allow` array. If either is missing, stop and tell the operator — agents need these to modify files and will silently fail without them.
 
-**Coordinator permissions audit:** The coordinator (you) runs Bash commands for build verification and fallback git operations. Audit `.claude/settings.local.json` for the following coordinator command patterns and **add any that are missing** (after confirming with the user):
+**Coordinator permissions audit:** The coordinator (you) runs Bash commands for build verification and fallback git operations. Audit `.claude/settings.local.json` for the following coordinator command patterns and **add any that are missing** (after confirming with the operator):
 
 - `Bash(pnpm build:*)` (or the project's build command) — final build verification
 - `Bash(git -C:*)` — fallback git operations inside worktrees
@@ -112,7 +112,7 @@ Also check for a code formatter:
 - `Bash(git push:*)` — pushing to remote
 - `Bash(gh pr create:*)` or `Bash(glab mr create:*)` — creating PRs/MRs
 
-Present all missing patterns to the user in a single batch and add them all at once. This prevents repeated permission prompts during execution.
+Present all missing patterns to the operator in a single batch and add them all at once. This prevents repeated permission prompts during execution.
 
 **Important — avoid `cd &&` compound commands:** Permission patterns match on the command prefix. A command like `cd /tmp/worktree && git add .` starts with `cd`, NOT `git`, so `Bash(git add:*)` won't match. Always use `git -C <dir>` instead of `cd <dir> && git` for worktree operations. This avoids needing additional permission patterns.
 
@@ -122,7 +122,7 @@ If the plan includes a **Branch Strategy** section, also verify:
 - Remote is accessible (`git ls-remote origin` succeeds)
 - PR/MR creation CLI is available (`gh --version` for GitHub, `glab --version` for GitLab — check the project's git remote URL to determine which)
 
-If any command fails or permissions are missing, stop and report to the user — don't waste agent cycles on a broken toolchain.
+If any command fails or permissions are missing, stop and report to the operator — don't waste agent cycles on a broken toolchain.
 
 ### Step 2: Parse the plan
 
@@ -147,7 +147,7 @@ Read the plan file first. Locate the prompts file via the `**Prompts:**` referen
 
 Extract and store the **Shared Contract** (from plan file) and **Prompt Preamble** (from prompts file) — you will prepend these to every agent prompt in Step 5. Extract agent definitions from the prompts file. If a **Branch Strategy** section exists in the plan file, extract the per-agent branch configuration for Step 6.
 
-If the files don't follow this format, ask the user to run `/parallel-plan:make` first.
+If the files don't follow this format, ask the operator to run `/parallel-plan:make` first.
 
 **Legacy support:** If a single `.md` file is provided (not `.plan.md`), treat it as a combined plan — all sections are in one file. This handles plans created before the two-file split.
 
@@ -188,7 +188,7 @@ Update the state file whenever an agent's status changes (batch updates when mul
 
 ### Step 4: Create the task DAG
 
-Use `TaskCreate` for each agent. Set `blockedBy` according to each agent's `depends_on` list. This gives the user visibility into progress and maps the DAG into the task system.
+Use `TaskCreate` for each agent. Set `blockedBy` according to each agent's `depends_on` list. This gives the operator visibility into progress and maps the DAG into the task system.
 
 Record the start timestamp (`date +%s`).
 
@@ -292,7 +292,7 @@ When an agent completes:
 
 **Key principle: launch agents as soon as their specific dependencies are satisfied.** Don't wait for unrelated agents to finish. This is swim-lane scheduling, not batch phases.
 
-**Checking agent progress:** Use `TaskOutput` with `block: false` for non-blocking status checks on running agents, or `block: true` with a timeout to wait for completion. Do NOT fall back to ad-hoc Bash commands (like `tail` or `grep` on agent output files) to check progress — these require Bash permissions that may not be pre-configured and will prompt the user. `TaskOutput` is a dedicated tool that needs no Bash permissions.
+**Checking agent progress:** Use `TaskOutput` with `block: false` for non-blocking status checks on running agents, or `block: true` with a timeout to wait for completion. Do NOT fall back to ad-hoc Bash commands (like `tail` or `grep` on agent output files) to check progress — these require Bash permissions that may not be pre-configured and will prompt the operator. `TaskOutput` is a dedicated tool that needs no Bash permissions.
 
 **Soft dependency acceleration:** While waiting for hard-dependent agents to complete, periodically check if soft-dependent agents can start. A soft dependency is satisfied as soon as the dependency's `creates` files exist on disk — even if the dependency agent is still running (e.g., still in its REFACTOR phase). This lets downstream agents start sooner.
 
@@ -302,7 +302,7 @@ If an agent produces bad output, follow the **escalation ladder** — each attem
 
 1. **Diagnose** — read the output, identify what went wrong. Check the agent's Completion Report for its checkpoint (last completed step) and any error context.
 2. **Record the attempt** — update the state file notes with a structured record:
-   `attempt 1: <what failed and why>`. This prevents retrying the same approach and gives context if escalating to the user.
+   `attempt 1: <what failed and why>`. This prevents retrying the same approach and gives context if escalating to the operator.
 3. **Fix dependencies** — if the issue is a missing type, wrong import path, or incorrect file created by a predecessor agent, fix the dependency file first.
 
 **Attempt 1: Resume with error context.** Resume the agent using its agent ID with a message explaining what went wrong. Often the agent just hit a transient issue or made a small mistake it can self-correct. Tell it to start from its checkpoint.
@@ -311,7 +311,7 @@ If an agent produces bad output, follow the **escalation ladder** — each attem
 
 **Attempt 3: Reduce scope.** Split the failing agent's remaining work into a smaller piece. Do the blocking part manually (small fix only — you're the coordinator, not the implementer, but a 1-2 line fix to unblock is acceptable), then relaunch for the rest. Or split into two simpler agents.
 
-**After 3 attempts:** Mark as `failed` in the state file with all attempt notes, and escalate to the user with the full attempt history.
+**After 3 attempts:** Mark as `failed` in the state file with all attempt notes, and escalate to the operator with the full attempt history.
 
 **Don't let a failed agent block the entire DAG.** If agent B fails but agent C is independent, C should still proceed.
 
@@ -324,7 +324,7 @@ After all agents complete:
 3. **Run integration tests** — execute the tests listed in the plan's **Integration Tests** section. These verify the pieces work together across agent boundaries, catching issues that per-agent TDD can't.
 4. If build, formatting, or integration tests fail, diagnose and fix — launch a targeted subagent for non-trivial fixes
 5. Record the end timestamp
-6. **Collect discoveries** — gather all discoveries reported by agents (from the state file notes). Report these to the user as a consolidated list — they may be worth saving as project learnings.
+6. **Collect discoveries** — gather all discoveries reported by agents (from the state file notes). Report these to the operator as a consolidated list — they may be worth saving as project learnings.
 7. **Finalize execution state** — update the state file, then sync the final results to the plan file's `## Execution State` section using the Edit tool (for archival):
    - Set `Build` to `pass` or `fail (N attempts)`
    - Set `Integration` to `pass` or `fail (details)`

@@ -1,6 +1,6 @@
 ---
 name: make
-description: Analyze a plan for parallelization opportunities and produce a structured parallel plan with a dependency DAG. Use when the user says "parallelize this plan" or wants to split work into concurrent streams.
+description: Analyze a plan for parallelization opportunities and produce a structured parallel plan with a dependency DAG. Use when the operator says "parallelize this plan" or wants to split work into concurrent streams.
 ---
 
 # Make Parallel Plan
@@ -21,7 +21,7 @@ Analyze a plan for parallelization opportunities, build a dependency DAG, and ou
 
 Writes **two files** — a plan file (`.plan.md`) for review and status tracking, and a prompts file (`.prompts.md`) as the execution manifest. Together they form the contract between this skill and `/parallel-plan:execute`.
 
-- **Plan file** (`<name>.plan.md`) — decisions and structure: context, shared contract, agent summary table, DAG, estimates, verification, branch strategy, review notes, execution state. This is what the user reviews and what tracks execution progress.
+- **Plan file** (`<name>.plan.md`) — decisions and structure: context, shared contract, agent summary table, DAG, estimates, verification, branch strategy, review notes, execution state. This is what the operator reviews and what tracks execution progress.
 - **Prompts file** (`<name>.prompts.md`) — execution manifest: prompt preamble, full agent definitions (metadata + prompts). This is what the executor consumes to launch agents. Immutable after creation.
 
 ## Instructions
@@ -30,7 +30,7 @@ Writes **two files** — a plan file (`.plan.md`) for review and status tracking
 
 If arguments were provided (e.g., `/parallel-plan:make docs/plans/my-plan.md` or `/parallel-plan:make from .claude/plans/my-plan.md`), extract the file path from the arguments (strip any leading "from" prefix) and resolve it relative to the project root. Read that file as the input plan.
 
-If no arguments were provided, use the plan most recently discussed in the conversation. If no plan has been discussed, ask the user which plan file to parallelize.
+If no arguments were provided, use the plan most recently discussed in the conversation. If no plan has been discussed, ask the operator which plan file to parallelize.
 
 ### Step 2: Analyze the plan for parallelism
 
@@ -46,13 +46,13 @@ Read `analysis-guide.md` for the detailed methodology.
 
 Evaluate whether parallelization is worthwhile before investing in a full plan. See `analysis-guide.md` → "Parallelization Gate" for decision criteria and thresholds.
 
-If the gate fails, inform the user and explain why. Offer to proceed for contract-enforcement benefits. Do NOT silently produce a plan with < 1.3x speedup.
+If the gate fails, inform the operator and explain why. Offer to proceed for contract-enforcement benefits. Do NOT silently produce a plan with < 1.3x speedup.
 
 ### Step 4: Pre-flight dependency verification
 
 Verify all required toolchain dependencies (test framework, build tools, linters) exist before writing agent prompts. See `analysis-guide.md` → "Pre-flight Dependency Verification".
 
-If a dependency is missing, flag it to the user — never delegate installation to an agent.
+If a dependency is missing, flag it to the operator — never delegate installation to an agent.
 
 While verifying dependencies, collect every distinct Bash command pattern that agents will need to run (test commands, build commands, lint commands, format commands). These go in the plan's **Required Bash Permissions** section.
 
@@ -123,7 +123,7 @@ Fix any failures before proceeding.
 
 ### Step 11: Write the parallel plan
 
-Read `~/.claude/skill-references/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write **two files** following the formats below. Present the plan file to the user for review.
+Read `~/.claude/skill-references/agent-prompting.md` for best practices on prompt quality (speed, landmarks, scaling, TDD, boundaries). Write **two files** following the formats below. Present the plan file to the operator for review.
 
 **File naming:** If the input plan is `my-plan.md`, write:
 - `my-plan.plan.md` — the plan file
@@ -375,8 +375,8 @@ project commands, completion report format, and general rules.>
 ## Important Notes
 
 - The goal is two files that `/parallel-plan:execute` can run mechanically — no interpretation needed
-- The plan file is the **review surface** (~200-400 lines) — everything the user needs to approve the architecture
+- The plan file is the **review surface** (~200-400 lines) — everything the operator needs to approve the architecture
 - The prompts file is the **execution manifest** (~500-1000+ lines) — consumed by the executor, rarely read by humans
 - If a step is too small for a subagent (< 5 lines changed), merge it into an adjacent agent that touches related files
 - Shared utility files (`types.ts`, `constants.ts`) should have all changes consolidated into a single early agent
-- The DAG visualization helps the user understand the parallelism at a glance
+- The DAG visualization helps the operator understand the parallelism at a glance

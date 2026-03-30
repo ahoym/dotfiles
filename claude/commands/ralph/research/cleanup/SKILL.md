@@ -26,7 +26,7 @@ Prune stale ralph worktrees by checking if their branches have been merged or de
 
    - **MERGED**: branch is merged into main (`git branch --merged main` includes it) — safe to remove
    - **REMOTE DELETED**: branch existed on remote but was deleted (`git ls-remote --heads origin <branch>` returns nothing AND the branch has upstream tracking configured) — likely merged via PR, safe to remove
-   - **LOCAL ONLY**: branch was never pushed (no upstream tracking: `git -C <worktree-path> rev-parse --abbrev-ref @{upstream}` fails) — ambiguous, prompt user
+   - **LOCAL ONLY**: branch was never pushed (no upstream tracking: `git -C <worktree-path> rev-parse --abbrev-ref @{upstream}` fails) — ambiguous, prompt operator
    - **ACTIVE**: branch exists on remote and is not merged — may have an open PR or ongoing work
    - **DIRTY**: worktree has uncommitted changes (`git -C <worktree-path> status --porcelain` is non-empty) — warn before removing, can combine with other statuses (e.g., "MERGED + DIRTY")
 
@@ -43,16 +43,16 @@ Prune stale ralph worktrees by checking if their branches have been merged or de
 
 4. **Ask which to remove**:
    - **Auto-suggest** removing MERGED and REMOTE DELETED (safe to remove)
-   - **Prompt individually** for LOCAL ONLY — ask whether the work is valuable or can be discarded. These are ambiguous: might be abandoned experiments or might be unpushed work the user forgot about
+   - **Prompt individually** for LOCAL ONLY — ask whether the work is valuable or can be discarded. These are ambiguous: might be abandoned experiments or might be unpushed work the operator forgot about
    - **Warn** if any are DIRTY (have uncommitted changes) — require explicit confirmation
-   - **Skip** ACTIVE worktrees unless user explicitly requests
+   - **Skip** ACTIVE worktrees unless the operator explicitly requests
 
 5. **Remove selected worktrees**:
    For each worktree to remove:
    ```bash
    git worktree remove <worktree-path>
    ```
-   - If removal fails (locked/dirty), use `--force` only with user confirmation
+   - If removal fails (locked/dirty), use `--force` only with operator confirmation
    - Optionally delete the local branch: `git branch -d <branch>` (only if merged)
 
 6. **Report results**:

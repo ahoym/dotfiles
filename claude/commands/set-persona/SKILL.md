@@ -29,7 +29,7 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - Look for the persona file in this order:
      1. `.claude/personas/<name>.md` in the current project (project-specific override)
      2. `.claude/commands/set-persona/<name>.md` in dotfiles (shared/common)
-   - If not found in either location, report what's available and ask the user to pick
+   - If not found in either location, report what's available and ask the operator to pick
 
 4. **Adopt the persona**:
    - Read the persona file contents
@@ -44,7 +44,7 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - Apply the priorities and focus areas from that point forward in the session
 
 5. **Load proactive knowledge**:
-   - Scan adopted persona (and parent if extended) for `## Proactive loads` sections
+   - Scan adopted persona (and parent if extended) for `## Proactive Cross-Refs` sections
    - Read each listed file (resolve relative to `~/.claude/`)
    - If a file doesn't exist, warn but don't fail
    - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`, `react-frontend-gotchas.md`"
@@ -65,6 +65,6 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 - Personas set focus and priorities — they don't restrict what you can do
 - A persona doesn't replace project CLAUDE.md context, it layers on top
 - Project-local personas take precedence over shared ones with the same name
-- If the user says something that conflicts with the persona's priorities, the user wins
+- If the operator says something that conflicts with the persona's priorities, the operator wins
 - Personas can extend one or more parents via `## Extends: <name>` or `## Extends: <name1>, <name2>` — parents are loaded in declaration order, then the child layers on top
 - Only single-level extension is supported (parents cannot themselves extend another persona)
