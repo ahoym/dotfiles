@@ -46,7 +46,6 @@ Route follow-ups: partially-addressed and not-addressed comments are handled by 
 Build output lists:
 - `REACTIONS`: `{comment_id, emoji}` — hooray for resolved, +1 for acknowledged
 - `FOLLOW_UPS`: `{comment_id, body, persona}` — for partially/not addressed
-- Text replies for resolved/acknowledged (same pattern as single-persona re-review)
 
 ## Launch Scoped Reviewers
 
@@ -96,9 +95,11 @@ Execute in order:
 
 **a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use "React to Comment" from platform cluster files.
 
-**b) Post follow-up replies** — for each item in `FOLLOW_UPS`, use "Reply to Inline Comment" from platform cluster files. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
+**b) Post text replies for resolved and acknowledged comments** — same pattern as single-persona re-review. Each reply gets the footnote with `Role: Team-Reviewer`.
 
-**c) Post the review** — use "Post Review with Inline Comments" with the re-review body and any new inline comments.
+**c) Post follow-up replies** — for each item in `FOLLOW_UPS`, use "Reply to Inline Comment" from platform cluster files. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
+
+**d) Post the review** — use "Post Review with Inline Comments" with the re-review body and any new inline comments.
 
 **Report:**
 ```
