@@ -1,5 +1,5 @@
 XRPL orderbook patterns: fetching, funded offers, WebSocket management, fill detection, RippleState sign convention, crossing offers for testing.
-- **Keywords:** getOrderbook, book_offers, funded offer, RippleState, OfferCreate, account_tx, singleton client, WebSocket, Vercel, crossing offers, depth summary
+- **Keywords:** getOrderbook, book_offers, funded offer, RippleState, OfferCreate, account_tx, singleton client, WebSocket, Vercel, crossing offers, depth summary, extractCreatedLedgerIndex, AffectedNodes, CreatedNode
 - **Related:** ~/.claude/learnings/financial/numeric-precision-strategy.md, ~/.claude/learnings/financial/order-book-pricing.md
 
 ---
@@ -101,6 +101,25 @@ To test endpoints that require actual trade data (`filled-orders`, `dex/trades`)
 Step 5 auto-executes against step 4's resting offer, producing a fill visible to both `filled-orders` (per-account) and `dex/trades` (per-pair) endpoints.
 
 Key: Trader B needs XRP (from faucet) but only needs a trust line (not a balance) for USD, since `TakerPays` only requires a trust line.
+
+## Extracting Created Ledger Object IDs from Transaction Metadata
+
+When a transaction creates a new ledger object (e.g., `PermissionedDomainSet` creates a `PermissionedDomain`), the new object's ID is in the tx metadata, not the response body.
+
+Scan `result.meta.AffectedNodes` for a `CreatedNode` entry matching the expected `LedgerEntryType`:
+
+```typescript
+function extractCreatedLedgerIndex(meta: unknown, entryType: string): string | undefined {
+  const nodes = meta.AffectedNodes;
+  for (const node of nodes) {
+    if ("CreatedNode" in node && node.CreatedNode.LedgerEntryType === entryType) {
+      return node.CreatedNode.LedgerIndex;
+    }
+  }
+}
+```
+
+Works for any tx that creates ledger objects: `PermissionedDomainSet` → `"PermissionedDomain"`, `CredentialCreate` → `"Credential"`, `OfferCreate` → `"Offer"`, etc.
 
 ## Cross-Refs
 

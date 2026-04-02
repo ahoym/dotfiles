@@ -1,5 +1,5 @@
 Next.js 16 migration patterns: proxy.ts convention, async dynamic route params, Turbopack gotchas, and rate limiter wiring.
-- **Keywords:** Next.js 16, proxy.ts, middleware, Turbopack, dynamic route params, async params, rate limiter, token bucket, selectOption, route handler testing, Vitest
+- **Keywords:** Next.js 16, proxy.ts, middleware, Turbopack, dynamic route params, async params, rate limiter, token bucket, selectOption, route handler testing, Vitest, pnpm update, exact pinned versions
 - **Related:** ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -86,6 +86,10 @@ function getTier(pathname: string, method: string) {
 ## Testing Route Handlers Directly (No Server Required)
 
 Route handlers are plain async functions — import and call directly in Vitest without spinning up the server. See `testing-patterns.md` § "Route Handler Test Structure" for the full pattern including `vi.hoisted()` mock setup, import ordering, and dynamic route `Promise.resolve()` params.
+
+## pnpm: `update` Won't Bump Exact-Pinned Versions
+
+`pnpm update <pkg>` only updates within the version range specified in `package.json`. If a package is pinned to an exact version (e.g., `"next": "16.1.6"` without `^`), `pnpm update` silently skips it. Use `pnpm add <pkg>@<version>` to update exact-pinned packages.
 
 ## Cross-Refs
 
