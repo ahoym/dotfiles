@@ -9,9 +9,17 @@ argument-hint: "[review] [address] [review+address] [--prs=#47,#46] [--offset=3]
 - Current branch: !`git branch --show-current 2>/dev/null`
 - Remote: !`git remote get-url origin 2>/dev/null`
 
-## Reference
+## Prerequisites
 
-@~/.claude/skill-references/director-sweep-playbook.md
+For prompt-free execution, add these allow patterns to `~/.claude/settings.local.json`:
+
+```json
+"Bash(gh auth status*)",
+"Bash(date +*)",
+"Bash(bash tmp/**/let-it-rip.sh)",
+"Bash(test -x ~/.claude/skill-references/stream-monitor.sh*)",
+"Write(tmp/director-sessions/**)"
+```
 
 ## Director Principle
 
@@ -24,12 +32,13 @@ argument-hint: "[review] [address] [review+address] [--prs=#47,#46] [--offset=3]
    - **Passthrough flags**: `--prs=...` forwarded to subordinate skills
    - **Offset**: `--offset=N` minutes between review/address launches (default 3)
 2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces the standard artifact contract — not just sweep skills.
-3. **Prerequisites** (warn, don't block):
+3. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-sweep-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
+4. **Prerequisites** (warn, don't block):
    - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
-4. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/director-sessions/<timestamp>/`.
-5. Initialize `session.json`:
+5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/director-sessions/<timestamp>/`.
+6. Initialize `session.json`:
    ```json
    {
      "created_at": "<ISO>",
@@ -41,10 +50,11 @@ argument-hint: "[review] [address] [review+address] [--prs=#47,#46] [--offset=3]
 
 ## Phase 2: Assess + Generate Artifacts
 
-For each requested mode, invoke the corresponding skill via `Skill` tool:
-- Review: `skill="sweep-review-prs"`, `args="<passthrough>"`
-- Address: `skill="sweep-address-prs"`, `args="<passthrough>"`
-- Other skills: invoke as specified by the operator
+For each requested mode, invoke the corresponding skill via `Skill` tool. Any skill that produces the standard artifact contract (manifest.json + item directories + runner script) can be orchestrated.
+
+**Convenience aliases** for common sweep modes:
+- `review` → `skill="sweep-review-prs"`, `args="<passthrough>"`
+- `address` → `skill="sweep-address-prs"`, `args="<passthrough>"`
 
 After each skill completes, read its generated `manifest.json` to get the `run_dir`. Append to `session.json`:
 ```json
@@ -59,7 +69,7 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
    ```
    bash <run_dir>/let-it-rip.sh
    ```
-2. **Compound mode**: launch review runner immediately. Wait for the offset interval, then launch address runner.
+2. **Compound mode** (review+address only): launch review runner immediately. Wait for the offset interval, then launch address runner.
 3. Update each run's status to `"active"` in session manifest.
 4. Present the initial monitoring table (full table, per playbook format).
 
