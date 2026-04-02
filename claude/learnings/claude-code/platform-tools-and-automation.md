@@ -159,6 +159,16 @@ For learnings cluster CLAUDE.md files: rely on the search pipeline to load them 
 
 See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-sweep-playbook.md` § "Session Observability" for director integration.
 
+## PID Capture in Pipelines via `sh -c`/`exec`
+
+In a pipeline like `cat | claude -p | monitor | tee`, `$$` resolves to the parent shell PID, not `claude -p`'s PID. To capture the actual process PID:
+
+```bash
+cat prompt.txt | sh -c 'echo $$ > session.pid; exec claude -p --verbose --output-format stream-json' | ...
+```
+
+`sh -c` creates a subshell with its own `$$`. `exec` replaces that subshell with `claude -p`, so `session.pid` contains the real PID. Downstream processes (like `stream-monitor.sh`) can read this file to enable `kill` for hung sessions. Brief retry needed for pipeline race — the pid file may appear slightly after downstream processes start.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline
