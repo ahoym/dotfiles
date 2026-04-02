@@ -157,7 +157,14 @@ For learnings cluster CLAUDE.md files: rely on the search pipeline to load them 
 
 **Not emitted**: no heartbeat/keepalive events, no explicit error event type (errors surface as tool_result content or non-zero exit), no progress percentage.
 
-See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-sweep-playbook.md` § "Session Observability" for director integration.
+See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-playbook.md` § "Session Observability" for director integration.
+
+### Stream Monitor Detection Patterns
+
+When parsing stream-json events for escalation detection:
+
+- **Error detection**: use the `is_error` field on `tool_result` content blocks, not keyword grep on content. Tool results containing words like "error" or "failed" in legitimate output (e.g., error handling code, log messages) produce false positives with content-based grep.
+- **Permission denial detection**: match Claude Code's specific denial messages (`"Claude requested permissions"`, `"permission was denied"`, `"you haven't granted"`) rather than bare `"permission"` which matches tool results that discuss permissions conceptually.
 
 ## PID Capture in Pipelines via `sh -c`/`exec`
 

@@ -142,7 +142,7 @@ Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note th
 
 ## Convergence
 
-Convergence is a director-layer concern — individual sessions do not decide convergence. For full convergence rules, monitoring table format, and directive patterns, see `director-sweep-playbook.md`.
+Convergence is a director-layer concern — individual sessions do not decide convergence. For full convergence rules, monitoring table format, and directive patterns, see `director-playbook.md`.
 
 Summary:
 - **Review loop**: converged when all sessions skip for 30m wall-clock (reviews are reactive to changes)

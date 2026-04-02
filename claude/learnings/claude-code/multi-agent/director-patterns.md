@@ -130,9 +130,13 @@ When a director orchestrates multiple concurrent runs (e.g., review + address sw
 
 This is distinct from individual skill manifests — the session manifest tracks what the director is overseeing, not what each skill generated. Convergence is per-run (skill-specific criteria) and per-session (all runs converged).
 
+## Director Compatibility Boundary
+
+The director can only manage skills that produce the standard artifact contract (`manifest.json` + item directories with `prompt.txt` + `let-it-rip.sh`). Skills that use the `Agent` tool directly for parallelism (e.g., current `sweep-work-items`) bypass the `claude -p` pipeline entirely — no `live.md` observability, no directive channel, no kill + retry. To become director-managed, such skills must be refactored to generate artifacts instead of spawning agents inline.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)
 - `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree coordination, Agent isolation workaround
-- `~/.claude/skill-references/director-sweep-playbook.md` — operationalized playbook consolidating patterns from this file
+- `~/.claude/skill-references/director-playbook.md` — operationalized playbook consolidating patterns from this file
 - `~/.claude/learnings/claude-code/platform-tools-and-automation.md` § "Stream-JSON Output Format" — event schema for runtime observability
