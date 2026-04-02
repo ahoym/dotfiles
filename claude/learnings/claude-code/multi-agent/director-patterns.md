@@ -1,5 +1,5 @@
 Director-layer patterns for multi-agent workflows — run lifecycle, inter-run communication, state management across stateless workers.
-- **Keywords:** director, manager, directives, watermark, rerun, append-only, sweep, run lifecycle, inter-run, stateless workers, claude -p, summary-only finding, git stash, active-branch
+- **Keywords:** director, manager, directives, watermark, rerun, append-only, sweep, run lifecycle, inter-run, stateless workers, claude -p, summary-only finding, git stash, active-branch, supervisor, artifact contract, session manifest, generic orchestration, parallel fleet
 - **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md
 
 ---
@@ -52,6 +52,8 @@ When running review and address sweeps concurrently, offset their loop cadences 
 
 See `coordination.md` § "Agent Worktree Isolation for Active-Branch PRs" for the `Agent(isolation: "worktree")` workaround when `git worktree add` can't check out the director's active branch.
 
+**Single-PR shortcut:** When addressing a single PR whose branch is the director's active checkout, skip worktree setup entirely — the address session works directly in the main repo. The director doesn't touch the working tree (only writes to `tmp/` monitoring artifacts), so there's no conflict. This avoids all worktree creation/cleanup overhead and the active-branch `git worktree add` failure.
+
 ## Convergence Rules by Loop Type
 
 Review and address loops have different termination conditions:
@@ -82,9 +84,61 @@ When a re-review produces findings on unchanged lines, it documents them in the 
 
 When worktree agents push commits to the director's active branch, `git pull` fails if the director has uncommitted local changes. Use `git stash && git pull --ff-only && git stash pop` to sync. This is recurring friction during director sessions — expect it whenever mixing local edits with agent-pushed commits on the same branch.
 
+## Director-as-Supervisor Paradigm
+
+Three orchestration patterns exist, each with different tradeoffs:
+
+| Pattern | Workers | Communication | Visibility |
+|---------|---------|---------------|------------|
+| Single agent | Self | n/a | Full |
+| Agent tool subagents | In-memory children | Return values, SendMessage | Partial |
+| **Director + parallel `claude -p`** | Independent OS processes | Files (live.md, directives, status) | Full via stream-monitor |
+
+The director pattern is unique: the agent generates infrastructure (bash scripts), not code. It writes runner scripts that create a fleet of `claude -p` workers, then shifts into a monitoring/steering role. The agent stops being an executor and becomes a supervisor.
+
+## Generic Artifact Contract
+
+Any skill that produces this structure can plug into the director infrastructure:
+
+```
+<RUN_DIR>/
+├── manifest.json     # { items: [{ id, label, metadata }], ... }
+├── let-it-rip.sh     # Generated runner script
+└── item-<id>/
+    ├── prompt.txt    # Input to claude -p
+    ├── status.md     # Watermark + state (written by session)
+    ├── result.md     # Findings/actions (appended by session)
+    ├── live.md       # Real-time telemetry (written by stream-monitor.sh)
+    └── directives.md # Instructions from director (append-only)
+```
+
+**`id` + `label` are the generic interface**; everything else in the manifest is opaque metadata owned by the generating skill. The runner doesn't care what's in `prompt.txt`; the monitor doesn't care what the item represents. Sweep skills use `pr-<N>/` directories with PR-specific metadata; other skills can use any item shape.
+
+## Director Session Manifest
+
+When a director orchestrates multiple concurrent runs (e.g., review + address sweeps), it tracks them in a session-level manifest:
+
+```json
+{
+  "created_at": "<ISO>",
+  "session_dir": "tmp/director-sessions/<timestamp>/",
+  "runs": [
+    { "run_dir": "...", "source_skill": "/sweep-review-prs", "status": "active" },
+    { "run_dir": "...", "source_skill": "/sweep-address-prs", "status": "active" }
+  ],
+  "status": "active"
+}
+```
+
+This is distinct from individual skill manifests — the session manifest tracks what the director is overseeing, not what each skill generated. Convergence is per-run (skill-specific criteria) and per-session (all runs converged).
+
+## Director Compatibility Boundary
+
+The director can only manage skills that produce the standard artifact contract (`manifest.json` + item directories with `prompt.txt` + `let-it-rip.sh`). Skills that use the `Agent` tool directly for parallelism (e.g., current `sweep-work-items`) bypass the `claude -p` pipeline entirely — no `live.md` observability, no directive channel, no kill + retry. To become director-managed, such skills must be refactored to generate artifacts instead of spawning agents inline.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)
 - `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree coordination, Agent isolation workaround
-- `~/.claude/skill-references/director-sweep-playbook.md` — operationalized playbook consolidating patterns from this file
+- `~/.claude/skill-references/director-playbook.md` — operationalized playbook consolidating patterns from this file
 - `~/.claude/learnings/claude-code/platform-tools-and-automation.md` § "Stream-JSON Output Format" — event schema for runtime observability

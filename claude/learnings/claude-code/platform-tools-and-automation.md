@@ -157,7 +157,24 @@ For learnings cluster CLAUDE.md files: rely on the search pipeline to load them 
 
 **Not emitted**: no heartbeat/keepalive events, no explicit error event type (errors surface as tool_result content or non-zero exit), no progress percentage.
 
-See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-sweep-playbook.md` § "Session Observability" for director integration.
+See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-playbook.md` § "Session Observability" for director integration.
+
+### Stream Monitor Detection Patterns
+
+When parsing stream-json events for escalation detection:
+
+- **Error detection**: use the `is_error` field on `tool_result` content blocks, not keyword grep on content. Tool results containing words like "error" or "failed" in legitimate output (e.g., error handling code, log messages) produce false positives with content-based grep.
+- **Permission denial detection**: match Claude Code's specific denial messages (`"Claude requested permissions"`, `"permission was denied"`, `"you haven't granted"`) rather than bare `"permission"` which matches tool results that discuss permissions conceptually.
+
+## PID Capture in Pipelines via `sh -c`/`exec`
+
+In a pipeline like `cat | claude -p | monitor | tee`, `$$` resolves to the parent shell PID, not `claude -p`'s PID. To capture the actual process PID:
+
+```bash
+cat prompt.txt | sh -c 'echo $$ > session.pid; exec claude -p --verbose --output-format stream-json' | ...
+```
+
+`sh -c` creates a subshell with its own `$$`. `exec` replaces that subshell with `claude -p`, so `session.pid` contains the real PID. Downstream processes (like `stream-monitor.sh`) can read this file to enable `kill` for hung sessions. Brief retry needed for pipeline race — the pid file may appear slightly after downstream processes start.
 
 ## Cross-Refs
 

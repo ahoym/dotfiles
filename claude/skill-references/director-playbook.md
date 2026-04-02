@@ -1,10 +1,10 @@
 ---
-description: "Playbook for directing sweep workflows: loop setup, monitoring, convergence, directives, and common patterns."
+description: "Playbook for directing parallel claude -p sessions: observability, monitoring, convergence, directives, intervention, and common patterns."
 ---
 
-# Director Sweep Playbook
+# Director Playbook
 
-Structured guidance for the director (operator + main agent) when orchestrating review and address sweep loops.
+Structured guidance for the director (operator + main agent) when orchestrating parallel `claude -p` sessions. See `artifact-contract.md` for the standard structure skills must produce to be director-managed.
 
 ## Director Principles
 
@@ -210,3 +210,4 @@ Followed by the current monitoring table snapshot. This persists the director's 
 | Directive patterns | this playbook | learnings (learnings capture discovery, playbook operationalizes) |
 | Session observability | `stream-monitor.sh` + this playbook | runner template (just wires the pipeline) |
 | Stream-json event schema | `stream-monitor.sh` (parses events) | learnings (learnings capture discovery) |
+| Artifact contract (directory structure, manifest schema) | `artifact-contract.md` | this playbook, learnings, sweep-scaffold |

@@ -81,6 +81,14 @@ Write and Edit permission patterns use a different matching mechanism than Bash 
 4. **Write tool `file_path` requires absolute or `~/` paths** per its spec, but permission patterns may use CWD-relative. In symlinked repos, Write normalizes paths unpredictably — prefer Bash for simple file writes (e.g., epoch timestamps) and reserve Write for content files where CWD-relative patterns are pre-configured.
 5. **`replace_all: true` on Edit replaces ALL occurrences in the file** — not just in the target section. When a variable name appears in both definition and usage sections, use targeted `replace_all: false` edits to avoid collateral damage.
 
+## `claude -p` Permission Resolution Differs from Interactive
+
+Permission patterns that match in interactive sessions may silently fail in `claude -p`. Empirically observed: `Write(~/**/tmp/change-request-replies/**)` matched interactively (all three path forms: CWD-relative, tilde, absolute) but failed in `claude -p` for the same CWD and settings. Adding the full RWEU set (Read/Write/Edit/Update) for the same glob pattern resolved the failure — suggesting `claude -p` may require the complete permission set for a directory before any individual operation matches.
+
+**Diagnostic:** When a `claude -p` session gets denied on a Write, check whether companion Read/Edit/Update patterns exist. Add the full set rather than debugging individual patterns.
+
+**Test pattern:** `echo "<instruction>" | claude -p --verbose --output-format stream-json 2>&1 | grep '"file_path"'` — shows the actual path the model used, confirming the denial isn't a path-form mismatch.
+
 ## `.claude/` Directory Protection
 
 Claude Code has built-in protection for a project's `.claude/` directory that triggers permission prompts on Edit/Write regardless of permission patterns in `settings.json`. Not configurable via permission patterns, `settings.local.json`, or auto-accept mode.
