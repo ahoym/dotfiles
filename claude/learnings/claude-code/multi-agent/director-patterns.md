@@ -52,6 +52,8 @@ When running review and address sweeps concurrently, offset their loop cadences 
 
 See `coordination.md` § "Agent Worktree Isolation for Active-Branch PRs" for the `Agent(isolation: "worktree")` workaround when `git worktree add` can't check out the director's active branch.
 
+**Single-PR shortcut:** When addressing a single PR whose branch is the director's active checkout, skip worktree setup entirely — the address session works directly in the main repo. The director doesn't touch the working tree (only writes to `tmp/` monitoring artifacts), so there's no conflict. This avoids all worktree creation/cleanup overhead and the active-branch `git worktree add` failure.
+
 ## Convergence Rules by Loop Type
 
 Review and address loops have different termination conditions:

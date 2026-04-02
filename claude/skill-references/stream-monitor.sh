@@ -56,12 +56,15 @@ while IFS= read -r line; do
 
         user)
             content=$(printf '%s' "$line" | jq -r '[.message.content[]? | select(.type == "tool_result") | .content] | first // empty' 2>/dev/null)
-            if printf '%s' "$content" | grep -q "permission" 2>/dev/null; then
+            is_error=$(printf '%s' "$line" | jq -r '[.message.content[]? | select(.type == "tool_result") | .is_error] | first // false' 2>/dev/null)
+            # Permission denial: match Claude Code's specific denial message, not bare "permission" in content
+            if printf '%s' "$content" | grep -q "Claude requested permissions\|permission was denied\|you haven't granted" 2>/dev/null; then
                 perm_count=$((perm_count + 1))
                 printf '## %s — escalation\ntype: permission_denial (count: %d)\ncontent: %s\n\n' \
                     "$ts" "$perm_count" "$(printf '%s' "$content" | head -c 200)" >> "$LIVE"
             fi
-            if printf '%s' "$content" | grep -qi "error\|failed\|exception" 2>/dev/null; then
+            # Error detection: use is_error field from tool_result, not content keyword grep
+            if [ "$is_error" = "true" ]; then
                 err_count=$((err_count + 1))
                 [ "$err_count" -ge 3 ] && printf '## %s — escalation\ntype: repeated_errors (count: %d)\ncontent: %s\n\n' \
                     "$ts" "$err_count" "$(printf '%s' "$content" | head -c 200)" >> "$LIVE"
