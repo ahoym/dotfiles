@@ -124,12 +124,29 @@ process_pr() {
     printf '# PR #%s Status\nmilestone: launching\nstarted_at: %s\n' \
         "$pr_num" "$(date -Iseconds)" > "$status_file"
 
-    if cat "${pr_dir}/prompt.txt" | claude -p 2>&1 | tee "$log_file"; then
-        local exit_status="success"
+    # Resolve stream monitor path (works from any CWD via HOME)
+    local monitor="${HOME}/.claude/skill-references/stream-monitor.sh"
+
+    # Launch with stream monitoring if monitor exists, otherwise fall back to plain pipe
+    if [ -x "$monitor" ]; then
+        if cat "${pr_dir}/prompt.txt" \
+            | sh -c "echo \$\$ > ${pr_dir}/session.pid; exec claude -p --verbose --output-format stream-json" \
+            | "$monitor" "$pr_dir" \
+            | tee "$pr_dir/raw.jsonl" > "$log_file"; then
+            local exit_status="success"
+        else
+            local exit_status="error"
+            printf '# PR #%s Status\nmilestone: errored\nerror: claude session exited non-zero\n' \
+                "$pr_num" > "$status_file"
+        fi
     else
-        local exit_status="error"
-        printf '# PR #%s Status\nmilestone: errored\nerror: claude session exited non-zero\n' \
-            "$pr_num" > "$status_file"
+        if cat "${pr_dir}/prompt.txt" | claude -p 2>&1 | tee "$log_file"; then
+            local exit_status="success"
+        else
+            local exit_status="error"
+            printf '# PR #%s Status\nmilestone: errored\nerror: claude session exited non-zero\n' \
+                "$pr_num" > "$status_file"
+        fi
     fi
 
     # Rate limit detection

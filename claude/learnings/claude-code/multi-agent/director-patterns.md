@@ -87,3 +87,4 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)
 - `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree coordination, Agent isolation workaround
 - `~/.claude/skill-references/director-sweep-playbook.md` — operationalized playbook consolidating patterns from this file
+- `~/.claude/learnings/claude-code/platform-tools-and-automation.md` § "Stream-JSON Output Format" — event schema for runtime observability

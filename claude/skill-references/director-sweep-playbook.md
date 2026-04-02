@@ -19,6 +19,7 @@ Before starting any sweep session:
 2. `~/.claude/settings.json` has all required permission patterns (see sweep skill prerequisites sections)
 3. `tmp/change-request-replies/` write access — address sessions write reply payloads here. Verify the Write permission pattern matches at runtime (known friction point: tilde-path patterns may not resolve)
 4. `tmp/sweep-reviews/` and `tmp/sweep-address/` exist or can be created
+5. `~/.claude/skill-references/stream-monitor.sh` exists and is executable — the runner falls back to plain `claude -p` if missing, but `live.md` observability requires it
 
 ## Loop Setup: Offset Cadence
 
@@ -35,15 +36,69 @@ The 3-minute offset ensures review findings are posted before the address sweep 
 
 Assess both upfront so artifacts are ready. The address assessment may show "no comments" if review hasn't posted yet — this is expected. Address sessions handle no-op gracefully and pick up comments on the next cycle.
 
+## Session Observability
+
+`claude -p` sessions are fire-and-forget — the director is blind until the process exits. The runner template pipes through `stream-monitor.sh` to fill this gap:
+
+```
+cat prompt.txt \
+  | sh -c 'echo $$ > $PR_DIR/session.pid; exec claude -p --verbose --output-format stream-json' \
+  | stream-monitor.sh $PR_DIR \
+  | tee $PR_DIR/raw.jsonl
+```
+
+`stream-monitor.sh` is a pass-through filter: every event flows to stdout unchanged, but as a side effect it appends typed entries to `live.md`. The `sh -c`/`exec` wrapper captures the real `claude -p` PID to `session.pid` (the monitor reads it with a brief retry for pipeline race).
+
+### Stream-JSON Events
+
+`--output-format stream-json` (requires `--verbose`) emits newline-delimited JSON. Key event types:
+
+| Event | What it reveals |
+|-------|-----------------|
+| `system/init` | Model, tools, CWD |
+| `assistant` (tool_use) | Tool name, inputs. Subagent calls carry `parent_tool_use_id` |
+| `user` (tool_result) | Success/failure content, permission denials |
+| `rate_limit_event` | Throttling |
+| `result/success` | Duration, cost, turns, permission_denials[] |
+
+### Per-PR File Inventory
+
+| File | Writer | Reader | Lifecycle |
+|------|--------|--------|-----------|
+| `prompt.txt` | Sweep skill | Runner → `claude -p` | Assessment |
+| `status.md` | Agent | Director, next agent | End of session |
+| `result.md` | Agent | Director | End of session (appended) |
+| `learnings.md` | Agent | Director, future sessions | End of session (appended) |
+| `directives.md` | Director | Agent (next session) | Append-only |
+| `session.pid` | Runner | Monitor, director | Launch |
+| `live.md` | `stream-monitor.sh` | Director | During session (appended) |
+| `raw.jsonl` | `tee` | Post-hoc debugging | During session |
+
+### live.md Entry Types
+
+Append-only log. Entry types: `started` (pid), `init` (model), `tool_call` (name, input, subagent tag), `escalation` (permission denials, repeated errors), `rate_limit`, `completed` (cost, duration, turns), `terminated` (pipe closed without result — crash or kill).
+
+### Director Intervention
+
+The director cannot send input to a running session. Interventions use kill + directive:
+
+| Detection (from live.md) | Action |
+|--------------------------|--------|
+| No entries for >5min | `kill $(cat session.pid)`, directive for retry |
+| `escalation: permission_denial` | Kill, fix permission, directive |
+| `escalation: repeated_errors` | Kill, investigate root cause |
+| Recent `tool_call` entries | No action — working normally |
+
 ## Monitoring Table Format
 
-After each cycle, read all `pr-*/status.md` files and present:
+After each cycle, read all `pr-*/status.md` (for completed sessions) and `pr-*/live.md` (for in-progress sessions) and present:
 
-| PR | State | Mergeable | Milestone | Last Activity | Directives |
-|----|-------|-----------|-----------|---------------|------------|
-| #51 | OPEN | MERGEABLE | done | 2m ago | -- |
-| #50 | OPEN | CONFLICTING | done | 5m ago | conflict resolution |
-| #49 | MERGED | -- | skipped | -- | -- |
+| PR | State | Mergeable | Milestone | Last Activity | Live Status | Directives |
+|----|-------|-----------|-----------|---------------|-------------|------------|
+| #51 | OPEN | MERGEABLE | done | 2m ago | — | — |
+| #50 | OPEN | CONFLICTING | running | now | tool: gh (subagent) | conflict resolution |
+| #49 | MERGED | — | skipped | — | — | — |
+| #48 | OPEN | MERGEABLE | running | 6m ago | ⚠ stale | — |
 
 First cycle: full table. Subsequent cycles: delta-only (changed rows), with a one-line "N unchanged" summary.
 
@@ -153,3 +208,5 @@ Followed by the current monitoring table snapshot. This persists the director's 
 | Reaction targets & emoji | `review-comment-classification.md` | re-review-mode.md files |
 | Convergence rules | this playbook | individual sessions (they don't decide convergence) |
 | Directive patterns | this playbook | learnings (learnings capture discovery, playbook operationalizes) |
+| Session observability | `stream-monitor.sh` + this playbook | runner template (just wires the pipeline) |
+| Stream-json event schema | `stream-monitor.sh` (parses events) | learnings (learnings capture discovery) |

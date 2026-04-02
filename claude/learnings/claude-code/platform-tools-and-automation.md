@@ -1,6 +1,6 @@
-Claude Code tool behavior and automation — @ references, cron patterns, polling cost, file operation prerequisites, symlink resolution, and GitHub API patterns.
-- **Keywords:** @ reference, cron, polling, /loop, TaskOutput, symlink, Glob, Read before Write, GitHub API, WebFetch, parallel tool call, CLAUDE.md auto-loading
-- **Related:** none
+Claude Code tool behavior and automation — @ references, cron patterns, polling cost, file operation prerequisites, symlink resolution, GitHub API patterns, and stream-json output.
+- **Keywords:** @ reference, cron, polling, /loop, TaskOutput, symlink, Glob, Read before Write, GitHub API, WebFetch, parallel tool call, CLAUDE.md auto-loading, stream-json, output-format, --verbose, parent_tool_use_id
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/director-patterns.md
 
 ---
 
@@ -137,6 +137,28 @@ CLAUDE.md auto-loading only works within the project directory hierarchy — par
 
 For learnings cluster CLAUDE.md files: rely on the search pipeline to load them explicitly (the `context-aware-learnings` guideline says "read cluster CLAUDE.md files when the cluster is relevant"). Don't assume the platform handles it.
 
+## Stream-JSON Output Format for `claude -p`
+
+`claude -p --verbose --output-format stream-json` emits newline-delimited JSON events to stdout (nothing to stderr). The `--verbose` flag is **required** — without it, the CLI errors.
+
+**Event types** (empirically verified 2026-04-01):
+
+| Event `.type` | `.subtype` | Key fields | Notes |
+|--------------|-----------|------------|-------|
+| `system` | `init` | model, tools, cwd, skills, permissionMode | Session config — first event |
+| `assistant` | — | `message.content[]` (thinking, tool_use, text) | Agent turns — tool calls include name + full input |
+| `user` | — | `message.content[]` (tool_result), `tool_use_result` | Tool results — includes error messages on failure |
+| `rate_limit_event` | — | `rate_limit_info` | Rate limiting detected |
+| `result` | `success` | duration_ms, total_cost_usd, num_turns, permission_denials[], usage | Final event — session summary |
+
+**Subagent nesting**: events from subagents carry `parent_tool_use_id` matching the `Agent` tool_use_id that spawned them. Top-level events have `parent_tool_use_id: null`. This gives full visibility into nested agent tool calls without any agent cooperation.
+
+**Permission denials** appear in two places: (1) inline in `user` events as tool_result content containing "requested permissions", and (2) aggregated in the final `result` event's `permission_denials[]` array with tool name and input.
+
+**Not emitted**: no heartbeat/keepalive events, no explicit error event type (errors surface as tool_result content or non-zero exit), no progress percentage.
+
+See `~/.claude/skill-references/stream-monitor.sh` for a reference parser and `director-sweep-playbook.md` § "Session Observability" for director integration.
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline
