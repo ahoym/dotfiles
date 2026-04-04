@@ -184,6 +184,18 @@ A single project writer processed 52 extracted learnings (from 19 MRs across 2 b
 
 Background writer subagents sometimes write directly to final locations (`~/.claude/learnings/`) instead of the staging directory (`docs/learnings/_staging/`), even when instructed to stage. This happens when the agent has write permissions to the final path. The `finalize-staging.sh` script then reports "0 files copied" — which looks like a failure but actually means the work was already done. Verify by checking file modification timestamps at the final location rather than trusting the copy count. The orchestrator should check both staging and final paths before concluding something went wrong.
 
+## Permission Pre-flight in Headless Agent Prompts
+
+Headless `claude -p` sessions auto-deny unpermitted tools silently. Add a permission smoke test as the first step in agent prompts — before any analysis work:
+
+```
+Step 1: Permission Pre-flight
+Run: git status && gh issue view <N> --json state
+If either fails with permission error → write milestone: errored to status.md, exit immediately.
+```
+
+This catches misconfigured `--allowedTools` or missing `settings.json` patterns within seconds, instead of failing mid-implementation after minutes of code exploration. Especially valuable for implementer agents that need Write/Edit/Bash and are launched in worktrees where permission inheritance is less predictable.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

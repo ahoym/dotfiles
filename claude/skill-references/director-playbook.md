@@ -32,11 +32,12 @@ Run review and address sweeps on offset schedules:
 The 3-minute offset ensures review findings are posted before the address sweep reads them. Same-time firing wastes a full cycle on handoff.
 
 **Cycle 0 launch sequence:**
-1. Assess both review and address candidates (generate both artifact sets)
-2. Launch review runner immediately
-3. After the offset interval, launch address runner/agent
+1. Assess review candidates and generate review artifacts
+2. Launch review runner immediately (in background)
+3. Assess address candidates and generate address artifacts (while review runs)
+4. After review reaches `posted`/`done`, launch address runner
 
-Assess both upfront so artifacts are ready. The address assessment may show "no comments" if review hasn't posted yet — this is expected. Address sessions handle no-op gracefully and pick up comments on the next cycle.
+Launching review before address assessment parallelizes address artifact generation with review execution, reducing total wall-clock time. The address assessment may show "no comments" if review hasn't posted yet — this is expected. Address sessions handle no-op gracefully and pick up comments on the next cycle.
 
 ## Session Observability
 

@@ -61,7 +61,7 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
 { "run_dir": "<path>", "source_skill": "<skill-name>", "status": "ready" }
 ```
 
-**Compound mode**: assess both skills before launching either — artifacts should be ready for both runs before cycle 0 begins.
+**Compound mode**: assess review first, launch review runner in the background immediately, then assess address while review is already running. This parallelizes address assessment with review execution, reducing total wall-clock time.
 
 ## Phase 3: Launch
 
@@ -69,7 +69,7 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
    ```
    bash <run_dir>/let-it-rip.sh
    ```
-2. **Compound mode** (review+address only): launch review runner immediately. Then poll for review completion before launching address:
+2. **Compound mode** (review+address only): review runner is already running (launched after review assessment in Phase 2). Poll for review completion before launching address:
    - Poll every 2 minutes: read each review PR's `status.md` for milestone
    - **All review PRs reach `posted` or `done`** → launch address runner immediately (but never before the minimum offset of 3 minutes from review launch, to allow GitLab API propagation)
    - **Any review PR reaches `errored`** → surface to operator before launching address

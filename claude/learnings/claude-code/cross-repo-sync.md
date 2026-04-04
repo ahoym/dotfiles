@@ -122,6 +122,21 @@ Project-local skills can silently evolve past shared references (`skill-referenc
 
 **Prevention:** After discovering a better pattern in a project-local skill, update the shared reference in the same session — or at minimum, note the divergence in the learning so the next sync catches it.
 
+## Parallel Subagent Sweep for Batch Import Sanitization
+
+Before pushing a batch import to a public repo, run parallel subagents to sweep for sensitive content — split by file category (learnings, skills/commands, personas, config/settings). Each agent reviews a `git diff main` slice and reports findings in a structured table. Consolidate findings, fix in one pass, then amend the import commit so sensitive content never appears in history.
+
+**Sensitive content checklist for dotfiles imports:**
+- Vendor/partner names revealing business relationships
+- Internal class names from originating codebases
+- MR/PR references (`!1234`, `#5678`) to internal repos
+- Project-specific CI job names or codenames
+- Team/org directory names or identifiers
+- Overly broad permission globs (e.g., `~/**/learnings/**` vs `~/.claude/**/learnings/**`)
+- Hardcoded absolute paths beyond `~/.claude/` or the repo itself
+
+**Workflow:** import → branch → parallel sweep agents → fix → amend commit → force push (replaces unsanitized commit) → PR.
+
 ## Cross-Refs
 
 No cross-cluster references.

@@ -174,6 +174,27 @@ Advisory phrasing ("sanitize before use", "verify the path") in skill instructio
 
 The most effective skill authoring pattern: execute the workflow manually first, then codify. Run the methodology in a real session with the operator, discuss design decisions as they arise (single-pass vs multi-sweep, what to share vs keep self-contained, where to draw boundaries), and write the skill from validated experience. The live session surfaces edge cases, operator preferences, and cost tradeoffs that spec-first design misses. The session also produces a natural test case — if the skill can reproduce what the session did, it's correct.
 
+## Converting Inline Orchestrators to Director Playbook Skills
+
+When a skill spawns agents inline (via the Agent tool, waiting for results in waves), it can be converted to the director playbook pattern: assessment-only skill → artifact generation → `let-it-rip.sh` runner. Key steps:
+
+1. **Split assessment from execution.** The skill generates `manifest.json` + per-item `prompt.txt` + `let-it-rip.sh`, then exits. Execution is `bash let-it-rip.sh`, rerunnable.
+2. **Move orchestration logic into prompt templates.** Watermark/skip (steps 1-4 from sweep-scaffold), role-specific work, and artifact writing (result.md, learnings.md, status.md) all go into the prompt template — the runner just pipes prompt.txt to `claude -p`.
+3. **Adapt the runner.** The `parallel-claude-runner-template.sh` is PR-centric. For non-PR items (issues, tickets), adapt: directory naming (`issue-<N>`), state checks (issue open/closed vs PR merged), conditional worktrees (only for roles that modify code).
+4. **Define convergence per role.** Different roles converge differently (implementer: PR opened; clarifier: comment posted; reviewer: review posted). Document in the skill's Convergence section for directors.
+
+## Learnings Search in Headless Agent Prompts
+
+Agent prompts that do domain work (implementing, reviewing, clarifying) benefit from a learnings search step before the main work begins. Pattern:
+
+1. Read `~/.claude/learnings/CLAUDE.md` index → match clusters to domain → sniff headers → load matches
+2. Repeat for team learnings (`learnings-team/`) and project learnings (`docs/learnings/`)
+3. Announce with `📚 [pre-<mode>]` tags listing loaded files and intended influence
+4. **Provenance in learnings.md** (mandatory) — each agent logs which learnings it loaded and how they shaped the work. This is the only operator-visible record.
+5. **Audit trail in output** — implementers include a "Learnings Applied" section in PR bodies; reviewers reference learnings in review comments. Makes the influence reviewable.
+
+This pattern applies to any skill that spawns domain-work agents: sweep-work-items, sweep-review-prs, sweep-address-prs, or custom playbooks.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
