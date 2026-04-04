@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java-spring-configuration.md
+Spring Security 6: method security interceptor stacking and @EnableMethodSecurity behavior.
+- **Keywords:** Spring Security 6, EnableMethodSecurity, AuthorizationManagerBeforeMethodInterceptor, PreAuthorize, AOP
+- **Related:** ~/.claude/learnings/infosec-gotchas.md
 
 ---
 

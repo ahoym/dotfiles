@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/database-patterns.md
+Database patterns: partial indexes, view column ordering in PostgreSQL.
+- **Keywords:** PostgreSQL, partial unique index, NULL, CREATE OR REPLACE VIEW, column order, Flyway
+- **Related:** ~/.claude/learnings/postgresql-query-patterns.md
 
 ---
 

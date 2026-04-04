@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java-concurrency-and-resources.md
+Java concurrency: thread-safety for non-atomic check-and-add on shared collections.
+- **Keywords:** thread safety, HashSet, race condition, TOCTOU, ConcurrentHashMap, check-and-add
+- **Related:** ~/.claude/learnings/java-concurrency-patterns.md
 
 ---
 

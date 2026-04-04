@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/gitlab-ci-patterns.md and ~/.claude/learnings/cicd/gitlab.md
+GitLab CI patterns: YAML anchors, artifact scoping, Maven builds, caching, pipeline optimization.
+- **Keywords:** GitLab CI, YAML anchors, reference tags, Maven, artifacts, cache, BuildKit, SonarQube, timeout
+- **Related:** ~/.claude/learnings/cicd/gitlab.md
 
 ---
 

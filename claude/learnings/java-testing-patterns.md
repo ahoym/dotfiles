@@ -1,3 +1,9 @@
+Java testing: assertion hygiene, TestNG lifecycle, test naming conventions.
+- **Keywords:** duplicate assertions, TestNG, AfterClass, AfterMethod, BeforeMethod, test naming, lifecycle
+- **Related:** ~/.claude/learnings/java-code-quality-and-testing.md
+
+---
+
 ### Remove duplicate assertions that recheck already-asserted fields
 
 Duplicate assertions add noise and create false confidence — a field asserted twice looks more thoroughly tested but provides no additional signal. Assert each field exactly once. If a second assertion seems necessary, it usually means the test is validating two distinct behaviours and should be split.

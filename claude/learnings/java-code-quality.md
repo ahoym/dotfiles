@@ -1,3 +1,9 @@
+Java code quality: imports, TODO cleanup, method naming after refactors.
+- **Keywords:** fully-qualified types, imports, TODO, dead code, method naming, refactor
+- **Related:** ~/.claude/learnings/code-quality-instincts.md
+
+---
+
 ### Remove fully-qualified type prefixes in source files when imports exist
 
 Use short type names with imports. Fully-qualified inline types (e.g., `java.util.List<String>` in a method body) are only appropriate when resolving a naming conflict between two imported types. When an import already exists, the inline prefix is redundant noise.

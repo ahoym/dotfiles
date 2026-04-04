@@ -1,6 +1,6 @@
-# Process Learnings (Staging - Batch 4 General)
-
-Enrichments and additions for `docs/learnings/process.md`.
+Engineering process: AI-assisted review workflows and division of labor.
+- **Keywords:** AI review, automated review, code review bots, division of labor, review tooling
+- **Related:** ~/.claude/learnings/review-conventions.md
 
 ---
 

@@ -1,6 +1,6 @@
-# Architecture Patterns — Batch 13 Staging
-
-Append to `docs/learnings/architecture-patterns.md`.
+URL encoding and request signing patterns across HTTP clients and adapters.
+- **Keywords:** URL encoding, request signing, percent-encoding, pagination, base64, HMAC, HTTP client
+- **Related:** ~/.claude/learnings/security.md
 
 ---
 

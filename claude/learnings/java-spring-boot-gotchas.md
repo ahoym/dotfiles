@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java/spring-boot-gotchas.md
+Spring Boot gotchas: log levels for high-frequency paths, timezone handling, Optional patterns, format strings.
+- **Keywords:** log level, debug, ZoneOffset, DST, Optional, orElse, format string, Spring Boot
+- **Related:** ~/.claude/learnings/spring-boot-gotchas.md
 
 ---
 

@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java/infosec-gotchas.md
+Security gotchas: HMAC timing attacks, SpEL authorization, scanner false positives.
+- **Keywords:** HMAC, timing attack, CWE-208, SpEL, PreAuthorize, security scanner, false positive, Spring Security
+- **Related:** ~/.claude/learnings/java-security-patterns.md
 
 ---
 

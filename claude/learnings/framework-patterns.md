@@ -1,6 +1,6 @@
-# Framework Patterns — Batch 13 Staging
-
-Append to `docs/learnings/framework-patterns.md`.
+Framework-specific patterns: AWS SDK v2 migration, Spring profile configuration.
+- **Keywords:** AWS SDK v2, retryPolicy, retryStrategy, Spring Profile, IAM, credentials, configuration
+- **Related:** ~/.claude/learnings/java-spring-configuration.md
 
 ---
 

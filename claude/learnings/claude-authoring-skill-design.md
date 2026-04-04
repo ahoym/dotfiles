@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/claude-authoring/skill-design.md and skill-platform-portability.md
+Skill authoring: $ARGUMENTS handling, disable-model-invocation for irreversible actions.
+- **Keywords:** $ARGUMENTS, disable-model-invocation, skill design, irreversible, slash commands
+- **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
 

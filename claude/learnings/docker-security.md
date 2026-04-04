@@ -1,4 +1,6 @@
-Staged entries for new category (no existing file covers Docker security specifically; closest is java/infosec-gotchas.md but that's Java-scoped)
+Docker security: credential handling in CI/CD and container builds.
+- **Keywords:** docker login, password-stdin, container registry, CI/CD, credentials
+- **Related:** ~/.claude/learnings/security.md
 
 ---
 

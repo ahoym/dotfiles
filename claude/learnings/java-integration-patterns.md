@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java-integration-patterns.md
+Java integration: gRPC proto builder null handling for string fields.
+- **Keywords:** gRPC, proto, builder, NullPointerException, null check, Protobuf
+- **Related:** ~/.claude/learnings/protobuf-patterns.md
 
 ---
 

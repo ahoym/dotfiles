@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java-concurrency-patterns.md
+Java concurrency: per-entity sync interval tracking with ConcurrentHashMap timestamps.
+- **Keywords:** ConcurrentMap, sync interval, polling, throttle, per-entity, Instant
+- **Related:** ~/.claude/learnings/java-concurrency-and-resources.md
 
 ---
 

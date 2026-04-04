@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/messaging-patterns.md
+Messaging patterns: broker-level routing as validation, AMQP routing keys.
+- **Keywords:** AMQP, routing key, message broker, validation, over-engineering
+- **Related:** none
 
 ---
 

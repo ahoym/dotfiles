@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java-security-patterns.md
+Java security: sensitive financial data in log statements.
+- **Keywords:** logging, PII, financial data, structured logging, log security
+- **Related:** ~/.claude/learnings/infosec-gotchas.md
 
 ---
 

@@ -1,4 +1,6 @@
-Staged entries for enrichment of ~/.claude/learnings/java/spring-boot-gotchas.md
+Spring Boot timezone gotcha: fixed-offset external systems vs DST-aware zone IDs.
+- **Keywords:** ZoneOffset, ZoneId, DST, timezone, fixed offset, external system
+- **Related:** ~/.claude/learnings/java-spring-boot-gotchas.md
 
 ---
 

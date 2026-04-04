@@ -1,6 +1,6 @@
-# Security — Batch 13 Staging
-
-Append to `docs/learnings/security.md`.
+Security patterns: certificate validation, trust stores, and SSL context configuration.
+- **Keywords:** SSL, TLS, certificate, trust store, SSLContext, KeyStore, cert pinning, test security
+- **Related:** ~/.claude/learnings/docker-security.md
 
 ---
 
