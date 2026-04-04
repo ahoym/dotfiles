@@ -14,7 +14,7 @@ argument-hint: "[review] [address] [review+address] [--prs=#47,#46] [--offset=3]
 For prompt-free execution, add these allow patterns to `~/.claude/settings.local.json`:
 
 ```json
-"Bash(glab auth status*)",
+"Bash(gh auth status*)",
 "Bash(date +*)",
 "Bash(bash tmp/**/let-it-rip.sh)",
 "Bash(test -x ~/.claude/skill-references/stream-monitor.sh*)",
@@ -34,7 +34,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces the standard artifact contract — not just sweep skills.
 3. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
 4. **Prerequisites** (warn, don't block):
-   - `glab auth status` succeeds
+   - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
 5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/director-sessions/<timestamp>/`.
