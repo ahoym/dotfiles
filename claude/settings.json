@@ -120,7 +120,6 @@
       "Read(~/**/tmp/catalog-sweep/**)",
       "Edit(~/.claude/**/learnings/**)",
       "Write(~/.claude/**/learnings/**)",
-      "Skill(*)"
     ],
     "deny": [
       "Read(~/Applications/**)",
