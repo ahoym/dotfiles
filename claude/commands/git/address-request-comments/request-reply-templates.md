@@ -21,6 +21,8 @@ Every reply must end with this footnote block:
 
 The `Role` field is used by incremental fetches to filter out your own replies — filter comments containing `Role: Addresser` to skip self-replies.
 
+**Each label must render on its own line.** When writing the footnote to a file (for `$(cat ...)` or `-F body=@`), normal newlines work. When embedding directly in a GraphQL string literal or shell string, use `\n\n` (double newline) between each label — single `\n` collapses to one line in GitLab markdown.
+
 ## Acknowledging a Fix
 
 ```

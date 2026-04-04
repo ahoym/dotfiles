@@ -29,17 +29,33 @@ Assess open PRs for unaddressed review comments, then generate `let-it-rip.sh` �
 
 `claude -p` sessions are top-level and cannot prompt for permissions. All patterns below must exist in `~/.claude/settings.json` `permissions.allow`. **Stop immediately if any are missing.**
 
+Detect platform first (see Phase 2), then check the matching CLI patterns:
+
+**GitHub patterns:**
 ```json
 "Bash(gh pr view:*)", "Bash(gh pr diff:*)", "Bash(gh pr list:*)",
-"Bash(gh api:*)", "Bash(gh pr review:*)", "Bash(gh pr comment:*)",
+"Bash(gh api:*)", "Bash(gh pr review:*)", "Bash(gh pr comment:*)"
+```
+
+**GitLab patterns:**
+```json
+"Bash(glab mr view:*)", "Bash(glab mr diff:*)", "Bash(glab mr list:*)",
+"Bash(glab api:*)", "Bash(glab mr note:*)", "Bash(glab mr update:*)"
+```
+
+**Shared patterns (both platforms):**
+```json
 "Bash(git add:*)", "Bash(git branch:*)", "Bash(git checkout:*)",
 "Bash(git commit:*)", "Bash(git diff:*)", "Bash(git log:*)",
 "Bash(git fetch:*)", "Bash(git merge:*)", "Bash(git push:*)",
 "Bash(git rebase:*)", "Bash(git status:*)",
-"Bash(mkdir:*)",
+"Bash(mkdir:*)", "Bash(jq *)",
+"Skill(*)",
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
+"Read(~/.claude/learnings-team/**)",
 "Read(~/**/tmp/sweep-address/**)",
+"Read(tmp/change-request-replies/**)", "Read(~/**/tmp/change-request-replies/**)",
 "Write(~/**/tmp/change-request-replies/**)", "Write(~/**/tmp/sweep-address/**)",
 "Edit(~/**/tmp/sweep-address/**)"
 ```
@@ -79,12 +95,12 @@ For each PR, also fetch inline review comments:
 
 **Worktree discovery:** Run `git worktree list` and build a map of branch → existing worktree path. For each eligible PR, check if a worktree already exists for its `headRefName` branch. If so, record the path for reuse — the address session will `cd` into it directly instead of creating a new worktree. Only PRs without an existing worktree need new worktree creation.
 
-**Persona detection:** For each eligible PR, determine the best persona from available personas (glob `~/.claude/commands/set-persona/*.md`, excluding `SKILL.md`). Match based on:
+**Persona detection:** List available personas via `ls ~/.claude/commands/set-persona/*.md` (do NOT use the Glob tool — it fails to resolve symlinked `~/.claude/` paths). Exclude `SKILL.md`. If the listing returns zero files, **warn the operator**: "⚠ No persona files found at `~/.claude/commands/set-persona/` — check path resolution. Proceeding without personas." For each eligible PR, match the best persona based on:
 1. PR title and branch name keywords (e.g., `claude-config`, `react`, `java`, `xrpl`)
 2. Changed file paths from `gh pr diff --stat` (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
 3. Review comment content domains
 
-If no persona matches confidently, leave as `none` — the address session will proceed without a persona lens. Record the detected persona per PR for the summary and prompt generation.
+If no persona matches confidently, leave as `none`. Record the detected persona per PR for the summary and prompt generation.
 
 For each PR:
 
@@ -151,15 +167,17 @@ The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present whe
 
 Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_addressed_sha` as the watermark key. Then continue with address-specific steps:
 
-5. **`cd` into the worktree directory** (passed as a variable in the prompt — either a reused existing worktree path or `<RUN_DIR>/worktrees/pr-<N>` for newly created ones).
+5. **`cd` into the worktree directory** (passed as a variable in the prompt — either a reused existing worktree path or `<RUN_DIR>/worktrees/pr-<N>` for newly created ones). Skip for comment-only mode.
 
-6. **Resolve conflicts (conditional).** Only when `resolve_conflicts` is true in manifest. Invoke Skill tool: `skill="git:resolve-conflicts"`, `args="<base-branch>"` where `<base-branch>` is the PR's `baseRefName`. Update `status.md` milestone to `resolving-conflicts`. If resolve-conflicts reports no conflicts, proceed. If it resolves conflicts successfully, it will push the result — update milestone to `conflicts-resolved` and proceed. If it fails, update milestone to `conflict-resolution-failed`, append error to `result.md`, and exit.
+6. **Resolve conflicts (conditional).** Only when `resolve_conflicts` is true in manifest. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills). Update `status.md` milestone to `resolving-conflicts`. Skip for comment-only mode.
 
-7. **Activate persona.** If a persona was detected, invoke Skill tool: `skill="set-persona"`, `args="<persona-name>"` to activate the domain lens before addressing.
+7. **Search learnings-team learnings.** Search `~/.claude/learnings-team/learnings/` for domain-relevant learnings before addressing. Derive search terms from the MR title, branch name, changed file paths, and review comment content. Read the learnings-team `CLAUDE.md` index, match cluster names, sniff headers (limit=3), and load fully if keywords match. Announce results with `📚 [pre-address]` tags. This provides domain-specific gotchas and patterns that improve address quality.
 
-8. **Invoke address skill.** Skill tool: `skill="git:address-request-comments"`, `args="<N>"`. Update `status.md` milestone to `addressing`, then `pushing`, then `done`.
+8. **Activate persona (always include this step in prompt.txt).** If a persona was detected during assessment, the prompt should say: "Read `~/.claude/commands/set-persona/<persona-name>.md` and adopt its priorities, tradeoffs, and domain focus." If persona is `none`, the prompt should still include this step as: "No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens." This ensures directors can inject personas via directives without rewriting the prompt. Do NOT use the Skill tool — just read the file and internalize its instructions.
 
-9. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
+9. **Invoke address skill — MANDATORY.** You MUST use the Skill tool: `skill="git:address-request-comments"`, `args="<N>"`. Do NOT attempt to address comments manually with raw API calls. The skill contains platform-specific comment posting logic (GraphQL mutations, REST content-type headers, discussion threading) that handles glab/gh API quirks — bypassing it leads to 10+ failed attempts on posting alone. Update `status.md` milestone to `addressing`, then `pushing`, then `done`.
+
+10. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
 
    | Field | Value |
    |-------|-------|
@@ -168,7 +186,7 @@ Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, u
    | Escalated | `<count>` |
    | Commits | `<count>` |
 
-10. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
+11. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
 
 #### let-it-rip.sh
 
@@ -185,6 +203,7 @@ Follow the corresponding sections in `sweep-scaffold.md`. Mode-specific retro ta
 
 ## Important Notes
 
+- **Self-filter by Role tag, not username.** The authenticated glab/gh username may match the team-review poster (operator runs both review and address). Self-filter must use `Role:.*Addresser` in the structured footnote, not the username. Comments with `Role:.*Reviewer` or `Role:.*Team-Reviewer` from the same username are reviewer comments that must be addressed.
 - **Concurrency depth.** Default 3. Each session works in its own worktree — no conflicts.
 - **Worktree reuse.** During assessment, `git worktree list` is checked for existing worktrees on each PR's branch. If found, the address session reuses that worktree — no creation or cleanup needed. Only PRs without an existing worktree get new ones under `<RUN_DIR>/worktrees/`. New worktrees are cleaned up after completion (or on Ctrl+C via trap); reused worktrees are left untouched.
 - **Escalation.** `address-request-comments` auto-implements suggestions it agrees with and escalates disagreements. The retro surfaces escalated items for operator review.

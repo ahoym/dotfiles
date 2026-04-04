@@ -128,6 +128,108 @@ At typical collection sizes (20-30 skills), utilization is well under 50% with a
 
 `keybindings-help` is a built-in skill (~337 chars, ~50 tokens/cycle) always loaded by Claude Code, even with `--disable-slash-commands` ([bug #24156](https://github.com/anthropics/claude-code/issues/24156)). Skills are injected as user-message attachments, not in the system prompt. Bundled skills bypass all settings-based filtering — they load after plugin/user/managed skill filtering occurs.
 
+## Custom Agent Definitions (`~/.claude/agents/`)
+
+Custom agents are Markdown files with YAML frontmatter in `~/.claude/agents/` (user-scope) or `.claude/agents/` (project-scope). They define **who does the work** — identity, tools, memory — while skills define **what work to do**.
+
+### Key Frontmatter Fields
+
+| Field | Description |
+|-------|-------------|
+| `name`, `description` | Required. Description used for auto-routing (Claude decides when to delegate). |
+| `tools` / `disallowedTools` | Tool allowlist/denylist. Defaults to inheriting all parent tools. |
+| `model` | `sonnet`, `opus`, `haiku`, or `inherit` (default). |
+| `skills` | Preload skill content into agent context. Full content injected, not just made available. **Agents don't inherit parent's skills** — must list explicitly. |
+| `memory` | `user` / `project` / `local` — persistent directory that survives across sessions. Auto-loads first 200 lines of MEMORY.md. Auto-enables Read/Write/Edit. |
+| `background` | `true` = always background. No AskUserQuestion, no MCP, auto-deny unapproved permissions. |
+| `isolation` | `worktree` = temp git worktree. Auto-cleaned if no changes. |
+| `hooks` | PreToolUse/PostToolUse/Stop hooks scoped to this agent. |
+| `permissionMode` | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`. |
+| `maxTurns` | Max agentic turns before stopping. |
+
+### Critical Constraints
+
+- Agents loaded at **session start** — manual file additions require restart (or use `/agents`).
+- Subagents **cannot spawn other subagents** (no Task nesting). Skills using `general-purpose` specifically to allow sub-delegation cannot migrate to custom agents.
+- When agents share the same name, priority: CLI flag > project > user > plugin.
+
+## Agent `memory:` for Persistent Cross-Session Learning
+
+The `memory` field gives agents a persistent directory for building knowledge over time.
+
+| Scope | Path | Best for |
+|-------|------|----------|
+| `user` | `~/.claude/agent-memory/<name>/` | Cross-project patterns (review style, common bugs) |
+| `project` | `.claude/agent-memory/<name>/` | Project-specific knowledge (architecture, naming) |
+| `local` | `.claude/agent-memory-local/<name>/` | Project-specific, not VCS-tracked |
+
+When enabled: system prompt gets memory instructions, first 200 lines of MEMORY.md auto-loaded, Read/Write/Edit auto-enabled. Include memory instructions in the agent's system prompt for proactive knowledge capture: "Update your agent memory as you discover patterns..."
+
+## Three Skill↔Agent Integration Patterns
+
+Extends the `context: fork` vs Task section above with a third pattern:
+
+**Pattern: Agent preloads skills (`skills:` field)**
+```yaml
+# In agents/api-developer.md
+skills:
+  - api-conventions
+  - error-handling-patterns
+```
+The agent's markdown body is the system prompt; skills provide domain knowledge preloaded into context. This is the **inverse** of `context: fork` — here the agent controls the system prompt, not the skill. Use when the agent needs domain knowledge from multiple skills without the overhead of discovering them.
+
+## Plugin Caching: All Dependencies Must Be Self-Contained
+
+Plugins installed from marketplaces are **copied** to `~/.claude/plugins/cache/`. After installation, path traversal (`../`) is blocked — references to files outside the plugin directory fail silently. Every dependency (skill-references, scripts, templates) must live inside the plugin directory.
+
+- **Symlinks** are followed during the copy process, so they work for bundling external content. But symlinks only resolve during initial install — if the symlink target changes later, the cached copy stays stale until the plugin is updated.
+- `${CLAUDE_PLUGIN_ROOT}` is the environment variable for plugin-relative paths. Use it in `hooks.json` and MCP configs — it resolves to the actual install location, not the source directory.
+- The `--plugin-dir` flag bypasses caching (loads directly from disk), so path issues only surface after marketplace installation.
+
+## Plugin `settings.json` Only Supports `agent` Key
+
+Plugin `settings.json` can set a default agent (`"agent": "agent-name"`) but **cannot inject permission allow-patterns** for Bash, Read, Write, or Edit. Users must manually configure permissions (via `/permissions` or their own `settings.json`) for any tool access the plugin's skills need. Document required permissions in the plugin's README.
+
+## Flatten Nested Namespace Directories in Plugins
+
+When packaging skills from a nested directory structure (`git/create-pr/SKILL.md`) into a plugin whose name already provides namespace context (e.g., `acme-git`), flatten the subdirectory to avoid double-namespacing. Otherwise: `skills/git/create-pr/` → `/acme-git:git:create-pr` (redundant). Flattened: `skills/create-pr/` → `/acme-git:create-pr` (clean). **Verify empirically** — exact namespace resolution behavior with nested `skills/` subdirectories needs testing.
+
+## `skills-ref validate` Rejects Claude Code Extensions
+
+The Agent Skills spec validator ([`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)) only allows 6 fields: `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`. Claude Code extension fields (`disable-model-invocation`, `argument-hint`, `hooks`, `context`, `agent`, `model`, `user-invocable`) all produce "Unexpected fields" errors. This means **any skill using Claude Code-specific features will fail spec validation**.
+
+For repos targeting Claude Code specifically, build a custom validator that understands the Claude Code superset. Don't depend on `skills-ref validate` — it's also v0.1.0, labeled "demonstration purposes only", not on PyPI, and no CI/CD for skill validation exists in the ecosystem yet (not in Anthropic's repos, agentskills org, or community repos).
+
+## Cross-Platform Extension Field Handling
+
+Claude Code extension frontmatter fields (`disable-model-invocation`, `argument-hint`, `hooks`, `context`, `agent`, `model`) **degrade gracefully** on all 8+ Agent Skills platforms (Feb 2026). Most platforms silently ignore unknown fields. VS Code warns (yellow underline, [issue #294520](https://github.com/microsoft/vscode/issues/294520)) against a fixed allowlist — workaround: `"files.associations": {"**/.claude/skills/**/SKILL.md": "markdown"}`. OpenCode explicitly documents "unknown frontmatter fields are ignored." No platform errors on or rejects skills with extension fields.
+
+**Universal discovery path**: `.agents/skills/` is supported by all platforms. `~/.claude/skills/` is recognized by Claude Code, VS Code, Cursor, OpenCode — but NOT by Codex, Gemini CLI, or Roo Code.
+
+## `$ARGUMENTS` Is the Most Portable Body Feature
+
+`$ARGUMENTS` (and `$ARGUMENTS[N]`/`$N`) is supported by Claude Code, VS Code/Copilot, Cursor, Codex, and likely all Agent Skills tools — it's part of the standard's body substitution convention. Tool names (`Read`, `Edit`, `Task`, `AskUserQuestion`, etc.) are **NOT portable** — they differ across platforms. For cross-platform skills, use natural language instructions ("Read the file at...") instead of tool-specific directives ("Use the Read tool").
+
+## `metadata.*` Namespace for Platform-Specific Config
+
+SkillPort uses `metadata.skillport.*` in YAML frontmatter for platform-specific configuration while staying spec-compliant. This pattern avoids frontmatter pollution and is forward-compatible if platforms standardize on namespaced metadata. Example: `metadata: { skillport: { category: development, alwaysApply: true } }`. Note: no platform currently reads `metadata.*` for runtime behavior — it's documentation/tooling only.
+
+## `compatibility` Field for Signaling Portability
+
+The spec-standard `compatibility:` frontmatter field (max 500 chars) signals intended platform and runtime requirements. Zero runtime cost, recognized by multiple platforms. Good practice for skills with varying portability levels:
+- Near-portable: `compatibility: Works with any Agent Skills-compatible tool. Requires git and gh CLI.`
+- CC-specific: `compatibility: Requires Claude Code (uses subagent orchestration and interactive tools).`
+
+## Porting Global Skills to Project Scope
+
+When porting a user-level skill (from `~/.claude/commands/`) to a project (`.claude/commands/`), key adjustments:
+
+1. **Remove platform detection** — hard-code the project's platform (e.g., GitLab-only → inline `glab` commands)
+2. **Shared references → `.claude/skill-references/`** — cross-skill references (base patterns, platform cluster files) go in project-level skill-references, not inlined into SKILL.md. Enables future porting of sibling skills without duplication.
+3. **Temp file paths** — use `tmp/` (gitignored) instead of bare `change-request-replies/` to keep the working tree clean
+4. **Learnings path order** — `docs/learnings/` first (project-local), then `~/.claude/` paths (user-private, may not exist for all operators). Add "missing paths skip silently."
+5. **`.gitignore` specificity** — blanket `.claude/` ignore blocks committed skills. Replace with specific ignores (`.claude/settings.local.json`, `.claude/worktrees/`, `.claude/local/`, `.claude/todos/`).
+6. **Sync check** — global files may evolve after porting. Diff global vs project copies before merging to catch upstream changes.
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-platform-unification.md` — skill design patterns

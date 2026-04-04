@@ -44,11 +44,19 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
    - Apply the priorities and focus areas from that point forward in the session
 
 5. **Load proactive knowledge**:
-   - Scan adopted persona (and parent if extended) for `## Proactive Cross-Refs` sections
-   - Read each listed file (resolve relative to `~/.claude/`)
-   - If a file doesn't exist, warn but don't fail
+   - Scan adopted persona (and parent if extended) for `## Proactive loads` sections
+   - Each listed path uses the logical form `learnings/...` (no `~/.claude/` prefix)
+   - Resolve each path by searching these directories in order, loading the first match:
+     1. `~/.claude/learnings-team/learnings/` — shared team learnings (highest precedence)
+     2. `docs/learnings/` — repo-local learnings
+     3. `~/.claude/learnings/` — personal learnings
+     4. `~/.claude/learnings-private/` — private learnings
+   - If a file doesn't exist in any location, warn but don't fail
    - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`, `react-frontend-gotchas.md`"
    - Keep this content active throughout the session
+
+6. **Resolve cross-refs on demand**:
+   - When loading a `## Cross-Refs` entry during the session, apply the same multi-source resolution as proactive loads
 
 ## Prerequisites
 
@@ -57,7 +65,8 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 ```json
 "Read(~/.claude/commands/set-persona/**)",
 "Read(.claude/personas/**)",
-"Read(~/.claude/learnings/**)"
+"Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-team/learnings/**)"
 ```
 
 ## Important Notes

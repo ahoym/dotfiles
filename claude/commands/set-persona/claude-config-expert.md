@@ -10,7 +10,7 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - **Memory minimalism**: prefer guidelines (for rules), learnings (for knowledge), or skill references (for shared patterns) over memory. Memory is for facts that don't fit anywhere else — if the content would be useful to a skill or persona, it belongs in a discoverable file, not always-on context
 
 ## Content type placement
-> Full criteria: `~/.claude/learnings/claude-authoring/routing-table.md`
+> Full criteria: `~/.claude/learnings-team/learnings/claude-authoring/content-types.md`
 - Behavioral rule ("always do X") → guideline, not learning or memory
 - Domain knowledge (gotcha, recipe, pattern) → learning
 - Shared patterns consumed by 2+ skills → skill reference (`skill-references/`), not inlined in each skill
@@ -33,24 +33,21 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - `allowed-tools` frontmatter is functional — restricts tool access during skill execution (confirmed 2026-03-16)
 - Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
 
-## Proactive Cross-Refs
-- `~/.claude/learnings/claude-authoring/routing-table.md`
+## Proactive loads
+- `~/.claude/learnings-team/learnings/claude-authoring/content-types.md`
 
 ## Cross-Refs
 Load when working in the specific area:
-- `~/.claude/learnings/claude-authoring/skill-design.md` — skill composition, creation heuristics, responsibility boundaries
-- `~/.claude/learnings/claude-authoring/guidelines.md` — merging overlaps, enforcement gates, scoping
-- `~/.claude/learnings/claude-authoring/claude-md.md` — conditional references, relationships, subdirectory criteria
-- `~/.claude/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive cross-refs, composition
-- `~/.claude/learnings/claude-authoring/learnings-content.md` — genericization, headers, scope, boundary tests
-- `~/.claude/learnings/claude-authoring/learnings-organization.md` — cross-refs, directories, indexes, splitting
-- `~/.claude/learnings/claude-code/platform-permissions.md` — permission patterns, path resolution, platform behavior gotchas
-- `~/.claude/learnings/claude-code/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
-- `~/.claude/learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
-- `~/.claude/learnings/process-conventions.md` — PR scoping, review process, MR conventions
+- `~/.claude/learnings-team/learnings/claude-authoring/skills.md` — skill composition, creation heuristics, responsibility boundaries
+- `~/.claude/learnings-team/learnings/claude-authoring/guidelines.md` — merging overlaps, enforcement gates, scoping
+- `~/.claude/learnings-team/learnings/claude-authoring/claude-md.md` — conditional references, relationships, subdirectory criteria
+- `~/.claude/learnings-team/learnings/claude-authoring/personas.md` — judgment vs recipes, proactive loads, composition
+- `~/.claude/learnings-team/learnings/claude-authoring/learnings.md` — genericization, headers, scope, boundary tests, cross-refs, directories, indexes, splitting
+- `~/.claude/learnings-team/learnings/claude-code/platform.md` — permission patterns, path resolution, platform behavior gotchas
+- `~/.claude/learnings-team/learnings/claude-code/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
+- `~/.claude/learnings-team/learnings/code-quality-instincts.md` — universal code quality patterns referenced by personas
+- `~/.claude/learnings-team/learnings/process-conventions.md` — PR scoping, review process, MR conventions
 - `~/.claude/commands/learnings/curate/curation-insights.md` — curation calibration, compression targets
-- `~/.claude/learnings/claude-code/hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists
-- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — work distribution, synthesis, parallelization, context compaction
-- `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree commit/merge, staging, file coordination
-- `~/.claude/learnings/claude-code/multi-agent/quality.md` — verification, trust arc, agent-to-agent review
-- `~/.claude/learnings/claude-code/multi-agent/parallel-plans.md` — parallel plan execution, DAG shape, speedup bounds
+- `~/.claude/learnings-team/learnings/claude-code/hooks.md` — hook authoring, PreToolUse/PostToolUse mechanics, selective allowlists
+- `~/.claude/learnings-team/learnings/claude-code/multi-agent/patterns.md` — work distribution, synthesis, parallelization, staging, file coordination, verification, trust arc
+- `~/.claude/learnings-team/learnings/claude-code/multi-agent/parallel-plans.md` — parallel plan execution, DAG shape, speedup bounds

@@ -136,6 +136,18 @@ This is distinct from individual skill manifests — the session manifest tracks
 
 The director can only manage skills that produce the standard artifact contract (`manifest.json` + item directories with `prompt.txt` + `let-it-rip.sh`). Skills that use the `Agent` tool directly for parallelism (e.g., current `sweep-work-items`) bypass the `claude -p` pipeline entirely — no `live.md` observability, no directive channel, no kill + retry. To become director-managed, such skills must be refactored to generate artifacts instead of spawning agents inline.
 
+## `claude -p` Skill Tool Requires `Skill(*)` Permission
+
+The Skill tool IS available in `claude -p` sessions — a permission denial is not the same as tool unavailability. Add `Skill(*)` to `~/.claude/settings.json` `permissions.allow`. Without it, `claude -p` sessions silently fail when trying to invoke skills (the session completes with `success` but produces no work).
+
+## `--output-format stream-json` Requires `--verbose` with `claude -p`
+
+`claude -p --output-format stream-json` fails with "Error: When using --print, --output-format=stream-json requires --verbose." The error goes to stderr and the session exits immediately — `status.md` stays at `launching`, output log is empty, and the runner reports success (exit 0). Use `claude -p --verbose --output-format stream-json`.
+
+## Sweep Prereqs Must Be Platform-Aware
+
+Sweep skill prerequisite patterns are platform-specific (`gh pr view:*` vs `glab mr view:*`). Hardcoding GitHub patterns causes the prereq check to either pass vacuously on GitLab (matching `gh` patterns that exist but aren't used) or miss the actual `glab` patterns needed. Detect platform first, then check the corresponding CLI patterns.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — lower-level orchestration patterns (subagent synthesis, context compaction, runner templates)

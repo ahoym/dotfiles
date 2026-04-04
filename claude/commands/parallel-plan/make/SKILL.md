@@ -1,6 +1,7 @@
 ---
 name: make
 description: Analyze a plan for parallelization opportunities and produce a structured parallel plan with a dependency DAG. Use when the operator says "parallelize this plan" or wants to split work into concurrent streams.
+disable-model-invocation: true
 ---
 
 # Make Parallel Plan

@@ -110,6 +110,18 @@ git branch -d batch-import
 
 **Why branch+merge over direct extraction:** Direct `tar xzf` into the working tree clobbers local changes to shared files. The branch approach preserves both sides' edits and only requires manual resolution when both sides touched the same file.
 
+## Team Learnings Dual-Write: Index Path Depends on Repo Structure
+
+The `learnings:compound` dual-write targets `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/CLAUDE.md` for index updates — not `$CLAUDE_TEAM_LEARNINGS_DIR/CLAUDE.md`. If the team repo restructures its index location (e.g., moving from root to `learnings/`), the compound skill's index path must be updated to match. Without this, dual-writes silently update a stale index or fail to find the file.
+
+## Shared Skill Reference Divergence
+
+Project-local skills can silently evolve past shared references (`skill-references/`). The local skill discovers a better approach (e.g., `-F query=@path` instead of inline queries), but the shared reference isn't updated because the fix is made in the project, not the dotfiles.
+
+**Detection:** When a learnings-team/dotfiles learning contradicts a project-local skill's approach, check which is newer. If the project-local version evolved past the shared reference, the shared reference is stale.
+
+**Prevention:** After discovering a better pattern in a project-local skill, update the shared reference in the same session — or at minimum, note the divergence in the learning so the next sync catches it.
+
 ## Cross-Refs
 
 No cross-cluster references.

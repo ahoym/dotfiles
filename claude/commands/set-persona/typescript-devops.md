@@ -15,11 +15,10 @@
 
 ## Proactive Cross-Refs
 
-- `~/.claude/learnings/frontend/typescript-ci-gotchas.md`
+- `~/.claude/learnings-team/learnings/frontend/typescript-ci-gotchas.md`
 
 ## Cross-Refs
 
 Load when working in the specific area:
-- `~/.claude/learnings/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons
-- `~/.claude/learnings/cicd/gotchas.md` — GitHub Actions and GitLab CI tripwires
-- `~/.claude/learnings/cicd/patterns.md` — CI pipeline structure, composite actions, Docker build stage sharing
+- `~/.claude/learnings/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons (personal only, not in learnings-team)
+- `~/.claude/learnings-team/learnings/gitlab-ci-cd.md` — GitLab CI/CD patterns, debugging, GitHub Actions and GitLab CI tripwires, Docker build stage sharing

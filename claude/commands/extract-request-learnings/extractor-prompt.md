@@ -32,13 +32,14 @@ Read `~/.claude/skill-references/<PLATFORM>/comment-interaction.md` for comment 
 **Step 2 (always run):**
 - **Fetch Review Details**
 
-**Step 3 (only if discussion count > 10 or state is closed):**
+**Step 3 (if discussion count > 10, OR state is closed, OR description signals substantial implementation — new module/adapter/integration/refactor):**
 - **Fetch Files Changed**
 
 Do not fetch any other endpoints. These commands provide all the signal needed.
 
 For **discussion reviews** (discussion count > 0): Summarize each thread — what was flagged, the reasoning, the resolution.
-For **zero-discussion reviews**: Note patterns from title, description, branch naming, and metadata.
+For **implementation-heavy reviews** (substantial diff, any discussion count): Analyze the implementation patterns visible in the diff — architectural decisions, design patterns, module structure, API contracts, error handling strategies, test patterns. The diff IS the learning; discussion is a bonus. Fetch Files Changed (Step 3) to understand scope even if discussion count ≤ 10.
+For **zero-discussion reviews**: Extract patterns from the diff, description, and metadata. Zero discussion often means the team agrees on the approach — that agreement IS a convention worth capturing.
 For **closed/unmerged reviews**: Capture why the direction was abandoned or what was explored.
 
 Return structured learnings in this format:
@@ -59,9 +60,12 @@ Existing categories: <EXISTING_CATEGORIES>
 
 Suggest new categories only if nothing existing fits.
 
+Learnings include **general good practices and architectural patterns**, not just gotchas and surprising failure modes. Capture validated approaches, architectural conventions, and engineering practices that would help the team make better decisions — not only things that caused incidents.
+
 Focus on:
-- What reviewers flagged and why
-- Decisions made and their reasoning
-- Patterns worth replicating or avoiding
-- Convention signals (naming, structure, process)
-- For closed reviews: what was tried and why it didn't proceed
+- **Implementation patterns**: Architecture decisions visible in the diff — module structure, design patterns, error handling, API contracts, test structure. These are learnings even without discussion.
+- **What reviewers flagged and why**: Discussion threads with reasoning and resolution.
+- **Decisions made and their reasoning**: Both explicit (in comments) and implicit (in the code — zero-discussion conventions the team already agrees on).
+- **Patterns worth replicating or avoiding**: Including patterns from the diff that have no reviewer commentary but represent established conventions.
+- **Convention signals**: Naming, package structure, test organization, configuration patterns.
+- For closed reviews: what was tried and why it didn't proceed.

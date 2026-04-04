@@ -31,14 +31,16 @@ glab mr diff <number>
 ## Fetch Files Changed
 
 ```bash
-glab mr diff <number> --raw | grep '^diff --git' | sed 's|diff --git a/.* b/||'
+glab api projects/:id/merge_requests/<number>/changes | jq -r .changes[].new_path
 ```
 
-Note: `glab mr diff` has no `--name-only` flag. Extract filenames from raw diff output.
+Note: Uses the MR changes API instead of parsing raw diff — avoids quoted `grep`/`sed` args that trigger permission prompts in Claude Code.
 
 ## Fetch Commits
 
 ```bash
 glab api projects/:id/merge_requests/<number>/commits \
-  --jq '.[] | {sha: .short_id, message: .title}'
+  | jq '.[] | {sha: .short_id, message: .title}'
 ```
+
+Note: `glab api` has no `--jq` flag (unlike `gh api`). Pipe to standalone `jq` instead.

@@ -83,7 +83,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    Announce: `🎭 Team: <persona-1>, <persona-2> (matched from <domains>)` or `🎭 Single reviewer: <persona> (only domain match)`
 
-   **If N=1:** Read `single-reviewer-mode.md` and follow its instructions. Skip steps 6-11 — the orchestrator reviews directly. Then resume at step 13.
+   **If N=1:** Read `single-reviewer-mode.md` and follow its instructions. Skip steps 6-7 and 9-12 — the orchestrator reviews directly. Still execute step 8 (system context) — it's cheap and valuable for single-reviewer mode. Then resume at step 14.
 
 6. **Front-load persona content** — for each selected persona:
    - Read the full persona file
@@ -97,20 +97,38 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Read matched files, skipping any whose content isn't relevant to the changed files' domains
    - Announce: `📚 Loaded domain learnings: <list>` or `📚 No domain learnings matched (derived terms: <terms>)`
 
-8. **Launch parallel reviewer subagents** — read `reviewer-prompt-template.md` from this skill's directory. For each selected persona, launch a **foreground** Agent (all in one message for parallel execution). Each subagent prompt includes:
+8. **Identify system context for cross-cutting code** — scan `CHANGED_FILES` for cross-cutting patterns: AOP aspects (`@Aspect`), interceptors, shared utilities, SPI implementations, filters, or middleware. If found:
+   - Grep the codebase for callers: annotation usages (`@ExternalService`, `@Timed`), injection sites, pointcut targets
+   - For each caller, note: class name, threading model (web request, `@Scheduled`, `@Async`, message listener), and invocation frequency if discoverable (e.g., `fixedDelay` value)
+   - Summarize as `SYSTEM_CONTEXT`: "Changed code is called by X (single-threaded scheduler, 30s interval), Y (web request handler, pooled threads)."
+
+   If no cross-cutting patterns detected, set `SYSTEM_CONTEXT` to empty. This step is lightweight — a few targeted greps, not a full codebase scan.
+
+9. **Launch parallel reviewer subagents** — read `reviewer-prompt-template.md` from this skill's directory. For each selected persona, launch a **foreground** Agent (all in one message for parallel execution). Each subagent prompt includes:
    - The reviewer prompt template with placeholders filled:
      - `{{PERSONA_NAME}}` → persona name
      - `{{PERSONA_CONTENT}}` → front-loaded content from step 6
      - `{{DOMAIN_LEARNINGS}}` → content from step 7
+     - `{{SYSTEM_CONTEXT}}` → caller/threading context from step 8 (or empty)
      - `{{REQUEST_TITLE}}`, `{{REQUEST_BODY}}`, `{{COMMITS}}` → PR metadata
      - `{{FULL_DIFF}}` → the full diff
      - `{{OUTPUT_FILE}}` → `tmp/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
 
    Wait for all subagents to complete before proceeding.
 
-9. **Collect findings** — read each subagent's output file. Verify per `~/.claude/skill-references/subagent-patterns.md`: spot-check that findings reference real files from the diff and line numbers are within range. Parse the structured JSON.
+10. **Collect and verify findings** — read each subagent's output file. Verify per `~/.claude/skill-references/subagent-patterns.md`: spot-check that findings reference real files from the diff. Parse the structured JSON.
 
-10. **Merge findings** — follow the **Merge Algorithm** in `persona-routing.md`:
+    **Line number correction (mandatory):** Subagents derive line numbers from the diff, which is error-prone — off-by-1-3 lines is common. For each finding, verify and correct `line_start` before merging:
+
+    a. Extract a recognizable code token from the finding's `summary` or `inline_comment` (e.g., a function name, variable, keyword — the most specific identifier mentioned).
+    b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`.
+    c. Check if the code token appears at `line_start`. If yes, the line number is correct — move on.
+    d. If not, scan the ±5 line window for the token. If found, update `line_start` (and `line_end` by the same delta) to the correct line.
+    e. If the token isn't found within ±5 lines, widen to ±10. If still not found, keep the original and flag: `⚠️ Could not verify line number for <file>:<line_start> (<token>)`.
+
+    This step catches the most common subagent error (LLM line-counting imprecision) before it reaches GitLab. Correct lines before merging — merged findings inherit the corrected positions.
+
+11. **Merge findings** — follow the **Merge Algorithm** in `persona-routing.md`:
     - Index findings by `(file, overlapping line range, category)`
     - **Agreement** (2+ personas, compatible): merge into one finding, tag `[persona-1, persona-2]`
     - **Unique** (1 persona): pass through with single-persona attribution `[persona-1]`
@@ -118,7 +136,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     Not a disagreement: both agree on the problem but suggest different fixes — merge with complementary recommendations.
 
-11. **Deliberation** (only if `DISSENT_CANDIDATES` exist) — for each disagreement between 2 personas:
+12. **Deliberation** (only if `DISSENT_CANDIDATES` exist) — for each disagreement between 2 personas:
     - SendMessage to Persona A's subagent: "Persona B disagrees with your finding on `<file>:<line>`. Their position: [B's summary and reasoning]. Does this change your recommendation? Respond with MAINTAIN or REVISE and brief reasoning."
     - Simultaneously SendMessage to Persona B's subagent with the symmetric prompt.
     - Both sent in parallel — neither needs the other's rebuttal.
@@ -127,7 +145,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     For 3-way dissents (rare with max 3 reviewers): the orchestrator summarizes all positions as team lead and presents the tradeoff — no SendMessage round-trips.
 
-12. **Compose the merged review** — build the review body:
+13. **Compose the merged review** — build the review body:
 
     ```
     ## Team Review: <REQUEST_TITLE>
@@ -152,13 +170,13 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
     <Themes done well, with persona attribution where relevant>
     ```
 
-    Append the **Footnote Format** from the base reference with `Role: Team-Reviewer`.
+    Append the **Footnote Format** from the base reference with `Role: Team-Reviewer`. For the `*Persona:*` field, list all reviewer personas used (e.g., `*Persona:* react-frontend, financial-reviewer`), not the orchestrator's persona. The base reference's persona detection precedence (formal → ad-hoc → none) applies to single-persona skills; team-review always has explicit reviewer personas from step 5.
 
     **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
 
     **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
 
-13. **Post the review** — write the review payload to `tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
+14. **Post the review** — write the review payload to `tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 
     ```bash
     gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
@@ -167,12 +185,14 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 
-14. **Clean up and report** — remove temp files (subagent findings JSONs, review payload), then confirm:
+15. **Clean up and report** — remove temp files (review payload JSON). **Preserve subagent findings JSONs** (`team-review-<N>-<persona>-findings.json`) — they contain the raw line numbers and reasoning that directors need for debugging when comments land on wrong lines. The findings are small and uniquely named; they'll be cleaned up when the operator clears `tmp/change-request-replies/`. Then confirm:
     ```
     ✅ Team review posted on <REVIEW_UNIT> #<REQUEST_NUMBER> (<N> inline comments, <M> personas)
     <REQUEST_URL>
     ```
     Re-review report format is in `re-review-mode.md`.
+
+   **Note:** Step numbers 8-15 apply to multi-reviewer mode. Single-reviewer mode (N=1) skips to step 14.
 
 ## Important Notes
 

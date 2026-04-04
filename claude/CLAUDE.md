@@ -1,7 +1,7 @@
 # Guidelines
 
 @./guidelines/communication.md
-@./guidelines/context-aware-learnings.md
+@./guidelines/path-resolution.md
 
 When the user writes `/skill-name`, always invoke it via the Skill tool — never perform the skill's actions manually inline. This applies even when combined with other instructions. When the Skill tool rejects with `disable-model-invocation`, tell the user it can only be run as a slash command; do NOT read the SKILL.md and follow its steps manually.
 
@@ -10,7 +10,6 @@ When the user writes `/skill-name`, always invoke it via the Skill tool — neve
 | File | When to read |
 |------|-------------|
 | guidelines/skill-invocation.md | When executing inside a skill (permission to chain skills, loading reference files) |
-| guidelines/path-resolution.md | When resolving relative paths in SKILL.md files |
 
 # Bash Tool
 
@@ -31,7 +30,3 @@ Edit requires a recent Read of the target file — having the content in context
 | **Permission patterns** (settings.json) | ✅ Required | ❌ Won't match |
 | **Read** (file_path) | ✅ | ✅ CWD-relative |
 | **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ file-relative |
-
-# Sync
-
-sync-source: ~/WORKSPACE/mahoy-claude-stuff

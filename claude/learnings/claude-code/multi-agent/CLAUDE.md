@@ -8,3 +8,4 @@ Multi-agent patterns for Claude Code — orchestration, coordination, quality, p
 | quality.md | Verification, trust arc, agent-to-agent review, prompt design |
 | parallel-plans.md | Parallel plan execution, DAG shape, speedup bounds |
 | autonomous-patterns.md | General autonomous agent patterns: research methodology, validation, confidence |
+| headless-nesting.md | Nested `claude -p` hierarchies: multi-tier spawning, `--allowedTools` propagation, prompt construction |

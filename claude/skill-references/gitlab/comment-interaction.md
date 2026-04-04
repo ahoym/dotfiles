@@ -8,14 +8,23 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
 
+**Always use `jq` for JSON processing — never `python3`.** `python3` is not in the permission allowlist for `claude -p` sessions and will cause unrecoverable permission denials. Use `jq -Rs` for string escaping, `jq -r` for extraction, `jq -f tmp/filter.jq` for complex filters.
+
+**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. This keeps all quoted strings out of the Bash command.
+
+**Caveat: `glab api -f` does NOT create nested JSON objects.** Bracket notation like `-f "position[new_line]=411"` sends flat JSON keys (`"position[new_line]": "411"`) — GitLab ignores these and creates a general note instead of an inline DiffNote. For any API call requiring nested objects (inline comments with position data), use GraphQL `createDiffNote` instead (see pr-management.md → "Post Review with Inline Comments"). This does NOT affect `-f` for flat string parameters (e.g., `-f sort=desc`), which work correctly.
+
 ## Fetch Inline/Review Comments
 
 ```bash
 # Full fetch (--paginate to get all notes beyond default page limit)
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
-# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
-glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}'
+# Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
+# 1. Write to tmp/jq-filter.jq via Write tool:
+#      .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}
+# 2. Then:
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/jq-filter.jq
 ```
 
 ## Fetch Recent Inline Comments (quick-exit check)
@@ -27,8 +36,8 @@ glab api projects/:id/merge_requests/<number>/notes --method GET -f sort=desc -F
 ```
 
 Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Interpret results:
-- **Some non-self, at least one newer than `LAST_REVIEW_TS`** → new activity, proceed
-- **Some non-self, all older than `LAST_REVIEW_TS`** → no new activity, skip
+- **Some non-self, at least one newer than `LAST_FETCH_TS`** → new activity, proceed
+- **Some non-self, all older than `LAST_FETCH_TS`** → no new activity, skip
 - **All comments are self** → inconclusive (non-self activity may exist beyond the window), fall through to full incremental fetch
 
 ## Fetch General Review Comments
@@ -47,8 +56,11 @@ glab api projects/:id/merge_requests/<number>/discussions \
 # Full fetch — notes without position data are top-level comments (--paginate for all pages)
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
 
-# Incremental fetch (--paginate + client-side filter to avoid query params that require quoting)
-glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}'
+# Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
+# 1. Write to tmp/jq-filter.jq via Write tool:
+#      [.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}
+# 2. Then:
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/jq-filter.jq
 ```
 
 ## Reply to Inline Comment
@@ -74,11 +86,14 @@ glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POS
 
 ## Post Top-Level Comment
 
-Write the message body to `tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then pass via file reference:
+Write the message body to `tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then post via the notes API with `-F body=@`:
 
 ```bash
 # Write body to tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
-glab mr comment <number> --message "$(cat /absolute/path/to/tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md)"
+glab api projects/:id/merge_requests/<number>/notes -X POST \
+  -F body=@/absolute/path/to/tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md
 ```
 
-**Note:** `glab mr comment` has no `--body-file` or `--message-file` equivalent. The `$(cat ...)` subshell pattern is the best available workaround but may trigger permission prompts for complex message bodies with special characters.
+**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+
+**Note:** Avoid `glab mr comment --message "$(cat ...)"` — the `$(cat ...)` subshell triggers permission prompts. The notes API with `-F body=@` reads the file directly without shell interpolation.

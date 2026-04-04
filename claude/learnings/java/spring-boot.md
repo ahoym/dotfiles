@@ -152,6 +152,12 @@ Tests may compile with the wrong enum type if both are structurally compatible. 
 
 When modifying `@Id` generation annotations, grep for all entity creation sites to verify alignment. See also: `@UuidGenerator` silently overwrites application-assigned IDs (above).
 
+### Spring Data JPA Null Parameters → IS NULL Predicates
+
+Null parameters in Spring Data JPA **derived query methods** (e.g., `findByPayerIdAndBeneficiaryId(null, null)`) translate to `WHERE payer_id IS NULL AND beneficiary_id IS NULL` — not `= NULL`. This is correct for ownership strategies where payer/beneficiary may be absent. Bot reviewers repeatedly flag this as a bug; it's not.
+
+**Caveat**: This only works for derived query methods (method-name parsing). `@Query` JPQL `WHERE c.payer.id = :payerId` with a null param generates `= NULL` (matches nothing). Use `(:payerId IS NULL OR c.payer.id = :payerId)` pattern for `@Query` methods that accept nullable params.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/postgresql-query-patterns.md` — window functions, CTEs, indexing strategy, migration safety patterns (complements the Spring Boot migration gotchas here)

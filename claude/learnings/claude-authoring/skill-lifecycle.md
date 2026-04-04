@@ -84,6 +84,10 @@ Skills that write temp files to a staging directory (e.g., `tmp/change-request-r
 
 Every fix to a runtime artifact (generated prompt, `let-it-rip.sh`, status.md format) should immediately prompt: "does the source (SKILL.md) need this too?" Runtime artifacts are ephemeral — the SKILL.md generates new ones each run. A fix that only lands in the runtime artifact will be lost on the next invocation.
 
+## Organize vs Curate: Deliberate Scope Separation
+
+`/organize` handles dedup, routing, cross-refs, and index sync — the intake gate for MR-scoped changes. `/curate` handles compression, genericization, keyword audit, and per-file quality — the polish pass. Compression (making content concise) lives in `/curate` only, not `/organize`. This separation keeps `/organize` fast at intake time while deferring subjective quality work to the dedicated per-file tool.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

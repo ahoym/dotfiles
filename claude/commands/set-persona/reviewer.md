@@ -3,7 +3,7 @@
 Base persona for all code review workflows. Provides universal review instincts — code quality, process conventions, and review etiquette. Domain-specific reviewer personas extend this.
 
 ## Domain priorities
-- **Code quality** — enforce patterns from `~/.claude/learnings/code-quality-instincts.md` across all reviews
+- **Code quality** — enforce patterns from `~/.claude/learnings-team/learnings/code-quality-instincts.md` across all reviews
 - **Process conventions** — PR structure, review etiquette, commit hygiene
 - **Lean over noisy** — don't post empty reviews; emoji reactions for resolved items; summary = themes, inline = specifics
 
@@ -18,9 +18,7 @@ Base persona for all code review workflows. Provides universal review instincts 
 - Actionable feedback > observations — every comment should suggest a path forward
 - Silence is a valid review outcome — no findings = no post
 
-## Cross-Refs
-- `~/.claude/learnings/review-conventions.md` — finding prioritization, reversibility weighting, scope discipline
-
-## Proactive Cross-Refs
-- `~/.claude/learnings/code-quality-instincts.md`
-- `~/.claude/learnings/process-conventions.md`
+## Proactive loads
+- `~/.claude/learnings-team/learnings/code-quality-instincts.md`
+- `~/.claude/learnings-team/learnings/process-conventions.md`
+- `~/.claude/learnings-team/learnings/code-review-methodology.md`

@@ -33,6 +33,7 @@ Save new patterns and learnings from the current session into global skills, gui
    - Review the conversation for new patterns, processes, or guidelines discovered
    - Review for approaches or decisions that worked well — patterns worth reinforcing or expanding
    - Review for existing learnings that proved valuable (validates the learning, may suggest broadening scope)
+   - **Review all implemented changes** (edits, fixes, file writes) — not just experiments or surprising results. Each fix encodes knowledge: a design principle, an API behavior, a platform constraint. Ask "what did I need to know to make this change?" for each one.
    - List each learning with a brief description
    - Categorize using this decision tree:
      - Command with clear, repeatable steps? → **Skill**
@@ -95,6 +96,11 @@ Save new patterns and learnings from the current session into global skills, gui
      - **Global learnings** → `~/.claude/learnings/<topic>.md`
      - **Private learnings** → `~/.claude/learnings-private/<topic>.md`
      - **Project-local learnings** → `docs/learnings/<topic>.md` (relative to project root)
+   - **Team learnings dual-write:** If `$CLAUDE_TEAM_LEARNINGS_DIR` is set, for every **Global** learning written to `~/.claude/learnings/`, also write the same content to `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/<same-filename>`. Use the same logic (Edit existing or Write new). Then update `$CLAUDE_TEAM_LEARNINGS_DIR/CLAUDE.md`:
+     - **New file**: add an index entry under the appropriate domain section (format: `` - `filename.md` — one-sentence description ``)
+     - **Existing file**: no index update needed unless the description is stale
+     - Cross-refs in the team copy must use `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/` paths (rewrite any `~/.claude/learnings/` refs)
+     - If `$CLAUDE_TEAM_LEARNINGS_DIR` is not set, skip dual-write silently
 
 4. **Verify and report**:
    - Read back each written file to confirm content was saved correctly
@@ -102,8 +108,9 @@ Save new patterns and learnings from the current session into global skills, gui
      ```
      Updated files:
      - <path> — <what was added> (Utility: <High/Medium/Low>)
+     - <team path> — dual-write (if applicable)
 
-     Wrote N learnings to ~/.claude/.
+     Wrote N learnings to ~/.claude/. Dual-wrote M to $CLAUDE_TEAM_LEARNINGS_DIR.
      ```
 
 ## Prerequisites
@@ -122,8 +129,25 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 "Edit(~/.claude/learnings/**)",
 "Edit(~/.claude/learnings-private/**)",
 "Edit(~/.claude/commands/**)",
-"Edit(~/.claude/guidelines/**)"
+"Edit(~/.claude/guidelines/**)",
+"Read(~/.claude/learnings-team/**)",
+"Write(~/.claude/learnings-team/**)",
+"Edit(~/.claude/learnings-team/**)"
 ```
+
+**Team learnings dual-write** (optional):
+
+Set `CLAUDE_TEAM_LEARNINGS_DIR` in `~/.claude/settings.local.json` to enable dual-writing Global learnings to a shared team directory:
+
+```json
+{
+  "env": {
+    "CLAUDE_TEAM_LEARNINGS_DIR": "~/.claude/learnings-team"
+  }
+}
+```
+
+The directory must contain a `learnings/` subdirectory and a `CLAUDE.md` index. If the env var is not set, dual-write is skipped silently. Adjust the permission patterns above to match your team directory path if it differs from `~/.claude/learnings-team`.
 
 ## Important Notes
 

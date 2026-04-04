@@ -12,10 +12,12 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 
 **Standard path: director runs from `main`.** This avoids the active-branch workaround entirely — `git worktree add` works for every PR branch when the director isn't on one of them.
 
+**Review and address must be separate `claude -p` sessions.** Never have the same agent both review and address an MR. A reviewer that knows it will also address goes easy; an addresser that wrote its own findings rubber-stamps them. The director presents review findings to the operator for sign-off before launching the address session. This is not a guideline — it is a structural requirement for review integrity.
+
 ## Prerequisites Checklist
 
 Before starting any sweep session:
-1. `gh auth status` succeeds
+1. `glab auth status` succeeds (or `gh auth status` for GitHub repos)
 2. `~/.claude/settings.json` has all required permission patterns (see sweep skill prerequisites sections)
 3. `tmp/change-request-replies/` write access — address sessions write reply payloads here. Verify the Write permission pattern matches at runtime (known friction point: tilde-path patterns may not resolve)
 4. `tmp/sweep-reviews/` and `tmp/sweep-address/` exist or can be created
@@ -181,6 +183,21 @@ Do NOT re-assess just because a cycle skipped — that is normal convergence beh
 When running ad-hoc from a branch that is also a PR target, `git worktree add` fails ("branch already checked out"). The address sweep skill detects and reuses existing worktrees. For PRs on the director's active branch where no worktree exists, use `Agent(isolation: "worktree")` to work from an isolated context.
 
 The standard path (director on `main`) avoids this entirely. This section applies only to ad-hoc sessions where the director happens to be on a PR branch.
+
+## Worker Learnings Triage
+
+During convergence wrap-up (Phase 5), the director must triage worker learnings before closing the session:
+
+1. **Read** each completed run's `*/learnings.md` files.
+2. **Assess** each observation for promotion:
+   - Does it encode reusable knowledge (pattern, gotcha, convention)? → candidate for persistent learning
+   - Is it project-specific or broadly applicable? → determines scope (project-local vs global/learnings-team)
+   - Is it verified or a hypothesis? → frame accordingly
+   - Is it a one-off observation (dead code, missing route)? → skip
+3. **Present** candidates to the operator in a table with Type/Scope/Utility columns (same format as `/learnings:compound`).
+4. **Save** approved learnings to the appropriate location.
+
+Workers generate domain-specific insights that the director wouldn't independently discover — particularly when workers load learnings-team learnings that connect to their findings (e.g., a precision learning predicting a parseFloat bug). These insights are lost if not promoted during the session.
 
 ## Director State
 

@@ -1,7 +1,7 @@
 ---
 name: address-request-comments
 description: "Fetch and address request comments from a pull request (GitHub) or merge request (GitLab)."
-argument-hint: "[request-number]"
+argument-hint: "[--comment-only] [request-number]"
 allowed-tools: Bash, Edit, Glob, Grep, Read, Write
 ---
 
@@ -17,6 +17,8 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 - `/git:address-request-comments` - Address comments on review for current branch
 - `/git:address-request-comments <number>` - Address comments on specific review
 - `/git:address-request-comments <url>` - Address comments on review by URL
+- `/git:address-request-comments --comment-only <number>` - Comment only, no code changes
+- `/git:address-request-comments --implement <number>` - Force implementation even on others' MRs
 
 ## Reference Files (conditional — read only when needed)
 
@@ -31,6 +33,21 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 **Role:** Addresser. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution). This skill uses `YOUR_ROLE=Addresser` and `OTHER_ROLE=Reviewer` throughout.
 
+### Mode Detection
+
+Set `COMMENT_ONLY` mode using this precedence:
+1. **Explicit flag** — `--comment-only` in arguments → `COMMENT_ONLY=true`; `--implement` → `COMMENT_ONLY=false`
+2. **Auto-detect** (no flag) — after the consolidated fetch in step 1, compare the request author's username against the current git user (`git config user.name` or platform username). If they differ → `COMMENT_ONLY=true`. If they match → `COMMENT_ONLY=false`.
+3. **Terminal state** — merged/closed requests default to `COMMENT_ONLY=true` (skip Terminal State Handling's hard stop; proceed with comment-only flow instead).
+
+Announce the mode after detection: `Mode: comment-only (not the author)` or `Mode: comment-only (explicit)` or `Mode: implement`.
+
+When `COMMENT_ONLY=true`:
+- **Skip** steps 3 (checkout), 8 (act on suggestions), 10 (implement), 11 (push), 12 (reply with commit ref)
+- **Adjust step 7** reply tone — use "recommend" / "suggest a follow-up" instead of "I'll fix" / "acknowledged, fixing"
+- **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
+- **Adjust step 13** summary — report comments posted, not changes implemented
+
 1. **Detect platform and fetch** — follow the base reference: **Platform Detection** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform cluster files. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
@@ -40,7 +57,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files.
+3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files. **Skip if `COMMENT_ONLY`.**
 
 4. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
@@ -65,14 +82,14 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
-   - For typo/bug fixes: Acknowledge and confirm you'll fix it
+   - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
    - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
    Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
 
-8. **Act on suggestions based on agreement**:
+8. **Act on suggestions based on agreement** — **Skip if `COMMENT_ONLY`.**
 
    **Auto-implement** when both agents converge (addresser agrees with reviewer's suggestion). Also auto-implement typo/bug fixes (corrections, not debatable).
 
@@ -92,9 +109,21 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
    | 2 | auth.py:48 | Restructure auth flow | Awaiting your decision (disagree) |
    ```
 
+   **`COMMENT_ONLY` variant** — use "Commented (agree)", "Commented (disagree)", "Clarified", "Acknowledged" instead of "Implemented" / "Awaiting your decision":
+
+   ```
+   ## Review actions (comment-only)
+
+   | # | File | Comment | Action |
+   |---|------|---------|--------|
+   | 1 | spec.md:141 | Fix tag format | Commented (agree) — recommend follow-up |
+   | 2 | auth.py:48 | Restructure auth flow | Commented (disagree) — pushed back |
+   | 3 | util.js:12 | Why this pattern? | Clarified |
+   ```
+
    Follow **Post Top-Level Comment** in the platform cluster files.
 
-10. **Implement changes**:
+10. **Implement changes** — **Skip if `COMMENT_ONLY`.**
     a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
     b. For each group:
        - Make the changes
@@ -110,12 +139,12 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
          ```
     c. Track which comments are addressed by each commit hash.
 
-11. **Push changes**:
+11. **Push changes** — **Skip if `COMMENT_ONLY`.**
     ```bash
     git push origin <branch>
     ```
 
-12. **Reply to comments with commit reference** (after push — mandatory):
+12. **Reply to comments with commit reference** (after push — mandatory) — **Skip if `COMMENT_ONLY`.**
 
     **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
@@ -126,10 +155,10 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
     - Let the operator handle these manually or in a follow-up
 
 13. **Summary**: Report to the operator:
-    - Number of suggestions auto-implemented (mutual agreement)
-    - Number of typo/bug fixes addressed
+    - Number of suggestions auto-implemented (mutual agreement) — or "commented on (agree)" if `COMMENT_ONLY`
+    - Number of typo/bug fixes addressed — or "flagged" if `COMMENT_ONLY`
     - Number of comments replied to with clarification
-    - Number of suggestions escalated (awaiting partner decision)
+    - Number of suggestions escalated (awaiting partner decision) — or "commented on (disagree)" if `COMMENT_ONLY`
 
 ## Important Notes (conditional)
 

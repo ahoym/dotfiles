@@ -86,6 +86,14 @@ Guidelines split into two categories for loading strategy:
 
 **Context-aware-learnings is behavioral, not procedural.** The session-start gate fires before the first tool call, making the entire file load-bearing from moment zero. Gates that fire reactively (keyword, domain-shift) also need the format/observability spec available at all times.
 
+## Addendum Guidelines Must Be Self-Contained
+
+When a guideline piggybacks on another protocol (e.g., a search guideline that extends a broader search framework), it must carry enough detail to work standalone. Operators who import the addendum may not have the parent protocol.
+
+**What to include:** Key distinctions the parent defines (e.g., hard vs soft gates), execution order (numbered pipeline steps), and behavioral detail (sniff criteria, skip announcements). If the parent protocol has a 4-step pipeline, the addendum should mirror that shape — not scatter the same pieces across disconnected sections.
+
+**Test:** Read the addendum without loading the parent. Can an agent execute the full search/check/workflow correctly? If it needs the parent to know which steps are mandatory or what order to run them, it's not self-contained.
+
 ## Cross-Refs
 
 - `~/.claude/commands/learnings/curate/curation-insights.md` — operational calibration including "uniform convention" pattern (migrated from here)

@@ -128,6 +128,10 @@ When a background agent shares a working tree with the foreground session, `git 
 
 When sweep skills need worktrees for PR branches, check `git worktree list` first. Prior sweeps (review, work-items) often leave worktrees checked out to the same branches. Reusing avoids "branch already used by worktree" errors and skips creation/cleanup overhead. Only create new worktrees for PRs without existing ones; only clean up worktrees the current run created.
 
+## Batch Size Heuristic: Match Discussion Density
+
+For repos where ~85% of MRs have ≤2 notes, 20 MRs per batch works well — the 3-5 high-signal MRs each get dedicated extractors while the rest are efficiently grouped (3-5 per agent). Quality doesn't degrade because the grouping only compresses low-discussion MRs that are processed identically whether alone or batched. Pull back to 10 per batch only when 5+ MRs have 15+ notes each (all need dedicated extractors, and the writer receives too many learnings at once).
+
 ## Propagate Persona to Subagent Sessions
 
 When launching `claude -p` sessions that will invoke domain-specific skills (addressing review comments, implementing features), include a `set-persona` invocation in the prompt based on the PR's domain. Auto-detect from PR title, branch name, and changed file paths. This gives the subagent the right domain lens (priorities, gotchas, proactive loads) without manual intervention.
@@ -135,6 +139,14 @@ When launching `claude -p` sessions that will invoke domain-specific skills (add
 ## Agent Worktree Isolation for Active-Branch PRs
 
 `git worktree add` can't check out a branch already checked out in another worktree. For sweep addressing of PRs on the director's active branch, use `Agent(isolation: "worktree")` — it creates a temporary worktree, the agent addresses findings and pushes, then the worktree is cleaned up. This is ad-hoc (not integrated into `let-it-rip.sh`) but reliable. The agent gets a full isolated copy and can invoke skills normally.
+
+## Compound Dual-Write Creates Root Duplicates When Cluster Files Exist
+
+The `learnings:compound` dual-write targets `learnings/<topic>.md` at root level, but learnings-team organizes files into cluster subdirectories (`learnings/<cluster>/<topic>.md`). When a cluster file already exists (e.g., `java/security-patterns.md`), compound creates a duplicate at root (`java-security-patterns.md`) rather than merging into the cluster file. The organize skill must detect these collisions by comparing new root filenames against cluster contents. Observed: 11+ root duplicates in a single compound session, each requiring manual merge of unique sections and deletion of the duplicate.
+
+## Staging File Overwrites Require Revert-First Recovery
+
+Compound staging can replace an existing file's entire content with a "Staged entries for..." header and a few new sections, destroying the original content. Recovery pattern: `git checkout -- <file>` to restore the original, then read the staging version from `git diff` or a saved copy to extract unique sections before they're lost. Never merge staging content first — the file on disk has already lost its original content.
 
 ## Cross-Refs
 
