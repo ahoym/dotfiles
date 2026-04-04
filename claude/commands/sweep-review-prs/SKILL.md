@@ -28,14 +28,31 @@ Assess open PRs, then generate `let-it-rip.sh` — a bash script that launches p
 
 `claude -p` sessions are top-level and cannot prompt for permissions. All patterns below must exist in `~/.claude/settings.json` `permissions.allow`. **Stop immediately if any are missing.**
 
+Detect platform first (see Phase 2), then check the matching CLI patterns:
+
+**GitHub patterns:**
 ```json
 "Bash(gh pr view:*)", "Bash(gh pr diff:*)", "Bash(gh pr list:*)",
-"Bash(gh api:*)", "Bash(gh pr review:*)",
+"Bash(gh api:*)", "Bash(gh pr review:*)"
+```
+
+**GitLab patterns:**
+```json
+"Bash(glab mr view:*)", "Bash(glab mr diff:*)", "Bash(glab mr list:*)",
+"Bash(glab api:*)", "Bash(glab mr note:*)"
+```
+
+**Shared patterns (both platforms):**
+```json
 "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(mkdir:*)",
+"Bash(jq *)",
+"Skill(*)",
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
 "Read(~/.claude/commands/set-persona/**)",
+"Read(~/.claude/learnings-team/**)",
 "Read(~/**/tmp/sweep-reviews/**)",
+"Read(tmp/change-request-replies/**)", "Read(~/**/tmp/change-request-replies/**)",
 "Write(~/**/tmp/change-request-replies/**)", "Write(~/**/tmp/sweep-reviews/**)",
 "Edit(~/**/tmp/sweep-reviews/**)"
 ```
@@ -129,9 +146,11 @@ Create run directory: `tmp/sweep-reviews/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` sub
 
 Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_reviewed_sha` as the watermark key. Then continue with review-specific steps:
 
-5. **Invoke team review.** Skill tool: `skill="git:team-review-request"`, `args="<N>"`. Update `status.md` milestone to `reviewing`, then `posted` after the review is posted.
+5. **Search learnings-team learnings.** Search `~/.claude/learnings-team/learnings/` for domain-relevant learnings before reviewing. Derive search terms from the MR title, branch name, and changed file paths. Read the learnings-team `CLAUDE.md` index, match cluster names, sniff headers (limit=3), and load fully if keywords match. Announce results with `📚 [pre-review]` tags. This provides domain-specific gotchas and patterns that improve review quality.
 
-6. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
+6. **Invoke team review — MANDATORY.** You MUST use the Skill tool: `skill="git:team-review-request"`, `args="<N>"`. Do NOT attempt to review or post comments manually with raw API calls. The skill contains persona selection, subagent orchestration, merge logic, and platform-specific comment posting that handles glab/gh API quirks — bypassing it produces lower-quality reviews and wastes attempts on API friction. Update `status.md` milestone to `reviewing`, then `posted` after the review is posted.
+
+7. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
 
    | Field | Value |
    |-------|-------|
@@ -141,7 +160,7 @@ Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, u
    | Inline Comments | `<count>` |
    | Review URL | `<url or N/A>` |
 
-7. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
+8. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
 
 #### let-it-rip.sh
 

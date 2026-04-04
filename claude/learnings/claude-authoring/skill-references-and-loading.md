@@ -57,9 +57,19 @@ When a skill step says "follow the logic in `<file>.md`," the agent may cache pa
 
 The tension: "prefer offset+limit reads, don't re-read files" (efficiency) vs "follow this file's logic" (correctness). Inlining the conditions resolves this — the agent can cache the detailed procedures while still seeing the decision criteria.
 
+## Inline Critical-Path Commands, Keep Behavioral Guidance in References
+
+Reference files containing commands that must be executed precisely (API calls, CLI syntax, fetch patterns) get ignored or partially applied intermittently — the agent may cache past the "read this file" instruction or load it but not follow it. This causes silent skill failures.
+
+**Hybrid pattern:** Inline critical-path commands directly in SKILL.md instruction steps. Keep behavioral guidance (edge cases, tone, conventions, reply templates) in external references — partial application of behavioral guidance is tolerable; partial application of commands is not.
+
+This refines "Inline Critical Conditions" above: that section covers branching logic; this covers the commands themselves. Both share the root cause: reference file loading is a lossy step in skill execution.
+
+**Exception to "Skill Reference Files Are Authoritative":** When a skill inlines commands from a reference file for execution reliability, the skill's inline copy is the authoritative version for that skill. The reference file remains authoritative for *other consumers* and for maintenance (update the reference, then propagate to inlined copies). Add a "Commands Referenced from External Files" section at the bottom of SKILL.md for commands needed by conditional reference files (edge cases, LGTM verification) that can't be inlined into the main steps.
+
 ## Skill Reference Files Are Authoritative — Deduplicate from Skills
 
-`skill-references/*.md` files are the single source of truth for shared patterns consumed by multiple skills. When skills grow and absorb reference content into their SKILL.md, the duplication should be removed from the *skill*, not the reference. The reference file stays authoritative; skills reference it.
+`skill-references/*.md` files are the single source of truth for shared patterns consumed by multiple skills. When skills grow and absorb reference content into their SKILL.md, the duplication should be removed from the *skill*, not the reference. The reference file stays authoritative; skills reference it. (See exception above for critical-path command inlining.)
 
 During curation, when a skill section duplicates a reference file section, replace the skill's inline content with a pointer (e.g., "See `agent-prompting.md` § Git Workflow"). This keeps skills lean and prevents the same content from fragmenting across multiple consuming skills.
 

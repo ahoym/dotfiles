@@ -1,6 +1,7 @@
 ---
 name: do-refactor-code
 description: "Analyze a file for refactoring opportunities and apply selected improvements."
+disable-model-invocation: true
 argument-hint: "[filepath]"
 allowed-tools:
   - Read

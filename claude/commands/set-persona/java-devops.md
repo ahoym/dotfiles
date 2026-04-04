@@ -22,13 +22,13 @@
 ## Known gotchas & platform specifics
 
 ### Metrics & Observability
-- Follow the 6-step metrics discussion process (gather → map → gap-analyze → propose → prune → cardinality-check) before adding any metric — see `~/.claude/learnings/java/observability-gotchas.md` for the full checklist and Micrometer API traps
+- Follow the 6-step metrics discussion process (gather → map → gap-analyze → propose → prune → cardinality-check) before adding any metric — see `~/.claude/learnings-team/learnings/java/observability-gotchas.md` for the full checklist and Micrometer API traps
 
 ## Proactive Cross-Refs
 
-- `~/.claude/learnings/java/observability-gotchas.md`
+- `~/.claude/learnings-team/learnings/java/observability-gotchas.md`
 
 ## Cross-Refs
 
 Load when working in the specific area:
-- `~/.claude/learnings/java/observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC
+- `~/.claude/learnings-team/learnings/java/observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC

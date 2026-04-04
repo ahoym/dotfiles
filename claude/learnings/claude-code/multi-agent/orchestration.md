@@ -152,6 +152,38 @@ When multiple skills generate structurally identical bash scripts (same concurre
 
 When a generated script is designed to be rerun (e.g., after an address-review cycle), add a cheap pre-flight check before launching each `claude -p` session: `gh pr view $N --json state -q '.state'`. Skip merged/closed PRs immediately — one API call is far cheaper than spinning up a session that detects terminal state and exits. The inner skill's own terminal-state handling remains as a safety net.
 
+## Parallel Cluster Analysis for Catalog Sweeps
+
+For catalog-wide curation across 50+ files organized in clusters, launch one subagent per cluster to analyze all files in parallel. Each subagent reads every file, checks headers, cross-refs, collisions, and reports structured findings (per-file summary table, issues, all H2/H3 headings for collision detection). The orchestrator merges results, runs cross-cluster collision detection on the combined heading lists, and classifies findings by confidence. Validated at 5 concurrent cluster agents (~80 files total) — wall clock ~3 min vs ~15 min sequential.
+
+## Writer Subagents Must Produce Only Complete Replacement Files
+
+When writer subagents enrich existing files, instruct them to write the full file content with the same filename — never delta/instruction files or `-enriched` suffix variants. If a glob copy (`for f in staging/*.md; cp $f target/`) runs over the staging directory, instruction files overwrite real content and suffix variants create dedup confusion. The fix is explicit in the writer prompt: "Write ONLY complete replacement files with the SAME filename as the original."
+
+## Re-sync Shared Directories After Batch Overwrites
+
+When multiple output destinations share content (e.g., `~/.claude/learnings/` and `~/.claude/learnings-team/learnings/`), batch writer agents may overwrite one but not the other. After each batch finalization, re-sync the secondary from the primary to prevent divergence. Without this, later batches compound the drift and orphaned files accumulate.
+
+## Spot-Check Yield Correlates with Original Pass Discussion Density
+
+When re-extracting batches with a new lens (e.g., implementation patterns), the dedup rate against original-pass learnings predicts yield: implementation-only batches (~40% dedup) have the most new signal; discussion-rich batches (~80% dedup) are already well-captured. Prioritize spot-checks on batches where the original triage skipped MRs or where batch notes emphasize discussion findings over implementation.
+
+## Skip Private Writers for Spot-Check Runs
+
+Spot-check passes over previously-extracted batches consistently produce zero private-scoped learnings — the original pass already captured anything private-worthy. Skip spawning the private writer subagent to save ~10k tokens per batch. Still spawn it for fresh (never-extracted) batches.
+
+## Combine Batches in a Single Writer Invocation
+
+When multiple batches are spot-checked in the same session, concatenate all extractor outputs and spawn one set of writers covering both batches. Writers handle dedup across the combined set, and the reduced agent count (3 instead of 6) saves context and wall-clock time. Works well up to ~2 batches; beyond that the concatenated prompt may exceed writer context budget.
+
+## Writer Agents Scale to ~50 Inputs Per Scope
+
+A single project writer processed 52 extracted learnings (from 19 MRs across 2 batches) in one pass — reading 11 existing files, deduplicating 33, enriching 5, and writing 14 new entries. General writers handle fewer inputs (~8) but perform deeper dedup against a larger existing file set. This confirms single-writer-per-scope works up to ~50 inputs without hitting context limits.
+
+## Background Writer Staging Bypass
+
+Background writer subagents sometimes write directly to final locations (`~/.claude/learnings/`) instead of the staging directory (`docs/learnings/_staging/`), even when instructed to stage. This happens when the agent has write permissions to the final path. The `finalize-staging.sh` script then reports "0 files copied" — which looks like a failure but actually means the work was already done. Verify by checking file modification timestamps at the final location rather than trusting the copy count. The orchestrator should check both staging and final paths before concluding something went wrong.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

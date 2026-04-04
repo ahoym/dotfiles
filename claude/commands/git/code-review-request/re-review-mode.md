@@ -30,7 +30,7 @@ Also review new code: analyze `NEW_COMMITS` changes through the persona lens, sa
 
 Build the output lists:
 - `INLINE_COMMENTS`: new findings on new/changed code.
-- `REACTIONS`: list of `{comment_id, emoji}` per the shared classification's reaction summary table.
+- `REACTIONS`: list of `{comment_id, emoji}` for resolved and acknowledged comments. For **resolved**: `comment_id` is the reply's ID (not our original comment's ID), emoji is `rocket`. If no reply exists (resolved by code change alone), use our original comment's ID. For **acknowledged**: `comment_id` is the reply's ID, emoji is `thumbsup`.
 - `FOLLOW_UPS`: list of `{comment_id, body}` for partially-addressed comments.
 - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
@@ -66,7 +66,7 @@ Build the output lists:
 
 Execute in order:
 
-**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform cluster files. Use the emoji specified in the reaction entry (`hooray` for resolved, `+1` for acknowledged).
+**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use the **"React to Comment"** section from the platform cluster files. Use the emoji specified in the reaction entry (`rocket` for resolved, `thumbsup` for acknowledged).
 
 **b) Post follow-up replies** — for each item in `FOLLOW_UPS`, use the **"Reply to Inline Comment"** section from the platform cluster files.
 

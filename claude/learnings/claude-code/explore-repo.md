@@ -150,6 +150,19 @@ For doc-vs-code inconsistencies found during scanning:
 
 Adding `## Cross-references` sections to domain scan files creates a navigable documentation graph. Only add genuine relationships — don't cross-reference everything to everything. Place the section before `## Scan Limitations`.
 
+## Smart Staleness: Branch Topology Before Domain Mapping
+
+Before mapping changed files to scan domains, run `git log --oneline <stale-commit>..HEAD` to understand what the commits are. If the diff is entirely branch switches or `.claude/` tooling work (no source code changes), skip re-scanning — just stamp-update metadata headers.
+
+**Also exclude `.claude/` from the diff command** (`:!.claude/`). Skill files, settings, and tooling changes aren't source code and should never trigger domain re-scans.
+
+## Materiality Threshold for Re-Scans
+
+Don't mechanically re-scan every domain that has a file path match in the diff. Apply judgment: a 2-line property addition won't change a 350-line config scan, and adding test cases to an existing test file won't change the testing infrastructure scan.
+
+**Re-scan when** changes would meaningfully alter domain file content — new integrations, new entities, new test patterns. **Stamp-update when** changes are incremental additions to existing patterns. The cost of a wasted agent launch (~2-5 min, ~100k tokens) far exceeds the cost of a stale-by-one-property scan file.
+
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-authoring/skill-design.md` — stateful mode detection patterns
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — synthesis architecture and subagent coordination
+- `~/.claude/learnings/claude-authoring/skill-design.md` — stateful mode detection patterns, subdirectory flattening

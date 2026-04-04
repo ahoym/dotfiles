@@ -8,44 +8,65 @@ description: "GitLab commands for creating/updating MRs, posting reviews, and br
 
 ## Create or Update MR (Body via File)
 
-Write the MR body to `tmp/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues:
+Write the MR body to `tmp/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.
+
+**Use absolute paths with `$(cat)`** — `$(cat)` resolves relative to the shell's CWD, which may differ from the project root.
 
 ```bash
 # Write body via Write tool to tmp/change-request-replies/request-body-<BRANCH_NAME>.md, then:
-glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat /absolute/path/to/tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Or update existing:
-glab mr update <number> --description "$(cat tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
+glab mr update <number> --description "$(cat /absolute/path/to/tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
 ```
 
 ## Post Review with Inline Comments
 
-GitLab has no single "review" API like GitHub. Post inline comments as individual discussion notes, then post the summary as a top-level comment.
+GitLab has no single "review" API like GitHub. Post inline comments via GraphQL `createDiffNote` mutation, then post the summary as a top-level comment.
 
-**Step 1: Post each inline comment as a new discussion:**
+**Important:** Do NOT use `glab api -f` with bracket notation (`position[new_line]=...`) for inline comments — see comment-interaction.md caveat. Use GraphQL instead.
 
-```bash
-# For each inline comment, write body to tmp/change-request-replies/review-<note_index>.md, then:
-glab api projects/:id/merge_requests/<number>/discussions -X POST \
-  -f "body=$(cat tmp/change-request-replies/review-<note_index>.md)" \
-  -f "position[base_sha]=<base_sha>" \
-  -f "position[head_sha]=<head_sha>" \
-  -f "position[start_sha]=<base_sha>" \
-  -f "position[position_type]=text" \
-  -f "position[new_path]=<file_path>" \
-  -f "position[new_line]=<line_number>"
-```
+**Step 1: Get SHAs and MR internal ID:**
 
-Get `base_sha` and `head_sha` from:
 ```bash
 glab api projects/:id/merge_requests/<number>/versions | jq '.[0] | {base_commit_sha, head_commit_sha}'
+glab mr view <number> --output json | jq '.id'
 ```
 
-**Step 2: Post the review summary as a top-level comment** (see comment-interaction.md → "Post Top-Level Comment").
+The MR `id` (not `iid`) is needed for the GraphQL `noteableId`: `"gid://gitlab/MergeRequest/<id>"`.
 
-**Step 3: Clean up:**
+**Step 2: Post each inline comment via GraphQL:**
+
 ```bash
-rm -rf tmp/change-request-replies
+glab api graphql -f query='mutation {
+  createDiffNote(input: {
+    noteableId: "gid://gitlab/MergeRequest/<mr_id>",
+    body: "<escaped_body>",
+    position: {
+      baseSha: "<base_sha>",
+      headSha: "<head_sha>",
+      startSha: "<base_sha>",
+      paths: {
+        oldPath: "<file_path>",
+        newPath: "<file_path>"
+      },
+      newLine: <line_number>
+    }
+  }) { note { id } errors }
+}'
 ```
+
+**File-based queries:** For complex mutations, write the query to a `.graphql` file and use **uppercase `-F`**: `glab api graphql -F query=@tmp/change-request-replies/gql-1.graphql`. Lowercase `-f query=@file` does NOT read the file — it passes the literal string `@file` as the query value, causing silent GraphQL failures.
+
+**Body escaping:** The body must be a valid GraphQL string literal — escape `"` as `\"`, newlines as `\n`, and single quotes with shell `'\''` trick. For complex bodies, use `jq -Rs` on a file to produce a JSON-escaped string, then interpolate. **Always use `jq` for JSON processing — never `python3`** (not in the permission allowlist for `claude -p` sessions).
+
+**Line number verification:** The `newLine` must be the exact line number in the new file (1-indexed). Off-by-one errors cause `"line_code can't be blank"` errors — GitLab silently rejects positions that don't match the diff. **Always verify line numbers against the actual file content** (via repository files API), not just diff hunk arithmetic. Hunk headers show where the hunk starts, but blank lines and multi-line removals shift subsequent positions.
+
+For new lines (`+` in the diff), omit `oldLine`. For context lines (unchanged), include both `oldLine` and `newLine`. For removed lines (`-`), include only `oldLine`.
+
+**Step 3: Post the review summary as a top-level comment** (see comment-interaction.md → "Post Top-Level Comment").
+
+**Step 4: Clean up:**
+Delete only the files written during this run — not the entire directory. Other skills or concurrent agents may have files in `tmp/change-request-replies/`. Track filenames as you write them, then delete exactly those files. Leave the directory in place.
 
 ## Checkout Review Branch
 
@@ -63,6 +84,9 @@ glab mr list --source-branch <branch-name>
 ## Find Approved Reviewers
 
 ```bash
+# Write jq filter to tmp/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
+#   [.[] | select(.body | test("LGTM"; "i"))] | [.[].author.username] | unique | .[]
+# Then:
 glab api "projects/:id/merge_requests/<number>/notes?sort=desc&per_page=100" \
-  | jq -r '[.[] | select(.body | test("LGTM"; "i"))] | [.[].author.username] | unique | .[]'
+  | jq -rf tmp/jq-filter.jq
 ```

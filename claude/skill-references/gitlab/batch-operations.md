@@ -11,8 +11,11 @@ description: "GitLab commands for batch MR metadata fetching (used by extract-re
 For batch operations like learnings extraction:
 
 ```bash
+# Write jq filter to tmp/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
+#   .[] | {iid, title, state, user_notes_count, author: .author.username, source_branch, reviewers: [.reviewers[].username], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], description: (.description // "(none)")[:400]}
+# Then:
 glab api "projects/:id/merge_requests?state=all&sort=asc&order_by=created_at&per_page=<SIZE>&page=<PAGE>" \
-  | jq -c '.[] | {iid, title, state, user_notes_count, author: .author.username, source_branch, reviewers: [.reviewers[].username], created_at: .created_at[:10], merged_at: (.merged_at // "n/a")[:10], description: (.description // "(none)")[:400]}'
+  | jq -cf tmp/jq-filter.jq
 ```
 
 ## Verify Platform Access (Batch)

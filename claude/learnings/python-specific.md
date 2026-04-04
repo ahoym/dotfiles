@@ -97,6 +97,26 @@ assert response == MyResponseModel(
 )
 ```
 
+## uv for Local Python Tooling
+
+Prefer `uv` over `pyenv` + `pyenv-virtualenv` for local Python version and environment management. uv handles both in a single tool and is significantly faster.
+
+Install via homebrew: `brew install uv`
+
+Add to `~/.zshrc`:
+```zsh
+eval "$(uv generate-shell-completion zsh)"
+```
+
+Common commands:
+- `uv python install 3.12` — install a Python version
+- `uv venv` — create `.venv` in current dir
+- `uv add <pkg>` — add dependency (manages `pyproject.toml` + lockfile)
+- `uv run script.py` — run with project environment
+- `uv sync` — install all deps from lockfile
+
+**Gotcha:** `pyenv virtualenv-init init -` (extra `init` arg) hangs on every shell open — if migrating away from pyenv, fully remove it rather than leaving broken init hooks in `.zshrc`.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)

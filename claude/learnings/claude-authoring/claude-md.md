@@ -111,6 +111,67 @@ When two or more CLAUDE.md facts must be combined to produce correct behavior, s
 
 **Example:** "Repo is symlinked to `~/.claude`" + "Glob/Read don't resolve `~`" independently are clear, but neither states the conclusion: "use `.claude/` relative paths for Read/Glob." Adding the conclusion inline prevents repeated inference failures across sessions.
 
+## Signpost Pattern: Non-`@` Lazy-Loaded References
+
+File paths listed in CLAUDE.md **without** the `@` prefix are not eagerly inlined — they're plain text. But proactive agents notice these paths and read them on demand when the topic becomes relevant. This creates a lightweight lazy-loading mechanism.
+
+**Format:**
+```markdown
+## Lazy-loaded references (read when relevant)
+
+.claude/guidelines/deployment.md - Production deployment checklist
+docs/architecture/auth-flow.md - Authentication sequence and token lifecycle
+```
+
+**Behavior contrast:**
+- `@path` → eagerly inlined, always costs tokens
+- `path` (no `@`) → visible as text, read by agent judgment when relevant
+
+**When to use signposts over `@`:** Context that's useful but not universally needed — domain-specific guidelines, deep-dive references, or situational checklists. Reserve `@` for context every session needs.
+
+**Validation method:** Add a unique marker string to the signposted file, start a fresh session, and check whether the agent (a) ignores it, (b) reads it proactively via a Read tool call, or (c) reports the marker without a Read call (indicating eager inlining — a failure). Success = (b).
+
+## Refactor Monolithic CLAUDE.md into Modular Guideline Includes
+
+A monolithic CLAUDE.md (130+ lines) can be refactored into modular files under `.claude/guidelines/` using `@` includes. The root file shrinks to a navigational hub (~8 lines of `@` references). Refactoring into modules creates a natural affordance for content expansion — sections that felt too bulky for a monolithic file grow organically when they have their own file. Expect new content to emerge during the extraction, not just a pure move.
+
+## Document Conflict Resolution Strategy Alongside Structural Changes
+
+When introducing structural changes that will cause merge conflicts (e.g., switching from inline content to `@` includes), document the conflict resolution strategy in the same PR. Forward-looking documentation prevents confusion when conflicts inevitably arise. Example: "check inline version for NEW additions not yet in modular files, incorporate into the appropriate module, resolve main file to keep `@` includes."
+
+## Index Files Belong with the Content They Index
+
+When a directory has a curated index (`CLAUDE.md` listing all files with descriptions), the index belongs *inside* the directory — not at a parent level serving double duty. `learnings/CLAUDE.md` alongside the learnings files, not root `CLAUDE.md` acting as both project guide and file index.
+
+**Why:** The root CLAUDE.md is the project's face to agents entering the repo. When it's entirely an index, there's no project guidance. Moving the index down lets each file serve one purpose — root is the project guide, `learnings/CLAUDE.md` is the file index.
+
+**Consumer impact:** Any search guideline or skill that reads the index path needs updating (e.g., `learnings-team-search.md`). Validation scripts (`check-index.sh`) also need the new path and should exclude the index file from their own scan.
+
+## Symlinked Repos Expose Project CLAUDE.md to Consumer Agents
+
+When a repo is symlinked into `~/.claude/` (e.g., `~/.claude/learnings-team/ → <repo>`), its root `CLAUDE.md` becomes visible to agents searching the symlink path. If that file contains contributor instructions (how to add learnings, file naming conventions, check scripts), it's noise for consumer agents who only want the learnings index.
+
+**Mitigation options:**
+1. Move project instructions to `.claude/CLAUDE.md` (only activates when CWD is the repo) — no root `CLAUDE.md` at all
+2. Keep project instructions in a non-CLAUDE.md file (`CONTRIBUTING.md`)
+3. Accept the risk — if search protocols are explicit about which file to read (e.g., `learnings/CLAUDE.md`), the root file is only noise if someone broadens the glob
+
+The tension: contributors working *on* the repo want `CLAUDE.md` at root for Claude Code auto-loading. Consumers want it absent to avoid pollution. `.claude/CLAUDE.md` splits the difference — active for contributors, invisible to consumers.
+## Breadcrumb Pattern: Lightweight Resource Awareness
+
+A single non-`@` comment line in CLAUDE.md (~25 tokens always-on) gives agents enough context to discover and search an external resource on request — without importing a full protocol.
+
+```markdown
+# Shared team learnings are available at ~/.claude/learnings-team/learnings/ — search there when the user asks about learnings-team or when a topic might have shared knowledge.
+```
+
+**Three integration tiers** (cheapest to richest):
+1. **Symlink only** — resource exists at `~/.claude/X/` but agent doesn't know. User must provide explicit paths.
+2. **Breadcrumb** — one comment line in CLAUDE.md. Agent knows the resource exists, can search on request ("search learnings-team for X"), and can proactively check when encountering relevant domains.
+3. **Full guideline** — `@` import of a structured search protocol. Agent searches automatically at defined gates.
+
+The breadcrumb bridges the gap: no token cost beyond ~25 tokens, no automatic behavior, but natural language requests work because the agent has the path and purpose in context.
+
 ## Cross-Refs
 
 No cross-cluster references.

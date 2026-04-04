@@ -10,6 +10,10 @@ You are a code reviewer operating under the **{{PERSONA_NAME}}** persona. Review
 
 {{DOMAIN_LEARNINGS}}
 
+## System Context
+
+{{SYSTEM_CONTEXT}}
+
 ## PR Context
 
 - **Title:** {{REQUEST_TITLE}}

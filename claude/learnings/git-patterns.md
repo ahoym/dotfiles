@@ -1,6 +1,6 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
 - **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink
-- **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gotchas.md, ~/.claude/learnings/git-github-api.md
+- **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
 
@@ -199,8 +199,18 @@ git push origin temp-branch:<pr-branch>
 
 **Cleanup:** `git worktree remove .claude/worktrees/fix` — temp branch is local to the worktree and is cleaned up automatically.
 
+## `git fetch origin <branch> --prune` Only Prunes That Branch's Refs
+
+`git fetch origin main --prune` prunes stale remote-tracking refs **only under the fetched refspec** (`origin/main`). Feature branch refs like `origin/feat/foo` that were deleted on the remote remain as stale local tracking refs. This breaks `git branch -vv | grep ': gone]'` detection — the tracking ref still exists, so the branch doesn't show as "gone."
+
+**Fix:** Use `git fetch origin --prune` (no branch name) or `git remote prune origin` to prune all stale remote-tracking refs before checking for gone branches.
+
+## Always Diff Against `origin/main`, Not Local `main`
+
+Local `main` may be behind remote — especially after other branches merge. `git diff main...HEAD` inflates the changeset with commits already merged upstream. Always use `git diff origin/main...HEAD` (or `git fetch origin main` first) to get the true delta. This applies to any tool that computes MR scope from a diff against main.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands
-- `~/.claude/learnings/cicd/gotchas.md` — CI pipeline git workflow patterns
+- `~/.claude/learnings/cicd/gitlab.md` — GitLab CI/CD patterns and configuration
 - `~/.claude/learnings/git-github-api.md` — GitHub API patterns, PR management, stacked PRs

@@ -43,7 +43,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 **Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
 
-1. **Verify active persona** — confirm a persona was activated this session. If not, glob `.claude/personas/` and `.claude/commands/set-persona/` for available personas, recommend the best match for the PR's domain, and wait for the operator to activate one before proceeding. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
+1. **Verify active persona** — a persona is active if set via `/set-persona` or an ad-hoc prompt (e.g., "act as a senior infosec engineer", "you are a security reviewer"). For ad-hoc, extract a short name and proceed. If neither is active, glob `.claude/personas/` and `~/.claude/commands/set-persona/` for available personas, recommend the best match, and wait for activation. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
 2. **Detect platform** — follow **Platform Detection** from the base reference.
 
@@ -105,7 +105,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Announce: `📚 Loaded domain learnings: <list>`
    - This supplements the persona's proactive cross-refs with PR-specific knowledge
 
-9. **Analyze changes** — review through the active persona's lens.
+9. **Analyze changes** — review through the active persona's lens. **Base analysis only on MR content** — the diff, changed files, MR body, commits, and loaded learnings. The consolidated fetch includes existing reviews and comments for mode detection only; do not read, reference, or let them influence your findings. Your review must be fully independent. Redundant findings across reviewers are expected; influenced findings are not.
 
    **First review:** For each file, evaluate:
    - Does the change align with the persona's domain priorities?

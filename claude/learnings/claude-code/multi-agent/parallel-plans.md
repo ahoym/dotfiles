@@ -56,7 +56,7 @@ When an agent has no downstream dependents (`depends_on` from other agents), it'
 - **Merge into adjacent agent** if agent is tiny (<50 lines) or the parallelism gain is negligible
 - **Always document in Review Notes** — flag the tradeoff explicitly so the executor can re-evaluate
 
-Example: Agent D (fireblocks destination config, ~70s) runs parallel with B+C. Merging into E would serialize it after C, adding ~40s to critical path. Keep separate, flag as leaf.
+Example: Agent D (vendor destination config, ~70s) runs parallel with B+C. Merging into E would serialize it after C, adding ~40s to critical path. Keep separate, flag as leaf.
 
 ## Context Continuation for parallel-plan:make
 

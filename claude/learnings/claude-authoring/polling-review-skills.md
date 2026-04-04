@@ -94,8 +94,28 @@ A commit can land between phase 1 (SHA check) and review posting. If it fixes an
 
 GitHub has two separate comment endpoints: inline review comments (`/pulls/{N}/comments`) and top-level PR comments (`/issues/{N}/comments`). Watermarks that only track inline comment IDs are blind to operator directives posted as top-level comments. The watermark's `last_comment_id` must be the MAX of both endpoints. `gh pr view --json comments` includes top-level comments; combine with the inline endpoint for full coverage.
 
+## Addresser Comments on Other Reviewer's Threads Are Not Actionable
+
+When multiple review agents operate on the same MR (e.g., a bot reviewer + a persona-based reviewer), Addresser comments responding to the *other* reviewer's threads pass the quick-exit self-filter (`Role:.*Addresser` ≠ `Role:.*Reviewer`). But they require no action from your review — they're on threads you didn't create. Detect by checking whether the comment is a reply to one of your discussion IDs. If not, advance `LAST_REVIEW_TS` past it and skip.
+
+## Stale Comments via `head_sha` Mismatch
+
+Review comments include a `head_sha` indicating which commit version they were made on. When `head_sha` doesn't match the current HEAD, the comment may target code already changed by subsequent commits. Check `head_sha` against HEAD before investing analysis time — the comment may already be addressed. This extends the "line number drift" pattern: `head_sha` mismatch signals not just shifted line numbers but potentially resolved concerns.
+
+## Terminal State: Comment-Only Instead of Hard Stop
+
+Merged/closed requests should default to comment-only mode rather than hard-stopping. Post-merge review follow-up is a valid workflow — addressing reviewer comments, clarifying design decisions, recommending follow-up MRs. The terminal state check still fires (and cancels any polling cron jobs), but the skill proceeds in comment-only mode: reply to comments, post summary, skip checkout/implementation/push.
+
+This interacts with ownership-based mode detection (see `claude-authoring-skills.md` § "Ownership-Based Mode Detection"): terminal state is an additional signal that forces comment-only, independent of authorship.
+
+## Batch Discussion ID Resolution Against a Single Paginated Fetch
+
+GitLab inline comment replies require the discussion ID (not the note ID). Resolving note→discussion requires fetching all discussions. When replying to N threads, fetch discussions once and extract all N discussion IDs from the same response — don't make N separate paginated fetches. Pattern: `glab api projects/:id/merge_requests/<N>/discussions --paginate | jq -r '.[] | select(.notes[]?.id == <NOTE_ID>) | .id'` for each note, but against the same cached response.
+
 ## Cross-Refs
 
+- `skill-design.md` — core skill design patterns (includes "Inline Critical Conditions" pattern that the devolution fix applies; "Ownership-Based Mode Detection" for the companion pattern)
+- `content-types.md` — routing hub for authoring cluster
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer convergence, offset loops, pre-flight checks

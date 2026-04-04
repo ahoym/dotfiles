@@ -1,6 +1,6 @@
 pnpm/Node CI specifics — lockfile handling, action setup, browser caching, linting config.
 - **Keywords:** pnpm, GitHub Actions, frozen-lockfile, Playwright browser cache, ESLint, Prettier, eslint-config-prettier, Vercel, serverless, cold start, tsc, tsconfig, dependency-review-action
-- **Related:** ~/.claude/learnings/aws/vercel-deployment.md, ~/.claude/learnings/cicd/patterns.md, ~/.claude/learnings/cicd/gotchas.md
+- **Related:** ~/.claude/learnings/aws/vercel-deployment.md, ~/.claude/learnings/cicd/gitlab.md
 
 ---
 
@@ -26,5 +26,4 @@ pnpm/Node CI specifics — lockfile handling, action setup, browser caching, lin
 ## Cross-Refs
 
 - `~/.claude/learnings/aws/vercel-deployment.md` — Vercel cron limits, Postgres driver patterns
-- `~/.claude/learnings/cicd/patterns.md` — general CI/CD patterns and YAML examples
-- `~/.claude/learnings/cicd/gotchas.md` — general GitHub Actions and GitLab CI tripwires (stack-agnostic companion)
+- `~/.claude/learnings/cicd/gitlab.md` — GitLab CI/CD patterns and configuration

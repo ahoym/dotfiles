@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution
 - **Related:** none
 
 ---
@@ -114,6 +114,7 @@ After modifying or creating skills, verify before committing:
 - Include the full command, not just fragments
 - Show prerequisite commands (fetch, checkout) explicitly
 - Use HEREDOC for multi-line commit messages
+- When a skill says "parse JSON response" after an API call, include the explicit `jq` command for extraction — especially when output may be auto-persisted to a file. "Parse the JSON" without a prescribed command invites ad-hoc piping that violates verbatim execution rules
 
 ## Operator Interaction Points
 
@@ -142,6 +143,36 @@ Skills should work across different projects. Periodically audit skills to remov
 | Internal API names | Generic references (`External API`, `Payment API`) |
 
 **Audit process:** Search skills for project-specific class/file names → check SKILL.md and reference files → replace with domain-neutral examples → verify examples still make sense generically.
+
+## Security Audits on Skill Files: Executable Code vs LLM Instructions
+
+Security audit tools reviewing skill files often flag shell injection, race conditions, and input sanitization issues that don't apply. Key distinctions:
+
+- **Template placeholders are not shell variables.** `<branch>`, `<number>`, `<TS>` in markdown skill instructions are substituted by the LLM when constructing commands via the Bash tool. There's no `shell=True` expansion — the injection surface doesn't exist.
+- **Concurrency findings assume unsupported modes.** "Two agents on the same MR" race conditions don't apply when the design contract is one agent per role per MR.
+- **Identity checks are defense-in-depth, not security boundaries.** Body-based role detection (`Role:.*Reviewer`) is bypassable in theory, but the independent assessment step is the real gate. Adding username allowlists trades maintenance cost for minimal security gain.
+
+When addressing such reviews: acknowledge the theoretical concerns, push back with the execution model distinction, and implement only findings that are genuinely actionable (missing flags, stale state, pre-flight checks).
+
+### Deduplicate skill content against shared references
+
+When a skill has a "GitLab API Notes" or similar reference section AND a shared base reference (e.g., `request-interaction-base.md`) or learnings file covers the same content, delete the section from the skill. Duplication wastes context tokens on every invocation and creates drift risk. Keep API-specific notes only in the skill when they're step-specific (e.g., `-F` vs `-f` in a GraphQL posting step) — move general patterns to the shared reference.
+
+## Intake Skills on Open-Contribution Repos
+
+When a skill serves as the quality gate for an open-contribution corpus (anyone can branch and submit), separate editorial triage from mechanical findings. Mechanical checks (dedup, format, cross-refs, index sync) have clear right/wrong answers and fit a confidence-based auto-fix model. Usefulness assessment (specificity, redundancy beyond exact duplication, actionability) is subjective — present it as a separate report section with flags, not as findings to fix. The reviewer makes the call; the skill surfaces the signal.
+
+Keep triage non-blocking: flag low-signal contributions rather than gating them. Niche learnings sometimes deliver outsized value months later, so false negatives on "low value" are expensive. The triage section belongs in the MR comment alongside the mechanical report, not in the approval flow.
+
+## Security-Critical Instructions Need Structural Prominence
+
+Advisory phrasing ("sanitize before use", "verify the path") in skill instructions is insufficient for security-critical steps — LLMs skip steps in long instruction chains. Elevate to a **PREREQUISITE** marker with explicit abort-on-failure and fallback values. The visual break and imperative framing increase compliance without adding bash implementation detail (which may not apply to all consumers).
+
+**Pattern:** `**PREREQUISITE — <action> before <trigger>.** <allowlist/validation rule>. Abort if verification fails.`
+
+## Build Skills from Live Sessions
+
+The most effective skill authoring pattern: execute the workflow manually first, then codify. Run the methodology in a real session with the operator, discuss design decisions as they arise (single-pass vs multi-sweep, what to share vs keep self-contained, where to draw boundaries), and write the skill from validated experience. The live session surfaces edge cases, operator preferences, and cost tradeoffs that spec-first design misses. The session also produces a natural test case — if the skill can reproduce what the session did, it's correct.
 
 ## Cross-Refs
 

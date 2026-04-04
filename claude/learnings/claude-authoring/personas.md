@@ -76,7 +76,11 @@ Child personas that declare `## Extends: <parent>` or `## Extends: <parent1>, <p
 
 ## Proactive Cross-Refs Require Agent Behavior, Not @ References
 
-Persona `## Proactive Cross-Refs` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive cross-ref file, making it agent-dependent but the only viable mechanism. The keyword-based learnings search (`context-aware-learnings.md`) is the fallback for sessions without an active persona.
+Persona `## Proactive loads` sections cannot use `@` references because persona files are data files read via the Read tool at runtime — `@` only resolves in CLAUDE.md and SKILL.md at the CLI level. The set-persona skill's Step 5 explicitly reads each proactive load file, making it agent-dependent but the only viable mechanism. The learnings search protocol (`learnings-team-search.md`) is the fallback for sessions without an active persona.
+
+## Multi-Source Learnings Resolution
+
+Persona proactive loads and cross-refs use logical paths (`learnings/...`) without a `~/.claude/` prefix. The set-persona skill resolves each path by searching directories in precedence order: learnings-team → project-local → personal → private. First match wins. This decouples personas from any specific learnings source — personas declare *what* knowledge they need, the resolution strategy finds *where* it lives.
 
 ## Knowledge/Lens Decomposition
 

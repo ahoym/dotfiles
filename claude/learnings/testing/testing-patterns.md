@@ -173,19 +173,15 @@ def orch():
     return Orchestrator(coordinator=MagicMock())
 ```
 
-**Corollary:** Router/integration tests that use `TestClient(app)` should use default env var values (e.g., `"local_fireblocks_source_vault"`) in mock expectations — not `.env.tests` values — because module-level singletons may already be initialized with defaults by the time the test runs.
+**Corollary:** Router/integration tests that use `TestClient(app)` should use default env var values (e.g., `"local_vendor_source_vault"`) in mock expectations — not `.env.tests` values — because module-level singletons may already be initialized with defaults by the time the test runs.
 
 ## UTC-Explicit Datetime Conversions
 
-`datetime.fromtimestamp()` without a timezone returns local time, making tests fail across timezones (local dev vs CI runners). Always use `datetime.fromtimestamp(ts, tz=UTC)`. This applies to any timestamp-to-datetime conversion in test assertions.
-
-- **Takeaway**: Always pass `tz=UTC` for timezone-stable datetime conversions in tests.
+`datetime.fromtimestamp()` without a timezone returns local time, making tests fail across timezones (local dev vs CI runners). Always pass `tz=UTC` for timezone-stable datetime conversions in tests.
 
 ## Use Specific Exception Types in pytest.raises
 
-Replace `pytest.raises(Exception)` with specific exception types. Catching broad `Exception` masks bugs — if a different exception type is raised (e.g., `TypeError` from bad arguments), the test still passes. Validates the actual error path, not just "something failed."
-
-- **Takeaway**: Specific exception types in `pytest.raises` prevent false positives from wrong error paths.
+Replace `pytest.raises(Exception)` with specific exception types. Catching broad `Exception` masks bugs — if a different exception type is raised (e.g., `TypeError` from bad arguments), the test still passes. Specific exception types in `pytest.raises` prevent false positives from wrong error paths.
 
 ## Plan Docs Should Specify Mock Expectation Values
 

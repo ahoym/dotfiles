@@ -122,6 +122,29 @@ Cluster reorganization silently breaks proactive and reactive cross-refs across 
 
 In diff-routed deep dives, the 3-5 file group cap applies to **curation targets** (files actively curated — classified, actioned, keyword-enriched), not to **comparison context** (files loaded read-only for overlap/duplicate detection). A group might read 10-15 files total but only curate 3-5. The cap constrains curation *work*, not context *reads* — comparison context is unbounded because it's read-only and the cost is tokens, not curation complexity.
 
+## Catalog-Wide Sweep: Adapt MR-Scoped Methodology for Full Directory
+
+When no MR exists, combine /organize's catalog-specific checks (cross-ref format, index sync, cluster promotion) with /consolidate's analysis rigor (multi-sweep HIGH→MEDIUM→VERIFICATION loop, classification model, concept-name collision detection). Scope to the full directory rather than MR changes. The key adaptations: (1) all files are both catalog and target — there's no "unchanged catalog" to cross-reference against, so cross-reference within the full set; (2) skip MR-specific steps (posting comments, diffing against origin/main); (3) use parallel cluster analysis via subagents to manage the volume.
+
+## Incremental Verification Over Full Re-Sweep
+
+After applying fixes in a catalog sweep, don't re-run full parallel cluster analysis. Instead, verify only the blast radius of each action type:
+
+| Action type | Verification |
+|-------------|-------------|
+| Cross-ref path fix | Glob to confirm new target exists |
+| Cross-ref removal | None — removal can't break anything |
+| Header format fix | None — mechanical substitution |
+| File move/rename | Grep old path across all files — remaining refs are new HIGHs |
+| File deletion | Grep deleted filename — stale refs are new HIGHs |
+| Index entry change | Re-run check-index.sh |
+
+Cost model: one expensive full analysis (~3 min for 80 files) + N cheap incremental passes (~10 sec each). This replaces the re-sweep pattern from /consolidate where full re-analysis runs after every phase.
+
+### Cross-refs warranted when file splits share a domain keyword
+
+When splitting a file by scope (e.g., universal vs language-specific code quality), the two halves share the same domain keyword ("code quality") but serve different audiences. Keyword search alone won't reliably route from one to the other — a searcher finding the universal file has no signal that a language-specific companion exists. Add bidirectional cross-refs in this case, even though the "would keyword search find it?" heuristic suggests otherwise. The heuristic assumes files have distinct keywords; split files violate that assumption.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/ralph-loop.md` — core loop mechanics: resuming, state management, stateless iteration, one-action enforcement, worktree mechanics, runner-spec contracts

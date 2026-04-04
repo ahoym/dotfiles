@@ -1,6 +1,6 @@
 GitHub-specific API patterns — PR management, stacked PRs, pagination gotchas, reviews endpoint, and bulk extraction via gh CLI.
 - **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to
-- **Related:** ~/.claude/learnings/git-patterns.md, ~/.claude/learnings/cicd/gotchas.md
+- **Related:** ~/.claude/learnings/git-patterns.md, ~/.claude/learnings/cicd/gitlab.md
 
 ---
 
@@ -65,4 +65,4 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments \
 ## Cross-Refs
 
 - `~/.claude/learnings/git-patterns.md` — core git operations, rebase, merge, worktree, commit hygiene
-- `~/.claude/learnings/cicd/gotchas.md` — CI pipeline git workflow patterns
+- `~/.claude/learnings/cicd/gitlab.md` — GitLab CI/CD patterns and configuration

@@ -56,12 +56,10 @@ You ONLY write to <WRITER_SCOPE> files. Ignore learnings with scope other than "
 ```markdown
 ### Concise title
 
-What the learning is, why it matters, and when it applies.
-
-- **Source**: <REVIEW_UNIT> <REVIEW_PREFIX>number (+ any others where this recurred)
-- **Frequency**: once | recurring | convention
-- **Takeaway**: One-line actionable summary.
+What the learning is, why it matters, and when it applies. Include actionable guidance directly in the description — don't repeat it in a separate takeaway line.
 ```
+
+No **Source**, **Frequency**, or **Takeaway** bullet lines. The description paragraph should be self-contained.
 
 ## Extracted learnings to process
 

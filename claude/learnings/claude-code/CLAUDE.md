@@ -13,7 +13,9 @@ Claude Code platform mechanics, agent infrastructure, and orchestration patterns
 | ralph-curation.md | Ralph curation patterns: compounding, deep dives, convergence, staged-learnings |
 | explore-repo.md | Parallel multi-agent exploration for unfamiliar repos |
 | cross-repo-sync.md | Cross-repo sync patterns and path-mismatch gotchas |
+| shell-patterns.md | Shell expansion safety: $(cat) non-recursive expansion, injection prevention |
 | web-session-sync.md | Web session sync: when sync is needed vs not, branch workflows |
+| sweep-sessions.md | Sweep director patterns: claude -p learnings-team gate gaps, GitLab/GitHub state casing |
 
 ## Sub-clusters
 

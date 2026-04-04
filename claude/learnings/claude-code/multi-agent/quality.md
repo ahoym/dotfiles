@@ -57,3 +57,7 @@ After subagent writes, verify with `wc -l`, `grep -c`, and a 5-line spot-check �
 ## TaskOutput Only Works for Background Bash Tasks
 
 `TaskOutput` with `block: false` works for background Bash commands (`run_in_background: true`), not for background Agent tasks. Agent IDs from `run_in_background` agents are tracked via the automatic notification system — you'll be notified when they complete. Don't poll with `TaskOutput`; it returns "No task found" errors.
+
+## Agents Create Unintended Side-Effect Files During Batch Edits
+
+When launching agents to edit specific target files, they sometimes create or modify additional files they weren't asked to touch — writing staging artifacts, enriching adjacent files, or creating root-level duplicates of cluster content. This is especially common when the agent prompt contains content that references other files by name. Always run `git status` after agent completion and revert unexpected changes before committing. The pattern compounds across batches: each organize cycle can produce 2-5 agent-created artifacts that must be cleaned up.

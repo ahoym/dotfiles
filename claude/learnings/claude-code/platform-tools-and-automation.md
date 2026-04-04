@@ -176,6 +176,24 @@ cat prompt.txt | sh -c 'echo $$ > session.pid; exec claude -p --verbose --output
 
 `sh -c` creates a subshell with its own `$$`. `exec` replaces that subshell with `claude -p`, so `session.pid` contains the real PID. Downstream processes (like `stream-monitor.sh`) can read this file to enable `kill` for hung sessions. Brief retry needed for pipeline race — the pid file may appear slightly after downstream processes start.
 
+### `check-index.sh` ghost files: distinguish untracked disk artifacts from genuine index gaps
+
+When `check-index.sh` reports "missing from index" for files that were recently moved or deleted via `git mv`/`git rm`, check `git status --short` first. Untracked (`??`) files at old paths are ghost artifacts — recreated by external processes (linters, compound skills, filesystem watchers) after the git operation. Delete them with `rm` before treating the check-index output as authoritative. Genuine index gaps have the file both committed (`git show HEAD:<path>` succeeds) and absent from the index.
+
+## Batch Independent Write Calls Into Single Parallel Round-Trips
+
+When composing a review with N inline comment files + a summary file, write all files in a single parallel batch rather than sequentially. Each sequential Write call adds a full round-trip (tool approval + execution). For a review with 4 inline comments + 1 summary + 1 script = 6 files, sequential writes cost 6 round-trips; parallel costs 1. Same principle applies to any multi-file preparation step where files are independent.
+
+## Start Large Diff Reads with Conservative Limits
+
+The Read tool rejects files exceeding ~10K tokens. For large diffs (100KB+), start with `limit=300` rather than reading the full file. Token-limit rejections waste a full round-trip each. A 114KB diff typically needs 3-4 chunked reads at `limit=300`; starting without a limit wastes 1-2 attempts before discovering the limit.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline
+
+## Glob Tool Fails on `~/.claude/` Symlinked Paths
+
+The Glob tool doesn't resolve symlinked directories under `~/.claude/`. `Glob(pattern="set-persona/*.md", path="/Users/<user>/.claude/commands")` returns zero results even when 20+ files exist. The same path works with `ls` via Bash.
+
+**Workaround:** Use `Bash(ls ~/.claude/commands/set-persona/)` for file discovery in dotfile directories. Reserve Glob for project-root-relative searches where symlinks aren't involved. This affects persona discovery in sweep skills, learnings directory scanning, and any file enumeration under `~/.claude/`.

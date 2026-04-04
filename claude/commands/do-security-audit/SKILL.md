@@ -1,6 +1,7 @@
 ---
 name: do-security-audit
 description: "Run a security audit on one or more projects using parallel agents."
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Glob

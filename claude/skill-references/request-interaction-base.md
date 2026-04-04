@@ -15,6 +15,14 @@ If not already detected this session, read `~/.claude/skill-references/platform-
 - `~/.claude/skill-references/{github,gitlab}/comment-interaction.md`
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md`
 
+## Platform API Gotchas
+
+After loading platform cluster files, also load platform-specific API learnings to avoid known friction:
+- **GitLab:** Read `~/.claude/learnings-team/learnings/gitlab/gitlab-api-and-cli.md` — covers `glab api` quirks, GraphQL `-F` vs `-f` flag syntax, REST workarounds for nested JSON, and permission-safe patterns for `claude -p` sessions.
+- **GitHub:** No additional learnings load needed — `gh api` patterns are straightforward.
+
+Skip if already loaded this session.
+
 ## Consolidated Fetch
 
 Fetch state + reviews + top-level comments in a single call (GitHub):
@@ -41,7 +49,7 @@ For skills that poll repeatedly on the same review:
 - If no non-self comments are returned, keep the previous `LAST_FETCH_TS`.
 - Filter out your own replies by matching `Role:.*<YOUR_ROLE>` (regex) in the comment body. The footer uses markdown italics (`*Role:* <role>`), so a literal substring match won't work.
 
-**Quick-exit is a gate, not a processing shortcut.** The quick-exit check (fetching only the latest comment) determines whether any new activity exists. If new activity is detected, always perform a full incremental fetch before applying filters or processing. Never apply the Mutual Resolution Filter or categorize comments based solely on the quick-exit result — intermediate comments (especially operator comments) may exist between the latest comment and `LAST_FETCH_TS`.
+**Quick-exit is a gate, not a processing shortcut.** The quick-exit check (fetching only the latest ~10 comments) determines whether new activity exists. If new activity is detected, perform a full incremental fetch (`--paginate` with `created_at > LAST_FETCH_TS` filter) before applying filters or processing — the quick-exit result is a sample, not the complete set. Intermediate comments (especially operator comments) may fall outside its `per_page` window. The full incremental fetch is the single source of truth for what to process.
 
 **General Review Comments have no `since` support.** The reviews endpoint returns all reviews every time. On incremental fetches, compare the count against `LAST_REVIEW_COUNT`. Only process reviews beyond the previous count.
 
@@ -61,11 +69,18 @@ Both `Persona` and `Role` must match to identify a specific agent's comments (th
 Every externally-posted reply, review body, and inline comment must end with:
 ```
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* <persona-name or "none">
-*Role:* <Reviewer|Addresser>
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* <persona-name or "none">
+- *Role:* <Reviewer|Addresser>
 ```
 Use the model you're currently running (e.g., "Claude Opus 4.6"). This footnote is the identity key — detection of previous reviews, self-reply filtering, and mutual resolution all depend on it.
+
+**Use list items (`-`) for each label.** This ensures each label renders on its own line in GitLab markdown without relying on blank-line separation.
+
+**Persona detection (precedence order):**
+1. Formal persona (activated via a persona skill) → use the persona name
+2. Ad-hoc persona prompt in conversation (e.g., "you are a senior Java backend engineer...") → extract a short name (e.g., "Senior Java Backend Engineer")
+3. Neither → use "none"
 
 ## Reply File Naming
 

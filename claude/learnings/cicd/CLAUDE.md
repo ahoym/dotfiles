@@ -1,7 +1,5 @@
-CI/CD patterns for GitHub Actions and GitLab CI: pipeline structure, gotchas, and glab CLI differences.
+GitLab CI/CD patterns: pipeline configuration, debugging, glab CLI, and API mechanics.
 
 | File | When to read |
 |------|-------------|
-| patterns.md | Docker build/push stage sharing, pipeline structure |
-| gotchas.md | GitHub Actions and GitLab CI tripwires |
-| gitlab.md | GitLab CI/CD: diagnosing failures with glab, pipeline structure |
+| gitlab.md | GitLab CI/CD: debugging with glab, pipeline config, API/CLI mechanics, GraphQL inline comments |

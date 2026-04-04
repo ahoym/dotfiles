@@ -85,6 +85,64 @@ No `# Title` — the filename serves as the title. This keeps all three signal l
 - The `---` divider separates the header from content — purely for readability
 - When delegating learnings creation to subagents, specify the no-title format in the prompt — agents default to `# Title` headers from training, which shifts line positions and breaks `limit=3` sniffing
 
+**Why it works:** The sniff step (read 5 lines to check relevance) exists because filenames alone are weak signals. Descriptions make sniffing unnecessary. The pipeline was compensating for missing structure.
+
+
+**Maintenance cost:** Low when there's a regular consolidation cadence — add an entry when adding a file, remove when removing.
+
+## File Naming Drift: Name for the Domain, Not the Tool
+
+When a file accumulates content over time, its name can drift from its actual scope. `gitlab-ci-cd.md` accumulated GitLab API and `glab` CLI content because `glab` was the common thread — but MR endpoint gotchas and inline comment GraphQL requirements have nothing to do with CI/CD pipelines. Someone working on review automation wouldn't look in a CI/CD file.
+
+**Detection:** When adding content to an existing file, ask: "would someone searching for this topic expect to find it under this filename?" If the answer is no, the file needs splitting or the content needs a different home.
+
+**Prevention:** Name files after the *domain boundary*, not the *tool* or *entry point*. `gitlab-api-and-cli.md` (API surface + CLI tool) vs `gitlab-ci-cd.md` (pipeline configuration) — clear domains that don't drift into each other.
+
+## Check Overlap Before Creating New Learnings Files
+
+When extracting knowledge from skills into learnings, content often splits across multiple existing homes rather than forming a new standalone file. Before creating a new file, check existing learnings for partial coverage — the new content may be an enhancement to 2-3 existing files rather than a standalone topic. A new file that's 60% overlap with existing content adds maintenance burden without proportional discovery value.
+
+## Cross-Reference Types: Semantic vs Discovery
+
+Two distinct purposes for `## Cross-Refs` cross-references in learnings files:
+
+- **Discovery** ("this file also exists") — redundant when a curated index is present; the index surfaces all files with descriptions. Can be dropped.
+- **Semantic** ("when using X with Y, the interaction matters because Z") — carries contextual reasoning that no index description can replicate. Keep these; they fire when a file is *already loaded* and provide targeted follow-up context.
+
+**Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
+
+## Porting a Skill Reference to Team Learnings
+
+"Port X as a learning to learnings-team" means:
+1. Copy content to `~/.claude/learnings-team/learnings/<filename>.md`
+2. Add an entry to `~/.claude/learnings-team/learnings/CLAUDE.md` index
+3. Leave the original file untouched
+4. Don't update references in the source repo
+
+The original serves as the authoritative source for skill files that reference it; the learnings-team copy makes it discoverable across sessions without requiring a skill load.
+
+## Check Both Header and Footer Cross-Refs When Deleting Files
+
+Learnings files carry references in two locations: the `**Related:**` header (line 3, for sniff-time discovery) and the `## Cross-Refs` footer (for loaded-file follow-up). When deleting or renaming a file, grep for both patterns — fixing only the header leaves dangling refs in the footer that cause stale cross-ref warnings.
+
+## Implementation Patterns Are Equal Signal to Discussion Notes
+
+When extracting learnings from code reviews, discussion notes are the easiest anchor but not the only signal. A 30-file, 0-note MR introducing a new adapter has more implementation signal than a 1-file, 5-note MR where all notes are bot approval + SonarQube. Triage extractors on the *work* (description keywords, file count, module introduction), not just the *discussion count*. Validated by spot-checking 5 low-discussion MRs: original extraction captured ~30-40% of implementation patterns; re-extraction with implementation focus recovered the remaining 60-70%.
+
+## Self-Contained Descriptions Over Metadata Lines
+
+Learnings entries should be self-contained paragraphs with actionable guidance baked into the description. Avoid separate **Source**, **Frequency**, or **Takeaway** bullet lines — they add token cost without proportional value when the description is well-written. A good description already conveys what to do, when it applies, and why it matters. Splitting the actionable bit into a Takeaway line often just restates the title. Applied across 11 files in a batch extraction session, this reduced total size by 47% with no information loss.
+
+## Generalizing Project Learnings to Shared Team Learnings
+
+When extracting project-local learnings into shared team learnings, strip project-specific entity names (adapter names, class names, MR/PR numbers, service names) but preserve the structural pattern and its rationale. The goal is a learning that helps any team member working on a similar problem, not just someone working in the originating codebase.
+
+**What to strip:** Specific class names (`VendorConfig`, `ExchangeAdapter`), MR/PR references (`!1234`), internal service names, specific table/column names.
+
+**What to keep:** The pattern shape, the failure mode it prevents, framework/language specifics (Spring, PostgreSQL, gRPC), and the rationale for why the pattern exists. Code examples are fine if they illustrate the pattern generically.
+
+**Scope is broader than gotchas:** Include validated architectural practices, good engineering conventions, and patterns that help teams make better decisions — not only things that caused incidents or surprised someone.
+
 ## Cross-Refs
 
 No cross-cluster references.

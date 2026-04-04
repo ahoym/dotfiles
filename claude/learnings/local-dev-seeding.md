@@ -6,10 +6,10 @@ Hybrid API + SQL seeding architecture with Newman manifests, envsubst templating
 
 ## Hybrid API + SQL Seeding Architecture
 
-When a service receives data from both its own API and external systems (custody callbacks, scheduled tasks, compliance webhooks), local seeding needs two layers:
+When a service receives data from both its own API and external systems (external callbacks, scheduled tasks, webhook integrations), local seeding needs two layers:
 
 - **API layer**: Newman/Postman or curl for entities the app creates (customers, partners, wallets, collections). Validates the API actually works.
-- **SQL layer**: Direct inserts for entities from external systems (raw transactions, settlements, screening results, custody accounts without endpoints).
+- **SQL layer**: Direct inserts for entities from external systems (raw transactions, settlements, screening results, external accounts without endpoints).
 
 **Bridge pattern**: API layer exports a JSON manifest of created IDs (e.g., Newman `--export-environment`). SQL layer uses `envsubst` to render a templated `.sql.template` file with those IDs before executing via `psql`.
 

@@ -20,7 +20,7 @@ Remove local branches that have already been merged into remote main.
 
 1. **Fetch latest from remote**:
    ```bash
-   git fetch origin main --prune
+   git fetch origin --prune
    ```
 
 2. **Find merged branches** (store as `MERGED_BRANCHES`):
@@ -37,16 +37,9 @@ Remove local branches that have already been merged into remote main.
    git branch -vv | grep ': gone]' | awk '{print $1}'
    ```
 
-   **Method C - Cross-reference against merged PRs:**
-   ```bash
-   gh pr list --state merged --json headRefName --jq '.[].headRefName'
-   ```
-   Match against local branch names. This catches squash-merged branches that Methods A and B both miss — e.g., branches tracking `origin/main` instead of their own remote, or branches with no tracking branch at all.
-
-   Combine all three lists, removing duplicates. This catches:
+   Combine both lists, removing duplicates. This catches:
    - Branches with commits directly in origin/main history (regular merge)
    - Branches whose remote tracking branch was deleted after merge (squash merge)
-   - Branches with confirmed merged PRs regardless of tracking config
 
 3. **Handle dry-run mode**:
    - If `$ARGUMENTS` contains `--dry-run`:
@@ -82,19 +75,14 @@ Remove local branches that have already been merged into remote main.
    git branch -d <branch-name>
    ```
 
-   For branches detected via **Method B** (squash merge / gone remote) or **Method C** (confirmed merged PR):
+   For branches detected via **Method B** (squash merge / gone remote):
    ```bash
    git branch -D <branch-name>
    ```
 
-   Note: Method A branches use `-d` as a safety check. Method B/C branches
+   Note: Method A branches use `-d` as a safety check. Method B branches
    require `-D` because their commits aren't in main's history (they were
-   squashed). The "gone" remote or merged PR is the indicator that the PR was merged.
-
-   **Worktree conflicts:** If `git branch -D` fails with "used by worktree at ...",
-   check `git worktree list` for stale worktrees (from completed agent sessions).
-   Offer to run `git worktree remove --force <path>` for each stale worktree,
-   then retry the branch deletion.
+   squashed). The "gone" remote is the indicator that the PR was merged.
 
 6. **Report results**:
    ```
@@ -141,16 +129,24 @@ Remaining local branches: 2 (main, feature/in-progress)
 - **Squash merge support**: Detects branches whose remote was deleted after PR merge, even if squash-merged
 - **Safe deletion**: Regular merges use `-d`; squash merges use `-D` (safe because remote deletion confirms merge)
 - **Protected branches**: Never deletes `main`, `master`, or the current branch
-- **Remote cleanup**: Run `git fetch --prune` separately to clean up stale remote-tracking references
-- **Worktrees**: Branches in use by worktrees cannot be deleted; offer to remove stale worktrees first
-- **PR cross-reference**: Method C catches branches that Methods A and B miss (e.g., branches tracking `origin/main`)
+- **Remote cleanup**: Step 1 already prunes stale remote-tracking references via `git fetch origin --prune`
+- **Worktrees**: Branches in use by worktrees cannot be deleted; detach the worktree first
 
 ## Known Edge Cases
 
 ### Branch tracking `origin/main` instead of its own remote
 
-**Symptom**: A squash-merged branch isn't detected by Methods A or B even after `git fetch --prune`.
+**Symptom**: A squash-merged branch isn't detected even after `git fetch --prune`.
 
-**Cause**: The branch was configured to track `origin/main` directly instead of `origin/<branch-name>`. Method B fails because `origin/main` still exists (no `: gone]`).
+**Cause**: The branch was configured to track `origin/main` directly instead of `origin/<branch-name>`. When checking `git branch -vv`, it shows `[origin/main: ahead X]` instead of `[origin/<branch-name>: gone]`.
 
-**Resolution**: Method C (`gh pr list --state merged`) catches these automatically by matching local branch names against merged PR head refs, regardless of tracking configuration.
+**Detection**: Method B (`git branch -vv | grep ': gone]'`) fails because `origin/main` still exists.
+
+**Resolution**: These branches require manual identification. Check `git branch -vv` for branches showing `[origin/main: ahead X]` where the remote branch no longer exists:
+```bash
+# Check if the branch's expected remote exists
+git branch -r | grep "<branch-name>"
+# If no output, the branch was likely merged and can be deleted with -D
+```
+
+**Example**: Branch `feature/user-settings` tracked `origin/main` instead of `origin/feature/user-settings`. After the PR was squash-merged and the remote deleted, it showed `[origin/main: ahead 3]` instead of `: gone]`.

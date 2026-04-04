@@ -1,5 +1,5 @@
 Patterns for organizing learnings files — cross-reference conventions, directory clustering, curated indexes, file splitting, and keyword gate design.
-- **Keywords:** cross-refs, cross-reference, directory clustering, file splitting, CLAUDE.md index, catch-all directory, hub-spoke, discovery vs semantic, dedup, keyword gate
+- **Keywords:** cross-refs, cross-reference, directory clustering, file splitting, CLAUDE.md index, catch-all directory, hub-spoke, discovery vs semantic, dedup, keyword gate, sniff gate, keyword purpose, keyword quality
 - **Related:** none
 
 ---
@@ -36,6 +36,10 @@ Learnings files can cross-reference related files to enable **lateral discovery*
 2. **Relationship decay** — the file exists but the stated reason no longer holds (e.g., content was refactored to cover different topics). Curate checks both during its staleness pass.
 
 **Prioritize islands.** Files with no persona refs and no inbound cross-refs are discoverable only by filename match. Target these first, especially when they share no obvious keyword overlap with related files.
+
+## Spot-Check Methodology for Extraction Quality
+
+After bulk extraction (10+ batches), spot-check quality by: (1) query for low-discussion MRs with long descriptions (`description | length > 200`) that were grouped in bulk extractors, (2) re-extract 3-5 candidates with dedicated agents using the updated prompt, (3) `grep` existing learnings files for coverage of re-extracted patterns, (4) compare yields quantitatively (original vs re-extract). This surfaces systematic gaps in the extraction pipeline — e.g., whether implementation patterns from zero-discussion MRs are being captured. The cost is ~5 agent calls; the payoff is calibrating the skill for the remaining 95% of unprocessed MRs.
 
 ## Cross-Reference Types: Semantic vs Discovery
 
@@ -124,6 +128,36 @@ Clusters can contain sub-clusters when a tighter domain emerges within an existi
 **Curate scoping:** Sub-clusters are treated as independent curation units. In broad sweeps, each sub-cluster gets its own subagent alongside top-level clusters. The parent cluster's flat files (those not in any sub-cluster) form their own curation unit.
 
 **Residual files:** Files that don't fit any sub-cluster stay flat in the parent cluster directory. The same "avoid catch-all" rule applies — don't create a `general/` sub-cluster for leftovers.
+
+## Decomposing Catch-All Files: Check Destinations First
+
+When a catch-all file (e.g., "code-review-general") needs decomposition, check destination files before moving content — cluster reorganizations often already migrated most sections, leaving only duplicates in the source. The workflow: diff against destinations to identify what's already covered → delete duplicates → move only genuine orphans → rename the source to signal its narrowed scope. Skipping the destination check leads to re-migrating content that already exists.
+
+## Name Files for Methodology, Not Domain Breadth
+
+When renaming a catch-all to prevent future dumping, name it for the *methodology* not the *domain*: `code-review-methodology.md` (signals "how to review") not `code-review-general.md` (signals "put review stuff here"). The name should describe the file's *perspective*, making it obvious when new content doesn't belong.
+
+## Split Threshold: Search Intent Over Line Count
+
+The 150-line split threshold is directionally right but shouldn't be applied mechanically. Split when sub-topics serve genuinely different search intents — someone looking for "skill naming conventions" shouldn't need to load "polling skill timestamps." Leave files alone when content is cohesive even if long — all React patterns serve the same search intent ("I'm working in React").
+
+Key factors that reduce the cost of large files in sniff-then-load systems: (1) the 3-line header check means large files don't cost tokens unless already judged relevant; (2) splitting creates more files to sniff and more index entries to maintain; (3) in shared repos, more files = more merge conflicts. The penalty is overshoot *within* a relevant file, not loading irrelevant files.
+
+## Intra-Cluster Cross-Refs Are a Common Drift Pattern
+
+Files added to clusters often carry cross-refs to siblings that the cluster CLAUDE.md already handles. This accumulates silently — especially in bulk contributor batches or when files are moved into clusters from root. Grep for intra-cluster refs as a first-pass check in any curation sweep. The fix is mechanical (remove the ref), so it's always HIGH confidence.
+
+## Keywords Serve the Sniff Gate Only — Not Cross-File Linking
+
+Keywords exist for one purpose: helping the search pipeline's sniff gate (step 3) decide whether to load the full file. When a file's first 3 lines are read, derived terms from the user's context are matched against `**Keywords:**`. A match triggers a full load; a miss skips the file.
+
+Cross-file discovery uses two other mechanisms — `**Related:**` (explicit graph edges) and cluster `CLAUDE.md` routing tables ("when to read" conditions). Keywords matching across files isn't linking — it's independent discoverability for the same term. Two files sharing a keyword is fine (both are relevant), but it's not a relationship that needs managing.
+
+**Keyword quality criteria:** Does each keyword help the *right* files get loaded at the *right* time? Ghost keywords (not in content) cause false-positive loads. Missing keywords prevent legitimate discovery. Overly broad keywords (e.g., `Java` in every java/ file) add no discriminating value.
+
+## Within-Batch Duplicate Detection in /organize
+
+`/organize` cross-references MR changes against the *unchanged catalog*, but must also cross-reference new sections against each other within the MR. Two new sections in different files can duplicate the same concept (e.g., "Per-item error isolation" in integration-patterns.md and "Mapper error resilience" in resilience-patterns.md). Neither exists in the catalog yet, so catalog-only dedup misses them. After checking each new section against the catalog, also grep new section headings against all other changed files in the same MR.
 
 ## Cross-Refs
 

@@ -14,7 +14,7 @@ If a thread already contains a reviewer acknowledgement (reaction or text reply 
 
 For each previous comment, read the reply (if any) and check whether the corresponding code changed in `NEW_COMMITS`:
 
-- **Resolved** — concern addressed by a code change (with or without a reply). The fix is verifiable in the diff. Action: react to the *reply* comment (not the original comment) with 🎉 emoji, AND post a short text reply acknowledging the resolution (e.g., "Confirmed — resolved by [description]. 🎉"). If resolved by code change with no reply, react to the original comment instead and post the text reply as a self-reply.
+- **Resolved** — concern addressed by a code change (with or without a reply). The fix is verifiable in the diff. Action: react to the *reply* comment (not the original comment) with 🚀 emoji, AND post a short text reply acknowledging the resolution (e.g., "Confirmed — resolved by [description]. 🚀"). If resolved by code change with no reply, react to the original comment instead and post the text reply as a self-reply.
 - **Acknowledged** — reply agrees with the finding and states intent to fix, but no code change yet. Action: react to the reply with 👍 emoji, AND post a short text reply acknowledging (e.g., "Acknowledged — thanks for confirming. 👍"). The finding stays open until a code change lands (at which point it becomes **Resolved**).
 - **Partially addressed** — some progress but original concern not fully resolved. Action: post a follow-up reply explaining what's still open.
 - **Not addressed** — no code change and no substantive reply, or reply disagrees without resolution. Action: re-raise with additional context.
@@ -23,7 +23,7 @@ For each previous comment, read the reply (if any) and check whether the corresp
 
 | Classification | Emoji | Target | Text reply? |
 |---------------|-------|--------|-------------|
-| Resolved | `hooray` | Reply comment (or original if no reply) | Yes — confirm resolution |
-| Acknowledged | `+1` | Reply comment | Yes — confirm acknowledgement |
+| Resolved | `rocket` | Reply comment (or original if no reply) | Yes — confirm resolution |
+| Acknowledged | `thumbsup` | Reply comment | Yes — confirm acknowledgement |
 | Partially addressed | — | — | Yes — explain what's still open |
 | Not addressed | — | — | Yes — re-raise with context |

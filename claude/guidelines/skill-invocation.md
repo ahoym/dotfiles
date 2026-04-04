@@ -8,6 +8,12 @@ This applies even when the slash command is combined with other instructions (e.
 
 When the Skill tool rejects with `disable-model-invocation`, tell the user the skill can only be run as a slash command. Do NOT read the SKILL.md and follow its steps manually — that bypasses `allowed-tools` constraints and consistency guarantees.
 
+## Follow skill steps in order — don't anchor on examples
+
+When a skill has an explicit numbered step list, execute steps in sequence. Prerequisites and examples sections describe *what you'll need*, not *what to run first*. Detection/setup steps (platform detection, persona verification) always run before platform-specific commands — even when the examples make one platform look obvious.
+
+**Why:** Anchoring on CLI tool names visible in prerequisites (e.g., `gh pr view`) before running platform detection caused a wrong-platform assumption — the repo was GitLab, not GitHub. The error was only caught after the command failed.
+
 ## Don't ask permission to invoke skills within a skill's instructions
 
 When a skill's instructions say "invoke `/other-skill`", just do it — don't ask the user "ready for the next step?" or "should I run this?" first. The skill's instructions are the authorization. This especially applies to orchestrating skills like `/session-retro` that invoke `/learnings:compound` as a defined step. If the user has already signaled they're ready to proceed, that's the green light for everything the current step entails.

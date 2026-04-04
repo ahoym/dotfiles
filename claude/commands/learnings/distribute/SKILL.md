@@ -1,6 +1,7 @@
 ---
 name: distribute
 description: "Distribute global learnings and guidelines from ~/.claude/ into the current project's .claude/ directory."
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Glob
