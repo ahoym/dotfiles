@@ -131,6 +131,16 @@ When porting content from an agent definition (`.claude/agents/`) to a persona, 
 
 **Reframe, don't port verbatim.** Generic frameworks need domain-specific translation. Project-management prioritization axes (urgency, dependencies, risk, learning) become review-specific finding-ranking axes (blocking dependencies, merge risk, teaching value, scope fit). The underlying insight transfers; the framing must match the persona's domain.
 
+## Persona Auto-Detection for Automated Agents
+
+When agents operate without an operator setting a persona (e.g., sweep-work-items, scheduled triggers), the agent prompt should include an auto-detection step. Detection priority:
+
+1. **Work item labels** — direct mapping (label `java` → `java-backend`, `frontend` → `react-frontend`, `security` → `java-infosec`)
+2. **Title/body keywords** — framework/language mentions matched against persona domains
+3. **Repository stack** — if the repo is predominantly one tech stack (from repo summary), use the matching persona
+
+The auto-detected persona improves both learnings search (narrows cluster matching) and work quality (applies domain-specific priorities and gotchas). Log the detection: `🎭 Persona: <name>` or `🎭 No persona match — proceeding without`. Include persona in status.md for director visibility.
+
 ## Cross-Refs
 
 No cross-cluster references.
