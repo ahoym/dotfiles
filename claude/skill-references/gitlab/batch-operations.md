@@ -6,6 +6,14 @@ description: "GitLab commands for batch MR metadata fetching (used by extract-re
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-review-metadata-batch | 17 | 11 |
+| verify-platform-access-batch | 29 | 5 |
+| count-total-reviews | 35 | 5 |
+
 ## Fetch Review Metadata (Batch)
 
 For batch operations like learnings extraction:

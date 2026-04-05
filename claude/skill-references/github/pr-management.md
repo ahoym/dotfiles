@@ -6,6 +6,16 @@ description: "GitHub commands for creating/updating PRs, posting reviews, and br
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| create-or-update-request | 19 | 10 |
+| post-review-with-inline-comments | 30 | 31 |
+| checkout-review-branch | 62 | 6 |
+| check-for-existing-review | 69 | 5 |
+| find-approved-reviewers | 75 | 9 |
+
 ## Create or Update PR (Body via File)
 
 Write the PR body to `tmp/change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:

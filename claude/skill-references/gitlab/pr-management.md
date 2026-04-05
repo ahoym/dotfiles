@@ -6,6 +6,16 @@ description: "GitLab commands for creating/updating MRs, posting reviews, and br
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| create-or-update-request | 19 | 12 |
+| post-review-with-inline-comments | 32 | 49 |
+| checkout-review-branch | 81 | 6 |
+| check-for-existing-review | 88 | 5 |
+| find-approved-reviewers | 94 | 10 |
+
 ## Create or Update MR (Body via File)
 
 Write the MR body to `tmp/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.

@@ -6,6 +6,16 @@ description: "GitLab commands for fetching MR metadata, diffs, files, and commit
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-review-details | 19 | 5 |
+| fetch-activity-signals | 25 | 9 |
+| fetch-diff | 35 | 5 |
+| fetch-files-changed | 41 | 7 |
+| fetch-commits | 49 | 8 |
+
 ## Fetch Review Details
 
 ```bash

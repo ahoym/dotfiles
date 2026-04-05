@@ -48,7 +48,7 @@ When `COMMENT_ONLY=true`:
 - **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
 - **Adjust step 13** summary — report comments posted, not changes implemented
 
-1. **Detect platform and fetch** — follow the base reference: **Platform Detection** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform cluster files. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
+1. **Detect platform and fetch** — follow the base reference: **Platform Detection** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments: using the section index from `comment-interaction.md`, `Read` the file at `fetch-inline-review-comments`'s offset/limit, substitute placeholders, and execute. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
@@ -57,7 +57,7 @@ When `COMMENT_ONLY=true`:
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files. **Skip if `COMMENT_ONLY`.**
+3. **Checkout the review branch** if not already on it — using the section index from `pr-management.md`, `Read` the file at `checkout-review-branch`'s offset/limit, substitute placeholders, and execute. **Skip if `COMMENT_ONLY`.**
 
 4. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
@@ -83,11 +83,11 @@ When `COMMENT_ONLY=true`:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
-   - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
+   - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Using the section index from `comment-interaction.md`, `Read` the file at `react-to-comment`'s offset/limit, substitute placeholders, and execute.
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
-   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
+   Append the **Footnote Format** from the base reference to every reply. Using the section index from `comment-interaction.md`, `Read` the file at `reply-to-inline-comment`'s offset/limit, substitute placeholders, and execute. Use **Reply File Naming** convention from the base reference.
 
 8. **Act on suggestions based on agreement** — **Skip if `COMMENT_ONLY`.**
 
@@ -121,7 +121,7 @@ When `COMMENT_ONLY=true`:
    | 3 | util.js:12 | Why this pattern? | Clarified |
    ```
 
-   Follow **Post Top-Level Comment** in the platform cluster files.
+   Using the section index from `comment-interaction.md`, `Read` the file at `post-top-level-comment`'s offset/limit, substitute placeholders, and execute.
 
 10. **Implement changes** — **Skip if `COMMENT_ONLY`.**
     a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.

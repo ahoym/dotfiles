@@ -6,6 +6,17 @@ description: "GitHub commands for fetching PR metadata, diffs, files, and commit
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-review-details | 20 | 5 |
+| fetch-review-details-with-reviews | 26 | 7 |
+| fetch-activity-signals | 34 | 7 |
+| fetch-diff | 42 | 5 |
+| fetch-files-changed | 48 | 5 |
+| fetch-commits | 54 | 6 |
+
 ## Fetch Review Details
 
 ```bash

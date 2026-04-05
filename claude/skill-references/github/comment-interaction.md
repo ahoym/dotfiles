@@ -12,6 +12,19 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 
 **This file covers fetching and replying to existing comments.** To **create** new inline comments on a review, use the reviews endpoint in `pr-management.md` — the `/pulls/{n}/comments` endpoint requires `position` or `positioning` fields (not `line`), and posting via the reviews endpoint with a `comments` array is the correct pattern.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-inline-review-comments | 28 | 12 |
+| fetch-recent-inline-comments | 41 | 12 |
+| fetch-general-review-comments | 54 | 7 |
+| fetch-issue-top-level-comments | 62 | 12 |
+| reply-to-inline-comment | 75 | 11 |
+| edit-inline-comment | 87 | 11 |
+| react-to-comment | 99 | 12 |
+| post-top-level-comment | 112 | 8 |
+
 ## Fetch Inline/Review Comments
 
 ```bash

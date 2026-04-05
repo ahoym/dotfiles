@@ -14,6 +14,18 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 
 **Caveat: `glab api -f` does NOT create nested JSON objects.** Bracket notation like `-f "position[new_line]=411"` sends flat JSON keys (`"position[new_line]": "411"`) — GitLab ignores these and creates a general note instead of an inline DiffNote. For any API call requiring nested objects (inline comments with position data), use GraphQL `createDiffNote` instead (see pr-management.md → "Post Review with Inline Comments"). This does NOT affect `-f` for flat string parameters (e.g., `-f sort=desc`), which work correctly.
 
+## Section Index
+<!-- Update offsets after editing content below -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-inline-review-comments | 29 | 12 |
+| fetch-recent-inline-comments | 42 | 12 |
+| fetch-general-review-comments | 55 | 9 |
+| fetch-issue-top-level-comments | 65 | 12 |
+| reply-to-inline-comment | 78 | 11 |
+| react-to-comment | 90 | 8 |
+| post-top-level-comment | 99 | 14 |
+
 ## Fetch Inline/Review Comments
 
 ```bash
