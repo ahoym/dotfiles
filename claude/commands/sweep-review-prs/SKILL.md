@@ -46,7 +46,6 @@ Detect platform first (see Phase 2), then check the matching CLI patterns:
 ```json
 "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(mkdir:*)",
 "Bash(jq *)",
-"Skill(*)",
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
 "Read(~/.claude/commands/set-persona/**)",
@@ -146,7 +145,7 @@ Create run directory: `tmp/sweep-reviews/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` sub
 
 Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_reviewed_sha` as the watermark key. Then continue with review-specific steps:
 
-5. **Search learnings-team learnings.** Search `~/.claude/learnings-team/learnings/` for domain-relevant learnings before reviewing. Derive search terms from the MR title, branch name, and changed file paths. Read the learnings-team `CLAUDE.md` index, match cluster names, sniff headers (limit=3), and load fully if keywords match. Announce results with `📚 [pre-review]` tags. This provides domain-specific gotchas and patterns that improve review quality.
+5. **Search learnings-team learnings.** Derive search terms from PR title, branch name, and changed file paths. Read learnings-team `CLAUDE.md` index, rank by relevance — **load top 3**, rest available on demand. If a finding connects to an unloaded match, load it then. Announce with `📚 [pre-review]` tags.
 
 6. **Invoke team review — MANDATORY.** You MUST use the Skill tool: `skill="git:team-review-request"`, `args="<N>"`. Do NOT attempt to review or post comments manually with raw API calls. The skill contains persona selection, subagent orchestration, merge logic, and platform-specific comment posting that handles glab/gh API quirks — bypassing it produces lower-quality reviews and wastes attempts on API friction. Update `status.md` milestone to `reviewing`, then `posted` after the review is posted.
 

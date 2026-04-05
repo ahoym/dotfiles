@@ -32,14 +32,9 @@ Every gate search follows these steps:
 
 **2. Derive terms.** Session start: ambient context (branch, CWD, git status, CLAUDE.md) + user message. Plan mode: broad task scope — topics, technologies, adjacent domains. Keyword: domain terms from user message. Soft gates: new domain keywords from message or target file.
 
-**3. Match and sniff.** For each non-index filename match, `Read(file_path, limit=3)`. The header block is structured:
-- Line 1: description (relevance check)
-- Line 2: `**Keywords:**` (term matching against derived terms)
-- Line 3: `**Related:**` (graph edges to adjacent files — check for unloaded matches)
+**3. Rank and load.** Read cluster `CLAUDE.md` indexes — each has `- filename.md — description` entries. Rank candidates against derived terms from these descriptions. **Load fully the top 3.** Rest stay noted, available on demand if a finding needs them. For files not in any index, sniff individually (`Read(file_path, limit=3)`: line 1 = description, line 2 = `**Keywords:**`, line 3 = `**Related:**`). Plan mode: also grep content; same top-3 cap.
 
-Load fully only if description or keywords match derived terms. Plan mode: also grep file content.
-
-**4. Follow cross-refs** while the target's header keywords match derived terms. Stop when they don't. Check `**Related:**` in sniffed headers first (cheap) — these contain full `~/.claude/learnings/...` paths for cross-cluster refs only. Intra-cluster discovery is handled by the cluster `CLAUDE.md`, not by individual file cross-refs. Fall back to `## Cross-Refs` in fully loaded files for annotated refs. Announce when following 3+ hops from the original match. Plan mode: also announce skipped cross-refs.
+**4. Follow cross-refs** while keywords match derived terms. Check `## Cross-Refs` in loaded files; check `**Related:**` in sniffed headers. Cross-cluster refs use full paths; intra-cluster discovery uses the cluster `CLAUDE.md`. Announce at 3+ hops. Plan mode: also announce skipped refs.
 
 ## Observability
 
