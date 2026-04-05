@@ -148,7 +148,7 @@ When `COMMENT_ONLY=true`:
 
     **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
-    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
+    For each implemented suggestion/fix, using the section index from `comment-interaction.md`, `Read` the file at `reply-to-inline-comment`'s offset/limit, substitute placeholders, and execute. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically
