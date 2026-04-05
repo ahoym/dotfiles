@@ -12,7 +12,7 @@ description: "GitLab commands for batch MR metadata fetching (used by extract-re
 | verify-platform-access-batch | 29 | 5 |
 | count-total-reviews | 35 | 5 |
 
-**Use these templates verbatim** ��� substitute placeholders but don't simplify, reformat, or drop parameters.
+**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
 ## Fetch Review Metadata (Batch)
 
