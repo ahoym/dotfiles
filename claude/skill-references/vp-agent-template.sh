@@ -13,7 +13,7 @@
 set -euo pipefail
 
 TASK="${1:-Explore this repository and produce a brief summary of its structure and purpose}"
-RUN_DIR_BASE="${2:-./tmp/vp-experiment}"
+RUN_DIR_BASE="${2:-./tmp/claude-artifacts/vp-experiment}"
 TIMESTAMP=$(date +%Y-%m-%dT%H%M%S)
 RUN_DIR="$(cd "$RUN_DIR_BASE" 2>/dev/null && pwd || mkdir -p "$RUN_DIR_BASE" && cd "$RUN_DIR_BASE" && pwd)/${TIMESTAMP}"
 MONITOR="$HOME/.claude/skill-references/stream-monitor.sh"
