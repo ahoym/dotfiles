@@ -32,6 +32,8 @@ Each `claude -p` session checks its watermark before working — if nothing chan
 
 `claude -p` sessions are top-level and cannot prompt for permissions. All patterns below must exist in `~/.claude/settings.json` `permissions.allow`. **Stop immediately if any are missing.**
 
+> **Why global settings only?** Worktree agents don't have access to project-level `.claude/settings.local.json` (it's typically gitignored and not present in fresh worktree checkouts). Global settings are the only reliable permission source for `claude -p` sessions.
+
 Detect platform first (see Phase 2), then check the matching CLI patterns:
 
 **GitHub patterns:**
