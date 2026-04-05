@@ -60,7 +60,7 @@
       "Bash(brew list:*)",
       "Bash(wc:*)",
       "Bash(mkdir:*)",
-      "Bash(rm tmp:*)",
+      "Bash(rm tmp/claude-artifacts:*)",
       "Bash(rm -rf docs/learnings/_staging*)",
       "Edit(claude/**)",
       "Edit(~/.claude/commands/**)",
