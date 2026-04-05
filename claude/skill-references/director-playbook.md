@@ -68,7 +68,8 @@ cat prompt.txt \
 
 | File | Writer | Reader | Lifecycle |
 |------|--------|--------|-----------|
-| `prompt.txt` | Sweep skill | Runner → `claude -p` | Assessment |
+| `prompt.txt` | Sweep skill | Runner -> `claude -p` | Assessment |
+| `state.md` | Runner | Director | During session (overwritten per state change) |
 | `status.md` | Agent | Director, next agent | End of session |
 | `result.md` | Agent | Director | End of session (appended) |
 | `learnings.md` | Agent | Director, future sessions | End of session (appended) |
@@ -83,25 +84,27 @@ Append-only log. Entry types: `started` (pid), `init` (model), `tool_call` (name
 
 ### Director Intervention
 
-The director cannot send input to a running session. Interventions use kill + directive:
+The runner handles inactivity detection and single-retry recovery automatically. The director only intervenes after the runner exhausts retries and escalates via `state.md`.
 
-| Detection (from live.md) | Action |
-|--------------------------|--------|
-| No entries for >5min | `kill $(cat session.pid)`, directive for retry |
-| `escalation: permission_denial` | Kill, fix permission, directive |
-| `escalation: repeated_errors` | Kill, investigate root cause |
-| Recent `tool_call` entries | No action — working normally |
+| Detection (from state.md) | Action |
+|---------------------------|--------|
+| `state: errored` + `escalation: needs-director` | Read `live.md` tail for context, investigate root cause, write directive for next launch |
+| `state: rate-limited` | Check `.rate-limited` sentinel, advise operator on retry timing |
+| `escalation: permission_denial` (in live.md, surfaced during investigation) | Fix permission in settings, write directive |
+| `escalation: repeated_errors` (in live.md, surfaced during investigation) | Investigate root cause, write directive or escalate to operator |
+
+The director does not poll `live.md` as a primary monitoring channel. It reads `live.md` only when investigating an escalation from `state.md` to understand what went wrong.
 
 ## Monitoring Table Format
 
-After each cycle, read all `pr-*/status.md` (for completed sessions) and `pr-*/live.md` (for in-progress sessions) and present:
+Read all `pr-*/state.md` (runner lifecycle) and `pr-*/status.md` (session domain state) and present:
 
-| PR | State | Mergeable | Milestone | Last Activity | Live Status | Directives |
-|----|-------|-----------|-----------|---------------|-------------|------------|
-| #51 | OPEN | MERGEABLE | done | 2m ago | — | — |
-| #50 | OPEN | CONFLICTING | running | now | tool: gh (subagent) | conflict resolution |
-| #49 | MERGED | — | skipped | — | — | — |
-| #48 | OPEN | MERGEABLE | running | 6m ago | ⚠ stale | — |
+| PR | State | Mergeable | Milestone | Runner State | Attempt | Directives |
+|----|-------|-----------|-----------|--------------|---------|------------|
+| #51 | OPEN | MERGEABLE | done | completed | 1/2 | -- |
+| #50 | OPEN | CONFLICTING | running | running | 1/2 | conflict resolution |
+| #49 | MERGED | -- | skipped | -- | -- | -- |
+| #48 | OPEN | MERGEABLE | errored | errored | 2/2 | needs-director |
 
 First cycle: full table. Subsequent cycles: delta-only (changed rows), with a one-line "N unchanged" summary.
 
@@ -226,6 +229,7 @@ Followed by the current monitoring table snapshot. This persists the director's 
 | Reaction targets & emoji | `review-comment-classification.md` | re-review-mode.md files |
 | Convergence rules | this playbook | individual sessions (they don't decide convergence) |
 | Directive patterns | this playbook | learnings (learnings capture discovery, playbook operationalizes) |
+| Process lifecycle (running, retry, timeout) | runner (`state.md`) | director (reads, doesn't write) |
 | Session observability | `stream-monitor.sh` + this playbook | runner template (just wires the pipeline) |
 | Stream-json event schema | `stream-monitor.sh` (parses events) | learnings (learnings capture discovery) |
 | Artifact contract (directory structure, manifest schema) | `artifact-contract.md` | this playbook, learnings, sweep-scaffold |
