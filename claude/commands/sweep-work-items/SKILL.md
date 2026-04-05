@@ -1,6 +1,6 @@
 ---
 name: sweep-work-items
-description: "Process open work items in parallel — implement clear ones, clarify vague ones. Creates PRs and posts comments."
+description: "Assess open work items and generate a parallel execution script — produces manifest.json and let-it-rip.sh for implement/clarify execution."
 argument-hint: "[#12 #15] [--label=bug] [--max=10] [--concurrency=5]"
 ---
 
@@ -12,115 +12,125 @@ argument-hint: "[#12 #15] [--label=bug] [--max=10] [--concurrency=5]"
 
 # Sweep Work Items
 
-Process open work items (GitHub Issues for v1) using parallel agents. Each agent either implements the work item (branch + PR in an isolated worktree) or posts clarifying questions on the issue.
+Assess open work items (GitHub Issues / GitLab Issues), then generate `let-it-rip.sh` — a bash script that launches parallel `claude -p` sessions, each implementing or clarifying a work item.
 
-The main agent acts as orchestrator — it reads issues, decides implement vs clarify, spawns agents in waves, and collects results into a summary table.
+1. **Assessment** (this skill, run once) — produces manifest + let-it-rip.sh + per-issue prompts
+2. **Execution** (rerunnable) — operator runs `bash let-it-rip.sh` from terminal, repeatedly if needed
+
+Each `claude -p` session checks its watermark before working — if nothing changed since the last run, the session exits cleanly. Implementers create branches + PRs in worktrees. Clarifiers post targeted questions as issue comments.
 
 ## Usage
 
-- `/sweep-work-items` — process all open issues (up to 30)
-- `/sweep-work-items #12 #15 #20` — process specific issues
-- `/sweep-work-items --label=bug` — filter by label (repeat for multiple: `--label=bug --label=enhancement`)
-- `/sweep-work-items --max=10` — cap number of issues to process
+- `/sweep-work-items` — all open issues (up to 30)
+- `/sweep-work-items #12 #15 #20` — specific issues
+- `/sweep-work-items --label=bug` — filter by label
+- `/sweep-work-items --max=10` — cap number of issues
 - `/sweep-work-items --concurrency=3` — max parallel agents (default 5)
 - Flags combine: `/sweep-work-items --label=bug --max=5 --concurrency=3`
 
-## Reference Files (conditional — read only when needed)
+## Prerequisites (hard gate)
 
-- @~/.claude/skill-references/platform-detection.md — Platform detection (GitHub vs GitLab)
-- `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment, link check commands
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
-- `implementer-prompt.md` — Read when spawning implementer agents
-- `clarifier-prompt.md` — Read when spawning clarifier agents
-- `~/.claude/skill-references/agent-prompting.md` — Completion report format reference
+`claude -p` sessions are top-level and cannot prompt for permissions. All patterns below must exist in `~/.claude/settings.json` `permissions.allow`. **Stop immediately if any are missing.**
 
-## Prerequisites
+> **Why global settings only?** Worktree agents don't have access to project-level `.claude/settings.local.json` (it's typically gitignored and not present in fresh worktree checkouts). Global settings are the only reliable permission source for `claude -p` sessions.
 
-Background agents cannot prompt for permissions. The following patterns must be allowed in **project-level** `.claude/settings.local.json`. Global `~/.claude/settings.json` patterns are not sufficient — worktree agents inherit the project-level settings, not global.
+Detect platform first (see Phase 2), then check the matching CLI patterns:
 
+**GitHub patterns:**
 ```json
-"permissions": {
-  "allow": [
-    "Bash(gh issue list:*)",
-    "Bash(gh issue view:*)",
-    "Bash(gh issue comment:*)",
-    "Bash(gh pr list:*)",
-    "Bash(gh pr create:*)",
-    "Bash(gh api:*)",
-    "Bash(git add:*)",
-    "Bash(git branch:*)",
-    "Bash(git commit:*)",
-    "Bash(git push:*)",
-    "Bash(git status:*)",
-    "Bash(git diff:*)",
-    "Bash(git log:*)",
-    "Write(~/**/tmp/sweep-work-items/**)"
-  ]
-}
+"Bash(gh issue list:*)", "Bash(gh issue view:*)", "Bash(gh issue comment:*)",
+"Bash(gh pr list:*)", "Bash(gh pr create:*)", "Bash(gh api:*)"
 ```
 
-Before launching agents, read `.claude/settings.local.json` and check each required pattern against the `permissions.allow` array. List any missing patterns explicitly and ask the operator to add them before proceeding. Do not rely on global settings — they are not inherited by worktree agents.
+**GitLab patterns:**
+```json
+"Bash(glab api:*)", "Bash(glab mr create:*)", "Bash(glab mr list:*)"
+```
+
+**Shared patterns (both platforms):**
+```json
+"Bash(git add:*)", "Bash(git branch:*)", "Bash(git commit:*)",
+"Bash(git push:*)", "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)",
+"Bash(git checkout:*)", "Bash(git fetch:*)", "Bash(mkdir:*)",
+"Bash(jq *)",
+"Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
+"Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
+"Read(~/.claude/learnings-team/**)",
+"Read(~/**/tmp/sweep-work-items/**)",
+"Write(~/**/tmp/sweep-work-items/**)",
+"Edit(~/**/tmp/sweep-work-items/**)"
+```
+
+If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not continue until resolved.
+
+## Reference Files
+
+- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
+- `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment commands
+- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
+- `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/sweep-scaffold.md` — Shared artifact structure, watermark logic, result/learnings patterns
+- `implementer-prompt.md` — Read when generating implementer prompts
+- `clarifier-prompt.md` — Read when generating clarifier prompts
 
 ## Instructions
+
+### Phase 0: Verify Prerequisites
+
+Read `~/.claude/settings.json`, check every required pattern is present (exact string match). Also verify **Write/Edit parity**: every `Write(...)` pattern must have a matching `Edit(...)`. Stop if any are missing.
 
 ### Phase 1: Parse Arguments
 
 Parse `$ARGUMENTS` to extract:
-- **Issue numbers**: regex `#(\d+)` — store as `ISSUE_NUMBERS[]`
-- **Labels**: `--label=<value>` — store as `LABELS[]`
-- **Max**: `--max=<N>` — store as `MAX_ISSUES` (default 30)
-- **Concurrency**: `--concurrency=<N>` — store as `CONCURRENCY` (default 5)
+- **Issue numbers**: regex `#(\d+)` → `ISSUE_NUMBERS[]`
+- **Labels**: `--label=<value>` → `LABELS[]`
+- **Max**: `--max=<N>` → `MAX_ISSUES` (default 30)
+- **Concurrency**: `--concurrency=<N>` → `CONCURRENCY` (default 5)
 
 ### Phase 2: Platform Detection & Issue Fetch
 
-1. Follow `@~/.claude/skill-references/platform-detection.md` to determine GitHub vs GitLab. Read the matching `issue-operations.md` cluster.
+1. Follow `platform-detection.md` to determine GitHub vs GitLab. Read the matching `issue-operations.md` cluster.
 
-2. Fetch work items using commands from `issue-operations.md`:
-   - If specific numbers given: fetch each with `gh issue view <N> --json number,title,body,labels,assignees,comments,url`
-   - If label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees --limit <MAX>`
-   - If no filters: `gh issue list --state open --json number,title,body,labels,assignees --limit <MAX>`
+2. Fetch work items:
+   - Specific numbers: `gh issue view <N> --json number,title,body,labels,assignees,comments,url,updatedAt`
+   - Label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
+   - No filters: `gh issue list --state open --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
 
-3. For items fetched via `gh issue list` (which doesn't include comments), fetch comments separately for each: `gh api repos/{owner}/{repo}/issues/<N>/comments --paginate`
+3. For items fetched via list (no comments included), fetch comments per issue: `gh api repos/{owner}/{repo}/issues/<N>/comments --paginate`
 
-4. Store each item as: `{id, title, body, comments[], url, labels[]}`
+4. Store each item as: `{number, title, body, comments[], url, labels[], updatedAt}`
 
 ### Phase 3: Skip Detection
 
 For each work item, check these conditions (in order):
 
-**a. Existing PR linked.** Check for open PRs with branch matching `sweep/<id>-*`:
+**a. Issue closed.** If state is closed, mark as `SKIP(Closed)`.
+
+**b. Existing PR linked.** Check for open PRs with branch matching `sweep/<id>-*`:
 ```bash
 gh pr list --state open --json headRefName,number,url
 ```
-Filter client-side. If match found: mark item as `SKIP(PR exists (#N))`.
+Filter client-side. If match found: mark as `SKIP(PR exists (#N))`.
 
-**b. Sweeper already commented, no human reply.** Fetch issue comments and scan for the Sweeper footnote (`Role:.*Sweeper` in body). If found, check if any non-Sweeper comment was posted after it. If no operator reply since: mark as `SKIP(Awaiting reply)`.
+**c. Sweeper already commented, no human reply.** Scan comments for the Sweeper footnote (`Role:.*Sweeper`). If found, check if any non-Sweeper comment was posted after it. If no reply: mark as `SKIP(Awaiting reply)`.
 
-**c. Sweeper commented AND human replied.** If both a Sweeper comment and a subsequent non-Sweeper comment exist, the item is **eligible** for re-assessment — the operator's reply may provide enough detail to implement.
-
-Present a skip summary before proceeding:
-```
-Fetched N issues. M eligible, K skipped:
-- #15: Skip — PR exists (#42)
-- #7: Skip — Awaiting reply (asked 2d ago)
-- #3: Re-assess — operator replied to previous questions
-```
+**d. Sweeper commented AND human replied.** Both a Sweeper comment and a subsequent non-Sweeper comment exist → **eligible** for re-assessment.
 
 ### Phase 4: Repo Summary
 
-Build a compressed repository context (target ~150 lines) that every agent receives. This avoids N agents independently scanning the repo structure.
+Build compressed repository context (~150 lines) that every agent receives:
 
 1. Read `README.md` (if exists, first 80 lines)
 2. Read `CLAUDE.md` or `.claude/CLAUDE.md` (if exists)
-3. Run `ls` at project root to capture top-level structure
+3. Run `ls` at project root
 4. Detect: primary language, framework, build system, test command, entry points
-5. Check for existing `docs/learnings/SYSTEM_OVERVIEW.md` — if present, read it (rich context source)
+5. Check for `docs/learnings/SYSTEM_OVERVIEW.md` — read if present
 
-Assemble findings into `REPO_SUMMARY` — a concise text block agents can use as their starting map for code exploration.
+Assemble into `REPO_SUMMARY`.
 
-### Phase 5: Decide & Dispatch
+### Phase 5: Decide & Generate Artifacts
 
-For each eligible work item, make the implement-vs-clarify decision:
+For each eligible work item, apply the implement-vs-clarify decision:
 
 > **Decision rule:** Can you identify all three from the issue body + comments + repo summary?
 > (a) Specific file targets that need changing
@@ -129,71 +139,107 @@ For each eligible work item, make the implement-vs-clarify decision:
 >
 > If all three: **implement**. If any is missing: **clarify**.
 
-Process items in waves of `CONCURRENCY` (default 5).
+Create run directory: `tmp/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
 
-Bootstrap the temp directory before launching any agents:
-```bash
-mkdir -p tmp/sweep-work-items
+#### manifest.json
+
+```json
+{
+  "created_at": "<ISO>",
+  "run_dir": "<RUN_DIR>",
+  "concurrency": <N>,
+  "owner_repo": "<owner/repo>",
+  "default_branch": "<main or master>",
+  "repo_summary_lines": <N>,
+  "eligible": [
+    {"number": 12, "title": "...", "role": "implement", "url": "...", "labels": ["bug"]},
+    {"number": 8, "title": "...", "role": "clarify", "url": "...", "labels": ["enhancement"]}
+  ],
+  "skipped": [
+    {"number": 15, "reason": "PR exists (#42)"},
+    {"number": 7, "reason": "Awaiting reply"}
+  ]
+}
 ```
 
-**For each wave:**
+#### issue-\<N\>/prompt.txt
 
-1. Categorize remaining eligible items as implement or clarify.
+Read the appropriate prompt template (`implementer-prompt.md` or `clarifier-prompt.md`). Each template includes watermark/skip logic, learnings search, permission pre-flight, role-specific work instructions, and artifact writing steps.
 
-2. Read the appropriate prompt template:
-   - Implementers: read @implementer-prompt.md
-   - Clarifiers: read @clarifier-prompt.md
+Fill template placeholders:
+- `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}` — from the work item
+- `{ISSUE_LABELS}` — comma-separated label names
+- `{REPO_SUMMARY}` — from Phase 4
+- `{OWNER_REPO}` — from git remote
+- `{DEFAULT_BRANCH}` — from `git symbolic-ref refs/remotes/origin/HEAD` or default to `main`
+- `{RUN_DIR}` — absolute path to run directory
+- `{ISSUE_DIR}` — absolute path to `issue-<N>/` directory
+- `{MODEL_NAME}` — the model currently running
+- `{PERSONA_NAME}` — active persona name, or "none"
+- `{ISSUE_UPDATED_AT}` — issue's `updatedAt` timestamp
+- `{LAST_COMMENT_ID}` — ID of the latest comment, or "none"
 
-3. For each item, construct the agent prompt by filling template placeholders:
-   - `ISSUE_NUMBER`, `ISSUE_TITLE`, `ISSUE_BODY`, `ISSUE_COMMENTS`, `ISSUE_URL` — from the work item
-   - `REPO_SUMMARY` — from Phase 4
-   - `OWNER_REPO` — from git remote (e.g., `owner/repo`)
-   - `DEFAULT_BRANCH` — from `git symbolic-ref refs/remotes/origin/HEAD` or default to `main`
-   - `MODEL_NAME` — the model you are currently running (e.g., "Claude Opus 4.6")
-   - `PERSONA_NAME` — active persona name, or "none" if no persona is set
+Write the filled prompt to `issue-<N>/prompt.txt`.
 
-4. Launch agents:
-   - **Implementers**: `Agent` tool with `isolation: "worktree"` and `run_in_background: true`
-   - **Clarifiers**: `Agent` tool with `run_in_background: true` (no isolation — no code changes)
-   - Launch all agents in the wave in a **single message** with multiple tool calls for maximum parallelism
+#### let-it-rip.sh
 
-5. Wait for wave completion via auto-notifications. **Do not** poll or call TaskOutput with block:true — the system sends notifications automatically when background agents complete.
+Generate a runner script adapted for work items. Read `~/.claude/skill-references/parallel-claude-runner-template.sh` as a starting reference, then generate with these adaptations:
 
-6. As each agent completes, parse its completion report and update the tracking state:
-   - Extract PR URL from implementer reports
-   - Extract comment status from clarifier reports
-   - Note any failures
+- **Directory naming**: `issue-<N>` instead of `pr-<N>`
+- **Config section**: `ISSUES=(<numbers>)` instead of `PRS`, `IMPLEMENT_ISSUES=(<numbers>)` for worktree tracking
+- **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from default branch (implementers start fresh).
+- **Pre-flight state check**:
+  1. Local `status.md` check — skip if `issue_state: closed` or `pr_opened: true` or `comment_posted: true`
+  2. API fallback — `gh issue view <N> --json state -q '.state'`, skip if closed
+- **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
+- **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).
 
-7. After the wave completes, launch the next wave with remaining items.
+The runner MUST use `stream-monitor.sh` for `live.md` observability (same pattern as PR sweeps).
 
-### Phase 6: Results Summary
-
-After all waves complete, print a summary table:
+### Phase 6: Present Summary & Announce
 
 ```
-## Sweep Results
+Assessed N issues. M eligible (I implement, C clarify), K skipped:
 
-| # | Issue | Decision | Result |
-|---|-------|----------|--------|
-| 12 | Fix login redirect | Implement | PR #45 |
-| 8 | Add dark mode | Clarify | Commented (3 questions) |
+| # | Title | Role | Skip Reason |
+|---|-------|------|-------------|
+| 12 | Fix login redirect | Implement | -- |
+| 8 | Add dark mode | Clarify | -- |
 | 15 | Refactor auth | Skip | PR exists (#42) |
 | 7 | Update deps | Skip | Awaiting reply |
-| 3 | Vague perf issue | Clarify | Commented (2 questions) |
-| 21 | Fix typo in docs | Implement | PR #46 |
-| 9 | Add search | Implement | Failed (test failures) |
-
-**Summary:** 7 items processed — 3 implemented, 2 clarified, 2 skipped, 0 failed
 ```
 
-If any agents failed, include their error context in the table's Result column.
+Then announce artifacts (follow Announce Format from `sweep-scaffold.md`, substituting `issue-<N>` for `pr-<N>`):
+
+```
+Artifacts written to <RUN_DIR>/
+
+  manifest.json    — M eligible (I implement, C clarify), K skipped
+  let-it-rip.sh    — concurrency: CONCURRENCY
+  issue-<N>/       — M issue directories with prompts
+
+To launch:        bash <RUN_DIR>/let-it-rip.sh
+Re-run (loop):    bash <RUN_DIR>/let-it-rip.sh  (sessions with no changes exit cleanly)
+Progress:         "Check progress on <RUN_DIR>"
+Retro:            "Retro on <RUN_DIR>"
+```
+
+Proceed directly to artifact generation after the summary ��� do not wait for confirmation.
+
+## Convergence (director-layer)
+
+Convergence is a director concern, not this skill's. Summary for directors:
+
+- **Implementers**: converged when `pr_opened: true` in `status.md` (PR created, job done)
+- **Clarifiers**: converged when `comment_posted: true` in `status.md` (questions posted, awaiting human reply)
+- **Error states**: `milestone: errored` items are NOT converged — director may write retry directives
+- **Single-pass default**: work items are typically one-shot. Rerun only triggers if the issue was updated (new comments, edits) since the last pass.
 
 ## Important Notes
 
-- **Agents are independent.** Each agent operates as if it's the only one working on the repo. They don't know about each other, even though the orchestrator does. This means parallel implementers may create PRs that conflict — the operator resolves conflicts manually.
-- **`Relates to` not `Closes`.** PRs reference their issue with `Relates to #{N}` or `Relates to <URL>`, never `Closes` or `Fixes`. The operator decides when to close the issue after reviewing the PR.
-- **Footnote identity.** All comments posted by clarifier agents end with the standard footnote using `Role: Sweeper`. This enables re-run skip detection and distinguishes sweep comments from operator comments.
-- **One-shot operation.** This skill runs once per invocation. If clarifying questions are posted, re-run the skill later after the operator or issue author has responded — the skip detection in Phase 3 will pick up the replies and re-assess.
-- **Partial failure is normal.** If some agents fail (API errors, test failures, permission issues), the sweep continues with remaining agents. Failed items appear in the summary table with error context.
-- **Temp files.** All ephemeral files (comment bodies, PR bodies) are written to `tmp/sweep-work-items/`. This directory can be cleaned up after the sweep.
-- **Worktrees are preserved.** Implementer worktrees at `.claude/worktrees/agent-*` remain after the sweep so follow-up work (e.g., addressing PR review comments) can be done directly in them. Clean up with `git worktree remove` after PRs merge.
+- **Assessment only.** This skill generates artifacts and exits. It does not launch agents or wait for results.
+- **Agents are independent.** Each `claude -p` session operates alone. Parallel implementers may create conflicting PRs — the operator resolves manually.
+- **`Relates to` not `Closes`.** PRs reference issues with `Relates to #{N}`, never `Closes` or `Fixes`. The operator decides when to close.
+- **Footnote identity.** Clarifier comments end with `Role: Sweeper` footnote for re-run skip detection.
+- **Worktrees are preserved.** Implementer worktrees persist after the sweep for follow-up work. Clean up with `git worktree remove` after PRs merge.
+- See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.

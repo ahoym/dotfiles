@@ -188,6 +188,18 @@ Background writer subagents sometimes write directly to final locations (`~/.cla
 
 Keyword matching loads files that mention related concepts, but "related" ≠ "useful for this task." A learning about *how to build orchestration* matches when *reviewing orchestration code*, but it contains authoring guidance — not domain knowledge that catches defects. The fix: rank from index descriptions, cap full loads at top 3, pull additional files only when a specific finding needs them.
 
+## Permission Pre-flight in Headless Agent Prompts
+
+Headless `claude -p` sessions auto-deny unpermitted tools silently. Add a permission smoke test as the first step in agent prompts — before any analysis work:
+
+```
+Step 1: Permission Pre-flight
+Run: git status && gh issue view <N> --json state
+If either fails with permission error → write milestone: errored to status.md, exit immediately.
+```
+
+This catches misconfigured `--allowedTools` or missing `settings.json` patterns within seconds, instead of failing mid-implementation after minutes of code exploration. Especially valuable for implementer agents that need Write/Edit/Bash and are launched in worktrees where permission inheritance is less predictable.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
