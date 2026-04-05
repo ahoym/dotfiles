@@ -4,15 +4,15 @@ description: "GitHub commands for batch PR metadata fetching (used by extract-re
 
 # GitHub: Batch Operations
 
-**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
-
 ## Section Index
-<!-- Update offsets after editing content below -->
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
 | Slug | Offset | Limit |
 |------|--------|-------|
 | fetch-review-metadata-batch | 17 | 11 |
 | verify-platform-access-batch | 29 | 5 |
 | count-total-reviews | 35 | 5 |
+
+**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
 ## Fetch Review Metadata (Batch)
 

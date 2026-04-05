@@ -4,16 +4,8 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 
 # GitHub: Comment Interaction
 
-**Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
-
-**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
-
-**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. For `--jq` flag usage, switch to piped `| jq -f` instead.
-
-**This file covers fetching and replying to existing comments.** To **create** new inline comments on a review, use the reviews endpoint in `pr-management.md` — the `/pulls/{n}/comments` endpoint requires `position` or `positioning` fields (not `line`), and posting via the reviews endpoint with a `comments` array is the correct pattern.
-
 ## Section Index
-<!-- Update offsets after editing content below -->
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
 | Slug | Offset | Limit |
 |------|--------|-------|
 | fetch-inline-review-comments | 28 | 12 |
@@ -24,6 +16,14 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 | edit-inline-comment | 87 | 11 |
 | react-to-comment | 99 | 12 |
 | post-top-level-comment | 112 | 8 |
+
+**Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
+
+**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
+
+**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. For `--jq` flag usage, switch to piped `| jq -f` instead.
+
+**This file covers fetching and replying to existing comments.** To **create** new inline comments on a review, use the reviews endpoint in `pr-management.md` — the `/pulls/{n}/comments` endpoint requires `position` or `positioning` fields (not `line`), and posting via the reviews endpoint with a `comments` array is the correct pattern.
 
 ## Fetch Inline/Review Comments
 

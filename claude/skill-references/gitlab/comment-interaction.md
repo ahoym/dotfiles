@@ -4,18 +4,8 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 
 # GitLab: Comment Interaction
 
-**Important:** Never use `!=` in jq expressions passed via `glab --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
-
-**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
-
-**Always use `jq` for JSON processing — never `python3`.** `python3` is not in the permission allowlist for `claude -p` sessions and will cause unrecoverable permission denials. Use `jq -Rs` for string escaping, `jq -r` for extraction, `jq -f tmp/filter.jq` for complex filters.
-
-**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. This keeps all quoted strings out of the Bash command.
-
-**Caveat: `glab api -f` does NOT create nested JSON objects.** Bracket notation like `-f "position[new_line]=411"` sends flat JSON keys (`"position[new_line]": "411"`) — GitLab ignores these and creates a general note instead of an inline DiffNote. For any API call requiring nested objects (inline comments with position data), use GraphQL `createDiffNote` instead (see pr-management.md → "Post Review with Inline Comments"). This does NOT affect `-f` for flat string parameters (e.g., `-f sort=desc`), which work correctly.
-
 ## Section Index
-<!-- Update offsets after editing content below -->
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
 | Slug | Offset | Limit |
 |------|--------|-------|
 | fetch-inline-review-comments | 29 | 12 |
@@ -25,6 +15,16 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 | reply-to-inline-comment | 78 | 11 |
 | react-to-comment | 90 | 8 |
 | post-top-level-comment | 99 | 14 |
+
+**Important:** Never use `!=` in jq expressions passed via `glab --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
+
+**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
+
+**Always use `jq` for JSON processing — never `python3`.** `python3` is not in the permission allowlist for `claude -p` sessions and will cause unrecoverable permission denials. Use `jq -Rs` for string escaping, `jq -r` for extraction, `jq -f tmp/filter.jq` for complex filters.
+
+**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. This keeps all quoted strings out of the Bash command.
+
+**Caveat: `glab api -f` does NOT create nested JSON objects.** Bracket notation like `-f "position[new_line]=411"` sends flat JSON keys (`"position[new_line]": "411"`) — GitLab ignores these and creates a general note instead of an inline DiffNote. For any API call requiring nested objects (inline comments with position data), use GraphQL `createDiffNote` instead (see pr-management.md → "Post Review with Inline Comments"). This does NOT affect `-f` for flat string parameters (e.g., `-f sort=desc`), which work correctly.
 
 ## Fetch Inline/Review Comments
 
