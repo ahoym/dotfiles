@@ -76,7 +76,7 @@ Skills define their own mode-specific fields (e.g., Address adds Conflicts resol
 
 Append a dated section with observations. Write "No learnings from this pass." if nothing notable.
 
-**Learnings provenance (mandatory):** Begin each section with a "Learnings loaded" list showing which learnings-team/personal learnings files were loaded during this pass and how they influenced the work. Format: `- <path> — <one-line influence>`. If no learnings were loaded, write "No learnings loaded this pass." This is the only operator-visible record of learnings influence — output logs don't capture internal `📚` announcements.
+**Learnings provenance (mandatory):** List loaded files with honest influence: `- <path> — <what it changed, or "not relevant">`. "Confirmed patterns" / "verified approach" is not influence. No loads → "No learnings loaded this pass."
 
 ### status.md Watermark
 

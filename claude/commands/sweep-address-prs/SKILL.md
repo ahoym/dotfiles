@@ -50,7 +50,6 @@ Detect platform first (see Phase 2), then check the matching CLI patterns:
 "Bash(git fetch:*)", "Bash(git merge:*)", "Bash(git push:*)",
 "Bash(git rebase:*)", "Bash(git status:*)",
 "Bash(mkdir:*)", "Bash(jq *)",
-"Skill(*)",
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
 "Read(~/.claude/learnings-team/**)",
@@ -104,7 +103,7 @@ If no persona matches confidently, leave as `none`. Record the detected persona 
 
 For each PR:
 
-**a.** No review comments at all → `SKIP(No comments)`
+**a.** No review comments at all → `SKIP(No comments)`. Exception: in compound mode (review+address via director), generate artifacts anyway — the review will post comments before the address runner launches.
 
 **b.** Check for `Role:.*Addresser` in comment replies. If found, store `LAST_ADDRESS_TS`. Check for new non-self comments since:
 - New inline review comments after `LAST_ADDRESS_TS` not matching `Role:.*Addresser`
@@ -171,7 +170,7 @@ Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, u
 
 6. **Resolve conflicts (conditional).** Only when `resolve_conflicts` is true in manifest. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills). Update `status.md` milestone to `resolving-conflicts`. Skip for comment-only mode.
 
-7. **Search learnings-team learnings.** Search `~/.claude/learnings-team/learnings/` for domain-relevant learnings before addressing. Derive search terms from the MR title, branch name, changed file paths, and review comment content. Read the learnings-team `CLAUDE.md` index, match cluster names, sniff headers (limit=3), and load fully if keywords match. Announce results with `📚 [pre-address]` tags. This provides domain-specific gotchas and patterns that improve address quality.
+7. **Search learnings-team learnings.** Derive search terms from PR title, branch name, changed file paths, and comment content. Read learnings-team `CLAUDE.md` index, rank by relevance — **load top 3**, rest available on demand. If an issue connects to an unloaded match, load it then. Announce with `📚 [pre-address]` tags.
 
 8. **Activate persona (always include this step in prompt.txt).** If a persona was detected during assessment, the prompt should say: "Read `~/.claude/commands/set-persona/<persona-name>.md` and adopt its priorities, tradeoffs, and domain focus." If persona is `none`, the prompt should still include this step as: "No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens." This ensures directors can inject personas via directives without rewriting the prompt. Do NOT use the Skill tool — just read the file and internalize its instructions.
 

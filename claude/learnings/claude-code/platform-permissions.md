@@ -145,6 +145,10 @@ Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any
 
 **Checklist for `--allowedTools`:** For every `Write(...)` pattern where the session will modify files after creation, add a matching `Edit(...)` pattern.
 
+### Skill tool is auto-allowed in claude -p
+
+The `Skill` tool does not require a `Skill(*)` permission pattern in `settings.json`. It works in `claude -p` sessions without any explicit allow entry. Confirmed empirically: `claude -p` session invoked `set-persona` skill successfully with no `Skill(*)` pattern present.
+
 ## Cross-Refs
 
 No cross-cluster references.
