@@ -61,7 +61,7 @@ Before creating the review, verify these items are complete:
 
    Skip checks that aren't configured for the project. Don't install new tools.
 
-5. **Check for existing review** — follow **"Check for Existing Review"** in the platform cluster files.
+5. **Check for existing review** — using the section index from `pr-management.md` (loaded in step 1), `Read` the file at `check-for-existing-review`'s offset/limit, substitute placeholders, and execute.
    - If a review already exists, ask the operator: "$REVIEW_UNIT #N already exists for this branch. Update its description instead of creating new?"
    - If yes, use `$EDIT_CMD` instead of `$CREATE_CMD`
 
@@ -80,7 +80,7 @@ Before creating the review, verify these items are complete:
 
 9. **Compose review body** — Read `request-body-template.md` from the skill's base directory. Structure the body following that template.
 
-10. **Write body and create/update review** — Using the pr-management cluster file loaded in step 1, follow the **"Create or Update PR (Body via File)"** section. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
+10. **Write body and create/update review** — Using the section index from `pr-management.md` (loaded in step 1), `Read` the file at `create-or-update-request`'s offset/limit, substitute placeholders, and execute. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
 
 11. **Clean up** — remove the temp body file and empty `tmp/change-request-replies/` directory (per the platform commands section).
 

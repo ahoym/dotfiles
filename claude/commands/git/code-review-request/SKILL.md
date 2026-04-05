@@ -63,7 +63,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
-   **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
+   **Phase 1 (1 call):** Using the section index from `fetch-review-data.md`, `Read` the file at `fetch-activity-signals`'s offset/limit, substitute placeholders, and execute. Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
    - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
@@ -71,7 +71,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
+   **Phase 2 (1 call, only if phase 1 found nothing):** Using the section index from `comment-interaction.md`, `Read` the file at `fetch-recent-inline-comments`'s offset/limit, substitute placeholders, and execute (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
 
    This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 
@@ -84,10 +84,12 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 6. **Fetch PR metadata and diff** — run these in parallel using the platform cluster files:
 
-   - **Fetch Diff** — use the **"Fetch Diff"** section
-   - **Fetch Files Changed** — use the **"Fetch Files Changed"** section
-   - **Fetch Review Details** — for PR body and metadata
-   - **Fetch Commits** — use the **"Fetch Commits"** section
+   Using the section index from `fetch-review-data.md`, for each command below,
+   `Read` the file at the section's offset/limit, substitute placeholders, and execute:
+   - `fetch-diff` — full diff
+   - `fetch-files-changed` — file list
+   - `fetch-review-details` — PR body and metadata
+   - `fetch-commits` — commit history
 
    Store the diff as `FULL_DIFF`, file list as `CHANGED_FILES`, body as `REQUEST_BODY`, commits as `COMMITS`.
 
@@ -147,7 +149,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Each inline comment and follow-up reply** must also end with the footnote.
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+11. **Post the review** — using the section index from `pr-management.md`, `Read` the file at `post-review-with-inline-comments`'s offset/limit, substitute placeholders, and execute. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 

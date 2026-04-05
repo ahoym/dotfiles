@@ -4,6 +4,16 @@ description: "GitLab commands for fetching MR metadata, diffs, files, and commit
 
 # GitLab: Fetch Review Data
 
+## Section Index
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-review-details | 19 | 5 |
+| fetch-activity-signals | 25 | 9 |
+| fetch-diff | 35 | 5 |
+| fetch-files-changed | 41 | 7 |
+| fetch-commits | 49 | 8 |
+
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
 ## Fetch Review Details

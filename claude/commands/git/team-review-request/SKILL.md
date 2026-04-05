@@ -63,11 +63,11 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER>: no changes since last team review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-4. **Fetch PR metadata and diff** — run these in parallel using the platform cluster files:
-   - **Fetch Diff** → store as `FULL_DIFF`
-   - **Fetch Files Changed** → store as `CHANGED_FILES`
-   - **Fetch Review Details** → store `REQUEST_BODY`
-   - **Fetch Commits** → store as `COMMITS`
+4. **Fetch PR metadata and diff** — using the section index from `fetch-review-data.md`, for each command below, `Read` the file at the section's offset/limit, substitute placeholders, and execute in parallel:
+   - `fetch-diff` → store as `FULL_DIFF`
+   - `fetch-files-changed` → store as `CHANGED_FILES`
+   - `fetch-review-details` → store `REQUEST_BODY`
+   - `fetch-commits` → store as `COMMITS`
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
@@ -176,7 +176,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
 
-14. **Post the review** — write the review payload to `tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
+14. **Post the review** — write the review payload to `tmp/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json`. Using the section index from `pr-management.md`, `Read` the file at `post-review-with-inline-comments`'s offset/limit for the payload format, substitute placeholders, and execute. Event: `COMMENT`.
 
     ```bash
     gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \

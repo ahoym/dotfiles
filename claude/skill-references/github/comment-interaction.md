@@ -4,6 +4,19 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 
 # GitHub: Comment Interaction
 
+## Section Index
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| fetch-inline-review-comments | 28 | 12 |
+| fetch-recent-inline-comments | 41 | 12 |
+| fetch-general-review-comments | 54 | 7 |
+| fetch-issue-top-level-comments | 62 | 12 |
+| reply-to-inline-comment | 75 | 11 |
+| edit-inline-comment | 87 | 11 |
+| react-to-comment | 99 | 12 |
+| post-top-level-comment | 112 | 8 |
+
 **Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.

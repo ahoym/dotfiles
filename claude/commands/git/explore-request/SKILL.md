@@ -38,10 +38,11 @@ Pull down a review to understand its changes, get context, and ask questions.
 
 3. **Fetch review metadata** (run in parallel):
 
-   Using the fetch-review-data cluster file loaded in step 1, follow:
-   - **Fetch Review Details** — get number, title, body, author, branches, state, timestamps
-   - **Fetch Files Changed** — get list of modified file paths
-   - **Fetch Commits** — get short SHAs and commit messages
+   Using the section index from `fetch-review-data.md` (loaded in step 1), for each command below,
+   `Read` the file at the section's offset/limit, substitute placeholders, and execute:
+   - `fetch-review-details` — PR/MR metadata (number, title, branches, state)
+   - `fetch-files-changed` — list of modified file paths
+   - `fetch-commits` — short SHAs and commit messages
 
 4. **Display review summary** (store as `REVIEW_CONTEXT`):
    ```

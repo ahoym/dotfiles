@@ -4,6 +4,16 @@ description: "GitHub commands for creating/updating PRs, posting reviews, and br
 
 # GitHub: PR Management
 
+## Section Index
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| create-or-update-request | 19 | 10 |
+| post-review-with-inline-comments | 30 | 31 |
+| checkout-review-branch | 62 | 6 |
+| check-for-existing-review | 69 | 5 |
+| find-approved-reviewers | 75 | 9 |
+
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
 ## Create or Update PR (Body via File)

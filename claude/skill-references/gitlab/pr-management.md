@@ -4,6 +4,16 @@ description: "GitLab commands for creating/updating MRs, posting reviews, and br
 
 # GitLab: MR Management
 
+## Section Index
+<!-- Offsets are 1-indexed line numbers. After editing sections below, verify by running: Read(file, offset, limit) for each slug -->
+| Slug | Offset | Limit |
+|------|--------|-------|
+| create-or-update-request | 19 | 12 |
+| post-review-with-inline-comments | 32 | 49 |
+| checkout-review-branch | 81 | 6 |
+| check-for-existing-review | 88 | 5 |
+| find-approved-reviewers | 94 | 10 |
+
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
 ## Create or Update MR (Body via File)
