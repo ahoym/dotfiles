@@ -27,8 +27,9 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
 
 3. **Save original files before resetting**:
    ```bash
+   mkdir -p tmp/claude-artifacts/split-commit
    # For each file in the commit
-   git show <commit>:<filepath> > /tmp/<filename>_original
+   git show <commit>:<filepath> > tmp/claude-artifacts/split-commit/<filename>_original
    ```
 
 4. **Reset to parent commit**:
@@ -37,7 +38,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    ```
 
 5. **Apply first group of changes**:
-   - Using the saved files in `/tmp/` as reference, apply only the first group
+   - Using the saved files in `tmp/claude-artifacts/split-commit/` as reference, apply only the first group
    - Ask the operator for commit message
    ```bash
    git add <files>
@@ -47,7 +48,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    ```
 
 6. **Apply remaining changes**:
-   - Restore full versions from `/tmp/` originals
+   - Restore full versions from `tmp/claude-artifacts/split-commit/` originals
    - Ask the operator for commit message
    ```bash
    git add <files>
@@ -68,6 +69,6 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
 ## Important Notes
 
 - This rewrites history - only use on commits not yet merged
-- Always save files to `/tmp/` BEFORE resetting
+- Always save files to `tmp/claude-artifacts/split-commit/` BEFORE resetting
 - The original commit is replaced by multiple new commits
-- This workflow assumes the two groups of changes are in **separate files**. If both groups modify the same file, use `git add -p` (interactive patch mode) after step 4 to selectively stage each group instead of restoring from `/tmp/`
+- This workflow assumes the two groups of changes are in **separate files**. If both groups modify the same file, use `git add -p` (interactive patch mode) after step 4 to selectively stage each group instead of restoring from `tmp/claude-artifacts/split-commit/`

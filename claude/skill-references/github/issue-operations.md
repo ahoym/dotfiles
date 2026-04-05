@@ -38,8 +38,8 @@ gh api repos/{owner}/{repo}/issues/<NUMBER>/comments --paginate --jq '.[] | {id,
 Write body to file first to avoid HEREDOC permission prompts. **Use absolute paths** — `gh` resolves file paths relative to the shell's CWD.
 
 ```bash
-# Write body via Write tool to tmp/sweep-work-items/clarify-<NUMBER>.md, then:
-gh issue comment <NUMBER> --body-file /absolute/path/to/tmp/sweep-work-items/clarify-<NUMBER>.md
+# Write body via Write tool to tmp/claude-artifacts/sweep-work-items/clarify-<NUMBER>.md, then:
+gh issue comment <NUMBER> --body-file /absolute/path/to/tmp/claude-artifacts/sweep-work-items/clarify-<NUMBER>.md
 ```
 
 ## Check for Linked PRs (by branch name pattern)

@@ -10,7 +10,7 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 
 **Always use `jq` for JSON processing — never `python3`.** `python3` is not in the permission allowlist for `claude -p` sessions and will cause unrecoverable permission denials. Use `jq -Rs` for string escaping, `jq -r` for extraction, `jq -f tmp/filter.jq` for complex filters.
 
-**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. This keeps all quoted strings out of the Bash command.
+**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/claude-artifacts/jq-filters/jq-filter.jq` via the Write tool, then use `jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq`. This keeps all quoted strings out of the Bash command.
 
 **Caveat: `glab api -f` does NOT create nested JSON objects.** Bracket notation like `-f "position[new_line]=411"` sends flat JSON keys (`"position[new_line]": "411"`) — GitLab ignores these and creates a general note instead of an inline DiffNote. For any API call requiring nested objects (inline comments with position data), use GraphQL `createDiffNote` instead (see pr-management.md → "Post Review with Inline Comments"). This does NOT affect `-f` for flat string parameters (e.g., `-f sort=desc`), which work correctly.
 
@@ -21,10 +21,10 @@ description: "GitLab commands for fetching, posting, and reacting to MR comments
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '.[] | {id, body, author: .author.username, created_at, position}'
 
 # Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
-# 1. Write to tmp/jq-filter.jq via Write tool:
+# 1. Write to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool:
 #      .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at, position}
 # 2. Then:
-glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/jq-filter.jq
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```
 
 ## Fetch Recent Inline Comments (quick-exit check)
@@ -57,22 +57,22 @@ glab api projects/:id/merge_requests/<number>/discussions \
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '[.[] | select(.position == null)] | .[] | {id, body, author: .author.username, created_at}'
 
 # Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
-# 1. Write to tmp/jq-filter.jq via Write tool:
+# 1. Write to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool:
 #      [.[] | select(.position == null)] | .[] | select(.created_at > "<TS>") | {id, body, author: .author.username, created_at}
 # 2. Then:
-glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/jq-filter.jq
+glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```
 
 ## Reply to Inline Comment
 
-Write the message body to `tmp/change-request-replies/<note_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same MR), then pass via `-F body=@`:
+Write the message body to `tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same MR), then pass via `-F body=@`:
 
 **Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
 
 ```bash
-# Write body to tmp/change-request-replies/<note_id>-<persona>-<role>.md, then:
+# Write body to tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md, then:
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@/absolute/path/to/tmp/change-request-replies/<note_id>-<persona>-<role>.md
+  -X POST -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md
 ```
 
 ## React to Comment
@@ -86,12 +86,12 @@ glab api projects/:id/merge_requests/<number>/notes/<note_id>/award_emoji -X POS
 
 ## Post Top-Level Comment
 
-Write the message body to `tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then post via the notes API with `-F body=@`:
+Write the message body to `tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md` first, then post via the notes API with `-F body=@`:
 
 ```bash
-# Write body to tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
+# Write body to tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
 glab api projects/:id/merge_requests/<number>/notes -X POST \
-  -F body=@/absolute/path/to/tmp/change-request-replies/<mr_number>-<persona>-<role>-top.md
+  -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md
 ```
 
 **Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
