@@ -11,12 +11,14 @@ Skills that produce this structure can be launched and monitored by `/director`.
 ```
 <RUN_DIR>/
 ├── manifest.json           # What to run, metadata
+├── manifest-updates.json   # Optional, JSONL -- incremental additions/closures
 ├── let-it-rip.sh           # Generated runner script
 ├── directives.md           # Global directives from director (optional, append-only)
 └── item-<id>/
     ├── prompt.txt          # Input piped to claude -p
     ├── directives.md       # Per-item directives (optional, append-only)
     ├── session.pid          # Written by runner (sh -c/exec pattern)
+    ├── state.md            # Written by runner -- process lifecycle state
     ├── status.md           # Written by session at end (watermark, milestone)
     ├── result.md           # Written by session at end (append-only)
     ├── learnings.md        # Written by session at end (append-only, optional)
@@ -87,6 +89,46 @@ Append-only — each run adds a dated section. Contains the session's findings, 
 ### learnings.md
 Optional, append-only. Patterns, gotchas, or observations from the session.
 
+## Runner-Written Files
+
+### state.md
+Written by the runner (bash) to track process lifecycle. One file per item, overwritten on each state transition.
+
+```yaml
+state: running | completed | errored | timed-out | retrying | rate-limited
+attempt: 1
+max_attempts: 2
+updated_at: <ISO timestamp>
+```
+
+Optional fields (included when relevant):
+- `started_at` -- ISO timestamp of current attempt start
+- `idle_seconds` -- seconds since last `live.md` update (on timeout)
+- `exit_reason` -- what caused failure (error, timeout)
+- `duration_seconds` -- wall-clock time for completed attempts
+- `escalation` -- `needs-director` when runner exhausts retries
+- `previous_exit` -- exit status from prior attempt (on retry)
+
+The runner owns this file exclusively. The director reads it but never writes it.
+
+## manifest-updates.json
+
+Optional JSONL file (one JSON object per line) for incremental manifest changes. Written by the director between runner launches. Consumed by the runner on relaunch, not mid-run.
+
+**Actions:**
+
+`add` -- queue a new item for processing:
+```json
+{"action": "add", "id": "55", "label": "#55 -- New PR"}
+```
+The item's `prompt.txt` must already exist in `item-<id>/`. The runner skips items without `prompt.txt`.
+
+`close` -- mark an item as terminal so the runner skips it:
+```json
+{"action": "close", "id": "49", "reason": "MERGED"}
+```
+The runner writes a terminal `status.md` for the item on consumption.
+
 ## Director-Written Files
 
 ### directives.md
@@ -107,5 +149,6 @@ A skill is director-compatible if it:
 2. Generates `item-<id>/prompt.txt` for each item
 3. Generates a runner script (`let-it-rip.sh`)
 4. Prompt instructs sessions to write `status.md` and `result.md`
+5. Runner writes `state.md` for process lifecycle monitoring (handled by the standard runner template)
 
-Skills using the `Agent` tool directly for parallelism are **not** director-compatible — they bypass the `claude -p` pipeline and get no `live.md` observability, no directive channel, and no kill + retry.
+Skills using the `Agent` tool directly for parallelism are **not** director-compatible — they bypass the `claude -p` pipeline and get no `live.md` observability, no directive channel, no `state.md` lifecycle tracking, and no kill + retry.
