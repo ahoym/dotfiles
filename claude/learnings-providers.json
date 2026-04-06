@@ -1,0 +1,24 @@
+{
+  "providers": [
+    {
+      "name": "personal",
+      "type": "local",
+      "localPath": "~/.claude/learnings",
+      "writable": true,
+      "writeScope": "global",
+      "defaultWriteTarget": true
+    },
+    {
+      "name": "private",
+      "type": "local",
+      "localPath": "~/.claude/learnings-private",
+      "writable": true,
+      "writeScope": "private"
+    }
+  ],
+  "projectLocal": {
+    "path": "docs/learnings",
+    "writable": true,
+    "note": "Resolved relative to project root. Always searched alongside providers."
+  }
+}
