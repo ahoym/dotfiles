@@ -38,7 +38,7 @@ When only a subset of work items need updated prompts (e.g., to add the directiv
 
 ## Permissions for Sweep Sessions
 
-`claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `result.md` sections. `Write` and `Edit` patterns for the same directory do not imply `Read` access. Add matching `Read` patterns to both the skill prerequisites and `settings.json`.
+`claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/claude-artifacts/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `result.md` sections. `Write` and `Edit` patterns for the same directory do not imply `Read` access. Add matching `Read` patterns to both the skill prerequisites and `settings.json`.
 
 ## Offset Loops for Tighter Convergence
 

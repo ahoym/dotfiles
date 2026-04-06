@@ -85,7 +85,7 @@ When posting multiple `glab api graphql` calls that need command substitution (e
 BODY=$(cat file.md | jq -Rs .) && glab api graphql -f query="..."
 
 # Write a script that does the same, then:
-bash tmp/change-request-replies/post-review.sh  # Single prompt
+bash tmp/claude-artifacts/change-request-replies/post-review.sh  # Single prompt
 ```
 
 Applies to all review/comment skills that post via GitLab GraphQL (`createDiffNote`, etc.) or use `-F body=@` with `jq`-processed content.

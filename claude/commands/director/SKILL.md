@@ -69,34 +69,40 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
    ```
    bash <run_dir>/let-it-rip.sh
    ```
-2. **Compound mode** (review+address only): review runner is already running (launched after review assessment in Phase 2). Poll for review completion before launching address:
-   - Poll every 2 minutes: read each review PR's `status.md` for milestone
+2. **Compound mode** (review+address only): review runner is already running (launched after review assessment in Phase 2). Wait for review completion before launching address:
+   - Wait for the review runner's background task to complete (event-driven, not polling)
    - **All review PRs reach `posted` or `done`** → launch address runner immediately (but never before the minimum offset of 3 minutes from review launch, to allow GitLab API propagation)
    - **Any review PR reaches `errored`** → surface to operator before launching address
    - **Timeout after 20 minutes** → launch address runner anyway (review may be stuck; address session's watermark/skip logic handles the no-new-comments case gracefully)
-   - This replaces the fixed offset sleep — a review that finishes in 5 minutes triggers address at 5 minutes instead of waiting a fixed 3 minutes, and a 15-minute review doesn't launch address prematurely at 3 minutes when there's nothing to address yet.
 3. Update each run's status to `"active"` in session manifest.
 4. Present the initial monitoring table (full table, per playbook format).
 
-## Phase 4: Monitor Loop
+## Phase 4: Monitor + React
 
-Enter the monitoring loop. Continue until all runs converge or the operator ends the session.
+The director is event-driven, not polling. It reads state on-demand: when a background task completes, when the operator asks, or when evaluating convergence.
 
-**Each pass:**
+**Triggers:**
 
-1. **Read state.** For each active run, read the tail of each `<run_dir>/*/live.md` (last 10 lines) and each `<run_dir>/*/status.md`. Build the unified monitoring table per the playbook's Monitoring Table Format.
+1. **Background task completes** (runner finishes). Read all `<run_dir>/*/state.md` and `<run_dir>/*/status.md`. Build the unified monitoring table per the playbook's Monitoring Table Format. Check for escalations:
+   - `state: errored` + `escalation: needs-director` -- read `live.md` tail for diagnostics, investigate root cause, write directive for next launch or escalate to operator.
+   - `state: rate-limited` -- check `.rate-limited` sentinel, advise operator on retry timing.
 
-2. **Check intervention triggers** per the playbook's Director Intervention table. For clear cases (stale >5min, permission denial wall), act: kill the session via `session.pid` and write the appropriate directive. For ambiguous cases, escalate to the operator with your assessment and recommendation.
+2. **Operator asks for status.** Read all `state.md` + `status.md`, present the monitoring table.
 
-3. **Check directive opportunities** per the playbook's Directive Patterns. Write directives when triggered — summary-only findings and conflict resolution are the most common.
+3. **Convergence check.** After all items reach a terminal runner state (completed, errored, rate-limited), evaluate domain convergence per the playbook's Convergence Rules. When a runner completes: decide relaunch (not converged) or mark converged. Compound mode maintains offset cadence on relaunch.
 
-4. **Evaluate convergence** per the playbook's Convergence Rules for each run. When a runner completes (background task notification), decide: relaunch (not converged) or mark converged. Compound mode maintains offset cadence on relaunch.
+**Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 
-5. **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
+**Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
-**Pace**: 2-3 minutes between passes during active sessions.
+**Director responsibilities in Phase 4:**
+- Convergence evaluation and relaunch decisions
+- Directive writing (summary-only findings, conflict resolution)
+- Circular activity detection (via `live.md` when investigating escalations)
 
-**Escalation over automation**: when in doubt, present what you see, what you think it means, and what you'd recommend. The operator decides. As trust is established, the operator may cede more judgment — respect the current escalation level.
+Note: process lifecycle (inactivity detection, kill, retry) is owned by the runner, not the director.
+
+**Escalation over automation**: when in doubt, present what you see, what you think it means, and what you'd recommend. The operator decides. As trust is established, the operator may cede more judgment -- respect the current escalation level.
 
 ## Phase 5: Convergence + Wrap-up
 

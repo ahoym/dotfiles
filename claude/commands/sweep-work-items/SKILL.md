@@ -56,9 +56,9 @@ Detect platform first (see Phase 2), then check the matching CLI patterns:
 "Read(~/.claude/commands/**)", "Read(~/.claude/learnings/**)",
 "Read(~/.claude/learnings-private/**)", "Read(~/.claude/skill-references/**)",
 "Read(~/.claude/learnings-team/**)",
-"Read(~/**/tmp/sweep-work-items/**)",
-"Write(~/**/tmp/sweep-work-items/**)",
-"Edit(~/**/tmp/sweep-work-items/**)"
+"Read(~/**/tmp/claude-artifacts/**)",
+"Write(~/**/tmp/claude-artifacts/**)",
+"Edit(~/**/tmp/claude-artifacts/**)"
 ```
 
 If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not continue until resolved.
@@ -139,7 +139,7 @@ For each eligible work item, apply the implement-vs-clarify decision:
 >
 > If all three: **implement**. If any is missing: **clarify**.
 
-Create run directory: `tmp/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
+Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
 
 #### manifest.json
 

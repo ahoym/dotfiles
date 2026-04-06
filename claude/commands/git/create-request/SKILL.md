@@ -82,6 +82,6 @@ Before creating the review, verify these items are complete:
 
 10. **Write body and create/update review** — Using the section index from `pr-management.md` (loaded in step 1), `Read` the file at `create-or-update-request`'s offset/limit, substitute placeholders, and execute. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
 
-11. **Clean up** — remove the temp body file and empty `tmp/change-request-replies/` directory (per the platform commands section).
+11. **Clean up** — remove the temp body file and empty `tmp/claude-artifacts/change-request-replies/` directory (per the platform commands section).
 
 12. **Return the review URL** to the operator.

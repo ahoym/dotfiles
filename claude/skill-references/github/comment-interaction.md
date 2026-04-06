@@ -21,7 +21,7 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters. They encode accumulated fixes (pagination, quoting, field types) that aren't obvious from the command's surface.
 
-**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/jq-filter.jq` via the Write tool, then use `jq -f tmp/jq-filter.jq`. For `--jq` flag usage, switch to piped `| jq -f` instead.
+**Quoted strings in jq trigger permission prompts.** Any jq expression containing string literals (e.g., `"<TS>"`, `"n/a"`, `"LGTM"`) inside a Bash command triggers permission prompts — even when the string is inside the jq filter, not a shell argument. **Workaround:** Write the jq filter to `tmp/claude-artifacts/jq-filters/jq-filter.jq` via the Write tool, then use `jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq`. For `--jq` flag usage, switch to piped `| jq -f` instead.
 
 **This file covers fetching and replying to existing comments.** To **create** new inline comments on a review, use the reviews endpoint in `pr-management.md` — the `/pulls/{n}/comments` endpoint requires `position` or `positioning` fields (not `line`), and posting via the reviews endpoint with a `comments` array is the correct pattern.
 
@@ -32,10 +32,10 @@ description: "GitHub commands for fetching, posting, and reacting to PR comments
 gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 
 # Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
-# 1. Write to tmp/jq-filter.jq via Write tool:
+# 1. Write to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool:
 #      .[] | select(.created_at > "<TS>") | {id, path, line, body, user: .user.login, created_at}
 # 2. Then (use piped jq -f instead of --jq):
-gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate | jq -f tmp/jq-filter.jq
+gh api repos/{owner}/{repo}/pulls/<number>/comments --paginate | jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```
 
 ## Fetch Recent Inline Comments (quick-exit check)
@@ -66,22 +66,22 @@ gh pr view <number> --json reviews --jq '.reviews[] | select(.body | length > 0)
 gh api repos/{owner}/{repo}/issues/<number>/comments --paginate --jq '.[] | {id, body, user: .user.login, created_at}'
 
 # Incremental fetch — write jq filter to file first (avoids quoted string permission prompt):
-# 1. Write to tmp/jq-filter.jq via Write tool:
+# 1. Write to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool:
 #      .[] | select(.created_at > "<TS>") | {id, body, user: .user.login, created_at}
 # 2. Then (use piped jq -f instead of --jq):
-gh api repos/{owner}/{repo}/issues/<number>/comments --paginate | jq -f tmp/jq-filter.jq
+gh api repos/{owner}/{repo}/issues/<number>/comments --paginate | jq -f tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```
 
 ## Reply to Inline Comment
 
-Write the message body to `tmp/change-request-replies/<comment_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same PR), then pass via `-F body=@`:
+Write the message body to `tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same PR), then pass via `-F body=@`:
 
 **Use absolute paths with `-F body=@`** — `gh api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
 
 ```bash
-# Write body to tmp/change-request-replies/<comment_id>-<persona>-<role>.md, then:
+# Write body to tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md, then:
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  -F body=@/absolute/path/to/tmp/change-request-replies/<comment_id>-<persona>-<role>.md -F in_reply_to=<comment_id>
+  -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md -F in_reply_to=<comment_id>
 ```
 
 ## Edit Inline Comment
@@ -111,9 +111,9 @@ gh api repos/{owner}/{repo}/issues/comments/<comment_id>/reactions -f content=<e
 
 ## Post Top-Level Comment
 
-Write the message body to `tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md` first, then pass via file reference. **Use absolute paths** — same CWD caveat as Reply to Inline Comment.
+Write the message body to `tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md` first, then pass via file reference. **Use absolute paths** — same CWD caveat as Reply to Inline Comment.
 
 ```bash
-# Write body to tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
-gh pr comment <number> --body-file /absolute/path/to/tmp/change-request-replies/<pr_number>-<persona>-<role>-top.md
+# Write body to tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
+gh pr comment <number> --body-file /absolute/path/to/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md
 ```
