@@ -75,14 +75,7 @@ started_at: <ISO timestamp>
 
 ## Step 6: Persona Auto-Detection
 
-Select a domain persona based on available signals. Check in order:
-1. **Issue labels** — match against persona names (e.g., label `java` → `java-backend`, label `frontend` → `react-frontend`, label `security` → `java-infosec`)
-2. **Issue title/body keywords** — match framework/language mentions against persona domains
-3. **File paths in repo summary** — if the repo is predominantly one stack, match that
-
-If a match is found, read the persona file from `~/.claude/commands/set-persona/<match>.md` and adopt its lens (priorities, gotchas to watch for). If no match, proceed without a persona.
-
-Announce: `🎭 Persona: <name>` or `🎭 No persona match — proceeding without`
+Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
 ## Step 7: Search Learnings for Domain Expertise
 
