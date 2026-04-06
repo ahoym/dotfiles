@@ -83,3 +83,15 @@ Writing `directives.md` after launch only works if the agent hasn't passed Step 
 ## Worktree Creation From Checked-Out Branch
 
 `git worktree add <path> main` fails when the main repo is on `main`. Use `origin/main --detach` instead, then `git checkout -b <branch>` in the worktree.
+
+## Post-Action Watermark Recording
+
+Agents that post comments (clarifiers, confirmers) must record watermarks *after* posting, not before. The agent's own comment changes the issue's `updatedAt` and `last_comment_id` — recording pre-post values creates a perpetually stale watermark where every rerun sees "new activity" (its own prior post). Re-fetch `updatedAt` and `last_comment_id` after the `gh issue comment` call and use those values in `status.md`.
+
+## Self-Comment Guard
+
+Watermark diffs alone don't distinguish "human replied" from "agent posted last time." Before acting on a watermark mismatch, check whether the latest comment is from a sweeper role (`Role:.*Sweeper` or `Role:.*Sweeper-Confirm` in the comment body). If the latest comment is the agent's own and `status.md` shows `milestone: done`, skip — there's no new human input. This is defense-in-depth alongside the post-action watermark fix.
+
+## Dual-Signal Watermark Comparison
+
+Require both `last_comment_id` AND `updatedAt` to match before skipping a work item. Either signal alone has blind spots: `last_comment_id` misses body/label edits (which change `updatedAt` without adding comments), and `updatedAt` alone could miss propagation edge cases. The two signals cover each other — any mutation breaks at least one.

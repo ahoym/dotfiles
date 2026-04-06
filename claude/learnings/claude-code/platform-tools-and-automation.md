@@ -188,6 +188,10 @@ When composing a review with N inline comment files + a summary file, write all 
 
 The Read tool rejects files exceeding ~10K tokens. For large diffs (100KB+), start with `limit=300` rather than reading the full file. Token-limit rejections waste a full round-trip each. A 114KB diff typically needs 3-4 chunked reads at `limit=300`; starting without a limit wastes 1-2 attempts before discovering the limit.
 
+## GitHub Issue `updatedAt` Bumps on Comment Edits
+
+Empirically verified: editing an existing comment on a GitHub issue changes the issue-level `updatedAt` timestamp. This means dual-signal watermarks (`last_comment_id` + `updatedAt`) correctly detect comment edits — the comment ID stays the same but `updatedAt` changes, breaking the "both must match" skip condition.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline
