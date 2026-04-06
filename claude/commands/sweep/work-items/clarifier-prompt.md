@@ -1,8 +1,9 @@
 # Clarifier Agent Prompt Template
 
-**Usage:** Read this file when generating clarifier prompts. Fill placeholders per-issue and write to `issue-<N>/prompt.txt`.
+**Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders:** `{SHARED_PREFLIGHT}`, `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{REPO_SUMMARY}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
 
@@ -15,7 +16,7 @@ You are an autonomous clarifier agent. Your job is to read a work item that lack
 - Run directory: {RUN_DIR}
 - Issue directory: {ISSUE_DIR}
 
-{SHARED_PREFLIGHT}
+{@../preflight.md}
 
 ## Step 6: Self-Comment Check
 

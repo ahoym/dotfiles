@@ -48,12 +48,12 @@ started_at: <ISO timestamp>
 
 ### Body
 
-{ISSUE_BODY}
+{@body.txt}
 
 ### Comments
 
-{ISSUE_COMMENTS}
+{@comments.txt}
 
 ## Repository Context
 
-{REPO_SUMMARY}
+{@../repo-summary.txt}

@@ -66,7 +66,9 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
+- `addresser-prompt.md` — Prompt template for address agents (assembled by fill-template.sh)
 
 ## Instructions
 
@@ -101,7 +103,9 @@ For each PR, also fetch inline review comments:
 
 If no persona matches confidently, leave as `none`. Record the detected persona per PR for the summary and prompt generation.
 
-For each PR:
+**Explicit selection bypasses skip detection.** When specific PR numbers are passed, skip filtering is disabled — all specified PRs are eligible. The operator's explicit selection is the strongest intent signal. Still detect addressing mode for prompt generation, but never skip. Exception: `SKIP(No comments)` still applies even with explicit selection unless in compound mode (no comments = nothing to address).
+
+When no specific PRs are given (all-open mode), apply skip filtering per PR:
 
 **a.** No review comments at all → `SKIP(No comments)`. Exception: in compound mode (review+address via director), generate artifacts anyway — the review will post comments before the address runner launches.
 
@@ -162,30 +166,38 @@ Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` wit
 
 The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` reflects the assessment-time `mergeable` state — the session checks again at runtime since the state may change.
 
-#### pr-\<N\>/prompt.txt
+#### Data files & prompt assembly
 
-Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_addressed_sha` as the watermark key. Then continue with address-specific steps:
+Write data files for template assembly, then call `fill-template.sh`:
 
-5. **`cd` into the worktree directory** (passed as a variable in the prompt — either a reused existing worktree path or `<RUN_DIR>/worktrees/pr-<N>` for newly created ones). Skip for comment-only mode.
+1. **Per-PR files** in `pr-<N>/`:
+   - `metadata.json`:
+     ```json
+     {
+       "PR_NUMBER": "<number>",
+       "PR_TITLE": "<title>",
+       "PR_URL": "<url>",
+       "OWNER_REPO": "<owner/repo>",
+       "BRANCH": "<head branch>",
+       "BASE": "<base branch>",
+       "MODE": "first-pass or new-comments",
+       "RESOLVE_CONFLICTS": "true or false",
+       "HAS_CONFLICTS": "true or false",
+       "WORKTREE_PATH": "<absolute path to worktree>",
+       "PERSONA_INSTRUCTION": "<persona activation text — see below>",
+       "RUN_DIR": "<absolute path>",
+       "PR_DIR": "<absolute path>"
+     }
+     ```
 
-6. **Resolve conflicts (conditional).** Only when `resolve_conflicts` is true in manifest. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills). Update `status.md` milestone to `resolving-conflicts`. Skip for comment-only mode.
+   **`PERSONA_INSTRUCTION` value:**
+   - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`
+   - If none: `No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens.`
 
-7. **Search learnings-team learnings.** Derive search terms from PR title, branch name, changed file paths, and comment content. Read learnings-team `CLAUDE.md` index, rank by relevance — **load top 3**, rest available on demand. If an issue connects to an unloaded match, load it then. Announce with `📚 [pre-address]` tags.
-
-8. **Activate persona (always include this step in prompt.txt).** If a persona was detected during assessment, the prompt should say: "Read `~/.claude/commands/set-persona/<persona-name>.md` and adopt its priorities, tradeoffs, and domain focus." If persona is `none`, the prompt should still include this step as: "No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens." This ensures directors can inject personas via directives without rewriting the prompt. Do NOT use the Skill tool — just read the file and internalize its instructions.
-
-9. **Invoke address skill — MANDATORY.** You MUST use the Skill tool: `skill="git:address-request-comments"`, `args="<N>"`. Do NOT attempt to address comments manually with raw API calls. The skill contains platform-specific comment posting logic (GraphQL mutations, REST content-type headers, discussion threading) that handles glab/gh API quirks — bypassing it leads to 10+ failed attempts on posting alone. Update `status.md` milestone to `addressing`, then `pushing`, then `done`.
-
-10. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
-
-   | Field | Value |
-   |-------|-------|
-   | Conflicts resolved | yes / no / n/a |
-   | Auto-implemented | `<count>` |
-   | Escalated | `<count>` |
-   | Commits | `<count>` |
-
-11. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
+2. **Assemble prompt:**
+   ```bash
+   bash ~/.claude/skill-references/fill-template.sh addresser-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
+   ```
 
 #### let-it-rip.sh
 

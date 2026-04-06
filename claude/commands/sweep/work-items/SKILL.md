@@ -71,6 +71,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment commands
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
 - `~/.claude/skill-references/sweep-agent-preflight.md` — Shared preflight steps (1-5 + Work Item + Repo Context) for all agent prompts
 - `implementer-prompt.md` — Read when generating implementer prompts
@@ -171,28 +172,40 @@ Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` 
 }
 ```
 
-#### issue-\<N\>/prompt.txt
+#### Data files & prompt assembly
 
-Read the appropriate prompt template (`implementer-prompt.md`, `clarifier-prompt.md`, or `confirmer-prompt.md`). Each template includes a `{SHARED_PREFLIGHT}` placeholder for shared steps, role-specific addendums, learnings search, and artifact writing steps.
+Write data files for template assembly, then call `fill-template.sh`:
 
-**Two-pass placeholder expansion:**
+1. **Run-level files** (write once, shared by all issues):
+   - `<RUN_DIR>/preflight.md` — copy `~/.claude/skill-references/sweep-agent-preflight.md`
+   - `<RUN_DIR>/repo-summary.txt` — from Phase 4
 
-1. **First pass — expand `{SHARED_PREFLIGHT}`.** Read `~/.claude/skill-references/sweep-agent-preflight.md` once (reuse across all issues). Replace `{SHARED_PREFLIGHT}` in the template with the file's contents. The preflight file itself contains placeholders (`{ISSUE_NUMBER}`, `{RUN_DIR}`, etc.) — these are expanded in the second pass.
+2. **Per-issue files** in `issue-<N>/`:
+   - `metadata.json`:
+     ```json
+     {
+       "ISSUE_NUMBER": "<number>",
+       "ISSUE_TITLE": "<title>",
+       "ISSUE_URL": "<url>",
+       "ISSUE_LABELS": "<comma-separated>",
+       "OWNER_REPO": "<owner/repo>",
+       "DEFAULT_BRANCH": "<main or master>",
+       "MODEL_NAME": "<model>",
+       "PERSONA_NAME": "<persona or none>",
+       "RUN_DIR": "<absolute path>",
+       "ISSUE_DIR": "<absolute path>",
+       "ISSUE_UPDATED_AT": "<timestamp>",
+       "LAST_COMMENT_ID": "<id or none>"
+     }
+     ```
+   - `body.txt` — issue body text
+   - `comments.txt` — formatted comment thread
 
-2. **Second pass — expand all remaining placeholders:**
-   - `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}` — from the work item
-   - `{ISSUE_LABELS}` — comma-separated label names
-   - `{REPO_SUMMARY}` — from Phase 4
-   - `{OWNER_REPO}` — from git remote
-   - `{DEFAULT_BRANCH}` — from `git symbolic-ref refs/remotes/origin/HEAD` or default to `main`
-   - `{RUN_DIR}` — absolute path to run directory
-   - `{ISSUE_DIR}` — absolute path to `issue-<N>/` directory
-   - `{MODEL_NAME}` — the model currently running
-   - `{PERSONA_NAME}` — active persona name, or "none"
-   - `{ISSUE_UPDATED_AT}` — issue's `updatedAt` timestamp
-   - `{LAST_COMMENT_ID}` — ID of the latest comment, or "none"
-
-Write the filled prompt to `issue-<N>/prompt.txt`.
+3. **Assemble prompt:**
+   ```bash
+   bash ~/.claude/skill-references/fill-template.sh <template-path> <RUN_DIR>/issue-<N> > <RUN_DIR>/issue-<N>/prompt.txt
+   ```
+   Where `<template-path>` is `implementer-prompt.md`, `clarifier-prompt.md`, or `confirmer-prompt.md` (relative to this skill's directory).
 
 #### let-it-rip.sh
 

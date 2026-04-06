@@ -63,7 +63,9 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
+- `reviewer-prompt.md` — Prompt template for review agents (assembled by fill-template.sh)
 
 ## Instructions
 
@@ -86,7 +88,9 @@ Follow `platform-detection.md`. Then fetch open PRs:
 
 ### Phase 3: Filter and Skip Detection
 
-For each PR:
+**Explicit selection bypasses skip detection.** When `PR_NUMBERS[]` is non-empty (operator passed specific PR numbers), skip filtering is disabled — all specified PRs are eligible. The operator's explicit selection is the strongest intent signal. Still detect review mode (first-review vs re-review) for prompt generation, but never skip.
+
+When no specific PRs are given (all-open mode), apply skip filtering per PR:
 
 **a.** `isDraft && !INCLUDE_DRAFTS` → `SKIP(Draft)`
 
@@ -141,25 +145,29 @@ Create run directory: `tmp/claude-artifacts/sweep-reviews/<YYYY-MM-DD-HHMM>` wit
 }
 ```
 
-#### pr-\<N\>/prompt.txt
+#### Data files & prompt assembly
 
-Follow **Prompt Watermark & Skip Logic** (steps 1-4) from `sweep-scaffold.md`, using `last_reviewed_sha` as the watermark key. Then continue with review-specific steps:
+Write data files for template assembly, then call `fill-template.sh`:
 
-5. **Search learnings-team learnings.** Derive search terms from PR title, branch name, and changed file paths. Read learnings-team `CLAUDE.md` index, rank by relevance — **load top 3**, rest available on demand. If a finding connects to an unloaded match, load it then. Announce with `📚 [pre-review]` tags.
+1. **Per-PR files** in `pr-<N>/`:
+   - `metadata.json`:
+     ```json
+     {
+       "PR_NUMBER": "<number>",
+       "PR_TITLE": "<title>",
+       "PR_URL": "<url>",
+       "OWNER_REPO": "<owner/repo>",
+       "MODE": "first-review or re-review",
+       "RUN_DIR": "<absolute path>",
+       "PR_DIR": "<absolute path>",
+       "STACKING_CONTEXT": "<stacking description or 'This PR is not part of a stack.'>"
+     }
+     ```
 
-6. **Invoke team review — MANDATORY.** You MUST use the Skill tool: `skill="git:team-review-request"`, `args="<N>"`. Do NOT attempt to review or post comments manually with raw API calls. The skill contains persona selection, subagent orchestration, merge logic, and platform-specific comment posting that handles glab/gh API quirks — bypassing it produces lower-quality reviews and wastes attempts on API friction. Update `status.md` milestone to `reviewing`, then `posted` after the review is posted.
-
-7. **Append to `result.md`.** Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Mode-specific fields:
-
-   | Field | Value |
-   |-------|-------|
-   | Mode | first-review / re-review |
-   | Personas | `<list>` |
-   | Findings | `<count>` |
-   | Inline Comments | `<count>` |
-   | Review URL | `<url or N/A>` |
-
-8. **Append to `learnings.md`** and **update `status.md` watermark** per scaffold.
+2. **Assemble prompt:**
+   ```bash
+   bash ~/.claude/skill-references/fill-template.sh reviewer-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
+   ```
 
 #### let-it-rip.sh
 
