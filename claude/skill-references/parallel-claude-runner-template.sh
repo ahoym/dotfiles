@@ -93,7 +93,15 @@ if [ -f "${RUN_DIR}/manifest-updates.json" ]; then
         action=$(printf '%s' "$line" | jq -r '.action // empty' 2>/dev/null) || continue
         item_id=$(printf '%s' "$line" | jq -r '.id // .item.id // empty' 2>/dev/null) || continue
         if [ "$action" = "add" ] && [ -n "$item_id" ]; then
-            if [ -f "${RUN_DIR}/pr-${item_id}/prompt.txt" ]; then
+            # Dedup: skip if already in PRS array
+            local already_present=false
+            for existing in "${PRS[@]}"; do
+                if [ "$existing" = "$item_id" ]; then
+                    already_present=true
+                    break
+                fi
+            done
+            if [ "$already_present" = false ] && [ -f "${RUN_DIR}/pr-${item_id}/prompt.txt" ]; then
                 PRS+=("$item_id")
             fi
         elif [ "$action" = "close" ] && [ -n "$item_id" ]; then
@@ -114,8 +122,6 @@ write_state() {
     now=$(date -Iseconds 2>/dev/null || date +%Y-%m-%dT%H:%M:%S%z)
     {
         printf 'state: %s\n' "$state"
-        printf 'attempt: %d\n' "$attempt"
-        printf 'max_attempts: %d\n' "$MAX_ATTEMPTS"
         printf 'updated_at: %s\n' "$now"
         shift 2
         while [ $# -gt 0 ]; do
@@ -173,14 +179,19 @@ process_pr() {
         local exit_status=""
         local attempt_start=$(date +%s)
 
-        write_state "$pr_num" "running" "started_at: $(date -Iseconds)"
+        write_state "$pr_num" "running" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "started_at: $(date -Iseconds)"
+
+        # Add attempt boundary marker for raw.jsonl (append-only across retries)
+        if [ "$attempt" -gt 1 ]; then
+            printf '### attempt %d ###\n' "$attempt" >> "$pr_dir/raw.jsonl"
+        fi
 
         # Launch with stream monitoring if monitor exists, otherwise fall back to plain pipe
         if [ -x "$monitor" ]; then
             cat "${pr_dir}/prompt.txt" \
                 | sh -c "echo \$\$ > ${pr_dir}/session.pid; exec claude -p --verbose --output-format stream-json" \
                 | "$monitor" "$pr_dir" \
-                | tee -a "$pr_dir/raw.jsonl" > "$log_file" &
+                | tee -a "$pr_dir/raw.jsonl" >> "$log_file" &
             local pipe_pid=$!
 
             # Inactivity monitoring loop
@@ -190,7 +201,7 @@ process_pr() {
                 local live_file="${pr_dir}/live.md"
                 if [ -f "$live_file" ]; then
                     local live_mtime
-                    live_mtime=$(stat -f %m "$live_file" 2>/dev/null || echo "$now_epoch")
+                    live_mtime=$(stat -c %Y "$live_file" 2>/dev/null || stat -f %m "$live_file" 2>/dev/null || echo "$now_epoch")
                     local idle_seconds=$((now_epoch - live_mtime))
                     if [ "$idle_seconds" -gt "$INACTIVITY_TIMEOUT_SEC" ]; then
                         echo "[$(date +%H:%M:%S)] PR #${pr_num}: inactivity timeout (${idle_seconds}s idle, attempt ${attempt}/${MAX_ATTEMPTS})"
@@ -208,19 +219,23 @@ process_pr() {
 
             # If the loop ended without timeout, collect exit code
             if [ -z "$exit_status" ]; then
-                wait "$pipe_pid"
-                local rc=$?
-                if [ "$rc" -eq 0 ]; then
+                if wait "$pipe_pid"; then
                     exit_status="success"
                 else
                     exit_status="error"
                 fi
             fi
         else
-            if cat "${pr_dir}/prompt.txt" | claude -p 2>&1 | tee "$log_file"; then
+            local fallback_timeout=$((INACTIVITY_TIMEOUT_SEC * 2))
+            if timeout "$fallback_timeout" sh -c 'cat "$1" | claude -p 2>&1 | tee -a "$2"' _ "${pr_dir}/prompt.txt" "$log_file"; then
                 exit_status="success"
             else
-                exit_status="error"
+                local fallback_rc=$?
+                if [ "$fallback_rc" -eq 124 ]; then
+                    exit_status="timeout"
+                else
+                    exit_status="error"
+                fi
             fi
         fi
 
@@ -229,7 +244,7 @@ process_pr() {
             exit_status="rate-limited"
             printf '# PR #%s Status\nmilestone: rate-limited\n' "$pr_num" > "$status_file"
             touch "${RUN_DIR}/.rate-limited"
-            write_state "$pr_num" "rate-limited"
+            write_state "$pr_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
             break
         fi
 
@@ -240,14 +255,14 @@ process_pr() {
         # Handle exit status
         if [ "$exit_status" = "success" ]; then
             echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
-            write_state "$pr_num" "completed" "duration_seconds: $duration"
+            write_state "$pr_num" "completed" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "duration_seconds: $duration"
             return
         fi
 
         # Failure — retry or escalate
         if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
             echo "[$end_ts] PR #${pr_num}: FAILED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS}) — retrying in 5s..."
-            write_state "$pr_num" "retrying" "previous_exit: $exit_status"
+            write_state "$pr_num" "retrying" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "previous_exit: $exit_status"
             sleep 5
             continue
         fi
@@ -256,7 +271,7 @@ process_pr() {
         echo "[$end_ts] PR #${pr_num}: ERRORED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
         printf '# PR #%s Status\nmilestone: errored\nerror: %s after %d attempts\n' \
             "$pr_num" "$exit_status" "$MAX_ATTEMPTS" > "$status_file"
-        write_state "$pr_num" "errored" "exit_reason: $exit_status" "escalation: needs-director"
+        write_state "$pr_num" "errored" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "exit_reason: $exit_status" "escalation: needs-director"
         return
     done
 }
