@@ -8,15 +8,15 @@ description: "GitLab commands for creating/updating MRs, posting reviews, and br
 
 ## Create or Update MR (Body via File)
 
-Write the MR body to `tmp/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.
+Write the MR body to `tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.
 
 **Use absolute paths with `$(cat)`** — `$(cat)` resolves relative to the shell's CWD, which may differ from the project root.
 
 ```bash
-# Write body via Write tool to tmp/change-request-replies/request-body-<BRANCH_NAME>.md, then:
-glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat /absolute/path/to/tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
+# Write body via Write tool to tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md, then:
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat /absolute/path/to/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Or update existing:
-glab mr update <number> --description "$(cat /absolute/path/to/tmp/change-request-replies/request-body-<BRANCH_NAME>.md)"
+glab mr update <number> --description "$(cat /absolute/path/to/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
 ```
 
 ## Post Review with Inline Comments
@@ -55,7 +55,7 @@ glab api graphql -f query='mutation {
 }'
 ```
 
-**File-based queries:** For complex mutations, write the query to a `.graphql` file and use **uppercase `-F`**: `glab api graphql -F query=@tmp/change-request-replies/gql-1.graphql`. Lowercase `-f query=@file` does NOT read the file — it passes the literal string `@file` as the query value, causing silent GraphQL failures.
+**File-based queries:** For complex mutations, write the query to a `.graphql` file and use **uppercase `-F`**: `glab api graphql -F query=@tmp/claude-artifacts/change-request-replies/gql-1.graphql`. Lowercase `-f query=@file` does NOT read the file — it passes the literal string `@file` as the query value, causing silent GraphQL failures.
 
 **Body escaping:** The body must be a valid GraphQL string literal — escape `"` as `\"`, newlines as `\n`, and single quotes with shell `'\''` trick. For complex bodies, use `jq -Rs` on a file to produce a JSON-escaped string, then interpolate. **Always use `jq` for JSON processing — never `python3`** (not in the permission allowlist for `claude -p` sessions).
 
@@ -66,7 +66,7 @@ For new lines (`+` in the diff), omit `oldLine`. For context lines (unchanged), 
 **Step 3: Post the review summary as a top-level comment** (see comment-interaction.md → "Post Top-Level Comment").
 
 **Step 4: Clean up:**
-Delete only the files written during this run — not the entire directory. Other skills or concurrent agents may have files in `tmp/change-request-replies/`. Track filenames as you write them, then delete exactly those files. Leave the directory in place.
+Delete only the files written during this run — not the entire directory. Other skills or concurrent agents may have files in `tmp/claude-artifacts/change-request-replies/`. Track filenames as you write them, then delete exactly those files. Leave the directory in place.
 
 ## Checkout Review Branch
 
@@ -84,9 +84,9 @@ glab mr list --source-branch <branch-name>
 ## Find Approved Reviewers
 
 ```bash
-# Write jq filter to tmp/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
+# Write jq filter to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
 #   [.[] | select(.body | test("LGTM"; "i"))] | [.[].author.username] | unique | .[]
 # Then:
 glab api "projects/:id/merge_requests/<number>/notes?sort=desc&per_page=100" \
-  | jq -rf tmp/jq-filter.jq
+  | jq -rf tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```

@@ -30,7 +30,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 "Bash(gh pr review:*)",
 "Read(~/.claude/learnings/**)",
 "Read(~/.claude/commands/set-persona/**)",
-"Write(~/**/tmp/change-request-replies/**)"
+"Write(~/**/tmp/claude-artifacts/**)"
 ```
 
 ## Reference Files (conditional — read only when needed)
@@ -147,7 +147,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Each inline comment and follow-up reply** must also end with the footnote.
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 

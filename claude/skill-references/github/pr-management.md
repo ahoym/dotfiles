@@ -8,28 +8,28 @@ description: "GitHub commands for creating/updating PRs, posting reviews, and br
 
 ## Create or Update PR (Body via File)
 
-Write the PR body to `tmp/change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
+Write the PR body to `tmp/claude-artifacts/change-request-replies/pr-body.md` first to avoid HEREDOC/quoted string permission prompts:
 
 ```bash
-# Write body via Write tool to tmp/change-request-replies/pr-body.md, then:
-gh pr create --base <base-branch> --title "<title>" --body-file tmp/change-request-replies/pr-body.md
+# Write body via Write tool to tmp/claude-artifacts/change-request-replies/pr-body.md, then:
+gh pr create --base <base-branch> --title "<title>" --body-file tmp/claude-artifacts/change-request-replies/pr-body.md
 # Or update existing:
-gh pr edit <number> --body-file tmp/change-request-replies/pr-body.md
+gh pr edit <number> --body-file tmp/claude-artifacts/change-request-replies/pr-body.md
 ```
 
 ## Post Review with Inline Comments
 
-Write the review payload to `tmp/change-request-replies/review-<number>.json` via the Write tool, then post:
+Write the review payload to `tmp/claude-artifacts/change-request-replies/review-<number>.json` via the Write tool, then post:
 
 ```bash
-# Write JSON payload to tmp/change-request-replies/review-<number>.json, then:
+# Write JSON payload to tmp/claude-artifacts/change-request-replies/review-<number>.json, then:
 gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  --input tmp/change-request-replies/review-<number>.json
+  --input tmp/claude-artifacts/change-request-replies/review-<number>.json
 # Clean up:
-rm tmp/change-request-replies/review-<number>.json
+rm tmp/claude-artifacts/change-request-replies/review-<number>.json
 ```
 
-**Payload format** (`tmp/change-request-replies/review-<number>.json`):
+**Payload format** (`tmp/claude-artifacts/change-request-replies/review-<number>.json`):
 ```json
 {
   "event": "COMMENT",
@@ -65,9 +65,9 @@ gh pr list --head <branch-name>
 ## Find Approved Reviewers
 
 ```bash
-# Write jq filter to tmp/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
+# Write jq filter to tmp/claude-artifacts/jq-filters/jq-filter.jq via Write tool first (avoids quoted string permission prompt):
 #   [.[] | select(.state == "APPROVED") | .user.login] | unique | .[]
 # Then (use piped jq -f instead of --jq):
 gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  | jq -rf tmp/jq-filter.jq
+  | jq -rf tmp/claude-artifacts/jq-filters/jq-filter.jq
 ```
