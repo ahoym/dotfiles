@@ -1,5 +1,6 @@
 **Step ordering note:** This shared preflight (Steps 1–5) sets `milestone: started` in Step 5. Role-specific steps use sequential numbering: clarifier/confirmer Step 6 (self-comment check) runs after preflight and may overwrite status to `skipped`; implementer Step 0 (git pre-flight) runs before preflight. Directors polling status.md may briefly see a `started` → `skipped` transition — this is intentional, and the window is sub-second within a single agent execution.
 
+
 ## Step 1: Permission Pre-flight
 
 Verify you can perform critical operations before investing time in analysis. Run this smoke test:
