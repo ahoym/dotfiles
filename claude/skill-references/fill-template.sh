@@ -9,6 +9,10 @@
 #   {@filename}  — replaced with contents of <data-dir>/filename
 #                  Paths are relative to data-dir (e.g., {@../repo-summary.txt})
 #
+# Security: Templates are trusted input — {@...} paths resolve without
+# boundary checks (e.g., {@../../anything} is valid). Only use with
+# templates you control.
+#
 # File inclusions are iterative: included files may contain further
 # {@filename} references (e.g., a preflight file that includes {@body.txt}).
 # Max depth: 5 passes.
@@ -69,6 +73,8 @@ while grep -q '{@[^}]*}' "$WORK" && [ "$depth" -lt "$max_depth" ]; do
 done
 
 # --- Phase 2: Substitute {KEY} from metadata.json ---
+# Note: tab separator means metadata values containing literal tabs would
+# be truncated. Safe for current usage (URLs, branch names, SHAs).
 jq -r 'to_entries[] | select(.value != null) | "\(.key)\t\(.value | tostring)"' "$METADATA" > "$KV"
 
 awk -F'\t' '
@@ -78,10 +84,13 @@ NR == FNR {
 }
 {
     for (pat in keys) {
-        while (index($0, pat) > 0) {
-            i = index($0, pat)
-            $0 = substr($0, 1, i - 1) keys[pat] substr($0, i + length(pat))
+        out = ""
+        rest = $0
+        while ((i = index(rest, pat)) > 0) {
+            out = out substr(rest, 1, i - 1) keys[pat]
+            rest = substr(rest, i + length(pat))
         }
+        $0 = out rest
     }
     print
 }
