@@ -115,13 +115,13 @@ gh pr list --state open --json headRefName,number,url
 ```
 Filter client-side. If match found: mark as `SKIP(PR exists (#N))`.
 
-**c. Prior run already processed this state (hard gate).** Check `tmp/sweep-work-items/*/issue-<N>/status.md` across all prior run directories (most recent first). If `milestone: done` AND both `last_comment_id` and `last_sweep_updated_at` match the current issue's latest comment ID and `updatedAt` → `SKIP(Already processed)`. Both must match — a comment ID match alone misses body/label edits that change `updatedAt`, and a timestamp match alone misses issues where `updatedAt` hasn't propagated yet. This runs before comment thread analysis so an already-processed human reply can't be misread as new input.
+**c. Prior run already processed this state (hard gate).** Check `tmp/claude-artifacts/sweep-work-items/*/issue-<N>/status.md` across all prior run directories (most recent first). If `milestone: done` AND both `last_comment_id` and `last_sweep_updated_at` match the current issue's latest comment ID and `updatedAt` → `SKIP(Already processed)`. Both must match — a comment ID match alone misses body/label edits that change `updatedAt`, and a timestamp match alone misses issues where `updatedAt` hasn't propagated yet. This runs before comment thread analysis so an already-processed human reply can't be misread as new input.
 
-**d. Sweeper commented, no human reply.** Find the most recent Sweeper comment (`Role.*Sweeper` or `Role.*Sweeper-Confirm` — no colon in pattern, markdown italics render as `*Role:*`). If no non-Sweeper comment after it → `SKIP(Awaiting reply)`.
+**d. Sweeper commented, no human reply.** Find the most recent Sweeper comment (`\*Role:\*.*Sweeper` or `\*Role:\*.*Sweeper-Confirm` — anchored to markdown italic formatting `*Role:*` to avoid false positives on prose containing "Sweeper"). If no non-Sweeper comment after it → `SKIP(Awaiting reply)`.
 
-**e. Sweeper asked questions (`Role.*Sweeper`, NOT `Sweeper-Confirm`), human replied.** → **eligible**, force **clarify-confirm**.
+**e. Sweeper asked questions (`\*Role:\*.*Sweeper`, NOT `Sweeper-Confirm`), human replied.** → **eligible**, force **clarify-confirm**.
 
-**f. Sweeper confirmed (`Role.*Sweeper-Confirm`), human replied.** → **eligible**, apply normal decision in Phase 5.
+**f. Sweeper confirmed (`\*Role:\*.*Sweeper-Confirm`), human replied.** → **eligible**, apply normal decision in Phase 5.
 
 ### Phase 4: Repo Summary
 
@@ -142,8 +142,8 @@ For each eligible work item, determine the role based on its conversation stage:
 > | Conversation stage | Role | Rule |
 > |---|---|---|
 > | No prior Sweeper comment | **clarify** | Always — agent posts questions/analysis first |
-> | Sweeper asked questions, operator replied (rule d) | **clarify-confirm** | Always — agent posts understanding + plan |
-> | Sweeper confirmed, operator replied (rule e) | **implement** or **clarify** | Apply decision rule below |
+> | Sweeper asked questions, operator replied (rule e) | **clarify-confirm** | Always — agent posts understanding + plan |
+> | Sweeper confirmed, operator replied (rule f) | **implement** or **clarify** | Apply decision rule below |
 >
 > **Decision rule (stage 3 only):** Can you identify all three? (a) Specific file targets (b) Expected behavior change (c) Verification method. All three → **implement**. Any missing → **clarify** (restart cycle).
 
