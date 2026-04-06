@@ -85,6 +85,9 @@ echo "Watch progress in another terminal:"
 echo "  while clear; do for f in $RUN_DIR/pr-*/status.md; do echo \"--- \$f\"; cat \"\$f\"; echo; done; sleep 5; done"
 echo ""
 
+# Clear stale rate-limit sentinel from prior runs
+rm -f "${RUN_DIR}/.rate-limited"
+
 OVERALL_START=$(date +%s)
 
 # --- Manifest updates (incremental additions/closures) ---
@@ -140,14 +143,12 @@ process_pr() {
     local start_time=$(date +%s)
     local ts=$(date +%H:%M:%S)
 
-    # Pre-flight: skip if rate-limited
-    if [ -f "${RUN_DIR}/.rate-limited" ]; then
-        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
-        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
-        return
-    fi
-
-    # Pre-flight: skip if status.md shows terminal state (no API call needed)
+    # Pre-flight: skip only on terminal PR states (MERGED/CLOSED) — not on "done".
+    # "done" means the *previous* cycle completed, not that there's nothing to do.
+    # The session's watermark logic handles rerun detection (compares HEAD SHA +
+    # comment IDs against current state). The runner only skips truly terminal cases.
+    # NOTE: Adapt `pr_state:` to match your sweep type (e.g., `issue_state:` for issue-based sweeps).
+    # Also adapt terminal state values below — MERGED/CLOSED are PR-specific; issues only have CLOSED.
     if [ -f "$status_file" ]; then
         local cached_state
         cached_state=$(grep '^pr_state:' "$status_file" 2>/dev/null | awk '{print $2}')
@@ -155,6 +156,13 @@ process_pr() {
             echo "[$ts] PR #${pr_num}: SKIPPED ($cached_state, from status.md)"
             return
         fi
+    fi
+
+    # Pre-flight: skip if rate-limited (after terminal check so completed sessions aren't regressed)
+    if [ -f "${RUN_DIR}/.rate-limited" ]; then
+        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
+        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
+        return
     fi
 
     # Pre-flight: skip merged/closed PRs (API fallback for first run or missing status.md)
@@ -239,24 +247,24 @@ process_pr() {
             fi
         fi
 
-        # Rate limit detection
+        local end_time=$(date +%s)
+        local duration=$((end_time - attempt_start))
+        local end_ts=$(date +%H:%M:%S)
+
+        # Handle exit status — success takes priority over transient rate limits
+        if [ "$exit_status" = "success" ]; then
+            echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
+            write_state "$pr_num" "completed" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "duration_seconds: $duration"
+            return
+        fi
+
+        # Rate limit detection (only on failure — transient limits during successful sessions are harmless)
         if grep -q "hit your limit" "$log_file" 2>/dev/null; then
             exit_status="rate-limited"
             printf '# PR #%s Status\nmilestone: rate-limited\n' "$pr_num" > "$status_file"
             touch "${RUN_DIR}/.rate-limited"
             write_state "$pr_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
             break
-        fi
-
-        local end_time=$(date +%s)
-        local duration=$((end_time - attempt_start))
-        local end_ts=$(date +%H:%M:%S)
-
-        # Handle exit status
-        if [ "$exit_status" = "success" ]; then
-            echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
-            write_state "$pr_num" "completed" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "duration_seconds: $duration"
-            return
         fi
 
         # Failure — retry or escalate

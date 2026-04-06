@@ -101,6 +101,10 @@ When a consuming file restates shared reference logic and the restatement has dr
 
 When skill A's reference file says "same criteria as skill B's reference file," that's a coupling that silently breaks when B evolves. The fix: extract the shared criteria into `skill-references/` and have both skills consume it. The signal is any phrase like "same as," "same criteria as," or "see `<other-skill>/`" pointing at a sibling skill's internals rather than a shared reference.
 
+## Eager-Load References That Are Always Consumed
+
+When a reference file is read by every invocation of a skill (not conditionally), use `@` eager loading instead of a conditional read instruction. The context cost is identical — the agent reads it either way — but eager loading saves a tool call and guarantees availability. Reserve conditional reads (`read X if mode is Y`) for files genuinely needed only in some code paths.
+
 ## Cross-Refs
 
 No cross-cluster references.

@@ -17,7 +17,9 @@ Assess open work items (GitHub Issues / GitLab Issues), then generate `let-it-ri
 1. **Assessment** (this skill, run once) — produces manifest + let-it-rip.sh + per-issue prompts
 2. **Execution** (rerunnable) — operator runs `bash let-it-rip.sh` from terminal, repeatedly if needed
 
-Each `claude -p` session checks its watermark before working — if nothing changed since the last run, the session exits cleanly. Implementers create branches + PRs in worktrees. Clarifiers post targeted questions as issue comments.
+Each `claude -p` session checks its watermark before working — if nothing changed since the last run, the session exits cleanly.
+
+**Lifecycle:** clarify → confirm → implement. Every issue starts at clarify. Implementation requires passing through the confirm gate — no exceptions.
 
 ## Usage
 
@@ -69,9 +71,10 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment commands
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
-- `~/.claude/skill-references/sweep-scaffold.md` — Shared artifact structure, watermark logic, result/learnings patterns
+- @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
 - `implementer-prompt.md` — Read when generating implementer prompts
 - `clarifier-prompt.md` — Read when generating clarifier prompts
+- `confirmer-prompt.md` — Read when generating clarify-confirm prompts (understanding + plan before implementation)
 
 ## Instructions
 
@@ -112,9 +115,13 @@ gh pr list --state open --json headRefName,number,url
 ```
 Filter client-side. If match found: mark as `SKIP(PR exists (#N))`.
 
-**c. Sweeper already commented, no human reply.** Scan comments for the Sweeper footnote (`Role:.*Sweeper`). If found, check if any non-Sweeper comment was posted after it. If no reply: mark as `SKIP(Awaiting reply)`.
+**c. Prior run already processed this state (hard gate).** Check `tmp/claude-artifacts/sweep-work-items/*/issue-<N>/status.md` across all prior run directories (most recent first). If `milestone: done` AND both `last_comment_id` and `last_sweep_updated_at` match the current issue's latest comment ID and `updatedAt` → `SKIP(Already processed)`. Both must match — a comment ID match alone misses body/label edits that change `updatedAt`, and a timestamp match alone misses issues where `updatedAt` hasn't propagated yet. This runs before comment thread analysis so an already-processed human reply can't be misread as new input.
 
-**d. Sweeper commented AND human replied.** Both a Sweeper comment and a subsequent non-Sweeper comment exist → **eligible** for re-assessment.
+**d. Sweeper commented, no human reply.** Find the most recent Sweeper comment (`\*Role:\*.*Sweeper` or `\*Role:\*.*Sweeper-Confirm` — anchored to markdown italic formatting `*Role:*` to avoid false positives on prose containing "Sweeper"). If no non-Sweeper comment after it → `SKIP(Awaiting reply)`.
+
+**e. Sweeper asked questions (`\*Role:\*.*Sweeper`, NOT `Sweeper-Confirm`), human replied.** → **eligible**, force **clarify-confirm**.
+
+**f. Sweeper confirmed (`\*Role:\*.*Sweeper-Confirm`), human replied.** → **eligible**, apply normal decision in Phase 5.
 
 ### Phase 4: Repo Summary
 
@@ -130,14 +137,15 @@ Assemble into `REPO_SUMMARY`.
 
 ### Phase 5: Decide & Generate Artifacts
 
-For each eligible work item, apply the implement-vs-clarify decision:
+For each eligible work item, determine the role based on its conversation stage:
 
-> **Decision rule:** Can you identify all three from the issue body + comments + repo summary?
-> (a) Specific file targets that need changing
-> (b) The expected behavior change
-> (c) A way to verify the change worked
+> | Conversation stage | Role | Rule |
+> |---|---|---|
+> | No prior Sweeper comment | **clarify** | Always — agent posts questions/analysis first |
+> | Sweeper asked questions, operator replied (rule e) | **clarify-confirm** | Always — agent posts understanding + plan |
+> | Sweeper confirmed, operator replied (rule f) | **implement** or **clarify** | Apply decision rule below |
 >
-> If all three: **implement**. If any is missing: **clarify**.
+> **Decision rule (stage 3 only):** Can you identify all three? (a) Specific file targets (b) Expected behavior change (c) Verification method. All three → **implement**. Any missing → **clarify** (restart cycle).
 
 Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
 
@@ -164,7 +172,7 @@ Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` 
 
 #### issue-\<N\>/prompt.txt
 
-Read the appropriate prompt template (`implementer-prompt.md` or `clarifier-prompt.md`). Each template includes watermark/skip logic, learnings search, permission pre-flight, role-specific work instructions, and artifact writing steps.
+Read the appropriate prompt template (`implementer-prompt.md`, `clarifier-prompt.md`, or `confirmer-prompt.md`). Each template includes watermark/skip logic, learnings search, permission pre-flight, role-specific work instructions, and artifact writing steps.
 
 Fill template placeholders:
 - `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}` — from the work item
@@ -199,7 +207,7 @@ The runner MUST use `stream-monitor.sh` for `live.md` observability (same patter
 ### Phase 6: Present Summary & Announce
 
 ```
-Assessed N issues. M eligible (I implement, C clarify), K skipped:
+Assessed N issues. M eligible (I implement, C clarify, F confirm), K skipped:
 
 | # | Title | Role | Skip Reason |
 |---|-------|------|-------------|
@@ -232,6 +240,7 @@ Convergence is a director concern, not this skill's. Summary for directors:
 
 - **Implementers**: converged when `pr_opened: true` in `status.md` (PR created, job done)
 - **Clarifiers**: converged when `comment_posted: true` in `status.md` (questions posted, awaiting human reply)
+- **Confirmers**: converged when `confirmation_posted: true` in `status.md`
 - **Error states**: `milestone: errored` items are NOT converged — director may write retry directives
 - **Single-pass default**: work items are typically one-shot. Rerun only triggers if the issue was updated (new comments, edits) since the last pass.
 
@@ -239,7 +248,8 @@ Convergence is a director concern, not this skill's. Summary for directors:
 
 - **Assessment only.** This skill generates artifacts and exits. It does not launch agents or wait for results.
 - **Agents are independent.** Each `claude -p` session operates alone. Parallel implementers may create conflicting PRs — the operator resolves manually.
+
 - **`Relates to` not `Closes`.** PRs reference issues with `Relates to #{N}`, never `Closes` or `Fixes`. The operator decides when to close.
-- **Footnote identity.** Clarifier comments end with `Role: Sweeper` footnote for re-run skip detection.
+- **Footnote identity.** `Role: Sweeper` (clarifier) and `Role: Sweeper-Confirm` (confirmer) — used by skip detection to determine conversation stage.
 - **Worktrees are preserved.** Implementer worktrees persist after the sweep for follow-up work. Clean up with `git worktree remove` after PRs merge.
 - See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.

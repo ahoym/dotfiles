@@ -144,11 +144,7 @@ Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note th
 
 ## Convergence
 
-Convergence is a director-layer concern — individual sessions do not decide convergence. For full convergence rules, monitoring table format, and directive patterns, see `director-playbook.md`.
-
-Summary:
-- **Review loop**: converged when all sessions skip for 30m wall-clock (reviews are reactive to changes)
-- **Address loop**: converged when all PRs are terminal (MERGED or CLOSED). Open PRs with `mergeable: CONFLICTING` are NOT converged — the director must write conflict resolution directives
+Convergence is a director-layer concern — individual sessions do not decide convergence. See `director-playbook.md` for convergence rules, monitoring table format, and directive patterns.
 
 ## Shared Important Notes
 
@@ -156,3 +152,5 @@ Summary:
 - **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary.
 - **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
 - **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/claude-artifacts/sweep-<mode>/<timestamp>/`
+- **Prompt templates must be self-contained.** `claude -p` agents can't read other templates at runtime. When trimming, compress prose but keep structural templates (markdown formats, YAML schemas, comment formats) inline. Duplication across templates is the cost of agent isolation.
+- **Rerun trace before shipping new templates.** Mentally walk through: (1) first run — does the agent post/act correctly? (2) immediate rerun, no changes — does the watermark skip? (3) rerun after the agent posted — does the agent's own comment trigger a false "new activity"? If any step is unclear, the watermark or skip logic has a gap.

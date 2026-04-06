@@ -8,6 +8,8 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 
 ## Director Principles
 
+**Agents demonstrate understanding before acting.** Implementation requires passing through a confirm gate — no exceptions. The lifecycle is: clarify (questions/analysis) → confirm (understanding + plan) → implement. This applies to any skill that orchestrates autonomous agents making code changes. Currently implemented in sweep-work-items; other orchestration skills (sweep-review-prs, sweep-address-prs) don't have this lifecycle because they review/address rather than implement changes.
+
 **Directors observe and direct — they don't touch the working tree.** All code changes flow through agents via directives or targeted `Agent(isolation: "worktree")` launches. The director writes only: directives, monitoring state, and sweep artifacts. This eliminates `git stash` friction from mixing local edits with agent-pushed commits on the same branch.
 
 **Standard path: director runs from `main`.** This avoids the active-branch workaround entirely — `git worktree add` works for every PR branch when the director isn't on one of them.
