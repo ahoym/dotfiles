@@ -69,12 +69,11 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
    ```
    bash <run_dir>/let-it-rip.sh
    ```
-2. **Compound mode** (review+address only): review runner is already running (launched after review assessment in Phase 2). Poll for review completion before launching address:
-   - Poll every 2 minutes: read each review PR's `status.md` for milestone
+2. **Compound mode** (review+address only): review runner is already running (launched after review assessment in Phase 2). Wait for review completion before launching address:
+   - Wait for the review runner's background task to complete (event-driven, not polling)
    - **All review PRs reach `posted` or `done`** → launch address runner immediately (but never before the minimum offset of 3 minutes from review launch, to allow GitLab API propagation)
    - **Any review PR reaches `errored`** → surface to operator before launching address
    - **Timeout after 20 minutes** → launch address runner anyway (review may be stuck; address session's watermark/skip logic handles the no-new-comments case gracefully)
-   - This replaces the fixed offset sleep — a review that finishes in 5 minutes triggers address at 5 minutes instead of waiting a fixed 3 minutes, and a 15-minute review doesn't launch address prematurely at 3 minutes when there's nothing to address yet.
 3. Update each run's status to `"active"` in session manifest.
 4. Present the initial monitoring table (full table, per playbook format).
 
@@ -96,15 +95,12 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
-**What the director no longer does:**
-- Polling on a timer
-- Reading `live.md` as a primary monitoring channel
-- Killing processes for inactivity (runner handles this via `INACTIVITY_TIMEOUT_SEC`)
-
-**What the director still does:**
+**Director responsibilities in Phase 4:**
+- Convergence evaluation and relaunch decisions
+- Directive writing (summary-only findings, conflict resolution)
 - Circular activity detection (via `live.md` when investigating escalations)
-- Directive writing
-- Convergence evaluation
+
+Note: process lifecycle (inactivity detection, kill, retry) is owned by the runner, not the director.
 
 **Escalation over automation**: when in doubt, present what you see, what you think it means, and what you'd recommend. The operator decides. As trust is established, the operator may cede more judgment -- respect the current escalation level.
 
