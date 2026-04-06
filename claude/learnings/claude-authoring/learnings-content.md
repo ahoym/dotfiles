@@ -143,6 +143,12 @@ When extracting project-local learnings into shared team learnings, strip projec
 
 **Scope is broader than gotchas:** Include validated architectural practices, good engineering conventions, and patterns that help teams make better decisions — not only things that caused incidents or surprised someone.
 
+## Prune Learnings After Operationalization
+
+When discoveries from a learnings file get promoted into reference docs or skills (e.g., a watermark pattern becomes a section in `sweep-scaffold.md`), prune the original learnings file to retain only unique gotchas not covered by the authoritative source. Unpruned learnings files become noise — they duplicate reference docs at lower fidelity, confuse agents about which source is authoritative, and inflate context when both get loaded. The learnings file's role shifts from "discovery log" to "gotchas supplement."
+
+**Detection:** If a learnings section restates what a reference doc already says (convergence rules, directory structure, watermark logic), it's stale. If it captures a platform gotcha or operational decision not in any reference doc, it stays.
+
 ## Cross-Refs
 
 No cross-cluster references.
