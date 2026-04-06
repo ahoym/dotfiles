@@ -53,8 +53,8 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 For each requested mode, invoke the corresponding skill via `Skill` tool. Any skill that produces manifest.json + item directories + a runner script can be orchestrated.
 
 **Convenience aliases** for common sweep modes:
-- `review` → `skill="sweep-review-prs"`, `args="<passthrough>"`
-- `address` → `skill="sweep-address-prs"`, `args="<passthrough>"`
+- `review` → `skill="sweep:review-prs"`, `args="<passthrough>"`
+- `address` → `skill="sweep:address-prs"`, `args="<passthrough>"`
 
 After each skill completes, read its generated `manifest.json` to get the `run_dir`. Append to `session.json`:
 ```json

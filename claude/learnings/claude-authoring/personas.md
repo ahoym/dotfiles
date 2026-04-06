@@ -133,7 +133,7 @@ When porting content from an agent definition (`.claude/agents/`) to a persona, 
 
 ## Persona Auto-Detection for Automated Agents
 
-When agents operate without an operator setting a persona (e.g., sweep-work-items, scheduled triggers), the agent prompt should include an auto-detection step. Detection priority:
+When agents operate without an operator setting a persona (e.g., sweep:work-items, scheduled triggers), the agent prompt should include an auto-detection step. Detection priority:
 
 1. **Work item labels** — direct mapping (label `java` → `java-backend`, `frontend` → `react-frontend`, `security` → `java-infosec`)
 2. **Title/body keywords** — framework/language mentions matched against persona domains

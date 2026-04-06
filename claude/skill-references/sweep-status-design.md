@@ -1,9 +1,9 @@
 ---
-description: "Design sketch for a /sweep-status skill — reads sweep artifacts, computes monitoring table, evaluates convergence. Building block for automated director dispatch."
+description: "Design sketch for a /sweep:status skill — reads sweep artifacts, computes monitoring table, evaluates convergence. Building block for automated director dispatch."
 status: draft
 ---
 
-# `/sweep-status` — Design Sketch
+# `/sweep:status` — Design Sketch
 
 Discrete skill that reads sweep run artifacts and returns structured director state. Useful standalone for monitoring and as a building block for notification-driven director dispatch.
 
@@ -59,27 +59,27 @@ monitoring:
 
 ## Director Dispatch Integration (future)
 
-With `/sweep-status` as a primitive, the director loop becomes:
+With `/sweep:status` as a primitive, the director loop becomes:
 
 ```
 loop:
   launch review runner (background)
     <- notification: done
-  /sweep-status review-run-dir
+  /sweep:status review-run-dir
   write any directives from actions_needed
   if review not converged:
     launch address runner/agent (background)
       <- notification: done
-    /sweep-status address-run-dir
+    /sweep:status address-run-dir
     write any directives from actions_needed
   check both convergence states
   if both converged: exit loop
 ```
 
-The director doesn't poll or sleep — it reacts to completion notifications and uses `/sweep-status` to decide the next action. Each `/sweep-status` call is cheap (reads local files, no API calls except for convergence clock checks).
+The director doesn't poll or sleep — it reacts to completion notifications and uses `/sweep:status` to decide the next action. Each `/sweep:status` call is cheap (reads local files, no API calls except for convergence clock checks).
 
 ## Open Questions
 
-- Should `/sweep-status` read both review AND address run dirs in one call, or stay single-mode?
+- Should `/sweep:status` read both review AND address run dirs in one call, or stay single-mode?
 - Should it write directives directly, or just flag actions for the director to write? (Leaning toward flag-only — directors should decide whether to act on each flag.)
 - How to surface context token usage? Task notifications include token counts, but the director would need to track cumulative usage across cycles.
