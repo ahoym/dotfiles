@@ -1,6 +1,6 @@
 ---
 name: director
-description: "Orchestrate parallel claude -p sessions — bootstrap, launch, monitor, and converge. Works with any skill that produces the standard artifact contract (manifest.json + item directories + runner script)."
+description: "Orchestrate parallel claude -p sessions — bootstrap, launch, monitor, and converge. Works with any skill that produces manifest.json, item directories, and a runner script."
 argument-hint: "[review] [address] [review+address] [--prs=#47,#46] [--offset=3]"
 ---
 
@@ -31,7 +31,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - **Mode**: `review`, `address`, `review+address`, or empty (ask operator)
    - **Passthrough flags**: `--prs=...` forwarded to subordinate skills
    - **Offset**: `--offset=N` minutes between review/address launches (default 3)
-2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces the standard artifact contract — not just sweep skills.
+2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces manifest.json + item directories + a runner script — not just sweep skills.
 3. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
 4. **Prerequisites** (warn, don't block):
    - `gh auth status` succeeds
@@ -50,7 +50,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ## Phase 2: Assess + Generate Artifacts
 
-For each requested mode, invoke the corresponding skill via `Skill` tool. Any skill that produces the standard artifact contract (manifest.json + item directories + runner script) can be orchestrated.
+For each requested mode, invoke the corresponding skill via `Skill` tool. Any skill that produces manifest.json + item directories + a runner script can be orchestrated.
 
 **Convenience aliases** for common sweep modes:
 - `review` → `skill="sweep-review-prs"`, `args="<passthrough>"`

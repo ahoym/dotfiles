@@ -140,21 +140,31 @@ process_pr() {
     local start_time=$(date +%s)
     local ts=$(date +%H:%M:%S)
 
-    # Pre-flight: skip if rate-limited
-    if [ -f "${RUN_DIR}/.rate-limited" ]; then
-        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
-        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
-        return
-    fi
-
     # Pre-flight: skip if status.md shows terminal state (no API call needed)
+    # This MUST run before the rate-limit check — a completed session should
+    # never be regressed to rate-limited on rerun.
     if [ -f "$status_file" ]; then
+        local cached_milestone
+        cached_milestone=$(grep '^milestone:' "$status_file" 2>/dev/null | awk '{print $2}')
+        if [ "$cached_milestone" = "done" ] || [ "$cached_milestone" = "skipped" ]; then
+            local cached_state
+            cached_state=$(grep '^pr_state:' "$status_file" 2>/dev/null | awk '{print $2}')
+            echo "[$ts] PR #${pr_num}: SKIPPED (${cached_milestone}${cached_state:+, $cached_state})"
+            return
+        fi
         local cached_state
         cached_state=$(grep '^pr_state:' "$status_file" 2>/dev/null | awk '{print $2}')
         if [ "$cached_state" = "MERGED" ] || [ "$cached_state" = "CLOSED" ]; then
             echo "[$ts] PR #${pr_num}: SKIPPED ($cached_state, from status.md)"
             return
         fi
+    fi
+
+    # Pre-flight: skip if rate-limited (after terminal check so completed sessions aren't regressed)
+    if [ -f "${RUN_DIR}/.rate-limited" ]; then
+        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
+        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
+        return
     fi
 
     # Pre-flight: skip merged/closed PRs (API fallback for first run or missing status.md)

@@ -66,7 +66,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 - @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
 - `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
-- `~/.claude/skill-references/sweep-scaffold.md` — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
+- @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
 
 ## Instructions
 
