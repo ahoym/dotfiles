@@ -153,3 +153,4 @@ Convergence is a director-layer concern — individual sessions do not decide co
 - **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
 - **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/claude-artifacts/sweep-<mode>/<timestamp>/`
 - **Prompt templates must be self-contained.** `claude -p` agents can't read other templates at runtime. When trimming, compress prose but keep structural templates (markdown formats, YAML schemas, comment formats) inline. Duplication across templates is the cost of agent isolation.
+- **Rerun trace before shipping new templates.** Mentally walk through: (1) first run — does the agent post/act correctly? (2) immediate rerun, no changes — does the watermark skip? (3) rerun after the agent posted — does the agent's own comment trigger a false "new activity"? If any step is unclear, the watermark or skip logic has a gap.
