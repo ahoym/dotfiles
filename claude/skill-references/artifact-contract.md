@@ -111,7 +111,17 @@ Optional fields (included when relevant):
 
 The runner owns this file exclusively. The director reads it but never writes it.
 
-## manifest-updates.json
+## Director-Written Files
+
+### directives.md
+Append-only dated sections. Written by the director between cycles. Sessions read directives before the watermark check — directives override skip logic.
+
+```markdown
+## <ISO timestamp>
+<instructions for the session>
+```
+
+### manifest-updates.json
 
 Optional JSONL file (one JSON object per line) for incremental manifest changes. Written by the director between runner launches. Consumed by the runner on relaunch, not mid-run.
 
@@ -128,16 +138,6 @@ The item's `prompt.txt` must already exist in `item-<id>/`. The runner skips ite
 {"action": "close", "id": "49", "reason": "MERGED"}
 ```
 The runner writes a terminal `status.md` for the item on consumption.
-
-## Director-Written Files
-
-### directives.md
-Append-only dated sections. Written by the director between cycles. Sessions read directives before the watermark check — directives override skip logic.
-
-```markdown
-## <ISO timestamp>
-<instructions for the session>
-```
 
 ### live.md
 Written by `stream-monitor.sh` (not the session). Append-only typed entries. See `director-playbook.md` § "live.md Entry Types" for the full format.
