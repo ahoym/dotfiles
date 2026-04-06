@@ -33,12 +33,14 @@ If `{ISSUE_DIR}/status.md` exists, read `last_sweep_updated_at` and `last_commen
 
 ## Step 4: Compare Against Current Issue State
 
-Fetch the issue's current state:
+Fetch the issue's current state and last comment body:
 ```bash
-gh issue view {ISSUE_NUMBER} --json state,updatedAt,comments --jq '{state, updatedAt, last_comment_id: (.comments[-1].id // null)}'
+gh issue view {ISSUE_NUMBER} --json state,updatedAt,comments --jq '{state, updatedAt, last_comment_id: (.comments[-1].id // null), last_comment_body: (.comments[-1].body // null)}'
 ```
 
 **State check (earliest exit):** If state is `CLOSED`, set `milestone: skipped`, `issue_state: closed` in `{ISSUE_DIR}/status.md` and exit immediately.
+
+**Self-comment check:** If the last comment body contains `Role:` followed by `Sweeper` or `Sweeper-Confirm`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
 
 Compare against watermark values:
 - `updatedAt` differs OR `last_comment_id` differs → new activity, proceed to step 5
@@ -74,14 +76,7 @@ started_at: <ISO timestamp>
 
 ## Step 6: Persona Auto-Detection
 
-Select a domain persona based on available signals. Check in order:
-1. **Issue labels** — match against persona names (e.g., label `java` → `java-backend`, label `frontend` → `react-frontend`)
-2. **Issue title/body keywords** — match framework/language mentions against persona domains
-3. **File paths in repo summary** — if the repo is predominantly one stack, match that
-
-If a match is found, read the persona file from `~/.claude/commands/set-persona/<match>.md` and adopt its lens. If no match, proceed without a persona.
-
-Announce: `🎭 Persona: <name>` or `🎭 No persona match — proceeding without`
+Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
 ## Step 7: Search Learnings for Domain Expertise
 
@@ -188,7 +183,12 @@ Then add any new observations: codebase insights, architectural patterns discove
 
 ### status.md
 
-Write final status:
+**Re-fetch watermark after posting.** Your comment in Step 9 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
+```bash
+gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
+```
+
+Write final status using the **re-fetched** values:
 
 ```yaml
 milestone: done  # or errored
@@ -197,8 +197,8 @@ issue_state: OPEN
 persona: <name or none>
 comment_posted: true  # or false if failed
 questions_asked: <count>
-last_sweep_updated_at: <issue updatedAt at time of processing>
-last_comment_id: <latest comment ID at time of processing>
+last_sweep_updated_at: <re-fetched updatedAt>
+last_comment_id: <re-fetched last comment ID>
 updated_at: <ISO timestamp>
 ```
 
