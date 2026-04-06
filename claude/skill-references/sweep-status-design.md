@@ -52,7 +52,8 @@ monitoring:
     mergeable: MERGEABLE
     review_milestone: done
     address_milestone: done
-    last_activity: 2m ago
+    runner_state: completed
+    attempt: 1/2
     directives: --
 ```
 
