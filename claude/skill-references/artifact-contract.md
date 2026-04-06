@@ -33,7 +33,7 @@ Skills that produce this structure can be launched and monitored by `/director`.
   "created_at": "<ISO timestamp>",
   "run_dir": "<absolute path>",
   "concurrency": 3,
-  "source_skill": "/sweep-review-prs",
+  "source_skill": "/sweep:review-prs",
   "items": [
     {
       "id": "52",

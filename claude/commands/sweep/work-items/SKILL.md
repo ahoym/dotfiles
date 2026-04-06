@@ -1,5 +1,5 @@
 ---
-name: sweep-work-items
+name: work-items
 description: "Assess open work items and generate a parallel execution script — produces manifest.json and let-it-rip.sh for implement/clarify execution."
 argument-hint: "[#12 #15] [--label=bug] [--max=10] [--concurrency=5]"
 ---
@@ -23,12 +23,12 @@ Each `claude -p` session checks its watermark before working — if nothing chan
 
 ## Usage
 
-- `/sweep-work-items` — all open issues (up to 30)
-- `/sweep-work-items #12 #15 #20` — specific issues
-- `/sweep-work-items --label=bug` — filter by label
-- `/sweep-work-items --max=10` — cap number of issues
-- `/sweep-work-items --concurrency=3` — max parallel agents (default 5)
-- Flags combine: `/sweep-work-items --label=bug --max=5 --concurrency=3`
+- `/sweep:work-items` — all open issues (up to 30)
+- `/sweep:work-items #12 #15 #20` — specific issues
+- `/sweep:work-items --label=bug` — filter by label
+- `/sweep:work-items --max=10` — cap number of issues
+- `/sweep:work-items --concurrency=3` — max parallel agents (default 5)
+- Flags combine: `/sweep:work-items --label=bug --max=5 --concurrency=3`
 
 ## Prerequisites (hard gate)
 

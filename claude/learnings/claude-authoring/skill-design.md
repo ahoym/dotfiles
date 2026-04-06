@@ -193,7 +193,7 @@ Agent prompts that do domain work (implementing, reviewing, clarifying) benefit 
 4. **Provenance in learnings.md** (mandatory) — each agent logs which learnings it loaded and how they shaped the work. This is the only operator-visible record.
 5. **Audit trail in output** — implementers include a "Learnings Applied" section in PR bodies; reviewers reference learnings in review comments. Makes the influence reviewable.
 
-This pattern applies to any skill that spawns domain-work agents: sweep-work-items, sweep-review-prs, sweep-address-prs, or custom playbooks.
+This pattern applies to any skill that spawns domain-work agents: sweep:work-items, sweep:review-prs, sweep:address-prs, or custom playbooks.
 
 ## Cross-Refs
 

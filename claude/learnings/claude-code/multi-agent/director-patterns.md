@@ -22,7 +22,7 @@ When only a subset of work items need updated prompts (e.g., to add the directiv
 
 ## Skip Confirmation in Sweep Skills
 
-Sweep skills should present the assessment summary table (for visibility) but proceed directly to artifact generation without prompting for confirmation. Operator curates by passing specific PR numbers (`/sweep-review-prs #49 #47`), not by interactive exclusion after assessment.
+Sweep skills should present the assessment summary table (for visibility) but proceed directly to artifact generation without prompting for confirmation. Operator curates by passing specific PR numbers (`/sweep:review-prs #49 #47`), not by interactive exclusion after assessment.
 
 ## Director Local State During Worktree Pushes
 

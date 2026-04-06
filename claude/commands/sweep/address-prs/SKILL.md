@@ -1,5 +1,5 @@
 ---
-name: sweep-address-prs
+name: address-prs
 description: "Assess open PRs with unaddressed review comments and generate a parallel addressing script — produces manifest.json and let-it-rip.sh for address-request-comments execution."
 argument-hint: "[#47 #46] [--max=20] [--concurrency=3] [--resolve-conflicts]"
 ---
@@ -20,10 +20,10 @@ Assess open PRs for unaddressed review comments, then generate `let-it-rip.sh` �
 
 ## Usage
 
-- `/sweep-address-prs` — all open PRs with unaddressed comments (up to 20)
-- `/sweep-address-prs #47 #46` — specific PRs
-- `/sweep-address-prs --max=10 --concurrency=2`
-- `/sweep-address-prs --resolve-conflicts` — also resolve merge conflicts with base branch before addressing
+- `/sweep:address-prs` — all open PRs with unaddressed comments (up to 20)
+- `/sweep:address-prs #47 #46` — specific PRs
+- `/sweep:address-prs --max=10 --concurrency=2`
+- `/sweep:address-prs --resolve-conflicts` — also resolve merge conflicts with base branch before addressing
 
 ## Prerequisites (hard gate)
 

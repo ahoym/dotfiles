@@ -1,5 +1,5 @@
 ---
-name: sweep-review-prs
+name: review-prs
 description: "Assess open PRs and generate a parallel review script — produces manifest.json and let-it-rip.sh for team-review-request execution."
 argument-hint: "[#47 #46] [--max=20] [--concurrency=3] [--include-drafts]"
 ---
@@ -20,9 +20,9 @@ Assess open PRs, then generate `let-it-rip.sh` — a bash script that launches p
 
 ## Usage
 
-- `/sweep-review-prs` — all open PRs (up to 20)
-- `/sweep-review-prs #47 #46` — specific PRs
-- `/sweep-review-prs --max=10 --concurrency=2 --include-drafts`
+- `/sweep:review-prs` — all open PRs (up to 20)
+- `/sweep:review-prs #47 #46` — specific PRs
+- `/sweep:review-prs --max=10 --concurrency=2 --include-drafts`
 
 ## Prerequisites (hard gate)
 

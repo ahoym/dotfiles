@@ -1,10 +1,10 @@
 ---
-description: "Shared scaffold for sweep-*-prs skills: artifact structure, watermark logic, result/learnings patterns, let-it-rip generation, pre-flight checks, announce/progress/retro formats, and common important notes."
+description: "Shared scaffold for sweep:*-prs skills: artifact structure, watermark logic, result/learnings patterns, let-it-rip generation, pre-flight checks, announce/progress/retro formats, and common important notes."
 ---
 
 # Sweep Scaffold
 
-Shared patterns consumed by `sweep-address-prs` and `sweep-review-prs`. Each skill reads selectively — not all sections apply to every mode.
+Shared patterns consumed by `sweep:address-prs` and `sweep:review-prs`. Each skill reads selectively — not all sections apply to every mode.
 
 ## Artifact Structure
 
