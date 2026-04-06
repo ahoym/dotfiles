@@ -95,3 +95,11 @@ Watermark diffs alone don't distinguish "human replied" from "agent posted last 
 ## Dual-Signal Watermark Comparison
 
 Require both `last_comment_id` AND `updatedAt` to match before skipping a work item. Either signal alone has blind spots: `last_comment_id` misses body/label edits (which change `updatedAt` without adding comments), and `updatedAt` alone could miss propagation edge cases. The two signals cover each other — any mutation breaks at least one.
+
+## Map Full Call Chain Before Patching One Layer
+
+Multi-layer systems (assessment → runner → agent) can have the same bug manifest at multiple layers. Before fixing the first instance found, trace the full flow and identify all places the defense should exist. Patching one layer reactively leads to discovering the next gap only after testing — mapping upfront catches them in one pass.
+
+## Parallel Session Rate Limit Competition
+
+Launching 4+ `claude -p` sessions simultaneously reliably exhausts API rate limits. The first 2-3 sessions complete; later ones hit limits mid-execution. Mitigations: lower concurrency (2-3 for heavy sessions like team reviews), stagger launches, or accept that reruns will be needed. The `.rate-limited` sentinel prevents wasted retries but must not overwrite completed sessions (see runner pre-flight order).

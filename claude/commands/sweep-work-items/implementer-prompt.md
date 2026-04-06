@@ -110,15 +110,19 @@ Before writing code, state:
 - How you will verify it works
 - Which learnings are shaping your approach (if any)
 
-## Step 10: Implement
+## Step 10: Re-check Directives
+
+Re-read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. The director may have written new directives since Step 2 (e.g., "post confirmation before implementing"). Incorporate any new instructions before proceeding.
+
+## Step 11: Implement
 
 Make the changes. Follow existing code patterns and conventions. Keep changes minimal and focused on the work item.
 
-## Step 11: Test
+## Step 12: Test
 
 Run the project's test suite if available. If tests exist for the area you changed, ensure they pass. If no tests exist and the project has a test framework, consider adding a basic test.
 
-## Step 12: Git Workflow
+## Step 13: Git Workflow
 
 a. Rename your branch: `git branch -m sweep/{ISSUE_NUMBER}-<slug>`
    Derive slug from issue title: lowercase, hyphens, max 40 chars.
@@ -153,7 +157,7 @@ e. Create PR:
 - Do NOT modify files unrelated to the work item
 - Do NOT make architectural changes beyond what the work item requires
 
-## Step 13: Write Artifacts
+## Step 14: Write Artifacts
 
 ### result.md
 

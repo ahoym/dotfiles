@@ -85,6 +85,9 @@ echo "Watch progress in another terminal:"
 echo "  while clear; do for f in $RUN_DIR/pr-*/status.md; do echo \"--- \$f\"; cat \"\$f\"; echo; done; sleep 5; done"
 echo ""
 
+# Clear stale rate-limit sentinel from prior runs
+rm -f "${RUN_DIR}/.rate-limited"
+
 OVERALL_START=$(date +%s)
 
 # --- Manifest updates (incremental additions/closures) ---
