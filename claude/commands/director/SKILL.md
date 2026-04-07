@@ -18,7 +18,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Bash(date +*)",
 "Bash(bash tmp/**/let-it-rip.sh)",
 "Bash(test -x ~/.claude/skill-references/stream-monitor.sh*)",
-"Write(tmp/director-sessions/**)"
+"Write(tmp/claude-artifacts/director-sessions/**)"
 ```
 
 ## Director Principle
@@ -37,7 +37,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
-5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/director-sessions/<timestamp>/`.
+5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
 6. Initialize `session.json`:
    ```json
    {
