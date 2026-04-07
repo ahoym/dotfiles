@@ -30,7 +30,8 @@ METADATA="$DATA_DIR/metadata.json"
 
 WORK=$(mktemp)
 KV=$(mktemp)
-trap 'rm -f "$WORK" "$KV"' EXIT
+NEXT=$(mktemp)
+trap 'rm -f "$WORK" "$KV" "$NEXT"' EXIT
 
 # --- Phase 1: Expand {@filename} inclusions (iterative) ---
 # Each pass resolves one level of file inclusions. Iterates until
@@ -40,7 +41,6 @@ cp "$TEMPLATE" "$WORK"
 depth=0
 max_depth=5
 while grep -q '{@[^}]*}' "$WORK" && [ "$depth" -lt "$max_depth" ]; do
-    NEXT=$(mktemp)
     awk -v data_dir="$DATA_DIR" '
     {
         line = $0
@@ -51,18 +51,22 @@ while grep -q '{@[^}]*}' "$WORK" && [ "$depth" -lt "$max_depth" ]; do
             prefix = substr(line, 1, RSTART - 1)
             suffix = substr(line, RSTART + RLENGTH)
             printf "%s", prefix
-            found = 0
-            while ((getline fline < filepath) > 0) {
-                if (found) printf "\n"
-                printf "%s", fline
-                found = 1
-            }
-            close(filepath)
-            if (!found) {
+            # Check existence first — empty files should produce empty output,
+            # not preserve the raw {@filename} placeholder
+            exists = (system("test -f " filepath) == 0)
+            if (!exists) {
                 printf "{@%s}", filename  # preserve unresolvable refs
                 printf "WARNING: file not found: %s\n", filepath > "/dev/stderr"
+            } else {
+                found = 0
+                while ((getline fline < filepath) > 0) {
+                    if (found) printf "\n"
+                    printf "%s", fline
+                    found = 1
+                }
+                close(filepath)
+                if (found) printf "\n"
             }
-            if (found) printf "\n"
             line = suffix
         }
         if (line != "" || NF == 0) print line
