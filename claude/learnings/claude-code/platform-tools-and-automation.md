@@ -205,3 +205,12 @@ Empirically verified: editing an existing comment on a GitHub issue changes the 
 The Glob tool doesn't resolve symlinked directories under `~/.claude/`. `Glob(pattern="set-persona/*.md", path="/Users/<user>/.claude/commands")` returns zero results even when 20+ files exist. The same path works with `ls` via Bash.
 
 **Workaround:** Use `Bash(ls ~/.claude/commands/set-persona/)` for file discovery in dotfile directories. Reserve Glob for project-root-relative searches where symlinks aren't involved. This affects persona discovery in sweep skills, learnings directory scanning, and any file enumeration under `~/.claude/`.
+
+## Worktree Creation Fails When Branch Is Already Checked Out
+
+`git worktree add <path> <branch>` fails with `fatal: '<branch>' is already used by worktree at '<path>'` when the target branch is checked out anywhere — including the main repo. Two common triggers:
+
+1. **Director on main + implementer needs main worktree.** `git worktree add <path> main` fails because the director is sitting on main.
+2. **Implementer agent falls back to main repo.** When worktree creation fails, the agent may run in the main repo instead, switching branches with `git checkout -b`. This silently overwrites any uncommitted director edits to files the agent also modifies.
+
+**Fix:** Use `git worktree add <path> origin/<branch>` (creates from remote ref, detached) or `git worktree add --detach <path>` then `git checkout -b <new-branch>` inside. For implementers starting fresh, `origin/main` avoids the "already checked out" conflict entirely.

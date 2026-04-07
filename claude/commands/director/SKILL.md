@@ -97,7 +97,12 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 2. **Operator asks for status.** Read all `state.md` + `status.md`, present the monitoring table.
 
-3. **Convergence check.** After all items reach a terminal runner state (completed, errored, rate-limited), evaluate domain convergence per the playbook's Convergence Rules. When a runner completes: decide relaunch (not converged) or mark converged. Compound mode maintains offset cadence on relaunch.
+3. **Convergence check.** After all items reach a terminal runner state (completed, errored, rate-limited), evaluate domain convergence per the playbook's Convergence Rules. When a runner completes: decide relaunch (not converged) or mark converged.
+
+**Compound mode auto-relaunch (review+address):** After every runner completion, execute this decision tree automatically — do not prompt the operator unless escalation is needed:
+   - **Address runner completes** → read review `result.md` for last cycle's findings. If findings > 0 this cycle, relaunch review runner to verify resolution. If all findings resolved (or review already converged), check address convergence rules.
+   - **Review runner completes** → read `result.md`. If new findings posted (inline comments > 0 or thread replies > 0), relaunch address runner. If review skipped or 0 findings, review loop is converging — start the 30m skip window.
+   - **Offset cadence**: maintain minimum 3-minute gap between review and address launches on relaunch, same as cycle 0.
 
 **Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 

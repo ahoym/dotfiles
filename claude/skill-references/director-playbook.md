@@ -123,9 +123,20 @@ First cycle: full table. Subsequent cycles: delta-only (changed rows), with a on
 - **Conflict watch**: each cycle, check `mergeable` in status.md. If CONFLICTING on an open PR, write a conflict resolution directive
 - **Auto-cancel**: only when all PRs terminal
 
+### Compound Mode Relaunch Sequence
+
+After every runner completion in compound mode, the director executes this decision tree automatically — no operator prompt needed:
+
+1. **Address runner completes** → read review `result.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (all PRs terminal?).
+2. **Review runner completes** → read `result.md`. If findings posted (inline comments > 0 OR thread replies > 0) → relaunch address. If skipped or 0 findings → review converging, start 30m skip window.
+3. **Both converged** → proceed to Phase 5.
+
+"Runner completed" ≠ "converged." A completed runner means one cycle finished — convergence requires the domain rules above to be satisfied.
+
 ### What Is NOT Convergence
 - "All sessions skipped" alone — if any open PR has `mergeable: CONFLICTING`, the loop must continue
 - A single cycle of skips — wait for the convergence window (30m for review, all-terminal for address)
+- A single cycle completing — convergence requires evaluating the domain rules, not just the runner state
 
 ## Directive Patterns
 
