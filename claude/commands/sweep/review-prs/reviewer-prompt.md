@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{MODE}`, `{RUN_DIR}`, `{PR_DIR}`, `{STACKING_CONTEXT}`
+**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{MODE}`, `{RUN_DIR}`, `{PR_DIR}`, `{STACKING_CONTEXT}`, `{LAST_SHA_FIELD}`
 
 ---
 
@@ -15,37 +15,7 @@ You are an autonomous reviewer agent. Your job is to review a pull request using
 - Run directory: {RUN_DIR}
 - PR directory: {PR_DIR}
 
-## Step 1: Read Directives
-
-Read `{RUN_DIR}/directives.md` and `{PR_DIR}/directives.md` if they exist. These are instructions from the director — incorporate them into this pass. Directives may override skip logic, add focus areas, or provide context.
-
-## Step 2: Read Existing Watermark
-
-If `{PR_DIR}/status.md` exists, read `last_reviewed_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
-
-## Step 3: Compare Against Current PR State
-
-Fetch the PR's current HEAD SHA, state, and latest comment IDs:
-- Inline: `gh api repos/{OWNER_REPO}/pulls/{PR_NUMBER}/comments --jq '.[-1].id // empty'`
-- Top-level + state: `gh pr view {PR_NUMBER} --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
-
-Use the MAX of inline and top-level comment IDs as the effective `last_comment_id`.
-
-**State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `{PR_DIR}/status.md` and exit immediately.
-
-Compare against watermark values:
-- HEAD SHA differs OR latest comment ID differs → new work needed, proceed to step 4
-- Both match AND no directives → no changes since last pass, set `milestone: skipped` in `{PR_DIR}/status.md` and exit
-- Both match BUT directives present → directives override skip, proceed to step 4
-
-## Step 4: Update Status
-
-Write to `{PR_DIR}/status.md`:
-```yaml
-milestone: started
-pr: {PR_NUMBER}
-started_at: <ISO timestamp>
-```
+{@../sweep-pr-preflight.md}
 
 ## PR Context
 
@@ -56,38 +26,19 @@ started_at: <ISO timestamp>
 
 ## Step 5: Search Learnings
 
-Derive search terms from the PR title, branch name, and changed file paths (`gh pr diff {PR_NUMBER} --stat`).
-
-a. **Personal learnings.** Read `~/.claude/learnings/CLAUDE.md` index. Match cluster names against the PR's domain. For matching clusters, read the cluster `CLAUDE.md` and sniff file headers (`Read(file, limit=3)`) — load fully if keywords match.
-
-b. **Team learnings.** If `~/.claude/learnings-team/learnings/` exists, read its `CLAUDE.md` index and search the same way. Load top 3, rest available on demand.
-
-c. **Announce results.**
-```
-📚 [pre-review] loaded N learnings:
-- <path> — <influence>
-```
-If no matches: `📚 [pre-review] no matching learnings found`
+Derive search terms from PR title, branch name, and changed file paths. Read `~/.claude/learnings/CLAUDE.md` and (if exists) `~/.claude/learnings-team/learnings/CLAUDE.md` indexes. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-review]` tags.
 
 ## Step 6: Invoke Team Review — MANDATORY
 
 You MUST use the Skill tool: `skill="git:team-review-request"`, `args="{PR_NUMBER}"`.
 
-Do NOT attempt to review or post comments manually with raw API calls. The skill contains persona selection, subagent orchestration, merge logic, and platform-specific comment posting that handles glab/gh API quirks — bypassing it produces lower-quality reviews and wastes attempts on API friction.
+Do NOT review manually — the skill handles persona selection, subagent orchestration, and platform-specific API quirks.
 
-Update `{PR_DIR}/status.md` milestone to `reviewing`, then `posted` after the review is posted.
+Update `{PR_DIR}/status.md` milestone: `reviewing` → `posted`.
 
 ## Step 7: Write Artifacts
 
-### result.md
-
-Append a dated section to `{PR_DIR}/result.md`. On first run, prepend header:
-
-```markdown
-# PR #{PR_NUMBER} — {PR_TITLE}
-```
-
-Each section:
+Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
 
 ```markdown
 ## Review — <ISO timestamp>
@@ -107,26 +58,4 @@ Each section:
 | Error | <none or message> |
 ```
 
-### learnings.md
-
-Append a dated section to `{PR_DIR}/learnings.md`.
-
-**Learnings provenance (mandatory):** Begin each section with a "Learnings loaded" list. Format: `- <path> — <influence>`. No loads → "No learnings loaded this pass."
-
-Then add any new observations. Write "No new observations." if nothing notable.
-
-### status.md
-
-Write final status:
-
-```yaml
-milestone: done  # or errored / skipped
-pr: {PR_NUMBER}
-pr_state: <OPEN / MERGED / CLOSED>
-mergeable: <MERGEABLE / CONFLICTING / UNKNOWN>
-last_reviewed_sha: <HEAD SHA at time of processing>
-last_comment_id: <MAX of inline and top-level comment IDs>
-updated_at: <ISO timestamp>
-```
-
-On error, still update `status.md` with `milestone: errored` so the next run retries.
+Use `last_reviewed_sha` as the watermark SHA key in `status.md`. On error, still write `milestone: errored`.

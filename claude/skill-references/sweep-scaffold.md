@@ -14,6 +14,7 @@ Shared patterns consumed by `sweep:address-prs`, `sweep:review-prs`, and `sweep:
 ├── let-it-rip.sh
 ├── repo-summary.txt    # work-items only — shared repo context
 ├── preflight.md        # work-items only — copy of sweep-agent-preflight.md
+├── sweep-pr-preflight.md  # address/review — copy of sweep-pr-preflight.md
 ├── directives.md       # optional — global instructions from directors (read by all sessions)
 └── pr-<N>/ or issue-<N>/
     ├── metadata.json   # template data — keys for {KEY} substitution
@@ -29,23 +30,7 @@ Shared patterns consumed by `sweep:address-prs`, `sweep:review-prs`, and `sweep:
 
 ## Prompt Assembly via fill-template.sh
 
-Prompt generation uses `~/.claude/skill-references/fill-template.sh` — a bash script that performs mechanical string substitution. No AI involved.
-
-**Template syntax:**
-- `{KEY}` — replaced with value from `metadata.json` (e.g., `{PR_NUMBER}`, `{ISSUE_TITLE}`)
-- `{@filename}` — replaced with contents of `<data-dir>/filename` (e.g., `{@body.txt}`, `{@../repo-summary.txt}`)
-
-**Assembly flow:**
-1. Assessment agent writes data files (`metadata.json`, `body.txt`, `comments.txt`, etc.) to the item directory
-2. Assessment agent calls: `bash fill-template.sh <template> <item-dir> > <item-dir>/prompt.txt`
-3. `fill-template.sh` expands `{@filename}` inclusions (iterative, max depth 5), then substitutes `{KEY}` from `metadata.json`
-
-**Data file convention:**
-- `metadata.json` contains short string values (numbers, titles, URLs, timestamps, paths)
-- Large content (issue bodies, comment threads, repo summaries) goes in separate text files referenced via `{@filename}`
-- Run-level shared files (e.g., `repo-summary.txt`, `preflight.md`) live at `<RUN_DIR>/`, referenced from item directories via `{@../filename}`
-
-Each sweep skill defines its own template files and metadata schema. See the skill's SKILL.md for the specific `metadata.json` keys and data files required.
+Prompts are assembled by `~/.claude/skill-references/fill-template.sh` (see script header for syntax). Assessment agents write `metadata.json` + data files to the item directory, then call `bash fill-template.sh <template> <item-dir> > <item-dir>/prompt.txt`. Each skill's SKILL.md specifies its metadata schema and data files.
 
 ## Prompt Watermark & Skip Logic (steps 1-4)
 

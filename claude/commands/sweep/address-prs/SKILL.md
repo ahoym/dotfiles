@@ -103,7 +103,7 @@ For each PR, also fetch inline review comments:
 
 If no persona matches confidently, leave as `none`. Record the detected persona per PR for the summary and prompt generation.
 
-**Explicit selection bypasses skip detection.** When specific PR numbers are passed, skip filtering is disabled — all specified PRs are eligible. The operator's explicit selection is the strongest intent signal. Still detect addressing mode for prompt generation, but never skip. Exception: `SKIP(No comments)` still applies even with explicit selection unless in compound mode (no comments = nothing to address).
+**Explicit selection bypasses skip filtering** — all specified PRs are eligible (still detect mode for prompt generation). Exception: `SKIP(No comments)` applies even with explicit selection unless in compound mode.
 
 When no specific PRs are given (all-open mode), apply skip filtering per PR:
 
@@ -186,7 +186,8 @@ Write data files for template assembly, then call `fill-template.sh`:
        "WORKTREE_PATH": "<absolute path to worktree>",
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",
-       "PR_DIR": "<absolute path>"
+       "PR_DIR": "<absolute path>",
+       "LAST_SHA_FIELD": "last_addressed_sha"
      }
      ```
 
@@ -194,7 +195,12 @@ Write data files for template assembly, then call `fill-template.sh`:
    - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`
    - If none: `No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens.`
 
-2. **Assemble prompt:**
+2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
+   ```bash
+   cp ~/.claude/skill-references/sweep-pr-preflight.md <RUN_DIR>/sweep-pr-preflight.md
+   ```
+
+3. **Assemble prompt:**
    ```bash
    bash ~/.claude/skill-references/fill-template.sh addresser-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
    ```

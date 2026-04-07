@@ -88,7 +88,7 @@ Follow `platform-detection.md`. Then fetch open PRs:
 
 ### Phase 3: Filter and Skip Detection
 
-**Explicit selection bypasses skip detection.** When `PR_NUMBERS[]` is non-empty (operator passed specific PR numbers), skip filtering is disabled — all specified PRs are eligible. The operator's explicit selection is the strongest intent signal. Still detect review mode (first-review vs re-review) for prompt generation, but never skip.
+**Explicit selection bypasses skip filtering** — all specified PRs are eligible (still detect review mode for prompt generation).
 
 When no specific PRs are given (all-open mode), apply skip filtering per PR:
 
@@ -160,11 +160,17 @@ Write data files for template assembly, then call `fill-template.sh`:
        "MODE": "first-review or re-review",
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
-       "STACKING_CONTEXT": "<stacking description or 'This PR is not part of a stack.'>"
+       "STACKING_CONTEXT": "<stacking description or 'This PR is not part of a stack.'>",
+       "LAST_SHA_FIELD": "last_reviewed_sha"
      }
      ```
 
-2. **Assemble prompt:**
+2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
+   ```bash
+   cp ~/.claude/skill-references/sweep-pr-preflight.md <RUN_DIR>/sweep-pr-preflight.md
+   ```
+
+3. **Assemble prompt:**
    ```bash
    bash ~/.claude/skill-references/fill-template.sh reviewer-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
    ```
