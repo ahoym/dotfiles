@@ -20,15 +20,15 @@ You are an autonomous confirmer agent. A clarifier previously posted questions o
 
 {@../preflight.md}
 
-## Step 6: Self-Comment Check
+## Step 7: Self-Comment Check
 
-Using the `last_comment_body` from Step 4's API response: if the last comment body contains `Role:` followed by `Sweeper-Confirm` or `Sweeper`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
+Using the `last_comment_body` from Step 5's API response: if the last comment body contains `Role:` followed by `Sweeper-Confirm` or `Sweeper`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
 
-## Step 7: Persona Auto-Detection
+## Step 8: Persona Auto-Detection
 
 Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
-## Step 8: Search Learnings for Domain Expertise
+## Step 9: Search Learnings for Domain Expertise
 
 Before investigating code, search for relevant learnings.
 
@@ -43,11 +43,11 @@ d. **Announce results.**
 ```
 If no matches: `📚 [pre-confirm] no matching learnings found`
 
-## Step 9: Analyze Q&A Thread & Investigate Code
+## Step 10: Analyze Q&A Thread & Investigate Code
 
 Read the comment thread. Identify the clarifier's questions, operator's answers, and design decisions. Then explore relevant code to validate — verify files exist, scope assertions are accurate, and your plan accounts for actual code state.
 
-## Step 10: Draft and Post Confirmation
+## Step 11: Draft and Post Confirmation
 
 Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan with files, phases, and verification; (3) open questions only if genuine; (4) explicit ask for confirmation.
 
@@ -98,7 +98,7 @@ Does this plan match your intent? Reply with corrections, or "implement" to proc
 - Do NOT implement changes, create branches, or modify repo files
 - Do NOT skip the confirmation step — even if the plan seems obvious
 
-## Step 11: Write Artifacts
+## Step 12: Write Artifacts
 
 ### result.md
 
@@ -128,7 +128,7 @@ Append a dated section to `{ISSUE_DIR}/learnings.md`. Start with **Learnings pro
 
 ### status.md
 
-**Re-fetch watermark after posting.** Your comment in Step 9 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
+**Re-fetch watermark after posting.** Your comment in Step 11 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
 ```bash
 gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
 ```

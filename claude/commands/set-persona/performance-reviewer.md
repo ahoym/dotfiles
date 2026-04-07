@@ -47,6 +47,6 @@ Every finding MUST include inline code references — quote the exact problemati
 
 ## Learnings Cross-Refs
 
-- `~/.claude/learnings-team/learnings/postgresql-query-patterns.md` — window functions, CTEs, partial indexes, partitioning
-- `~/.claude/learnings-team/learnings/java/observability-gotchas.md` — metric cardinality, timer patterns
-- `~/.claude/learnings-team/learnings/java/observability.md` — Grafana PromQL, structured logging patterns
+- `provider:default/postgresql-query-patterns.md` — window functions, CTEs, partial indexes, partitioning
+- `provider:default/java/observability-gotchas.md` — metric cardinality, timer patterns
+- `provider:default/java/observability.md` — Grafana PromQL, structured logging patterns

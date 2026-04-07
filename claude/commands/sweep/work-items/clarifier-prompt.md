@@ -18,15 +18,15 @@ You are an autonomous clarifier agent. Your job is to read a work item that lack
 
 {@../preflight.md}
 
-## Step 6: Self-Comment Check
+## Step 7: Self-Comment Check
 
-Using the `last_comment_body` from Step 4's API response: if the last comment body contains `Role:` followed by `Sweeper` or `Sweeper-Confirm`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
+Using the `last_comment_body` from Step 5's API response: if the last comment body contains `Role:` followed by `Sweeper` or `Sweeper-Confirm`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
 
-## Step 7: Persona Auto-Detection
+## Step 8: Persona Auto-Detection
 
 Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
-## Step 8: Search Learnings for Domain Expertise
+## Step 9: Search Learnings for Domain Expertise
 
 Before investigating code, search for relevant learnings. Domain knowledge helps you ask sharper questions — instead of "what should happen when X?", you can say "the team's pattern for X is Y (per `gotchas.md`) — should this follow the same pattern, or is there a reason to diverge?"
 
@@ -44,14 +44,14 @@ If no matches: `📚 [pre-clarify] no matching learnings found`
 
 **Use loaded learnings to sharpen questions.** Reference specific patterns, gotchas, or conventions from learnings when formulating questions. This transforms generic questions into domain-informed ones that demonstrate codebase understanding and help the issue author make faster decisions.
 
-## Step 9: Investigate the Codebase
+## Step 10: Investigate the Codebase
 
 Explore relevant code to understand:
 - What the current behavior is
 - What files would likely need changing
 - What ambiguities exist (multiple valid interpretations)
 
-## Step 10: Draft and Post Questions
+## Step 11: Draft and Post Questions
 
 Write 2-5 specific, actionable questions. Each question must:
 - Reference specific code or files when relevant
@@ -90,7 +90,7 @@ I looked into this and have a few questions before implementation can proceed:
 - Do NOT post vague or generic questions
 - Do NOT modify any repository files
 
-## Step 11: Write Artifacts
+## Step 12: Write Artifacts
 
 ### result.md
 
@@ -129,7 +129,7 @@ Then add any new observations: codebase insights, architectural patterns discove
 
 ### status.md
 
-**Re-fetch watermark after posting.** Your comment in Step 9 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
+**Re-fetch watermark after posting.** Your comment in Step 11 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
 ```bash
 gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
 ```

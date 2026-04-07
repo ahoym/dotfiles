@@ -45,6 +45,6 @@ Every finding MUST include inline code references — quote the exact problemati
 
 ## Learnings Cross-Refs
 
-- `~/.claude/learnings-team/learnings/resilience-patterns.md` — retry classification, fail-fast patterns, thundering herd
-- `~/.claude/learnings-team/learnings/java/spring-boot-gotchas.md` — InterruptedException handling, @Retryable gotchas
-- `~/.claude/learnings-team/learnings/java/concurrency-and-resources.md` — thread safety, interrupt flag, resource leaks
+- `provider:default/resilience-patterns.md` — retry classification, fail-fast patterns, thundering herd
+- `provider:default/java/spring-boot-gotchas.md` — InterruptedException handling, @Retryable gotchas
+- `provider:default/java/concurrency-and-resources.md` — thread safety, interrupt flag, resource leaks

@@ -46,6 +46,6 @@ Every finding MUST include inline code references — quote the exact problemati
 
 ## Learnings Cross-Refs
 
-- `~/.claude/learnings-team/learnings/code-quality-instincts.md` — naming, logging, dead code, wrapper methods
-- `~/.claude/learnings-team/learnings/process-conventions.md` — MR scoping, review process, infrastructure evidence
-- `~/.claude/learnings-team/learnings/java/spring-boot.md` — multi-module patterns, JPA/Hibernate, Lombok, @Transactional
+- `provider:default/code-quality-instincts.md` — naming, logging, dead code, wrapper methods
+- `provider:default/process-conventions.md` — MR scoping, review process, infrastructure evidence
+- `provider:default/java/spring-boot.md` — multi-module patterns, JPA/Hibernate, Lombok, @Transactional

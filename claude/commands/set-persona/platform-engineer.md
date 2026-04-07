@@ -26,12 +26,12 @@
 
 ## Proactive Cross-Refs
 
-- `~/.claude/learnings-team/learnings/gitlab-ci-cd.md`
+- `provider:default/gitlab-ci-cd.md`
 
 ## Cross-Refs
 
 Load when working in the specific area:
-- `~/.claude/learnings-team/learnings/aws/patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
-- `~/.claude/learnings-team/learnings/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
-- `~/.claude/learnings-team/learnings/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
-- `~/.claude/learnings-team/learnings/gitlab-ci-cd.md` — GitLab CI/CD patterns, debugging with glab API, MR API endpoints, Docker build/push stage rules
+- `provider:default/aws/patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
+- `provider:default/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
+- `provider:default/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
+- `provider:default/gitlab-ci-cd.md` — GitLab CI/CD patterns, debugging with glab API, MR API endpoints, Docker build/push stage rules

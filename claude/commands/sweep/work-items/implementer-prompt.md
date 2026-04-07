@@ -26,11 +26,11 @@ If this fails with a permission error, write `milestone: errored` and `error: pe
 
 {@../preflight.md}
 
-## Step 6: Persona Auto-Detection
+## Step 7: Persona Auto-Detection
 
 Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
-## Step 7: Search Learnings for Domain Expertise
+## Step 8: Search Learnings for Domain Expertise
 
 Before exploring code, search for relevant learnings that provide gotchas, best practices, and domain patterns:
 
@@ -49,11 +49,11 @@ If no matches: `📚 [pre-implement] no matching learnings found`
 
 **Apply loaded learnings throughout implementation.** Treat them as constraints and best practices — they encode patterns the team has already validated. When a learning directly prevents a mistake or shapes a decision, note it briefly in your plan (step 9).
 
-## Step 8: Explore Relevant Code
+## Step 9: Explore Relevant Code
 
 Using the repo summary as a starting map, find the files that need modification. Read them. Understand existing patterns and conventions.
 
-## Step 9: Plan Changes
+## Step 10: Plan Changes
 
 Before writing code, state:
 - Which files you will modify/create
@@ -61,11 +61,11 @@ Before writing code, state:
 - How you will verify it works
 - Which learnings are shaping your approach (if any)
 
-## Step 10: Re-check Directives
+## Step 11: Re-check Directives
 
-Re-read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. The director may have written new directives since Step 2 (e.g., "post confirmation before implementing"). Incorporate any new instructions before proceeding.
+Re-read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. The director may have written new directives since Step 3 (e.g., "post confirmation before implementing"). Incorporate any new instructions before proceeding.
 
-## Step 10b: Post Implementation Intent
+## Step 11b: Post Implementation Intent
 
 Before starting implementation, post a status comment on the issue so the conversation thread shows work is underway:
 
@@ -73,7 +73,7 @@ Before starting implementation, post a status comment on the issue so the conver
 gh issue comment {ISSUE_NUMBER} --body "$(cat <<'COMMENT'
 ## Starting implementation
 
-**Plan summary**: <1-3 sentences from Step 9 — what files, what change, how verified>
+**Plan summary**: <1-3 sentences from Step 10 — what files, what change, how verified>
 **Persona**: {PERSONA_NAME}
 
 ---
@@ -83,15 +83,15 @@ COMMENT
 )"
 ```
 
-## Step 11: Implement
+## Step 12: Implement
 
 Make the changes. Follow existing code patterns and conventions. Keep changes minimal and focused on the work item.
 
-## Step 12: Test
+## Step 13: Test
 
 Run the project's test suite if available. If tests exist for the area you changed, ensure they pass. If no tests exist and the project has a test framework, consider adding a basic test.
 
-## Step 13: Git Workflow
+## Step 14: Git Workflow
 
 a. Rename your branch: `git branch -m sweep/{ISSUE_NUMBER}-<slug>`
    Derive slug from issue title: lowercase, hyphens, max 40 chars.
@@ -126,7 +126,7 @@ e. Create PR:
 - Do NOT modify files unrelated to the work item
 - Do NOT make architectural changes beyond what the work item requires
 
-## Step 14: Write Artifacts
+## Step 15: Write Artifacts
 
 ### result.md
 
