@@ -64,7 +64,7 @@ When a multi-phase issue has its first phase implemented (PR merged), the Sweepe
 
 **Workaround:** The director writes a per-issue directive overriding skip logic and explaining which phase is complete and what to plan next. The directive forces the clarify-confirm agent to proceed.
 
-**Gap:** Skip detection doesn't account for implementation progress (merged PRs) changing the conversation context. A future fix could check for `Role:.*Sweeper-Implement` + linked merged PR → auto-advance to next phase clarify.
+**Fixed:** Rule d in `sweep/work-items/SKILL.md` now checks for `Role:.*Sweeper-Implement` + linked merged PR → eligible for `clarify-confirm` (next phase planning).
 
 ## Implement Gate: Conversation Maturity, Not Static Properties
 
