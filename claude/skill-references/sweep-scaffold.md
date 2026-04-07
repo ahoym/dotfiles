@@ -4,7 +4,7 @@ description: "Shared scaffold for sweep:*-prs skills: artifact structure, waterm
 
 # Sweep Scaffold
 
-Shared patterns consumed by `sweep:address-prs` and `sweep:review-prs`. Each skill reads selectively — not all sections apply to every mode.
+Shared patterns consumed by `sweep:address-prs`, `sweep:review-prs`, and `sweep:work-items`. Each skill reads selectively — not all sections apply to every mode.
 
 ## Artifact Structure
 
@@ -12,15 +12,25 @@ Shared patterns consumed by `sweep:address-prs` and `sweep:review-prs`. Each ski
 <RUN_DIR>/
 ├── manifest.json
 ├── let-it-rip.sh
+├── repo-summary.txt    # work-items only — shared repo context
+├── preflight.md        # work-items only — copy of sweep-agent-preflight.md
+├── sweep-pr-preflight.md  # address/review — copy of sweep-pr-preflight.md
 ├── directives.md       # optional — global instructions from directors (read by all sessions)
-└── pr-<N>/
-    ├── prompt.txt      # input to claude -p
-    ├── directives.md   # optional — per-PR instructions from directors (read by this session)
+└── pr-<N>/ or issue-<N>/
+    ├── metadata.json   # template data — keys for {KEY} substitution
+    ├── body.txt        # work-items only — issue body for {@body.txt} inclusion
+    ├── comments.txt    # work-items only — formatted comments for {@comments.txt}
+    ├── prompt.txt      # assembled by fill-template.sh (input to claude -p)
+    ├── directives.md   # optional — per-item instructions from directors
     ├── output.log      # stdout+stderr (written by let-it-rip.sh)
     ├── status.md       # watermark + milestone (written by claude -p)
     ├── result.md       # append-only rounds (written by claude -p)
     └── learnings.md    # append-only observations (written by claude -p)
 ```
+
+## Prompt Assembly via fill-template.sh
+
+Prompts are assembled by `~/.claude/skill-references/fill-template.sh` (see script header for syntax). Assessment agents write `metadata.json` + data files to the item directory, then call `bash fill-template.sh <template> <item-dir> > <item-dir>/prompt.txt`. Each skill's SKILL.md specifies its metadata schema and data files.
 
 ## Prompt Watermark & Skip Logic (steps 1-4)
 

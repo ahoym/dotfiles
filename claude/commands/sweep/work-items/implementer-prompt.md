@@ -1,8 +1,9 @@
 # Implementer Agent Prompt Template
 
-**Usage:** Read this file when generating implementer prompts. Fill placeholders per-issue and write to `issue-<N>/prompt.txt`.
+**Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders:** `{SHARED_PREFLIGHT}`, `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{REPO_SUMMARY}`, `{OWNER_REPO}`, `{DEFAULT_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{DEFAULT_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
 
@@ -23,7 +24,7 @@ git status
 ```
 If this fails with a permission error, write `milestone: errored` and `error: permission denied — git` to `{ISSUE_DIR}/status.md` and exit immediately.
 
-{SHARED_PREFLIGHT}
+{@../preflight.md}
 
 ## Step 6: Persona Auto-Detection
 
