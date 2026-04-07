@@ -63,11 +63,6 @@ Save new patterns and learnings from the current session into global skills, gui
    - Match the learning's scope to a provider entry whose `writeScope` matches. The provider with `defaultWriteTarget: true` is the default for Global scope.
    - **Project-local** → `projectLocal.path` in the current project repo
 
-   With default config:
-   - **Global** → `~/.claude/learnings/` (personal provider, `defaultWriteTarget`)
-   - **Private** → `~/.claude/learnings-private/` (private provider)
-   - **Project-local** → `docs/learnings/`
-
    **Utility ratings** (self-assessment of value to Claude):
    - **High** - Novel pattern I wouldn't know without documenting, OR proven pattern worth reinforcing/expanding
    - **Medium** - Useful reminder, but I could rediscover if needed
@@ -97,9 +92,7 @@ Save new patterns and learnings from the current session into global skills, gui
    - File placement rules:
      - **Skills** → `~/.claude/commands/<skill-name>/SKILL.md`
      - **Guidelines** → `~/.claude/guidelines/<guideline-name>.md`
-     - **Global learnings** → `~/.claude/learnings/<topic>.md`
-     - **Private learnings** → `~/.claude/learnings-private/<topic>.md`
-     - **Project-local learnings** → `docs/learnings/<topic>.md` (relative to project root)
+     - **Learnings** → resolve `localPath` from the provider whose `writeScope` matches the learning's scope. Project-local learnings use `projectLocal.path` (relative to project root).
    - **Multi-provider write:** For each **Global** learning, write to all providers with `writeScope: "global"` and `writable: true` (not just the `defaultWriteTarget`). For each additional writable provider beyond the default:
      - Use `localPath` from the provider entry as the write target
      - **New file**: add an index entry to the provider directory's `CLAUDE.md` (format: `` - `filename.md` — one-sentence description ``)
@@ -124,6 +117,7 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 
 ```json
 "Read(~/.claude/commands/**)",
+"Read(~/.claude/learnings-providers.json)",
 "Read(~/.claude/learnings*/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/learnings*/**)",

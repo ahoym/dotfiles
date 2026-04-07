@@ -4,11 +4,6 @@
 
 Read `~/.claude/learnings-providers.json` to discover search directories. For each entry in `providers[]`, use its `localPath` as a search directory (when the directory exists). Additionally, search the `projectLocal.path` (resolved relative to project root) when it exists.
 
-With default config, this resolves to:
-- `~/.claude/learnings/` (personal provider — global)
-- `~/.claude/learnings-private/` (private provider)
-- `docs/learnings/` (project-local)
-
 Each has a `CLAUDE.md` index — read it at every gate for index-based matching alongside the pipeline. Learnings are organized into cluster subdirectories (e.g., `xrpl/`, `frontend/`), which may contain sub-clusters (e.g., `claude-code/multi-agent/`). Each cluster and sub-cluster has its own `CLAUDE.md` routing table. Read cluster `CLAUDE.md` files when the cluster is relevant to derived terms; follow sub-cluster pointers when the sub-cluster's domain matches.
 
 ## Gates

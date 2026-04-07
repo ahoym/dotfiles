@@ -165,6 +165,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ```json
 "Read(~/.claude/commands/**)",
+"Read(~/.claude/learnings-providers.json)",
 "Read(~/.claude/learnings*/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/commands/**)",
