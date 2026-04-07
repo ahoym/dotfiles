@@ -144,9 +144,10 @@ For each eligible work item, determine the role based on its conversation stage:
 > | Conversation stage | Role | Rule |
 > |---|---|---|
 > | No prior Sweeper comment | **clarify** | Always — agent posts questions/analysis first |
-> | Sweeper commented, operator replied (rule e) | **clarify-confirm** or **implement** | Default **clarify-confirm**. Promote to **implement** only when the operator's last reply is pure approval AND the sweeper's preceding comment already acknowledged a prior operator reply (i.e., the sweeper has demonstrated understanding at least once in the thread) |
+> | Sweeper commented, operator replied (rule e) | **clarify-confirm** | Default. Agent acknowledges reply + confirms understanding |
+> | Operator's reply contains explicit implementation approval (e.g., "implement", "ship it", "go ahead and implement") | **implement** | Only on explicit signal — "looks good" or "proceed" alone means clarify-confirm |
 >
-> The implement gate is about conversation maturity: has the sweeper shown it understands the operator's intent? The clarify-confirm agent naturally checks implementability (file targets, behavior, verification) as part of its plan — if those aren't clear, it asks more questions, which keeps the cycle in clarify-confirm. The assessment skill doesn't need to re-check them.
+> The implement gate is an explicit operator signal, not inferred from conversation structure. This leaves a clear audit trail in the issue thread.
 
 Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
 

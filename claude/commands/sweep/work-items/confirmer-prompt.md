@@ -58,6 +58,8 @@ Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, th
 gh issue comment {ISSUE_NUMBER} --body-file {ISSUE_DIR}/comment-body.md
 ```
 
+**Be concise.** Answers: one sentence each showing you understood, not parroting. Plan: checklist with file paths and one-line descriptions. No multi-paragraph explanations — the issue thread has the reasoning.
+
 Comment format:
 ```
 ## Understanding & Implementation Plan
@@ -85,7 +87,7 @@ Comment format:
 ### Open questions (if any)
 - [Genuine concerns only]
 
-Does this plan match your intent? Any corrections before I proceed?
+Does this plan match your intent? Reply with corrections, or "implement" to proceed to implementation.
 
 ---
 *Co-Authored with [Claude Code](https://claude.ai/code) ({MODEL_NAME})*
