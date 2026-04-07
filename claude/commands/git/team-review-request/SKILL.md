@@ -88,7 +88,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 6. **Front-load persona content** — for each selected persona:
    - Read the full persona file
    - If it has `## Extends:`, read parent persona(s) in declaration order
-   - If it (or its parents) has `## Proactive Cross-Refs`, read each listed file
+   - If it (or its parents) has `## Proactive Cross-Refs` or `## Proactive loads`, resolve `provider:` paths before loading: read `~/.claude/learnings-providers.json`, expand `provider:default/path` via the `defaultWriteTarget` provider's `localPath`, and `provider:<name>/path` via the named provider's `localPath`. Skip references whose provider isn't in the config.
+   - Read each resolved proactive file
    - Store the combined content as `PERSONA_CONTENT[persona_name]`
 
 7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and derived domain terms against learnings filenames:

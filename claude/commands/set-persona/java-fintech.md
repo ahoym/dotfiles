@@ -18,4 +18,4 @@ Composition persona for Java-based ledger systems. Inherits ledger correctness j
 ## Cross-Refs
 
 Load when working in the specific area:
-- `~/.claude/learnings-team/learnings/postgresql-query-patterns.md` — PostgreSQL-specific ledger table design: DECIMAL precision, partitioning by period, partial indexes on open periods, migration safety
+- `provider:default/postgresql-query-patterns.md` — PostgreSQL-specific ledger table design: DECIMAL precision, partitioning by period, partial indexes on open periods, migration safety

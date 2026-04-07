@@ -46,6 +46,6 @@ Every finding MUST include inline code references — quote the exact problemati
 
 ## Learnings Cross-Refs
 
-- `~/.claude/learnings-team/learnings/financial/applications.md` — fee calculation invariants, zero-divisor guards, decimal precision
-- `~/.claude/learnings-team/learnings/financial/domain-ledger-architecture.md` — entry lifecycle, balance composition, reconciliation
-- `~/.claude/learnings-team/learnings/code-quality-instincts.md` — single source of truth, no duplication
+- `provider:default/financial/applications.md` — fee calculation invariants, zero-divisor guards, decimal precision
+- `provider:default/financial/domain-ledger-architecture.md` — entry lifecycle, balance composition, reconciliation
+- `provider:default/code-quality-instincts.md` — single source of truth, no duplication

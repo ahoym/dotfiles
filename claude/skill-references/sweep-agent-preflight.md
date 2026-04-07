@@ -1,4 +1,4 @@
-**Step ordering note:** This shared preflight (Steps 1–5) sets `milestone: started` in Step 5. Role-specific steps use sequential numbering: clarifier/confirmer Step 6 (self-comment check) runs after preflight and may overwrite status to `skipped`; implementer Step 0 (git pre-flight) runs before preflight. Directors polling status.md may briefly see a `started` → `skipped` transition — this is intentional, and the window is sub-second within a single agent execution.
+**Step ordering note:** This shared preflight (Steps 1–6) sets `milestone: started` in Step 6. Role-specific steps use sequential numbering: clarifier/confirmer Step 7 (self-comment check) runs after preflight and may overwrite status to `skipped`; implementer Step 0 (git pre-flight) runs before preflight. Directors polling status.md may briefly see a `started` → `skipped` transition — this is intentional, and the window is sub-second within a single agent execution.
 
 
 ## Step 1: Permission Pre-flight
@@ -9,15 +9,24 @@ gh issue view {ISSUE_NUMBER} --json state -q '.state'
 ```
 If this fails with a permission error, write `milestone: errored` and `error: permission denied — gh` to `{ISSUE_DIR}/status.md` and exit immediately. This catches misconfigured `--allowedTools` early.
 
-## Step 2: Read Directives
+## Step 2: Resolve Provider Paths
+
+If any loaded content (persona files, learnings references, directives) contains `provider:<name>/path` references, resolve them:
+
+1. Read `~/.claude/learnings-providers.json`
+2. `provider:default/path` → find the entry with `"defaultWriteTarget": true`, use its `localPath/path`
+3. `provider:<name>/path` → find the entry matching `"name"`, use its `localPath/path`
+4. If the provider name isn't in the config, skip the reference and continue
+
+## Step 3: Read Directives
 
 Read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. These are instructions from the director — incorporate them into this pass. Directives may override skip logic, add focus areas, or provide context.
 
-## Step 3: Read Existing Watermark
+## Step 4: Read Existing Watermark
 
-If `{ISSUE_DIR}/status.md` exists, read `last_sweep_updated_at` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 5.
+If `{ISSUE_DIR}/status.md` exists, read `last_sweep_updated_at` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 6.
 
-## Step 4: Compare Against Current Issue State
+## Step 5: Compare Against Current Issue State
 
 Fetch the issue's current state and last comment body:
 ```bash
@@ -27,11 +36,11 @@ gh issue view {ISSUE_NUMBER} --json state,updatedAt,comments --jq '{state, updat
 **State check (earliest exit):** If state is `CLOSED`, set `milestone: skipped`, `issue_state: closed` in `{ISSUE_DIR}/status.md` and exit immediately.
 
 Compare against watermark values:
-- `updatedAt` differs OR `last_comment_id` differs → new activity, proceed to step 5
+- `updatedAt` differs OR `last_comment_id` differs → new activity, proceed to step 6
 - Both match AND no directives → no changes since last pass, set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit
-- Both match BUT directives present → directives override skip, proceed to step 5
+- Both match BUT directives present → directives override skip, proceed to step 6
 
-## Step 5: Update Status
+## Step 6: Update Status
 
 Write to `{ISSUE_DIR}/status.md`:
 ```yaml

@@ -32,22 +32,22 @@ Domain lens for ledger work — technology-agnostic. Stack-specific child person
 
 ## Code style
 
-Enforce `~/.claude/learnings-team/learnings/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
+Enforce `provider:default/code-quality-instincts.md` (no duplication, single source of truth, port intent not idioms).
 
 ## Proactive Cross-Refs
 
-None at this time. A `~/.claude/learnings-team/learnings/fintech-ledger-gotchas.md` file should be created as operational gotchas accumulate.
+None at this time. A `provider:default/fintech-ledger-gotchas.md` file should be created as operational gotchas accumulate.
 
 ## Cross-Refs
 
 This is a hub persona for the ledger domain cluster. Load when working in the specific area:
 
-- `~/.claude/learnings-team/learnings/financial/domain-ledger-architecture.md` — core schema patterns, balance composition, entry lifecycle, reconciliation architecture; load for any schema design or balance calculation work
-- `~/.claude/learnings-team/learnings/financial/applications.md` — calculation safety invariants, zero-divisor guards, idempotency patterns, decimal precision; load for any fee, amount, or financial calculation work
-- `~/.claude/learnings-team/learnings/financial/saga-distributed-transactions.md` — distributed transaction patterns for multi-service ledger flows, compensation logic, saga state machines; load for any cross-service write coordination
-- `~/.claude/learnings-team/learnings/financial/ledger-testing-strategies.md` — ledger-specific testing invariants (double-entry balance assertions, idempotency harnesses, reconciliation test fixtures); load when writing ledger tests
-- `~/.claude/learnings-team/learnings/financial/event-sourcing-cqrs.md` — event sourcing and CQRS patterns for append-only ledger stores, projection design, eventual consistency tradeoffs; load for read-model or projection work
-- `~/.claude/learnings-team/learnings/financial/chart-of-accounts.md` — CoA design, GL integration, account lifecycle, period-end implications; load for account structure or GL integration work
-- `~/.claude/learnings-team/learnings/financial/period-end-closing.md` — close mechanics, balance snapshots, late-arriving transaction handling, cut-off policies; load for reporting, period close, or snapshot work
-- `~/.claude/learnings-team/learnings/financial/ledger-schema-migration.md` — ledger migration architectures, dual-write patterns, zero-downtime migration strategies for append-only tables; load for schema change or backfill work
-- `~/.claude/learnings-team/learnings/resilience-patterns.md` — dedup-before-process, domain exceptions for integration failures, stale cache silent data loss; load for any consumer or retry boundary work
+- `provider:default/financial/domain-ledger-architecture.md` — core schema patterns, balance composition, entry lifecycle, reconciliation architecture; load for any schema design or balance calculation work
+- `provider:default/financial/applications.md` — calculation safety invariants, zero-divisor guards, idempotency patterns, decimal precision; load for any fee, amount, or financial calculation work
+- `provider:default/financial/saga-distributed-transactions.md` — distributed transaction patterns for multi-service ledger flows, compensation logic, saga state machines; load for any cross-service write coordination
+- `provider:default/financial/ledger-testing-strategies.md` — ledger-specific testing invariants (double-entry balance assertions, idempotency harnesses, reconciliation test fixtures); load when writing ledger tests
+- `provider:default/financial/event-sourcing-cqrs.md` — event sourcing and CQRS patterns for append-only ledger stores, projection design, eventual consistency tradeoffs; load for read-model or projection work
+- `provider:default/financial/chart-of-accounts.md` — CoA design, GL integration, account lifecycle, period-end implications; load for account structure or GL integration work
+- `provider:default/financial/period-end-closing.md` — close mechanics, balance snapshots, late-arriving transaction handling, cut-off policies; load for reporting, period close, or snapshot work
+- `provider:default/financial/ledger-schema-migration.md` — ledger migration architectures, dual-write patterns, zero-downtime migration strategies for append-only tables; load for schema change or backfill work
+- `provider:default/resilience-patterns.md` — dedup-before-process, domain exceptions for integration failures, stale cache silent data loss; load for any consumer or retry boundary work

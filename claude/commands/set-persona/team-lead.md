@@ -31,6 +31,6 @@ Apply the finding prioritization axes from `review-conventions.md`. In a multi-a
 - Honest uncertainty > false precision — "this might be an issue" is more useful than a confident wrong call
 
 ## Cross-Refs
-- `~/.claude/learnings/review-conventions.md` — finding prioritization, reversibility weighting, scope discipline
-- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — work distribution, synthesis, context compaction
-- `~/.claude/learnings/claude-code/multi-agent/coordination.md` — worktree commit/merge, file coordination
+- `provider:personal/review-conventions.md` — finding prioritization, reversibility weighting, scope discipline
+- `provider:personal/claude-code/multi-agent/orchestration.md` — work distribution, synthesis, context compaction
+- `provider:personal/claude-code/multi-agent/coordination.md` — worktree commit/merge, file coordination

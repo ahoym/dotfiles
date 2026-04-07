@@ -43,4 +43,4 @@ Every finding MUST include inline code references — quote the exact problemati
 
 ## Learnings Cross-Refs
 
-- `~/.claude/learnings-team/learnings/java/infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
+- `provider:default/java/infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
