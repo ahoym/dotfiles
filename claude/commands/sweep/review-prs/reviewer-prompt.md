@@ -3,6 +3,7 @@
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
 **Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{MODE}`, `{RUN_DIR}`, `{PR_DIR}`, `{STACKING_CONTEXT}`, `{LAST_SHA_FIELD}`
+**File inclusions:** `{@../sweep-pr-preflight.md}` (Steps 1-4: directives, watermark, state check, status update)
 
 ---
 
