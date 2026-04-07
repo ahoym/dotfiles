@@ -192,6 +192,14 @@ The Read tool rejects files exceeding ~10K tokens. For large diffs (100KB+), sta
 
 Empirically verified: editing an existing comment on a GitHub issue changes the issue-level `updatedAt` timestamp. This means dual-signal watermarks (`last_comment_id` + `updatedAt`) correctly detect comment edits — the comment ID stays the same but `updatedAt` changes, breaking the "both must match" skip condition.
 
+## Skill Tool Does Not Work in `claude -p` Sessions
+
+Auto-permitted but non-functional — returns an empty error. Read the SKILL.md and follow steps inline instead.
+
+## Read Tool `offset` Is 1-Based
+
+`offset=20` starts from line 20, not line 21. Common off-by-one source.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline

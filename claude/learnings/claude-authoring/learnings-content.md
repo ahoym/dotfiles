@@ -149,6 +149,14 @@ When discoveries from a learnings file get promoted into reference docs or skill
 
 **Detection:** If a learnings section restates what a reference doc already says (convergence rules, directory structure, watermark logic), it's stale. If it captures a platform gotcha or operational decision not in any reference doc, it stays.
 
+## Batch Import Sanitization Can Overwrite Established Files
+
+Batch import scripts that `cp` staging files to final locations overwrite without merging — no distinction between "new content to merge" and "established file to preserve." Diff staging against existing files and flag overwrites when the existing file is larger.
+
+## Platform-Specific CLI References Leak Through Sanitization
+
+Sanitization strips project names but misses platform CLI tools (`glab` in a GitHub repo, `gh` in a GitLab repo). Check for platform CLI mismatches when sanitizing extracted content.
+
 ## Cross-Refs
 
 No cross-cluster references.
