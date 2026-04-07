@@ -32,11 +32,9 @@ Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
 Before investigating code, search for relevant learnings.
 
-a. **Personal learnings.** Read `~/.claude/learnings/CLAUDE.md` index. Match cluster names against the work item's domain. For matching clusters, read the cluster `CLAUDE.md` and sniff file headers (`Read(file, limit=3)`) — load fully if keywords match.
+a. **Provider learnings.** Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, read its `localPath`'s `CLAUDE.md` index (when it exists). Match cluster names against the work item's domain. For matching clusters, read the cluster `CLAUDE.md` and sniff file headers (`Read(file, limit=3)`) — load fully if keywords match.
 
-b. **Team learnings.** If `~/.claude/learnings-team/learnings/` exists, read its `CLAUDE.md` index and search the same way.
-
-c. **Project learnings.** If `docs/learnings/CLAUDE.md` exists in the project, read and search it.
+b. **Project learnings.** If `docs/learnings/CLAUDE.md` exists in the project, read and search it.
 
 d. **Announce results.**
 ```

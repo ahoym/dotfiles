@@ -11,8 +11,8 @@ Fill in `<placeholders>` before passing to each writer subagent.
 - DEDUP_GUIDANCE: list known recurring patterns from the progress tracker notes (do not improvise — pull from the plan file's batch notes)
 - **Staging directories**: General and private writers cannot write to `~/.claude/` from background agents.
   Set `WRITE_PATH` to a staging directory inside the project:
-  - General: `READ_PATH=~/.claude/learnings/`, `WRITE_PATH=docs/learnings/_staging/general/`
-  - Private: `READ_PATH=~/.claude/learnings-private/`, `WRITE_PATH=docs/learnings/_staging/private/`
+  - General: `READ_PATH=<defaultWriteTarget provider localPath from ~/.claude/learnings-providers.json>`, `WRITE_PATH=docs/learnings/_staging/general/`
+  - Private: `READ_PATH=<private provider localPath from ~/.claude/learnings-providers.json>`, `WRITE_PATH=docs/learnings/_staging/private/`
   - Project: `READ_PATH=docs/learnings/`, `WRITE_PATH=docs/learnings/` (no staging needed)
   Writers read existing files from READ_PATH for dedup, but write full output files to WRITE_PATH.
   The orchestrator copies staged files to final locations after writers complete.

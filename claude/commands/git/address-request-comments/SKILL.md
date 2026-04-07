@@ -27,7 +27,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 - `request-reply-templates.md` — Read before composing replies (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected
 - `address-request-edge-cases.md` — Read when processing comments (step 5+). Skip on quiet no-ops.
-- `~/.claude/learnings/`, `~/.claude/learnings-private/`, `docs/learnings/` — Glob filenames at step 4; read files whose domain matches the comments' subject matter
+- All provider directories from `~/.claude/learnings-providers.json`, plus `docs/learnings/` — Glob filenames at step 4; read files whose domain matches the comments' subject matter
 
 ## Instructions
 
@@ -59,7 +59,7 @@ When `COMMENT_ONLY=true`:
 
 3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files. **Skip if `COMMENT_ONLY`.**
 
-4. **Load relevant learnings**: Glob `~/.claude/learnings/`, `~/.claude/learnings-private/`, and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+4. **Load relevant learnings**: Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob each provider's `localPath/` and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
 5. **Form independent assessment**: For each suggestion, determine what you think the right change is *before* evaluating whether you agree with the reviewer. Read the file context, pull relevant learnings, and reason about the problem independently. Agreement should be a conclusion you arrive at, not a starting position.
 
