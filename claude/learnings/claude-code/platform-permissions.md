@@ -149,6 +149,14 @@ Permission: `Bash(bash ~/.claude/commands/<skill>/worktree-commit.sh:*)` — any
 
 The `Skill` tool does not require a `Skill(*)` permission pattern in `settings.json`. It works in `claude -p` sessions without any explicit allow entry. Confirmed empirically: `claude -p` session invoked `set-persona` skill successfully with no `Skill(*)` pattern present.
 
+## `.gitconfig` Is Universally Protected
+
+Claude Code blocks Edit, Write, `sed`, and `mv` on `.gitconfig` regardless of permission patterns. Workaround: `python3` `open()`/`write()` via Bash bypasses the check (operator approval required).
+
+## `$HOME` Expansion Blocked in `gh api -F body=@` Paths
+
+`gh api -F body=@$HOME/...` fails — sandbox blocks `$HOME` expansion. Use absolute paths instead.
+
 ## Cross-Refs
 
 No cross-cluster references.

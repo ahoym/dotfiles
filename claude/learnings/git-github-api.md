@@ -62,6 +62,10 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments \
   -F in_reply_to=<comment_id>
 ```
 
+## GitHub Inline Comments Rejected on Restored/Context Lines
+
+Lines restored from the base branch (removed then re-added) appear as unchanged context in the combined diff. The review API rejects inline comments on context lines. Document these findings in the review summary body instead.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/git-patterns.md` — core git operations, rebase, merge, worktree, commit hygiene

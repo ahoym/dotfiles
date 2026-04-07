@@ -154,6 +154,18 @@ When a refactor renames, splits, or merges files, run a parallel audit to verify
 
 When renaming a directory that's referenced across many files, categorize each reference as "this repo's structure" vs "generic convention" before replacing. Bulk find-and-replace without this step causes over-replacement — e.g., `.claude/` as a Claude Code project convention should stay, but `.claude/` meaning "this repo's config directory" should change. Assign batches to parallel agents with clear category instructions to prevent both under- and over-replacement.
 
+## Post-Commit Grep for Rename Stragglers
+
+After committing a rename, grep the full tree for the old name. Index files, cross-ref sections, and config files outside the changeset are commonly missed.
+
+## Encoding Corruption from Copy/Paste in Structural Refactors
+
+Moving content between files can introduce invisible encoding differences that render as replacement characters (�) on GitHub. `git diff` after content moves catches byte-level corruption.
+
+## `replace_all: true` for Mechanical Path Migrations
+
+`Edit(replace_all=true)` with one call per old path handles most files in path migrations. Only files needing structural changes (added `mkdir -p`, etc.) need targeted edits. Final grep catches bare paths without trailing `/`.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors

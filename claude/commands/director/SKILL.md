@@ -18,12 +18,14 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 "Bash(date +*)",
 "Bash(bash tmp/**/let-it-rip.sh)",
 "Bash(test -x ~/.claude/skill-references/stream-monitor.sh*)",
-"Write(tmp/director-sessions/**)"
+"Write(tmp/claude-artifacts/director-sessions/**)"
 ```
 
 ## Director Principle
 
 **Directors observe and direct — they never touch the working tree.** All code changes flow through parallel `claude -p` sessions launched via generated bash scripts. The director writes only: session manifests, directives, and monitoring state.
+
+**Never hand-write runner scripts.** Always use `parallel-claude-runner-template.sh` with placeholder substitution. Hand-written scripts introduce variable scoping bugs (especially with `xargs -I {}` and `export -f`) that fail silently.
 
 ## Phase 1: Bootstrap
 
@@ -37,16 +39,16 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
-5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/director-sessions/<timestamp>/`.
-6. Initialize `session.json`:
+5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
+6. Initialize `session.json` (append-only item-centric index):
    ```json
    {
      "created_at": "<ISO>",
      "session_dir": "<path>",
-     "runs": [],
-     "status": "active"
+     "items": {}
    }
    ```
+   Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
 
 ## Phase 2: Assess + Generate Artifacts
 
@@ -56,10 +58,16 @@ For each requested mode, invoke the corresponding skill via `Skill` tool. Any sk
 - `review` → `skill="sweep:review-prs"`, `args="<passthrough>"`
 - `address` → `skill="sweep:address-prs"`, `args="<passthrough>"`
 
-After each skill completes, read its generated `manifest.json` to get the `run_dir`. Append to `session.json`:
+After each skill completes, read its generated `manifest.json` to get the `run_dir` and eligible items. For each item, append the run_dir to its entry in `session.json`:
 ```json
-{ "run_dir": "<path>", "source_skill": "<skill-name>", "status": "ready" }
+{
+  "items": {
+    "pr-69": [{"run_dir": "<path>", "skill": "sweep:review-prs"}],
+    "issue-56": [{"run_dir": "<path>", "skill": "sweep:work-items"}]
+  }
+}
 ```
+To check status: take the last entry for an item, read `<run_dir>/<item-dir>/status.md`.
 
 **Compound mode**: assess review first, launch review runner in the background immediately, then assess address while review is already running. This parallelizes address assessment with review execution, reducing total wall-clock time.
 
@@ -93,6 +101,8 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 **Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 
+**Conflict resolution is a separate step, not an address prompt instruction.** When a PR has merge conflicts, don't embed rebase instructions in the address prompt — `claude -p` sessions can't reliably handle rebase + address in the same run. Instead: (1) spawn an isolated agent (`isolation: "worktree"`) to rebase the branch, (2) wait for force-push to complete, (3) then launch the address cycle on the clean branch.
+
 **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
 **Director responsibilities in Phase 4:**
@@ -106,7 +116,7 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 
 ## Phase 5: Convergence + Wrap-up
 
-1. Mark converged runs in `session.json` (`"status": "converged"`).
+1. Check convergence by reading `*/status.md` across all run_dirs listed in `session.json`.
 2. Session ends when all runs converge.
 3. Write final `director-state.md` per playbook format with terminal state.
 4. Present a final summary: per-run retro (read each run's `*/result.md` and `*/learnings.md`).

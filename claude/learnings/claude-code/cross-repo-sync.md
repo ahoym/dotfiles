@@ -112,7 +112,7 @@ git branch -d batch-import
 
 ## Team Learnings Dual-Write: Index Path Depends on Repo Structure
 
-The `learnings:compound` dual-write targets `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/CLAUDE.md` for index updates — not `$CLAUDE_TEAM_LEARNINGS_DIR/CLAUDE.md`. If the team repo restructures its index location (e.g., moving from root to `learnings/`), the compound skill's index path must be updated to match. Without this, dual-writes silently update a stale index or fail to find the file.
+The `learnings:compound` dual-write targets each provider's `localPath` + `/CLAUDE.md` for index updates. If a team repo restructures its index location, the provider's `localPath` in `learnings-providers.json` must point to the right root. Without this, dual-writes silently update a stale index or fail to find the file.
 
 ## Shared Skill Reference Divergence
 

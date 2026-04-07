@@ -50,6 +50,48 @@ Never have the same agent both review and address an MR. A reviewer that knows i
 
 The director presents review findings to the operator for sign-off before launching the address session. This is structural, not a guideline — review integrity requires independent context.
 
+## Compressed Runner Scripts Break xargs Variable Passing
+
+When compressing runner scripts (single-letter variables, collapsed whitespace), `xargs -I {} bash -c 'process_pr "$@"' _ {}` fails to pass the PR number correctly into functions that build paths like `${RUN_DIR}/pr-${pr_num}`. The symptom: paths resolve to `pr-/` (empty variable) instead of `pr-70/`, causing "No such file or directory" on every file operation. The session launches, produces no logs, and errors silently.
+
+**Root cause:** Bash `export -f` with `xargs` is fragile — shortened variable names and compressed function bodies interact poorly with subshell variable scoping. The full-form script (explicit `local` declarations, uncompressed) works reliably.
+
+**Fix:** Never compress runner scripts for "efficiency." The full-form template works; the compressed version saves ~2KB of disk but costs debugging time when it breaks. Use the `parallel-claude-runner-template.sh` template as-is.
+
+## Multi-Phase Issues: Sweeper-Implement Triggers False "Awaiting Reply"
+
+When a multi-phase issue has its first phase implemented (PR merged), the Sweeper-Implement comment is the last comment. Skip detection sees "Sweeper commented, no human reply" → SKIP(Awaiting reply). But the issue isn't awaiting a reply — it's ready for the next phase.
+
+**Workaround:** The director writes a per-issue directive overriding skip logic and explaining which phase is complete and what to plan next. The directive forces the clarify-confirm agent to proceed.
+
+**Fixed:** Rule d in `sweep/work-items/SKILL.md` now checks for `Role:.*Sweeper-Implement` + linked merged PR → eligible for `clarify-confirm` (next phase planning).
+
+## Implement Gate: Conversation Maturity, Not Static Properties
+
+The decision rule for promoting clarify-confirm to implement should check what actually changes between passes — not static issue properties. File targets, expected behavior, and verification method are properties of the issue that don't change between sweeper passes. If they're true on pass 1, they're true on pass 2.
+
+What changes: whether the sweeper has demonstrated understanding of the operator's feedback. The implement gate should check (a) the sweeper's last comment acknowledged a prior operator reply, and (b) the operator's reply is pure approval. The clarify-confirm agent naturally checks implementability as part of drafting its plan — if file targets aren't clear, it asks more questions, keeping the cycle in clarify-confirm without the assessment skill needing to re-verify.
+
+## Watermark Propagation Across Director Session Boundaries
+
+New sweep cycles for previously-addressed PRs start without the prior watermark, triggering full comment re-analysis. Directors should persist per-PR watermarks (HEAD SHA + latest comment ID) and inject them into new session artifacts.
+
+## Comment-Only Re-Reviews Produce Empty Persona Routing
+
+Re-reviews with no new commits (only thread activity) produce empty `RE_REVIEW_PERSONAS` — no changed files to route. Orchestrator handles directly. Correct behavior, but looks like silent failure in logs.
+
+## Director Directive Dedup Gap
+
+Directive files aren't cleared after the referenced operator comment is addressed, causing redundant session launches. Sweep skill should check whether directive targets are already satisfied before launching.
+
+## Phase Numbering Ambiguity in Confirmation Plans
+
+"Phase 1/2/3..." without stating "Single PR containing:" or "Separate PRs:" causes re-clarification rounds. Lead with the delivery structure.
+
+## Subagent Prompts Can't Inherit Centralized Guideline Context
+
+`claude -p` subagents can't resolve provider paths from config files. Parent skills must resolve paths and inject them into prompts. Centralized read gateways help but don't eliminate this for write-path skills.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.

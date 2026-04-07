@@ -87,6 +87,10 @@ Worktree agents inherit a copy of the project-level `settings.local.json` — so
 
 After a worktree agent completes, the parent session's shell CWD may end up inside the worktree directory instead of the main repo. Symptom: `git status` shows the worktree's branch, not `main`. Fix: `cd /path/to/main-repo` after agent completions. Check `pwd` if git state looks unexpected.
 
+## Detached HEAD in Worktrees Is Expected
+
+`git branch --show-current` returns empty in `isolation: "worktree"` — normal. Use `git log --oneline -1` to verify the commit.
+
 ## Cross-Refs
 
 No cross-cluster references.

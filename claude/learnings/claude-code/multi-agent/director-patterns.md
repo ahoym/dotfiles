@@ -100,6 +100,18 @@ Require both `last_comment_id` AND `updatedAt` to match before skipping a work i
 
 Multi-layer systems (assessment → runner → agent) can have the same bug manifest at multiple layers. Before fixing the first instance found, trace the full flow and identify all places the defense should exist. Patching one layer reactively leads to discovering the next gap only after testing — mapping upfront catches them in one pass.
 
+## Deferred Runs Need Event-Triggered Reassessment
+
+When a director defers a run ("no eligible items — reassess after X completes"), it records the reason but has no mechanism to auto-resume when the blocking condition clears. The next cycle requires manual re-invocation. Deferral reasons should map to observable events (new review comments posted, PR state change, issue reply) so the director can reassess without operator intervention.
+
+## Pre-Filter Converged Items Before Launching Sweeps
+
+Launching a sweep run for items that already converged wastes a full session startup (~30s + API cost) for a no-op quick-exit. The director should check convergence signals (HEAD SHA unchanged, no new comments since last review) before including items in the manifest. This is distinct from the runner's pre-flight skip — the director has cross-session state and can avoid generating artifacts entirely.
+
+## Discovery During Clarify Doesn't Feed Back Into Scope
+
+When a clarify pass discovers the actual blast radius differs from the plan (e.g., 7 files with references vs 4 originally listed), that finding lives only in the clarify output. Subsequent assessment and implement passes use the original scope. Directors should read clarify outputs and update the manifest's scope metadata so downstream passes inherit discoveries.
+
 ## Parallel Session Rate Limit Competition
 
 Launching 4+ `claude -p` sessions simultaneously reliably exhausts API rate limits. The first 2-3 sessions complete; later ones hit limits mid-execution. Mitigations: lower concurrency (2-3 for heavy sessions like team reviews), stagger launches, or accept that reruns will be needed. The `.rate-limited` sentinel prevents wasted retries but must not overwrite completed sessions (see runner pre-flight order).
