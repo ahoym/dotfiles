@@ -65,7 +65,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 
 **If `$ARGUMENTS` provided**:
 - Parse as space-separated file paths (relative to `~/.claude/`)
-- Verify each file exists under `~/.claude/` (e.g., `learnings/`, `learnings/xrpl/`, `guidelines/`, `commands/`)
+- Verify each file exists under `~/.claude/` — check provider directories from `~/.claude/learnings-providers.json`, plus `guidelines/`, `commands/`, `skill-references/`
 - Determine the **curation mode** per file:
   - `learnings/*` or `learnings/<cluster>/*` or `learnings/<cluster>/<subcluster>/*` or `guidelines/*` → **Content mode** (pattern-level analysis)
   - `commands/*/SKILL.md` (or a skill directory) → **Skill mode** (skill-level evaluation)
@@ -74,7 +74,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
 - Store as `TARGET_FILES`
 
 **If no arguments**:
-- List available files under `~/.claude/learnings/` (including cluster subdirectories), `~/.claude/learnings-private/`, `docs/learnings/`, `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
+- List available files under all provider directories from `~/.claude/learnings-providers.json` (including cluster subdirectories), `projectLocal.path` (resolved relative to project root), `~/.claude/guidelines/`, `~/.claude/skill-references/`, and skill directories under `~/.claude/commands/`
 - Use `AskUserQuestion` to prompt the operator:
   ```
   What would you like to curate?
@@ -165,17 +165,15 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ```json
 "Read(~/.claude/commands/**)",
-"Read(~/.claude/learnings/**)",
-"Read(~/.claude/learnings-private/**)",
+"Read(~/.claude/learnings-providers.json)",
+"Read(~/.claude/learnings*/**)",
 "Read(~/.claude/guidelines/**)",
 "Write(~/.claude/commands/**)",
-"Write(~/.claude/learnings/**)",
-"Write(~/.claude/learnings-private/**)",
+"Write(~/.claude/learnings*/**)",
 "Write(~/.claude/guidelines/**)",
 "Write(~/.claude/skill-references/**)",
 "Edit(~/.claude/commands/**)",
-"Edit(~/.claude/learnings/**)",
-"Edit(~/.claude/learnings-private/**)",
+"Edit(~/.claude/learnings*/**)",
 "Edit(~/.claude/guidelines/**)",
 "Edit(~/.claude/skill-references/**)"
 ```

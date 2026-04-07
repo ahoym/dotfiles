@@ -59,10 +59,9 @@ Save new patterns and learnings from the current session into global skills, gui
    | 3 | SessionEnd hook configuration | Learning | Global | ~/.claude/learnings/ci-cd.md | High - useful reference |
    ```
 
-   **Target file paths:**
-   - **Global** → `~/.claude/learnings/` (patterns that apply across projects)
-   - **Private** → `~/.claude/learnings-private/` (useful across projects but too specific to share)
-   - **Project-local** → `docs/learnings/` in the current project repo
+   **Target file paths** — Read `~/.claude/learnings-providers.json` and route each learning by scope:
+   - Match the learning's scope to a provider entry whose `writeScope` matches. The provider with `defaultWriteTarget: true` is the default for Global scope.
+   - **Project-local** → `projectLocal.path` in the current project repo
 
    **Utility ratings** (self-assessment of value to Claude):
    - **High** - Novel pattern I wouldn't know without documenting, OR proven pattern worth reinforcing/expanding
@@ -93,14 +92,13 @@ Save new patterns and learnings from the current session into global skills, gui
    - File placement rules:
      - **Skills** → `~/.claude/commands/<skill-name>/SKILL.md`
      - **Guidelines** → `~/.claude/guidelines/<guideline-name>.md`
-     - **Global learnings** → `~/.claude/learnings/<topic>.md`
-     - **Private learnings** → `~/.claude/learnings-private/<topic>.md`
-     - **Project-local learnings** → `docs/learnings/<topic>.md` (relative to project root)
-   - **Team learnings dual-write:** If `$CLAUDE_TEAM_LEARNINGS_DIR` is set, for every **Global** learning written to `~/.claude/learnings/`, also write the same content to `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/<same-filename>`. Use the same logic (Edit existing or Write new). Then update `$CLAUDE_TEAM_LEARNINGS_DIR/CLAUDE.md`:
-     - **New file**: add an index entry under the appropriate domain section (format: `` - `filename.md` — one-sentence description ``)
+     - **Learnings** → resolve `localPath` from the provider whose `writeScope` matches the learning's scope. Project-local learnings use `projectLocal.path` (relative to project root).
+   - **Multi-provider write:** For each **Global** learning, write to all providers with `writeScope: "global"` and `writable: true` (not just the `defaultWriteTarget`). For each additional writable provider beyond the default:
+     - Use `localPath` from the provider entry as the write target
+     - **New file**: add an index entry to the provider directory's `CLAUDE.md` (format: `` - `filename.md` — one-sentence description ``)
      - **Existing file**: no index update needed unless the description is stale
-     - Cross-refs in the team copy must use `$CLAUDE_TEAM_LEARNINGS_DIR/learnings/` paths (rewrite any `~/.claude/learnings/` refs)
-     - If `$CLAUDE_TEAM_LEARNINGS_DIR` is not set, skip dual-write silently
+     - Cross-refs in the copy must use paths relative to the provider's `localPath` (rewrite any `~/.claude/learnings/` refs)
+     - If no additional global providers exist, skip multi-write silently
 
 4. **Verify and report**:
    - Read back each written file to confirm content was saved correctly
@@ -108,9 +106,9 @@ Save new patterns and learnings from the current session into global skills, gui
      ```
      Updated files:
      - <path> — <what was added> (Utility: <High/Medium/Low>)
-     - <team path> — dual-write (if applicable)
+     - <provider path> — multi-provider write (if applicable)
 
-     Wrote N learnings to ~/.claude/. Dual-wrote M to $CLAUDE_TEAM_LEARNINGS_DIR.
+     Wrote N learnings. Wrote M to additional providers.
      ```
 
 ## Prerequisites
@@ -119,35 +117,20 @@ For prompt-free execution, add these allow patterns to **user-level** `~/.claude
 
 ```json
 "Read(~/.claude/commands/**)",
-"Read(~/.claude/learnings/**)",
-"Read(~/.claude/learnings-private/**)",
+"Read(~/.claude/learnings-providers.json)",
+"Read(~/.claude/learnings*/**)",
 "Read(~/.claude/guidelines/**)",
-"Write(~/.claude/learnings/**)",
-"Write(~/.claude/learnings-private/**)",
+"Write(~/.claude/learnings*/**)",
 "Write(~/.claude/commands/**)",
 "Write(~/.claude/guidelines/**)",
-"Edit(~/.claude/learnings/**)",
-"Edit(~/.claude/learnings-private/**)",
+"Edit(~/.claude/learnings*/**)",
 "Edit(~/.claude/commands/**)",
-"Edit(~/.claude/guidelines/**)",
-"Read(~/.claude/learnings-team/**)",
-"Write(~/.claude/learnings-team/**)",
-"Edit(~/.claude/learnings-team/**)"
+"Edit(~/.claude/guidelines/**)"
 ```
 
-**Team learnings dual-write** (optional):
+**Additional providers** (optional):
 
-Set `CLAUDE_TEAM_LEARNINGS_DIR` in `~/.claude/settings.local.json` to enable dual-writing Global learnings to a shared team directory:
-
-```json
-{
-  "env": {
-    "CLAUDE_TEAM_LEARNINGS_DIR": "~/.claude/learnings-team"
-  }
-}
-```
-
-The directory must contain a `learnings/` subdirectory and a `CLAUDE.md` index. If the env var is not set, dual-write is skipped silently. Adjust the permission patterns above to match your team directory path if it differs from `~/.claude/learnings-team`.
+Add provider entries to `~/.claude/learnings-providers.json` to enable writing to additional directories (e.g., team learnings). Each provider with `writable: true` and a matching `writeScope` will receive writes. The `~/.claude/learnings*/**` wildcard pattern covers all provider directories that follow the `learnings-<name>/` naming convention.
 
 ## Important Notes
 

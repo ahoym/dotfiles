@@ -16,7 +16,7 @@
 4. Store as `PATTERNS` list
 
 **Pre-load** — In the same parallel batch as the parse reads above:
-1. **Load the reference corpus**: Read all files in `~/.claude/learnings/` and its cluster subdirectories (learnings), `~/.claude/learnings-private/` (private learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). Use recursive glob (`**/*.md`) to catch cluster subdirectories. **Read all files** — don't pre-filter or skip files based on name/size.
+1. **Load the reference corpus**: Read `~/.claude/learnings-providers.json`, then read all files in each provider's `localPath` directory and their cluster subdirectories (learnings), `~/.claude/guidelines/` (guidelines), and skill directories under `~/.claude/commands/` (skills + reference files). Use recursive glob (`**/*.md`) to catch cluster subdirectories. **Read all files** — don't pre-filter or skip files based on name/size.
 2. Additionally load: `~/.claude/commands/set-persona/*.md` (needed for step 6)
 3. Read classification-model.md and `~/.claude/learnings/claude-authoring/routing-table.md` (needed for step 5)
 
@@ -26,7 +26,7 @@ Store all pre-loaded content for use in subsequent steps.
 
 ## 3. Cross-reference patterns against corpus
 
-**Grep scope:** When grepping for pattern terms, scope to content directories only: `~/.claude/learnings/`, `~/.claude/learnings-private/`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
+**Grep scope:** When grepping for pattern terms, scope to content directories only: all provider directories from `~/.claude/learnings-providers.json`, `~/.claude/guidelines/`, `~/.claude/commands/`, `~/.claude/skill-references/`. Exclude `debug/`, `history*`, `file-history/`, `projects/`, `plugins/cache/` — these contain conversation logs and cached data that produce massive false-positive noise.
 
 For each pattern, check against the pre-loaded corpus for matches:
 - **Exact match**: Same concept with same or very similar wording in another file → HIGH confidence

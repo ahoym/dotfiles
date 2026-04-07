@@ -1,5 +1,5 @@
 Reference file management in skills — @ references, conditional loading, templates, deduplication, and variable continuity.
-- **Keywords:** @ reference, conditional load, reference file, template, skill reference, lazy load, eager load, three learnings locations, variable continuity
+- **Keywords:** @ reference, conditional load, reference file, template, skill reference, lazy load, eager load, learnings provider locations, variable continuity
 - **Related:** none
 
 ---
@@ -85,9 +85,9 @@ Multi-step skills should explicitly name variables when data flows between steps
 
 Instructions that affect agent behavior during skill execution (e.g., "use templates verbatim", "don't simplify commands") must live where the agent reads them at runtime — in the template file, reference file, or SKILL.md itself. Putting them in learnings files only helps during authoring/curation sessions, not during execution. The test: "will the agent see this when it matters?"
 
-## Skills Must Search All Three Learnings Locations
+## Skills Must Search All Learnings Provider Locations
 
-Skills that glob learnings for domain context should search all three locations: `~/.claude/learnings/` (global), `~/.claude/learnings-private/` (private), and `docs/learnings/` (project-local). Missing a location means the skill can't ground its responses in available knowledge. This mirrors the learnings search protocol in `context-aware-learnings.md`.
+Skills that glob learnings for domain context should search all provider directories from `~/.claude/learnings-providers.json` plus the `projectLocal` path. Missing a provider means the skill can't ground its responses in available knowledge. This mirrors the learnings search protocol in `context-aware-learnings.md`.
 
 ## When to Extract Skill References
 
