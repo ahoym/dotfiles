@@ -65,7 +65,7 @@ Before writing code, state:
 
 Re-read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. The director may have written new directives since Step 3 (e.g., "post confirmation before implementing"). Incorporate any new instructions before proceeding.
 
-## Step 10b: Post Implementation Intent
+## Step 11b: Post Implementation Intent
 
 Before starting implementation, post a status comment on the issue so the conversation thread shows work is underway:
 
@@ -73,7 +73,7 @@ Before starting implementation, post a status comment on the issue so the conver
 gh issue comment {ISSUE_NUMBER} --body "$(cat <<'COMMENT'
 ## Starting implementation
 
-**Plan summary**: <1-3 sentences from Step 9 — what files, what change, how verified>
+**Plan summary**: <1-3 sentences from Step 10 — what files, what change, how verified>
 **Persona**: {PERSONA_NAME}
 
 ---
@@ -83,7 +83,7 @@ COMMENT
 )"
 ```
 
-## Step 11: Implement
+## Step 12: Implement
 
 Make the changes. Follow existing code patterns and conventions. Keep changes minimal and focused on the work item.
 
