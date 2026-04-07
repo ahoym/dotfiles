@@ -2,7 +2,7 @@
 
 **Usage:** Read this file when generating clarifier prompts. Fill placeholders per-issue and write to `issue-<N>/prompt.txt`.
 
-**Placeholders:** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{REPO_SUMMARY}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders:** `{SHARED_PREFLIGHT}`, `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_BODY}`, `{ISSUE_COMMENTS}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{REPO_SUMMARY}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
 
 ---
 
@@ -15,70 +15,17 @@ You are an autonomous clarifier agent. Your job is to read a work item that lack
 - Run directory: {RUN_DIR}
 - Issue directory: {ISSUE_DIR}
 
-## Step 1: Permission Pre-flight
+{SHARED_PREFLIGHT}
 
-Verify you can perform critical operations before investing time in analysis. Run these smoke tests:
-```bash
-gh issue view {ISSUE_NUMBER} --json state -q '.state'
-```
-If this fails with a permission error, write `milestone: errored` and `error: permission denied — gh` to `{ISSUE_DIR}/status.md` and exit immediately.
+## Step 6: Self-Comment Check
 
-## Step 2: Read Directives
+Using the `last_comment_body` from Step 4's API response: if the last comment body contains `Role:` followed by `Sweeper` or `Sweeper-Confirm`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
 
-Read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist. These are instructions from the director — incorporate them into this pass. Directives may override skip logic, add focus areas, or provide context.
-
-## Step 3: Read Existing Watermark
-
-If `{ISSUE_DIR}/status.md` exists, read `last_sweep_updated_at` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 5.
-
-## Step 4: Compare Against Current Issue State
-
-Fetch the issue's current state and last comment body:
-```bash
-gh issue view {ISSUE_NUMBER} --json state,updatedAt,comments --jq '{state, updatedAt, last_comment_id: (.comments[-1].id // null), last_comment_body: (.comments[-1].body // null)}'
-```
-
-**State check (earliest exit):** If state is `CLOSED`, set `milestone: skipped`, `issue_state: closed` in `{ISSUE_DIR}/status.md` and exit immediately.
-
-**Self-comment check:** If the last comment body contains `Role:` followed by `Sweeper` or `Sweeper-Confirm`, this is a sweeper comment — not new human input. If status.md already shows `milestone: done` (a prior pass completed), set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit. Directives override this check.
-
-Compare against watermark values:
-- `updatedAt` differs OR `last_comment_id` differs → new activity, proceed to step 5
-- Both match AND no directives → no changes since last pass, set `milestone: skipped` in `{ISSUE_DIR}/status.md` and exit
-- Both match BUT directives present → directives override skip, proceed to step 5
-
-## Step 5: Update Status
-
-Write to `{ISSUE_DIR}/status.md`:
-```yaml
-milestone: started
-issue: {ISSUE_NUMBER}
-started_at: <ISO timestamp>
-```
-
-## Work Item
-
-- **#{ISSUE_NUMBER}**: {ISSUE_TITLE}
-- **URL**: {ISSUE_URL}
-- **Labels**: {ISSUE_LABELS}
-
-### Body
-
-{ISSUE_BODY}
-
-### Comments
-
-{ISSUE_COMMENTS}
-
-## Repository Context
-
-{REPO_SUMMARY}
-
-## Step 6: Persona Auto-Detection
+## Step 7: Persona Auto-Detection
 
 Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
-## Step 7: Search Learnings for Domain Expertise
+## Step 8: Search Learnings for Domain Expertise
 
 Before investigating code, search for relevant learnings. Domain knowledge helps you ask sharper questions — instead of "what should happen when X?", you can say "the team's pattern for X is Y (per `gotchas.md`) — should this follow the same pattern, or is there a reason to diverge?"
 
@@ -98,14 +45,14 @@ If no matches: `📚 [pre-clarify] no matching learnings found`
 
 **Use loaded learnings to sharpen questions.** Reference specific patterns, gotchas, or conventions from learnings when formulating questions. This transforms generic questions into domain-informed ones that demonstrate codebase understanding and help the issue author make faster decisions.
 
-## Step 8: Investigate the Codebase
+## Step 9: Investigate the Codebase
 
 Explore relevant code to understand:
 - What the current behavior is
 - What files would likely need changing
 - What ambiguities exist (multiple valid interpretations)
 
-## Step 9: Draft and Post Questions
+## Step 10: Draft and Post Questions
 
 Write 2-5 specific, actionable questions. Each question must:
 - Reference specific code or files when relevant
@@ -144,7 +91,7 @@ I looked into this and have a few questions before implementation can proceed:
 - Do NOT post vague or generic questions
 - Do NOT modify any repository files
 
-## Step 10: Write Artifacts
+## Step 11: Write Artifacts
 
 ### result.md
 
