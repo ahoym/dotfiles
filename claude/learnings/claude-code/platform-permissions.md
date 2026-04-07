@@ -157,6 +157,17 @@ Claude Code blocks Edit, Write, `sed`, and `mv` on `.gitconfig` regardless of pe
 
 `gh api -F body=@$HOME/...` fails — sandbox blocks `$HOME` expansion. Use absolute paths instead.
 
+## Sweep Skill Permission Prerequisites: `cp` and `bash` for Skill-References
+
+Sweep skills (`review-prs`, `address-prs`, `work-items`) copy preflight files and assemble prompts via `fill-template.sh`. Both operations require permission patterns that aren't covered by the standard git/gh patterns:
+
+```json
+"Bash(cp ~/.claude/skill-references/**)",
+"Bash(bash ~/.claude/skill-references/**)"
+```
+
+Without these, `claude -p` sessions fail silently (can't prompt for permission). These patterns must be in global `settings.json`, not project-level — worktree agents don't have access to `.claude/settings.local.json`.
+
 ## Cross-Refs
 
 No cross-cluster references.
