@@ -38,8 +38,8 @@ Writer subagents run in the background and cannot prompt for permissions. Add th
     "Write(docs/plans/**)",
     "Edit(docs/learnings/**)",
     "Edit(docs/plans/**)",
-    "Read(~/.claude/learnings/**)",
-    "Read(~/.claude/learnings-private/**)"
+    "Read(~/.claude/learnings*/**)",
+    "Read(~/.claude/learnings-providers.json)"
   ]
 }
 ```
@@ -59,7 +59,7 @@ General/private writers use staging directories inside the project (`docs/learni
 4. **Create plan file** at `docs/plans/$PLAN_FILENAME`:
    - Use the template in `plan-template.md`
    - Fill in repo name, review count, output locations
-   - Create output directories: `docs/learnings/`, `~/.claude/learnings/`, and `~/.claude/learnings-private/` (if not existing)
+   - Read `~/.claude/learnings-providers.json` and create output directories: `docs/learnings/` and each provider's `localPath` directory (if not existing)
 
 5. **Confirm with the operator** before proceeding to first batch.
 
@@ -88,8 +88,8 @@ General/private writers use staging directories inside the project (`docs/learni
 
 8. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. **Re-read `writer-prompt.md` immediately before spawning** (use offset+limit for the orchestrator section, lines 1-20) — do not rely on an earlier read. Use it as a **verbatim template** — fill in placeholders per writer:
    - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `READ_PATH=docs/learnings/`, `WRITE_PATH=docs/learnings/`, files from step 5
-   - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `READ_PATH=~/.claude/learnings/`, `WRITE_PATH=docs/learnings/_staging/general/`, files from step 5
-   - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `READ_PATH=~/.claude/learnings-private/`, `WRITE_PATH=docs/learnings/_staging/private/`, files from step 5
+   - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `READ_PATH=<defaultWriteTarget provider localPath>`, `WRITE_PATH=docs/learnings/_staging/general/`, files from step 5 (read `~/.claude/learnings-providers.json` to find the provider with `defaultWriteTarget: true`)
+   - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `READ_PATH=<private provider localPath>`, `WRITE_PATH=docs/learnings/_staging/private/`, files from step 5 (read `~/.claude/learnings-providers.json` to find the provider with `writeScope: "private"`)
    - **DEDUP_GUIDANCE**: pull from the plan file's progress tracker notes (recurring pattern mentions). Do not improvise — use what's written.
    Each writer independently deduplicates against its own file set.
    Create staging directories before spawning: `mkdir -p docs/learnings/_staging/general docs/learnings/_staging/private`
@@ -98,7 +98,7 @@ General/private writers use staging directories inside the project (`docs/learni
    ```bash
    bash ~/.claude/commands/extract-request-learnings/finalize-staging.sh .
    ```
-   This script copies general learnings to `~/.claude/learnings/` and `~/.claude/learnings-team/learnings/`, private learnings to `~/.claude/learnings-private/`, handles `java/` subdirectories, and removes the staging directory. It's pre-allowed via `Bash(bash ~/.claude/commands/**)` so it runs without permission prompts.
+   This script reads `~/.claude/learnings-providers.json` to discover provider directories, copies general learnings to all writable providers with `writeScope: "global"`, private learnings to providers with `writeScope: "private"`, handles `java/` subdirectories, and removes the staging directory. It's pre-allowed via `Bash(bash ~/.claude/commands/**)` so it runs without permission prompts.
 
    **Do NOT use inline `cp` commands** — the sandbox treats `~/.claude/` as sensitive and will prompt for each file regardless of allow patterns.
 
@@ -107,7 +107,7 @@ General/private writers use staging directories inside the project (`docs/learni
     **GitHub:**
     ```bash
     # Confirm files exist and line counts grew
-    wc -l docs/learnings/*.md ~/.claude/learnings/*.md
+    wc -l docs/learnings/*.md ~/.claude/learnings*/*.md
     # Confirm batch review numbers appear in project files
     grep -c '#FIRST_NUMBER\|#LAST_NUMBER' docs/learnings/*.md
     # Spot-check one new entry (5 lines)
@@ -117,7 +117,7 @@ General/private writers use staging directories inside the project (`docs/learni
     **GitLab:**
     ```bash
     # Confirm files exist and line counts grew
-    wc -l docs/learnings/*.md ~/.claude/learnings/*.md
+    wc -l docs/learnings/*.md ~/.claude/learnings*/*.md
     # Confirm batch review numbers appear in project files
     grep -c '!FIRST_IID\|!LAST_IID' docs/learnings/*.md
     # Spot-check one new entry (5 lines)

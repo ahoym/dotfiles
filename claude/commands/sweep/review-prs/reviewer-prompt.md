@@ -27,7 +27,7 @@ You are an autonomous reviewer agent. Your job is to review a pull request using
 
 ## Step 5: Search Learnings
 
-Derive search terms from PR title, branch name, and changed file paths. Read `~/.claude/learnings/CLAUDE.md` and (if exists) `~/.claude/learnings-team/learnings/CLAUDE.md` indexes. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-review]` tags.
+Derive search terms from PR title, branch name, and changed file paths. Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, read its `localPath`'s `CLAUDE.md` index (when it exists). Also check `docs/learnings/CLAUDE.md` for project-local learnings. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-review]` tags.
 
 ## Step 6: Invoke Team Review — MANDATORY
 

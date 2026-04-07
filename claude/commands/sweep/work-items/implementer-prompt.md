@@ -34,11 +34,9 @@ Read and follow `~/.claude/skill-references/persona-auto-detect.md`.
 
 Before exploring code, search for relevant learnings that provide gotchas, best practices, and domain patterns:
 
-a. **Personal learnings.** Read `~/.claude/learnings/CLAUDE.md` index. Match cluster names against the work item's domain (language, framework, problem area). For matching clusters, read the cluster `CLAUDE.md` and sniff file headers (`Read(file, limit=3)`) — load fully if keywords match. Derive search terms from: issue title, issue labels, file types likely involved, frameworks mentioned, and active persona domain.
+a. **Provider learnings.** Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, read its `localPath`'s `CLAUDE.md` index (when it exists). Match cluster names against the work item's domain (language, framework, problem area). For matching clusters, read the cluster `CLAUDE.md` and sniff file headers (`Read(file, limit=3)`) — load fully if keywords match. Derive search terms from: issue title, issue labels, file types likely involved, frameworks mentioned, and active persona domain.
 
-b. **Team learnings.** If `~/.claude/learnings-team/learnings/` exists, read its `CLAUDE.md` index and search the same way.
-
-c. **Project learnings.** If `docs/learnings/CLAUDE.md` exists in the project, read and search it.
+b. **Project learnings.** If `docs/learnings/CLAUDE.md` exists in the project, read and search it.
 
 d. **Announce results.** List which learnings were loaded and how they'll influence implementation:
 ```

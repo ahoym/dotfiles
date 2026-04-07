@@ -2,8 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(bash ~/.claude/commands/**)",
+      "Bash(bash ~/.claude/skill-references/**)",
       "Bash(bash tmp/claude-artifacts/**)",
-      "Bash(chmod:*)",
+      "Bash(chmod +x *)",
+      "Bash(cp ~/.claude/skill-references/**)",
       "Bash(curl:*)",
       "Bash(date:*)",
       "Bash(find:*)",
@@ -116,9 +118,7 @@
       "Bash(git push origin main *)"
     ]
   },
-  "env": {
-    "CLAUDE_TEAM_LEARNINGS_DIR": "~/.claude/learnings-team"
-  },
+  "env": {},
   "model": "opus[1m]",
   "effortLevel": "medium"
 }

@@ -47,7 +47,7 @@ If `{RESOLVE_CONFLICTS}` is `false`, skip this step entirely.
 
 ## Step 7: Search Learnings
 
-Derive search terms from PR title, branch name, and comment content. Read `~/.claude/learnings/CLAUDE.md` and (if exists) `~/.claude/learnings-team/learnings/CLAUDE.md` indexes. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-address]` tags.
+Derive search terms from PR title, branch name, and comment content. Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, read its `localPath`'s `CLAUDE.md` index (when it exists). Also check `docs/learnings/CLAUDE.md` for project-local learnings. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-address]` tags.
 
 ## Step 8: Activate Persona
 

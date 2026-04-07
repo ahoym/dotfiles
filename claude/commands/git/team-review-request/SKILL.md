@@ -28,8 +28,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 "Bash(gh pr diff:*)",
 "Bash(gh api:*)",
 "Bash(gh pr review:*)",
-"Read(~/.claude/learnings/**)",
-"Read(~/.claude/learnings-private/**)",
+"Read(~/.claude/learnings*/**)",
+"Read(~/.claude/learnings-providers.json)",
 "Read(~/.claude/commands/set-persona/**)",
 "Read(~/.claude/skill-references/**)",
 "Write(~/**/tmp/claude-artifacts/**)"
@@ -92,7 +92,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Store the combined content as `PERSONA_CONTENT[persona_name]`
 
 7. **Load domain-relevant learnings** — match `CHANGED_FILES` paths and derived domain terms against learnings filenames:
-   - Glob `~/.claude/learnings/**/*.md`, `~/.claude/learnings-private/**/*.md`, and `docs/learnings/**/*.md`
+   - Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob `<each provider localPath>/**/*.md` and `docs/learnings/**/*.md`
    - Using the same domain terms derived in step 5, match against learnings filenames and cluster directory names
    - Read matched files, skipping any whose content isn't relevant to the changed files' domains
    - Announce: `📚 Loaded domain learnings: <list>` or `📚 No domain learnings matched (derived terms: <terms>)`

@@ -662,18 +662,16 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ```json
 "Read(~/.claude/commands/**)",
-"Read(~/.claude/learnings/**)",
-"Read(~/.claude/learnings-private/**)",
+"Read(~/.claude/learnings*/**)",
 "Read(~/.claude/guidelines/**)",
 "Read(~/.claude/skill-references/**)",
+"Read(~/.claude/learnings-providers.json)",
 "Write(~/.claude/commands/**)",
-"Write(~/.claude/learnings/**)",
-"Write(~/.claude/learnings-private/**)",
+"Write(~/.claude/learnings*/**)",
 "Write(~/.claude/guidelines/**)",
 "Write(~/.claude/skill-references/**)",
 "Edit(~/.claude/commands/**)",
-"Edit(~/.claude/learnings/**)",
-"Edit(~/.claude/learnings-private/**)",
+"Edit(~/.claude/learnings*/**)",
 "Edit(~/.claude/guidelines/**)",
 "Edit(~/.claude/skill-references/**)"
 ```

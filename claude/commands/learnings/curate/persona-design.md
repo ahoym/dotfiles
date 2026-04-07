@@ -2,7 +2,7 @@
 
 ## Philosophy
 
-Personas provide a **lens** — priorities, tradeoffs, review instincts, and decision-making posture for a domain. They are NOT the primary store of domain knowledge. Factual knowledge (gotchas, platform specifics, patterns) lives in `~/.claude/learnings/` and `~/.claude/learnings-private/` files organized by topic, where it can be dynamically pulled into any session via the context-aware-learnings guideline — regardless of whether a persona is active.
+Personas provide a **lens** — priorities, tradeoffs, review instincts, and decision-making posture for a domain. They are NOT the primary store of domain knowledge. Factual knowledge (gotchas, platform specifics, patterns) lives in learnings provider directories (configured in `~/.claude/learnings-providers.json`) organized by topic, where it can be dynamically pulled into any session via the context-aware-learnings guideline — regardless of whether a persona is active.
 
 Personas layer on top of learnings. The persona sets the *focus*; learnings provide the *facts*.
 
@@ -17,7 +17,7 @@ Every persona uses 4 sections:
 | **When making tradeoffs** | Decision-making principles | Philosophy and priorities, ~6-8 items |
 | **Known gotchas & platform specifics** | Key facts that shape the lens | Subsections per platform/tool, ~15-20 lines |
 
-The first three sections encode *judgment* (the lens). The fourth provides *context for that judgment* — not an exhaustive knowledge dump. Detailed gotchas, patterns, and reference material belong in `~/.claude/learnings/` or `~/.claude/learnings-private/` files, where they're available to all sessions regardless of persona. The persona's gotchas section should contain only facts that directly inform the review heuristics and tradeoff principles above.
+The first three sections encode *judgment* (the lens). The fourth provides *context for that judgment* — not an exhaustive knowledge dump. Detailed gotchas, patterns, and reference material belong in learnings provider directories (from `~/.claude/learnings-providers.json`), where they're available to all sessions regardless of persona. The persona's gotchas section should contain only facts that directly inform the review heuristics and tradeoff principles above.
 
 ## Sizing
 
@@ -36,9 +36,9 @@ This avoids ambiguity when multiple stacks touch the same domain.
 
 ## Learnings-to-Persona Pipeline
 
-When creating a new persona, mine `~/.claude/learnings/` and `~/.claude/learnings-private/` for the *lens* — not to duplicate knowledge:
+When creating a new persona, mine all learnings provider directories (from `~/.claude/learnings-providers.json`) for the *lens* — not to duplicate knowledge:
 
-1. Glob `~/.claude/learnings/` and `~/.claude/learnings-private/` for files relevant to the persona's domain and stack
+1. Read `~/.claude/learnings-providers.json` and glob each provider's `localPath/` for files relevant to the persona's domain and stack
 2. Read each file and extract *judgment patterns*: tradeoff principles, review heuristics, decision priorities
 3. Distill into the persona's lens sections (priorities, code review, tradeoffs). Factual gotchas stay in learnings files — include only the subset that directly informs the lens
 4. Cross-reference the project's MEMORY.md for additional session-specific insights
@@ -64,7 +64,7 @@ When a persona mixes generic and domain-specific content, extract the generic la
 
 1. **Identify generic content**: tradeoff principles, CI/CD patterns, deployment strategies, and gotchas not tied to a specific language or framework
 2. **Create the parent**: move generic content into a new standalone persona following the same 4-section structure
-3. **Enrich the parent**: pull in related learnings from `~/.claude/learnings/` and `~/.claude/learnings-private/` that fit the generic domain
+3. **Enrich the parent**: pull in related learnings from all provider directories (from `~/.claude/learnings-providers.json`) that fit the generic domain
 4. **Slim the child**: add `## Extends: <parent>`, remove migrated content, keep only domain-specific sections. Remove entire sections if fully inherited
 5. **Verify both paths**: test activating the parent standalone and the child with inheritance
 
@@ -86,5 +86,5 @@ When a persona file accumulates enough domain-specific gotchas that signal densi
 ## Maintenance
 
 - Fold new learnings into matching personas during curation when they fit a persona's domain
-- The persona is the distilled, actionable version; `~/.claude/learnings/` and `~/.claude/learnings-private/` files stay as raw research
+- The persona is the distilled, actionable version; learnings files (across all providers) stay as raw research
 - Periodically review during curation to prune outdated gotchas (e.g., after a major version upgrade)

@@ -18,7 +18,7 @@ If not already detected this session, read `~/.claude/skill-references/platform-
 ## Platform API Gotchas
 
 After loading platform cluster files, also load platform-specific API learnings to avoid known friction:
-- **GitLab:** Read `~/.claude/learnings-team/learnings/gitlab/gitlab-api-and-cli.md` — covers `glab api` quirks, GraphQL `-F` vs `-f` flag syntax, REST workarounds for nested JSON, and permission-safe patterns for `claude -p` sessions.
+- **GitLab:** Read `~/.claude/learnings-providers.json` to find the team provider's `localPath`, then read `<localPath>/gitlab/gitlab-api-and-cli.md` (if it exists) — covers `glab api` quirks, GraphQL `-F` vs `-f` flag syntax, REST workarounds for nested JSON, and permission-safe patterns for `claude -p` sessions.
 - **GitHub:** No additional learnings load needed — `gh api` patterns are straightforward.
 
 Skip if already loaded this session.

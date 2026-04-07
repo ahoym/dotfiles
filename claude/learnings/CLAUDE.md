@@ -2,7 +2,7 @@
 
 Read this file when starting domain-relevant work. For clusters, read the cluster's CLAUDE.md to discover individual files.
 
-If `~/.claude/learnings-private/CLAUDE.md` exists, read it too — it contains private project-specific learnings.
+Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, check if its `localPath`'s `CLAUDE.md` exists and read it.
 If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-local learnings.
 
 ---
