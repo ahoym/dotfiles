@@ -15,15 +15,15 @@ You are an autonomous implementer agent. Your job is to read a work item, implem
 - Run directory: {RUN_DIR}
 - Issue directory: {ISSUE_DIR}
 
-{SHARED_PREFLIGHT}
+## Step 0: Git Pre-flight
 
-## Step 1a: Additional Pre-flight
-
-The shared pre-flight verified `gh` access. Implementers also need git access — run this additional check:
+Implementers need git access before the shared preflight runs. Verify now:
 ```bash
 git status
 ```
 If this fails with a permission error, write `milestone: errored` and `error: permission denied — git` to `{ISSUE_DIR}/status.md` and exit immediately.
+
+{SHARED_PREFLIGHT}
 
 ## Step 6: Persona Auto-Detection
 

@@ -1,4 +1,4 @@
-**Step ordering note:** This shared preflight sets `milestone: started` in Step 5 before role-specific addendum checks run (e.g., clarifier/confirmer Step 4a self-comment check, implementer Step 1a git check). Those checks may overwrite status to `skipped` or `errored` — the final state is correct, but directors polling status.md may briefly see a `started` → `skipped` transition. This is an intentional tradeoff: extraction simplicity outweighs strict ordering, and the window is sub-second within a single agent execution.
+**Step ordering note:** This shared preflight (Steps 1–5) sets `milestone: started` in Step 5. Role-specific steps use sequential numbering: clarifier/confirmer Step 6 (self-comment check) runs after preflight and may overwrite status to `skipped`; implementer Step 0 (git pre-flight) runs before preflight. Directors polling status.md may briefly see a `started` → `skipped` transition — this is intentional, and the window is sub-second within a single agent execution.
 
 ## Step 1: Permission Pre-flight
 
