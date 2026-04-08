@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 6 |
+| Iterations | 7 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 2 | 1 | 0 | 0 | 0 |
-| **Total** | **5** | **11** | **4** | **1** | **0** |
+| Deep Dive | 3 | 4 | 0 | 0 | 0 |
+| **Total** | **6** | **14** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -42,6 +42,9 @@
 | 4 | TRIAGE | diff-routed-triage | 97a6278..HEAD (160+ files) | 12 groups, 38 targets | — |
 | 5 | DEEP_DIVE | stale-ref-fix | protobuf-patterns.md | java/integration.md | HIGH |
 | 6 | DEEP_DIVE | (clean) | java/testing, infosec-gotchas, spring-boot-gotchas | — | — |
+| 7 | DEEP_DIVE | fold-and-delete | cicd/gotchas.md (GitLab sections) | cicd/gitlab.md (already present) | HIGH |
+| 7 | DEEP_DIVE | fold-and-delete | cicd/gotchas.md (GitHub Actions) | cicd/patterns.md | HIGH |
+| 7 | DEEP_DIVE | index-update | cicd/CLAUDE.md | — | HIGH |
 
 ## Blocked Items
 
@@ -55,7 +58,7 @@ See `review.md` for details.
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Learnings files | 110 | 97 |
+| Learnings files | 110 | 96 |
 | Skills | 36 | — |
 | Skill references | 26 | 25 |
 | Guidelines files | 4 | 4 |

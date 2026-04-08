@@ -1,5 +1,5 @@
-Reusable CI pipeline structures including composite actions, lint-first dependency chains, and Docker build-push colocation.
-- **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation
+Reusable CI pipeline structures and platform-specific patterns: composite actions, lint-first dependency chains, Docker build-push colocation, GitHub Actions configuration.
+- **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation, GitHub Actions, paths-ignore, continue-on-error, job timeout, gh run view
 - **Related:** ~/.claude/learnings/frontend/typescript-ci-gotchas.md
 
 ---
@@ -29,6 +29,14 @@ When `changes`-based CI filtering was removed and all tests began running on eve
 ### Iterative CI validation via test commits on MR branches
 
 When CI changes can't be tested locally, push intermediate commits to validate the fix via MR pipelines. CI config changes are tested in CI — multiple intermediate commits on an MR branch is the expected workflow, not a sign of sloppiness.
+
+## GitHub Actions
+
+- `paths-ignore: ['**/*.md']` skips CI on markdown-only changes
+- `continue-on-error: true` for non-blocking informational jobs (e.g., E2E)
+- Minimal permissions: `contents: read`, `pull-requests: write`
+- Set job timeouts: 5 min for fast jobs, 15 min for E2E
+- Diagnosing failures: `gh run view <RUN_ID> --job <JOB_ID> --log-failed` — pipe through `tail -80`
 
 ## Cross-Refs
 

@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 6 |
+| SWEEP_COUNT | 7 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/) |
 
 ## Pre-Flight
 
@@ -55,6 +55,7 @@ Suggested iterations: 20
 | 4 | TRIAGE | — | — | — | 12 groups, 38 targets | Diff-routed triage: 160+ files changed since 97a6278. 33 diff-routed + 5 stale rotation targets. 12 groups assembled for deep dive phase. |
 | 5 | DEEP_DIVE | 1 | 0 | 0 | 1 | Group 1 (java/new): 3 files, 8 patterns all clean. Fixed stale Related in protobuf-patterns.md. |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 2 (java/modified): 3 files, 25+ patterns. All clean — testing.md well-scoped, infosec-gotchas.md cross-refs valid, spring-boot-gotchas.md dense but cohesive. |
+| 7 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 3 (cicd/): 3 targets + 1 context. Deleted gotchas.md — GitLab sections verbatim duplicate of gitlab.md, GitHub Actions folded into patterns.md. Net -1 file. gitlab.md (204 lines) cohesive, no split. gitlab-ci-patterns.md clean. |
 
 ## Deep Dive Status
 
@@ -79,8 +80,26 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 |-------|---------|--------|------|---------|
 | Group 1 (java/new) | code-quality, concurrency, integration | complete | 5 | 1 HIGH (stale ref fix in protobuf-patterns.md), 8 patterns clean |
 | Group 2 (java/modified) | testing, infosec-gotchas, spring-boot-gotchas | complete | 6 | Clean — 25+ patterns all well-structured, no overlap |
+| Group 3 (cicd/) | patterns, gitlab-ci-patterns, gitlab | complete | 7 | 3 HIGHs: deleted gotchas.md (verbatim GitLab dupes of gitlab.md), folded GitHub Actions into patterns.md. Net -1 file. |
 
 ## Notes for Next Iteration
+
+### Iter 7
+
+**Group 3 (cicd/) results:**
+- 3 targets + 1 context file examined. Primary finding: gotchas.md was a dedup hazard — its GitLab CI/CD section (12 bullets) and CI Guards section were verbatim copies of gitlab.md Configuration Patterns and CI Guards sections.
+- After removing GitLab duplicates, gotchas.md had only 6 GitHub Actions bullets. Folded these into patterns.md (5 bullets — dropped cancel-in-progress duplicate already in patterns.md's lint-first section). Deleted gotchas.md.
+- gitlab.md at 204 lines exceeds 150-line split threshold but content is cohesive — all GitLab-specific (glab CLI, API, GraphQL, pipeline config). No split warranted.
+- gitlab-ci-patterns.md (54 lines) is complementary to gitlab.md — pipeline optimization vs tooling/API. No overlap.
+- patterns.md now covers both platform-agnostic CI patterns and GitHub Actions config. Cross-refs valid.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| patterns.md | Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation, GitHub Actions, paths-ignore, continue-on-error, job timeout, gh run view |
+| gitlab-ci-patterns.md | GitLab CI, YAML anchors, reference tags, Maven, artifacts, cache, BuildKit, SonarQube, timeout, needs optional, artifact scoping, test shards, docker-push DAG, Maven -pl, Maven cache key, maven -U |
+| gitlab.md | GitLab, glab, CI/CD, job trace, merge request, DinD, Testcontainers, Surefire, Failsafe, glab api, pipeline stages, rules, cache, artifacts, interruptible, needs, DAG, glab issue create, file-based description, single quotes, permission prompts, GraphQL createDiffNote, emoji reactions, MR repointing, discussion 404 |
 
 ### Iter 6
 

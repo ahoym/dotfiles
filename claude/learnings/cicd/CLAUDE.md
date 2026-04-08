@@ -4,4 +4,4 @@ CI/CD patterns: pipeline configuration, debugging, glab CLI, API mechanics, and 
 |------|-------------|
 | gitlab.md | GitLab CI/CD: debugging with glab, pipeline config, API/CLI mechanics, GraphQL inline comments |
 | gitlab-ci-patterns.md | GitLab CI: YAML anchors, artifact scoping, Maven builds, caching, pipeline optimization |
-| patterns.md | Reusable CI structures: composite actions, lint gates, Docker build-push, test gating |
+| patterns.md | Reusable CI structures: composite actions, lint gates, Docker build-push, test gating, GitHub Actions config |
