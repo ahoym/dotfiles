@@ -4,8 +4,8 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 1 |
-| CONTENT_TYPE | SKILLS |
+| SWEEP_COUNT | 2 |
+| CONTENT_TYPE | GUIDELINES |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -34,8 +34,8 @@ Suggested iterations: 20
 - **MEDIUMs blocked**: 0
 
 ### SKILLS
-- **Sweeps**: 0
-- **HIGHs applied**: 0
+- **Sweeps**: 1
+- **HIGHs applied**: 1
 - **MEDIUMs applied**: 0
 - **MEDIUMs blocked**: 0
 
@@ -50,6 +50,7 @@ Suggested iterations: 20
 | Iter | Content Type | HIGHs | MEDIUMs | LOWs | Actions | Notes |
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 9 | 4 | 0 | 13 | Folded 7 thin/unclustered files into clusters, merged 6 thin Java files into 4 new cluster files, moved gitlab-ci-patterns to cicd/, fixed 5 stale tracker paths. Net -13 files. |
+| 2 | SKILLS | 1 | 0 | 0 | 1 | Deleted orphaned draft skill-reference sweep-status-design.md (zero consumers). 36 skills, 25 remaining refs, 19 personas all healthy. |
 
 ## Deep Dive Status
 
@@ -89,3 +90,14 @@ These are all very thin (1-2 patterns) without clear cluster targets. Deep dive 
 - cicd/ cluster now has 3 substantive files (gitlab.md, gitlab-ci-patterns.md, patterns.md) plus gotchas.md
 
 **SKILLS sweep next:** Check skill-references consumer wiring, cross-persona gotcha dedup, skill overlap.
+
+### Iter 2
+
+**SKILLS sweep results:**
+- 36 skills across 6 namespaces (git:11, learnings:4, ralph:7, parallel-plan:2, sweep:3, standalone:9) — no overlap, no merge/prune candidates
+- 25/26 skill-references wired to consumers; deleted orphaned `sweep-status-design.md` (draft, zero consumers)
+- All Co-Authored-By strings current (Claude Opus 4.6)
+- Cross-persona boundaries clean: Java personas (backend, infosec, fintech extends both, devops extends platform), claude-config personas (expert, author extends expert, reviewer extends reviewer+expert), reviewer personas all distinct
+- No reference wiring issues, no inline knowledge needing externalization
+
+**GUIDELINES sweep next:** Check @-reference cost, wiring, behavioral vs reference material, domain-specific content in guidelines

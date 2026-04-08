@@ -24,3 +24,4 @@ Read classification-model.md (6-bucket model), routing-table.md (content routing
 | 1 | LEARNINGS | stale-path-fix | deep-dive-tracker.json | — | HIGH | applied | Fixed 5 stale tracker paths: web-session-sync, playwright-patterns, testing-patterns, newman-postman, vercel-deployment |
 | 1 | LEARNINGS | index-update | java/CLAUDE.md | — | HIGH | applied | Added 4 new cluster files to java/ index |
 | 1 | LEARNINGS | index-update | cicd/CLAUDE.md | — | HIGH | applied | Added gitlab-ci-patterns.md and patterns.md to cicd/ index |
+| 2 | SKILLS | delete | skill-references/sweep-status-design.md | — | HIGH | applied | Draft design sketch with zero consumers — not referenced by any SKILL.md, skill-reference, or learnings file |

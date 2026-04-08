@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 1 |
+| Iterations | 2 |
 | Status | IN_PROGRESS |
 
 ## Summary
@@ -15,9 +15,9 @@
 | Content Type | Sweeps | HIGHs Applied | MEDIUMs Applied | MEDIUMs Blocked | Personas Enriched |
 |-------------|--------|---------------|-----------------|-----------------|-------------------|
 | Learnings | 1 | 9 | 4 | 0 | 0 |
-| Skills | 0 | 0 | 0 | 0 | 0 |
+| Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **1** | **9** | **4** | **0** | **0** |
+| **Total** | **2** | **10** | **4** | **0** | **0** |
 
 ## Actions (Chronological)
 
@@ -36,6 +36,7 @@
 | 1 | LEARNINGS | merge-and-move | java-concurrency-patterns.md + java-concurrency-and-resources.md | java/concurrency.md | MEDIUM |
 | 1 | LEARNINGS | merge-and-move | java-integration-patterns.md + java-spring-configuration.md | java/integration.md | MEDIUM |
 | 1 | LEARNINGS | move | java-testing-patterns.md | java/testing.md | MEDIUM |
+| 2 | SKILLS | delete | skill-references/sweep-status-design.md | — | HIGH |
 
 ## Blocked Items
 
@@ -51,6 +52,6 @@ See `review.md` for details.
 |--------|--------|-------|
 | Learnings files | 110 | 97 |
 | Skills | 36 | — |
-| Skill references | 26 | — |
+| Skill references | 26 | 25 |
 | Guidelines files | 4 | — |
 | Persona files | 19 | — |
