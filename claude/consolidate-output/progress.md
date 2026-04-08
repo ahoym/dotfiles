@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 10 |
+| SWEEP_COUNT | 12 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions) |
 
 ## Pre-Flight
 
@@ -59,6 +59,8 @@ Suggested iterations: 20
 | 8 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 4 (claude-authoring/content): 3 targets + 2 context. Removed 2 verbatim dupes from learnings-content.md (cross-ref types → organization, maintenance cost → organization). Removed 3 verbatim dupes from claude-md.md (signpost, modular refactor, conflict resolution → all in claude-md-advanced.md). skill-design.md (209 lines, 26 sections) clean — density exemption. |
 | 9 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 5 (claude-authoring/org): 3 targets + 2 context. Fixed 3 stale refs in polling-review-skills.md (dead claude-authoring-skills.md ref, skill-design.md→skill-references-and-loading.md, content-types.md→routing-table.md). learnings-organization.md (164 lines, density exemption) and personas.md (146 lines) both clean. |
 | 10 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 6 (multi-agent/): 3 targets + 3 context. Removed 4 intra-sub-cluster refs across all 3 targets (systematic sibling refs to director-patterns.md). Fixed H3→H2 in orchestration.md. orchestration.md (207 lines, 34 sections) density exemption. |
+| 11 | DEEP_DIVE | 7 | 0 | 0 | 7 | Group 7 (claude-code/platform): 3 targets + 2 context. Removed 11 verbatim dupe sections from skill-platform-portability.md (3→agent-definitions.md, 8→plugin-packaging.md). Removed 2 intra-cluster refs + folded duplicate Glob section + structural fix in platform-tools-and-automation.md. platform-permissions.md clean (170 lines, density exemption). |
+| 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 8 (claude-code/sessions): 3 targets + 2 context. All clean — sweep-sessions.md (98 lines), ralph-curation.md (151 lines, density exemption), ralph-loop.md (122 lines). No duplicates, stale refs, or structural issues. |
 
 ## Deep Dive Status
 
@@ -87,8 +89,46 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 4 (claude-authoring/content) | learnings-content, skill-design, claude-md | complete | 8 | 5 HIGHs: removed 5 verbatim duplicate sections (2 from learnings-content.md, 3 from claude-md.md). skill-design.md clean (density exemption). |
 | Group 5 (claude-authoring/org) | learnings-organization, personas, polling-review-skills | complete | 9 | 3 HIGHs: fixed 3 stale cross-refs in polling-review-skills.md. learnings-organization.md and personas.md clean. |
 | Group 6 (multi-agent/) | director-patterns, orchestration, headless-nesting | complete | 10 | 5 HIGHs: removed 4 intra-sub-cluster refs (all 3 targets had sibling refs), fixed H3→H2 inconsistency in orchestration.md. orchestration.md 207 lines density exemption. |
+| Group 7 (claude-code/platform) | skill-platform-portability, platform-tools-and-automation, platform-permissions | complete | 11 | 7 HIGHs: removed 11 verbatim dupe sections from skill-platform-portability.md (split artifact — agent+plugin content extracted but originals not cleaned). Removed 2 intra-cluster refs + folded duplicate Glob section in platform-tools-and-automation.md. platform-permissions.md clean (density exemption). |
+| Group 8 (claude-code/sessions) | sweep-sessions, ralph-curation, ralph-loop | complete | 12 | Clean — all 3 targets well-structured, distinct search intents, no overlap between worktree path patterns (sweep=prompt paths, ralph=tool paths). ralph-curation.md 151 lines density exemption (25 sections). |
 
 ## Notes for Next Iteration
+
+### Iter 12
+
+**Group 8 (claude-code/sessions) results:**
+- 3 targets + 2 context files examined. All clean — no findings.
+- sweep-sessions.md (98 lines, ~15 sections): All patterns serve "sweep session patterns" search intent. Keywords accurate. No Related or Cross-Refs sections (correct for intra-cluster file). Worktree path confusion section (L41-45) is sweep-specific (prompt path references in claude -p sessions) — distinct from ralph-loop.md's worktree editing (Edit/Write tool path targets).
+- ralph-curation.md (151 lines, ~25 sections): Just over 150-line threshold but ~6 lines/section = density exemption. No split warranted — all sections serve "ralph curation patterns" intent. Cross-ref to `~/.claude/commands/learnings/curate/curation-insights.md` verified exists. No overlap with ralph-loop.md — curation has operational methodology (defect/opportunity mode, cluster batching, convergence), loop has infrastructure mechanics (stateless iteration, sentinel contracts, runner diagnostics).
+- ralph-loop.md (122 lines, ~20 sections): All patterns serve "ralph loop mechanics" intent. Keywords accurate. Empty Cross-Refs section appropriate. No overlap with siblings.
+- Context files (cross-repo-sync.md 143 lines, shell-patterns.md 24 lines): Both clean. No overlap with targets.
+- No structural opportunities: all 3 files serve distinct search intents, no merge candidates, no split candidates.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| sweep-sessions.md | sweep, director, claude -p, learnings-team, runner, review, address, worktree path confusion, compound mode, summary-only findings, watermark propagation, runner compression, xargs, multi-phase, implement gate, GitLab vs GitHub state, comment-only re-review, directive dedup, phase numbering, subagent prompt context |
+| ralph-curation.md | consolidation, curation, compounding, deep dive, defect mode, opportunity mode, brief, staged-learnings, gotchas exclusion, worktree hooks, cluster batch, persona paths, thin file, pre-flight cadence, convergence, inline compounding, catalog-wide sweep, incremental verification, cross-refs file splits, curation targets vs comparison context, stale persona paths, content type run length, unreferenced learnings |
+| ralph-loop.md | ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, worktree, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, runner-spec, one-action, diff-routed, keyword-index, graph-extension, viewpoint diversity, question tracking, core files, research branches, stateless spec, worktree commit-to-main, iteration count divergence, rate limit detection, partial iteration recovery, scaffolding cp vs read-edit, edit templates not output copies |
+
+### Iter 11
+
+**Group 7 (claude-code/platform) results:**
+- 3 targets + 2 context files examined. Primary finding: skill-platform-portability.md was the original monolith from which agent-definitions.md and plugin-packaging.md were extracted, but the 11 extracted sections were never cleaned up from the source.
+- skill-platform-portability.md (236→~137 lines): Removed 3 agent sections (Custom Agent Definitions, Agent memory, Three Skill↔Agent Integration — all verbatim in agent-definitions.md) and 8 plugin sections (Plugin Caching through compatibility Field — all verbatim/near-verbatim in plugin-packaging.md). agent-definitions.md is actually more complete (has Skill tool constraint bullet). VS Code issue #294520 link folded into plugin-packaging.md before removal. Now under 150-line threshold.
+- platform-tools-and-automation.md (217→~206 lines): Removed 2 intra-cluster cross-refs at L7-8 (to platform-permissions.md and platform-worktrees-and-isolation.md — both sibling files, cluster CLAUDE.md handles discovery). Folded "Glob Tool Fails on ~/.claude/" section (L203-207) into existing "Glob Limitations with Symlinks" section (L51-53) — same insight, unique example and affected use cases preserved. Moved "Worktree Creation Fails" section from after Cross-Refs to before it (structural fix — Cross-Refs should be last). Still above 150 lines but 27 sections (~7.6 lines/section) = density exemption.
+- platform-permissions.md (170 lines, ~15 sections): Clean. All sections serve "platform permissions" search intent. Above 150-line threshold but ~11 lines/section avg = density exemption. No overlap with sibling files, no stale cross-refs, no intra-cluster refs.
+- Context files (platform-worktrees-and-isolation.md 96 lines, hooks.md 108 lines): Both clean. No overlap with targets. "Worktree Creation Fails" in platform-tools-and-automation.md is arguably worktree content but not worth moving to context file.
+- Pattern: skill-platform-portability.md was the claude-code cluster's original monolith for skill/agent/plugin knowledge. When agent-definitions.md and plugin-packaging.md were created (likely run 15 deep dives), sections were copied to new files but never removed from the source. This is the same pattern as claude-authoring's split artifacts (iter 8-9).
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| skill-platform-portability.md | commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, progressive disclosure, shell preprocessing, baseDir, skill description budget, built-in skills, cross-platform, viability checklist, fork vs Task, field constraints, porting, project scope |
+| platform-tools-and-automation.md | @ reference, cron, polling, /loop, TaskOutput, symlink, Glob, Read before Write, GitHub API, WebFetch, parallel tool call, CLAUDE.md auto-loading, stream-json, output-format, verbose, parent_tool_use_id, PID capture, pipeline, check-index ghost files, batch writes, large diff reads, updatedAt, offset 1-based, worktree creation, branch already checked out |
+| platform-permissions.md | permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch, deny precedence, deny-first, allow override, filesystem deny, personal directories, colon separator, glob boundary, shell glob sandbox, claude -p, --allowedTools, .gitconfig protected |
 
 ### Iter 10
 

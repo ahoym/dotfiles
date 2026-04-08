@@ -4,9 +4,6 @@ Claude Code tool behavior and automation — @ references, cron patterns, pollin
 
 ---
 
-> Cross-reference: For worktree-specific permission mismatches, see `platform-permissions.md` § "Worktree Isolation Creates Permission Mismatches".
-> Cross-reference: For Task tool isolation mechanics, see `platform-worktrees-and-isolation.md` § "Task Tool: isolation: worktree Limitations".
-
 ## Cron and Polling Patterns
 
 1. **Cron iterations share the parent session's context.** Unlike `claude --print` (truly stateless), cron-fired prompts run in the same REPL session. Conversation state, session variables, and tool permissions persist across firings. Use session state for cron-scoped data — no files needed.
@@ -50,7 +47,7 @@ Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. N
 
 ## Glob Limitations with Symlinks
 
-Glob can silently return empty results in two cases: (1) untracked files in directories, and (2) paths through directory symlinks. Since `~/.claude` subdirectories are symlinks, `Glob(path: "/Users/<user>/.claude")` returns empty while `ls` finds files. Fall back to `Bash` `ls` when searching inside symlinked directory trees. Verify claims about file existence/absence with `ls` before stating files don't exist.
+Glob can silently return empty results in two cases: (1) untracked files in directories, and (2) paths through directory symlinks. Since `~/.claude` subdirectories are symlinks, `Glob(path: "/Users/<user>/.claude")` returns empty while `ls` finds files — e.g., `Glob(pattern="set-persona/*.md", path="/Users/<user>/.claude/commands")` returns zero results even when 20+ files exist. Fall back to `Bash` `ls` when searching inside symlinked directory trees (e.g., `ls ~/.claude/commands/set-persona/`). This affects persona discovery in sweep skills, learnings directory scanning, and any file enumeration under `~/.claude/`. Verify claims about file existence/absence with `ls` before stating files don't exist.
 
 ## Sanitizing Examples: Preserve Pedagogical Intent
 
@@ -196,16 +193,6 @@ Empirically verified: editing an existing comment on a GitHub issue changes the 
 
 `offset=20` starts from line 20, not line 21. Common off-by-one source.
 
-## Cross-Refs
-
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline
-
-## Glob Tool Fails on `~/.claude/` Symlinked Paths
-
-The Glob tool doesn't resolve symlinked directories under `~/.claude/`. `Glob(pattern="set-persona/*.md", path="/Users/<user>/.claude/commands")` returns zero results even when 20+ files exist. The same path works with `ls` via Bash.
-
-**Workaround:** Use `Bash(ls ~/.claude/commands/set-persona/)` for file discovery in dotfile directories. Reserve Glob for project-root-relative searches where symlinks aren't involved. This affects persona discovery in sweep skills, learnings directory scanning, and any file enumeration under `~/.claude/`.
-
 ## Worktree Creation Fails When Branch Is Already Checked Out
 
 `git worktree add <path> <branch>` fails with `fatal: '<branch>' is already used by worktree at '<path>'` when the target branch is checked out anywhere — including the main repo. Two common triggers:
@@ -214,3 +201,7 @@ The Glob tool doesn't resolve symlinked directories under `~/.claude/`. `Glob(pa
 2. **Implementer agent falls back to main repo.** When worktree creation fails, the agent may run in the main repo instead, switching branches with `git checkout -b`. This silently overwrites any uncommitted director edits to files the agent also modifies.
 
 **Fix:** Use `git worktree add <path> origin/<branch>` (creates from remote ref, detached) or `git worktree add --detach <path>` then `git checkout -b <new-branch>` inside. For implementers starting fresh, `origin/main` avoids the "already checked out" conflict entirely.
+
+## Cross-Refs
+
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline

@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 10 |
+| Iterations | 12 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 6 | 17 | 0 | 0 | 0 |
-| **Total** | **9** | **27** | **4** | **1** | **0** |
+| Deep Dive | 8 | 24 | 0 | 0 | 0 |
+| **Total** | **11** | **31** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -50,6 +50,11 @@
 | 9 | DEEP_DIVE | stale-ref-fix (x3) | polling-review-skills.md | Fixed 3 stale refs: claude-authoring-skills.md, skill-design.md→skill-references-and-loading.md, content-types.md→routing-table.md | HIGH |
 | 10 | DEEP_DIVE | remove-intra-ref (x4) | director-patterns.md, orchestration.md, headless-nesting.md | Removed 4 intra-sub-cluster sibling refs | HIGH |
 | 10 | DEEP_DIVE | heading-fix | orchestration.md | H3→H2 structural consistency | HIGH |
+| 11 | DEEP_DIVE | dedup-delete (x11) | skill-platform-portability.md (3 agent + 8 plugin sections) | agent-definitions.md, plugin-packaging.md (already present) | HIGH |
+| 11 | DEEP_DIVE | remove-intra-ref (x2) | platform-tools-and-automation.md | Removed 2 intra-cluster sibling refs | HIGH |
+| 11 | DEEP_DIVE | dedup-fold + structural-fix | platform-tools-and-automation.md | Folded duplicate Glob section, moved section before Cross-Refs | HIGH |
+| 11 | DEEP_DIVE | detail-fold | plugin-packaging.md | Added VS Code issue link from removed source | HIGH |
+| 12 | DEEP_DIVE | (clean) | sweep-sessions.md, ralph-curation.md, ralph-loop.md | — | — |
 
 ## Blocked Items
 
