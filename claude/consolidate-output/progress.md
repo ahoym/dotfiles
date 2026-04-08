@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 5 |
+| SWEEP_COUNT | 6 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified) |
 
 ## Pre-Flight
 
@@ -54,6 +54,7 @@ Suggested iterations: 20
 | 3 | GUIDELINES | 0 | 0 (1 blocked) | 0 | 0 | 4 files. communication.md + path-resolution.md @-referenced (clean). skill-invocation.md conditional (clean). context-aware-learnings.md unwired from CLAUDE.md — blocked as BM-1. |
 | 4 | TRIAGE | — | — | — | 12 groups, 38 targets | Diff-routed triage: 160+ files changed since 97a6278. 33 diff-routed + 5 stale rotation targets. 12 groups assembled for deep dive phase. |
 | 5 | DEEP_DIVE | 1 | 0 | 0 | 1 | Group 1 (java/new): 3 files, 8 patterns all clean. Fixed stale Related in protobuf-patterns.md. |
+| 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 2 (java/modified): 3 files, 25+ patterns. All clean — testing.md well-scoped, infosec-gotchas.md cross-refs valid, spring-boot-gotchas.md dense but cohesive. |
 
 ## Deep Dive Status
 
@@ -77,8 +78,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group | Targets | Status | Iter | Summary |
 |-------|---------|--------|------|---------|
 | Group 1 (java/new) | code-quality, concurrency, integration | complete | 5 | 1 HIGH (stale ref fix in protobuf-patterns.md), 8 patterns clean |
+| Group 2 (java/modified) | testing, infosec-gotchas, spring-boot-gotchas | complete | 6 | Clean — 25+ patterns all well-structured, no overlap |
 
 ## Notes for Next Iteration
+
+### Iter 6
+
+**Group 2 (java/modified) results:**
+- All 3 targets clean. testing.md (3 patterns), infosec-gotchas.md (7 bullets + 5 detailed), spring-boot-gotchas.md (20+ gotchas).
+- infosec-gotchas.md Related→api-design.md validated. Cross-Refs section consistent with Related header.
+- Spring Security 6 overlap between infosec-gotchas.md (scanner false positives) and integration.md (mechanics) confirmed as acceptable — different perspectives, adjudicated in Group 1.
+- spring-boot-gotchas.md is dense (54 lines) but all patterns are Spring Boot-specific. Financial/PostgreSQL patterns contextualized through Spring Boot lens.
+- No structural opportunities: no merge candidates (distinct domains), no split candidates (max 54 lines < 150 threshold).
+- Observation: spring-boot-gotchas.md has self-aware cross-references between its own patterns (e.g., Optional.orElse(null) explicitly acknowledges the .orElseThrow() rule). Good internal consistency.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| testing.md | duplicate assertions, TestNG, AfterClass, AfterMethod, BeforeMethod, test naming, lifecycle, resource leak, test method naming, behaviour-under-test |
+| infosec-gotchas.md | authentication, authorization, CORS, deserialization, Jackson, XXE, Spring Security, @PreAuthorize, private method helper, HMAC timing attack, CWE-208, MessageDigest.isEqual, SpEL, security scanner, false positive, financial data logging, PII |
+| spring-boot-gotchas.md | @Scheduled, ShedLock, CORS Customizer, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get null, ZoneId DST, properties quoting, MethodArgumentNotValidException, @ConfigurationProperties, @EnableConfigurationProperties, CGLIB, exception logging, stack trace, @Retryable RestClientException, @Data JPA, PostgreSQL transaction abort, @Transactional REQUIRES_NEW, financial fail-fast, @ExceptionHandler IllegalArgumentException, TransactionTemplate detached entities, ZoneOffset fixed-offset, log.debug WebSocket, LocalTime clock, Optional.orElse null, format string $n |
 
 ### Iter 5
 

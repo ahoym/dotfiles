@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 5 |
+| Iterations | 6 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 1 | 1 | 0 | 0 | 0 |
-| **Total** | **4** | **11** | **4** | **1** | **0** |
+| Deep Dive | 2 | 1 | 0 | 0 | 0 |
+| **Total** | **5** | **11** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -41,6 +41,7 @@
 | 3 | GUIDELINES | wire-to-CLAUDE.md (blocked) | context-aware-learnings.md | CLAUDE.md | MEDIUM |
 | 4 | TRIAGE | diff-routed-triage | 97a6278..HEAD (160+ files) | 12 groups, 38 targets | — |
 | 5 | DEEP_DIVE | stale-ref-fix | protobuf-patterns.md | java/integration.md | HIGH |
+| 6 | DEEP_DIVE | (clean) | java/testing, infosec-gotchas, spring-boot-gotchas | — | — |
 
 ## Blocked Items
 

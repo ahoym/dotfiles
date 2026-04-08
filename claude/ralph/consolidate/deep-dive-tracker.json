@@ -288,15 +288,15 @@
       "last_change_run": 0
     },
     "claude/learnings/java/infosec-gotchas.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/java/observability-gotchas.md": {
-      "last_deep_dive_run": 15,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/java/spring-boot-gotchas.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/postgresql-query-patterns.md": {
@@ -440,7 +440,7 @@
       "last_change_run": 16
     },
     "claude/learnings/java/testing.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/java/integration.md": {
