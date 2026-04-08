@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 8 |
+| Iterations | 9 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 4 | 9 | 0 | 0 | 0 |
-| **Total** | **7** | **19** | **4** | **1** | **0** |
+| Deep Dive | 5 | 12 | 0 | 0 | 0 |
+| **Total** | **8** | **22** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -47,6 +47,7 @@
 | 7 | DEEP_DIVE | index-update | cicd/CLAUDE.md | — | HIGH |
 | 8 | DEEP_DIVE | dedup-delete | learnings-content.md (2 sections) | learnings-organization.md, claude-md-advanced.md | HIGH |
 | 8 | DEEP_DIVE | dedup-delete | claude-md.md (3 sections) | claude-md-advanced.md | HIGH |
+| 9 | DEEP_DIVE | stale-ref-fix (x3) | polling-review-skills.md | Fixed 3 stale refs: claude-authoring-skills.md, skill-design.md→skill-references-and-loading.md, content-types.md→routing-table.md | HIGH |
 
 ## Blocked Items
 

@@ -213,15 +213,15 @@
     },
     "claude/learnings/claude-authoring/learnings-organization.md": {
       "last_deep_dive_run": 16,
-      "last_change_run": 0
+      "last_change_run": 16
     },
     "claude/learnings/claude-authoring/personas.md": {
-      "last_deep_dive_run": 13,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/polling-review-skills.md": {
-      "last_deep_dive_run": 13,
-      "last_change_run": 0
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
     },
     "claude/learnings/java/observability.md": {
       "last_deep_dive_run": 13,

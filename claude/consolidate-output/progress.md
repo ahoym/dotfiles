@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 8 |
+| SWEEP_COUNT | 9 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org) |
 
 ## Pre-Flight
 
@@ -57,6 +57,7 @@ Suggested iterations: 20
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 2 (java/modified): 3 files, 25+ patterns. All clean — testing.md well-scoped, infosec-gotchas.md cross-refs valid, spring-boot-gotchas.md dense but cohesive. |
 | 7 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 3 (cicd/): 3 targets + 1 context. Deleted gotchas.md — GitLab sections verbatim duplicate of gitlab.md, GitHub Actions folded into patterns.md. Net -1 file. gitlab.md (204 lines) cohesive, no split. gitlab-ci-patterns.md clean. |
 | 8 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 4 (claude-authoring/content): 3 targets + 2 context. Removed 2 verbatim dupes from learnings-content.md (cross-ref types → organization, maintenance cost → organization). Removed 3 verbatim dupes from claude-md.md (signpost, modular refactor, conflict resolution → all in claude-md-advanced.md). skill-design.md (209 lines, 26 sections) clean — density exemption. |
+| 9 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 5 (claude-authoring/org): 3 targets + 2 context. Fixed 3 stale refs in polling-review-skills.md (dead claude-authoring-skills.md ref, skill-design.md→skill-references-and-loading.md, content-types.md→routing-table.md). learnings-organization.md (164 lines, density exemption) and personas.md (146 lines) both clean. |
 
 ## Deep Dive Status
 
@@ -83,8 +84,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 2 (java/modified) | testing, infosec-gotchas, spring-boot-gotchas | complete | 6 | Clean — 25+ patterns all well-structured, no overlap |
 | Group 3 (cicd/) | patterns, gitlab-ci-patterns, gitlab | complete | 7 | 3 HIGHs: deleted gotchas.md (verbatim GitLab dupes of gitlab.md), folded GitHub Actions into patterns.md. Net -1 file. |
 | Group 4 (claude-authoring/content) | learnings-content, skill-design, claude-md | complete | 8 | 5 HIGHs: removed 5 verbatim duplicate sections (2 from learnings-content.md, 3 from claude-md.md). skill-design.md clean (density exemption). |
+| Group 5 (claude-authoring/org) | learnings-organization, personas, polling-review-skills | complete | 9 | 3 HIGHs: fixed 3 stale cross-refs in polling-review-skills.md. learnings-organization.md and personas.md clean. |
 
 ## Notes for Next Iteration
+
+### Iter 9
+
+**Group 5 (claude-authoring/org) results:**
+- 3 targets + 2 context files examined. Primary finding: stale cross-refs in polling-review-skills.md from pre-split file names and non-existent sections.
+- polling-review-skills.md: Fixed 3 stale refs. (1) Removed dead `claude-authoring-skills.md` § "Ownership-Based Mode Detection" reference at L109 — file doesn't exist (pre-split), section doesn't exist anywhere. (2) Fixed Cross-Ref from `skill-design.md` to `skill-references-and-loading.md` — "Inline Critical Conditions" is in the latter. Removed "Ownership-Based Mode Detection" claim. (3) Fixed `content-types.md` → `routing-table.md` (actual routing hub per cluster CLAUDE.md).
+- learnings-organization.md (164 lines, 15 sections): clean. Above 150-line split threshold but avg ~11 lines/section = density exemption. All patterns serve "learnings organization" search intent. Cross-Refs section correctly empty (intra-cluster file).
+- personas.md (146 lines, ~16 sections): clean. Under 150-line threshold. All patterns serve "persona design" search intent. Cross-Refs correctly empty.
+- Context files (skill-references-and-loading.md, skill-lifecycle.md): no issues detected. skill-references-and-loading.md confirmed as the home for "Inline Critical Conditions" (L54-68).
+- Pattern: polling-review-skills.md accumulated stale refs from two sources: (1) pre-split filenames that weren't updated during the claude-authoring cluster split, (2) cross-ref descriptions claiming sections exist in the wrong file or in no file at all. Both patterns are detectable via mechanical verification (glob target, grep section heading).
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| learnings-organization.md | cross-refs, cross-reference convention, hub-spoke, semantic vs discovery, directory clustering, file splitting, split threshold, search intent, sub-cluster nesting, depth cap, keyword gate, sniff gate, CLAUDE.md index, catch-all directory, intra-cluster drift, decomposing catch-all, methodology naming, batch duplicate detection, keyword quality |
+| personas.md | persona, judgment layer, recipe vs judgment, reviewer persona, shared learnings composition, gotchas proactive, companion file convention, extends inheritance, multi-parent extends, proactive cross-refs, knowledge-lens decomposition, domain hub, stack children, agent definition boundary, persona auto-detection, layered composition, cross-persona duplication, implementation-start matching |
+| polling-review-skills.md | polling, quick-exit, re-review detection, footnote pattern, SHA check, self-filter, compact summary, cron self-cancel, state check, cache-then-validate, stress-test, timestamp stall, session-scoped state, three-party discussion, devolution, operator invisible, GitHub review 422, force push, commit during analysis, watermark dual-channel, stale head_sha, terminal comment-only, batch discussion ID |
 
 ### Iter 8
 
