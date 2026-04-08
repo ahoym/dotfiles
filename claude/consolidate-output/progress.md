@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 9 |
+| SWEEP_COUNT | 10 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/) |
 
 ## Pre-Flight
 
@@ -58,6 +58,7 @@ Suggested iterations: 20
 | 7 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 3 (cicd/): 3 targets + 1 context. Deleted gotchas.md — GitLab sections verbatim duplicate of gitlab.md, GitHub Actions folded into patterns.md. Net -1 file. gitlab.md (204 lines) cohesive, no split. gitlab-ci-patterns.md clean. |
 | 8 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 4 (claude-authoring/content): 3 targets + 2 context. Removed 2 verbatim dupes from learnings-content.md (cross-ref types → organization, maintenance cost → organization). Removed 3 verbatim dupes from claude-md.md (signpost, modular refactor, conflict resolution → all in claude-md-advanced.md). skill-design.md (209 lines, 26 sections) clean — density exemption. |
 | 9 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 5 (claude-authoring/org): 3 targets + 2 context. Fixed 3 stale refs in polling-review-skills.md (dead claude-authoring-skills.md ref, skill-design.md→skill-references-and-loading.md, content-types.md→routing-table.md). learnings-organization.md (164 lines, density exemption) and personas.md (146 lines) both clean. |
+| 10 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 6 (multi-agent/): 3 targets + 3 context. Removed 4 intra-sub-cluster refs across all 3 targets (systematic sibling refs to director-patterns.md). Fixed H3→H2 in orchestration.md. orchestration.md (207 lines, 34 sections) density exemption. |
 
 ## Deep Dive Status
 
@@ -85,8 +86,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 3 (cicd/) | patterns, gitlab-ci-patterns, gitlab | complete | 7 | 3 HIGHs: deleted gotchas.md (verbatim GitLab dupes of gitlab.md), folded GitHub Actions into patterns.md. Net -1 file. |
 | Group 4 (claude-authoring/content) | learnings-content, skill-design, claude-md | complete | 8 | 5 HIGHs: removed 5 verbatim duplicate sections (2 from learnings-content.md, 3 from claude-md.md). skill-design.md clean (density exemption). |
 | Group 5 (claude-authoring/org) | learnings-organization, personas, polling-review-skills | complete | 9 | 3 HIGHs: fixed 3 stale cross-refs in polling-review-skills.md. learnings-organization.md and personas.md clean. |
+| Group 6 (multi-agent/) | director-patterns, orchestration, headless-nesting | complete | 10 | 5 HIGHs: removed 4 intra-sub-cluster refs (all 3 targets had sibling refs), fixed H3→H2 inconsistency in orchestration.md. orchestration.md 207 lines density exemption. |
 
 ## Notes for Next Iteration
+
+### Iter 10
+
+**Group 6 (multi-agent/) results:**
+- 3 targets + 3 context files examined. Primary finding: all 3 target files had intra-sub-cluster cross-references to siblings — the sub-cluster CLAUDE.md handles sibling discovery, so these violate the cross-ref convention.
+- director-patterns.md (118 lines, 24 sections): Removed Related ref to orchestration.md (intra-sub-cluster). No other issues — dense but all patterns serve "director layer" search intent.
+- orchestration.md (207 lines, 34 sections): Removed intra-sub-cluster Cross-Ref to director-patterns.md. Fixed lone H3 heading ("Learnings search: topical match ≠ review relevance") → H2 for consistency. Above 150-line split threshold but ~6 lines/section avg = density exemption. Retained cross-cluster ref to skill-design.md (valid).
+- headless-nesting.md (40 lines, 5 sections): Removed Related ref and Cross-Ref entry pointing to director-patterns.md (both intra-sub-cluster). Small, focused, no issues.
+- Context files (coordination.md 155 lines, quality.md 64 lines, autonomous-patterns.md 57 lines): all clean. No overlap with targets, no structural issues.
+- Pattern: intra-sub-cluster refs in multi-agent/ were systematic — all 3 targets referenced director-patterns.md. Sub-cluster was established but sibling refs weren't cleaned up at creation time.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| director-patterns.md | director, supervisor, three-channel, state.md vs status.md, watermark, self-comment guard, dual-signal, rate-limit sentinel, manifest-updates JSONL, inactivity timeout, sweep prereqs, platform-aware, worktree push sync, directives timing, converged pre-filter, discovery feedback, parallel session competition, skill permission, stream-json verbose |
+| orchestration.md | synthesis invocation, agent output files, file domain grouping, codebase comparison, port-migrate, distill before discussing, three-phase refactoring, project adaptation, context compaction, work distribution balance, write-one-validate, context budget, inline over agent, session-resumable, partial batch, explore agent limitations, file splits, parallel skill invocation, generated script UX, shared runner template, pre-flight state check, cluster analysis, writer complete files, batch overwrite resync, spot-check yield, private writer skip, combine batches, writer scale, staging bypass, topical match review relevance, permission pre-flight |
+| headless-nesting.md | nested claude -p, multi-tier hierarchy, arbitrary nesting depth, allowedTools mandatory, settings.local.json asymmetry, prompt construction, file-based coordination, model tiering, Sonnet orchestration, Opus domain analysis |
 
 ### Iter 9
 

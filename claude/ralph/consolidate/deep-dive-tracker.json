@@ -16,7 +16,23 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-code/multi-agent/autonomous-patterns.md": {
-      "last_deep_dive_run": 15,
+      "last_deep_dive_run": 16,
+      "last_change_run": 0
+    },
+    "claude/learnings/claude-code/multi-agent/director-patterns.md": {
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
+    },
+    "claude/learnings/claude-code/multi-agent/orchestration.md": {
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
+    },
+    "claude/learnings/claude-code/multi-agent/headless-nesting.md": {
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
+    },
+    "claude/learnings/claude-code/multi-agent/quality.md": {
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/frontend/nextjs.md": {
@@ -420,7 +436,7 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-code/multi-agent/coordination.md": {
-      "last_deep_dive_run": 15,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/skill-design.md": {
