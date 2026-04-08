@@ -1,5 +1,5 @@
 Fundamental practices that apply across languages and frameworks. These are the filters that should run on every line of code — during implementation, not just refactoring.
-- **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming
+- **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming, placeholder, UUID, sandbox, documentation security
 - **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/refactoring-patterns.md
 
 ---
@@ -107,6 +107,10 @@ The primary use case of a class should own the simplest method name (e.g., `run(
 ## Consolidation: each piece of knowledge in exactly one location
 
 When the same content appears in guidelines, code comments, and documentation, consolidate to the most natural home. The single-source-of-truth principle applies to instructions and reference material, not just code.
+
+## Replace real sandbox/environment UUIDs in committed documentation with placeholders
+
+Real sandbox UUIDs (vault IDs, wallet IDs, organization IDs) committed to source control could overlap with staging/prod values and create confusion or security exposure. Treat sandbox identifiers as potentially sensitive — use clearly fictional placeholders like `<vault-id>` or `00000000-0000-0000-0000-000000000001` in committed docs.
 
 ## Cross-Refs
 

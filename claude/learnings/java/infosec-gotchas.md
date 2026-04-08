@@ -1,5 +1,5 @@
 Security tripwires — check these before any code review or implementation.
-- **Keywords:** authentication, authorization, CORS, deserialization, Jackson, XXE, input validation, secrets, stack traces, crypto, Spring Security, @PreAuthorize, method security, helper visibility, private method, HMAC, timing attack, CWE-208, SpEL, security scanner, false positive, logging, PII, financial data
+- **Keywords:** authentication, authorization, CORS, deserialization, Jackson, XXE, input validation, secrets, stack traces, crypto, Spring Security, @PreAuthorize, method security, helper visibility, private method, HMAC, timing attack, CWE-208, SpEL, security scanner, false positive, logging, PII, financial data, SSL, TLS, certificate, trust store, SSLContext, KeyStore, cert pinning, test security
 - **Related:** ~/.claude/learnings/api-design.md
 
 ---
@@ -29,6 +29,10 @@ Security bots can flag false CWE violations when they analyze code in isolation 
 
 ### Strip sensitive financial data from log statements
 Logging full balance or account objects in error messages exposes sensitive financial data to log aggregators, dashboards, and alerting systems. Don't include raw financial objects in structured logging arguments (e.g., `kv("balance", balanceObj)`). Log only identifiers needed for debugging (account ID, balance type) and omit amounts.
+
+### Replace trust-all-certs with cert-pinned SSLContext in tests
+
+Even in test code, `TrustAllCerts` / no-op `TrustManager` implementations mask certificate rotation and validation issues that would surface in production. Load the actual test certificate into a `KeyStore`, build a proper `SSLContext` from it, and use that in test HTTP clients. This catches cert expiry, chain issues, and hostname mismatches during the test cycle rather than after deployment.
 
 ## Cross-Refs
 

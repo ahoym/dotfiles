@@ -1,5 +1,5 @@
 Reusable CI pipeline structures and platform-specific patterns: composite actions, lint-first dependency chains, Docker build-push colocation, GitHub Actions configuration.
-- **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation, GitHub Actions, paths-ignore, continue-on-error, job timeout, gh run view
+- **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation, GitHub Actions, paths-ignore, continue-on-error, job timeout, gh run view, docker login, password-stdin, container registry, credentials
 - **Related:** ~/.claude/learnings/frontend/typescript-ci-gotchas.md
 
 ---
@@ -37,6 +37,10 @@ When CI changes can't be tested locally, push intermediate commits to validate t
 - Minimal permissions: `contents: read`, `pull-requests: write`
 - Set job timeouts: 5 min for fast jobs, 15 min for E2E
 - Diagnosing failures: `gh run view <RUN_ID> --job <JOB_ID> --log-failed` — pipe through `tail -80`
+
+## Use `docker login --password-stdin` instead of `-p` flag
+
+Passing passwords via `docker login -p` exposes credentials in process listings (`ps aux`). Use `echo "$SECRET" | docker login --password-stdin` instead. This applies to any CI/CD pipeline or script that authenticates to a container registry.
 
 ## Cross-Refs
 

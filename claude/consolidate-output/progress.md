@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 14 |
+| SWEEP_COUNT | 15 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large), Group 10 (unclustered/thin) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large), Group 10 (unclustered/thin), Group 11 (unclustered/security) |
 
 ## Pre-Flight
 
@@ -63,6 +63,7 @@ Suggested iterations: 20
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 8 (claude-code/sessions): 3 targets + 2 context. All clean — sweep-sessions.md (98 lines), ralph-curation.md (151 lines, density exemption), ralph-loop.md (122 lines). No duplicates, stale refs, or structural issues. |
 | 13 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 9 (unclustered/large): 3 targets + 2 context. Folded 2 thin sections in bash-patterns.md (# headings→gh api section, set -e suppression→set -e traps). Fixed structural issue in review-conventions.md (2 sections after Cross-Refs). git-patterns.md clean (217 lines, density exemption). |
 | 14 | DEEP_DIVE | 3 | 1 | 0 | 4 | Group 10 (unclustered/thin): 3 targets + 2 context. All 3 thin unclustered files resolved. database-patterns.md (2 PostgreSQL patterns) folded into postgresql-query-patterns.md. framework-patterns.md split: AWS SDK v2→aws/patterns.md, Spring @Profile→java/spring-boot-gotchas.md. architecture-patterns.md (URL encoding/signing) folded into api-design.md (MEDIUM — search intent adjacency with URI sanitization). Net -3 files. |
+| 15 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 11 (unclustered/security): 3 targets + 2 context. All 3 thin unclustered files resolved. docker-security.md→cicd/patterns.md, security.md→java/infosec-gotchas.md, documentation-hygiene.md→code-quality-instincts.md. Net -3 files. |
 
 ## Deep Dive Status
 
@@ -95,8 +96,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 8 (claude-code/sessions) | sweep-sessions, ralph-curation, ralph-loop | complete | 12 | Clean — all 3 targets well-structured, distinct search intents, no overlap between worktree path patterns (sweep=prompt paths, ralph=tool paths). ralph-curation.md 151 lines density exemption (25 sections). |
 | Group 9 (unclustered/large) | bash-patterns, git-patterns, review-conventions | complete | 13 | 3 HIGHs: folded 2 thin sections in bash-patterns.md, fixed structural issue in review-conventions.md (sections after Cross-Refs). git-patterns.md clean (density exemption). All cross-refs valid. |
 | Group 10 (unclustered/thin) | architecture-patterns, database-patterns, framework-patterns | complete | 14 | 3 HIGHs + 1 MEDIUM: all 3 thin unclustered files folded into cluster targets and deleted. database-patterns→postgresql-query-patterns.md, framework-patterns split→aws/patterns.md+java/spring-boot-gotchas.md, architecture-patterns→api-design.md. Net -3 files. |
+| Group 11 (unclustered/security) | docker-security, security, documentation-hygiene | complete | 15 | 3 HIGHs: all 3 thin unclustered files folded and deleted. docker-security→cicd/patterns.md, security→java/infosec-gotchas.md, documentation-hygiene→code-quality-instincts.md. Net -3 files. |
 
 ## Notes for Next Iteration
+
+### Iter 15
+
+**Group 11 (unclustered/security) results:**
+- 3 targets + 2 context files examined. All 3 targets folded and deleted — 3 HIGHs applied.
+- docker-security.md (10 lines, 1 pattern: `docker login --password-stdin`): CI/CD credential handling folded into cicd/patterns.md before Cross-Refs. Keywords updated to include docker login, password-stdin, container registry, credentials.
+- security.md (10 lines, 1 pattern: cert-pinned SSLContext): Java-specific pattern (KeyStore, SSLContext, TrustManager) folded into java/infosec-gotchas.md before Cross-Refs. Keywords updated with SSL/TLS terms. security.md had Related→docker-security.md (both files now deleted — cross-ref moot).
+- documentation-hygiene.md (13 lines, 1 pattern: UUID placeholders in docs): Folded into code-quality-instincts.md before Cross-Refs, adjacent to existing "Don't commit hardcoded test data" section (L71-73) which covers the same principle for code paths. Keywords updated.
+- Context files (process.md 10 lines, messaging-patterns.md 10 lines): Both thin unclustered (1 pattern each) but not targets for this group. No overlap with targets.
+- **Note**: code-quality-instincts.md has 3 sections after ## Cross-Refs (L116-123: "Use reported timestamps", "Explicit denomination fields", "Remove unnecessary abstraction layers") — same structural issue fixed in review-conventions.md (iter 13). Not fixed here because code-quality-instincts.md is a fold target, not a curation target.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| (files deleted — no enrichment needed) | — |
+
+**Group 12 (stale rotation) is next:** targets=[claude-code/web-session-sync.md, testing/playwright-patterns.md, aws/messaging.md, financial/applications.md, testing/newman-postman.md], context=[]. Last group — after processing, run housekeeping (keyword index rebuild, tracker update, set completion).
 
 ### Iter 14
 

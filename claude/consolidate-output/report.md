@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 14 |
+| Iterations | 15 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 10 | 30 | 1 | 0 | 0 |
-| **Total** | **13** | **37** | **5** | **1** | **0** |
+| Deep Dive | 11 | 33 | 1 | 0 | 0 |
+| **Total** | **14** | **40** | **5** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -57,6 +57,7 @@
 | 12 | DEEP_DIVE | (clean) | sweep-sessions.md, ralph-curation.md, ralph-loop.md | — | — |
 | 13 | DEEP_DIVE | fold-section (x2), structural-fix | bash-patterns.md (fold 2 thin sections), review-conventions.md (move post-Cross-Refs sections) | 3 HIGHs applied | git-patterns.md clean (density exemption) |
 | 14 | DEEP_DIVE | fold-and-delete (x3), fold-and-delete (x1 MEDIUM) | database-patterns.md→postgresql-query-patterns.md, framework-patterns.md→aws/patterns.md+java/spring-boot-gotchas.md, architecture-patterns.md→api-design.md | 3 HIGHs + 1 MEDIUM applied | Net -3 files. All thin unclustered fold candidates resolved. |
+| 15 | DEEP_DIVE | fold-and-delete (x3) | docker-security.md→cicd/patterns.md, security.md→java/infosec-gotchas.md, documentation-hygiene.md→code-quality-instincts.md | 3 HIGHs applied | Net -3 files. All thin unclustered security/hygiene files resolved. |
 
 ## Blocked Items
 
@@ -70,7 +71,7 @@ See `review.md` for details.
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Learnings files | 110 | 93 |
+| Learnings files | 110 | 90 |
 | Skills | 36 | — |
 | Skill references | 26 | 25 |
 | Guidelines files | 4 | 4 |
