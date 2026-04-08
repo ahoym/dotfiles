@@ -7,8 +7,8 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 3 |
-| Status | IN_PROGRESS |
+| Iterations | 4 |
+| Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
 
@@ -38,6 +38,7 @@
 | 1 | LEARNINGS | move | java-testing-patterns.md | java/testing.md | MEDIUM |
 | 2 | SKILLS | delete | skill-references/sweep-status-design.md | — | HIGH |
 | 3 | GUIDELINES | wire-to-CLAUDE.md (blocked) | context-aware-learnings.md | CLAUDE.md | MEDIUM |
+| 4 | TRIAGE | diff-routed-triage | 97a6278..HEAD (160+ files) | 12 groups, 38 targets | — |
 
 ## Blocked Items
 
