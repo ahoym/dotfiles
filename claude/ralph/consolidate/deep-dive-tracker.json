@@ -432,11 +432,11 @@
       "last_change_run": 16
     },
     "claude/learnings/java/code-quality.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/java/concurrency.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/java/testing.md": {
@@ -444,7 +444,7 @@
       "last_change_run": 16
     },
     "claude/learnings/java/integration.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/cicd/gitlab-ci-patterns.md": {

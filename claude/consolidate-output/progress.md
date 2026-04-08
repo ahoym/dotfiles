@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 4 |
+| SWEEP_COUNT | 5 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | — |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new) |
 
 ## Pre-Flight
 
@@ -53,6 +53,7 @@ Suggested iterations: 20
 | 2 | SKILLS | 1 | 0 | 0 | 1 | Deleted orphaned draft skill-reference sweep-status-design.md (zero consumers). 36 skills, 25 remaining refs, 19 personas all healthy. |
 | 3 | GUIDELINES | 0 | 0 (1 blocked) | 0 | 0 | 4 files. communication.md + path-resolution.md @-referenced (clean). skill-invocation.md conditional (clean). context-aware-learnings.md unwired from CLAUDE.md — blocked as BM-1. |
 | 4 | TRIAGE | — | — | — | 12 groups, 38 targets | Diff-routed triage: 160+ files changed since 97a6278. 33 diff-routed + 5 stale rotation targets. 12 groups assembled for deep dive phase. |
+| 5 | DEEP_DIVE | 1 | 0 | 0 | 1 | Group 1 (java/new): 3 files, 8 patterns all clean. Fixed stale Related in protobuf-patterns.md. |
 
 ## Deep Dive Status
 
@@ -75,8 +76,25 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 
 | Group | Targets | Status | Iter | Summary |
 |-------|---------|--------|------|---------|
+| Group 1 (java/new) | code-quality, concurrency, integration | complete | 5 | 1 HIGH (stale ref fix in protobuf-patterns.md), 8 patterns clean |
 
 ## Notes for Next Iteration
+
+### Iter 5
+
+**Group 1 (java/new) results:**
+- All 3 target files well-structured from sweep 1 merges. 8 patterns, all standalone references, no overlap issues.
+- Fixed stale Related in protobuf-patterns.md: `java-integration-patterns.md` → `java/integration.md` (pre-cluster flat name survived sweep 1).
+- Spring Security 6 interceptor concept appears in both integration.md (mechanics) and infosec-gotchas.md (scanner false positive). Different perspectives, same cluster — no cross-ref needed.
+- Observation: code-quality-instincts.md has 3 patterns appended after its Cross-Refs section (lines 116-123) — structurally misplaced, and 2 are domain-specific (Java timestamps, financial denomination). Not a target in this group, noted for future deep dive.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| code-quality.md | fully-qualified imports, type prefix, TODO cleanup, dead code removal, method naming, refactor naming, Objects.equals, null-safe equality, SonarQube, boxing overhead |
+| concurrency.md | ConcurrentHashMap, per-entity sync, polling throttle, sync interval, timestamp tracking, thread safety, HashSet race condition, TOCTOU, check-and-add, computeIfAbsent |
+| integration.md | gRPC, proto builder, NullPointerException, null string field, Protobuf setter, Spring Security 6, EnableMethodSecurity, AuthorizationManager, interceptor stacking, PreAuthorize, AOP chain |
 
 ### Iter 4
 
