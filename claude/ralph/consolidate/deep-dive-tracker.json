@@ -40,7 +40,7 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-code/web-session-sync.md": {
-      "last_deep_dive_run": 8,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/commands/set-persona/typescript-devops.md": {
@@ -64,8 +64,8 @@
       "last_change_run": 0
     },
     "claude/learnings/testing/playwright-patterns.md": {
-      "last_deep_dive_run": 9,
-      "last_change_run": 0
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
     },
     "claude/learnings/refactoring-patterns.md": {
       "last_deep_dive_run": 9,
@@ -160,7 +160,7 @@
       "last_change_run": 0
     },
     "claude/learnings/financial/applications.md": {
-      "last_deep_dive_run": 11,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/aws/patterns.md": {
@@ -168,7 +168,7 @@
       "last_change_run": 16
     },
     "claude/learnings/aws/messaging.md": {
-      "last_deep_dive_run": 10,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/commands/extract-request-learnings/SKILL.md": {
@@ -208,7 +208,7 @@
       "last_change_run": 0
     },
     "claude/learnings/testing/newman-postman.md": {
-      "last_deep_dive_run": 12,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/local-dev-seeding.md": {
@@ -476,5 +476,5 @@
       "last_change_run": 16
     }
   },
-  "last_consolidation_commit": "97a6278"
+  "last_consolidation_commit": "cd30e35"
 }

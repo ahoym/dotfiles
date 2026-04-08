@@ -7,8 +7,8 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 15 |
-| Status | IN_PROGRESS (deep dive phase) |
+| Iterations | 16 |
+| Status | COMPLETE |
 
 ## Summary
 
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 11 | 33 | 1 | 0 | 0 |
-| **Total** | **14** | **40** | **5** | **1** | **0** |
+| Deep Dive | 12 | 34 | 1 | 0 | 0 |
+| **Total** | **15** | **44** | **5** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -58,6 +58,7 @@
 | 13 | DEEP_DIVE | fold-section (x2), structural-fix | bash-patterns.md (fold 2 thin sections), review-conventions.md (move post-Cross-Refs sections) | 3 HIGHs applied | git-patterns.md clean (density exemption) |
 | 14 | DEEP_DIVE | fold-and-delete (x3), fold-and-delete (x1 MEDIUM) | database-patterns.md→postgresql-query-patterns.md, framework-patterns.md→aws/patterns.md+java/spring-boot-gotchas.md, architecture-patterns.md→api-design.md | 3 HIGHs + 1 MEDIUM applied | Net -3 files. All thin unclustered fold candidates resolved. |
 | 15 | DEEP_DIVE | fold-and-delete (x3) | docker-security.md→cicd/patterns.md, security.md→java/infosec-gotchas.md, documentation-hygiene.md→code-quality-instincts.md | 3 HIGHs applied | Net -3 files. All thin unclustered security/hygiene files resolved. |
+| 16 | DEEP_DIVE + HOUSEKEEPING | stale-ref-fix, index-cleanup, tracker-update | playwright-patterns.md (stale testing-patterns.md ref), .keyword-index.json (gotchas.md stale entries) | 1 HIGH applied + housekeeping | Group 12 stale rotation: 5 targets, 4 clean, 1 stale ref fix. Housekeeping: keyword index partial cleanup, tracker anchored. |
 
 ## Blocked Items
 
@@ -72,7 +73,7 @@ See `review.md` for details.
 | Metric | Before | After |
 |--------|--------|-------|
 | Learnings files | 110 | 90 |
-| Skills | 36 | — |
+| Skills | 36 | 36 |
 | Skill references | 26 | 25 |
 | Guidelines files | 4 | 4 |
 | Persona files | 19 | 19 |

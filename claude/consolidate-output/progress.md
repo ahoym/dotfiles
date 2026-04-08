@@ -1,14 +1,16 @@
+WOOT_COMPLETE_WOOT
+
 # Consolidation Progress
 
 ## State
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 15 |
+| SWEEP_COUNT | 16 |
 | CONTENT_TYPE | (all broad sweeps complete) |
-| PHASE | DEEP_DIVE |
-| DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large), Group 10 (unclustered/thin), Group 11 (unclustered/security) |
+| PHASE | COMPLETE |
+| DEEP_DIVE_GROUPS | (all groups processed) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large), Group 10 (unclustered/thin), Group 11 (unclustered/security), Group 12 (stale rotation) |
 
 ## Pre-Flight
 
@@ -64,6 +66,7 @@ Suggested iterations: 20
 | 13 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 9 (unclustered/large): 3 targets + 2 context. Folded 2 thin sections in bash-patterns.md (# headings→gh api section, set -e suppression→set -e traps). Fixed structural issue in review-conventions.md (2 sections after Cross-Refs). git-patterns.md clean (217 lines, density exemption). |
 | 14 | DEEP_DIVE | 3 | 1 | 0 | 4 | Group 10 (unclustered/thin): 3 targets + 2 context. All 3 thin unclustered files resolved. database-patterns.md (2 PostgreSQL patterns) folded into postgresql-query-patterns.md. framework-patterns.md split: AWS SDK v2→aws/patterns.md, Spring @Profile→java/spring-boot-gotchas.md. architecture-patterns.md (URL encoding/signing) folded into api-design.md (MEDIUM — search intent adjacency with URI sanitization). Net -3 files. |
 | 15 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 11 (unclustered/security): 3 targets + 2 context. All 3 thin unclustered files resolved. docker-security.md→cicd/patterns.md, security.md→java/infosec-gotchas.md, documentation-hygiene.md→code-quality-instincts.md. Net -3 files. |
+| 16 | DEEP_DIVE + HOUSEKEEPING | 1 | 0 | 0 | 1 + housekeeping | Group 12 (stale rotation): 5 targets, no context. 1 HIGH (stale testing-patterns.md ref in playwright-patterns.md). 4 clean (web-session-sync.md, messaging.md, applications.md, newman-postman.md). Housekeeping: cleaned gotchas.md from keyword index, updated tracker anchor to cd30e35. |
 
 ## Deep Dive Status
 
@@ -97,8 +100,35 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 9 (unclustered/large) | bash-patterns, git-patterns, review-conventions | complete | 13 | 3 HIGHs: folded 2 thin sections in bash-patterns.md, fixed structural issue in review-conventions.md (sections after Cross-Refs). git-patterns.md clean (density exemption). All cross-refs valid. |
 | Group 10 (unclustered/thin) | architecture-patterns, database-patterns, framework-patterns | complete | 14 | 3 HIGHs + 1 MEDIUM: all 3 thin unclustered files folded into cluster targets and deleted. database-patterns→postgresql-query-patterns.md, framework-patterns split→aws/patterns.md+java/spring-boot-gotchas.md, architecture-patterns→api-design.md. Net -3 files. |
 | Group 11 (unclustered/security) | docker-security, security, documentation-hygiene | complete | 15 | 3 HIGHs: all 3 thin unclustered files folded and deleted. docker-security→cicd/patterns.md, security→java/infosec-gotchas.md, documentation-hygiene→code-quality-instincts.md. Net -3 files. |
+| Group 12 (stale rotation) | web-session-sync, playwright-patterns, messaging, applications, newman-postman | complete | 16 | 1 HIGH: fixed stale testing-patterns.md ref in playwright-patterns.md. 4 targets clean. Housekeeping: keyword index cleanup, tracker anchor update. |
 
 ## Notes for Next Iteration
+
+### Iter 16
+
+**Group 12 (stale rotation) results:**
+- 5 targets, no context files. 1 HIGH applied, 4 clean.
+- playwright-patterns.md (233 lines, 17 sections): Fixed stale cross-ref — `~/.claude/learnings/testing-patterns.md` → `~/.claude/learnings/testing/testing-patterns.md` in both Related header (L3) and Cross-Refs (L231). File moved into testing/ cluster but refs weren't updated. 233 lines with 17 sections (~14 lines/section) = density exemption. All patterns serve "Playwright E2E testing" search intent.
+- web-session-sync.md (76 lines, ~10 sections): Clean. Cross-refs to cross-repo-sync.md and skill-platform-portability.md both valid. Well-structured.
+- aws/messaging.md (90 lines, ~9 sections): Clean. SQS/SNS/EventBridge patterns, all cohesive. Cross-ref to resilience-patterns.md valid.
+- financial/applications.md (56 lines, ~10 sections): Clean. Monetary calculation safety patterns. Cross-ref to resilience-patterns.md valid.
+- testing/newman-postman.md (82 lines, ~5 sections): Clean. Cross-ref to local-dev-seeding.md valid.
+
+**Housekeeping:**
+- Cleaned .keyword-index.json: removed cicd/gotchas.md (deleted iter 7) from file_sources and 4 keyword entries (cancel-in-progress, github action, gitlab ci, paths-ignore). Marked last_rebuild_commit as cd30e35_partial — full mechanical rebuild not performed (would require reading all 90+ files).
+- Updated tracker: last_deep_dive_run = 16 for all 5 Group 12 targets. last_consolidation_commit → cd30e35. last_change_run = 16 for playwright-patterns.md (modified this iter).
+- Note: code-quality-instincts.md still has 3 sections after Cross-Refs (from iter 5 observation, reconfirmed iter 15). Not addressed — would need its own curation pass.
+- Note: keyword index still needs a full mechanical rebuild. Partial cleanup removed known stale entries but files created/deleted during this run may have inconsistencies. Recommend rebuilding at start of next consolidation run.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| web-session-sync.md | web session, sync-web-session, web-skills, guard-commands, web-create-pr, force-with-lease, pnpm typecheck, context window, branch naming, claude/ prefix, sandboxed build, storageState |
+| playwright-patterns.md | Playwright, BrowserContext, serial tests, localStorage, storageState, getByRole, aria-label, strict mode, selectOption, filechooser, locator scoping, page.once, exact true, dialog handler, textContent concatenation, .or() terminal state, .first() dynamic, modal scoping, transient banner, .filter ancestor, option visibility |
+| aws/messaging.md | SQS, SNS, EventBridge, FIFO, deduplication, visibility timeout, dead letter queue, DLQ, idempotent consumer, backpressure, Spring Cloud AWS, SqsListener, correlation ID, at-least-once, long polling, message group, raw message delivery, filter policy |
+| financial/applications.md | BigDecimal, DECIMAL precision, fee calculation, idempotency, FeeMode, division by zero, null safety, currency enum, vendor separation, off-by-one, settlement cutoff, clientReference, two-layer idempotency, command-query separation, stream reduction NPE |
+| testing/newman-postman.md | Newman, Postman, skipRequest, pm.execution, pm.sendRequest, export-environment, idempotent seeding, JSON merge, collection rebase, env-var, conditional assertion, orphan tenant, manifest bridge |
 
 ### Iter 15
 
