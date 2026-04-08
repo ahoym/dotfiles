@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 7 |
+| SWEEP_COUNT | 8 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content) |
 
 ## Pre-Flight
 
@@ -56,6 +56,7 @@ Suggested iterations: 20
 | 5 | DEEP_DIVE | 1 | 0 | 0 | 1 | Group 1 (java/new): 3 files, 8 patterns all clean. Fixed stale Related in protobuf-patterns.md. |
 | 6 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 2 (java/modified): 3 files, 25+ patterns. All clean — testing.md well-scoped, infosec-gotchas.md cross-refs valid, spring-boot-gotchas.md dense but cohesive. |
 | 7 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 3 (cicd/): 3 targets + 1 context. Deleted gotchas.md — GitLab sections verbatim duplicate of gitlab.md, GitHub Actions folded into patterns.md. Net -1 file. gitlab.md (204 lines) cohesive, no split. gitlab-ci-patterns.md clean. |
+| 8 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 4 (claude-authoring/content): 3 targets + 2 context. Removed 2 verbatim dupes from learnings-content.md (cross-ref types → organization, maintenance cost → organization). Removed 3 verbatim dupes from claude-md.md (signpost, modular refactor, conflict resolution → all in claude-md-advanced.md). skill-design.md (209 lines, 26 sections) clean — density exemption. |
 
 ## Deep Dive Status
 
@@ -81,8 +82,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 1 (java/new) | code-quality, concurrency, integration | complete | 5 | 1 HIGH (stale ref fix in protobuf-patterns.md), 8 patterns clean |
 | Group 2 (java/modified) | testing, infosec-gotchas, spring-boot-gotchas | complete | 6 | Clean — 25+ patterns all well-structured, no overlap |
 | Group 3 (cicd/) | patterns, gitlab-ci-patterns, gitlab | complete | 7 | 3 HIGHs: deleted gotchas.md (verbatim GitLab dupes of gitlab.md), folded GitHub Actions into patterns.md. Net -1 file. |
+| Group 4 (claude-authoring/content) | learnings-content, skill-design, claude-md | complete | 8 | 5 HIGHs: removed 5 verbatim duplicate sections (2 from learnings-content.md, 3 from claude-md.md). skill-design.md clean (density exemption). |
 
 ## Notes for Next Iteration
+
+### Iter 8
+
+**Group 4 (claude-authoring/content) results:**
+- 3 targets + 2 context files examined. Primary finding: verbatim duplicate sections from prior file splits that weren't cleaned up.
+- learnings-content.md: removed "Cross-Reference Types: Semantic vs Discovery" (verbatim in learnings-organization.md, better fit there as cross-ref convention) and orphaned "Maintenance cost" line (belongs to CLAUDE.md index pattern in learnings-organization.md, not standardized header format). Now ~148 lines.
+- claude-md.md: removed 3 sections already in claude-md-advanced.md (Signpost Pattern, Refactor Monolithic, Document Conflict Resolution). Cluster CLAUDE.md routing table already directs these to the advanced file. Now ~139 lines.
+- skill-design.md (209 lines, 26 sections): clean. Above 150-line split threshold but ~8 lines/section average = density exemption. All patterns serve "skill design" search intent. Cross-ref to multi-agent/orchestration.md valid. Routing signposts to skill-platform-portability.md and polling-review-skills.md correctly siphon off adjacent topics.
+- Context files (guidelines.md, learnings-organization.md): both clean, no issues detected.
+- Pattern: claude-authoring cluster had verbatim duplicates from file splits (claude-md.md → claude-md-advanced.md split, learnings.md → learnings-content.md + learnings-organization.md split). Future splits should grep for section headings across both halves to catch stranded copies.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| learnings-content.md | genericize, project-specific, scope classification, language-awareness, persona-learning boundary, provenance, header format, sniff window, standardized header, file naming drift, domain naming, overlap detection, deep coverage analysis, team learnings, batch import sanitization, CLI references, self-contained descriptions, implementation patterns, operationalization pruning |
+| skill-design.md | skill design, compose, AskUserQuestion 4-option max, skill responsibility boundaries, stateful mode, file existence, gap vs inconsistency, exploration report-only, portable, bash commands, HEREDOC, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, director playbook, headless agent, learnings search, security audit, skill improvement, half-steps, file operations, deduplicate shared references, merging diverged, security-critical prominence |
+| claude-md.md | CLAUDE.md, @ reference, eager load, conditional reference, subdirectory criteria, state machines, navigational hub, relationships, pointers, single source of truth, symlink, README, state conclusions, index files, breadcrumb pattern, consumer agents, symlinked repos |
 
 ### Iter 7
 

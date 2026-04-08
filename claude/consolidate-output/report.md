@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 7 |
+| Iterations | 8 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 3 | 4 | 0 | 0 | 0 |
-| **Total** | **6** | **14** | **4** | **1** | **0** |
+| Deep Dive | 4 | 9 | 0 | 0 | 0 |
+| **Total** | **7** | **19** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -45,6 +45,8 @@
 | 7 | DEEP_DIVE | fold-and-delete | cicd/gotchas.md (GitLab sections) | cicd/gitlab.md (already present) | HIGH |
 | 7 | DEEP_DIVE | fold-and-delete | cicd/gotchas.md (GitHub Actions) | cicd/patterns.md | HIGH |
 | 7 | DEEP_DIVE | index-update | cicd/CLAUDE.md | — | HIGH |
+| 8 | DEEP_DIVE | dedup-delete | learnings-content.md (2 sections) | learnings-organization.md, claude-md-advanced.md | HIGH |
+| 8 | DEEP_DIVE | dedup-delete | claude-md.md (3 sections) | claude-md-advanced.md | HIGH |
 
 ## Blocked Items
 

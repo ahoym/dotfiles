@@ -96,7 +96,7 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/guidelines.md": {
-      "last_deep_dive_run": 8,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/commands/learnings/curate/curation-insights.md": {
@@ -204,15 +204,15 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/claude-md.md": {
-      "last_deep_dive_run": 13,
-      "last_change_run": 0
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
     },
     "claude/learnings/claude-authoring/learnings-content.md": {
-      "last_deep_dive_run": 15,
-      "last_change_run": 0
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
     },
     "claude/learnings/claude-authoring/learnings-organization.md": {
-      "last_deep_dive_run": 15,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/personas.md": {
@@ -424,7 +424,7 @@
       "last_change_run": 0
     },
     "claude/learnings/claude-authoring/skill-design.md": {
-      "last_deep_dive_run": 0,
+      "last_deep_dive_run": 16,
       "last_change_run": 16
     },
     "claude/learnings/java/code-quality.md": {
