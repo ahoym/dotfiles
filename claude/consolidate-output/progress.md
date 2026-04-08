@@ -4,8 +4,8 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 2 |
-| CONTENT_TYPE | GUIDELINES |
+| SWEEP_COUNT | 3 |
+| CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | BROAD_SWEEP |
 | DEEP_DIVE_CANDIDATES | — |
 | DEEP_DIVE_COMPLETED | — |
@@ -40,10 +40,10 @@ Suggested iterations: 20
 - **MEDIUMs blocked**: 0
 
 ### GUIDELINES
-- **Sweeps**: 0
+- **Sweeps**: 1
 - **HIGHs applied**: 0
 - **MEDIUMs applied**: 0
-- **MEDIUMs blocked**: 0
+- **MEDIUMs blocked**: 1
 
 ## Iteration Log
 
@@ -51,6 +51,7 @@ Suggested iterations: 20
 |------|-------------|-------|---------|------|---------|-------|
 | 1 | LEARNINGS | 9 | 4 | 0 | 13 | Folded 7 thin/unclustered files into clusters, merged 6 thin Java files into 4 new cluster files, moved gitlab-ci-patterns to cicd/, fixed 5 stale tracker paths. Net -13 files. |
 | 2 | SKILLS | 1 | 0 | 0 | 1 | Deleted orphaned draft skill-reference sweep-status-design.md (zero consumers). 36 skills, 25 remaining refs, 19 personas all healthy. |
+| 3 | GUIDELINES | 0 | 0 (1 blocked) | 0 | 0 | 4 files. communication.md + path-resolution.md @-referenced (clean). skill-invocation.md conditional (clean). context-aware-learnings.md unwired from CLAUDE.md — blocked as BM-1. |
 
 ## Deep Dive Status
 
@@ -101,3 +102,14 @@ These are all very thin (1-2 patterns) without clear cluster targets. Deep dive 
 - No reference wiring issues, no inline knowledge needing externalization
 
 **GUIDELINES sweep next:** Check @-reference cost, wiring, behavioral vs reference material, domain-specific content in guidelines
+
+### Iter 3
+
+**GUIDELINES sweep results:**
+- 4 files total. 2 @-referenced (communication.md, path-resolution.md), 1 conditional (skill-invocation.md), 1 unwired (context-aware-learnings.md)
+- communication.md: 111 lines, behavioral, universally applicable. Compression candidate for deep dive but nuance matters — not actioned in broad sweep.
+- path-resolution.md: 24 lines, clean, properly wired.
+- skill-invocation.md: 24 lines, conditional via procedural table. Behavioral one-liner inlined in CLAUDE.md, details lazy-loaded. Matches the "edge case" pattern from `guidelines.md:85`. Clean.
+- context-aware-learnings.md: 55 lines, NOT in CLAUDE.md. Defines 6 mandatory learnings search gates. The learning `guidelines.md:87` says it's behavioral and should be @-referenced. But 55 lines always-on is significant. Blocked as BM-1 for human decision.
+
+**TRANSITION**: All 3 broad sweep content types complete (L→S→G). Next invocation: read diff-routed-triage methodology and run triage to determine deep dive candidates.
