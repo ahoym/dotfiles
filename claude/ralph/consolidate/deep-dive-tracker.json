@@ -1,5 +1,5 @@
 {
-  "run_count": 15,
+  "run_count": 16,
   "threshold": 5,
   "min_deep_dives": 20,
   "files": {
@@ -23,7 +23,7 @@
       "last_deep_dive_run": 9,
       "last_change_run": 0
     },
-    "claude/learnings/web-session-sync.md": {
+    "claude/learnings/claude-code/web-session-sync.md": {
       "last_deep_dive_run": 8,
       "last_change_run": 0
     },
@@ -39,7 +39,7 @@
       "last_deep_dive_run": 13,
       "last_change_run": 0
     },
-    "claude/learnings/playwright-patterns.md": {
+    "claude/learnings/testing/playwright-patterns.md": {
       "last_deep_dive_run": 9,
       "last_change_run": 0
     },
@@ -55,7 +55,7 @@
       "last_deep_dive_run": 8,
       "last_change_run": 0
     },
-    "claude/learnings/testing-patterns.md": {
+    "claude/learnings/testing/testing-patterns.md": {
       "last_deep_dive_run": 9,
       "last_change_run": 0
     },
@@ -183,7 +183,7 @@
       "last_deep_dive_run": 11,
       "last_change_run": 0
     },
-    "claude/learnings/newman-postman.md": {
+    "claude/learnings/testing/newman-postman.md": {
       "last_deep_dive_run": 12,
       "last_change_run": 0
     },
@@ -196,8 +196,8 @@
       "last_change_run": 0
     },
     "claude/learnings/cicd/patterns.md": {
-      "last_deep_dive_run": 13,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/learnings/cicd/gitlab.md": {
       "last_deep_dive_run": 13,
@@ -255,7 +255,7 @@
       "last_deep_dive_run": 13,
       "last_change_run": 0
     },
-    "claude/learnings/aws/vercel-deployment.md": {
+    "claude/learnings/vercel-deployment.md": {
       "last_deep_dive_run": 13,
       "last_change_run": 0
     },
@@ -288,16 +288,16 @@
       "last_change_run": 0
     },
     "claude/learnings/java/infosec-gotchas.md": {
-      "last_deep_dive_run": 15,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/learnings/java/observability-gotchas.md": {
       "last_deep_dive_run": 15,
       "last_change_run": 0
     },
     "claude/learnings/java/spring-boot-gotchas.md": {
-      "last_deep_dive_run": 15,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/learnings/postgresql-query-patterns.md": {
       "last_deep_dive_run": 15,
@@ -426,6 +426,30 @@
     "claude/learnings/claude-code/multi-agent/coordination.md": {
       "last_deep_dive_run": 15,
       "last_change_run": 0
+    },
+    "claude/learnings/claude-authoring/skill-design.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
+    },
+    "claude/learnings/java/code-quality.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
+    },
+    "claude/learnings/java/concurrency.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
+    },
+    "claude/learnings/java/testing.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
+    },
+    "claude/learnings/java/integration.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
+    },
+    "claude/learnings/cicd/gitlab-ci-patterns.md": {
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     }
   },
   "last_consolidation_commit": "97a6278"

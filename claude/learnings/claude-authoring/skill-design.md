@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible
 - **Related:** none
 
 ---
@@ -202,6 +202,14 @@ When a repo ships skills meant for cross-project use alongside project-internal 
 ## Prerequisites Before Instructions
 
 Place `## Prerequisites` (permissions, env vars, symlink setup) above `## Instructions` in skill files. Operators scanning a skill file hit blockers before investing time reading the workflow. This also means prerequisites don't need to be duplicated in README or other docs — the skill is the single source of truth.
+
+## $ARGUMENTS vs Derived Values
+
+In skill files, `$ARGUMENTS` is the CLI-substituted value (replaced before the model sees the content). When a later phase requires a derived value (e.g., next version calculated from the argument), use descriptive placeholders like `<next-version>` to distinguish computed values from CLI-substituted ones. Mixing `$ARGUMENTS` for both raw input and derived values makes the skill harder to read and debug.
+
+## `disable-model-invocation: true` for Irreversible Skills
+
+Skills that perform irreversible actions (publishing artifacts, creating tags, deploying to production) should use `disable-model-invocation: true` in frontmatter so they can only be run as explicit slash commands, not invoked by the model autonomously during a session. The model might determine that a release or publish action would fulfill the user's intent, but irreversible side effects should always require explicit human invocation.
 
 ## Cross-Refs
 
