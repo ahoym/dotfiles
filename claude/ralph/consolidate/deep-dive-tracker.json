@@ -76,8 +76,8 @@
       "last_change_run": 0
     },
     "claude/learnings/bash-patterns.md": {
-      "last_deep_dive_run": 8,
-      "last_change_run": 0
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
     },
     "claude/learnings/testing/testing-patterns.md": {
       "last_deep_dive_run": 9,
@@ -151,6 +151,10 @@
       "last_deep_dive_run": 14,
       "last_change_run": 0
     },
+    "claude/learnings/review-conventions.md": {
+      "last_deep_dive_run": 16,
+      "last_change_run": 16
+    },
     "claude/learnings/process-conventions.md": {
       "last_deep_dive_run": 11,
       "last_change_run": 0
@@ -184,7 +188,7 @@
       "last_change_run": 0
     },
     "claude/learnings/git-patterns.md": {
-      "last_deep_dive_run": 13,
+      "last_deep_dive_run": 16,
       "last_change_run": 0
     },
     "claude/commands/set-persona/java-backend.md": {

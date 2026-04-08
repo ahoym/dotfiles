@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 12 |
+| SWEEP_COUNT | 13 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large) |
 
 ## Pre-Flight
 
@@ -61,6 +61,7 @@ Suggested iterations: 20
 | 10 | DEEP_DIVE | 5 | 0 | 0 | 5 | Group 6 (multi-agent/): 3 targets + 3 context. Removed 4 intra-sub-cluster refs across all 3 targets (systematic sibling refs to director-patterns.md). Fixed H3→H2 in orchestration.md. orchestration.md (207 lines, 34 sections) density exemption. |
 | 11 | DEEP_DIVE | 7 | 0 | 0 | 7 | Group 7 (claude-code/platform): 3 targets + 2 context. Removed 11 verbatim dupe sections from skill-platform-portability.md (3→agent-definitions.md, 8→plugin-packaging.md). Removed 2 intra-cluster refs + folded duplicate Glob section + structural fix in platform-tools-and-automation.md. platform-permissions.md clean (170 lines, density exemption). |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 8 (claude-code/sessions): 3 targets + 2 context. All clean — sweep-sessions.md (98 lines), ralph-curation.md (151 lines, density exemption), ralph-loop.md (122 lines). No duplicates, stale refs, or structural issues. |
+| 13 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 9 (unclustered/large): 3 targets + 2 context. Folded 2 thin sections in bash-patterns.md (# headings→gh api section, set -e suppression→set -e traps). Fixed structural issue in review-conventions.md (2 sections after Cross-Refs). git-patterns.md clean (217 lines, density exemption). |
 
 ## Deep Dive Status
 
@@ -91,8 +92,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 6 (multi-agent/) | director-patterns, orchestration, headless-nesting | complete | 10 | 5 HIGHs: removed 4 intra-sub-cluster refs (all 3 targets had sibling refs), fixed H3→H2 inconsistency in orchestration.md. orchestration.md 207 lines density exemption. |
 | Group 7 (claude-code/platform) | skill-platform-portability, platform-tools-and-automation, platform-permissions | complete | 11 | 7 HIGHs: removed 11 verbatim dupe sections from skill-platform-portability.md (split artifact — agent+plugin content extracted but originals not cleaned). Removed 2 intra-cluster refs + folded duplicate Glob section in platform-tools-and-automation.md. platform-permissions.md clean (density exemption). |
 | Group 8 (claude-code/sessions) | sweep-sessions, ralph-curation, ralph-loop | complete | 12 | Clean — all 3 targets well-structured, distinct search intents, no overlap between worktree path patterns (sweep=prompt paths, ralph=tool paths). ralph-curation.md 151 lines density exemption (25 sections). |
+| Group 9 (unclustered/large) | bash-patterns, git-patterns, review-conventions | complete | 13 | 3 HIGHs: folded 2 thin sections in bash-patterns.md, fixed structural issue in review-conventions.md (sections after Cross-Refs). git-patterns.md clean (density exemption). All cross-refs valid. |
 
 ## Notes for Next Iteration
+
+### Iter 13
+
+**Group 9 (unclustered/large) results:**
+- 3 targets + 2 context files examined. 3 HIGHs applied across 2 files, 1 file clean.
+- bash-patterns.md (260→~255 lines, ~18 sections): Folded `#` Headings section (2 lines, L248-250) into gh api Query Params section as bold paragraph — specific permission trigger variant already covered by the parent section. Folded `set -e` Suppression section (2 lines, L252-254) into `set -e and pipefail Traps` section — same topic family, placed before General Principle subsection. Still above 150-line split threshold but ~14 lines/section avg = density exemption. All patterns serve "bash/shell patterns" search intent. Cross-refs to platform-permissions.md and git-patterns.md both valid.
+- review-conventions.md (122 lines, ~17 sections): Moved 2 sections ("Smaller, focused MRs" and "Resolved review suggestions") from after ## Cross-Refs to before it. Cross-Refs should be last section per convention. Content overlap between "Smaller, focused MRs" and process-conventions.md "Scope MRs tightly" is acceptable — different search intents (reviewer experience vs author scoping). Cross-refs to process-conventions.md and multi-agent/orchestration.md both valid.
+- git-patterns.md (217 lines, ~20 sections): Clean. All patterns serve "git workflow patterns" search intent. ~11 lines/section avg = density exemption. No split warranted — rebase, worktree, commit hygiene, and branch management topics interleave naturally. Cross-refs to bash-patterns.md, cicd/gitlab.md, git-github-api.md all valid (verified from prior deep dive iterations).
+- Context files (git-github-api.md 73 lines, process-conventions.md 94 lines): Both clean. No overlap with targets beyond the expected thematic connections (both have Cross-Refs linking to targets).
+- Pattern: thin standalone sections (1-3 lines) that belong to an existing topical section in the same file are a recurring cleanup target. Seen in prior iters with different manifestation (sections after Cross-Refs in iters 11, 13; orphaned subsections in iter 8).
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| bash-patterns.md | set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, macOS bash 3.x, associative arrays, declare -A, realpath, sed file, process substitution, permission prompt, GraphQL mutation, jq -f, script validation, bash -n, local keyword, if-condition suppression |
+| git-patterns.md | rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, symlink, commit-message identification, pre-commit hooks, embedded git repos, worktree settings isolation, worktree divergence, merge vs rebase token cost, programmatic JSON merge, cascade rebase, git fetch prune, origin/main, remote ref worktree |
+| review-conventions.md | code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline, focused MRs, resolved suggestions, re-review verification, review summary deduplication |
 
 ### Iter 12
 

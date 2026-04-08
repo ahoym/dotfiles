@@ -7,7 +7,7 @@
 | Started | 2026-04-08 |
 | Branch | consolidate/2026-04-08 |
 | Worktree | claude/worktrees/consolidate-2026-04-08 |
-| Iterations | 12 |
+| Iterations | 13 |
 | Status | IN_PROGRESS (deep dive phase) |
 
 ## Summary
@@ -17,8 +17,8 @@
 | Learnings | 1 | 9 | 4 | 0 | 0 |
 | Skills | 1 | 1 | 0 | 0 | 0 |
 | Guidelines | 1 | 0 | 0 | 1 | 0 |
-| Deep Dive | 8 | 24 | 0 | 0 | 0 |
-| **Total** | **11** | **31** | **4** | **1** | **0** |
+| Deep Dive | 9 | 27 | 0 | 0 | 0 |
+| **Total** | **12** | **34** | **4** | **1** | **0** |
 
 ## Actions (Chronological)
 
@@ -55,6 +55,7 @@
 | 11 | DEEP_DIVE | dedup-fold + structural-fix | platform-tools-and-automation.md | Folded duplicate Glob section, moved section before Cross-Refs | HIGH |
 | 11 | DEEP_DIVE | detail-fold | plugin-packaging.md | Added VS Code issue link from removed source | HIGH |
 | 12 | DEEP_DIVE | (clean) | sweep-sessions.md, ralph-curation.md, ralph-loop.md | — | — |
+| 13 | DEEP_DIVE | fold-section (x2), structural-fix | bash-patterns.md (fold 2 thin sections), review-conventions.md (move post-Cross-Refs sections) | 3 HIGHs applied | git-patterns.md clean (density exemption) |
 
 ## Blocked Items
 
