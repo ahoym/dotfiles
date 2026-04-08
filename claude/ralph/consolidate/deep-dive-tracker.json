@@ -96,8 +96,8 @@
       "last_change_run": 0
     },
     "claude/learnings/api-design.md": {
-      "last_deep_dive_run": 10,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/learnings/python-specific.md": {
       "last_deep_dive_run": 13,
@@ -164,8 +164,8 @@
       "last_change_run": 0
     },
     "claude/learnings/aws/patterns.md": {
-      "last_deep_dive_run": 13,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/learnings/aws/messaging.md": {
       "last_deep_dive_run": 10,
@@ -320,12 +320,12 @@
       "last_change_run": 0
     },
     "claude/learnings/java/spring-boot-gotchas.md": {
-      "last_deep_dive_run": 16,
+      "last_deep_dive_run": 0,
       "last_change_run": 16
     },
     "claude/learnings/postgresql-query-patterns.md": {
-      "last_deep_dive_run": 15,
-      "last_change_run": 0
+      "last_deep_dive_run": 0,
+      "last_change_run": 16
     },
     "claude/commands/set-persona/claude-config-author.md": {
       "last_deep_dive_run": 14,

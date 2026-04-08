@@ -4,11 +4,11 @@
 
 | Variable | Value |
 |----------|-------|
-| SWEEP_COUNT | 13 |
+| SWEEP_COUNT | 14 |
 | CONTENT_TYPE | (all broad sweeps complete) |
 | PHASE | DEEP_DIVE |
 | DEEP_DIVE_GROUPS | see below |
-| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large) |
+| DEEP_DIVE_COMPLETED | Group 1 (java/new), Group 2 (java/modified), Group 3 (cicd/), Group 4 (claude-authoring/content), Group 5 (claude-authoring/org), Group 6 (multi-agent/), Group 7 (claude-code/platform), Group 8 (claude-code/sessions), Group 9 (unclustered/large), Group 10 (unclustered/thin) |
 
 ## Pre-Flight
 
@@ -62,6 +62,7 @@ Suggested iterations: 20
 | 11 | DEEP_DIVE | 7 | 0 | 0 | 7 | Group 7 (claude-code/platform): 3 targets + 2 context. Removed 11 verbatim dupe sections from skill-platform-portability.md (3→agent-definitions.md, 8→plugin-packaging.md). Removed 2 intra-cluster refs + folded duplicate Glob section + structural fix in platform-tools-and-automation.md. platform-permissions.md clean (170 lines, density exemption). |
 | 12 | DEEP_DIVE | 0 | 0 | 0 | 0 | Group 8 (claude-code/sessions): 3 targets + 2 context. All clean — sweep-sessions.md (98 lines), ralph-curation.md (151 lines, density exemption), ralph-loop.md (122 lines). No duplicates, stale refs, or structural issues. |
 | 13 | DEEP_DIVE | 3 | 0 | 0 | 3 | Group 9 (unclustered/large): 3 targets + 2 context. Folded 2 thin sections in bash-patterns.md (# headings→gh api section, set -e suppression→set -e traps). Fixed structural issue in review-conventions.md (2 sections after Cross-Refs). git-patterns.md clean (217 lines, density exemption). |
+| 14 | DEEP_DIVE | 3 | 1 | 0 | 4 | Group 10 (unclustered/thin): 3 targets + 2 context. All 3 thin unclustered files resolved. database-patterns.md (2 PostgreSQL patterns) folded into postgresql-query-patterns.md. framework-patterns.md split: AWS SDK v2→aws/patterns.md, Spring @Profile→java/spring-boot-gotchas.md. architecture-patterns.md (URL encoding/signing) folded into api-design.md (MEDIUM — search intent adjacency with URI sanitization). Net -3 files. |
 
 ## Deep Dive Status
 
@@ -93,8 +94,27 @@ Triage: 160+ files changed since last consolidation (97a6278). 33 diff-routed cu
 | Group 7 (claude-code/platform) | skill-platform-portability, platform-tools-and-automation, platform-permissions | complete | 11 | 7 HIGHs: removed 11 verbatim dupe sections from skill-platform-portability.md (split artifact — agent+plugin content extracted but originals not cleaned). Removed 2 intra-cluster refs + folded duplicate Glob section in platform-tools-and-automation.md. platform-permissions.md clean (density exemption). |
 | Group 8 (claude-code/sessions) | sweep-sessions, ralph-curation, ralph-loop | complete | 12 | Clean — all 3 targets well-structured, distinct search intents, no overlap between worktree path patterns (sweep=prompt paths, ralph=tool paths). ralph-curation.md 151 lines density exemption (25 sections). |
 | Group 9 (unclustered/large) | bash-patterns, git-patterns, review-conventions | complete | 13 | 3 HIGHs: folded 2 thin sections in bash-patterns.md, fixed structural issue in review-conventions.md (sections after Cross-Refs). git-patterns.md clean (density exemption). All cross-refs valid. |
+| Group 10 (unclustered/thin) | architecture-patterns, database-patterns, framework-patterns | complete | 14 | 3 HIGHs + 1 MEDIUM: all 3 thin unclustered files folded into cluster targets and deleted. database-patterns→postgresql-query-patterns.md, framework-patterns split→aws/patterns.md+java/spring-boot-gotchas.md, architecture-patterns→api-design.md. Net -3 files. |
 
 ## Notes for Next Iteration
+
+### Iter 14
+
+**Group 10 (unclustered/thin) results:**
+- 3 targets + 2 context files examined. All 3 targets folded and deleted — 3 HIGHs + 1 MEDIUM applied.
+- database-patterns.md (13 lines, 2 PostgreSQL patterns): Both patterns folded into postgresql-query-patterns.md. Partial-unique nullable column index appended to Partial Indexes section. View column reorder limitation appended to Migration Safety section. Explicit Related→postgresql-query-patterns.md confirmed the fold target.
+- framework-patterns.md (13 lines, 2 cross-domain patterns): Split and folded. AWS SDK v2 retryPolicy→retryStrategy pattern added to aws/patterns.md as new section. Spring @Profile environment coverage gotcha added to java/spring-boot-gotchas.md as bullet. Related→java-spring-configuration.md was stale (file doesn't exist — pre-cluster era name).
+- architecture-patterns.md (10 lines, 1 pattern): URL encoding/request signing mismatch folded into api-design.md as new section after Security Hardening. MEDIUM confidence — api-design.md (URI sanitization, security hardening keywords) was chosen over security.md (SSL/TLS-specific). The pattern is fundamentally about HTTP client integration, not cryptographic security.
+- Context files (postgresql-query-patterns.md 78→81 lines, resilience-patterns.md 44 lines): postgresql-query-patterns.md received content folds. resilience-patterns.md clean, no overlap with targets.
+- Pattern: all 3 files were iter 1 "fold-or-index candidates" — thin unclustered files with clear cluster targets that existed at the time of iter 1. The broad sweep correctly identified them but deferred to deep dive for per-file analysis. All resolved cleanly.
+
+**Enriched keywords:**
+
+| File | Keywords |
+|------|----------|
+| (files deleted — no enrichment needed) | — |
+
+**Group 11 (unclustered/security) is next:** targets=[docker-security.md, security.md, documentation-hygiene.md], context=[process.md, messaging-patterns.md]. Same pattern as Group 10 — thin unclustered fold-or-index candidates. Note: architecture-patterns.md had Related→security.md, but that ref was removed with the file deletion. security.md still has Related→docker-security.md, so check for fold opportunities between those two targets.
 
 ### Iter 13
 

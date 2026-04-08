@@ -1,5 +1,5 @@
 Cost-aware defaults and scheduling workarounds for ECS Fargate and EventBridge.
-- **Keywords:** EventBridge, rate expression, sub-minute scheduling, Lambda, ECS Fargate, NAT Gateway, Secrets Manager, Terraform, public subnet, cost optimization
+- **Keywords:** EventBridge, rate expression, sub-minute scheduling, Lambda, ECS Fargate, NAT Gateway, Secrets Manager, Terraform, public subnet, cost optimization, AWS SDK v2, retryPolicy, retryStrategy, maxAttempts
 - **Related:** none
 
 ---
@@ -15,6 +15,14 @@ EventBridge `rate()` expressions floor at 1 minute. For sub-minute scheduling (e
 - Egress-only security group (no ingress rules) is sufficient for workers that only make outbound HTTP calls.
 - Secrets Manager with a single JSON secret + ECS `secrets` mapping is cheaper and simpler than N separate secrets.
 - `ignore_changes = [task_definition]` in Terraform lets CI/CD update the task definition without drift.
+
+## AWS SDK v2 Retry Configuration
+
+`RetryPolicy.builder().numRetries(N)` is deprecated in AWS SDK v2. Replace with `.retryStrategy(b -> b.maxAttempts(N + 1))` where `maxAttempts` equals retries plus the initial attempt. The off-by-one between retries and attempts is easy to miss — `numRetries(3)` means 4 total attempts, so the equivalent is `maxAttempts(4)`.
+
+## AWS SDK v2 Retry Configuration
+
+`RetryPolicy.builder().numRetries(N)` is deprecated in AWS SDK v2. Replace with `.retryStrategy(b -> b.maxAttempts(N + 1))` where `maxAttempts` equals retries plus the initial attempt. The off-by-one between retries and attempts is easy to miss — `numRetries(3)` means 4 total attempts, so the equivalent is `maxAttempts(4)`.
 
 ## Cross-Refs
 

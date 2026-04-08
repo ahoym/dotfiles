@@ -1,5 +1,5 @@
 Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistakes.
-- **Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException, @ConfigurationProperties, @EnableConfigurationProperties, @ConfigurationPropertiesScan, CGLIB, exception logging, stack trace, catch block
+- **Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException, @ConfigurationProperties, @EnableConfigurationProperties, @ConfigurationPropertiesScan, CGLIB, exception logging, stack trace, catch block, @Profile, IAM, credentials
 - **Related:** none
 
 ---
@@ -45,6 +45,8 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 - `LocalTime.now(clock)` is sufficient when `clock` carries a timezone via `Clock.system(zoneId)` — the result is already zone-local. Going through `ZonedDateTime.now(clock).toLocalTime()` is redundant and adds confusion about whether the timezone is being applied twice.
 
 - `Optional.orElse(null)` for nullable return fields: the existing rule "always use `.orElseThrow()`" applies when absence is an error. For methods that legitimately return null (nullable DTO fields, optional downstream values), use `.orElse(null)` — calling `.get()` without an `isPresent()` guard is a latent NPE regardless of how rare the empty case is.
+
+- `@Profile` on credential-provider `@Configuration` must cover ALL non-IAM environments, not just `"dev"`. Missing a profile (e.g., `"integration"`, `"local"`) silently activates IAM-based production config, which fails with opaque credential errors. Audit `@Profile` annotations on credential configs whenever a new environment or profile is introduced.
 
 - Java format strings: `$n` is not a recognized format specifier — it compiles and runs silently but the argument is dropped. Use `%n` for a platform-appropriate newline or `\n` for a literal LF. The `$` prefix has no meaning in `String.format` / SLF4J format strings.
 
