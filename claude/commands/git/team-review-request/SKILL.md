@@ -168,7 +168,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
 
-    **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
+    **Body discipline.** The body is a themed summary, not a finding ledger. Each `### Findings` bullet is one line naming the area and gist — no file paths, line numbers, fixes, or rationale (those live in the inline comment). Summary-only findings (no inline) get one sentence + `(summary-only)` tag. Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
 13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 

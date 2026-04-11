@@ -89,17 +89,17 @@ Carried forward: <carried-forward personas>
 
 Append footnote with `Role: Team-Reviewer`.
 
+**Body discipline.** The body is a delta summary, not a per-finding ledger. Previous findings are counts only — never a table or list of fixes/commits/verifications (those live in the inline thread replies). Allowed sections only: delta summary, reviewer roster, previous-findings counts, New Findings, Dissent, Positive Signals.
+
 ## Post Re-Review Actions
 
 Execute in order:
 
-**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use "React to Comment" from platform cluster files.
+**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use "React to Comment" from platform cluster files. The reaction is the full acknowledgement — do not also post a text reply for resolved/acknowledged threads (see `review-comment-classification.md`).
 
-**b) Post text replies for resolved and acknowledged comments** — same pattern as single-persona re-review. Each reply gets the footnote with `Role: Team-Reviewer`.
+**b) Post follow-up replies** — for each item in `FOLLOW_UPS` (partially-addressed and not-addressed only), use "Reply to Inline Comment" from platform cluster files. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
 
-**c) Post follow-up replies** — for each item in `FOLLOW_UPS`, use "Reply to Inline Comment" from platform cluster files. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
-
-**d) Post the review** — use "Post Review with Inline Comments" with the re-review body and any new inline comments.
+**c) Post the review** — use "Post Review with Inline Comments" with the re-review body and any new inline comments.
 
 **Report:**
 ```
