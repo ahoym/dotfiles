@@ -4,11 +4,9 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
 ## Flow
 
-1. **Front-load persona content** — Read the selected persona file + `Extends` parents + `Proactive Cross-Refs`. Store as `PERSONA_CONTENT`.
+1. **Front-load persona content** — Read the selected persona file + `Extends` parents + `Proactive Cross-Refs`. Store as `PERSONA_CONTENT`. Domain learnings are carried by the persona's proactive loads — don't load them again here.
 
-2. **Load domain learnings** — Same as step 7 in the main flow. Glob learnings dirs, match against `CHANGED_FILES` domains.
-
-3. **Analyze changes** — Review the diff through the loaded persona's lens. For each file, evaluate:
+2. **Analyze changes** — Review the diff through the loaded persona's lens. For each file, evaluate:
    - Does the change align with the persona's domain priorities?
    - Are there patterns from loaded learnings that apply?
    - Are there bugs, edge cases, or missing considerations?
@@ -21,7 +19,7 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
    - `SUMMARY_POINTS`: high-level themes (no file-specific details)
    - `POSITIVE_SIGNALS`: what's done well
 
-4. **Compose the review** — Use the same format as the merged review, minus signal-strength tags and dissent blocks:
+3. **Compose the review** — Use the same format as the merged review, minus signal-strength tags and dissent blocks:
 
    ```
    ## Team Review: <REQUEST_TITLE>
@@ -40,7 +38,7 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
    Append the footnote from `request-interaction-base.md` with `Role: Team-Reviewer`.
 
-5. **Resume main flow** — Continue at step 13 (post review) with the composed review body and inline comments.
+4. **Resume main flow** — Continue at step 13 (post review) with the composed review body and inline comments.
 
 ## Important Notes
 
