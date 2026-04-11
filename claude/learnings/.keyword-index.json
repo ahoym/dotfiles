@@ -186,7 +186,8 @@
   "rate limiter": ["learnings/frontend/nextjs.md"],
   "token bucket": ["learnings/frontend/nextjs.md"],
   "vitest": ["learnings/frontend/nextjs.md", "learnings/testing/testing-patterns.md"],
-  "github action": ["learnings/frontend/typescript-ci-gotchas.md"],
+  "github action": ["learnings/cicd/patterns.md", "learnings/frontend/typescript-ci-gotchas.md"],
+  "paths-ignore": ["learnings/cicd/patterns.md"],
   "gitlab ci": ["learnings/cicd/gitlab.md"],
 
   "grafana": ["learnings/java/observability.md"],

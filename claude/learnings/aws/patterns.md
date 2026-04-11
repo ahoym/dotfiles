@@ -20,10 +20,6 @@ EventBridge `rate()` expressions floor at 1 minute. For sub-minute scheduling (e
 
 `RetryPolicy.builder().numRetries(N)` is deprecated in AWS SDK v2. Replace with `.retryStrategy(b -> b.maxAttempts(N + 1))` where `maxAttempts` equals retries plus the initial attempt. The off-by-one between retries and attempts is easy to miss — `numRetries(3)` means 4 total attempts, so the equivalent is `maxAttempts(4)`.
 
-## AWS SDK v2 Retry Configuration
-
-`RetryPolicy.builder().numRetries(N)` is deprecated in AWS SDK v2. Replace with `.retryStrategy(b -> b.maxAttempts(N + 1))` where `maxAttempts` equals retries plus the initial attempt. The off-by-one between retries and attempts is easy to miss — `numRetries(3)` means 4 total attempts, so the equivalent is `maxAttempts(4)`.
-
 ## Cross-Refs
 
 None — intra-cluster refs handled by cluster index.
