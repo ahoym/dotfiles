@@ -16,7 +16,7 @@ MAX_ATTEMPTS=2
 PRS=({{PRS}})                   # space-separated PR numbers
 MODE="{{MODE}}"                 # "review" or "address"
 MODE_LABEL="{{MODE_LABEL}}"     # "Review" or "Address" (pre-capitalized for bash 3.x)
-MODEL="{{MODEL}}"               # claude model for claude -p sessions
+MODEL="{{MODEL:-claude-sonnet-4-6}}"  # claude model for claude -p sessions
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
 branch_for() {
