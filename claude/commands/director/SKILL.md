@@ -49,7 +49,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    }
    ```
    Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
-7. Initialize an empty `decisions.md` in the session dir (append-only decision log per the playbook's Decision Framework). A single header line is enough:
+7. Initialize `decisions.md` in the session dir with a single header line (append-only decision log per the playbook's Decision Framework):
    ```markdown
    # Director Decisions — <timestamp>
    ```
