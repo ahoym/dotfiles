@@ -300,7 +300,35 @@ process_pr() {
         # Handle exit status — success takes priority over transient rate limits
         if [ "$exit_status" = "success" ]; then
             echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
-            write_state "$pr_num" "completed" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "duration_seconds: $duration"
+
+            # Compute context window usage from the latest assistant message's usage block.
+            # cache_read + cache_creation + input_tokens = total tokens the model processed this turn,
+            # which equals the conversation context size at that point.
+            local context_used=0 context_pct=0 context_window=200000
+            local last_usage
+            last_usage=$(jq -c 'select(.type == "assistant") | .message.usage // empty' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
+            if [ -n "$last_usage" ]; then
+                local in_tok cc_tok cr_tok
+                in_tok=$(printf '%s' "$last_usage" | jq -r '.input_tokens // 0')
+                cc_tok=$(printf '%s' "$last_usage" | jq -r '.cache_creation_input_tokens // 0')
+                cr_tok=$(printf '%s' "$last_usage" | jq -r '.cache_read_input_tokens // 0')
+                context_used=$((in_tok + cc_tok + cr_tok))
+            fi
+            case "$MODEL" in
+                *\[1m\]*) context_window=1000000 ;;
+            esac
+            if [ "$context_used" -gt 0 ]; then
+                context_pct=$((context_used * 100 / context_window))
+            fi
+
+            write_state "$pr_num" "completed" \
+                "attempt: $attempt" \
+                "max_attempts: $MAX_ATTEMPTS" \
+                "duration_seconds: $duration" \
+                "context_used_tokens: $context_used" \
+                "context_window: $context_window" \
+                "context_pct: $context_pct"
+
             # Persist session state for next cycle (resume support)
             local result_line
             result_line=$(jq -c 'select(.type == "result" and .subtype == "success")' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
