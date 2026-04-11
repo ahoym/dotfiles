@@ -49,6 +49,10 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    }
    ```
    Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
+7. Initialize an empty `decisions.md` in the session dir (append-only decision log per the playbook's Decision Framework). A single header line is enough:
+   ```markdown
+   # Director Decisions — <timestamp>
+   ```
 
 ## Phase 2: Assess + Generate Artifacts
 
@@ -117,7 +121,7 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 Note: process lifecycle (inactivity detection, kill, retry) is owned by the runner, not the director.
 
-**Escalation over automation**: when in doubt, present what you see, what you think it means, and what you'd recommend. The operator decides. As trust is established, the operator may cede more judgment -- respect the current escalation level.
+**Decision Framework**: follow the playbook's Decision Framework section (`~/.claude/skill-references/director-playbook.md`) for every judgment call. The escalation default has shifted — the director decides autonomously for routine/in-scope/taste-based calls, logs rationale to `<session_dir>/decisions.md` for dissent / cost-time / out-of-scope categories, and escalates to the operator only for irreversible, security, scope-expansion, intent-conflict, or external-surface actions. Out-of-scope review findings become GitHub issues (filed in the CWD repo), not operator pings. When escalating, still present what you see, what you think it means, and what you'd recommend.
 
 ## Phase 5: Convergence + Wrap-up
 
@@ -125,4 +129,5 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 2. Session ends when all runs converge.
 3. Write final `director-state.md` per playbook format with terminal state.
 4. Present a final summary: per-run retro (read each run's `*/result.md` and `*/learnings.md`).
-5. Offer to invoke `/session-retro` if the session was substantial.
+5. Review `<session_dir>/decisions.md` as part of the retro — surface decide-with-report entries (dissent, cost-time, out-of-scope) so the operator can audit autonomous calls and flag any that should have been escalated.
+6. Offer to invoke `/session-retro` if the session was substantial.
