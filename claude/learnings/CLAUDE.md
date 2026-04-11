@@ -17,6 +17,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `aws/CLAUDE.md` — AWS infrastructure: EventBridge, SQS/SNS, Lambda
 - `cicd/CLAUDE.md` — CI/CD: GitHub Actions, GitLab CI, pipeline patterns
 - `financial/CLAUDE.md` — Financial/ledger engineering: monetary calculations, architecture, accounting
+- `gitlab/CLAUDE.md` — GitLab API/review interaction: discussions, diffnotes, line positioning
 - `testing/CLAUDE.md` — Testing: Vitest, React Testing Library, Playwright E2E, Newman/Postman
 
 ## Database
@@ -29,6 +30,9 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `vercel-deployment.md` — Vercel: cron job limits, Postgres (Neon), environment variables
 - `kubernetes-helm-patterns.md` — Helm: bootstrapping apps from templates, prometheusrule boilerplate gotcha
 - `nginx-patterns.md` — nginx: alias+try_files SPA routing, add_header inheritance in named locations, Vite base path, proxy_pass trailing slash
+
+## Security
+
 - `web-auth-patterns.md` — Web auth: cross-subdomain cookie sharing, localhost port-agnostic cookies, csrf-csrf CSRF validation behavior
 
 ## General Engineering
