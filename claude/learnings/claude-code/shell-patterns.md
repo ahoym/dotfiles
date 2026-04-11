@@ -16,6 +16,12 @@ Verified: `glab mr update --title "$(cat file)"` with hostile content `$(echo IN
 
 `glab mr list -s opened` may return no results when `glab api projects/:id/merge_requests?state=opened` finds MRs. The CLI wrapper applies additional filters (e.g., assignee, project membership) that the raw API doesn't. For reliable MR enumeration in automation, use the API endpoint directly.
 
+## Quoted Strings in Bash Commands Trigger Permission Prompts
+
+Any quoted string in a Bash tool call — `echo "..."`, `sed "s/^/ /"`, `sleep 120 && echo DONE` — triggers a manual approval prompt because Claude Code's permission matching sees the quotes/expansion as potentially dangerous. This applies even to trivially safe commands.
+
+**Fix:** Avoid quoted strings entirely. Use dedicated tools (Read instead of `cat`, Write instead of `echo >`, Edit instead of `sed`). For polling loops, use plain `sleep N` without a trailing echo. For text processing, use Grep with context flags instead of `sed`/`awk`.
+
 ## Sandbox Treats `~/.claude/` as Sensitive — Use Pre-Allowed Scripts
 
 Individual `cp` commands targeting `~/.claude/` trigger "sensitive file" permission prompts regardless of allow patterns in settings.json. The sandbox's sensitive-file detection is path-based and can't be overridden. Inline `for` loops with `&&` also trigger an "ambiguous syntax with command separators" warning.

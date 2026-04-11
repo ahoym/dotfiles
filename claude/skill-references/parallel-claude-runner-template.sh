@@ -16,6 +16,7 @@ MAX_ATTEMPTS=2
 PRS=({{PRS}})                   # space-separated PR numbers
 MODE="{{MODE}}"                 # "review" or "address"
 MODE_LABEL="{{MODE_LABEL}}"     # "Review" or "Address" (pre-capitalized for bash 3.x)
+MODEL="{{MODEL:-claude-sonnet-4-6}}"  # claude model for claude -p sessions
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
 branch_for() {
@@ -178,6 +179,45 @@ process_pr() {
     printf '# PR #%s Status\nmilestone: launching\nstarted_at: %s\n' \
         "$pr_num" "$(date -Iseconds)" > "$status_file"
 
+    # Archive previous cycle's raw.jsonl (raw-1.jsonl, raw-2.jsonl, ...)
+    if [ -f "$pr_dir/raw.jsonl" ]; then
+        local archive_num=1
+        while [ -f "${pr_dir}/raw-${archive_num}.jsonl" ]; do
+            archive_num=$((archive_num + 1))
+        done
+        mv "$pr_dir/raw.jsonl" "${pr_dir}/raw-${archive_num}.jsonl"
+    fi
+
+    # Determine launch mode: resume or fresh start
+    local use_resume=false
+    local resume_session_id=""
+    local resume_flag=""
+    local cycle=1
+    local prev_cost_usd=0
+
+    if [ -f "$pr_dir/session.reset" ]; then
+        rm -f "$pr_dir/session.state" "$pr_dir/session.reset"
+    elif [ -f "$pr_dir/session.state" ]; then
+        local state_mtime
+        state_mtime=$(stat -f%m "$pr_dir/session.state" 2>/dev/null \
+            || stat -c%Y "$pr_dir/session.state" 2>/dev/null || echo 0)
+        local state_age=$(( $(date +%s) - state_mtime ))
+        if [ "$state_age" -lt 21600 ]; then
+            resume_session_id=$(grep '^session_id=' "$pr_dir/session.state" | cut -d= -f2)
+            prev_cost_usd=$(grep '^prev_cost_usd=' "$pr_dir/session.state" | cut -d= -f2 || echo 0)
+            cycle=$(grep '^cycle=' "$pr_dir/session.state" | cut -d= -f2 || echo 1)
+            if [ -n "$resume_session_id" ]; then
+                use_resume=true
+                resume_flag="--resume $resume_session_id"
+            fi
+        else
+            rm -f "$pr_dir/session.state"
+        fi
+    fi
+
+    # Append cycle boundary to live.md so director can distinguish cycles
+    printf '\n### Cycle %d — %s ###\n' "$cycle" "$(date -Iseconds)" >> "$pr_dir/live.md"
+
     # Resolve stream monitor path (works from any CWD via HOME)
     local monitor="${HOME}/.claude/skill-references/stream-monitor.sh"
 
@@ -196,8 +236,14 @@ process_pr() {
 
         # Launch with stream monitoring if monitor exists, otherwise fall back to plain pipe
         if [ -x "$monitor" ]; then
-            cat "${pr_dir}/prompt.txt" \
-                | sh -c "echo \$\$ > ${pr_dir}/session.pid; exec claude -p --verbose --output-format stream-json" \
+            {
+                if [ "$use_resume" = true ]; then
+                    printf 'Cycle %d. Check directives.md for new directives since your last run. Continue.' "$cycle"
+                else
+                    cat "${pr_dir}/prompt.txt"
+                fi
+            } \
+                | sh -c "echo \$\$ > ${pr_dir}/session.pid; exec claude -p --model $MODEL --verbose --output-format stream-json $resume_flag" \
                 | "$monitor" "$pr_dir" \
                 | tee -a "$pr_dir/raw.jsonl" >> "$log_file" &
             local pipe_pid=$!
@@ -235,7 +281,7 @@ process_pr() {
             fi
         else
             local fallback_timeout=$((INACTIVITY_TIMEOUT_SEC * 2))
-            if timeout "$fallback_timeout" sh -c 'cat "$1" | claude -p 2>&1 | tee -a "$2"' _ "${pr_dir}/prompt.txt" "$log_file"; then
+            if timeout "$fallback_timeout" sh -c "cat \"\$1\" | claude -p --model $MODEL 2>&1 | tee -a \"\$2\"" _ "${pr_dir}/prompt.txt" "$log_file"; then
                 exit_status="success"
             else
                 local fallback_rc=$?
@@ -254,7 +300,47 @@ process_pr() {
         # Handle exit status — success takes priority over transient rate limits
         if [ "$exit_status" = "success" ]; then
             echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
-            write_state "$pr_num" "completed" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "duration_seconds: $duration"
+
+            # Compute context window usage from the latest assistant message's usage block.
+            # cache_read + cache_creation + input_tokens = total tokens the model processed this turn,
+            # which equals the conversation context size at that point.
+            local context_used=0 context_pct=0 context_window=200000
+            local last_usage
+            last_usage=$(jq -c 'select(.type == "assistant") | .message.usage // empty' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
+            if [ -n "$last_usage" ]; then
+                local in_tok cc_tok cr_tok
+                in_tok=$(printf '%s' "$last_usage" | jq -r '.input_tokens // 0')
+                cc_tok=$(printf '%s' "$last_usage" | jq -r '.cache_creation_input_tokens // 0')
+                cr_tok=$(printf '%s' "$last_usage" | jq -r '.cache_read_input_tokens // 0')
+                context_used=$((in_tok + cc_tok + cr_tok))
+            fi
+            case "$MODEL" in
+                *\[1m\]*) context_window=1000000 ;;
+            esac
+            if [ "$context_used" -gt 0 ]; then
+                context_pct=$((context_used * 100 / context_window))
+            fi
+
+            write_state "$pr_num" "completed" \
+                "attempt: $attempt" \
+                "max_attempts: $MAX_ATTEMPTS" \
+                "duration_seconds: $duration" \
+                "context_used_tokens: $context_used" \
+                "context_window: $context_window" \
+                "context_pct: $context_pct"
+
+            # Persist session state for next cycle (resume support)
+            local result_line
+            result_line=$(jq -c 'select(.type == "result" and .subtype == "success")' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
+            if [ -n "$result_line" ]; then
+                local new_session_id new_cost_usd
+                new_session_id=$(printf '%s' "$result_line" | jq -r '.session_id // empty')
+                new_cost_usd=$(printf '%s' "$result_line" | jq -r '.total_cost_usd // 0')
+                if [ -n "$new_session_id" ]; then
+                    printf 'session_id=%s\nprev_cost_usd=%s\ncycle=%d\n' \
+                        "$new_session_id" "$new_cost_usd" "$((cycle + 1))" > "$pr_dir/session.state"
+                fi
+            fi
             return
         fi
 
@@ -265,6 +351,18 @@ process_pr() {
             touch "${RUN_DIR}/.rate-limited"
             write_state "$pr_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
             break
+        fi
+
+        # Resume fallback: if session not found, switch to fresh start (don't count as an attempt)
+        if [ "$use_resume" = true ] && grep -q "No conversation found" "$pr_dir/raw.jsonl" 2>/dev/null; then
+            echo "[$end_ts] PR #${pr_num}: resume session expired — falling back to fresh start"
+            rm -f "$pr_dir/session.state"
+            use_resume=false
+            resume_session_id=""
+            resume_flag=""
+            cycle=1
+            attempt=$((attempt - 1))
+            continue
         fi
 
         # Failure — retry or escalate
@@ -285,7 +383,7 @@ process_pr() {
 }
 
 export -f process_pr write_state
-export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS
+export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL
 
 # --- Launch ---
 printf '%s\n' "${PRS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_pr "$@"' _ {}

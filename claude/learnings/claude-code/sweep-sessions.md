@@ -92,6 +92,14 @@ Directive files aren't cleared after the referenced operator comment is addresse
 
 `claude -p` subagents can't resolve provider paths from config files. Parent skills must resolve paths and inject them into prompts. Centralized read gateways help but don't eliminate this for write-path skills.
 
+## Self-Comment Edge Case in Review↔Address Loop
+
+When the reviewer and addresser are the same git user (e.g., operator runs both sweeps), the address session's `Role:.*Addresser` filter only catches agent-posted footers — it doesn't catch operator-posted team review comments from the same username. Result: the address session sees "all comments are from self" and produces a no-op run.
+
+**Root cause:** Self-filter uses `Role:` tag in structured footnotes, not git username. Team review comments posted by the operator carry `Role:.*Team-Reviewer`, which correctly identifies them as review comments to address — but the username match triggers the "don't reply to yourself" heuristic first.
+
+**Workaround:** The address session correctly skips (no harm done), but it wastes a `claude -p` session. The MR author needs to respond to these findings — the address loop can't do it.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.

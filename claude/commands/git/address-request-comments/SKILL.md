@@ -83,7 +83,7 @@ When `COMMENT_ONLY=true`:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
-   - For general feedback/positive signals: React with a `rocket` emoji (default) AND post a brief text acknowledgement (1-2 sentences). Follow **React to Comment** in the platform cluster files.
+   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform cluster files. No text reply needed.
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
@@ -98,27 +98,35 @@ When `COMMENT_ONLY=true`:
    Use **Comment Identity** from the base reference to distinguish reviewer/operator comments. Operator suggestions follow the same escalation logic (agree = implement, disagree = escalate).
 
 9. **Post review actions summary on the platform**:
-   After processing, post a top-level comment summarizing what was done and what needs the partner's input:
+   After processing, post a top-level comment covering only items that need operator attention — escalations, pushbacks, partial agreements, clarifications awaiting response. Implemented suggestions are documented in their inline thread replies and **must not** appear as table rows. The top-level comment is for operator-actionable status, not an audit log of completed work.
 
+   **If zero items need operator attention, post the single-line variant — never a table.** No exceptions, even if the implemented count is high.
+   ```
+   N suggestions implemented — see inline comments.
+   ```
+
+   When operator attention is needed:
    ```
    ## Review actions
 
+   N implemented — see inline comments.
+
    | # | File | Suggestion | Action |
    |---|------|------------|--------|
-   | 1 | spec.md:141 | Fix tag format | Implemented (mutual agreement) — abc123 |
    | 2 | auth.py:48 | Restructure auth flow | Awaiting your decision (disagree) |
+   | 5 | config.py:12 | Extract constant | Partial — addressed main concern, see thread |
    ```
 
-   **`COMMENT_ONLY` variant** — use "Commented (agree)", "Commented (disagree)", "Clarified", "Acknowledged" instead of "Implemented" / "Awaiting your decision":
+   **`COMMENT_ONLY` variant** — omit rows where action is "Commented (agree)" or "Clarified" (those are self-evident from the thread). Only include disagreements and items needing follow-up:
 
    ```
    ## Review actions (comment-only)
 
+   N agreed — see inline comments.
+
    | # | File | Comment | Action |
    |---|------|---------|--------|
-   | 1 | spec.md:141 | Fix tag format | Commented (agree) — recommend follow-up |
    | 2 | auth.py:48 | Restructure auth flow | Commented (disagree) — pushed back |
-   | 3 | util.js:12 | Why this pattern? | Clarified |
    ```
 
    Follow **Post Top-Level Comment** in the platform cluster files.

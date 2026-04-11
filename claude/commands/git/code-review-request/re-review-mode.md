@@ -24,7 +24,7 @@ Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 
 Read `~/.claude/skill-references/review-comment-classification.md` for the terminal acknowledgement rule and classification criteria (Resolved, Acknowledged, Partially addressed, Not addressed).
 
-For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule), classify per the shared reference and apply its reaction targets, emoji, and text reply actions.
+For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the terminal acknowledgement rule), classify per the shared reference and apply its reaction targets, emoji, and (for partially/not addressed only) text reply actions. Resolved and acknowledged classifications are reaction-only — no text reply.
 
 Also review new code: analyze `NEW_COMMITS` changes through the persona lens, same as a first review but scoped to the delta.
 

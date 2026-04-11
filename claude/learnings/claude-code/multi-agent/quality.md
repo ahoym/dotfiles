@@ -1,5 +1,5 @@
 Multi-agent quality and validation — verification patterns, trust arc, agent-to-agent review, prompt design, and assumption checking.
-- **Keywords:** trust arc, agent-to-agent review, verify assumptions, gate announcements, intent files, TaskOutput, subagent verification, front-load context
+- **Keywords:** trust arc, agent-to-agent review, verify assumptions, gate announcements, intent files, TaskOutput, subagent verification, front-load context, persona routing, architecture reviewer, defensive coding, adapter code
 - **Related:** none
 
 ---
@@ -61,3 +61,15 @@ After subagent writes, verify with `wc -l`, `grep -c`, and a 5-line spot-check �
 ## Agents Create Unintended Side-Effect Files During Batch Edits
 
 When launching agents to edit specific target files, they sometimes create or modify additional files they weren't asked to touch — writing staging artifacts, enriching adjacent files, or creating root-level duplicates of cluster content. This is especially common when the agent prompt contains content that references other files by name. Always run `git status` after agent completion and revert unexpected changes before committing. The pattern compounds across batches: each organize cycle can produce 2-5 agent-created artifacts that must be cleaned up.
+
+## Adapter/Integration Code Needs Architecture Persona
+
+Domain personas (financial, security, correctness) miss structural concerns in adapter code: constructor design, exception hierarchy consistency, null-safety on SDK returns, forward-compatibility gaps, and cause-chain propagation. Empirically verified: a 3-persona review (correctness + financial + security) found 6 findings; adding architecture-reviewer caught 4 unique structural issues none of the domain personas flagged. Three independent external agents also caught these same structural gaps.
+
+**Routing rule:** Force `architecture-reviewer` when changed files match `**/adapter*/**`, filenames containing `Adapter|Bridge|Gateway|Connector|Client`, or gRPC/proto files. This counts toward the max-3 persona cap; heuristic fills remaining slots.
+
+## Correctness Persona Needs Defensive-Coding Directive at System Boundaries
+
+When reviewing code that calls external services (gRPC stubs, HTTP clients, SDK wrappers), the correctness persona systematically misses boundary validation patterns unless explicitly directed. Empirically: `UUID.fromString(null)` → NPE escape, `e.getCause()` null-safety, empty-string enum mapping, and silent pagination truncation were all caught by external reviewers but missed by our correctness persona.
+
+**Routing rule:** When changed classes call external services AND correctness-reviewer is selected, inject: "Focus on boundary validation (UUID parsing, enum mapping), null guards on SDK returns, exception cause-chain nullability, and silent pagination truncation."

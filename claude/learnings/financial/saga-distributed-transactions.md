@@ -177,6 +177,21 @@ If Step 3 fails after Steps 1–2 committed, the saga must compensate Steps 2 �
 - **Outbox publishing**: write outbox rows in the same `@Transactional` block as the ledger entry. The outbox publisher runs in a separate `@Scheduled` method with its own transaction.
 - **Saga state updates**: use optimistic locking (`@Version`) on the `saga_executions` row to prevent concurrent updates if two threads race on the same saga.
 
+## Payment Service Idempotency Contract
+
+**Caller sends, service deduplicates — no pre-check.** In financial services, the caller's job is to generate a stable deterministic key and reuse it on every retry. The service deduplicates via the key. A pre-call guard ("does this already exist?") adds a read-before-write race and works against the idempotency contract.
+
+**`UUID.randomUUID()` as an idempotency key defeats the contract.** Every retry sends a fresh key — the service can't deduplicate. Application-level guards (`existsByX`) then become load-bearing correctness logic rather than belt-and-suspenders. Fix the key; the guards reduce to optimizations.
+
+**Multi-leg flows: scope key to `(entityId + legId)`, not just `entityId`.** Using only the entity ID causes all legs to hash to the same key — the service treats leg 2 as a duplicate of leg 1.
+
+```java
+// Deterministic, collision-safe across legs
+UUID.nameUUIDFromBytes((settlementId + ":" + leg.linkId()).getBytes()).toString()
+```
+
+**Tracking event ordering constraint.** If a tracking event requires data from an async HTTP response (e.g., a movement ID), you cannot store it before the call. Flipping the order trades one failure mode (guard miss on retry) for another: an orphaned tracking event with no real payment behind it, which the poller will attempt to poll indefinitely.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/resilience-patterns.md` — scheduler-decoupled maker/checker (complements saga step decoupling), domain-typed exceptions for integration failures

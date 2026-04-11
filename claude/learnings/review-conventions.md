@@ -71,7 +71,7 @@ Review summaries name themes ("some learnings may not earn their context cost");
 
 ### Emoji reactions for resolved review comments
 
-When re-reviewing a PR and a previous comment has been addressed, react with a 👍 emoji instead of posting a text reply. This signals acknowledgment without creating noise in the comment thread. Reserve text replies for partially-addressed or unresolved findings.
+Resolved/acknowledged comments are reaction-only — 🚀 for resolved (code change verified), 👍 for acknowledged (agreed, pending fix). No text reply, since it would just re-iterate the addresser's fix. Text replies are reserved for partially-addressed and not-addressed cases that carry new content. Canonical rules: `~/.claude/skill-references/review-comment-classification.md`.
 
 ### Don't post empty reviews — unless triggered by new commits
 

@@ -83,3 +83,12 @@ Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `swe
 ```
 
 Use `last_addressed_sha` as the watermark SHA key in `status.md`. On error, still write `milestone: errored`.
+
+## Step 11: Write Learnings
+
+Append a dated section to `{PR_DIR}/learnings.md`. Include:
+- Which learnings files you loaded and how they influenced addressing
+- Domain observations: patterns, gotchas, or conventions discovered in the code
+- Addressing observations: what was straightforward to implement, what required escalation and why
+
+Identify at least one constraint, pattern, or surprise you encountered that wasn't in the learnings you loaded. If genuinely nothing new, explain what made this pass routine — which loaded learnings covered the territory. **This file is mandatory** — do not skip it.

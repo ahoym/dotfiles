@@ -6,7 +6,8 @@
       "localPath": "~/.claude/learnings",
       "writable": true,
       "writeScope": "global",
-      "defaultWriteTarget": true
+      "defaultWriteTarget": true,
+      "default": true
     },
     {
       "name": "private",
