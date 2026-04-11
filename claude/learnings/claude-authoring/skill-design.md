@@ -209,7 +209,7 @@ In skill files, `$ARGUMENTS` is the CLI-substituted value (replaced before the m
 
 ## `disable-model-invocation: true` for Irreversible Skills
 
-Skills that perform irreversible actions (publishing artifacts, creating tags, deploying to production) should use `disable-model-invocation: true` in frontmatter so they can only be run as explicit slash commands, not invoked by the model autonomously during a session. The model might determine that a release or publish action would fulfill the user's intent, but irreversible side effects should always require explicit human invocation.
+Skills with irreversible side effects (publish, tag, deploy) should set `disable-model-invocation: true` — prevents the model from autonomously invoking them when it determines they'd fulfill the user's intent.
 
 ## Cross-Refs
 
