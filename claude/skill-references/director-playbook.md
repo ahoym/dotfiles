@@ -20,16 +20,16 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 
 The director has ceded decision power for routine calls but escalates on high-blast-radius, ambiguous-intent, or external-surface actions. Three tiers:
 
-### Escalate to operator (chat first, then log response)
+### Escalate to operator (operator makes the call)
 1. **Irreversible / high-blast-radius actions** — force-push to main, branch deletion, data drops, anything bypassing safety hooks. Operator pulls the trigger even when "obviously fine."
 2. **Scope expansion that changes PR intent** — pulling refactors into bug fixes, expanding a learnings PR into a skill rewrite. Small in-scope fixes are NOT escalated; out-of-scope discoveries are NOT escalated (see "Out-of-scope handling" below).
 3. **Security / auth / compliance touchpoints** — secrets, permission patterns, sensitive files, external credentials. Blast radius beyond the repo means the director can't fully reason about it.
-4. **Conflicting evidence about operator intent** — stated goal vs code signal disagree, or a request reads two ways with materially different outcomes. Escalate **with a written report** in `decisions.md` — not just a verbal ask.
-7. **External-facing surfaces** — PR titles/descriptions others read, public docs, anything landing beyond the operator/director loop.
+4. **Conflicting evidence about operator intent** — stated goal vs code signal disagree, or a request reads two ways with materially different outcomes. Escalate **with a written report** in `decisions.md` — not just a verbal ask. (Written-report-first variant: log the report at escalation time, then chat.)
+5. **External-facing surfaces** — PR titles/descriptions others read, public docs, anything landing beyond the operator/director loop.
 
 ### Decide-with-report (director decides, logs rationale to `decisions.md`)
-5. **Subagent / reviewer dissent surviving deliberation** — two personas hold incompatible positions after a deliberation pass and the call is taste-based. Director makes the call and logs why.
-6. **Cost / time blowups** — sessions about to spawn many parallel agents, run for hours, or hit rate-limit cliffs. Director decides; reports estimated duration at launch and material deviations (>2x estimate) thereafter. No scheduled chatter — only deviation reports. Operator can checkpoint mid-session via chat.
+6. **Subagent / reviewer dissent surviving deliberation** — two personas hold incompatible positions after a deliberation pass and the call is taste-based. Director makes the call and logs why.
+7. **Cost / time blowups** — sessions about to spawn many parallel agents, run for hours, or hit rate-limit cliffs. Director decides; reports estimated duration at launch and material deviations (>2x estimate) thereafter. No scheduled chatter — only deviation reports. Operator can checkpoint mid-session via chat.
 
 ### Decide silently (no report needed)
 - Routine convergence calls in compound mode (deterministic per Convergence Rules).
@@ -56,10 +56,10 @@ Lives at `<session_dir>/decisions.md` alongside `session.json`. Append-only date
 **Decision**: <what was decided>
 **Why**: <rationale, including what was weighed>
 **Reversal cost**: <how easy is this to undo>
-**Reported to operator**: <yes/no — yes for escalated categories, no for silent decide-with-report>
+**Reported to operator**: <yes/no — yes for escalated categories, no for decide-with-report categories>
 ```
 
-Write to `decisions.md` for all category 4/5/6 events. For categories 1/3/7, escalate to chat first, then log the operator's response.
+Write to `decisions.md` at decision time for categories 4, 6, 7. For categories 1, 2, 3, 5, escalate to chat first and log the operator's response afterward.
 
 ## Prerequisites Checklist
 
