@@ -106,7 +106,7 @@ Review comments include a `head_sha` indicating which commit version they were m
 
 Merged/closed requests should default to comment-only mode rather than hard-stopping. Post-merge review follow-up is a valid workflow — addressing reviewer comments, clarifying design decisions, recommending follow-up MRs. The terminal state check still fires (and cancels any polling cron jobs), but the skill proceeds in comment-only mode: reply to comments, post summary, skip checkout/implementation/push.
 
-This interacts with ownership-based mode detection (see `claude-authoring-skills.md` § "Ownership-Based Mode Detection"): terminal state is an additional signal that forces comment-only, independent of authorship.
+This interacts with ownership-based mode detection: terminal state is an additional signal that forces comment-only, independent of authorship.
 
 ## Batch Discussion ID Resolution Against a Single Paginated Fetch
 
@@ -114,8 +114,8 @@ GitLab inline comment replies require the discussion ID (not the note ID). Resol
 
 ## Cross-Refs
 
-- `skill-design.md` — core skill design patterns (includes "Inline Critical Conditions" pattern that the devolution fix applies; "Ownership-Based Mode Detection" for the companion pattern)
-- `content-types.md` — routing hub for authoring cluster
+- `skill-references-and-loading.md` — "Inline Critical Conditions" pattern that the devolution fix applies
+- `routing-table.md` — routing hub for authoring cluster
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — reviewer-addresser cycle architecture, iterative testing for autonomous features
 - `~/.claude/learnings/process-conventions.md` — structured footnote template for multi-agent comment identity
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer convergence, offset loops, pre-flight checks

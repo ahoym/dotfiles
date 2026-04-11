@@ -1,6 +1,6 @@
 Proto3 schema evolution and compatibility patterns.
 - **Keywords:** proto3, optional, backward-compatible, wire format, schema evolution, field addition, Protobuf
-- **Related:** ~/.claude/learnings/java-integration-patterns.md
+- **Related:** ~/.claude/learnings/java/integration.md
 
 ---
 

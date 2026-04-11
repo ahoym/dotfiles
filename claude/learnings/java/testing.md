@@ -1,6 +1,6 @@
 Java testing: assertion hygiene, TestNG lifecycle, test naming conventions.
 - **Keywords:** duplicate assertions, TestNG, AfterClass, AfterMethod, BeforeMethod, test naming, lifecycle
-- **Related:** ~/.claude/learnings/java-code-quality-and-testing.md
+- **Related:** none
 
 ---
 

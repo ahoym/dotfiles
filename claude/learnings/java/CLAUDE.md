@@ -1,4 +1,4 @@
-Java and JVM ecosystem patterns: Spring Boot, Quarkus/Kotlin, observability, and security.
+Java and JVM ecosystem patterns: Spring Boot, Quarkus/Kotlin, observability, security, code quality, concurrency, and integration.
 
 | File | When to read |
 |------|-------------|
@@ -8,3 +8,7 @@ Java and JVM ecosystem patterns: Spring Boot, Quarkus/Kotlin, observability, and
 | observability-gotchas.md | Micrometer/metrics tripwires |
 | infosec-gotchas.md | Java security tripwires for code review |
 | quarkus-kotlin.md | Quarkus + Kotlin: enum hot-reload, dev mode gotchas |
+| code-quality.md | Java code quality: imports, naming, null-safe equality, SonarQube |
+| concurrency.md | Java concurrency: per-entity sync intervals, thread-safety patterns |
+| testing.md | Java testing: assertion hygiene, TestNG lifecycle, test naming |
+| integration.md | Java integration: gRPC proto builders, Spring Security 6 interceptors |

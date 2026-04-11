@@ -184,7 +184,7 @@ A single project writer processed 52 extracted learnings (from 19 MRs across 2 b
 
 Background writer subagents sometimes write directly to final locations (`~/.claude/learnings/`) instead of the staging directory (`docs/learnings/_staging/`), even when instructed to stage. This happens when the agent has write permissions to the final path. The `finalize-staging.sh` script then reports "0 files copied" — which looks like a failure but actually means the work was already done. Verify by checking file modification timestamps at the final location rather than trusting the copy count. The orchestrator should check both staging and final paths before concluding something went wrong.
 
-### Learnings search: topical match ≠ review relevance
+## Learnings search: topical match ≠ review relevance
 
 Keyword matching loads files that mention related concepts, but "related" ≠ "useful for this task." A learning about *how to build orchestration* matches when *reviewing orchestration code*, but it contains authoring guidance — not domain knowledge that catches defects. The fix: rank from index descriptions, cap full loads at top 3, pull additional files only when a specific finding needs them.
 
@@ -203,4 +203,3 @@ This catches misconfigured `--allowedTools` or missing `settings.json` patterns 
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns: watermark rerun, directives channel, append-only artifacts, run lifecycle

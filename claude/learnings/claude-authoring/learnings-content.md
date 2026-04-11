@@ -88,8 +88,6 @@ No `# Title` — the filename serves as the title. This keeps all three signal l
 **Why it works:** The sniff step (read 5 lines to check relevance) exists because filenames alone are weak signals. Descriptions make sniffing unnecessary. The pipeline was compensating for missing structure.
 
 
-**Maintenance cost:** Low when there's a regular consolidation cadence — add an entry when adding a file, remove when removing.
-
 ## File Naming Drift: Name for the Domain, Not the Tool
 
 When a file accumulates content over time, its name can drift from its actual scope. `gitlab-ci-cd.md` accumulated GitLab API and `glab` CLI content because `glab` was the common thread — but MR endpoint gotchas and inline comment GraphQL requirements have nothing to do with CI/CD pipelines. Someone working on review automation wouldn't look in a CI/CD file.
@@ -101,15 +99,6 @@ When a file accumulates content over time, its name can drift from its actual sc
 ## Check Overlap Before Creating New Learnings Files
 
 When extracting knowledge from skills into learnings, content often splits across multiple existing homes rather than forming a new standalone file. Before creating a new file, check existing learnings for partial coverage — the new content may be an enhancement to 2-3 existing files rather than a standalone topic. A new file that's 60% overlap with existing content adds maintenance burden without proportional discovery value.
-
-## Cross-Reference Types: Semantic vs Discovery
-
-Two distinct purposes for `## Cross-Refs` cross-references in learnings files:
-
-- **Discovery** ("this file also exists") — redundant when a curated index is present; the index surfaces all files with descriptions. Can be dropped.
-- **Semantic** ("when using X with Y, the interaction matters because Z") — carries contextual reasoning that no index description can replicate. Keep these; they fire when a file is *already loaded* and provide targeted follow-up context.
-
-**Test:** Does the cross-reference explain *why* the interaction matters, or just that another file exists? If the latter, the index makes it redundant.
 
 ## Porting a Skill Reference to Team Learnings
 

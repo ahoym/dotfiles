@@ -1,6 +1,6 @@
 Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
-- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID
-- **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
+- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination
+- **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/testing-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
 
 ---
 
@@ -33,6 +33,10 @@ Return an error response listing missing fields, or `null` if all present. Keep 
   ```tsx
   /^https?:\/\//i.test(uri) ? <a href={uri}>...</a> : <span>{uri}</span>
   ```
+
+## URL Encoding Mismatch in Request Signing
+
+When an HTTP client (e.g., Unirest, OkHttp) automatically percent-encodes query parameters, the request signer must use `URI.getRawQuery()` (encoded form), not `URI.getQuery()` (decoded form), to compute the signature. Especially insidious with pagination tokens containing base64 characters (`+`, `/`, `=`) — the first page works because the token is absent, but continuation requests silently fail with signature errors. Applies to any adapter where signing and transport use different URL representations.
 
 ## API Contract Audit Approach
 
@@ -114,6 +118,6 @@ Include correlation/request IDs in all log statements for integration operations
 ## Cross-Refs
 
 - `~/.claude/learnings/financial/applications.md` — idempotency patterns
-- `~/.claude/learnings/testing-patterns.md` — validator and route handler testing
+- `~/.claude/learnings/testing/testing-patterns.md` — validator and route handler testing
 - `~/.claude/learnings/code-quality-instincts.md` — parameter naming conventions
 - `~/.claude/learnings/python-specific.md` — Pydantic v2 serialization options for the "consistent shapes" principle
