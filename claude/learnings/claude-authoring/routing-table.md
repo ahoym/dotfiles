@@ -87,6 +87,7 @@ Guidelines must be universal — applicable to any agent regardless of stack, la
 - Challenge every memory addition: could this live in a guideline, learning, skill reference, or persona instead?
 - Memory is always-on context cost — learnings/guidelines are conditional and discoverable
 - Behavioral rules → guidelines, not memory
+- **Feedback targeting a skill's output → fix the skill template, not a memory or guideline.** The closer to the point of use, the more durable the fix. Skills > guidelines > learnings > memory as fallback chain.
 - If it duplicates a learning or guideline, the memory is the redundant copy
 - Convert relative dates to absolute when saving
 

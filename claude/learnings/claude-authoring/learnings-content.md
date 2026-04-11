@@ -157,6 +157,10 @@ Batch import scripts that `cp` staging files to final locations overwrite withou
 
 Sanitization strips project names but misses platform CLI tools (`glab` in a GitHub repo, `gh` in a GitLab repo). Check for platform CLI mismatches when sanitizing extracted content.
 
+## Verify Cross-Ref Destinations Exist Before Updating Refs
+
+When refactoring learnings structure (renaming files, moving into subdirs), update cross-refs only after the destination file actually exists at the target provider path. Speculative updates for a reorg that never ran leave broken refs across every consuming file. Before writing `provider:<name>/new-path/file.md`, resolve the provider's `localPath` and confirm the file is there. Batch imports from other repos are the common culprit — they encode the authoring agent's target structure, not the current structure.
+
 ## Cross-Refs
 
 No cross-cluster references.

@@ -209,6 +209,18 @@ git push origin temp-branch:<pr-branch>
 
 Local `main` may be behind remote — especially after other branches merge. `git diff main...HEAD` inflates the changeset with commits already merged upstream. Always use `git diff origin/main...HEAD` (or `git fetch origin main` first) to get the true delta. This applies to any tool that computes MR scope from a diff against main.
 
+## Large-Branch Regression Triage: Classify → Wholesale Revert → Add-Back
+
+When a branch mixes novel additions with wide regressions (path renames, CLI conversions, header destruction, bulk deletions across dozens of files), surgical per-file editing is error-prone and slow. Faster workflow:
+
+1. **Scan all axes first.** `git diff origin/main..HEAD --name-only | while read f; do ...` with grep counts per regression marker. Don't propose strategy until every axis is mapped — each new axis invalidates partial plans.
+2. **Classify every changed file** into KEEP (novel + clean) / DELETE / REVERT. Present the classification table for operator approval.
+3. **Wholesale revert** — `xargs git checkout origin/main -- < revert.txt`. Preserves KEEP files in working tree untouched.
+4. **Add back** specific novel sections into reverted files via Edit (extracted from diffs pre-revert).
+5. **Replace branch history** — `git reset --soft origin/main` stages all kept changes; single new commit; `git push --force-with-lease`.
+
+The classification table is what the operator approves, not individual edits. This scales to 90+ file branches where surgical editing would take hours and miss regressions.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands
