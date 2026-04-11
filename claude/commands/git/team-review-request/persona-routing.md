@@ -48,7 +48,7 @@ Many domain personas extend a base (e.g., `java-fintech` extends `fintech-ledger
 
 ## Explicit Routing Rules
 
-Precedence over heuristic matching. Forced personas count toward the max-3 cap; heuristic fills remaining slots.
+Precedence over heuristic matching. Forced personas count toward the utility-based cap; heuristic fills any remaining capacity, subject to the same "distinct lens" test.
 
 ### Integration/Adapter → architecture-reviewer
 
