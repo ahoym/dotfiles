@@ -25,7 +25,7 @@ git_part=""
 if git -C "$raw_cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   branch=$(git -C "$raw_cwd" symbolic-ref --short HEAD 2>/dev/null || git -C "$raw_cwd" rev-parse --short HEAD 2>/dev/null)
   if [[ -n "$branch" ]]; then
-    if ! git -C "$raw_cwd" diff --quiet 2>/dev/null || ! git -C "$raw_cwd" diff --cached --quiet 2>/dev/null; then
+    if [[ -n "$(git -C "$raw_cwd" status --porcelain 2>/dev/null)" ]]; then
       git_part=" ${GREEN}${branch}${YELLOW}*${RESET}"
     else
       git_part=" ${GREEN}${branch}${RESET}"
