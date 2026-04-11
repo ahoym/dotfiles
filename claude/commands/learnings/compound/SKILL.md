@@ -85,6 +85,12 @@ Save new patterns and learnings from the current session into global skills, gui
 
 3. **Write learnings to files**:
    - If any Skill-type learning is selected: read `skill-template.md` and `~/.claude/learnings/claude-authoring-skills.md` first
+   - **Conciseness gate** — before writing each learning, draft the content mentally and cut it to the minimum that preserves intent. Rules:
+     - Aim for one to two sentences per insight. A second sentence is fine for the "why" or a key caveat — if it needs three, consider splitting the insight.
+     - Lead with the rule or pattern, not the story. Drop "I discovered that…" framing.
+     - Use `code` or terse structure (` → `, `|` tables, bullet fragments) over prose when meaning is preserved.
+     - No hedging ("might", "could potentially", "it seems like"). State the pattern.
+     - After drafting, re-read and ask: "Can I cut any words without losing the teaching?" If yes, cut.
    - For each item in `SELECTED_LEARNINGS`:
      - Read the target file (`~/.claude/<relative-path>`) to check if it exists
      - **Existing file**: use Edit to append new sections (find a unique string near the end, replace with itself + new content)
@@ -136,7 +142,7 @@ Add provider entries to `~/.claude/learnings-providers.json` to enable writing t
 
 - Prefer updating existing files over creating new ones
 - Keep learnings atomic — one concept per section
-- **Write concisely** — every token in a learning/guideline/skill costs context budget when loaded. Express insights in the fewest tokens that preserve the teaching value. Prefer terse patterns over verbose explanations; code examples over prose when the code speaks for itself.
+- **Write concisely** — every token costs context budget when loaded. The conciseness gate in step 3 is mandatory, not advisory. If a learning reads like a paragraph, it's too long. **Exception: concise code examples are high-value**, not verbosity — agents copy them directly. A 3-line working command example is worth more than a paragraph explaining the same thing.
 - **Type selection when unsure**: Learning > Guideline > Skill (least to most structured)
 - **Strip provenance before writing.** Remove "discovered while building X" / "learned during Y project" notes — they add no teaching value and leak project context into global learnings. The pattern itself is what matters. (See also: `learnings/claude-authoring-learnings.md` → "Provenance vs structural content")
 - Be honest in utility self-assessments

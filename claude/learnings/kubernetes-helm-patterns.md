@@ -1,0 +1,1 @@
+When bootstrapping a new Helm app by copying an existing one, disable inherited placeholder prometheusrule boilerplate (`prometheus: false` in values.yaml) until real alerting rules are written. Placeholder rules (dummy alerts, wrong metric selectors) will be deployed and misfire in production if left enabled.

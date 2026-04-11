@@ -27,6 +27,9 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 ## Deployment
 
 - `vercel-deployment.md` — Vercel: cron job limits, Postgres (Neon), environment variables
+- `kubernetes-helm-patterns.md` — Helm: bootstrapping apps from templates, prometheusrule boilerplate gotcha
+- `nginx-patterns.md` — nginx: alias+try_files SPA routing, add_header inheritance in named locations, Vite base path, proxy_pass trailing slash
+- `web-auth-patterns.md` — Web auth: cross-subdomain cookie sharing, localhost port-agnostic cookies, csrf-csrf CSRF validation behavior
 
 ## General Engineering
 

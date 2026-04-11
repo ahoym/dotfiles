@@ -18,12 +18,15 @@ Skills that produce this structure can be launched and monitored by `/director`.
     ├── prompt.txt          # Input piped to claude -p
     ├── directives.md       # Per-item directives (optional, append-only)
     ├── session.pid          # Written by runner (sh -c/exec pattern)
+    ├── session.state       # Written by runner after success — resume state (session_id, prev_cost_usd, cycle)
+    ├── session.reset       # Written by director to force fresh start on next cycle (triggers deletion of session.state)
     ├── state.md            # Written by runner -- process lifecycle state
     ├── status.md           # Written by session at end (watermark, milestone)
     ├── result.md           # Written by session at end (append-only)
     ├── learnings.md        # Written by session at end (append-only, optional)
-    ├── live.md             # Written by stream-monitor.sh during session
-    └── raw.jsonl           # Written by tee during session (debug only)
+    ├── live.md             # Written by stream-monitor.sh during session (append-only across cycles)
+    ├── raw.jsonl           # Written by tee during session (current cycle only)
+    └── raw-N.jsonl         # Archived raw.jsonl from cycle N (raw-1.jsonl, raw-2.jsonl, ...)
 ```
 
 ## manifest.json
@@ -120,6 +123,9 @@ Append-only dated sections. Written by the director between cycles. Sessions rea
 ## <ISO timestamp>
 <instructions for the session>
 ```
+
+### session.reset
+Empty sentinel. Runner deletes `session.reset` + `session.state` on launch and runs a fresh `claude -p` with `prompt.txt`. Director writes this when `milestone: context-limit` is detected.
 
 ### manifest-updates.json
 

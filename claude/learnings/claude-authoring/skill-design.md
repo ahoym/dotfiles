@@ -195,6 +195,14 @@ Agent prompts that do domain work (implementing, reviewing, clarifying) benefit 
 
 This pattern applies to any skill that spawns domain-work agents: sweep:work-items, sweep:review-prs, sweep:address-prs, or custom playbooks.
 
+## Exportable vs Internal Skill Directories
+
+When a repo ships skills meant for cross-project use alongside project-internal skills, separate them with a namespace directory: `.claude/commands/<namespace>/` for exportable, `.claude/commands/` for internal. Devs symlink only the namespace directory (`ln -s ~/.claude/<repo>/.claude/commands/<namespace> ~/.claude/commands/<namespace>`), keeping internal skills invisible outside the repo. Skills in the namespace appear as `/<namespace>:<skill>` — the directory structure produces the command hierarchy.
+
+## Prerequisites Before Instructions
+
+Place `## Prerequisites` (permissions, env vars, symlink setup) above `## Instructions` in skill files. Operators scanning a skill file hit blockers before investing time reading the workflow. This also means prerequisites don't need to be duplicated in README or other docs — the skill is the single source of truth.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)

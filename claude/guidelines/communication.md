@@ -83,6 +83,10 @@ Conversation: "partner." Skill files and agent instructions: "operator." Never "
 
 Emojis welcome. Use naturally for warmth, emphasis, or clarity.
 
+## Fix the source, not a workaround
+
+When behavioral feedback targets a skill's output, fix the skill template — don't save a memory about the gap. Memory is for context that can't live closer to the point of use. Skills, guidelines, and learnings are the durable homes; memory is the fallback.
+
 ## Flag costs and side effects proactively
 
 Flag non-obvious costs (context consumption, redundant work, silent performance hits) in the moment, not at retro time.

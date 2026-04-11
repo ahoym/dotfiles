@@ -1,5 +1,5 @@
 Testing recipes for Vitest/React Testing Library, Next.js route handlers, cross-implementation fixtures, Python test isolation, and mock design.
-- **Keywords:** Vitest, React Testing Library, renderHook, vi.mock, vi.hoisted, jsdom, localStorage, pytest, pytest.raises, module-level singleton, import side effects, UTC, datetime, cross-implementation fixtures, mock coupling, test helpers
+- **Keywords:** Vitest, React Testing Library, renderHook, vi.mock, vi.hoisted, jsdom, localStorage, pytest, pytest.raises, module-level singleton, import side effects, UTC, datetime, cross-implementation fixtures, mock coupling, test helpers, mockClear, mockReset, mockResolvedValue, beforeEach, afterEach, call history, cross-test leakage
 - **Related:** ~/.claude/learnings/frontend/nextjs.md, ~/.claude/learnings/playwright-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/frontend/react-frontend-gotchas.md
 
 ---
@@ -186,6 +186,88 @@ Replace `pytest.raises(Exception)` with specific exception types. Catching broad
 ## Plan Docs Should Specify Mock Expectation Values
 
 When writing plan docs that include integration/router-level tests, explicitly state which env var values mocks should match — default values from `os.getenv("X", "default")` or values from `.env.tests`. This prevents a debugging round where tests fail because mock expectations use `.env.tests` values but the code under test reads module-level singletons initialized with defaults.
+
+## Testing axios interceptors
+
+Capture the interceptor function via the `use` mock, then call it directly — no real HTTP involved.
+
+```typescript
+const mockGet = vi.hoisted(() => vi.fn());
+let capturedInterceptor: ((c: InternalAxiosRequestConfig) => Promise<InternalAxiosRequestConfig>) | null = null;
+
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn(() => ({
+      get: mockGet,
+      interceptors: {
+        request: {
+          use: vi.fn((fn) => { capturedInterceptor = fn; }),
+        },
+      },
+    })),
+  },
+}));
+
+import { _resetCsrfTokenForTesting } from '../client';
+
+beforeEach(() => {
+  _resetCsrfTokenForTesting();
+  mockGet.mockResolvedValue({ data: { token: 'test-token' } });
+});
+
+it('attaches token to POST', async () => {
+  const config = { method: 'post', headers: {} } as unknown as InternalAxiosRequestConfig;
+  const result = await capturedInterceptor!(config);
+  expect(result.headers['x-csrf-token']).toBe('test-token');
+});
+```
+
+Key points:
+- `vi.hoisted` makes `mockGet` available inside the `vi.mock` factory
+- **`interceptorHolder` must also be hoisted** — a plain `let` variable is in the temporal dead zone when the factory runs, causing `ReferenceError: Cannot access '...' before initialization`. Use `vi.hoisted()` for any variable the mock factory writes to.
+- `interceptorHolder.fn` is set when the module registers via `interceptors.request.use`
+- Call the interceptor directly rather than making real requests through the client
+
+## Lazy module-level Promise for testability
+
+A Promise initialized at module load time is untestable — the mock can't be set up before the module imports and fires the fetch. Switch to lazy init:
+
+```typescript
+// BAD — fires on import, mock can't intercept
+const tokenPromise = apiClient.get('/token').then(r => r.data.token);
+
+// GOOD — fires on first use, mock can be set up first
+let tokenPromise: Promise<string> | null = null;
+const getToken = () => {
+  if (!tokenPromise) tokenPromise = apiClient.get('/token').then(r => r.data.token);
+  return tokenPromise;
+};
+
+// Export for test reset between cases
+export const _resetTokenForTesting = () => { tokenPromise = null; };
+```
+
+Benefits beyond testability: avoids wasted fetches for users immediately redirected away (e.g. unauthenticated users hitting a protected route before login redirect).
+
+## Mock call history vs implementation state
+
+`mockResolvedValue(...)` sets the return value but does **not** clear call history. Without an explicit `mockClear()`, call counts accumulate across tests and assertions like `not.toHaveBeenCalled()` or `toHaveBeenCalledTimes(1)` fail on later tests.
+
+```ts
+beforeEach(() => {
+  mockGet.mockClear();             // reset call count/args — must come first
+  _resetModuleCacheForTesting();   // reset any module-level cached state
+  mockGet.mockResolvedValue(...);  // set return value
+});
+```
+
+**`beforeEach` not `afterEach`** — `afterEach` leaves dirty state when a test throws or is skipped; the next test starts with stale call counts. `beforeEach` guarantees a clean slate unconditionally.
+
+`mockClear()` vs `mockReset()`:
+- `mockClear()` — clears calls/instances/results, keeps implementation
+- `mockReset()` — clears calls AND resets implementation to `undefined`
+
+When re-assigning the implementation in the same `beforeEach`, either works — prefer `mockClear()` as it's more explicit about intent.
 
 ## Cross-Refs
 
