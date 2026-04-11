@@ -159,6 +159,10 @@ Cross-file discovery uses two other mechanisms — `**Related:**` (explicit grap
 
 `/organize` cross-references MR changes against the *unchanged catalog*, but must also cross-reference new sections against each other within the MR. Two new sections in different files can duplicate the same concept (e.g., "Per-item error isolation" in integration-patterns.md and "Mapper error resilience" in resilience-patterns.md). Neither exists in the catalog yet, so catalog-only dedup misses them. After checking each new section against the catalog, also grep new section headings against all other changed files in the same MR.
 
+## Symlink Gap: learnings-providers.json
+
+`learnings-providers.json` must be symlinked into `~/.claude/` for `provider:<name>/path` slug resolution to work at runtime. The setup script (`setup-claude.sh`) lists it in `ITEMS`, but the symlink only exists after re-running the script. Without it, every `Read(~/.claude/learnings-providers.json)` fails silently — skills fall back to hardcoded paths or skip provider resolution entirely. After adding new files to the `ITEMS` array, re-run `setup-claude.sh` or manually `ln -s`.
+
 ## Cross-Refs
 
 No cross-cluster references.

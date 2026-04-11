@@ -67,25 +67,10 @@ Gather collection metrics:
    - **Moderate** (1-2 of last 5): suggest 15 iterations — some staleness possible
    - **Stale** (0 of last 5): suggest 20 iterations — full sweep warranted
 
-4. **Update progress.md and report.md** — Read both files from the worktree (they were just copied from templates), then Edit each to populate pre-flight data:
+4. **Update progress.md and report.md** — parallel-Read both (Edit requires recent Read), then parallel-Edit both (1 Edit per file):
 
-   **progress.md** — replace the Pre-Flight section placeholders:
-   ```
-   Recent commits: <last 3 commit summaries>
-   Learnings files: N
-   Skills count: N
-   Skill references: N
-   Guidelines files: N
-   Persona files: N
-   Cadence: <recent|moderate|stale> (<X> curation commits in last 5)
-   Suggested iterations: N
-   ```
-
-   **report.md** — populate Run Info and Collection Health "Before" column:
-   - Started: current timestamp
-   - Branch: `consolidate/<date>`
-   - Worktree: `claude/worktrees/consolidate-<date>`
-   - Collection Health Before: file counts from step 2
+   - **progress.md**: replace the `(pending)` block (lines 18–24 in template) with actual values
+   - **report.md**: single Edit spanning from `| Started |` through `| Persona files |` — replace `<!-- timestamp -->` / `<!-- branch name -->` / `<!-- worktree path -->` with actuals and `— | —` health rows with `N | —` counts
 
 ### 6. Confirm to the operator
 
