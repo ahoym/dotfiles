@@ -39,8 +39,8 @@ For prompt-free execution, add these patterns to `~/.claude/settings.local.json`
 
 ## Reference Files (always loaded)
 
-- `discipline-rules.md` — **Read first.** Canonical structural rules for discipline checks.
-- `prompt-template.md` — Report template and confidence framing.
+@./discipline-rules.md
+@./prompt-template.md
 
 ## Reference Files (conditional)
 
@@ -49,6 +49,13 @@ For prompt-free execution, add these patterns to `~/.claude/settings.local.json`
 
 ## Steps
 
+### Step 0: Set Persona
+
+Activate the convergence-verifier persona before any other step:
+```
+Skill tool: skill="set-persona", args="convergence-verifier"
+```
+
 ### Step 1: Parse Arguments and Detect Mode
 
 Parse `$ARGUMENTS`:
@@ -56,30 +63,26 @@ Parse `$ARGUMENTS`:
 - Check for `--intent-file <path>` and `--session-dir <path>`
 - If both present: `MODE=director`, read `director-mode.md`
 - If neither present: `MODE=standalone`
-- If only one present: error — both flags required for director mode
+- If only one present: **halt with error.** Emit: "Error: director mode requires both `--intent-file` and `--session-dir`. Got only `<flag-present>`. Halting — no PR data fetched, no output produced." Do not fall through to standalone mode. Return no output that could be parsed as a successful result.
 
-### Step 2: Set Persona
+### Step 2: Resolve Intent
 
-Check if `convergence-verifier` persona is active. If not, activate it:
-```
-/set-persona convergence-verifier
-```
+Resolve intent **before** fetching PR data. This enables early CLARIFY in director mode without wasting API calls, and ensures discipline checks and intent alignment run on a single consistent PR snapshot.
 
-### Step 3: Fetch PR Data
-
-Fetch in parallel:
-- PR metadata: title, description, state, linked issues
-- PR diff: full diff
-- PR comments: all review comments, inline comments, and top-level comments
-- PR reviews: all review submissions
-
-If PR is merged or closed, note terminal state but proceed — verification of completed PRs is valid.
-
-### Step 4: Resolve Intent
+**Director mode** (`MODE=director`):
+1. Read the intent file at the path from `--intent-file`
+2. **Validate the intent file** — halt with a descriptive error on any of these:
+   - File does not exist: "Error: intent file not found at `<path>`. Halting — no PR data fetched."
+   - File exists but has no `Source` field: "Error: intent file missing required `Source` field. Halting."
+   - `Source` value is not one of `director-negotiated`, `agent-prompt`, `inferred-from-pr-description`: "Error: unrecognized intent Source `<value>`. Expected one of: director-negotiated, agent-prompt, inferred-from-pr-description. Halting."
+   On any error: produce no output the director could parse as success.
+3. Extract `Source` field and set `INTENT_SOURCE` to the value from the file
+4. **Check intent vagueness**: if the intent is too vague to evaluate scope drift or acceptance, output `CLARIFY: <specific question>` and stop immediately. The director routes it. Maximum one CLARIFY per run. This avoids fetching PR data on an intent that can't be evaluated.
+5. No operator interaction — intent is pre-negotiated
 
 **Standalone mode** (`MODE=standalone`):
-1. Read PR description and linked issue bodies
-2. Draft a quick intent summary following the format:
+Intent capture requires PR metadata, so fetch basic PR info (title, description, linked issues) first, then:
+1. Draft a quick intent summary following the format:
    ```
    ## Goal
    <one or two sentences>
@@ -90,19 +93,24 @@ If PR is merged or closed, note terminal state but proceed — verification of c
    ## Out of scope
    - <inferred exclusions, if any>
    ```
-3. Present to operator: "Here's what I think this PR is trying to do — confirm or revise?"
-4. One revision round if operator adjusts
+2. Present to operator: "Here's what I think this PR is trying to do — confirm or revise?"
+3. One revision round if operator adjusts
+4. If still too vague after one round, produce report with "intent too vague to evaluate" section
 5. Set `INTENT_SOURCE=operator-confirmed`
 
-**Director mode** (`MODE=director`):
-1. Read the intent file at the path from `--intent-file`
-2. Extract `Source` field from intent file header
-3. Set `INTENT_SOURCE` to the value from the file
-4. No operator interaction — intent is pre-negotiated
+### Step 3: Fetch PR Data
 
-### Step 5: Run Discipline Checks
+Fetch in parallel:
+- PR metadata: title, description, state, linked issues (skip if already fetched in Step 2 standalone mode)
+- PR diff: full diff
+- PR comments: all review comments, inline comments, and top-level comments
+- PR reviews: all review submissions
 
-Read `discipline-rules.md` (already loaded in reference files step).
+If PR is merged or closed, note terminal state but proceed — verification of completed PRs is valid.
+
+### Step 4: Run Discipline Checks
+
+Discipline rules are eager-loaded via `@./discipline-rules.md`.
 
 For each rule:
 1. Evaluate the assertion against fetched PR data
@@ -111,7 +119,7 @@ For each rule:
 
 Build the discipline checklist per the format in `discipline-rules.md`.
 
-### Step 6: Run Intent Alignment Checks
+### Step 5: Run Intent Alignment Checks
 
 Using the resolved intent and the PR diff/comments:
 
@@ -125,15 +133,7 @@ Using the resolved intent and the PR diff/comments:
 
 Scale confidence framing per `INTENT_SOURCE` (see `prompt-template.md` for framing language).
 
-### Step 7: Handle Clarification (if needed)
-
-If intent is too vague to evaluate scope drift or acceptance:
-
-**Standalone mode**: Ask the operator directly. One round max. If still unclear, produce report with "intent too vague to evaluate" section.
-
-**Director mode**: Output `CLARIFY: <specific question>` and stop. The director routes it. Maximum one CLARIFY per run.
-
-### Step 8: Compose and Post Report
+### Step 6: Compose and Post Report
 
 1. Build the report following the template in `prompt-template.md`
 2. Append the footnote (per `request-interaction-base.md` format):
@@ -147,12 +147,21 @@ If intent is too vague to evaluate scope drift or acceptance:
 
 **Director mode additionally**: Write the report to `<session_dir>/verify-pr-<N>.md`.
 
-### Step 9: Report Completion
+### Step 7: Report Completion
+
+Use a structured completion signal so the director can parse status without free-text matching:
 
 ```
-Verification posted on PR #<NUMBER> (<pass/fail summary>)
+VERIFIED:<status> PR #<NUMBER> — <summary>
 <PR_URL>
 ```
+
+Where `<status>` is one of:
+- `pass` — all discipline checks passed, intent alignment satisfactory
+- `fail` — one or more discipline failures or critical intent gaps
+- `intent-unclear` — intent too vague to evaluate after CLARIFY limit reached (report has explicit "couldn't evaluate" sections)
+
+The `intent-unclear` status is a **blocking signal** — the director must not converge the session on a PR with this status.
 
 ## Important Notes
 
@@ -160,6 +169,6 @@ Verification posted on PR #<NUMBER> (<pass/fail summary>)
 - **Intent alignment is advisory.** Frame as "things to check," not verdicts. The operator decides what matters.
 - **Don't repeat the diff.** The operator has the PR open. Cite specific locations, don't quote large blocks.
 - **Footnote is mandatory.** The `Role: Verifier` tag distinguishes verification comments from review/address comments.
-- **One CLARIFY max in director mode.** If intent is still unclear after one round, produce the report with explicit "couldn't evaluate" sections rather than looping.
+- **One CLARIFY max in director mode.** Checked at Step 2 before PR data is fetched. If still unclear after one round, produce the report with explicit "couldn't evaluate" sections and `VERIFIED:intent-unclear` status rather than looping.
 - **Empty discipline sections are fine.** If all rules pass, report the clean checklist. Don't manufacture findings.
 - **Timing matters for loop closure.** Missing responses might mean the address cycle hasn't completed, not that discipline failed. Check whether the address runner converged before flagging orphaned threads.

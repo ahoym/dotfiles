@@ -35,9 +35,9 @@ Resolved and acknowledged threads get emoji reactions only — no text reply res
 **Assertion**: For threads classified as resolved or acknowledged:
 - A reaction emoji exists (rocket for resolved, thumbsup for acknowledged)
 - No text reply from the reviewer *after* the addresser's fix/acknowledgement
-- Exception: operator comments (no `Role:` tag) always reopen the thread
+- Exception: operator comments (no `Role:` tag) reopen the thread when they: (a) pose a new question, (b) request additional changes, or (c) explicitly disagree with the resolution. Operator comments that do NOT reopen: acknowledgments ("thanks", "got it"), praise, or tangential discussion unrelated to the thread's finding.
 
-**How to check**: For each thread with a reviewer reaction emoji, verify no subsequent reviewer text reply exists on that thread. Ignore operator comments that reopen.
+**How to check**: For each thread with a reviewer reaction emoji, verify no subsequent reviewer text reply exists on that thread. Ignore operator comments that don't meet the reopen criteria above.
 
 **What to cite**: Thread ID + the unnecessary text reply comment ID.
 
@@ -53,7 +53,9 @@ Every inline finding has a response. No orphaned threads.
 
 **What to cite**: Original reviewer comment ID + thread URL.
 
-**Note**: Missing responses may indicate the address cycle hasn't completed rather than a discipline failure. Check timing — if the address runner converged and the thread is still orphaned, it's a finding.
+**Timing caveat (mode-specific)**:
+- **Standalone mode**: The verifier has no access to runner `status.md` files. Flag orphaned threads with a caveat in the report: "address runner state unknown — verify manually before treating as discipline failure." This prevents false positives while still surfacing the finding.
+- **Director mode**: Phase 5 ordering guarantees the verifier runs post-convergence. An orphaned thread at that point is a real finding — skip the timing caveat.
 
 ## Rule 5: No Bare Issue References
 

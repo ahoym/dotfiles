@@ -45,9 +45,10 @@ The director receives this and routes through its Decision Framework:
 - **Complex/escalate**: director asks operator, then re-invokes verifier with the answer
 
 **Rules**:
-- Maximum one `CLARIFY` per verifier run. If still unclear after one round, produce a report with an "intent too vague to evaluate" section instead of looping.
+- Maximum one `CLARIFY` per verifier run. If still unclear after one round, produce a report with an "intent too vague to evaluate" section and exit with `VERIFIED:intent-unclear` status instead of looping. The `intent-unclear` status is a **blocking signal** — the director must not converge the session on this PR.
 - `CLARIFY` is only for intent ambiguity — discipline checks never need clarification.
 - The director logs clarification requests to `decisions.md` with category `verifier-clarification`.
+- `CLARIFY` is checked at Step 2 (after reading intent, before fetching PR data) to avoid wasting API calls on an intent that can't be evaluated.
 
 ## Session Dir Output
 
