@@ -1,13 +1,22 @@
 #!/bin/bash
-# fill-template.sh — Assemble prompts from templates + data files
+# fill-template.sh — Assemble prompts/scripts from templates + data files
 # No AI involved — pure string substitution.
 #
-# Usage: fill-template.sh <template> <data-dir> > prompt.txt
+# Usage: fill-template.sh <template> <data-dir> > output
 #
-# Template syntax:
-#   {KEY}        — replaced with value from <data-dir>/metadata.json
-#   {@filename}  — replaced with contents of <data-dir>/filename
-#                  Paths are relative to data-dir (e.g., {@../repo-summary.txt})
+# Template syntax (two brace styles — use single for prose, double for shell):
+#   {KEY}          — replaced with value from <data-dir>/metadata.json
+#   {{KEY}}        — same, but double-brace (avoids collision with shell ${var})
+#   {@filename}    — replaced with contents of <data-dir>/filename
+#                    Paths are relative to data-dir (e.g., {@../repo-summary.txt})
+#   {{#KEY}}       — block conditional open (must be on its own line)
+#   {{/KEY}}       — block conditional close (must be on its own line)
+#                    Block is kept when KEY is non-empty in metadata, stripped otherwise.
+#
+# Brace style is auto-detected per template: if the template contains any
+# {{KEY}} patterns (double-brace), single-brace substitution is skipped to
+# avoid corrupting shell ${var} references. Prompt/markdown templates use
+# single-brace only; shell script templates use double-brace only.
 #
 # Security: Templates are trusted input — {@...} paths resolve without
 # boundary checks (e.g., {@../../anything} is valid). Only use with
@@ -33,11 +42,41 @@ KV=$(mktemp)
 NEXT=$(mktemp)
 trap 'rm -f "$WORK" "$KV" "$NEXT"' EXIT
 
-# --- Phase 1: Expand {@filename} inclusions (iterative) ---
-# Each pass resolves one level of file inclusions. Iterates until
-# no {@...} patterns remain or max depth is reached.
 cp "$TEMPLATE" "$WORK"
 
+# --- Generate KV pairs early (used by multiple phases) ---
+jq -r 'to_entries[] | select(.value != null) | "\(.key)\t\(.value | tostring)"' "$METADATA" > "$KV"
+
+# --- Phase 1: Block conditionals {{#KEY}}...{{/KEY}} ---
+# Runs FIRST so stripped blocks don't trigger file-not-found warnings
+# from {@file} inclusions inside dead blocks.
+awk -F'\t' '
+NR == FNR {
+    vals[$1] = $2
+    next
+}
+{
+    if (match($0, /^[[:space:]]*\{\{#[^}]+\}\}[[:space:]]*$/)) {
+        tag = $0
+        gsub(/^[[:space:]]*\{\{#/, "", tag)
+        gsub(/\}\}[[:space:]]*$/, "", tag)
+        in_block = 1
+        keep = (tag in vals && vals[tag] != "")
+        next
+    }
+    if (match($0, /^[[:space:]]*\{\{\/[^}]+\}\}[[:space:]]*$/)) {
+        in_block = 0
+        next
+    }
+    if (in_block && !keep) next
+    print
+}
+' "$KV" "$WORK" > "$NEXT"
+mv "$NEXT" "$WORK"
+
+# --- Phase 2: Expand {@filename} inclusions (iterative) ---
+# Each pass resolves one level of file inclusions. Iterates until
+# no {@...} patterns remain or max depth is reached.
 depth=0
 max_depth=5
 while grep -q '{@[^}]*}' "$WORK" && [ "$depth" -lt "$max_depth" ]; do
@@ -76,26 +115,47 @@ while grep -q '{@[^}]*}' "$WORK" && [ "$depth" -lt "$max_depth" ]; do
     depth=$((depth + 1))
 done
 
-# --- Phase 2: Substitute {KEY} from metadata.json ---
-# Note: tab separator means metadata values containing literal tabs would
-# be truncated. Safe for current usage (URLs, branch names, SHAs).
-jq -r 'to_entries[] | select(.value != null) | "\(.key)\t\(.value | tostring)"' "$METADATA" > "$KV"
-
-awk -F'\t' '
-NR == FNR {
-    keys["{" $1 "}"] = $2
-    next
-}
-{
-    for (pat in keys) {
-        out = ""
-        rest = $0
-        while ((i = index(rest, pat)) > 0) {
-            out = out substr(rest, 1, i - 1) keys[pat]
-            rest = substr(rest, i + length(pat))
-        }
-        $0 = out rest
+# --- Phase 3: Substitute keys from metadata.json ---
+# Auto-detect brace style: if the template uses {{KEY}} (double-brace),
+# skip single-brace to avoid corrupting shell ${var} references.
+if grep -q '{{[A-Z_][A-Z_0-9]*}}' "$WORK"; then
+    # Double-brace mode (shell script templates)
+    awk -F'\t' '
+    NR == FNR {
+        keys["{{" $1 "}}"] = $2
+        next
     }
-    print
-}
-' "$KV" "$WORK"
+    {
+        for (pat in keys) {
+            out = ""
+            rest = $0
+            while ((i = index(rest, pat)) > 0) {
+                out = out substr(rest, 1, i - 1) keys[pat]
+                rest = substr(rest, i + length(pat))
+            }
+            $0 = out rest
+        }
+        print
+    }
+    ' "$KV" "$WORK"
+else
+    # Single-brace mode (prose/markdown templates)
+    awk -F'\t' '
+    NR == FNR {
+        keys["{" $1 "}"] = $2
+        next
+    }
+    {
+        for (pat in keys) {
+            out = ""
+            rest = $0
+            while ((i = index(rest, pat)) > 0) {
+                out = out substr(rest, 1, i - 1) keys[pat]
+                rest = substr(rest, i + length(pat))
+            }
+            $0 = out rest
+        }
+        print
+    }
+    ' "$KV" "$WORK"
+fi

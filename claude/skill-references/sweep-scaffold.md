@@ -106,15 +106,44 @@ Error handling: always write all artifacts before exiting, even on failure. On e
 
 ## let-it-rip.sh Generation
 
-Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and fill placeholders:
-- `{{MODE}}` → skill-specific mode string
-- `{{RUN_DIR}}` → absolute path to run directory
-- `{{CONCURRENCY}}` → from parsed arguments
-- `{{PRS}}` → space-separated eligible PR numbers
-- `{{TIMESTAMP}}` → current timestamp
-- `{{MODEL}}` → claude model for the runner. **The skill picks this based on runner role:** if the runner is a lightweight *orchestrator* that mostly invokes other skills/subagents (e.g., `sweep:review-prs` calling `git:team-review-request`), `claude-sonnet-4-6` is fine — the heavy work is in spawned subagents. If the runner is a *leaf* doing the actual work itself (reading diffs, editing files, running git, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`), use `claude-opus-4-6`. Use the `[1m]` variant only when context demands it (very large diffs / multi-file refactors).
+Write `<RUN_DIR>/metadata.json` with runner config, then assemble via `fill-template.sh`:
 
-Address mode additionally fills `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keeps `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks. Review mode removes those blocks.
+```bash
+bash ~/.claude/skill-references/fill-template.sh \
+  ~/.claude/skill-references/parallel-claude-runner-template.sh <RUN_DIR> \
+  > <RUN_DIR>/let-it-rip.sh
+chmod +x <RUN_DIR>/let-it-rip.sh
+```
+
+**Do NOT read the runner template** — `fill-template.sh` handles all substitution. The skill only writes data files.
+
+#### Runner metadata.json schema
+
+```json
+{
+  "MODE": "review",
+  "MODE_LABEL": "Review",
+  "MODEL": "<model>",
+  "RUN_DIR": "<absolute path>",
+  "CONCURRENCY": "3",
+  "PRS": "80 81 82",
+  "TIMESTAMP": "<YYYY-MM-DD-HHMM>",
+  "BRANCHES": "",
+  "WORKTREES": "",
+  "PROJECT_ROOT": ""
+}
+```
+
+**`MODEL` selection — based on runner role:** orchestrator runners that delegate to subagents (e.g., `sweep:review-prs` → `git:team-review-request`) → `claude-sonnet-4-6`. Leaf runners doing actual work (reading diffs, editing files, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`) → `claude-opus-4-6`. `[1m]` variant only when context demands it.
+
+**Block conditionals:** `BRANCHES` and `WORKTREES` control `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks in the template. Non-empty → block kept; empty → block stripped. Review mode sets both to empty. Address mode sets both to a truthy value (e.g., `"true"`).
+
+**Address mode data files** (written to `<RUN_DIR>/` alongside metadata.json):
+- `branch-cases.txt` — case-statement body for `branch_for()` (e.g., `80) echo "feat/auth" ;;`)
+- `worktree-cases.txt` — case-statement body for `worktree_for()` (e.g., `80) echo "/path/to/wt" ;;`)
+- `new-worktree-prs.txt` — space-separated PR numbers needing new worktrees (empty if all reused)
+
+These are included via `{@file}` references in the template. Review mode doesn't need them — the block conditional strips the enclosing section.
 
 ### Pre-flight State Check
 
