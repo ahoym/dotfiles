@@ -99,6 +99,10 @@ When adding features to a protocol or system, check git history for previously r
 
 When the request uses architectural language ("dependency injection," "cleaner boundaries," "decoupling"), lead with the architecturally clean proposal. Don't default to "simplest thing that works" when the ask is "right thing." Read the register: "can we make this work?" → simple path fine. "Can we make this clean?" → lead with clean architecture, present the simple path as the fallback.
 
+### Challenge plan docs before executing them
+
+When asked to execute a plan (create issues, implement PRs), read it critically first — not just for understanding but for architectural soundness. Plans written in one session may embed assumptions worth revisiting: first-implementation-shaped abstractions (Schwab-shaped dicts as a "broker-agnostic" protocol), overloaded PRs (four concerns in one), or test ergonomics gaps (env gates that break test imports). Surface questions before creating artifacts — a 10-minute planning discussion that splits a PR or introduces typed models saves days of rework downstream.
+
 ### Clarify deliverable structure before writing research/planning docs
 
 For research and planning tasks, ask about doc format and location **alongside** the scoping questions — before the first write. How many docs? What's each one's purpose? Where do they live? A research doc that gets restructured three times (one file → two → three, plus a directory move) costs more cumulative edits than asking the structure question upfront.
