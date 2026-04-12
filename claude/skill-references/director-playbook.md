@@ -73,7 +73,7 @@ cat prompt.txt \
 | `prompt.txt` | Sweep skill | Runner -> `claude -p` | Assessment |
 | `state.md` | Runner | Director | During session (overwritten per state change) |
 | `status.md` | Agent | Director, next agent | End of session |
-| `result.md` | Agent | Director | End of session (appended) |
+| `results.md` | Agent | Director | End of session (appended) |
 | `learnings.md` | Agent | Director, future sessions | End of session (appended) |
 | `directives.md` | Director | Agent (next session) | Append-only |
 | `session.pid` | Runner | Monitor, director | Launch |
@@ -110,6 +110,8 @@ Read all `pr-*/state.md` (runner lifecycle) and `pr-*/status.md` (session domain
 
 First cycle: full table. Subsequent cycles: delta-only (changed rows), with a one-line "N unchanged" summary.
 
+**Lock the column set at cycle 0.** Whatever columns you present in the first table, keep across the session — adding/removing columns mid-session loses the cross-cycle delta view. If a new dimension becomes relevant later, add it to the trailing context, not by reshaping the table.
+
 ## Convergence Rules
 
 ### Review Loop
@@ -127,8 +129,8 @@ First cycle: full table. Subsequent cycles: delta-only (changed rows), with a on
 
 After every runner completion in compound mode, the director executes this decision tree automatically — no operator prompt needed:
 
-1. **Address runner completes** → read review `result.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (all PRs terminal?).
-2. **Review runner completes** → read `result.md`. If findings posted (inline comments > 0 OR thread replies > 0) → relaunch address. If skipped or 0 findings → review converging, start 30m skip window.
+1. **Address runner completes** → read review `results.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (all PRs terminal?).
+2. **Review runner completes** → read `results.md`. If findings posted (inline comments > 0 OR thread replies > 0) → relaunch address. If skipped or 0 findings → review converging, start 30m skip window.
 3. **Both converged** → proceed to Phase 5.
 
 "Runner completed" ≠ "converged." A completed runner means one cycle finished — convergence requires the domain rules above to be satisfied.
@@ -159,7 +161,7 @@ Review for conciseness: identify verbose prose, duplication, and extraction cand
 ```
 
 ### Summary-Only Review Finding
-**When:** latest review result.md section has `findings > 0` AND `inline_comments == 0` (finding on unchanged lines, documented in summary only).
+**When:** latest review results.md section has `findings > 0` AND `inline_comments == 0` (finding on unchanged lines, documented in summary only).
 **Why:** the address loop can't pick this up — no inline comment means no comment ID change, so the address agent's watermark matches and it skips.
 **Write to:** `<ADDRESS_RUN_DIR>/pr-<N>/directives.md`
 
@@ -195,11 +197,25 @@ Re-run the sweep skill (not just the runner) when:
 
 Do NOT re-assess just because a cycle skipped — that is normal convergence behavior. Re-running the runner script is sufficient for ongoing cycles.
 
-## Active-Branch Workaround (ad-hoc only)
+## Branch-Position Patterns
 
-When running ad-hoc from a branch that is also a PR target, `git worktree add` fails ("branch already checked out"). The address sweep skill detects and reuses existing worktrees. For PRs on the director's active branch where no worktree exists, use `Agent(isolation: "worktree")` to work from an isolated context.
+**Main is still the preferred standard path** — cleanest, fewest gotchas. The two patterns below cover the cases where main isn't where the work is happening.
 
-The standard path (director on `main`) avoids this entirely. This section applies only to ad-hoc sessions where the director happens to be on a PR branch.
+### Active-branch sweeps (supported via worktree reuse)
+
+When the director is on a branch that IS one of the PR targets, the project root itself shows up in `git worktree list` as the worktree for that branch. The address sweep skill's worktree-discovery step picks this up automatically (`worktree_reused: true` pointing at the project root). The address worker `cd`s in and runs commits + pushes there. **No `git worktree add` needed; no separate `Agent` needed.**
+
+Discipline (must hold for this to work):
+- The director only reads `tmp/claude-artifacts/.../state.md`, `status.md`, `results.md` — never working-tree files. The agent's commits don't disturb the director's view because the director's view is just `tmp/`.
+- The director must not make its own commits mid-session that interleave with agent commits — sequential is fine, concurrent breaks.
+
+This is **not a workaround** — it's the supported active-branch pattern. Main is still preferred for the cleanliness it gives you (no chance of accidentally touching the working tree, no concurrent-write risk), but active-branch sessions converged across an 8-cycle compound loop without issue.
+
+### Off-branch work while sweeping (use `Agent(isolation: "worktree")`)
+
+When you need to work on a *different* branch while sweeps are running on the active one — e.g., spinning up a fresh feature PR off `main` while a compound sweep is iterating on a different branch — that's a different problem and needs `Agent(isolation: "worktree")`. The Agent gets its own worktree on its own branch, completely isolated from the director's working tree, and the sweep workers continue undisturbed.
+
+This is the pattern used for the framework PR (PR 79) built mid-session on its own branch while PR 78's sweeps were still running. Don't conflate the two cases — active-branch sweeps don't need an isolated agent.
 
 ## Worker Learnings Triage
 

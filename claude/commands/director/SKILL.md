@@ -100,13 +100,13 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 3. **Convergence check.** After all items reach a terminal runner state (completed, errored, rate-limited), evaluate domain convergence per the playbook's Convergence Rules. When a runner completes: decide relaunch (not converged) or mark converged.
 
 **Compound mode auto-relaunch (review+address):** After every runner completion, execute this decision tree automatically — do not prompt the operator unless escalation is needed:
-   - **Address runner completes** → read review `result.md` for last cycle's findings. If findings > 0 this cycle, relaunch review runner to verify resolution. If all findings resolved (or review already converged), check address convergence rules.
-   - **Review runner completes** → read `result.md`. If new findings posted (inline comments > 0 or thread replies > 0), relaunch address runner. If review skipped or 0 findings, review loop is converging — start the 30m skip window.
+   - **Address runner completes** → read review `results.md` for last cycle's findings. If findings > 0 this cycle, relaunch review runner to verify resolution. If all findings resolved (or review already converged), check address convergence rules.
+   - **Review runner completes** → read `results.md`. If new findings posted (inline comments > 0 or thread replies > 0), relaunch address runner. If review skipped or 0 findings, review loop is converging — start the 30m skip window.
    - **Offset cadence**: maintain minimum 3-minute gap between review and address launches on relaunch, same as cycle 0.
 
 **Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 
-**Conflict resolution is a separate step, not an address prompt instruction.** When a PR has merge conflicts, don't embed rebase instructions in the address prompt — `claude -p` sessions can't reliably handle rebase + address in the same run. Instead: (1) spawn an isolated agent (`isolation: "worktree"`) to rebase the branch, (2) wait for force-push to complete, (3) then launch the address cycle on the clean branch.
+**Conflict resolution is handled inline by the addresser when `RESOLVE_CONFLICTS=true`.** When a PR has merge conflicts (`mergeable: CONFLICTING`), regenerate the address artifacts with `RESOLVE_CONFLICTS: "true"` and `HAS_CONFLICTS: "true"` in the PR's `metadata.json`, then re-assemble the prompt via `fill-template.sh`. The addresser-prompt's Step 6 reads `~/.claude/commands/git/resolve-conflicts/SKILL.md` and resolves conflicts before addressing comments — rebase + address completes in a single `claude -p` run. Verified: 1 conflict + 3 findings auto-implemented in 391s.
 
 **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
@@ -121,8 +121,10 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 
 ## Phase 5: Convergence + Wrap-up
 
+**Never merge PRs and never offer to merge.** Merging is the operator's review checkpoint — the moment they read what agents produced. When a director session reaches a PR-mergeable terminal state, present convergence and stop. Don't propose merge as a "next step" option, even when it's clearly the right move and the PR is in the operator's own repo. The operator merges when they're ready.
+
 1. Check convergence by reading `*/status.md` across all run_dirs listed in `session.json`.
 2. Session ends when all runs converge.
 3. Write final `director-state.md` per playbook format with terminal state.
-4. Present a final summary: per-run retro (read each run's `*/result.md` and `*/learnings.md`).
-5. Offer to invoke `/session-retro` if the session was substantial.
+4. Present a final summary: per-run retro (read each run's `*/results.md` and `*/learnings.md`).
+5. Offer to invoke `/session-retro`. When accepted, the retro skill will read all worker `learnings.md` files before compounding — high-value worker observations are easy to lose otherwise.

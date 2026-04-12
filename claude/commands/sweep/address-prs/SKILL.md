@@ -208,7 +208,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `address`. Additionally fill `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks.
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `address` and `{{MODEL}}` → `claude-opus-4-6` (this runner is a leaf — it reads diffs, edits files, runs git, and pushes commits itself). Additionally fill `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks.
 
 The worktree setup loop (`setup_worktrees`) must also include the pre-flight state check from the scaffold, before fetching or creating worktrees. Without it, the script fails on `git fetch` for merged branches before the launch loop's skip ever fires.
 

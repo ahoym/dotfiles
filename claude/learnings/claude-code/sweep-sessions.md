@@ -100,6 +100,14 @@ When the reviewer and addresser are the same git user (e.g., operator runs both 
 
 **Workaround:** The address session correctly skips (no harm done), but it wastes a `claude -p` session. The MR author needs to respond to these findings — the address loop can't do it.
 
+## Context % Surfacing from Stream-JSON
+
+The runner can compute per-cycle context window usage by parsing the latest assistant message's `usage` block from `raw.jsonl`: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens` = total tokens the model just processed = current conversation context size at that turn. Divide by the context window (1m for `[1m]` model variants, else 200k) to get a percentage. Write `context_used_tokens`, `context_window`, and `context_pct` to `state.md` in the success branch — gives the director an at-a-glance view of how saturated each worker is, without parsing `raw.jsonl`. Cheap (one `jq | tail -1` call) and useful for deciding when to relaunch a fresh session vs. resume.
+
+## Active-Branch Director Sessions Work via Worktree Reuse
+
+Main is still the preferred director branch — cleanest, fewest gotchas. But the active-branch case is **supported**, not a workaround: when the PR being swept IS the director's current branch, `git worktree list` reports the project root as the worktree for that branch, and the address sweep skill's worktree-reuse path picks it up automatically. No `git worktree add`, no separate `Agent` needed. Discipline: director must not touch the working tree (only reads `tmp/claude-artifacts/.../state.md`) and must not interleave its own commits concurrently with agent commits — sequential is fine. The off-branch case (working on a *different* branch while sweeps run on the active one) is the one that needs `Agent(isolation: "worktree")`. Don't conflate them. Validated end-to-end across an 8-cycle compound mode session on the active branch.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.

@@ -73,3 +73,11 @@ Domain personas (financial, security, correctness) miss structural concerns in a
 When reviewing code that calls external services (gRPC stubs, HTTP clients, SDK wrappers), the correctness persona systematically misses boundary validation patterns unless explicitly directed. Empirically: `UUID.fromString(null)` → NPE escape, `e.getCause()` null-safety, empty-string enum mapping, and silent pagination truncation were all caught by external reviewers but missed by our correctness persona.
 
 **Routing rule:** When changed classes call external services AND correctness-reviewer is selected, inject: "Focus on boundary validation (UUID parsing, enum mapping), null guards on SDK returns, exception cause-chain nullability, and silent pagination truncation."
+
+## Multi-Agent Loop Blind Spots: Each Agent's Own Discipline
+
+Paired-agent loops (reviewer/addresser, planner/implementer) catch drift in what each agent says *about the others' work* but not what each agent says *about itself* — its own output format, body shape, or response discipline. The reviewer's body format isn't critiqued by the addresser, and the next-cycle reviewer doesn't critique its previous self; operators catch this drift manually. When format discipline matters, add an out-of-band verifier that reads the converged state and checks each agent's output against its own discipline rules — not just cross-agent semantic correctness.
+
+## Two Confidence Tiers in Agent Output Reports
+
+Agent reports that mix deterministic checks with judgment-based ones should frame them differently. Deterministic checks (structural rules, presence/absence) → assertions with citations ("thread #X has 0 reactions, rule says reaction-only"). Judgment-based checks (intent alignment, scope drift) → questions framed for operator review ("intent doc line 4 says X, diff shows Y, wanted to flag"). Same report, distinct sections, distinct framings — calibrates trust appropriately and prevents the report from overpromising on the judgment half.

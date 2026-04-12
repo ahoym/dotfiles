@@ -16,7 +16,7 @@ End-of-session routine that captures learnings and facilitates a retrospective.
 
 ## Instructions
 
-1. **Compound learnings**: Invoke `/learnings:compound` using the Skill tool. Wait for it to complete fully before continuing.
+1. **Compound learnings**: Before invoking compound, check whether this session orchestrated worker agents (director runs, sweep runs). If `tmp/claude-artifacts/sweep-*/<run-dir>/pr-*/learnings.md` or `tmp/claude-artifacts/sweep-*/<run-dir>/issue-*/learnings.md` files exist from this session, **read them all first** — worker observations contain high-value learnings that the conversation history alone won't surface (per director playbook's "Worker Learnings Triage"). Then invoke `/learnings:compound` using the Skill tool. Wait for it to complete fully before continuing.
 
 2. **Skill performance**: Share your observations on how the skills used this session performed — what went well, what was rough. Include a **learnings load review** with provenance tracking — for each learnings file that was loaded or referenced, note *how* it was loaded:
 
