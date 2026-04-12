@@ -95,6 +95,14 @@ Concrete examples of routine (silent log): a transient `last_comment_id: none` i
 
 When adding features to a protocol or system, check git history for previously removed versions of the same concept. Prior art often contains design decisions, failure modes, and refinements that save reinvention. The removed version may need only a targeted fix rather than a from-scratch redesign.
 
+### Match design ambition to framing
+
+When the request uses architectural language ("dependency injection," "cleaner boundaries," "decoupling"), lead with the architecturally clean proposal. Don't default to "simplest thing that works" when the ask is "right thing." Read the register: "can we make this work?" → simple path fine. "Can we make this clean?" → lead with clean architecture, present the simple path as the fallback.
+
+### Clarify deliverable structure before writing research/planning docs
+
+For research and planning tasks, ask about doc format and location **alongside** the scoping questions — before the first write. How many docs? What's each one's purpose? Where do they live? A research doc that gets restructured three times (one file → two → three, plus a directory move) costs more cumulative edits than asking the structure question upfront.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/review-conventions.md` — code review patterns (complementary: workflow vs review)

@@ -210,6 +210,20 @@ Empirically verified: editing an existing comment on a GitHub issue changes the 
 
 When the same string appears in multiple locations of a file (e.g., a cross-ref in both a header `Related:` line and a `## Cross-Refs` footer), use `Edit` with `replace_all: true` instead of two separate Edit calls with line-context anchors. One call, atomic, no need to track both line numbers. Especially useful for path renames where the path appears in 3-5 spots across header/body/footer.
 
+## Lazy-load `@` includes via procedural-reference tables
+
+`@path` in CLAUDE.md eagerly loads the file every session. For context-specific guides (e.g., backtesting docs in a trading repo), switch to a procedural-reference table — path listed without `@`, with a "when to read" condition:
+
+```markdown
+## Context-Specific Guides (load when needed)
+
+| File | When to read |
+|------|-------------|
+| backtesting/CLAUDE.md | When working on backtesting, metrics, or chart generation |
+```
+
+Zero context cost until the condition fires. Use `@` for guidelines that apply every session; use tables for domain-specific deep references that only matter in certain tasks.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline

@@ -94,6 +94,10 @@ Every fix to a runtime artifact (generated prompt, `let-it-rip.sh`, status.md fo
 
 When a skill rule does a complete 180° on a previously-stated capability claim (old: "can't reliably do X"; new: "X works inline"), the new text should briefly acknowledge why the old rule existed — even a parenthetical. Without this, future readers see a strong claim without knowing the rule was ever different. Ordinary updates don't need this treatment; only explicit reversals of prior "can't" / "don't" / "impossible" statements.
 
+## Learnings-to-Skill Graduation Gap
+
+Learnings accumulate during sessions; skills get updated when something breaks. No routine asks "which learnings have graduated to operational status and should be folded into their point-of-use skill?" Periodic audit: read learnings files adjacent to a skill, check each against the skill/playbook, and promote proven patterns. Director sessions are the highest-value trigger since they exercise the most learnings.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

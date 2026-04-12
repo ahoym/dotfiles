@@ -215,6 +215,14 @@ In skill files, `$ARGUMENTS` is the CLI-substituted value (replaced before the m
 
 Skills with irreversible side effects (publish, tag, deploy) should set `disable-model-invocation: true` — prevents the model from autonomously invoking them when it determines they'd fulfill the user's intent.
 
+## Template Phase Ordering: Block Conditionals Before File Inclusion
+
+When a template engine supports both block conditionals (`{{#KEY}}...{{/KEY}}`) and file inclusion (`{@file}`), block conditionals must run first. File inclusions inside dead blocks trigger file-not-found warnings if inclusion runs before block stripping — the files don't exist because the skill didn't write them (they're mode-specific).
+
+## Shell Template Auto-Detection: Skip Single-Brace Substitution
+
+Templates that use `{{KEY}}` (double-brace) are shell scripts where `${var}` must not be touched. Auto-detect by checking for `{{[A-Z_][A-Z_0-9]*}}` patterns; when found, skip `{KEY}` single-brace substitution entirely. Without this, `{MODE}` inside `${MODE}` gets replaced, corrupting every shell variable that shares a name with a metadata key.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
