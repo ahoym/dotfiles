@@ -51,6 +51,24 @@ Explore relevant code to understand:
 - What files would likely need changing
 - What ambiguities exist (multiple valid interpretations)
 
+### Scope Assessment
+
+After investigating, evaluate whether the issue decomposes into independent pieces of work. The goal: each sub-issue should produce a small, focused PR with clear acceptance criteria that a reviewer can evaluate quickly.
+
+**Signals that an issue should be split:**
+- Changes span multiple independent subsystems (sub-issue A could merge without B)
+- Mixed concerns: refactor + new feature, migration + behavior change, API + UI
+- Multiple distinct acceptance criteria that don't depend on each other
+- The resulting PR would touch enough files or domains that a reviewer can't hold the full context
+
+**Don't recommend splitting when:**
+- The changes are inherently coupled (schema change + code that uses it)
+- Splitting would create intermediate states that break the build or leave dead code
+- The issue is already small enough for a single focused PR
+- The split would produce sub-issues that are trivial or lack meaningful acceptance criteria on their own — the overhead of separate issues/PRs/reviews must be justified by genuinely independent review units, not just smaller diffs
+
+When splitting is warranted, draft concrete sub-issue proposals: a title and 1-2 sentence scope for each, making clear what's in and out of scope. Call out the dependency relationship (independent, or must be sequenced).
+
 ## Step 11: Draft and Post Questions
 
 Write 2-5 specific, actionable questions. Each question must:
@@ -76,6 +94,20 @@ I looked into this and have a few questions before implementation can proceed:
 2. **[Question topic]**: [specific question]
 
 ...
+
+[Include the scope recommendation section below ONLY if the scope assessment found the issue should be split. Omit entirely otherwise.]
+
+### Scope recommendation
+
+This issue covers N independent changes that would review better as separate PRs:
+
+1. **[Sub-issue title]** — [1-2 sentence scope: what's in, what's out, acceptance criteria]
+2. **[Sub-issue title]** — [1-2 sentence scope]
+...
+
+[State dependency order if any, or "These are independent and can proceed in parallel."]
+
+Want me to create these as separate issues, or would you prefer to keep this as one?
 
 ---
 *Co-Authored with [Claude Code](https://claude.ai/code) ({MODEL_NAME})*
