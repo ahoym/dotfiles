@@ -17,7 +17,7 @@ echo "=== Sweep Results: $(basename "$RUN_DIR") ==="
 for pr_dir in "$RUN_DIR"/pr-*/; do
     [ -d "$pr_dir" ] || continue
     pr_num=$(basename "$pr_dir" | sed 's/pr-//')
-    result_file="${pr_dir}result.md"
+    result_file="${pr_dir}results.md"
     learnings_file="${pr_dir}learnings.md"
 
     printf "\n--- PR #%s ---\n" "$pr_num"
@@ -25,7 +25,7 @@ for pr_dir in "$RUN_DIR"/pr-*/; do
     if [ -f "$result_file" ]; then
         cat "$result_file"
     else
-        echo "result: no result.md"
+        echo "result: no results.md"
     fi
 
     if [ -f "$learnings_file" ]; then

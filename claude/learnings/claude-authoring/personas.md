@@ -131,6 +131,10 @@ When porting content from an agent definition (`.claude/agents/`) to a persona, 
 
 **Reframe, don't port verbatim.** Generic frameworks need domain-specific translation. Project-management prioritization axes (urgency, dependencies, risk, learning) become review-specific finding-ranking axes (blocking dependencies, merge risk, teaching value, scope fit). The underlying insight transfers; the framing must match the persona's domain.
 
+## Reviewer Personas Must Check Structural Conventions, Not Just Content Quality
+
+A reviewer persona's checklist that asks only content-quality questions ("is this well-genericized?", "does this duplicate existing learnings?") will miss structural-convention violations: missing file headers, missing index registrations, broken footnote formats, malformed frontmatter. The persona must include explicit structural checks alongside content-quality checks. Pattern: for each file type the persona reviews, list the *minimum structural shape* (header pattern, required sections, index entry) as separate bullets — not bundled into "is this a good file?". The cycle-1 reviewer in one session missed two new learning files lacking the standard `description / **Keywords:** / **Related:**` header for exactly this reason: the persona checked "is the content reusable?" but never "does it have the header at all?".
+
 ## Persona Auto-Detection for Automated Agents
 
 When agents operate without an operator setting a persona (e.g., sweep:work-items, scheduled triggers), the agent prompt should include an auto-detection step. Detection priority:

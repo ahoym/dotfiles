@@ -22,14 +22,14 @@ Parent prompts that instruct children to spawn grandchildren must include the `-
 Workers spawn subagents when their prompt includes:
 1. The full artifact directory path for the subagent (`workers/worker-N/subagent/`)
 2. The exact `claude -p` launch command with `--allowedTools` and stream-monitor pipeline
-3. Instructions for the subagent to write `status.md` and `result.md` to its artifact dir
+3. Instructions for the subagent to write `status.md` and `results.md` to its artifact dir
 4. Monitoring instructions: poll `subagent/status.md` every 20-30s until `milestone: done`
 
 Workers use `run_in_background: true` on the Bash tool call to launch subagents non-blocking, same pattern Directors use for workers.
 
 ## File-Based Coordination Scales
 
-The artifact contract (prompt.txt, status.md, result.md, live.md) works identically at every tier. Parents read children's artifacts for monitoring and synthesis. No pipes between levels — all communication is through the filesystem.
+The artifact contract (prompt.txt, status.md, results.md, live.md) works identically at every tier. Parents read children's artifacts for monitoring and synthesis. No pipes between levels — all communication is through the filesystem.
 
 ## Model Tiering
 

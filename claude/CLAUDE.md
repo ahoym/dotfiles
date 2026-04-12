@@ -3,6 +3,7 @@
 @./guidelines/communication.md
 @./guidelines/context-aware-learnings.md
 @./guidelines/path-resolution.md
+@./guidelines/context-aware-learnings.md
 
 When the user writes `/skill-name`, always invoke it via the Skill tool — never perform the skill's actions manually inline. This applies even when combined with other instructions. When the Skill tool rejects with `disable-model-invocation`, tell the user it can only be run as a slash command; do NOT read the SKILL.md and follow its steps manually.
 

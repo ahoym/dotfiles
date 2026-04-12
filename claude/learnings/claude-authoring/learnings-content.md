@@ -150,6 +150,22 @@ Sanitization strips project names but misses platform CLI tools (`glab` in a Git
 
 When refactoring learnings structure (renaming files, moving into subdirs), update cross-refs only after the destination file actually exists at the target provider path. Speculative updates for a reorg that never ran leave broken refs across every consuming file. Before writing `provider:<name>/new-path/file.md`, resolve the provider's `localPath` and confirm the file is there. Batch imports from other repos are the common culprit — they encode the authoring agent's target structure, not the current structure.
 
+## Dangling Refs After Consolidation
+
+Lifting prose from one file into another can leave **contextual dangling refs**: phrases like `"the existing computeIfAbsent pattern"` that were valid in the source (where surrounding text supplied the context) but become opaque after the lift. Distinct from stale path refs — the path is fine, the *language* assumes deleted context. Grep can't catch these. Detection: read each lifted paragraph standalone and ask "does this sentence reference something not in this file?"
+
+## Intra-Target Dedup Gap in Fold Operations
+
+Fold dedup verification typically compares source vs target — does the new content already exist in the target? It misses **verbatim duplicates within the target** that result from merging two source files into the same destination. Both sources contributed identical sections; the target now has the section twice. Add a self-grep on the target after each fold: `grep -c '^## <heading>' <target>` should return 1.
+
+## Ceremonial Sentences Cluster at Paragraph Ends
+
+Concrete heuristic for conciseness review: **if removing the last sentence of a bullet or paragraph doesn't change the meaning, it's ceremony.** Authors instinctively add a closing sentence to "land" a point — restating the section title, summarizing what was just said, or noting "this pattern is useful for X."
+
+## Meta-Self-Application Check for Writing-Quality Learnings
+
+Learnings that describe writing patterns (ceremonial sentences, conciseness heuristics, hedging) should be validated against their own content. The pattern author instinctively violates the pattern they're documenting — the "ceremonial sentences" section had a ceremonial close by its own heuristic. When reviewing or writing such learnings, apply the described rule to the learning itself as a final check.
+
 ## Cross-Refs
 
 No cross-cluster references.

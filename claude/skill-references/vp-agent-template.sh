@@ -37,7 +37,7 @@ You are a Director agent. Your job is to break a task into subtasks, delegate ea
 ## Rules
 1. You are NON-INVASIVE — do not modify the working tree directly. All work happens through worker sessions.
 2. All coordination is FILE-BASED — write prompts, read status files.
-3. Workers communicate back to you via status.md and result.md in their artifact directories.
+3. Workers communicate back to you via status.md and results.md in their artifact directories.
 
 ## Phases
 
@@ -53,7 +53,7 @@ For each subtask:
 cat "{{RUN_DIR}}/workers/worker-N/prompt.txt" | claude -p --allowedTools "{{ALLOWED_TOOLS}}" --verbose --output-format stream-json | {{MONITOR}} "{{RUN_DIR}}/workers/worker-N" | tee "{{RUN_DIR}}/workers/worker-N/raw.jsonl" > /dev/null
 
 IMPORTANT: Each worker prompt MUST instruct the worker to:
-- Write findings to: {{RUN_DIR}}/workers/worker-N/result.md
+- Write findings to: {{RUN_DIR}}/workers/worker-N/results.md
 - Write status to: {{RUN_DIR}}/workers/worker-N/status.md
 - Set milestone: running when starting, milestone: done when finished
 - Keep results concise
@@ -66,8 +66,8 @@ After launching all workers, wait 45 seconds, then check every 30 seconds:
 
 ### Phase 4: Synthesize
 Once all workers are done:
-1. Read each worker's result.md
-2. Write a combined summary to {{RUN_DIR}}/director/result.md
+1. Read each worker's results.md
+2. Write a combined summary to {{RUN_DIR}}/director/results.md
 3. Write "milestone: done" to {{RUN_DIR}}/director/status.md
 
 Begin now with Phase 1.
@@ -131,9 +131,9 @@ while true; do
         printf 'Director: milestone=%s\n' "$director_milestone"
         if [ "$director_milestone" = "done" ]; then
             printf '\n=== Director finished ===\n'
-            if [ -f "$RUN_DIR/director/result.md" ]; then
+            if [ -f "$RUN_DIR/director/results.md" ]; then
                 printf 'Results:\n'
-                cat "$RUN_DIR/director/result.md"
+                cat "$RUN_DIR/director/results.md"
             fi
             exit 0
         fi

@@ -30,7 +30,7 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 
 ## Permissions for Sweep Sessions
 
-`claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `result.md` sections. `Write` and `Edit` patterns do not imply `Read` access.
+`claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `results.md` sections. `Write` and `Edit` patterns do not imply `Read` access.
 
 ## `claude -p` Skill Tool Requires `Skill(*)` Permission
 
@@ -115,3 +115,19 @@ When a clarify pass discovers the actual blast radius differs from the plan (e.g
 ## Parallel Session Rate Limit Competition
 
 Launching 4+ `claude -p` sessions simultaneously reliably exhausts API rate limits. The first 2-3 sessions complete; later ones hit limits mid-execution. Mitigations: lower concurrency (2-3 for heavy sessions like team reviews), stagger launches, or accept that reruns will be needed. The `.rate-limited` sentinel prevents wasted retries but must not overwrite completed sessions (see runner pre-flight order).
+
+## Director State Is Mostly Computable; Only Decisions Need Logging
+
+Most director-layer state is derivable from worker artifacts: cycle counts from `state.md` timestamps, convergence flags from `status.md` milestones, monitoring snapshots from synthesis. The genuinely uncomputable part is the *director's decision history* — `relaunched address at 14:51 because review found 4 findings`. Append decisions to `<RUN_DIR>/director-decisions.log` on non-routine events (relaunch, escalation, convergence call, directive write), not on a periodic clock. Natural agent behavior — write when something happens, not on a heartbeat. Same shape applies one tier up: a VP managing multiple directors reads each director's decision log + the workers' `state.md` files; no per-tier state file needed.
+
+## Sweep Runner Model Selection: Orchestrator vs Leaf
+
+Match the model to the runner's role. **Orchestrator runners** mainly invoke other skills/subagents (`sweep:review-prs` calling `git:team-review-request`, which spawns reviewer subagents) — `claude-sonnet-4-6` is fine because the heavy work is in the spawned children. **Leaf runners** do the actual work themselves: read diffs, edit files, run git, push commits (`sweep:address-prs`, `sweep:work-items` implementer) — use `claude-opus-4-6`. The runner template's `{{MODEL}}` placeholder is filled per-skill at let-it-rip generation. The `[1m]` variant only when context demands it (very large diffs, multi-file refactors).
+
+## Active Intent Capture: Draft, Lock, Update
+
+Capture intent at session start as a structured artifact (`<session_dir>/intents/<id>.md`), not as conversation context. Director drafts from item metadata, operator confirms or revises, result is locked. In-session scope expansion goes through an explicit update step (append revision section, log to `decisions.md`) — never silent mutation. The locked artifact survives context compaction and grounds decision-making: "is this in scope?" becomes a checkable question against the file, not a subjective recall.
+
+## Compose Escalation Through Existing Decision Frameworks
+
+Secondary agents that need to escalate (verifier asking for clarification, validator finding ambiguity) should route through whatever decision framework already governs the primary loop — not build a parallel escalation channel. Verifier mid-run clarification flows through the same operator-cession framework the director uses (silent for routine, decide-with-report for partial, escalate to operator for ambiguous). Composability over duplication: one escalation surface for the operator to learn, one set of categories, one log location.

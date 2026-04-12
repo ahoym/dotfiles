@@ -205,6 +205,10 @@ git push origin temp-branch:<pr-branch>
 
 **Fix:** Use `git fetch origin --prune` (no branch name) or `git remote prune origin` to prune all stale remote-tracking refs before checking for gone branches.
 
+## Use Git for State Queries, Not File Content
+
+For "where is the world right now" questions — branch divergence, what's merged, who has what — prefer git operations (`git log A..B`, `git log B..A`, `git branch`, `git status`, `git remote`) over reading file content. Git answers in one shot and is authoritative; reading files gives ambiguous data that's easy to misinterpret. Concrete failure mode: after a remote merge, switching to local main showed files in their pre-merge state (because local main was diverged from `origin/main`). The natural next move was to read file content and try to reason about why the merged changes "weren't there" — which led to wrong conclusions. The fast right move was `git log origin/main..main` and `git log main..origin/main` — both ran in one shot and made the divergence obvious. Reach for git first when the question is about world state; reach for Read when the question is about content.
+
 ## Always Diff Against `origin/main`, Not Local `main`
 
 Local `main` may be behind remote — especially after other branches merge. `git diff main...HEAD` inflates the changeset with commits already merged upstream. Always use `git diff origin/main...HEAD` (or `git fetch origin main` first) to get the true delta. This applies to any tool that computes MR scope from a diff against main.
@@ -220,6 +224,14 @@ When a branch mixes novel additions with wide regressions (path renames, CLI con
 5. **Replace branch history** — `git reset --soft origin/main` stages all kept changes; single new commit; `git push --force-with-lease`.
 
 The classification table is what the operator approves, not individual edits. This scales to 90+ file branches where surgical editing would take hours and miss regressions.
+
+## Merge Strategy for Batch Config Imports
+
+When a batch import touches many files across multiple commits but individual files are typically touched by only one commit, merge and rebase produce comparable conflict counts — but merge is operationally simpler (one pass, no history rewrite). Default to merge for learnings/config batch imports.
+
+## modify/delete Conflicts Need Reference Checking
+
+When resolving a merge conflict where main deletes a file that HEAD modifies, grep the repo for references to the deleted file before accepting the deletion. A file may be referenced by cross-refs, index entries, or import paths that won't break loudly. Only accept deletion when references are limited to ephemeral artifacts (generated output, temp files).
 
 ## Cross-Refs
 

@@ -24,7 +24,7 @@ Shared patterns consumed by `sweep:address-prs`, `sweep:review-prs`, and `sweep:
     ├── directives.md   # optional — per-item instructions from directors
     ├── output.log      # stdout+stderr (written by let-it-rip.sh)
     ├── status.md       # watermark + milestone (written by claude -p)
-    ├── result.md       # append-only rounds (written by claude -p)
+    ├── results.md       # append-only rounds (written by claude -p)
     └── learnings.md    # append-only observations (written by claude -p)
 ```
 
@@ -56,7 +56,7 @@ Each `prompt.txt` begins with these shared steps before mode-specific work:
 
 ## Result & Learnings Append Pattern
 
-### result.md
+### results.md
 
 Append a new dated section after each run (do not overwrite). On the very first run, prepend a file header:
 
@@ -112,6 +112,7 @@ Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and fill p
 - `{{CONCURRENCY}}` → from parsed arguments
 - `{{PRS}}` → space-separated eligible PR numbers
 - `{{TIMESTAMP}}` → current timestamp
+- `{{MODEL}}` → claude model for the runner. **The skill picks this based on runner role:** if the runner is a lightweight *orchestrator* that mostly invokes other skills/subagents (e.g., `sweep:review-prs` calling `git:team-review-request`), `claude-sonnet-4-6` is fine — the heavy work is in spawned subagents. If the runner is a *leaf* doing the actual work itself (reading diffs, editing files, running git, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`), use `claude-opus-4-6`. Use the `[1m]` variant only when context demands it (very large diffs / multi-file refactors).
 
 Address mode additionally fills `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keeps `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks. Review mode removes those blocks.
 
@@ -150,7 +151,7 @@ Read all `pr-*/status.md` files, present:
 
 ## Retro
 
-Read `manifest.json`, all `pr-*/result.md`, and all `pr-*/learnings.md`. Note that `result.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+Read `manifest.json`, all `pr-*/results.md`, and all `pr-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
 
 ## Convergence
 
@@ -158,7 +159,7 @@ Convergence is a director-layer concern — individual sessions do not decide co
 
 ## Shared Important Notes
 
-- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly as conversations evolve. The pre-flight state check skips merged/closed PRs. Each `claude -p` session reads the watermark from `status.md` and compares against current PR state — if nothing changed, it skips; if new activity exists, it performs a new pass and appends a dated section to `result.md` and `learnings.md`.
+- **Rerunnable.** `let-it-rip.sh` is the loop target — run it repeatedly as conversations evolve. The pre-flight state check skips merged/closed PRs. Each `claude -p` session reads the watermark from `status.md` and compares against current PR state — if nothing changed, it skips; if new activity exists, it performs a new pass and appends a dated section to `results.md` and `learnings.md`.
 - **Rate limits.** Detected per-session via log grep. `.rate-limited` sentinel signals the summary.
 - **Crash recovery.** Missing result files → retro reports as "unknown/crashed" by diffing manifest against actual results.
 - **Cleanup.** Run directories persist for retro. Remove manually: `rm -rf tmp/claude-artifacts/sweep-<mode>/<timestamp>/`

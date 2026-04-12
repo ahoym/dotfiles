@@ -179,7 +179,7 @@ The most effective skill authoring pattern: execute the workflow manually first,
 When a skill spawns agents inline (via the Agent tool, waiting for results in waves), it can be converted to the director playbook pattern: assessment-only skill → artifact generation → `let-it-rip.sh` runner. Key steps:
 
 1. **Split assessment from execution.** The skill generates `manifest.json` + per-item `prompt.txt` + `let-it-rip.sh`, then exits. Execution is `bash let-it-rip.sh`, rerunnable.
-2. **Move orchestration logic into prompt templates.** Watermark/skip (steps 1-4 from sweep-scaffold), role-specific work, and artifact writing (result.md, learnings.md, status.md) all go into the prompt template — the runner just pipes prompt.txt to `claude -p`.
+2. **Move orchestration logic into prompt templates.** Watermark/skip (steps 1-4 from sweep-scaffold), role-specific work, and artifact writing (results.md, learnings.md, status.md) all go into the prompt template — the runner just pipes prompt.txt to `claude -p`.
 3. **Adapt the runner.** The `parallel-claude-runner-template.sh` is PR-centric. For non-PR items (issues, tickets), adapt: directory naming (`issue-<N>`), state checks (issue open/closed vs PR merged), conditional worktrees (only for roles that modify code).
 4. **Define convergence per role.** Different roles converge differently (implementer: PR opened; clarifier: comment posted; reviewer: review posted). Document in the skill's Convergence section for directors.
 
@@ -202,6 +202,10 @@ When a repo ships skills meant for cross-project use alongside project-internal 
 ## Prerequisites Before Instructions
 
 Place `## Prerequisites` (permissions, env vars, symlink setup) above `## Instructions` in skill files. Operators scanning a skill file hit blockers before investing time reading the workflow. This also means prerequisites don't need to be duplicated in README or other docs — the skill is the single source of truth.
+
+## Cross-Skill Convention Consistency Beats Per-Skill Optimization
+
+When N skills share an artifact contract (e.g., sweep:* writing `results.md`/`status.md`/`learnings.md`), prefer one-name-fits-all over per-skill optimization — even when one skill's agent naturally writes a different convention. The maintenance cost of per-skill divergence (forking shared docs, multiple template files, mental lookup table) exceeds the cost of mild forcing on the outlier agent. Example: sweep address agents naturally write `results.md` (plural), sweep work-items agents naturally write `result.md` (singular). The right call is to standardize on one across all sweep skills (plural in this case), not match each skill to its agents' tendency. The "lean into natural agent behavior" rule still holds — within a single skill — but cross-skill consistency is structural and overrides it.
 
 ## $ARGUMENTS vs Derived Values
 

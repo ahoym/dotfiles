@@ -212,6 +212,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 Generate a runner script adapted for work items. Read `~/.claude/skill-references/parallel-claude-runner-template.sh` as a starting reference, then generate with these adaptations:
 
+- **Model selection**: `{{MODEL}}` → `claude-opus-4-6` for implement runs (the implementer is a leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
 - **Directory naming**: `issue-<N>` instead of `pr-<N>`
 - **Config section**: `ISSUES=(<numbers>)` instead of `PRS`, `IMPLEMENT_ISSUES=(<numbers>)` for worktree tracking
 - **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from default branch (implementers start fresh).

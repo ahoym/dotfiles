@@ -188,6 +188,10 @@ Background writer subagents sometimes write directly to final locations (`~/.cla
 
 Keyword matching loads files that mention related concepts, but "related" ≠ "useful for this task." A learning about *how to build orchestration* matches when *reviewing orchestration code*, but it contains authoring guidance — not domain knowledge that catches defects. The fix: rank from index descriptions, cap full loads at top 3, pull additional files only when a specific finding needs them.
 
+## Subagent Context Loads Are Frozen at Session Start
+
+A subagent's persona, instructions, and reference files are loaded into context when its session starts — mid-session edits to those files don't take effect until the next session/cycle. When iterating on a persona to fix a reviewer miss, the in-flight cycle still runs under the old persona; the next cycle picks up the change. Plan accordingly: don't expect a same-cycle re-run to validate a persona edit. The same applies to skill files, learnings, and any file the subagent has already loaded — Read tool calls cache the file at first read.
+
 ## Permission Pre-flight in Headless Agent Prompts
 
 Headless `claude -p` sessions auto-deny unpermitted tools silently. Add a permission smoke test as the first step in agent prompts — before any analysis work:

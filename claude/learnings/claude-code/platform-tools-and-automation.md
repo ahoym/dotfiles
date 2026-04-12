@@ -202,6 +202,14 @@ Empirically verified: editing an existing comment on a GitHub issue changes the 
 
 **Fix:** Use `git worktree add <path> origin/<branch>` (creates from remote ref, detached) or `git worktree add --detach <path>` then `git checkout -b <new-branch>` inside. For implementers starting fresh, `origin/main` avoids the "already checked out" conflict entirely.
 
+## `gh api --input` Requires Escaped Newlines, Not Literal
+
+`gh api repos/.../pulls/N/reviews --input file.json` returns HTTP 400 "Problems parsing JSON" when string values contain literal newlines. JSON spec requires `\n` escape sequences inside strings — heredocs and `cat <<EOF` produce literal newlines that break the parser. Write the JSON via the Write tool with explicit `\n` in string values, or use `jq -n` to construct it. Adding `commit_id` is defensive practice for review submission even though COMMENT-type reviews don't strictly require it.
+
+## `replace_all: true` Covers Multi-Location String Fixes Atomically
+
+When the same string appears in multiple locations of a file (e.g., a cross-ref in both a header `Related:` line and a `## Cross-Refs` footer), use `Edit` with `replace_all: true` instead of two separate Edit calls with line-context anchors. One call, atomic, no need to track both line numbers. Especially useful for path renames where the path appears in 3-5 spots across header/body/footer.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns that consume stream-json via the monitoring pipeline

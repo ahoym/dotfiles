@@ -92,9 +92,9 @@ I looked into this and have a few questions before implementation can proceed:
 
 ## Step 12: Write Artifacts
 
-### result.md
+### results.md
 
-Append a dated section to `{ISSUE_DIR}/result.md`. On first run, prepend header:
+Append a dated section to `{ISSUE_DIR}/results.md`. On first run, prepend header:
 
 ```markdown
 # Issue #{ISSUE_NUMBER} — {ISSUE_TITLE}

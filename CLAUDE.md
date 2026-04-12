@@ -12,6 +12,10 @@ This repo (dotfiles) stores Claude Code config under `claude/` (not `.claude/`).
 
 For Glob/Grep use `claude/` CWD-relative paths. For Edit/Write either `~/.claude/` or `claude/` paths work.
 
+## Bash Script Invocation
+
+When invoking generated scripts via `bash`, use the **CWD-relative path** that matches the permission pattern, not an absolute path. Permission patterns are literal-string-matched: `Bash(bash tmp/claude-artifacts/**)` matches `bash tmp/claude-artifacts/.../let-it-rip.sh` but **not** `bash /Users/.../dotfiles/tmp/claude-artifacts/.../let-it-rip.sh`. Absolute paths bypass the pattern and trigger an approval prompt.
+
 ## Worktree Path Warning
 
 When running in a git worktree (e.g., via `isolation: "worktree"` agents), **`~/.claude/` and main repo absolute paths bypass worktree isolation**. The `~/.claude/` symlink always points to the main repo's `claude/` directory — it doesn't know about worktrees. Edits using those paths land in the main repo, not the worktree copy.

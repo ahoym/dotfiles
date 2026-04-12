@@ -128,9 +128,9 @@ e. Create PR:
 
 ## Step 15: Write Artifacts
 
-### result.md
+### results.md
 
-Append a dated section to `{ISSUE_DIR}/result.md`. On first run, prepend header:
+Append a dated section to `{ISSUE_DIR}/results.md`. On first run, prepend header:
 
 ```markdown
 # Issue #{ISSUE_NUMBER} — {ISSUE_TITLE}

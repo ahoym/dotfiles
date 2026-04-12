@@ -39,7 +39,8 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 
 - `api-design.md` — API design: consistent response shapes, versioning, error contracts
 - `code-quality-instincts.md` — Fundamental code quality practices across all languages
-- `refactoring-patterns.md` — Refactoring: survey before acting, scope discipline
+- `refactoring-patterns.md` — Refactoring: survey before acting, scope discipline, rename-first PR, DRY_RUN review gate
+- `dependency-injection-patterns.md` — DI: composition root pattern, CI-enforced import discipline, protocols vs ABCs, import-time side effects
 - `git-patterns.md` — Git: rebase, worktree, commit hygiene, branch management
 - `git-github-api.md` — GitHub API: pagination, reviews endpoint, stacked PRs, cascade rebase
 - `review-conventions.md` — Code review: self-review, comment etiquette, LGTM, structured footnotes
