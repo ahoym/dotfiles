@@ -225,6 +225,14 @@ When a branch mixes novel additions with wide regressions (path renames, CLI con
 
 The classification table is what the operator approves, not individual edits. This scales to 90+ file branches where surgical editing would take hours and miss regressions.
 
+## Merge Strategy for Batch Config Imports
+
+When a batch import touches many files across multiple commits but individual files are typically touched by only one commit, merge and rebase produce comparable conflict counts — but merge is operationally simpler (one pass, no history rewrite). Default to merge for learnings/config batch imports.
+
+## modify/delete Conflicts Need Reference Checking
+
+When resolving a merge conflict where main deletes a file that HEAD modifies, grep the repo for references to the deleted file before accepting the deletion. A file may be referenced by cross-refs, index entries, or import paths that won't break loudly. Only accept deletion when references are limited to ephemeral artifacts (generated output, temp files).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

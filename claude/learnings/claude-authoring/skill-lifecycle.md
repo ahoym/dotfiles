@@ -90,6 +90,10 @@ Every fix to a runtime artifact (generated prompt, `let-it-rip.sh`, status.md fo
 
 `/organize` handles dedup, routing, cross-refs, and index sync — the intake gate for MR-scoped changes. `/curate` handles compression, genericization, keyword audit, and per-file quality — the polish pass. Compression (making content concise) lives in `/curate` only, not `/organize`. This separation keeps `/organize` fast at intake time while deferring subjective quality work to the dedicated per-file tool.
 
+## Behavioral-Reversal Documentation Needs Prior Rationale
+
+When a skill rule does a complete 180° on a previously-stated capability claim (old: "can't reliably do X"; new: "X works inline"), the new text should briefly acknowledge why the old rule existed — even a parenthetical. Without this, future readers see a strong claim without knowing the rule was ever different. Ordinary updates don't need this treatment; only explicit reversals of prior "can't" / "don't" / "impossible" statements.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

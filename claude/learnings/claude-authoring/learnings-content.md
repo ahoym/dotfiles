@@ -162,6 +162,10 @@ Fold dedup verification typically compares source vs target — does the new con
 
 Concrete heuristic for conciseness review: **if removing the last sentence of a bullet or paragraph doesn't change the meaning, it's ceremony.** Authors instinctively add a closing sentence to "land" a point — restating the section title, summarizing what was just said, or noting "this pattern is useful for X."
 
+## Meta-Self-Application Check for Writing-Quality Learnings
+
+Learnings that describe writing patterns (ceremonial sentences, conciseness heuristics, hedging) should be validated against their own content. The pattern author instinctively violates the pattern they're documenting — the "ceremonial sentences" section had a ceremonial close by its own heuristic. When reviewing or writing such learnings, apply the described rule to the learning itself as a final check.
+
 ## Cross-Refs
 
 No cross-cluster references.
