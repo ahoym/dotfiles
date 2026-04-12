@@ -22,7 +22,7 @@ Skills that produce this structure can be launched and monitored by `/director`.
     ├── session.reset       # Written by director to force fresh start on next cycle (triggers deletion of session.state)
     ├── state.md            # Written by runner -- process lifecycle state
     ├── status.md           # Written by session at end (watermark, milestone)
-    ├── results.md           # Written by session at end (append-only)
+    ├── results.md          # Written by session at end (append-only)
     ├── learnings.md        # Written by session at end (append-only, optional)
     ├── live.md             # Written by stream-monitor.sh during session (append-only across cycles)
     ├── raw.jsonl           # Written by tee during session (current cycle only)
