@@ -227,6 +227,10 @@ Templates that use `{{KEY}}` (double-brace) are shell scripts where `${var}` mus
 
 Prose rules that follow a template are often ignored when the template itself models the wrong format. Agents pattern-match against the template's structure when composing output — a `<finding summary>` placeholder gets expanded into full sentences even if a body-discipline rule says "one line only." Fix: make the template demonstrate the constraint with concrete examples and explicit caps (e.g., `≤20 words`). The template is the instruction; the prose rule is backup.
 
+## Speculative Metadata Fields Drift in Template Pipelines
+
+When a template pipeline makes adding fields cheap (write key to metadata.json, reference `{KEY}` in template), schemas accumulate speculative fields — pairs that look distinct on paper but have identical runtime behavior. Before adding a metadata field, verify: does the template branch on this value independently of existing fields? If the runtime check supersedes the assessment-time value (e.g., conflict state checked at runtime regardless of what metadata says), the field belongs in the manifest (director-facing) not the prompt metadata (agent-facing).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)

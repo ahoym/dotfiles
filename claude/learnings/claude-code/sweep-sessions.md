@@ -118,6 +118,12 @@ Main is still the preferred director branch — cleanest, fewest gotchas. But th
 
 `git worktree add <path> <branch>` fails with `fatal: invalid reference` when the branch exists only on the remote and hasn't been fetched locally. The runner's worktree setup loop needs `git fetch origin <branch>` before `git worktree add`. Symptom: `WARNING: Failed to create worktree for PR N, skipping` in runner output, but the session still launches (falls back to running without a worktree, which may or may not work depending on what the session needs to do).
 
+## Delegating Prompts Must Not Expose Delegated Inputs
+
+Prompts that delegate to a skill (via `Skill()`) should not give the session access to the skill's primary inputs (diff, comments, PR state) before the delegation. If the session can fetch the diff and reason about it, it will — and may decide the skill invocation is unnecessary. The skill's own quick-exit and re-review logic handles trivial cases correctly; the wrapper prompt's job is to reach the Skill call, not to pre-evaluate whether it's needed.
+
+**Design rule:** Make the Skill call the first action after preflight passes. Put optional steps (learnings search, persona activation) after the Skill returns or inside the skill itself.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.

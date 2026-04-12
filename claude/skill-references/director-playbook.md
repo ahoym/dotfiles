@@ -38,6 +38,8 @@ The director has ceded decision power for routine calls but escalates on high-bl
 - Body discipline / formatting / template decisions.
 - Whether to write a directive for a summary-only finding inside the current scope.
 
+**Principle:** Any action that flows deterministically from the convergence rules, relaunch sequence, or directive patterns is routine — execute and surface what was done. The decision framework classifies the *rules*, not individual actions. Launching a runner, writing a directive, and marking convergence are actions, not decisions, when the rule that triggers them is unambiguous.
+
 ### Out-of-scope handling
 
 When a review surfaces a finding clearly outside the current PR's scope, the director:
