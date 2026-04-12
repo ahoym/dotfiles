@@ -166,6 +166,25 @@ Moving content between files can introduce invisible encoding differences that r
 
 `Edit(replace_all=true)` with one call per old path handles most files in path migrations. Only files needing structural changes (added `mkdir -p`, etc.) need targeted edits. Final grep catches bare paths without trailing `/`.
 
+## Rename-first PR before abstraction refactor
+
+Before a structural refactor that will touch many files (introducing a protocol/ABC, splitting a module, migrating call sites), ship a prep PR that does pure renames and legacy-name cleanup. The structural PRs that follow contain only structural changes, not rename noise — smaller diffs, easier review, cleaner revert boundaries.
+
+Typical prep PR scope for an abstraction refactor:
+- Rename legacy-vendor names to current-vendor names (`tda_client` → `schwab_client`)
+- Drop aliased legacy imports (`from X import Y as Y_legacy`)
+- Update stale docstrings that reference removed systems
+
+Kent Beck: "make the change easy, then make the easy change." Even when renames look trivial individually, bundling them into the structural PR makes the diff harder to reason about ("did this line change because of the refactor or the rename?"). Tracked as PR "A0" or similar in a phased plan — always first.
+
+## `DRY_RUN` env flag as zero-behavior-change review gate
+
+For refactor PRs whose acceptance criterion is "zero behavior change" (touching live systems, order execution, API writes, file mutations), introduce a `DRY_RUN=1` env flag early in the PR sequence. When set, the system runs its full live flow but suppresses every side effect — logging what **would** happen instead.
+
+Use it as a review gate: reviewer runs the branch end-to-end with `DRY_RUN=1` against real dependencies **before and after** the PR, diffs the two logs. Zero diff = zero behavior change confirmed, including interactions unit tests can't cover (conditional code paths, indicator fall-through, timing-dependent branches, real API response variance).
+
+Introduce the flag as part of the first PR that touches the affected call site — same PR that migrates to the abstraction or refactors the entry point. Cheap to wire in (~20 lines), turns every subsequent refactor PR in the chain into a testable artifact against production-shaped inputs at zero real-world cost. Especially valuable for the highest-risk structural transitions (eager-fetching rewrites, DI migrations, retry-loop relocations).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors

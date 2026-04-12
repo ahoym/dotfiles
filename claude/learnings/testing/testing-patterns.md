@@ -269,6 +269,16 @@ beforeEach(() => {
 
 When re-assigning the implementation in the same `beforeEach`, either works — prefer `mockClear()` as it's more explicit about intent.
 
+## Contract tests against recorded real responses (fake-drift detection)
+
+When a test suite uses `FakeAdapter`-style mocks for external services, unit tests pass even after the real API adds fields — the fake goes stale silently, and prod fails on the first call that reads the new field. Contract tests close the gap:
+
+1. `scripts/record-fixtures.py` — small harness that hits the real API (SIM/staging, never prod without explicit ack) and writes responses to `tests/fixtures/<provider>/<endpoint>.json`
+2. Pytest contract test loads each fixture, runs through the **real** adapter's normalization path, and diffs the output against a committed golden file
+3. When the real API adds a field: re-record the fixture → golden diff → fake must be updated to match before CI is green again
+
+Invest when: any codebase where a mocked adapter layer hides a real protocol boundary. Cost is one recording script plus committed fixtures; payoff is catching API drift on the next CI run after an upstream change, not three releases later in prod. Especially valuable for trading systems, payment integrations, any adapter whose input shape is externally owned.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/frontend/nextjs.md` — route handler test structure
