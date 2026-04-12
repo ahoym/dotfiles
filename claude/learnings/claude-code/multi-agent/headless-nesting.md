@@ -1,7 +1,7 @@
 Nested headless `claude -p` sessions — multi-tier agent hierarchies where sessions spawn their own child sessions.
 
 **Keywords:** claude -p, nesting, headless, multi-tier, VP, Director, Worker, Subagent, --allowedTools, hierarchy
-**Related:** `~/.claude/learnings/claude-code/multi-agent/director-patterns.md`
+**Related:** none
 
 ## Arbitrary Nesting Depth
 
@@ -37,4 +37,4 @@ Directors do orchestration (plan, dispatch, monitor, synthesize) — Sonnet-appr
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — Director-layer patterns (watermarks, directives, append-only artifacts)
+No cross-cluster references.

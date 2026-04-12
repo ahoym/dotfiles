@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible
 - **Related:** none
 
 ---
@@ -206,6 +206,14 @@ Place `## Prerequisites` (permissions, env vars, symlink setup) above `## Instru
 ## Cross-Skill Convention Consistency Beats Per-Skill Optimization
 
 When N skills share an artifact contract (e.g., sweep:* writing `results.md`/`status.md`/`learnings.md`), prefer one-name-fits-all over per-skill optimization — even when one skill's agent naturally writes a different convention. The maintenance cost of per-skill divergence (forking shared docs, multiple template files, mental lookup table) exceeds the cost of mild forcing on the outlier agent. Example: sweep address agents naturally write `results.md` (plural), sweep work-items agents naturally write `result.md` (singular). The right call is to standardize on one across all sweep skills (plural in this case), not match each skill to its agents' tendency. The "lean into natural agent behavior" rule still holds — within a single skill — but cross-skill consistency is structural and overrides it.
+
+## $ARGUMENTS vs Derived Values
+
+In skill files, `$ARGUMENTS` is the CLI-substituted value (replaced before the model sees the content). When a later phase requires a derived value (e.g., next version calculated from the argument), use descriptive placeholders like `<next-version>` to distinguish computed values from CLI-substituted ones. Mixing `$ARGUMENTS` for both raw input and derived values makes the skill harder to read and debug.
+
+## `disable-model-invocation: true` for Irreversible Skills
+
+Skills with irreversible side effects (publish, tag, deploy) should set `disable-model-invocation: true` — prevents the model from autonomously invoking them when it determines they'd fulfill the user's intent.
 
 ## Cross-Refs
 

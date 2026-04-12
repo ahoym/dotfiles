@@ -1,5 +1,5 @@
 Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema design, and migration safety patterns for PostgreSQL.
-- **Keywords:** PostgreSQL, window functions, ROW_NUMBER, CTE, WITH RECURSIVE, JSONB, GIN index, partial index, CONCURRENTLY, partitioning, composite PK, Flyway, NOT NULL, migration
+- **Keywords:** PostgreSQL, window functions, ROW_NUMBER, CTE, WITH RECURSIVE, JSONB, GIN index, partial index, CONCURRENTLY, partitioning, composite PK, Flyway, NOT NULL, migration, nullable unique, CREATE OR REPLACE VIEW, column reorder
 - **Related:** ~/.claude/learnings/java/spring-boot.md, ~/.claude/learnings/financial/applications.md
 
 ---
@@ -33,6 +33,7 @@ Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema 
 - Common use cases: `WHERE status = 'ACTIVE'`, `WHERE deleted_at IS NULL`, `WHERE type = 'DEPOSIT'`.
 - The query's WHERE clause must match (or imply) the index condition for the planner to use it.
 - Combine with covering indexes (`INCLUDE (col)`) for index-only scans on filtered subsets.
+- **Nullable unique columns:** `CREATE UNIQUE INDEX idx ON table(col) WHERE col IS NOT NULL` enforces uniqueness on non-null values while allowing multiple NULLs. Standard SQL says NULL != NULL, but not all databases handle this consistently — the partial index approach is explicit and portable. Useful for optional external IDs, email fields, or any column where "no value" is valid but duplicate real values aren't.
 
 ## Indexing Strategy
 
@@ -64,6 +65,7 @@ Window functions, CTEs, JSONB operations, partial indexes, partitioning, schema 
 - **NOT NULL constraints:** Before `SET NOT NULL`, verify the backfill UPDATE has no WHERE clause gaps. Two-step for populated tables (add nullable → backfill → constrain); single step for empty tables with documented assumption.
 - **Validate constraints with SQL tests:** Demonstrate correctness with concrete SQL — happy path, unhappy path, edge cases.
 - **Verify environment state before data-state claims:** When justifying decisions based on "no data exists," specify which table and which environment.
+- **Views cannot reorder columns in-place:** `CREATE OR REPLACE VIEW` can add new columns at the end but cannot reorder existing columns or change their types. Reordering requires `DROP VIEW` + `CREATE VIEW`, which breaks dependent objects. In Flyway repeatable migrations (`R__create_view.sql`), new columns must always be appended at the end of the SELECT list.
 
 ## Cross-Refs
 

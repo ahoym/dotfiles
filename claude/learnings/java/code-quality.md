@@ -1,5 +1,5 @@
-Java code quality: imports, TODO cleanup, method naming after refactors.
-- **Keywords:** fully-qualified types, imports, TODO, dead code, method naming, refactor
+Java code quality: imports, naming, null-safe equality, SonarQube patterns.
+- **Keywords:** fully-qualified types, imports, TODO, dead code, method naming, refactor, Objects.equals, null-safe, SonarQube, boxing, Integer, equality
 - **Related:** ~/.claude/learnings/code-quality-instincts.md
 
 ---
@@ -15,3 +15,7 @@ Resolve TODOs before merge. If the work genuinely can't be done in the same MR, 
 ### Method names must reflect actual behaviour after refactor
 
 When a hardcoded value becomes a parameter, the method name must be updated to match. Example: `fromNowToLast7days` becomes `fromNowToLastNDays` once the 7 is parameterised. Stale names are misinformation — they cause callers to make wrong assumptions about what the method does.
+
+### `Objects.equals` for null-safe equality; avoid `.equals()` on literals
+
+SonarQube flags patterns like `Integer.valueOf(1).equals(result)` — a backwards equals call that also boxes unnecessarily. Use `Objects.equals(a, b)` whenever either side could be null. It handles null safely on both sides without boxing overhead.

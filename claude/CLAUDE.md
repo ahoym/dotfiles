@@ -1,6 +1,7 @@
 # Guidelines
 
 @./guidelines/communication.md
+@./guidelines/context-aware-learnings.md
 @./guidelines/path-resolution.md
 @./guidelines/context-aware-learnings.md
 

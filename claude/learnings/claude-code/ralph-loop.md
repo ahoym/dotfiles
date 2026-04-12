@@ -1,6 +1,6 @@
 Design patterns, operational gotchas, and convergence mechanics for the ralph autonomous research loop — resuming, state management, core files, research branches, stateless iteration, one-action enforcement, worktree mechanics, and runner-spec contracts.
 - **Keywords:** ralph, wiggum, stateless agent, claude --print, progress.md, spec.md, convergence, worktree, sentinel, WOOT_COMPLETE_WOOT, MAX_DEEP_DIVES_HIT, runner-spec, one-action, diff-routed, keyword-index, graph-extension
-- **Related:** `~/.claude/learnings/claude-code/ralph-curation.md`
+- **Related:** none
 
 ---
 
@@ -120,4 +120,3 @@ Full-corpus reads don't scale — token cost grows linearly with corpus size reg
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/ralph-curation.md` — curation-specific patterns: compounding, deep dives, defect vs opportunity mode, consolidation loop variant, staged-learnings pipeline, gotchas files policy

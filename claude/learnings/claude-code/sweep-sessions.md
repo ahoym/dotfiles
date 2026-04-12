@@ -3,7 +3,7 @@
 Patterns and gotchas for director-orchestrated sweep workflows (`sweep:review-prs`, `sweep:address-prs`).
 
 **Keywords:** sweep, director, claude -p, learnings-team, learnings, runner, review, address, gitlab, github
-**Related:** `~/.claude/learnings/claude-code/multi-agent/CLAUDE.md`, `~/.claude/learnings/claude-code/shell-patterns.md`
+**Related:** none
 
 ## `claude -p` sessions don't trigger learnings-team search gates
 

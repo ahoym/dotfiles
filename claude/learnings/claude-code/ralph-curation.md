@@ -1,6 +1,6 @@
 Curation-specific patterns for the ralph consolidation loop — compounding mechanics, deep dive methodology, defect vs opportunity mode, brief as pre-PR workflow, staged-learnings pipeline, gotchas files policy, and consolidation worktree hooks.
 - **Keywords:** consolidation, curation, compounding, deep dive, defect mode, opportunity mode, brief, staged-learnings, gotchas, worktree hooks, sweep, cluster batch, persona, thin file
-- **Related:** `~/.claude/learnings/claude-code/ralph-loop.md`
+- **Related:** none
 
 ---
 
@@ -147,5 +147,4 @@ When splitting a file by scope (e.g., universal vs language-specific code qualit
 
 ## Cross-Refs
 
-- `~/.claude/learnings/claude-code/ralph-loop.md` — core loop mechanics: resuming, state management, stateless iteration, one-action enforcement, worktree mechanics, runner-spec contracts
 - `~/.claude/commands/learnings/curate/curation-insights.md` — sweep calibration, classification heuristics, and compression targets that complement the curation methodology patterns here (defect vs opportunity mode, broad sweep blind spots)

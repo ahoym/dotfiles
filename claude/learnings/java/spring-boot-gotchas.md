@@ -1,5 +1,5 @@
 Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistakes.
-- **Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException, @ConfigurationProperties, @EnableConfigurationProperties, @ConfigurationPropertiesScan, CGLIB, exception logging, stack trace, catch block
+- **Keywords:** @Scheduled, ShedLock, CORS, Optional, switch null, Lombok builder, InterruptedException, SLF4J, Map.get, ZoneId, properties quoting, MethodArgumentNotValidException, @ConfigurationProperties, @EnableConfigurationProperties, @ConfigurationPropertiesScan, CGLIB, exception logging, stack trace, catch block, @Profile, IAM, credentials
 - **Related:** none
 
 ---
@@ -37,6 +37,18 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 - Broad `@ExceptionHandler(IllegalArgumentException.class)` in global exception handlers masks server 500s as client 400s. Spring/Hibernate throw `IllegalArgumentException` for internal contract violations (bad type conversions, invalid entity state). These handlers make the bug invisible: no 5xx alerts fire, dashboards show clean, callers get misleading "invalid request parameter." Worse: domain methods that throw `IllegalArgumentException` for validation (e.g., `parseAmount`) accidentally work because the broad catch maps them to 400 — two bugs compensating. Fix: use domain-specific exceptions for validation, remove the broad `IllegalArgumentException` catch entirely
 
 - `TransactionTemplate` batch processing with detached entities: when a batch query loads entities outside the transaction and processes each inside a per-item `TransactionTemplate.executeWithoutResult()`, the entity is detached and potentially stale. Re-fetch by ID + status guard inside the transaction prevents submitting stale state. Pattern: `findById().orElseThrow()` → check status still matches expected → proceed. The `handleSubmitFailure` pattern (re-fetch in a new tx) is correct; applying it to the happy path too is the defensive choice for financial services. Extract `refetchEntity(id)` helper when 3+ call sites share the same re-fetch + orElseThrow logic — keeps the pattern consistent and DRY. The status guard is critical when the method has external side effects (vendor API calls) that execute before the DB save — without it, a stale entity leads to double-submit when the save fails with OL and the next cycle retries
+
+- Fixed-offset external systems: use `ZoneOffset.ofHours(-5)`, not `ZoneId.of("America/New_York")`. Geographic zone IDs observe DST; use `ZoneOffset` when the external system documents a fixed UTC offset that never adjusts. The `ZoneId` preference applies to internal/user-facing time — the inverse rule applies here.
+
+- Use `log.debug` (not `warn` or `info`) for filter-out paths in public WebSocket stream consumers where the majority of events don't belong to your system. Vendor misbehavior warrants `log.debug`; the common "not our order" path warrants no log at all. Over-logging these paths floods production logs and obscures real signal.
+
+- `LocalTime.now(clock)` is sufficient when `clock` carries a timezone via `Clock.system(zoneId)` — the result is already zone-local. Going through `ZonedDateTime.now(clock).toLocalTime()` is redundant and adds confusion about whether the timezone is being applied twice.
+
+- `Optional.orElse(null)` for nullable return fields: the existing rule "always use `.orElseThrow()`" applies when absence is an error. For methods that legitimately return null (nullable DTO fields, optional downstream values), use `.orElse(null)` — calling `.get()` without an `isPresent()` guard is a latent NPE regardless of how rare the empty case is.
+
+- `@Profile` on credential-provider `@Configuration` must cover ALL non-IAM environments, not just `"dev"`. Missing a profile (e.g., `"integration"`, `"local"`) silently activates IAM-based production config, which fails with opaque credential errors. Audit `@Profile` annotations on credential configs whenever a new environment or profile is introduced.
+
+- Java format strings: `$n` is not a recognized format specifier — it compiles and runs silently but the argument is dropped. Use `%n` for a platform-appropriate newline or `\n` for a literal LF. The `$` prefix has no meaning in `String.format` / SLF4J format strings.
 
 ## Cross-Refs
 

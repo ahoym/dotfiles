@@ -1,6 +1,6 @@
 Director-layer gotchas and operational decisions not covered by reference files. For the operationalized patterns, see `~/.claude/skill-references/director-playbook.md`, `artifact-contract.md`, and `sweep-scaffold.md`.
 - **Keywords:** director, manager, directives, sweep, claude -p, permissions, gotchas, state.md, inactivity, retry, manifest-updates, three-channel
-- **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md
+- **Related:** none
 
 ---
 

@@ -111,34 +111,6 @@ When two or more CLAUDE.md facts must be combined to produce correct behavior, s
 
 **Example:** "Repo is symlinked to `~/.claude`" + "Glob/Read don't resolve `~`" independently are clear, but neither states the conclusion: "use `.claude/` relative paths for Read/Glob." Adding the conclusion inline prevents repeated inference failures across sessions.
 
-## Signpost Pattern: Non-`@` Lazy-Loaded References
-
-File paths listed in CLAUDE.md **without** the `@` prefix are not eagerly inlined — they're plain text. But proactive agents notice these paths and read them on demand when the topic becomes relevant. This creates a lightweight lazy-loading mechanism.
-
-**Format:**
-```markdown
-## Lazy-loaded references (read when relevant)
-
-.claude/guidelines/deployment.md - Production deployment checklist
-docs/architecture/auth-flow.md - Authentication sequence and token lifecycle
-```
-
-**Behavior contrast:**
-- `@path` → eagerly inlined, always costs tokens
-- `path` (no `@`) → visible as text, read by agent judgment when relevant
-
-**When to use signposts over `@`:** Context that's useful but not universally needed — domain-specific guidelines, deep-dive references, or situational checklists. Reserve `@` for context every session needs.
-
-**Validation method:** Add a unique marker string to the signposted file, start a fresh session, and check whether the agent (a) ignores it, (b) reads it proactively via a Read tool call, or (c) reports the marker without a Read call (indicating eager inlining — a failure). Success = (b).
-
-## Refactor Monolithic CLAUDE.md into Modular Guideline Includes
-
-A monolithic CLAUDE.md (130+ lines) can be refactored into modular files under `.claude/guidelines/` using `@` includes. The root file shrinks to a navigational hub (~8 lines of `@` references). Refactoring into modules creates a natural affordance for content expansion — sections that felt too bulky for a monolithic file grow organically when they have their own file. Expect new content to emerge during the extraction, not just a pure move.
-
-## Document Conflict Resolution Strategy Alongside Structural Changes
-
-When introducing structural changes that will cause merge conflicts (e.g., switching from inline content to `@` includes), document the conflict resolution strategy in the same PR. Forward-looking documentation prevents confusion when conflicts inevitably arise. Example: "check inline version for NEW additions not yet in modular files, incorporate into the appropriate module, resolve main file to keep `@` includes."
-
 ## Index Files Belong with the Content They Index
 
 When a directory has a curated index (`CLAUDE.md` listing all files with descriptions), the index belongs *inside* the directory — not at a parent level serving double duty. `learnings/CLAUDE.md` alongside the learnings files, not root `CLAUDE.md` acting as both project guide and file index.

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "last_rebuild_commit": "97a6278",
+    "last_rebuild_commit": "cd30e35_partial",
     "file_sources": {
       "learnings/claude-authoring/personas.md": "mechanical",
       "learnings/xrpl/dex-data.md": "mechanical",
@@ -11,7 +11,7 @@
       "learnings/java/spring-boot-gotchas.md": "mechanical",
       "learnings/cicd/patterns.md": "mechanical",
       "learnings/frontend/nextjs.md": "mechanical",
-      "learnings/cicd/gotchas.md": "mechanical",
+
       "learnings/java/observability.md": "mechanical",
       "learnings/claude-code/hooks.md": "mechanical",
       "learnings/cicd/gitlab.md": "mechanical",
@@ -178,7 +178,7 @@
   "docker build push": ["learnings/cicd/patterns.md"],
   "composite action": ["learnings/cicd/patterns.md"],
   "lint gate": ["learnings/cicd/patterns.md"],
-  "cancel-in-progress": ["learnings/cicd/patterns.md", "learnings/cicd/gotchas.md"],
+  "cancel-in-progress": ["learnings/cicd/patterns.md"],
   "next.js": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md", "learnings/frontend/accessibility-patterns.md"],
   "proxy.ts": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md"],
   "turbopack": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md"],
@@ -186,9 +186,10 @@
   "rate limiter": ["learnings/frontend/nextjs.md"],
   "token bucket": ["learnings/frontend/nextjs.md"],
   "vitest": ["learnings/frontend/nextjs.md", "learnings/testing/testing-patterns.md"],
-  "github action": ["learnings/cicd/gotchas.md", "learnings/frontend/typescript-ci-gotchas.md"],
-  "gitlab ci": ["learnings/cicd/gotchas.md", "learnings/cicd/gitlab.md"],
-  "paths-ignore": ["learnings/cicd/gotchas.md"],
+  "github action": ["learnings/cicd/patterns.md", "learnings/frontend/typescript-ci-gotchas.md"],
+  "paths-ignore": ["learnings/cicd/patterns.md"],
+  "gitlab ci": ["learnings/cicd/gitlab.md"],
+
   "grafana": ["learnings/java/observability.md"],
   "promql": ["learnings/java/observability.md"],
   "micrometer": ["learnings/java/observability.md", "learnings/java/observability-gotchas.md"],
