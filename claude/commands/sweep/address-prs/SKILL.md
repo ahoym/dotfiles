@@ -165,7 +165,7 @@ Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` wit
 }
 ```
 
-The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` reflects the assessment-time `mergeable` state — the session checks again at runtime since the state may change.
+The `resolve_conflicts` and `base` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` in the manifest reflects the assessment-time `mergeable` state (director-facing, not passed to the prompt — the session checks at runtime since the state may change).
 
 #### Data files & prompt assembly
 
@@ -183,7 +183,6 @@ Write data files for template assembly, then call `fill-template.sh`:
        "BASE": "<base branch>",
        "MODE": "first-pass or new-comments",
        "RESOLVE_CONFLICTS": "true or false",
-       "HAS_CONFLICTS": "true or false",
        "WORKTREE_PATH": "<absolute path to worktree>",
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",

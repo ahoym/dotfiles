@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{BRANCH}`, `{BASE}`, `{MODE}`, `{RESOLVE_CONFLICTS}`, `{HAS_CONFLICTS}`, `{WORKTREE_PATH}`, `{PERSONA_INSTRUCTION}`, `{RUN_DIR}`, `{PR_DIR}`, `{LAST_SHA_FIELD}`
+**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{BRANCH}`, `{BASE}`, `{MODE}`, `{RESOLVE_CONFLICTS}`, `{WORKTREE_PATH}`, `{PERSONA_INSTRUCTION}`, `{RUN_DIR}`, `{PR_DIR}`, `{LAST_SHA_FIELD}`
 **File inclusions:** `{@../sweep-pr-preflight.md}` (Steps 1-4: directives, watermark, state check, status update)
 
 ---
@@ -39,9 +39,11 @@ git branch --show-current
 
 **Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
 
-If `{HAS_CONFLICTS}` is `true` (or the PR has developed conflicts since assessment), resolve merge conflicts with the base branch:
+Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`). If CONFLICTING, resolve:
 1. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills via the Skill tool)
 2. Update `{PR_DIR}/status.md` milestone to `resolving-conflicts`
+
+If no conflicts exist at runtime, proceed to the next step.
 
 If `{RESOLVE_CONFLICTS}` is `false`, skip this step entirely.
 

@@ -25,19 +25,17 @@ You are an autonomous reviewer agent. Your job is to review a pull request using
 - **Mode**: {MODE}
 - {STACKING_CONTEXT}
 
-## Step 5: Search Learnings
-
-Derive search terms from PR title, branch name, and changed file paths. Read `~/.claude/learnings-providers.json` to discover all provider directories. For each provider, read its `localPath`'s `CLAUDE.md` index (when it exists). Also check `docs/learnings/CLAUDE.md` for project-local learnings. Sniff matching cluster headers (`Read(file, limit=3)`), load fully if relevant. Load top 3; announce with `[pre-review]` tags.
-
-## Step 6: Invoke Team Review — MANDATORY
+## Step 5: Invoke Team Review — MANDATORY
 
 You MUST use the Skill tool: `skill="git:team-review-request"`, `args="{PR_NUMBER}"`.
 
-Do NOT review manually — the skill handles persona selection, subagent orchestration, and platform-specific API quirks.
+Do NOT review manually — even if you can see the diff is trivial, unchanged, or a rebase-only. The skill handles re-review detection, emoji reactions on resolved comments, the re-review body template, and persona routing. Skipping the skill produces malformed reviews (issue comments instead of proper reviews, no reactions on resolved findings).
+
+Do NOT fetch the diff, analyze changes, or make any review judgment before this step. The skill does all of that internally.
 
 Update `{PR_DIR}/status.md` milestone: `reviewing` → `posted`.
 
-## Step 7: Write Artifacts
+## Step 6: Write Artifacts
 
 Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
 
@@ -61,10 +59,10 @@ Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `swe
 
 Use `last_reviewed_sha` as the watermark SHA key in `status.md`. On error, still write `milestone: errored`.
 
-## Step 8: Write Learnings
+## Step 7: Write Learnings
 
 Append a dated section to `{PR_DIR}/learnings.md`. Include:
-- Which learnings files you loaded and how they influenced the review
+- Which learnings files were loaded by the team-review skill's subagents (if visible in output)
 - Domain observations: patterns, gotchas, or conventions discovered in the code
 - Review process observations: what was easy/hard to assess, what context was missing
 

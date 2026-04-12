@@ -110,7 +110,7 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 **Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 
-**Conflict resolution is handled inline by the addresser when `RESOLVE_CONFLICTS=true`.** When a PR has merge conflicts (`mergeable: CONFLICTING`), regenerate the address artifacts with `RESOLVE_CONFLICTS: "true"` and `HAS_CONFLICTS: "true"` in the PR's `metadata.json`, then re-assemble the prompt via `fill-template.sh`. This is a routine director decision — auto-decide and surface the action taken, don't prompt the operator. The addresser-prompt's Step 6 reads `~/.claude/commands/git/resolve-conflicts/SKILL.md` and resolves conflicts before addressing comments — rebase + address completes in a single `claude -p` run.
+**Conflict resolution is handled inline by the addresser when `RESOLVE_CONFLICTS=true`.** When a PR has merge conflicts (`mergeable: CONFLICTING`), regenerate the address artifacts with `RESOLVE_CONFLICTS: "true"` in the PR's `metadata.json`, then re-assemble the prompt via `fill-template.sh`. The addresser checks for conflicts at runtime (Step 6) — no need to pass conflict state in metadata. This is a routine director decision — auto-decide and surface the action taken, don't prompt the operator. The addresser-prompt's Step 6 reads `~/.claude/commands/git/resolve-conflicts/SKILL.md` and resolves conflicts before addressing comments — rebase + address completes in a single `claude -p` run.
 
 **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
