@@ -138,6 +138,40 @@ When porting a user-level skill (from `~/.claude/commands/`) to a project (`.cla
 4. **Learnings path order** — `docs/learnings/` first (project-local), then `~/.claude/` paths (user-private, may not exist for all operators). Add "missing paths skip silently."
 5. **`.gitignore` specificity** — blanket `.claude/` ignore blocks committed skills. Replace with specific ignores (`.claude/settings.local.json`, `.claude/worktrees/`, `.claude/local/`, `.claude/todos/`).
 6. **Sync check** — global files may evolve after porting. Diff global vs project copies before merging to catch upstream changes.
+## Why Agents Skip Reference Files (Compliance Gradient)
+
+Agents skip lazy-loaded reference files ("read `pr-management.md` for the create command") not to save tokens, but because **confidence in training knowledge suppresses perceived information gain**. "I know `gh pr create`" bleeds into false confidence about project-specific conventions (body-file-to-tmp-dir patterns, absolute path requirements, jq filter workarounds). No amount of instruction emphasis ("IMPORTANT: you MUST read this file") overcomes this — the agent evaluates the instruction and decides it doesn't apply.
+
+Compliance gradient (low → high):
+
+| Approach | Compliance | Why |
+|----------|-----------|-----|
+| "Read reference-file.md" | Low | Agent thinks it knows what's in it |
+| "Read reference-file.md — has project-specific conventions" | Medium | Vague novelty signal |
+| "Read reference-file.md — uses non-standard body-file pattern with specific temp paths" | Higher | Concrete novelty agent can't guess |
+| Both command blocks inlined with platform guard | Higher | No file to skip, but agent picks a block |
+| `!` preprocessed single-path inline | Highest | No decision at all — command is rendered before agent sees the skill |
+
+**Key insight:** Inlining removes the decision, not adds emphasis. Structural unavoidability beats instructional strength.
+
+## `!` Preprocessing for Multi-Platform Command Inlining
+
+Extends the dynamic context injection pattern (see "Dynamic Context Injection" section above) to solve multi-platform skill portability. Instead of reference files that agents skip, use `!`cat`` to inject platform-specific commands at point-of-use in the SKILL.md body:
+
+```markdown
+9. **Create the review:**
+!`cat ~/.claude/platform-commands/create-review`
+```
+
+Where `~/.claude/platform-commands` is a symlink created at `setup-claude.sh` time pointing to `skill-references/{github,gitlab}/commands/`. The CLI preprocesses the `!` block, agent sees the rendered command — no platform detection, no conditional, no reference file.
+
+**Architecture:** Break monolithic cluster files (`pr-management.md` with 5-6 commands) into atomic command files — one operation per file, 3-5 lines each. Each file carries the command plus platform-specific context (e.g., "use absolute path with `$(cat)`" for GitLab). Skills `!`-include only what they use.
+
+**Merge safety:** All tracked files are identical on both machines. SKILL.md contains `!`cat ~/.claude/platform-commands/...`` (same everywhere). The symlink is untracked (`~/.claude/`). Platform-specific command files are tracked but each machine only edits its own platform's files through the symlink.
+
+**Constraints:** Each command file should stay bounded (3-5 lines) to fit `!` conventions. This is body-level `!` usage — all 19 production skills currently use `!` only in `## Context`. Body inclusion needs empirical validation but is consistent with the preprocessing description ("output replaces the placeholder inline" regardless of position).
+
+See ahoym/dotfiles#83 for implementation plan.
 
 ## Cross-Refs
 
