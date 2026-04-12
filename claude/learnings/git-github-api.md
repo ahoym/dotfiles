@@ -66,6 +66,10 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments \
 
 Lines restored from the base branch (removed then re-added) appear as unchanged context in the combined diff. The review API rejects inline comments on context lines. Document these findings in the review summary body instead.
 
+## Stacked PR Targeting for Dependency Chains
+
+When creating a PR that builds on an unmerged dependency's branch, use `gh pr create --base <dependency-branch>` so the PR targets that branch instead of main. Add a stacking note in the PR body: `> ⚠️ Stacked PR — targets \`<branch>\`. Merge that PR first, then rebase this one onto main.` The worktree must `git fetch origin <branch>` before creation since the dependency branch only exists on the remote. After the dependency merges, rebase and retarget with `gh pr edit <N> --base main`.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/git-patterns.md` — core git operations, rebase, merge, worktree, commit hygiene

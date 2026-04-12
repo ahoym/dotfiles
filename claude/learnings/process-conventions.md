@@ -110,3 +110,16 @@ For research and planning tasks, ask about doc format and location **alongside**
 
 ### Remove TODOs before merging to main
 TODOs in production code are deferred decisions that accumulate silently. Resolve them before merge or convert to tracked tickets with context. A TODO without a ticket reference is a promise nobody is tracking.
+
+### Dependency-aware parallel work item processing
+
+When issues declare dependencies (`Blocked by: #N, #M`), an orchestrator can auto-detect which items are ready by resolving each blocker's state:
+
+| Blocker state | Item eligible? | Base branch |
+|---|---|---|
+| Issue closed or PR merged | Yes | default branch |
+| Open PR exists | Yes | blocker's PR branch (stacked) |
+| Open, no PR | **No — skip** | — |
+| Multiple blockers on different open PRs | Yes, but ⚠️ diamond dependency | default branch (can't merge two bases) |
+
+This eliminates manual wave planning — run the orchestrator on all issues, it picks up what's ready. Re-run after merges to peel off the next wave. Parse `Blocked by:` lines + `## Dependencies` sections; search PRs by both branch name convention (`sweep/<N>-*`) and body references (`Relates to #N`, `Fixes #N`) to avoid missing manually-created PRs. Batch blocker state lookups to avoid redundant API calls when multiple issues share blockers.
