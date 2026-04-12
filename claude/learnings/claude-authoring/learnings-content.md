@@ -160,7 +160,7 @@ Fold dedup verification typically compares source vs target — does the new con
 
 ## Ceremonial Sentences Cluster at Paragraph Ends
 
-Concrete heuristic for conciseness review: **if removing the last sentence of a bullet or paragraph doesn't change the meaning, it's ceremony.** Authors instinctively add a closing sentence to "land" a point — restating the section title, summarizing what was just said, or noting "this pattern is useful for X." When the content is already tight, this sentence adds words without teaching.
+Concrete heuristic for conciseness review: **if removing the last sentence of a bullet or paragraph doesn't change the meaning, it's ceremony.** Authors instinctively add a closing sentence to "land" a point — restating the section title, summarizing what was just said, or noting "this pattern is useful for X."
 
 ## Cross-Refs
 
