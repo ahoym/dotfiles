@@ -1,5 +1,5 @@
 Official skill features and frontmatter for the Claude Code skill ecosystem — allowed-tools, context fork, shell preprocessing, progressive disclosure, and built-in skills.
-- **Keywords:** commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, progressive disclosure, shell preprocessing, baseDir, skill description budget, built-in skills
+- **Keywords:** commands, skills, frontmatter, allowed-tools, context fork, disable-model-invocation, progressive disclosure, shell preprocessing, baseDir, skill description budget, built-in skills, compliance gradient, reference file skipping, body-level preprocessing
 - **Related:** ~/.claude/learnings/claude-authoring/skill-platform-unification.md
 
 ---
@@ -154,7 +154,7 @@ Compliance gradient (low → high):
 
 **Key insight:** Inlining removes the decision, not adds emphasis. Structural unavoidability beats instructional strength.
 
-## `!` Preprocessing for Multi-Platform Command Inlining
+## `!` Preprocessing for Multi-Platform Command Inlining [Proposed — pending ahoym/dotfiles#83]
 
 Extends the dynamic context injection pattern (see "Dynamic Context Injection" section above) to solve multi-platform skill portability. Instead of reference files that agents skip, use `!`cat`` to inject platform-specific commands at point-of-use in the SKILL.md body:
 
@@ -167,9 +167,9 @@ Where `~/.claude/platform-commands` is a symlink created at `setup-claude.sh` ti
 
 **Architecture:** Break monolithic cluster files (`pr-management.md` with 5-6 commands) into atomic command files — one operation per file, 3-5 lines each. Each file carries the command plus platform-specific context (e.g., "use absolute path with `$(cat)`" for GitLab). Skills `!`-include only what they use.
 
-**Merge safety:** All tracked files are identical on both machines. SKILL.md contains `!`cat ~/.claude/platform-commands/...`` (same everywhere). The symlink is untracked (`~/.claude/`). Platform-specific command files are tracked but each machine only edits its own platform's files through the symlink.
+**Merge safety:** All tracked files are identical across platforms. SKILL.md contains `!`cat ~/.claude/platform-commands/...`` (same everywhere). The symlink is untracked (`~/.claude/`). Platform-specific command files are tracked but each machine only edits its own platform's files through the symlink.
 
-**Constraints:** Each command file should stay bounded (3-5 lines) to fit `!` conventions. This is body-level `!` usage — all 19 production skills currently use `!` only in `## Context`. Body inclusion needs empirical validation but is consistent with the preprocessing description ("output replaces the placeholder inline" regardless of position).
+**Constraints:** Each command file should stay bounded (3-5 lines) to fit `!` conventions. This is body-level `!` usage — existing production skills currently use `!` only in `## Context`. Body inclusion needs empirical validation but is consistent with the preprocessing description ("output replaces the placeholder inline" regardless of position).
 
 See ahoym/dotfiles#83 for implementation plan.
 
