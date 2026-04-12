@@ -178,7 +178,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `review` and `{{MODEL}}` → `claude-sonnet-4-6` (this runner is an orchestrator — the heavy work is in `git:team-review-request`'s spawned reviewer subagents). Remove `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (review mode doesn't use worktrees).
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` with `MODE` → `review`, `MODEL` → `claude-sonnet-4-6` (orchestrator — heavy work is in `git:team-review-request`'s subagents), `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees). Then assemble via `fill-template.sh`.
 
 ### Phase 7: Announce, Progress Check, Retro
 
