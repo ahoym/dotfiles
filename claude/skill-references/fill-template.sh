@@ -48,6 +48,7 @@ cp "$TEMPLATE" "$WORK"
 jq -r 'to_entries[] | select(.value != null) | "\(.key)\t\(.value | tostring)"' "$METADATA" > "$KV"
 
 # --- Phase 1: Block conditionals {{#KEY}}...{{/KEY}} ---
+# Note: single-level only — nested blocks not supported.
 # Runs FIRST so stripped blocks don't trigger file-not-found warnings
 # from {@file} inclusions inside dead blocks.
 awk -F'\t' '
