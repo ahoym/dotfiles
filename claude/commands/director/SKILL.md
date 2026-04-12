@@ -55,11 +55,11 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    ```
 8. **Capture intent** for each item. Create `<session_dir>/intents/` directory. For each PR/issue in scope:
    a. Read item metadata (PR title/description/linked issues, or issue body).
-   b. Draft an intent file from metadata following the schema in `/verify-business-logic`'s `director-mode.md`.
+   b. Draft an intent file from metadata following the schema in `/verify-business-logic`'s `director-mode.md`. (**Maintenance note:** Schema is defined and owned by `verify-business-logic/director-mode.md` — update this step if the schema changes.)
    c. Present the draft to the operator: "Here's what I think we're building. Confirm, revise, or fill the gaps."
    d. Restructure the operator's response into the final intent shape and write to `<session_dir>/intents/<id>.md` (e.g., `pr-78.md`, `issue-56.md`). Set `Source: director-negotiated`.
-   e. One revision round if the operator wants to tighten anything.
-   f. Once confirmed, the file is **locked** for the session — no silent mutations.
+   e. One revision round if the operator wants to tighten anything. **Timeout fallback**: if no operator response within 5 minutes, proceed with `Source: inferred-from-pr-description` and log to `decisions.md` with category `intent-capture-timeout`. This aligns with the Decision Framework's pattern for routine autonomous decisions at lower confidence.
+   f. Once confirmed (or timed out with fallback), the file is **locked** for the session — no silent mutations.
    g. Optionally write `<session_dir>/intents/index.md` — one line per item for session-at-a-glance.
    
    **Lock-and-update cycle**: if in-session scope expansion is detected (e.g., reviewer surfaces a finding outside the original intent):
@@ -147,7 +147,7 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 1. Check convergence by reading `*/status.md` across all run_dirs listed in `session.json`.
 2. Session ends when all runs converge.
 3. **Run convergence verifier** for each converged PR:
-   a. Invoke `/verify-business-logic <pr-number> --intent-file <session_dir>/intents/<id>.md --session-dir <session_dir>`.
+   a. Invoke via Skill tool: `skill="git:verify-business-logic", args="<pr-number> --intent-file <session_dir>/intents/<id>.md --session-dir <session_dir>"`. **Naming mapping**: `<id>` uses the `pr-<N>` convention from Phase 1 Step 8d (e.g., PR 78 → `pr-78.md`).
    b. If the verifier outputs `CLARIFY: <question>`, route through the Decision Framework:
       - Simple/silent: answer from context and re-invoke verifier.
       - Complex/escalate: ask operator, then re-invoke verifier with the answer.
