@@ -166,6 +166,12 @@ Concrete heuristic for conciseness review: **if removing the last sentence of a 
 
 Learnings that describe writing patterns (ceremonial sentences, conciseness heuristics, hedging) should be validated against their own content. The pattern author instinctively violates the pattern they're documenting — the "ceremonial sentences" section had a ceremonial close by its own heuristic. When reviewing or writing such learnings, apply the described rule to the learning itself as a final check.
 
+## Proposal Sections Resist the "Proposed" Label
+
+Authors writing about a design they've mentally committed to produce confident prose that doesn't reflect the epistemic state "this has not been validated." If a learnings section references an open PR/issue as the "next step," the section documents a proposal, not a validated pattern — even if the content reads like established guidance. The fix is a label (`[Proposed — pending #N]`), not removal. The insight is often valuable; the framing should match the confidence level.
+
+**Reviewer heuristic:** When a learning section contains "implementation plan" or links to an open PR as the source of truth, flag the missing epistemic label.
+
 ## Cross-Refs
 
 No cross-cluster references.

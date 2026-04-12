@@ -40,8 +40,8 @@ git branch --show-current
 **Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
 
 Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`). If CONFLICTING, resolve:
-1. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills via the Skill tool)
-2. Update `{PR_DIR}/status.md` milestone to `resolving-conflicts`
+1. Update `{PR_DIR}/status.md` milestone to `resolving-conflicts`
+2. Use the Skill tool: `skill="git:resolve-conflicts"`, `args="{BASE}"`
 
 If no conflicts exist at runtime, proceed to the next step.
 

@@ -32,9 +32,9 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 
 `claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `results.md` sections. `Write` and `Edit` patterns do not imply `Read` access.
 
-## `claude -p` Skill Tool Requires `Skill(*)` Permission
+## `claude -p` Skill Tool Requires Scoped Permission
 
-The Skill tool IS available in `claude -p` sessions — a permission denial is not the same as tool unavailability. Add `Skill(*)` to `~/.claude/settings.json` `permissions.allow`. Without it, `claude -p` sessions silently fail when trying to invoke skills (the session completes with `success` but produces no work).
+The Skill tool IS available in `claude -p` sessions and works for invoking skills (verified: `git:resolve-conflicts`, `git:team-review-request`, `git:address-request-comments`). Add scoped patterns like `Skill(git:team-review-request *)` to `~/.claude/settings.json` `permissions.allow`. Without a matching pattern, `claude -p` sessions silently skip the Skill call (no permission denial in logs — the session just works around it by doing the work manually, often incorrectly). Prefer scoped patterns over `Skill(*)` to limit what headless sessions can invoke.
 
 ## `--output-format stream-json` Requires `--verbose` with `claude -p`
 

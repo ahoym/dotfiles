@@ -108,6 +108,16 @@ The runner can compute per-cycle context window usage by parsing the latest assi
 
 Main is still the preferred director branch — cleanest, fewest gotchas. But the active-branch case is **supported**, not a workaround: when the PR being swept IS the director's current branch, `git worktree list` reports the project root as the worktree for that branch, and the address sweep skill's worktree-reuse path picks it up automatically. No `git worktree add`, no separate `Agent` needed. Discipline: director must not touch the working tree (only reads `tmp/claude-artifacts/.../state.md`) and must not interleave its own commits concurrently with agent commits — sequential is fine. The off-branch case (working on a *different* branch while sweeps run on the active one) is the one that needs `Agent(isolation: "worktree")`. Don't conflate them. Validated end-to-end across an 8-cycle compound mode session on the active branch.
 
+## Reviewer Prompt Gap: Skill Bypass on Re-Review
+
+`claude -p` review sessions skip the `Skill("git:team-review-request")` call when reasoning space exists between the preflight watermark check and the skill invocation. The session fetches the diff, decides "content unchanged" or "all findings addressed," and posts a `gh pr comment` (issue comment) directly — bypassing re-review reactions, the re-review body template, and proper `gh pr review` posting. Diagnostic signal: the review URL is an `issuecomment-*` fragment instead of a `pullrequestreview-*` fragment, and no emoji reactions appear on resolved inline comments.
+
+**Fix:** Make the Skill call the first action after preflight passes — no diff fetch, no analysis, no learnings search between them. The skill handles its own quick-exit, re-review detection, and learnings loading internally.
+
+## Worktree Creation Requires Local Branch Reference
+
+`git worktree add <path> <branch>` fails with `fatal: invalid reference` when the branch exists only on the remote and hasn't been fetched locally. The runner's worktree setup loop needs `git fetch origin <branch>` before `git worktree add`. Symptom: `WARNING: Failed to create worktree for PR N, skipping` in runner output, but the session still launches (falls back to running without a worktree, which may or may not work depending on what the session needs to do).
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.
