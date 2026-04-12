@@ -127,3 +127,7 @@ When issues declare dependencies (`Blocked by: #N, #M`), an orchestrator can aut
 | Multiple blockers on different open PRs | Yes, but ⚠️ diamond dependency | default branch (can't merge two bases) |
 
 This eliminates manual wave planning — run the orchestrator on all issues, it picks up what's ready. Re-run after merges to peel off the next wave. Parse `Blocked by:` lines + `## Dependencies` sections; search PRs by both branch name convention (`sweep/<N>-*`) and body references (`Relates to #N`, `Fixes #N`) to avoid missing manually-created PRs. Batch blocker state lookups to avoid redundant API calls when multiple issues share blockers.
+
+### Surface all plan-mode design decisions in one message
+
+Surface all open design decisions (naming, output format, file organization, scope boundaries) in one message before requesting plan approval. Drip-feeding decisions via repeated exit-and-revise cycles adds round trips without adding clarity.
