@@ -80,6 +80,17 @@ git log main..HEAD -- path/to/file.md
 # Empty output = branch never touched it (don't claim it in the PR description)
 ```
 
+### Calibrate Flag-Worthy Observations to Operator-Cession Tier
+
+Surfacing every discovery erodes trust in flags as much as missing real ones. Apply the same tier system as decision-making:
+
+- **Routine observations** (small inconsistencies, transient state, things that resolve themselves) → log silently to memory, follow-up doc, or just hold. Don't surface inline.
+- **Substantive observations** (things that change the operator's plan, real bugs, broken contracts, unexpected behavior with downstream impact) → flag inline.
+
+Failure mode: over-flagging tiny discoveries creates noise that the operator has to filter, training them to ignore flags — including the substantive ones. This is the same shape as the decide-silently / decide-with-report / escalate framework: routine work doesn't need surfacing.
+
+Concrete examples of routine (silent log): a transient `last_comment_id: none` in one cycle's status that recovers next cycle; a runner state file that looks stale but resolves on completion notification; a one-off naming inconsistency in a generated artifact. Concrete examples of substantive (flag inline): a stale-ref class of bug that affects multiple files; a permission pattern gap blocking work; intent drift between PR description and delivered diff.
+
 ### Check git history for prior art before designing new protocol features
 
 When adding features to a protocol or system, check git history for previously removed versions of the same concept. Prior art often contains design decisions, failure modes, and refinements that save reinvention. The removed version may need only a targeted fix rather than a from-scratch redesign.

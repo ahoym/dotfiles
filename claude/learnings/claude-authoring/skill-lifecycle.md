@@ -16,6 +16,8 @@ Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnin
 
 **When reviewing a consumer that delegates by section name, verify the section exists.** When a PR changes a skill to delegate to a named section in a reference file (e.g., `"follow 'Check for Existing Review' in the platform cluster files"` instead of inlining a command), verify the section actually exists in the reference file. Section-name delegations fail silently — the agent gets no guidance and improvises — while missing file-path references fail loudly with a Read error. Read the reference file and confirm the section heading during review.
 
+**Stale-ref hunt after file splits.** When splitting `foo.md` → `foo-a.md` + `foo-b.md`, every persona, skill, learning cross-ref, and CLAUDE.md index that referenced `foo.md` is now dangling. Grep the entire repo for the old name across `commands/`, `skill-references/`, `learnings/`, and `set-persona/` — not just the directory you're editing. In one curation pass, 4 of 6 `> Full criteria:` refs in a persona file pointed at a single split-and-deleted source — undetected until a downstream review surfaced a missing convention check. The fail is silent: nothing tries to Read the dead path during normal operation, so the persona just lacks the criteria it claims to enforce.
+
 ## Producer-Consumer Skill Contracts
 
 When a skill produces structured output intended for another workflow (e.g., curate skill's "Suggested Deep Dives" section), verify the consuming workflow actually reads it. A capability defined in a component skill but not wired into the orchestrating spec is a silent no-op. Check this especially for skills that generate report sections, candidate lists, or action items meant to feed into autonomous loops.

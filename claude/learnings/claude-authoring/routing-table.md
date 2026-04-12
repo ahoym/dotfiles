@@ -88,6 +88,7 @@ Guidelines must be universal — applicable to any agent regardless of stack, la
 - Memory is always-on context cost — learnings/guidelines are conditional and discoverable
 - Behavioral rules → guidelines, not memory
 - **Feedback targeting a skill's output → fix the skill template, not a memory or guideline.** The closer to the point of use, the more durable the fix. Skills > guidelines > learnings > memory as fallback chain.
+- **Fix at the right level, not the closest one.** Before fixing inline at the first place you touched, ask "is this rule already documented at a higher level that just needs better wiring?" Sometimes the source IS the higher level and the inline fix is duplication. The persona-stale-refs case: the structural-header rule existed in `learnings-content.md` but the persona's `> Full criteria:` ref pointed at a deleted file, so the persona couldn't reach it. The right fix was repairing the wiring, not duplicating the rule inline. Same shape as "fix the skill, not a memory" — pick the right level first.
 - If it duplicates a learning or guideline, the memory is the redundant copy
 - Convert relative dates to absolute when saving
 

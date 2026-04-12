@@ -205,6 +205,10 @@ git push origin temp-branch:<pr-branch>
 
 **Fix:** Use `git fetch origin --prune` (no branch name) or `git remote prune origin` to prune all stale remote-tracking refs before checking for gone branches.
 
+## Use Git for State Queries, Not File Content
+
+For "where is the world right now" questions — branch divergence, what's merged, who has what — prefer git operations (`git log A..B`, `git log B..A`, `git branch`, `git status`, `git remote`) over reading file content. Git answers in one shot and is authoritative; reading files gives ambiguous data that's easy to misinterpret. Concrete failure mode: after a remote merge, switching to local main showed files in their pre-merge state (because local main was diverged from `origin/main`). The natural next move was to read file content and try to reason about why the merged changes "weren't there" — which led to wrong conclusions. The fast right move was `git log origin/main..main` and `git log main..origin/main` — both ran in one shot and made the divergence obvious. Reach for git first when the question is about world state; reach for Read when the question is about content.
+
 ## Always Diff Against `origin/main`, Not Local `main`
 
 Local `main` may be behind remote — especially after other branches merge. `git diff main...HEAD` inflates the changeset with commits already merged upstream. Always use `git diff origin/main...HEAD` (or `git fetch origin main` first) to get the true delta. This applies to any tool that computes MR scope from a diff against main.
