@@ -22,7 +22,7 @@ Skills that produce this structure can be launched and monitored by `/director`.
     ├── session.reset       # Written by director to force fresh start on next cycle (triggers deletion of session.state)
     ├── state.md            # Written by runner -- process lifecycle state
     ├── status.md           # Written by session at end (watermark, milestone)
-    ├── result.md           # Written by session at end (append-only)
+    ├── results.md           # Written by session at end (append-only)
     ├── learnings.md        # Written by session at end (append-only, optional)
     ├── live.md             # Written by stream-monitor.sh during session (append-only across cycles)
     ├── raw.jsonl           # Written by tee during session (current cycle only)
@@ -75,7 +75,7 @@ Generated from a runner template. Must:
 
 ## prompt.txt
 
-The full prompt piped to `claude -p`. The generating skill fills this from its prompt template with per-item placeholders. Must instruct the session to write `status.md` and `result.md` at completion.
+The full prompt piped to `claude -p`. The generating skill fills this from its prompt template with per-item placeholders. Must instruct the session to write `status.md` and `results.md` at completion.
 
 ## Session-Written Files
 
@@ -86,7 +86,7 @@ milestone: done | skipped | errored
 ```
 Skills add domain-specific fields (watermarks, PR state, mergeable status).
 
-### result.md
+### results.md
 Append-only — each run adds a dated section. Contains the session's findings, actions, or completion report.
 
 ### learnings.md
@@ -154,7 +154,7 @@ A skill is director-compatible if it:
 1. Generates `manifest.json` with `items[].id` and `items[].label`
 2. Generates `item-<id>/prompt.txt` for each item
 3. Generates a runner script (`let-it-rip.sh`)
-4. Prompt instructs sessions to write `status.md` and `result.md`
+4. Prompt instructs sessions to write `status.md` and `results.md`
 5. Runner writes `state.md` for process lifecycle monitoring (handled by the standard runner template)
 
 Skills using the `Agent` tool directly for parallelism are **not** director-compatible — they bypass the `claude -p` pipeline and get no `live.md` observability, no directive channel, no `state.md` lifecycle tracking, and no kill + retry.

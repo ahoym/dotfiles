@@ -100,9 +100,9 @@ Does this plan match your intent? Reply with corrections, or "implement" to proc
 
 ## Step 12: Write Artifacts
 
-### result.md
+### results.md
 
-Append a dated section to `{ISSUE_DIR}/result.md`. On first run, prepend `# Issue #{ISSUE_NUMBER} — {ISSUE_TITLE}`.
+Append a dated section to `{ISSUE_DIR}/results.md`. On first run, prepend `# Issue #{ISSUE_NUMBER} — {ISSUE_TITLE}`.
 
 ```markdown
 ## Confirm — <ISO timestamp>

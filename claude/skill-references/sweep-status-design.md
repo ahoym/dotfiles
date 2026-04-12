@@ -16,7 +16,7 @@ Discrete skill that reads sweep run artifacts and returns structured director st
 
 1. Read `manifest.json` for eligible/skipped PR list and mode
 2. Read all `pr-*/status.md` — extract milestone, pr_state, mergeable, watermarks, updated_at
-3. Read all `pr-*/result.md` — extract latest section's findings, inline comments, auto-implemented, escalated counts
+3. Read all `pr-*/results.md` — extract latest section's findings, inline comments, auto-implemented, escalated counts
 4. Compute monitoring table (full or delta from previous `director-state.md`)
 5. Evaluate convergence rules (from playbook):
    - Review: all-skip for 30m → converged

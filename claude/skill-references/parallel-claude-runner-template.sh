@@ -406,5 +406,5 @@ if [ -f "${RUN_DIR}/.rate-limited" ]; then
     echo ""
 fi
 
-echo "View results:  ls ${RUN_DIR}/pr-*/result.md"
+echo "View results:  ls ${RUN_DIR}/pr-*/results.md"
 echo "Ask Claude:    Check progress on ${RUN_DIR}"
