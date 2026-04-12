@@ -223,14 +223,13 @@ Write data files for template assembly, then call `fill-template.sh`:
        "ISSUE_URL": "<url>",
        "ISSUE_LABELS": "<comma-separated>",
        "OWNER_REPO": "<owner/repo>",
-       "DEFAULT_BRANCH": "<main or master>",
+       "BASE_BRANCH": "<default branch or dependency PR branch>",
        "MODEL_NAME": "<model>",
        "PERSONA_NAME": "<persona or none>",
        "RUN_DIR": "<absolute path>",
        "ISSUE_DIR": "<absolute path>",
        "ISSUE_UPDATED_AT": "<timestamp>",
-       "LAST_COMMENT_ID": "<id or none>",
-       "BASE_BRANCH": "<default branch or dependency PR branch>"
+       "LAST_COMMENT_ID": "<id or none>"
      }
      ```
    - `body.txt` — issue body text

@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{DEFAULT_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{BASE_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
 **File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
@@ -117,7 +117,8 @@ e. Create PR:
      - `api-design.md` — Followed consistent error response shape
      ```
      If no learnings were applied: `## Learnings Applied\nNone`
-   - Run: `gh pr create --base {DEFAULT_BRANCH} --title "<title>" --body-file {ISSUE_DIR}/pr-body.md`
+   - Run: `gh pr create --base {BASE_BRANCH} --title "<title>" --body-file {ISSUE_DIR}/pr-body.md`
+   - When `{BASE_BRANCH}` is not `main` or `master` (i.e., it's a dependency's PR branch), this creates a **stacked PR**. Add a note at the top of the PR body: `> ⚠️ Stacked PR — targets \`{BASE_BRANCH}\`. Merge that PR first, then rebase this one onto main.`
 
 ## Boundaries
 
