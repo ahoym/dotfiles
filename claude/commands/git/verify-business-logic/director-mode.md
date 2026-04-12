@@ -1,0 +1,69 @@
+# Director Mode
+
+Loaded when `/verify-business-logic` is invoked with `--intent-file <path> --session-dir <path>`. These conventions govern behavior when the director orchestrates the verifier.
+
+## Intent File Schema
+
+The director writes locked intent files to `<session_dir>/intents/<id>.md`. The verifier reads these — never writes or modifies them.
+
+```markdown
+# Intent: PR #<N> — <title>
+
+**Item ID**: pr-<N>
+**Status**: locked at <ISO> (revisions: <count>)
+**Source**: director-negotiated | agent-prompt | inferred-from-pr-description
+
+## Goal
+<one or two sentences — what done looks like>
+
+## Acceptance criteria
+- [ ] <criterion 1 — checkable>
+- [ ] <criterion 2 — checkable>
+
+## Out of scope
+- <thing the operator explicitly didn't want pulled in>
+
+## Success signals
+<observable outputs the verifier can check at convergence>
+```
+
+**Source field affects confidence**:
+- `director-negotiated`: highest confidence — operator confirmed. Full scope-drift analysis warranted.
+- `agent-prompt`: medium — restructured from the agent's prompt, not directly confirmed by operator. Note lower confidence in report.
+- `inferred-from-pr-description`: lowest — tone down scope-drift checks. Frame as suggestions, not assertions.
+
+## CLARIFY Protocol
+
+When the verifier needs clarification on intent (too vague to evaluate scope drift or acceptance), output the following instead of a final report:
+
+```
+CLARIFY: <specific question about the intent>
+```
+
+The director receives this and routes through its Decision Framework:
+- **Simple/silent**: director answers from context and re-invokes verifier
+- **Complex/escalate**: director asks operator, then re-invokes verifier with the answer
+
+**Rules**:
+- Maximum one `CLARIFY` per verifier run. If still unclear after one round, produce a report with an "intent too vague to evaluate" section instead of looping.
+- `CLARIFY` is only for intent ambiguity — discipline checks never need clarification.
+- The director logs clarification requests to `decisions.md` with category `verifier-clarification`.
+
+## Session Dir Output
+
+In addition to posting a top-level PR comment, write the report to:
+
+```
+<session_dir>/verify-pr-<N>.md
+```
+
+where `<N>` is the PR number. This local copy lets the director include it in the Phase 5 summary and the session retro.
+
+## Decision Framework Categories
+
+The director uses these categories when logging verifier-related decisions:
+
+| Category | When |
+|----------|------|
+| `verifier-clarification` | Director answered or escalated a `CLARIFY` request |
+| `intent-update` | Director updated a locked intent file (scope expansion approved by operator) |

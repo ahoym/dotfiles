@@ -53,6 +53,19 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    ```markdown
    # Director Decisions — <timestamp>
    ```
+8. **Capture intent** for each item. Create `<session_dir>/intents/` directory. For each PR/issue in scope:
+   a. Read item metadata (PR title/description/linked issues, or issue body).
+   b. Draft an intent file from metadata following the schema in `/verify-business-logic`'s `director-mode.md`.
+   c. Present the draft to the operator: "Here's what I think we're building. Confirm, revise, or fill the gaps."
+   d. Restructure the operator's response into the final intent shape and write to `<session_dir>/intents/<id>.md` (e.g., `pr-78.md`, `issue-56.md`). Set `Source: director-negotiated`.
+   e. One revision round if the operator wants to tighten anything.
+   f. Once confirmed, the file is **locked** for the session — no silent mutations.
+   g. Optionally write `<session_dir>/intents/index.md` — one line per item for session-at-a-glance.
+   
+   **Lock-and-update cycle**: if in-session scope expansion is detected (e.g., reviewer surfaces a finding outside the original intent):
+   - Present the expansion to the operator: "Add to intent or defer to a follow-up issue?"
+   - If add: append a dated revision section to the intent file, increment revisions counter, log to `decisions.md` with category `intent-update`.
+   - If defer: file a GitHub issue per the out-of-scope handling, log to `decisions.md`, intent file stays unchanged.
 
 ## Phase 2: Assess + Generate Artifacts
 
@@ -61,6 +74,8 @@ For each requested mode, invoke the corresponding skill via `Skill` tool. Any sk
 **Convenience aliases** for common sweep modes:
 - `review` → `skill="sweep:review-prs"`, `args="<passthrough>"`
 - `address` → `skill="sweep:address-prs"`, `args="<passthrough>"`
+
+**Pre-filter converged items on relaunch cycles.** Before invoking a sweep skill for cycle 2+, check each item's last `status.md` — if HEAD SHA and comment IDs are unchanged since the last pass, exclude it from the `--prs` list. The runner's pre-flight skip handles this too, but pre-filtering avoids wasting a full session startup (~30s + API cost) on a guaranteed no-op.
 
 After each skill completes, read its generated `manifest.json` to get the `run_dir` and eligible items. For each item, append the run_dir to its entry in `session.json`:
 ```json
@@ -110,7 +125,9 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 **Check directive opportunities** per the playbook's Directive Patterns on each trigger. Write directives when triggered -- summary-only findings and conflict resolution are the most common.
 
-**Conflict resolution is handled inline by the addresser when `RESOLVE_CONFLICTS=true`.** When a PR has merge conflicts (`mergeable: CONFLICTING`), regenerate the address artifacts with `RESOLVE_CONFLICTS: "true"` and `HAS_CONFLICTS: "true"` in the PR's `metadata.json`, then re-assemble the prompt via `fill-template.sh`. This is a routine director decision — auto-decide and surface the action taken, don't prompt the operator. The addresser-prompt's Step 6 reads `~/.claude/commands/git/resolve-conflicts/SKILL.md` and resolves conflicts before addressing comments — rebase + address completes in a single `claude -p` run.
+**Conflict resolution is autonomous unless data-loss risk exists.** When `mergeable: CONFLICTING`, set `RESOLVE_CONFLICTS: "true"` and `HAS_CONFLICTS: "true"` in the PR's `metadata.json`, re-assemble via `fill-template.sh`, and launch — no operator prompt. **Escalate** when the merge involves modify/delete conflicts, divergent same-section edits, or force-push over unpushed local work — stash first, then surface what's at risk.
+
+**Log non-routine decisions.** Append to `<RUN_DIR>/director-decisions.log` on relaunch, escalation, convergence call, or directive write — not on a periodic clock. Most director state is computable from worker artifacts; the decision history is the uncomputable part.
 
 **Present** the monitoring table and any actions taken. First pass: full table. Subsequent: delta-only with "N unchanged" summary.
 
@@ -129,7 +146,14 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 
 1. Check convergence by reading `*/status.md` across all run_dirs listed in `session.json`.
 2. Session ends when all runs converge.
-3. Write final `director-state.md` per playbook format with terminal state.
-4. Present a final summary: per-run retro (read each run's `*/results.md` and `*/learnings.md`).
-5. Review `<session_dir>/decisions.md` as part of the retro — surface decide-with-report entries (dissent, cost-time, out-of-scope) so the operator can audit autonomous calls and flag any that should have been escalated.
-6. Offer to invoke `/session-retro`. When accepted, the retro skill will read all worker `learnings.md` files before compounding — high-value worker observations are easy to lose otherwise.
+3. **Run convergence verifier** for each converged PR:
+   a. Invoke `/verify-business-logic <pr-number> --intent-file <session_dir>/intents/<id>.md --session-dir <session_dir>`.
+   b. If the verifier outputs `CLARIFY: <question>`, route through the Decision Framework:
+      - Simple/silent: answer from context and re-invoke verifier.
+      - Complex/escalate: ask operator, then re-invoke verifier with the answer.
+      - Log to `decisions.md` with category `verifier-clarification`.
+   c. Verifier posts a top-level PR comment and writes `<session_dir>/verify-pr-<N>.md`.
+4. Write final `director-state.md` per playbook format with terminal state.
+5. Present a final summary: per-run retro (read each run's `*/results.md` and `*/learnings.md`), including verifier reports.
+6. Review `<session_dir>/decisions.md` as part of the retro — surface decide-with-report entries (dissent, cost-time, out-of-scope, verifier-clarification) so the operator can audit autonomous calls and flag any that should have been escalated.
+7. Offer to invoke `/session-retro`. When accepted, the retro skill will read all worker `learnings.md` files before compounding — high-value worker observations are easy to lose otherwise.
