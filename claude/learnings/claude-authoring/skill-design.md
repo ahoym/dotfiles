@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline
 - **Related:** none
 
 ---
@@ -222,6 +222,10 @@ When a template engine supports both block conditionals (`{{#KEY}}...{{/KEY}}`) 
 ## Shell Template Auto-Detection: Skip Single-Brace Substitution
 
 Templates that use `{{KEY}}` (double-brace) are shell scripts where `${var}` must not be touched. Auto-detect by checking for `{{[A-Z_][A-Z_0-9]*}}` patterns; when found, skip `{KEY}` single-brace substitution entirely. Without this, `{MODE}` inside `${MODE}` gets replaced, corrupting every shell variable that shares a name with a metadata key.
+
+## Template Examples Are the Primary Compliance Mechanism
+
+Prose rules that follow a template are often ignored when the template itself models the wrong format. Agents pattern-match against the template's structure when composing output — a `<finding summary>` placeholder gets expanded into full sentences even if a body-discipline rule says "one line only." Fix: make the template demonstrate the constraint with concrete examples and explicit caps (e.g., `≤20 words`). The template is the instruction; the prose rule is backup.
 
 ## Cross-Refs
 

@@ -128,6 +128,10 @@ Match the model to the runner's role. **Orchestrator runners** mainly invoke oth
 
 Capture intent at session start as a structured artifact (`<session_dir>/intents/<id>.md`), not as conversation context. Director drafts from item metadata, operator confirms or revises, result is locked. In-session scope expansion goes through an explicit update step (append revision section, log to `decisions.md`) — never silent mutation. The locked artifact survives context compaction and grounds decision-making: "is this in scope?" becomes a checkable question against the file, not a subjective recall.
 
+## TOCTOU in Orchestration Pre-Filters
+
+When an orchestration skill reads state at Phase N for an optimization decision (e.g., pre-filter unchanged items) and re-reads at Phase M for an authoritative decision (e.g., convergence check), items excluded at Phase N could have new activity by Phase M. Classic time-of-check/time-of-use applied to skill orchestration: either re-check excluded items at the authoritative phase, or accept that the optimization can miss state changes between phases.
+
 ## Compose Escalation Through Existing Decision Frameworks
 
 Secondary agents that need to escalate (verifier asking for clarification, validator finding ambiguity) should route through whatever decision framework already governs the primary loop — not build a parallel escalation channel. Verifier mid-run clarification flows through the same operator-cession framework the director uses (silent for routine, decide-with-report for partial, escalate to operator for ambiguous). Composability over duplication: one escalation surface for the operator to learn, one set of categories, one log location.
