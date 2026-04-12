@@ -232,6 +232,7 @@ Director-approved fix for <file>. <description of approved change>. Post a top-l
   Directive from <original timestamp> satisfied. No further action needed.
   ```
 - Sessions should check whether directives are already satisfied before acting — prevents redundant invocations
+- **Director-side dedup:** Before writing a new directive, read existing directives for the same PR and check whether the target is already covered by a prior directive (satisfied or not). Duplicate directives cause redundant session launches — the session reads all directives and acts on each one independently
 
 ## Re-Assessment Triggers
 
@@ -241,6 +242,8 @@ Re-run the sweep skill (not just the runner) when:
 - Fundamental scope change (different PR filter, new repo)
 
 Do NOT re-assess just because a cycle skipped — that is normal convergence behavior. Re-running the runner script is sufficient for ongoing cycles.
+
+**Watermark propagation across session boundaries.** When re-invoking a sweep skill for a new cycle (new run_dir), the new session starts without the prior run's watermarks — triggering full comment re-analysis for every PR. To avoid this: before relaunching, copy each item's `status.md` from the prior run_dir into the new run_dir. The new session reads the watermark and skips items with no changes since the last pass. For quick reruns (same run_dir), this is handled automatically — the runner reuses existing `status.md` files.
 
 ## Branch-Position Patterns
 
