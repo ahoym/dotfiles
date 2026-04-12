@@ -29,7 +29,9 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
    ### Findings
 
-   <Bulleted themes — group by concern, not by file>
+   <ONE line per bullet — area + gist only, ≤20 words. Details live in inline comments.>
+   - Error handling gap in intent file I/O boundary
+   - CLARIFY escalation has no blocking signal for degraded outcome
 
    ### Positive Signals
 
