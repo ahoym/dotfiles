@@ -237,10 +237,16 @@ Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/met
 - `MODEL` → `"claude-opus-4-6"` (leaf — reads diffs, edits files, pushes commits)
 - `BRANCHES` → `"true"`, `WORKTREES` → `"true"`, `PROJECT_ROOT` → absolute path
 
-All other keys (entity type, `CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults for PRs. Also write address-mode data files to `<RUN_DIR>/`:
+Entity type keys for PRs:
+```json
+{"ENTITY_PREFIX": "pr", "ENTITY_LABEL": "PR", "STATE_FIELD": "pr_state",
+ "STATE_CHECK_CMD": "gh pr view", "TERMINAL_STATES": "MERGED CLOSED"}
+```
+
+All other keys (`CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults. Also write address-mode data files to `<RUN_DIR>/`:
 - `branch-cases.txt` — case body lines (e.g., `80) echo "feat/auth" ;;`)
 - `worktree-cases.txt` — case body lines (e.g., `80) echo "/path/to/wt" ;;`)
-- `new-worktree-items.txt` — space-separated PR numbers needing new worktrees
+- `new-worktree-items.txt` — space-separated entity numbers needing new worktrees
 
 Then assemble via `fill-template.sh`. The worktree setup loop in the template includes the pre-flight state check before fetching — no manual addition needed.
 

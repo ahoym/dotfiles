@@ -201,7 +201,13 @@ Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/met
 - `MODEL` → `"claude-sonnet-4-6"` (orchestrator — heavy work is in `git:team-review-request`'s subagents)
 - `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees)
 
-All other keys (entity type, `CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults for PRs. Then assemble via `fill-template.sh`.
+Entity type keys for PRs:
+```json
+{"ENTITY_PREFIX": "pr", "ENTITY_LABEL": "PR", "STATE_FIELD": "pr_state",
+ "STATE_CHECK_CMD": "gh pr view", "TERMINAL_STATES": "MERGED CLOSED"}
+```
+
+All other keys (`CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults. Then assemble via `fill-template.sh`.
 
 ### Phase 7: Announce, Progress Check, Retro
 
