@@ -126,7 +126,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 10. **Compose the review** — build the review payload:
 
-   **First review body** (summary — themes only, no file-specific details):
+   **First review body** (count + pointer, not a finding list):
    ```
    ## <Persona Name> Review: <REQUEST_TITLE>
 
@@ -134,12 +134,14 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    ### Findings
 
-   <Bulleted themes — group by concern, not by file. No filenames or line numbers here.>
+   N finding(s) — see inline comments.
 
    ### Positive Signals
 
    <What's done well — themes and patterns, not file-by-file inventory>
    ```
+
+   The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.`
 
    Append the **Footnote Format** from the base reference (Role: Reviewer) to the review body.
 

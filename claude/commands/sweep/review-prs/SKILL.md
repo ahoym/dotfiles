@@ -81,9 +81,16 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 
 ### Phase 2: PR Fetch
 
-Fetch open PRs (GitHub-specific commands):
-- Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,reviews,comments`
-- All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
+Fetch open PRs — platform-specific commands are inlined below via `!` preprocessing:
+- Specific numbers (adapt to include `isDraft,reviews,comments` fields):
+  ```
+  !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+- All open (adapt to include `isDraft` field):
+  ```
+  !`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+  Then fetch `reviews,comments` per PR separately.
 
 ### Phase 3: Filter and Skip Detection
 
@@ -160,9 +167,22 @@ Write data files for template assembly, then call `fill-template.sh`:
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
        "STACKING_CONTEXT": "<stacking description or 'This PR is not part of a stack.'>",
-       "LAST_SHA_FIELD": "last_reviewed_sha"
+       "LAST_SHA_FIELD": "last_reviewed_sha",
+       "FETCH_LATEST_INLINE_COMMENT_ID_CMD": "<literal command — see below>",
+       "FETCH_PR_WATERMARK_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+
+     - `FETCH_LATEST_INLINE_COMMENT_ID_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-latest-inline-comment-id.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_PR_WATERMARK_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-pr-watermark.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
 
 2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
    ```bash

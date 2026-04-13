@@ -16,9 +16,9 @@ Write the MR body to `tmp/claude-artifacts/change-request-replies/request-body-<
 
 ```bash
 # Write body via Write tool to tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md, then:
-glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat /absolute/path/to/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
+glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
 # Or update existing:
-glab mr update <number> --description "$(cat /absolute/path/to/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
+glab mr update <number> --description "$(cat <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
 ```
 
 ## Post Review with Inline Comments

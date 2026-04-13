@@ -105,6 +105,14 @@ When skill A's reference file says "same criteria as skill B's reference file," 
 
 When a reference file is read by every invocation of a skill (not conditionally), use `@` eager loading instead of a conditional read instruction. The context cost is identical — the agent reads it either way — but eager loading saves a tool call and guarantees availability. Reserve conditional reads (`read X if mode is Y`) for files genuinely needed only in some code paths.
 
+## `!` Preprocessing Is SKILL.md-Only (Empirically Confirmed)
+
+`!` preprocessing runs when the CLI loads a SKILL.md via the Skill tool — it substitutes `!`cmd`` with stdout before the agent sees the file. Files read at runtime via the Read tool get raw text — `!` directives appear as literal strings. Implications: (1) shared reference files like `request-interaction-base.md` can contain `!`cat` includes and they'll resolve when the skill loads them via `@`, but NOT when an agent reads them with the Read tool mid-session. (2) Subagent prompt templates assembled at runtime can't benefit from `!` — use explicit `.sh` filenames for the subagent to `cat` at execution time. (3) `@`-reference in SKILL.md enables `!` for templates but forces always-on loading — a tradeoff between preprocessing and context cost.
+
+## Shell Comments in `.sh` Files Are Dual-Channel When `!cat`-Inlined
+
+`# Write body via Write tool first:` in a `.sh` command file is both human documentation and an LLM execution directive after `!cat` inlining. The imperative ordering ("Write first, then run") isn't stylistic — it's the execution sequence the agent follows. When authoring `.sh` primitives, write comments as if they're step instructions, because after preprocessing, they are.
+
 ## Cross-Refs
 
 No cross-cluster references.

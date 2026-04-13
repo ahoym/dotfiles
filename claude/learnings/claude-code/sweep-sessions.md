@@ -116,6 +116,36 @@ Main is still the preferred director branch — cleanest, fewest gotchas. But th
 
 **See also:** `~/.claude/learnings/claude-authoring/skill-design.md` § "Delegating Prompts Must Not Expose Delegated Inputs" for the general principle.
 
+**Validated:** After collapsing the gap, session 2 posted a proper `pullrequestreview` with 8 inline comments, and session 3's re-review posted reactions on the correct reply comments. The `issuecomment` diagnostic signal is reliable for detecting regressions.
+
+## Director Artifact Generation Can Be Batched
+
+When generating artifacts for a single-PR session, all writes (manifests, metadata, data files, preflight copies) are independent and can be issued in parallel. Prompt assembly (`fill-template.sh`) depends on metadata being written first but all prompts can be assembled in parallel. Runner assembly depends on runner metadata. Three sequential batches: data files → prompts → runners. Reduces wall-clock time for multi-PR sessions.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.
+
+## Static Prompt Can't Transition Lifecycle Roles
+
+Runner scripts replay the same `prompt.txt` on every relaunch. A clarifier prompt that completes (posts questions, gets answers, posts acknowledgment) will skip on relaunch — its own Sweeper comment is the latest, watermark matches, no new activity. To transition from clarify → confirm → implement, invoke `sweep:work-items` again for a fresh assessment that evaluates conversation state and generates artifacts with the matching template. The runner is the loop target for *within-role* reruns; cross-role transitions require reassessment.
+
+## Sub-Issues From Confirmed Plans Lack Sweeper History
+
+Issues created by the director from a confirmed parent plan (e.g., #92/#93 from #90's confirm pass) have no Sweeper comments. The lifecycle assigns `clarify` despite full specification. Workaround: post an operator comment ("Plan confirmed from #N. Implement.") before assessment. The assessment sees the operator comment with no prior Sweeper → still assigns clarify. The real fix: assessment should detect `Relates to #N` + parent issue has `Sweeper-Confirm` approval + operator comment referencing the parent → skip to implement.
+
+## Template Scripts Fail `bash -n` Validation
+
+Platform-command scripts use `<PLACEHOLDER>` syntax (e.g., `gh pr view <N> --json ...`) which isn't valid bash. `bash -n` verification triggers permission denials (no allow pattern for `bash -n`) and would fail on syntax anyway. The scripts are command templates, not executable scripts — validation should check format/structure, not bash syntax. Don't add a `bash -n` permission pattern for these.
+
+## Confirmer Should Pre-Seed Sub-Issue Approval
+
+When a confirmer proposes sub-issues as part of its confirmation comment, it should also post approval comments on those sub-issues (after the director creates them). This eliminates the manual step where the operator or director must post "Plan confirmed from #N. Implement." before the assessment can assign the implement role. The confirmer already has the confirmed plan context — it can propagate approval downstream.
+
+## Confirmer Must Propose Sub-Issues for Independent Phases
+
+When a confirmer's plan has N independent phases that could each produce a separate PR, the confirmer should propose sub-issues — not present them as phases of a single implementation. One issue → one PR is the default; multi-phase plans that don't split upfront create monolithic PRs that are hard to review, slow to merge, and block clean phases behind dirty ones. The clarifier's scope assessment identifies the split; the confirmer should honor it by proposing concrete sub-issues with titles, scopes, and dependency order.
+
+## Director Must Run Full Review→Address→Re-Review Cycles
+
+Convergence requires the full cycle: review → address → re-review. Skipping the address step and calling "0 new findings" convergence is wrong — the addresser processes operator comments and implements reviewer suggestions that the reviewer only replies to. A reviewer reply-only cycle is not a substitute for an address cycle. After every review that posts new content (findings, replies, reactions), launch the addresser before re-reviewing.

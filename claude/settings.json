@@ -4,8 +4,11 @@
       "Bash(bash ~/.claude/commands/**)",
       "Bash(bash ~/.claude/skill-references/**)",
       "Bash(bash tmp/claude-artifacts/**)",
-      "Bash(chmod +x *)",
+      "Bash(chmod +x tmp/claude-artifacts/**)",
+      "Bash(chmod +x ~/**/tmp/claude-artifacts/**)",
       "Bash(cp ~/.claude/skill-references/**)",
+      "Bash(cp tmp/claude-artifacts/**)",
+      "Bash(cp ~/**/tmp/claude-artifacts/**)",
 
       "Bash(brew list:*)",
       "Bash(curl:*)",
@@ -51,6 +54,8 @@
       "Bash(mkdir -p tmp:*)",
       "Bash(mkdir -p ~/.claude:*)",
       "Bash(rm -rf docs/learnings/_staging*)",
+      "Bash(mv tmp/claude-artifacts/**)",
+      "Bash(mv ~/**/tmp/claude-artifacts/**)",
       "Bash(rm tmp/claude-artifacts:*)",
 
       "Read(claude/**)",

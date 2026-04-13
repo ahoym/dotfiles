@@ -36,22 +36,25 @@ Flags can be combined: `/resolve-conflicts --merge main`
 2. **Determine branches**:
 
    **If PR_NUMBER is set:**
-   ```bash
-   gh pr view <PR_NUMBER> --json headRefName,baseRefName --jq '{head: .headRefName, base: .baseRefName}'
+
+   Fetch both branches:
    ```
-   - Set base branch from `baseRefName`
+   !`cat ~/.claude/platform-commands/fetch-pr-branches.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+   - Set base branch from `base` and head branch from `head`
    - If current branch != `headRefName`, check out the PR branch:
-     ```bash
-     gh pr checkout <PR_NUMBER>
+     ```
+     !`cat ~/.claude/platform-commands/checkout-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
      ```
    - Current branch is now the PR's head branch
 
    **Otherwise:**
    - Current branch: `git branch --show-current`
-   - Base branch: If override provided, use it. Otherwise, detect from PR or default to `origin/main`
-     ```bash
-     gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null || echo "main"
+   - Base branch: If override provided, use it. Otherwise, detect from PR or default to `origin/main`:
      ```
+     !`cat ~/.claude/platform-commands/fetch-pr-base-branch.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
+     Fall back to `echo "main"` if the command fails (no PR for current branch).
 
 3. **Check for dirty working tree**:
    ```bash
@@ -178,8 +181,8 @@ Flags can be combined: `/resolve-conflicts --merge main`
     ```
 
 11. **Verify PR status**:
-    ```bash
-    gh pr view --json mergeable --jq '.mergeable'
+    ```
+    !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```
     Report whether the PR is now mergeable.
 

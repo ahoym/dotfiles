@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`, `{POST_ISSUE_COMMENT_CMD}`, `{FETCH_ISSUE_WITH_COMMENTS_CMD}`
 **File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
@@ -49,11 +49,11 @@ Read the comment thread. Identify the clarifier's questions, operator's answers,
 
 ## Step 11: Draft and Post Confirmation
 
-Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan with files, phases, and verification; (3) open questions only if genuine; (4) explicit ask for confirmation.
+Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan; (3) open questions only if genuine; (4) explicit ask for confirmation.
 
 Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, then post:
 ```bash
-gh issue comment {ISSUE_NUMBER} --body-file {ISSUE_DIR}/comment-body.md
+{POST_ISSUE_COMMENT_CMD}
 ```
 
 **Be concise.** Answers: one sentence each showing you understood, not parroting. Plan: checklist with file paths and one-line descriptions. No multi-paragraph explanations — the issue thread has the reasoning.
@@ -130,7 +130,7 @@ Append a dated section to `{ISSUE_DIR}/learnings.md`. Start with **Learnings pro
 
 **Re-fetch watermark after posting.** Your comment in Step 11 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
 ```bash
-gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
+{FETCH_ISSUE_WITH_COMMENTS_CMD}
 ```
 
 Write final status using the **re-fetched** values:

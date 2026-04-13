@@ -84,12 +84,21 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 
 ### Phase 2: PR Fetch
 
-Fetch open PRs (GitHub-specific commands):
-- Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,mergeable,reviews,comments`
-- All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft,mergeable --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
+Fetch open PRs — platform-specific commands are inlined below via `!` preprocessing:
+- Specific numbers (adapt to include `isDraft,mergeable,reviews,comments` fields):
+  ```
+  !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+- All open (adapt to include `isDraft,mergeable` fields):
+  ```
+  !`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+  Then fetch `reviews,comments` per PR separately.
 
 For each PR, also fetch inline review comments:
-`gh api repos/{owner}/{repo}/pulls/<N>/comments --paginate`
+```
+!`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
 ### Phase 3: Filter, Skip Detection, Worktree & Persona Discovery
 
@@ -97,7 +106,7 @@ For each PR, also fetch inline review comments:
 
 **Persona detection:** List available personas via `ls ~/.claude/commands/set-persona/*.md` (do NOT use the Glob tool — it fails to resolve symlinked `~/.claude/` paths). Exclude `SKILL.md`. If the listing returns zero files, **warn the operator**: "⚠ No persona files found at `~/.claude/commands/set-persona/` — check path resolution. Proceeding without personas." For each eligible PR, match the best persona based on:
 1. PR title and branch name keywords (e.g., `claude-config`, `react`, `java`, `xrpl`)
-2. Changed file paths from `gh pr diff --stat` (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
+2. Changed file paths from the review diff (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
 3. Review comment content domains
 
 If no persona matches confidently, leave as `none`. Record the detected persona per PR for the summary and prompt generation.
@@ -185,9 +194,27 @@ Write data files for template assembly, then call `fill-template.sh`:
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
-       "LAST_SHA_FIELD": "last_addressed_sha"
+       "LAST_SHA_FIELD": "last_addressed_sha",
+       "CHECK_PR_MERGEABLE_CMD": "<literal command — see below>",
+       "FETCH_LATEST_INLINE_COMMENT_ID_CMD": "<literal command — see below>",
+       "FETCH_PR_WATERMARK_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+
+     - `CHECK_PR_MERGEABLE_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_LATEST_INLINE_COMMENT_ID_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-latest-inline-comment-id.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_PR_WATERMARK_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-pr-watermark.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
 
    **`PERSONA_INSTRUCTION` value:**
    - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`

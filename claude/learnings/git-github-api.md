@@ -70,6 +70,10 @@ Lines restored from the base branch (removed then re-added) appear as unchanged 
 
 When creating a PR that builds on an unmerged dependency's branch, use `gh pr create --base <dependency-branch>` so the PR targets that branch instead of main. Add a stacking note in the PR body: `> ⚠️ Stacked PR — targets \`<branch>\`. Merge that PR first, then rebase this one onto main.` The worktree must `git fetch origin <branch>` before creation since the dependency branch only exists on the remote. After the dependency merges, rebase and retarget with `gh pr edit <N> --base main`.
 
+## glab api Flag Case: `-f` vs `-F`
+
+Lowercase `-f` = string field (value passed literally). Uppercase `-F` = inferred type with `@file` reading (reads file contents as the value). For file-sourced payloads, `-F body=@path` reads the file; `-f body=@path` sends the literal string `@path`. The case distinction also applies to `gh api` and is a common source of bugs in `claude -p` sessions: when a command template contains a non-functional path placeholder (e.g., `/absolute/path/to/`), agents improvise the path fix but silently swap `-F` to `-f`, posting the file path as the comment body instead of the file contents. Command templates must use `<ANGLE_BRACKET>` placeholders that match the agent's substitution convention, and should include an inline comment reinforcing the `-F`/`-f` distinction.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/git-patterns.md` — core git operations, rebase, merge, worktree, commit hygiene

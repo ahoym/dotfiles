@@ -149,9 +149,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     ### Findings
 
-    <Grouped by theme, not by persona. ONE line per bullet — area + gist only, ≤20 words. Details live in inline comments.>
-    - **[persona-1, persona-2]** Error handling gap in intent file I/O boundary
-    - **[persona-3]** CLARIFY escalation has no blocking signal for degraded outcome
+    N finding(s) — see inline comments.
 
     ### ⚖️ Dissent
 
@@ -167,13 +165,12 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
 
-    **Body discipline.** The body is a themed summary, not a finding ledger. Each `### Findings` bullet is **one line, ≤20 words** — area and gist only. No file paths, line numbers, fixes, or rationale (those live in the inline comment). If a bullet needs more than one line, it's too detailed for the body — move the detail to the inline comment. Summary-only findings (no inline) get one sentence + `(summary-only)` tag. Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
+    **Body discipline.** The body is a count + pointer, not a finding list. The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths, no rationale. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.` Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
 13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 
-    ```bash
-    gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
-      --input tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json
+    ```
+    !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.

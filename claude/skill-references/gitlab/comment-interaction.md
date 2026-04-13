@@ -67,12 +67,13 @@ glab api projects/:id/merge_requests/<number>/notes --paginate | jq -f tmp/claud
 
 Write the message body to `tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same MR), then pass via `-F body=@`:
 
-**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories. **MUST use uppercase `-F`** (not `-f`) — `-F` reads the file, `-f` posts the literal string including the `@` prefix.
 
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md, then:
+# MUST use uppercase -F (not -f) with body=@path — -F reads the file, -f posts the literal string.
 glab api projects/:id/merge_requests/<number>/discussions/<discussion_id>/notes \
-  -X POST -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md
+  -X POST -F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<note_id>-<persona>-<role>.md
 ```
 
 ## React to Comment
@@ -90,10 +91,11 @@ Write the message body to `tmp/claude-artifacts/change-request-replies/<mr_numbe
 
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
+# MUST use uppercase -F (not -f) with body=@path — -F reads the file, -f posts the literal string.
 glab api projects/:id/merge_requests/<number>/notes -X POST \
-  -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md
+  -F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md
 ```
 
-**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+**Use absolute paths with `-F body=@`** — `glab api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories. **MUST use uppercase `-F`** — `-f` posts the string literally.
 
 **Note:** Avoid `glab mr comment --message "$(cat ...)"` — the `$(cat ...)` subshell triggers permission prompts. The notes API with `-F body=@` reads the file directly without shell interpolation.

@@ -107,6 +107,10 @@ When asked to execute a plan (create issues, implement PRs), read it critically 
 
 For research and planning tasks, ask about doc format and location **alongside** the scoping questions — before the first write. How many docs? What's each one's purpose? Where do they live? A research doc that gets restructured three times (one file → two → three, plus a directory move) costs more cumulative edits than asking the structure question upfront.
 
+## Stacking PRs: Check Unchanged Code for Dependencies on Removed Code
+
+The diff shows what changed — the bug is in what *didn't* change. When a PR removes a setup step (e.g., platform detection that sets variables), check all unchanged steps that referenced those variables. Partial migrations of individual files leave undefined variables that the diff won't flag. Review stacking PRs by reading unchanged sections for dependencies on removed code, not just the changed hunks.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/review-conventions.md` — code review patterns (complementary: workflow vs review)

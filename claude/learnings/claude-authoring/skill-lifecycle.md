@@ -98,6 +98,10 @@ When a skill rule does a complete 180° on a previously-stated capability claim 
 
 Learnings accumulate during sessions; skills get updated when something breaks. No routine asks "which learnings have graduated to operational status and should be folded into their point-of-use skill?" Periodic audit: read learnings files adjacent to a skill, check each against the skill/playbook, and promote proven patterns. Director sessions are the highest-value trigger since they exercise the most learnings.
 
+## Deprecation Notes Must Describe Current State, Not Target State
+
+"Skills no longer load this file" is a falsifiable claim — if any consumer still loads it, the note is wrong. A future agent reading it may skip a still-needed file. Use progressive language ("being migrated away from") until all consumers are confirmed migrated. Verify consumer state before upgrading deprecation notes to past tense.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/skill-platform-portability.md` — platform features, frontmatter fields, cross-platform compatibility (complements the design-pattern focus here)

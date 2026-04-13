@@ -39,7 +39,8 @@ Write body to file first to avoid HEREDOC permission prompts. **Use absolute pat
 
 ```bash
 # Write body via Write tool to tmp/claude-artifacts/sweep-work-items/clarify-<NUMBER>.md, then:
-gh issue comment <NUMBER> --body-file /absolute/path/to/tmp/claude-artifacts/sweep-work-items/clarify-<NUMBER>.md
+# --body-file reads the file content. Use absolute path — CWD may differ from project root.
+gh issue comment <NUMBER> --body-file <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/sweep-work-items/clarify-<NUMBER>.md
 ```
 
 ## Check for Linked PRs (by branch name pattern)

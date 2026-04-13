@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{BASE_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{BASE_BRANCH}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`, `{POST_ISSUE_COMMENT_CMD}`
 **File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
@@ -67,10 +67,10 @@ Re-read `{RUN_DIR}/directives.md` and `{ISSUE_DIR}/directives.md` if they exist.
 
 ## Step 11b: Post Implementation Intent
 
-Before starting implementation, post a status comment on the issue so the conversation thread shows work is underway:
+Before starting implementation, post a status comment on the issue so the conversation thread shows work is underway.
 
-```bash
-gh issue comment {ISSUE_NUMBER} --body "$(cat <<'COMMENT'
+Write the comment body to `{ISSUE_DIR}/intent-comment.md` using the Write tool:
+```
 ## Starting implementation
 
 **Plan summary**: <1-3 sentences from Step 10 — what files, what change, how verified>
@@ -79,8 +79,11 @@ gh issue comment {ISSUE_NUMBER} --body "$(cat <<'COMMENT'
 ---
 *Co-Authored with [Claude Code](https://claude.ai/code) ({MODEL_NAME})*
 *Role:* Sweeper-Implement
-COMMENT
-)"
+```
+
+Then post:
+```bash
+{POST_ISSUE_COMMENT_CMD}
 ```
 
 ## Step 12: Implement

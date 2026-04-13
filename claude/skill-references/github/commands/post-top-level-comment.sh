@@ -1,3 +1,3 @@
 # Write body to tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
-# Use absolute paths — same CWD caveat as reply-to-inline-comment.
-gh pr comment <number> --body-file /absolute/path/to/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md
+# --body-file reads the file content. Use absolute path — CWD may differ from project root.
+gh pr comment <number> --body-file <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md

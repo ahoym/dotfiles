@@ -134,6 +134,30 @@ Capture intent at session start as a structured artifact (`<session_dir>/intents
 
 When an orchestration skill reads state at Phase N for an optimization decision (e.g., pre-filter unchanged items) and re-reads at Phase M for an authoritative decision (e.g., convergence check), items excluded at Phase N could have new activity by Phase M. Classic time-of-check/time-of-use applied to skill orchestration: either re-check excluded items at the authoritative phase, or accept that the optimization can miss state changes between phases.
 
+## Runner Template Assumes PR Entity Type
+
+The `parallel-claude-runner-template.sh` hardcodes `pr-<N>` directory naming, `gh pr view` pre-flight checks, and `pr_state:` status keys. Work-item sweeps using `issue-<N>` directories require post-generation patches: rename directories to `pr-<N>`, replace `gh pr view` with `gh issue view` in the pre-flight, and adjust terminal-state logic (issues only have `CLOSED`, not `MERGED`). A future template improvement could parameterize the entity type via metadata (`ENTITY_TYPE`, `ENTITY_PREFIX`, `STATE_CHECK_CMD`).
+
+## Directors Orchestrate, Never Replicate
+
+Directors must always invoke sweep skills for assessment — never generate artifacts directly, even when the director "already knows" the PR state and metadata schema. Direct generation bypasses platform detection, skip filtering, persona discovery, and the full assessment flow. The predictability cost outweighs the performance gain: deterministic director behavior enables layering a higher orchestration tier above. The sweep skill is the single source of truth for assessment logic; the director is the single source of truth for convergence and relaunch decisions.
+
+## Decision Matrix Is Trust, Not Suggestion
+
+When a decision falls within the documented matrix (routine, in-scope, taste-based), execute and report — don't ask. Prompting the operator for a decision the matrix already covers forces them to re-grant trust they already codified. The pattern "I see X, the matrix says Y, should I do Y?" is worse than just doing Y and saying "did Y because X." Uncertainty is fine for genuinely ambiguous cases, but conflict resolution, convergence calls, and directive writes are explicitly routine. The decision framework exists to empower autonomous action — defaulting to "ask the human" under context pressure negates its purpose. Route through the addresser via directives, not by doing the git work directly.
+
+## Use `sweep-status.sh` for Status Checks
+
+`~/.claude/skill-references/sweep-status.sh` exists for reading run directory status. Use it instead of ad-hoc Bash `for` loops or `cat` commands, which trigger permission prompts (they don't match single-command patterns like `Bash(gh pr view:*)`). The script matches `Bash(bash ~/.claude/skill-references/**)` and outputs a formatted table.
+
+## Worktree EXIT Trap Destroys Uncommitted Implementer Work
+
+The runner's `cleanup_worktrees` EXIT trap fires unconditionally — including when the session timed out before committing. All files written by `Write` tool to the worktree are lost. The branch persists locally (no commits, same as base), creating a second failure on relaunch: `git worktree add -b <branch>` fails because the branch already exists. The session can fall back to working in the project root, but the first run's work is unrecoverable. Mitigation options: (1) skip cleanup when `state.md` shows non-`completed` terminal state, (2) commit WIP before cleanup, (3) don't clean up implementer worktrees at all (current skill note: "Worktrees are preserved").
+
+## Stale Branch Blocks Worktree Creation on Relaunch
+
+`git worktree add -b <branch> <path> origin/main` fails when `<branch>` already exists locally from a prior timed-out run (worktree cleaned up but branch not deleted). The session falls back to working in the project root successfully — functional but bypasses worktree isolation. Fix: add `git branch -D <branch> 2>/dev/null` before `git worktree add -b` in the setup function, or use `--force` flag.
+
 ## Compose Escalation Through Existing Decision Frameworks
 
 Secondary agents that need to escalate (verifier asking for clarification, validator finding ambiguity) should route through whatever decision framework already governs the primary loop — not build a parallel escalation channel. Verifier mid-run clarification flows through the same operator-cession framework the director uses (silent for routine, decide-with-report for partial, escalate to operator for ambiguous). Composability over duplication: one escalation surface for the operator to learn, one set of categories, one log location.

@@ -55,6 +55,7 @@ When `COMMENT_ONLY=true`:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
+   - **Include new operator comments on previously-replied threads.** A commit-ref reply doesn't close a thread — check all threads for non-self comments (especially operator, no `Role:` tag) posted after the last addresser reply.
 
 3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform command scripts. **Skip if `COMMENT_ONLY`.**
 
