@@ -1,7 +1,7 @@
 # Write JSON payload to tmp/claude-artifacts/change-request-replies/review-<number>.json, then:
 gh api repos/{owner}/{repo}/pulls/<number>/reviews \
   --input tmp/claude-artifacts/change-request-replies/review-<number>.json
-# Clean up:
+# Optional: clean up payload after posting
 rm tmp/claude-artifacts/change-request-replies/review-<number>.json
 
 # Payload format (tmp/claude-artifacts/change-request-replies/review-<number>.json):
