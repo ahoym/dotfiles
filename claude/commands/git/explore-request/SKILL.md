@@ -37,9 +37,9 @@ Pull down a review to understand its changes, get context, and ask questions.
    - **Fetch Commits:**
      !`cat ~/.claude/platform-commands/fetch-review-commits.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
-4. **Display review summary** (store as `REVIEW_CONTEXT`):
+3. **Display review summary** (store as `REVIEW_CONTEXT`):
    ```
-   $REVIEW_UNIT $REVIEW_PREFIX<number>: <title>
+   PR #<number>: <title>
    Author: <author>
    Branch: <source_branch> → <target_branch>
    Status: <state>
@@ -59,27 +59,23 @@ Pull down a review to understand its changes, get context, and ask questions.
    ...
    ```
 
-5. **Fetch the diff** (store as `REVIEW_DIFF`):
-   ```bash
-   $DIFF_CMD <number>
-   ```
+4. **Fetch the diff** (store as `REVIEW_DIFF`):
+   !`cat ~/.claude/platform-commands/fetch-review-diff.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
    If diff is large (>500 lines), summarize by file:
    - Show first 50 lines of each file's diff
    - Note "... and X more lines" for truncated sections
 
-6. **Offer to checkout** the review branch (optional):
+5. **Offer to checkout** the review branch (optional):
    Ask: "Would you like me to checkout this branch locally? (y/n)"
 
    If yes:
-   ```bash
-   $CHECKOUT_CMD <number>
-   ```
+   !`cat ~/.claude/platform-commands/checkout-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
-7. **Enter Q&A mode**:
+6. **Enter Q&A mode**:
    Present to the operator:
    ```
-   I now have full context on $REVIEW_UNIT $REVIEW_PREFIX<number>. You can ask me:
-   - What does this $REVIEW_UNIT change?
+   I now have full context on PR #<number>. You can ask me:
+   - What does this PR change?
    - Why was <file> modified?
    - Are there any potential issues?
    - How does <function/class> work now?
@@ -88,7 +84,7 @@ Pull down a review to understand its changes, get context, and ask questions.
    Ask any questions about this review, or say "done" to exit.
    ```
 
-8. **Answer questions** using `REVIEW_CONTEXT` and `REVIEW_DIFF`:
+7. **Answer questions** using `REVIEW_CONTEXT` and `REVIEW_DIFF`:
    - Reference specific files and line numbers when answering
    - Read additional files if needed for context
    - If a question requires understanding code not in the diff, use Read tool
