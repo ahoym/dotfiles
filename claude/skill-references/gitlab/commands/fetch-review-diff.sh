@@ -1,0 +1,1 @@
+glab mr diff <number>
