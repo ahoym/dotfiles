@@ -20,8 +20,8 @@ MODEL="${MODEL:-{{MODEL}}}"     # claude model — runtime env override supporte
 ENTITY_PREFIX="{{ENTITY_PREFIX}}"     # "pr" or "issue" — controls directory naming
 ENTITY_LABEL="{{ENTITY_LABEL}}"       # "PR" or "Issue" — controls log labels
 STATE_FIELD="{{STATE_FIELD}}"         # "pr_state" or "issue_state" — status.md field name
-STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" or "gh issue view" — API pre-flight
-TERMINAL_STATES="{{TERMINAL_STATES}}" # "MERGED CLOSED" or "CLOSED" — pre-flight skip states
+STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" or "gh issue view" — word-split intentionally; must be "<tool> <subcommand>" only, no embedded flags
+TERMINAL_STATES="{{TERMINAL_STATES}}" # space-separated single-word state tokens (word-boundary matched by is_terminal_state)
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
 branch_for() {
@@ -116,8 +116,8 @@ if [ -f "${RUN_DIR}/manifest-updates.json" ]; then
         elif [ "$action" = "close" ] && [ -n "$item_id" ]; then
             close_reason=$(printf '%s' "$line" | jq -r '.reason // empty' 2>/dev/null)
             mkdir -p "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}"
-            printf '# %s #%s\nmilestone: closed\nreason: %s\n%s: %s\n' \
-                "$ENTITY_LABEL" "$item_id" "${close_reason:-director-closed}" "$STATE_FIELD" "${close_reason:-CLOSED}" \
+            printf '# %s #%s\nmilestone: closed\nreason: %s\n%s: CLOSED\n' \
+                "$ENTITY_LABEL" "$item_id" "${close_reason:-director-closed}" "$STATE_FIELD" \
                 > "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}/status.md"
         fi
     done < "${RUN_DIR}/manifest-updates.json"
@@ -143,6 +143,7 @@ write_state() {
 # --- Terminal state check ---
 is_terminal_state() {
     local state=$1
+    [ -z "$state" ] && return 1
     case " $TERMINAL_STATES " in
         *" $state "*) return 0 ;;
         *) return 1 ;;
@@ -181,7 +182,7 @@ process_pr() {
     # Pre-flight: skip terminal entities (API fallback for first run or missing status.md)
     local state
     state=$($STATE_CHECK_CMD "$pr_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
-    if is_terminal_state "$state"; then
+    if is_terminal_state "$state" || [ "$state" = "UNKNOWN" ]; then
         printf '# %s #%s\nmilestone: skipped\nreason: %s\n%s: %s\n' "$ENTITY_LABEL" "$pr_num" "$state" "$STATE_FIELD" "$state" > "$status_file"
         echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED ($state)"
         return
