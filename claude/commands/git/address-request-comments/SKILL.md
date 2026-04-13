@@ -23,7 +23,6 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `request-reply-templates.md` — Read before composing replies (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected
 - `address-request-edge-cases.md` — Read when processing comments (step 5+). Skip on quiet no-ops.
@@ -48,7 +47,7 @@ When `COMMENT_ONLY=true`:
 - **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
 - **Adjust step 13** summary — report comments posted, not changes implemented
 
-1. **Detect platform and fetch** — follow the base reference: **Platform Detection** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform cluster files. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
+1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform command scripts. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 

@@ -37,7 +37,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
@@ -46,7 +45,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 1. **Verify active persona** — a persona is active if set via `/set-persona` or an ad-hoc prompt (e.g., "act as a senior infosec engineer", "you are a security reviewer"). For ad-hoc, extract a short name and proceed. If neither is active, glob `.claude/personas/` and `~/.claude/commands/set-persona/` for available personas, recommend the best match, and wait for activation. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — follow **Platform Detection** from the base reference.
+2. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
 3. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
