@@ -1,8 +1,8 @@
 ---
-description: "GitHub commands for listing issues, fetching details, posting comments, and checking linked PRs."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: Issue Operations
+# GitHub: Issue Operations (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 

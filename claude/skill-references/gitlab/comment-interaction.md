@@ -1,8 +1,8 @@
 ---
-description: "GitLab commands for fetching, posting, and reacting to MR comments."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitLab: Comment Interaction
+# GitLab: Comment Interaction (Deprecated — see commands/)
 
 **Important:** Never use `!=` in jq expressions passed via `glab --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 

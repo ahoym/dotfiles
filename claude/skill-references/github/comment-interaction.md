@@ -1,8 +1,8 @@
 ---
-description: "GitHub commands for fetching, posting, and reacting to PR comments."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: Comment Interaction
+# GitHub: Comment Interaction (Deprecated — see commands/)
 
 **Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 

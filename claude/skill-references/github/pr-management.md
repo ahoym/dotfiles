@@ -1,8 +1,10 @@
 ---
-description: "GitHub commands for creating/updating PRs, posting reviews, and branch management."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: PR Management
+# GitHub: PR Management (Deprecated — see commands/)
+
+> **Note:** Skills are being migrated away from this file. Commands have been extracted to atomic `.sh` files in `commands/` and are inlined via `!` preprocessing. This file is retained as human-readable reference until migration is complete.
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 

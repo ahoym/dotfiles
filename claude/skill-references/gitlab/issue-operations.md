@@ -1,8 +1,8 @@
 ---
-description: "GitLab commands for listing issues, fetching details, and posting comments. (v2 stub — not yet implemented)"
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitLab: Issue Operations
+# GitLab: Issue Operations (Deprecated — see commands/)
 
 Placeholder for GitLab issue provider. Implementation deferred to v2.
 
