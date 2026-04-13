@@ -194,9 +194,17 @@ Write data files for template assembly, then call `fill-template.sh`:
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
-       "LAST_SHA_FIELD": "last_addressed_sha"
+       "LAST_SHA_FIELD": "last_addressed_sha",
+       "CHECK_PR_MERGEABLE_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection (Option C):** The following key injects a literal platform command into the runtime template via `fill-template.sh`:
+
+     - `CHECK_PR_MERGEABLE_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
 
    **`PERSONA_INSTRUCTION` value:**
    - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`

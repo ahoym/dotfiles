@@ -39,7 +39,7 @@ git branch --show-current
 
 **Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
 
-Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`):
+Check whether the PR has merge conflicts with the base branch (run `{CHECK_PR_MERGEABLE_CMD}` replacing `<N>` with {PR_NUMBER}):
 - **MERGEABLE** → no conflicts, proceed to the next step
 - **UNKNOWN** → wait 5 seconds and retry once. If still UNKNOWN, treat as CONFLICTING (conservative — avoids proceeding with live conflicts)
 - **CONFLICTING** → resolve:
@@ -49,7 +49,7 @@ Check whether the PR has merge conflicts with the base branch (run `gh pr view {
 
 **Permission required:** `Skill(git:resolve-conflicts *)` in `permissions.allow`. For `claude -p` sessions launched with `--allowedTools`, the pattern must also appear in the `--allowedTools` list.
 
-If `{RESOLVE_CONFLICTS}` is `false`, run a lightweight conflict check: `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`. If CONFLICTING, update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message — do not proceed to address comments, as push will fail. If MERGEABLE or UNKNOWN, proceed.
+If `{RESOLVE_CONFLICTS}` is `false`, run a lightweight conflict check: `{CHECK_PR_MERGEABLE_CMD}` (replace `<N>` with {PR_NUMBER}). If CONFLICTING, update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message — do not proceed to address comments, as push will fail. If MERGEABLE or UNKNOWN, proceed.
 
 ## Step 7: Search Learnings
 
