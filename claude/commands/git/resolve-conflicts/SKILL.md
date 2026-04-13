@@ -37,11 +37,11 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
    **If PR_NUMBER is set:**
 
-   Fetch base branch (adapt to also fetch `headRefName`):
+   Fetch both branches:
    ```
-   !`cat ~/.claude/platform-commands/fetch-pr-base-branch.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   !`cat ~/.claude/platform-commands/fetch-pr-branches.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
    ```
-   - Set base branch from `baseRefName`
+   - Set base branch from `base` and head branch from `head`
    - If current branch != `headRefName`, check out the PR branch:
      ```
      !`cat ~/.claude/platform-commands/checkout-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
