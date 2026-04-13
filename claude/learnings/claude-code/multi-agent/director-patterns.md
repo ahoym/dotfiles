@@ -34,7 +34,9 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 
 ## `claude -p` Skill Tool Requires Scoped Permission
 
-The Skill tool IS available in `claude -p` sessions and works for invoking skills (verified: `git:resolve-conflicts`, `git:team-review-request`, `git:address-request-comments`). Add scoped patterns like `Skill(git:team-review-request *)` to `~/.claude/settings.json` `permissions.allow`. Without a matching pattern, `claude -p` sessions silently skip the Skill call (no permission denial in logs — the session just works around it by doing the work manually, often incorrectly). Prefer scoped patterns over `Skill(*)` to limit what headless sessions can invoke.
+The Skill tool IS available in `claude -p` sessions and works for invoking skills (e.g., verified working: `git:resolve-conflicts`, `git:team-review-request`, `git:address-request-comments`). Add scoped patterns like `Skill(git:team-review-request *)` to `~/.claude/settings.json` `permissions.allow`. Without a matching pattern, `claude -p` sessions silently skip the Skill call (no permission denial in logs — the session just works around it by doing the work manually, often incorrectly). Prefer scoped patterns over `Skill(*)` to limit what headless sessions can invoke.
+
+**`--allowedTools` override:** For `claude -p` sessions launched with `--allowedTools`, Skill patterns must also appear in the `--allowedTools` list — `permissions.allow` alone is insufficient. The `--allowedTools` flag is more restrictive: it defines the complete tool set, and global allow patterns don't override it.
 
 ## `--output-format stream-json` Requires `--verbose` with `claude -p`
 

@@ -112,17 +112,9 @@ Main is still the preferred director branch — cleanest, fewest gotchas. But th
 
 `claude -p` review sessions skip the `Skill("git:team-review-request")` call when reasoning space exists between the preflight watermark check and the skill invocation. The session fetches the diff, decides "content unchanged" or "all findings addressed," and posts a `gh pr comment` (issue comment) directly — bypassing re-review reactions, the re-review body template, and proper `gh pr review` posting. Diagnostic signal: the review URL is an `issuecomment-*` fragment instead of a `pullrequestreview-*` fragment, and no emoji reactions appear on resolved inline comments.
 
-**Fix:** Make the Skill call the first action after preflight passes — no diff fetch, no analysis, no learnings search between them. The skill handles its own quick-exit, re-review detection, and learnings loading internally.
+**Fix:** Make the Skill call the first action after preflight passes — no diff fetch, no analysis, no learnings search between them. The skill handles its own quick-exit, re-review detection, and learnings loading internally. The wrapper prompt retains responsibility for domain-context learnings needed by the write-artifacts/write-learnings phases that run after the Skill returns.
 
-## Worktree Creation Requires Local Branch Reference
-
-`git worktree add <path> <branch>` fails with `fatal: invalid reference` when the branch exists only on the remote and hasn't been fetched locally. The runner's worktree setup loop needs `git fetch origin <branch>` before `git worktree add`. Symptom: `WARNING: Failed to create worktree for PR N, skipping` in runner output, but the session still launches (falls back to running without a worktree, which may or may not work depending on what the session needs to do).
-
-## Delegating Prompts Must Not Expose Delegated Inputs
-
-Prompts that delegate to a skill (via `Skill()`) should not give the session access to the skill's primary inputs (diff, comments, PR state) before the delegation. If the session can fetch the diff and reason about it, it will — and may decide the skill invocation is unnecessary. The skill's own quick-exit and re-review logic handles trivial cases correctly; the wrapper prompt's job is to reach the Skill call, not to pre-evaluate whether it's needed.
-
-**Design rule:** Make the Skill call the first action after preflight passes. Put optional steps (learnings search, persona activation) after the Skill returns or inside the skill itself.
+**See also:** `~/.claude/learnings/claude-authoring/skill-design.md` § "Delegating Prompts Must Not Expose Delegated Inputs" for the general principle.
 
 ## GitLab vs GitHub state values in runner scripts
 

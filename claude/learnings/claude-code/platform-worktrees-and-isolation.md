@@ -91,6 +91,10 @@ After a worktree agent completes, the parent session's shell CWD may end up insi
 
 `git branch --show-current` returns empty in `isolation: "worktree"` — normal. Use `git log --oneline -1` to verify the commit.
 
+## Worktree Creation Requires Local Branch Reference
+
+`git worktree add <path> <branch>` fails with `fatal: invalid reference` when the branch exists only on the remote and hasn't been fetched locally. The runner's worktree setup loop needs `git fetch origin <branch>` before `git worktree add`. Symptom: `WARNING: Failed to create worktree for PR N, skipping` in runner output, but the session still launches (falls back to running without a worktree, which may or may not work depending on what the session needs to do).
+
 ## Cross-Refs
 
 No cross-cluster references.

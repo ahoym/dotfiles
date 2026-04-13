@@ -168,6 +168,8 @@ Learnings that describe writing patterns (ceremonial sentences, conciseness heur
 
 ## Proposal Sections Resist the "Proposed" Label
 
+**Keywords:** epistemic label, implementation plan, proposal framing
+
 Authors writing about a design they've mentally committed to produce confident prose that doesn't reflect the epistemic state "this has not been validated." If a learnings section references an open PR/issue as the "next step," the section documents a proposal, not a validated pattern — even if the content reads like established guidance. The fix is a label (`[Proposed — pending #N]`), not removal. The insight is often valuable; the framing should match the confidence level.
 
 **Reviewer heuristic:** When a learning section contains "implementation plan" or links to an open PR as the source of truth, flag the missing epistemic label.

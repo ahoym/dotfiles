@@ -229,7 +229,17 @@ Prose rules that follow a template are often ignored when the template itself mo
 
 ## Speculative Metadata Fields Drift in Template Pipelines
 
+**Keywords:** speculative metadata, template pipeline, schema drift, manifest fields
+
 When a template pipeline makes adding fields cheap (write key to metadata.json, reference `{KEY}` in template), schemas accumulate speculative fields — pairs that look distinct on paper but have identical runtime behavior. Before adding a metadata field, verify: does the template branch on this value independently of existing fields? If the runtime check supersedes the assessment-time value (e.g., conflict state checked at runtime regardless of what metadata says), the field belongs in the manifest (director-facing) not the prompt metadata (agent-facing).
+
+## Delegating Prompts Must Not Expose Delegated Inputs
+
+**Keywords:** skill delegation, prompt isolation, delegated inputs, Skill call ordering
+
+Prompts that delegate to a skill (via `Skill()`) should not give the session access to the skill's primary inputs (diff, comments, PR state) before the delegation. If the session can fetch the diff and reason about it, it will — and may decide the skill invocation is unnecessary. The skill's own quick-exit and re-review logic handles trivial cases correctly; the wrapper prompt's job is to reach the Skill call, not to pre-evaluate whether it's needed.
+
+**Design rule:** Make the Skill call the first action after preflight passes. Put optional steps (learnings search, persona activation) after the Skill returns or inside the skill itself.
 
 ## Cross-Refs
 
