@@ -40,9 +40,9 @@ Each `prompt.txt` begins with these shared steps before mode-specific work:
 
 2. **Read existing watermark.** If `status.md` exists, read `last_<mode>_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
 
-3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) via `gh`:
-   - Inline: `gh api repos/{owner}/{repo}/pulls/<N>/comments --jq '.[-1].id // empty'`
-   - Top-level + state: `gh pr view <N> --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
+3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) using platform-command scripts:
+   - Inline: use `fetch-latest-inline-comment-id.sh` (replace `<N>` with PR number, `{owner}/{repo}` with repo)
+   - Top-level + state: use `fetch-pr-watermark.sh` (replace `<N>` with PR number) — parse JSON to extract `latest_commit` (first 7 chars of last commit oid), `state`, `mergeStateStatus`, `mergeable`, and `latest_top_level_comment_id`
    - Use the MAX of inline and top-level comment IDs as the effective `last_comment_id` for watermark comparison. Top-level comments include operator directives that inline-only checks miss.
 
    **State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `status.md` and exit immediately.
@@ -150,7 +150,7 @@ These are included via `{@file}` references in the template. Review mode doesn't
 The generated script has a two-tier pre-flight before launching each session:
 
 1. **Local status.md check (free).** Read `pr_state` from the PR's existing `status.md`. If MERGED or CLOSED, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
-2. **API fallback (1 API call).** If no `status.md` exists or `pr_state` is not terminal, call `gh pr view` to check current state. This covers first runs and PRs whose state changed externally. The API fallback also writes `pr_state` to `status.md` so subsequent cycles use the local check.
+2. **API fallback (1 API call).** If no `status.md` exists or `pr_state` is not terminal, use `fetch-pr-watermark.sh` (or equivalent platform command) to check current state. This covers first runs and PRs whose state changed externally. The API fallback also writes `pr_state` to `status.md` so subsequent cycles use the local check.
 
 Address mode: the same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees.
 
