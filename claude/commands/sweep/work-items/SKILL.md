@@ -268,12 +268,11 @@ Write data files for template assembly, then call `fill-template.sh`:
 Generate a runner script adapted for work items. Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` — write `<RUN_DIR>/metadata.json` and assemble via `fill-template.sh`. Do NOT read the runner template directly. Work-item-specific metadata overrides and adaptations:
 
 - **Model selection**: `MODEL` → `claude-opus-4-6` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
-- **Directory naming**: `issue-<N>` instead of `pr-<N>`
-- **Config section**: `ISSUES=(<numbers>)` instead of `PRS`, `IMPLEMENT_ISSUES=(<numbers>)` for worktree tracking
+- **Entity type keys**: `ENTITY_PREFIX` → `"issue"`, `ENTITY_LABEL` → `"Issue"`, `STATE_FIELD` → `"issue_state"`, `STATE_CHECK_CMD` → `"gh issue view"`, `TERMINAL_STATES` → `"CLOSED"`.
 - **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from the issue's `BASE_BRANCH` (read from `metadata.json`). When `BASE_BRANCH` is the default branch, the implementer starts fresh. When it's a dependency's PR branch, the implementer stacks on top of that branch's work. **For non-default base branches:** run `git fetch origin <BASE_BRANCH>` before `git worktree add` — the dependency's branch likely only exists on the remote.
 - **PR target for stacked branches**: When `BASE_BRANCH` is not the default branch, the implementer's PR must target `BASE_BRANCH` (not main). The `BASE_BRANCH` value is available in `metadata.json` and must be passed through to the implementer prompt so `gh pr create --base <BASE_BRANCH>` is used.
 - **Pre-flight state check**:
-  1. Local `status.md` check — skip if `issue_state: closed` or `pr_opened: true` or `comment_posted: true`
+  1. Local `status.md` check — skip if `issue_state: CLOSED` (terminal entity state only — role convergence signals like `comment_posted` and `pr_opened` are the session's responsibility, not the runner's)
   2. API fallback — `gh issue view <N> --json state -q '.state'`, skip if closed
 - **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
 - **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).

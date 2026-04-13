@@ -17,6 +17,11 @@ PRS=({{PRS}})                   # space-separated PR numbers
 MODE="{{MODE}}"                 # "review" or "address"
 MODE_LABEL="{{MODE_LABEL}}"     # "Review" or "Address" (pre-capitalized for bash 3.x)
 MODEL="${MODEL:-{{MODEL}}}"     # claude model — runtime env override supported
+ENTITY_PREFIX="{{ENTITY_PREFIX}}"     # "pr" or "issue" — controls directory naming
+ENTITY_LABEL="{{ENTITY_LABEL}}"       # "PR" or "Issue" — controls log labels
+STATE_FIELD="{{STATE_FIELD}}"         # "pr_state" or "issue_state" — status.md field name
+STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" or "gh issue view" — API pre-flight
+TERMINAL_STATES="{{TERMINAL_STATES}}" # "MERGED CLOSED" or "CLOSED" — pre-flight skip states
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
 branch_for() {
@@ -83,7 +88,7 @@ echo "Started at:    $(date)"
 echo ====================================================
 echo ""
 echo "Watch progress in another terminal:"
-echo "  while clear; do for f in $RUN_DIR/pr-*/status.md; do echo \"--- \$f\"; cat \"\$f\"; echo; done; sleep 5; done"
+echo "  while clear; do for f in $RUN_DIR/${ENTITY_PREFIX}-*/status.md; do echo \"--- \$f\"; cat \"\$f\"; echo; done; sleep 5; done"
 echo ""
 
 # Clear stale rate-limit sentinel from prior runs
@@ -105,15 +110,15 @@ if [ -f "${RUN_DIR}/manifest-updates.json" ]; then
                     break
                 fi
             done
-            if [ "$already_present" = false ] && [ -f "${RUN_DIR}/pr-${item_id}/prompt.txt" ]; then
+            if [ "$already_present" = false ] && [ -f "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}/prompt.txt" ]; then
                 PRS+=("$item_id")
             fi
         elif [ "$action" = "close" ] && [ -n "$item_id" ]; then
             close_reason=$(printf '%s' "$line" | jq -r '.reason // empty' 2>/dev/null)
-            mkdir -p "${RUN_DIR}/pr-${item_id}"
-            printf '# PR #%s\nmilestone: closed\nreason: %s\npr_state: %s\n' \
-                "$item_id" "${close_reason:-director-closed}" "${close_reason:-CLOSED}" \
-                > "${RUN_DIR}/pr-${item_id}/status.md"
+            mkdir -p "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}"
+            printf '# %s #%s\nmilestone: closed\nreason: %s\n%s: %s\n' \
+                "$ENTITY_LABEL" "$item_id" "${close_reason:-director-closed}" "$STATE_FIELD" "${close_reason:-CLOSED}" \
+                > "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}/status.md"
         fi
     done < "${RUN_DIR}/manifest-updates.json"
 fi
@@ -121,7 +126,7 @@ fi
 # --- State writer ---
 write_state() {
     local pr_num=$1 state=$2
-    local pr_dir="${RUN_DIR}/pr-${pr_num}"
+    local pr_dir="${RUN_DIR}/${ENTITY_PREFIX}-${pr_num}"
     local now
     now=$(date -Iseconds 2>/dev/null || date +%Y-%m-%dT%H:%M:%S%z)
     {
@@ -135,49 +140,56 @@ write_state() {
     } > "${pr_dir}/state.md"
 }
 
+# --- Terminal state check ---
+is_terminal_state() {
+    local state=$1
+    case " $TERMINAL_STATES " in
+        *" $state "*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 # --- Per-PR function ---
 process_pr() {
     local pr_num=$1
-    local pr_dir="${RUN_DIR}/pr-${pr_num}"
+    local pr_dir="${RUN_DIR}/${ENTITY_PREFIX}-${pr_num}"
     local log_file="${pr_dir}/output.log"
     local status_file="${pr_dir}/status.md"
     local start_time=$(date +%s)
     local ts=$(date +%H:%M:%S)
 
-    # Pre-flight: skip only on terminal PR states (MERGED/CLOSED) — not on "done".
+    # Pre-flight: skip only on terminal entity states — not on "done".
     # "done" means the *previous* cycle completed, not that there's nothing to do.
     # The session's watermark logic handles rerun detection (compares HEAD SHA +
     # comment IDs against current state). The runner only skips truly terminal cases.
-    # NOTE: Adapt `pr_state:` to match your sweep type (e.g., `issue_state:` for issue-based sweeps).
-    # Also adapt terminal state values below — MERGED/CLOSED are PR-specific; issues only have CLOSED.
     if [ -f "$status_file" ]; then
         local cached_state
-        cached_state=$(grep '^pr_state:' "$status_file" 2>/dev/null | awk '{print $2}')
-        if [ "$cached_state" = "MERGED" ] || [ "$cached_state" = "CLOSED" ]; then
-            echo "[$ts] PR #${pr_num}: SKIPPED ($cached_state, from status.md)"
+        cached_state=$(grep "^${STATE_FIELD}:" "$status_file" 2>/dev/null | awk '{print $2}')
+        if is_terminal_state "$cached_state"; then
+            echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED ($cached_state, from status.md)"
             return
         fi
     fi
 
     # Pre-flight: skip if rate-limited (after terminal check so completed sessions aren't regressed)
     if [ -f "${RUN_DIR}/.rate-limited" ]; then
-        printf '# PR #%s\nmilestone: skipped\nreason: rate-limited\n' "$pr_num" > "$status_file"
-        echo "[$ts] PR #${pr_num}: SKIPPED (rate-limited)"
+        printf '# %s #%s\nmilestone: skipped\nreason: rate-limited\n' "$ENTITY_LABEL" "$pr_num" > "$status_file"
+        echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED (rate-limited)"
         return
     fi
 
-    # Pre-flight: skip merged/closed PRs (API fallback for first run or missing status.md)
+    # Pre-flight: skip terminal entities (API fallback for first run or missing status.md)
     local state
-    state=$(gh pr view "$pr_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
-    if [ "$state" != "OPEN" ]; then
-        printf '# PR #%s\nmilestone: skipped\nreason: %s\npr_state: %s\n' "$pr_num" "$state" "$state" > "$status_file"
-        echo "[$ts] PR #${pr_num}: SKIPPED ($state)"
+    state=$($STATE_CHECK_CMD "$pr_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
+    if is_terminal_state "$state"; then
+        printf '# %s #%s\nmilestone: skipped\nreason: %s\n%s: %s\n' "$ENTITY_LABEL" "$pr_num" "$state" "$STATE_FIELD" "$state" > "$status_file"
+        echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED ($state)"
         return
     fi
 
-    echo "[$ts] PR #${pr_num}: launching claude -p session..."
-    printf '# PR #%s Status\nmilestone: launching\nstarted_at: %s\n' \
-        "$pr_num" "$(date -Iseconds)" > "$status_file"
+    echo "[$ts] ${ENTITY_LABEL} #${pr_num}: launching claude -p session..."
+    printf '# %s #%s Status\nmilestone: launching\nstarted_at: %s\n' \
+        "$ENTITY_LABEL" "$pr_num" "$(date -Iseconds)" > "$status_file"
 
     # Archive previous cycle's raw.jsonl (raw-1.jsonl, raw-2.jsonl, ...)
     if [ -f "$pr_dir/raw.jsonl" ]; then
@@ -258,7 +270,7 @@ process_pr() {
                     live_mtime=$(stat -c %Y "$live_file" 2>/dev/null || stat -f %m "$live_file" 2>/dev/null || echo "$now_epoch")
                     local idle_seconds=$((now_epoch - live_mtime))
                     if [ "$idle_seconds" -gt "$INACTIVITY_TIMEOUT_SEC" ]; then
-                        echo "[$(date +%H:%M:%S)] PR #${pr_num}: inactivity timeout (${idle_seconds}s idle, attempt ${attempt}/${MAX_ATTEMPTS})"
+                        echo "[$(date +%H:%M:%S)] ${ENTITY_LABEL} #${pr_num}: inactivity timeout (${idle_seconds}s idle, attempt ${attempt}/${MAX_ATTEMPTS})"
                         # Kill the claude session
                         if [ -f "${pr_dir}/session.pid" ]; then
                             kill "$(cat "${pr_dir}/session.pid")" 2>/dev/null || true
@@ -299,7 +311,7 @@ process_pr() {
 
         # Handle exit status — success takes priority over transient rate limits
         if [ "$exit_status" = "success" ]; then
-            echo "[$end_ts] PR #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
+            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
 
             # Compute context window usage from the latest assistant message's usage block.
             # cache_read + cache_creation + input_tokens = total tokens the model processed this turn,
@@ -347,7 +359,7 @@ process_pr() {
         # Rate limit detection (only on failure — transient limits during successful sessions are harmless)
         if grep -q "hit your limit" "$log_file" 2>/dev/null; then
             exit_status="rate-limited"
-            printf '# PR #%s Status\nmilestone: rate-limited\n' "$pr_num" > "$status_file"
+            printf '# %s #%s Status\nmilestone: rate-limited\n' "$ENTITY_LABEL" "$pr_num" > "$status_file"
             touch "${RUN_DIR}/.rate-limited"
             write_state "$pr_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
             break
@@ -355,7 +367,7 @@ process_pr() {
 
         # Resume fallback: if session not found, switch to fresh start (don't count as an attempt)
         if [ "$use_resume" = true ] && grep -q "No conversation found" "$pr_dir/raw.jsonl" 2>/dev/null; then
-            echo "[$end_ts] PR #${pr_num}: resume session expired — falling back to fresh start"
+            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: resume session expired — falling back to fresh start"
             rm -f "$pr_dir/session.state"
             use_resume=false
             resume_session_id=""
@@ -367,23 +379,23 @@ process_pr() {
 
         # Failure — retry or escalate
         if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-            echo "[$end_ts] PR #${pr_num}: FAILED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS}) — retrying in 5s..."
+            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: FAILED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS}) — retrying in 5s..."
             write_state "$pr_num" "retrying" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "previous_exit: $exit_status"
             sleep 5
             continue
         fi
 
         # Final attempt exhausted
-        echo "[$end_ts] PR #${pr_num}: ERRORED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
-        printf '# PR #%s Status\nmilestone: errored\nerror: %s after %d attempts\n' \
-            "$pr_num" "$exit_status" "$MAX_ATTEMPTS" > "$status_file"
+        echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: ERRORED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
+        printf '# %s #%s Status\nmilestone: errored\nerror: %s after %d attempts\n' \
+            "$ENTITY_LABEL" "$pr_num" "$exit_status" "$MAX_ATTEMPTS" > "$status_file"
         write_state "$pr_num" "errored" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "exit_reason: $exit_status" "escalation: needs-director"
         return
     done
 }
 
-export -f process_pr write_state
-export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL
+export -f process_pr write_state is_terminal_state
+export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD STATE_CHECK_CMD TERMINAL_STATES
 
 # --- Launch ---
 printf '%s\n' "${PRS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_pr "$@"' _ {}
@@ -406,5 +418,5 @@ if [ -f "${RUN_DIR}/.rate-limited" ]; then
     echo ""
 fi
 
-echo "View results:  ls ${RUN_DIR}/pr-*/results.md"
+echo "View results:  ls ${RUN_DIR}/${ENTITY_PREFIX}-*/results.md"
 echo "Ask Claude:    Check progress on ${RUN_DIR}"
