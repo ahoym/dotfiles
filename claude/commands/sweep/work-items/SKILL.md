@@ -68,9 +68,6 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
-- `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment commands
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
@@ -93,11 +90,9 @@ Parse `$ARGUMENTS` to extract:
 - **Max**: `--max=<N>` → `MAX_ISSUES` (default 30)
 - **Concurrency**: `--concurrency=<N>` → `CONCURRENCY` (default 5)
 
-### Phase 2: Platform Detection & Issue Fetch
+### Phase 2: Issue Fetch
 
-1. Follow `platform-detection.md` to determine GitHub vs GitLab. Read the matching `issue-operations.md` cluster.
-
-2. Fetch work items:
+1. Fetch work items (platform commands are inlined via `!` preprocessing):
    - Specific numbers: `gh issue view <N> --json number,title,body,labels,assignees,comments,url,updatedAt`
    - Label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
    - No filters: `gh issue list --state open --json number,title,body,labels,assignees,updatedAt --limit <MAX>`

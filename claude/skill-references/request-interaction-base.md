@@ -8,30 +8,15 @@ Shared logic for `address-request-comments` and `code-review-request`. Skills re
 
 **Read once per session.** Cache the contents after the first read. On subsequent invocations (e.g., polling via `/loop`), skip re-reading unless a new commit modifies this file — the commit SHA check in the quick-exit already detects that.
 
-## Platform Detection
+## Platform Commands
 
-If not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read the matching platform cluster files:
-- `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md`
-- `~/.claude/skill-references/{github,gitlab}/comment-interaction.md`
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md`
-
-## Platform API Gotchas
-
-After loading platform cluster files, also load platform-specific API learnings to avoid known friction:
-- **GitLab:** Read `~/.claude/learnings-providers.json` to find the team provider's `localPath`, then read `<localPath>/gitlab/gitlab-api-and-cli.md` (if it exists) — covers `glab api` quirks, GraphQL `-F` vs `-f` flag syntax, REST workarounds for nested JSON, and permission-safe patterns for `claude -p` sessions.
-- **GitHub:** No additional learnings load needed — `gh api` patterns are straightforward.
-
-Skip if already loaded this session.
+Platform-specific commands are inlined via `!` preprocessing — the agent sees resolved commands, not references. No platform detection or cluster file loading needed at runtime.
 
 ## Consolidated Fetch
 
-Fetch state + reviews + top-level comments in a single call (GitHub):
-```bash
-gh pr view <number> --json state,reviews,comments,number,title,headRefName,baseRefName
-```
+Fetch state + reviews + top-level comments in a single call:
+!`cat ~/.claude/platform-commands/consolidated-fetch.sh`
 Parse JSON response — no `--jq` (avoids quoted string permission prompts). Store `REQUEST_NUMBER`, `REQUEST_TITLE`, `HEAD_BRANCH`, `BASE_BRANCH`.
-
-**GitLab equivalent:** `glab mr view <number> -F json -c` (includes discussions; see issue #32 for field mapping).
 
 ## Terminal State Handling
 

@@ -22,26 +22,20 @@ Pull down a review to understand its changes, get context, and ask questions.
 - `/git:explore-request <url>` - Explore review by URL
 - `/git:explore-request` - Explore review for current branch (if one exists)
 
-## Reference Files (conditional — read only when needed)
-
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details, diff, files, commits
-
 ## Instructions
 
-1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md` (matching detected platform).
-
-2. **Parse review identifier** from `$ARGUMENTS`:
+1. **Parse review identifier** from `$ARGUMENTS`:
    - If empty, use current branch's review
    - If numeric, treat as review number
    - If URL (contains `URL_PATTERN`), extract review number from URL
 
-3. **Fetch review metadata** (run in parallel):
-
-   Using the fetch-review-data cluster file loaded in step 1, follow:
-   - **Fetch Review Details** — get number, title, body, author, branches, state, timestamps
-   - **Fetch Files Changed** — get list of modified file paths
-   - **Fetch Commits** — get short SHAs and commit messages
+2. **Fetch review metadata** (run in parallel):
+   - **Fetch Review Details:**
+     !`cat ~/.claude/platform-commands/fetch-review-details.sh`
+   - **Fetch Files Changed:**
+     !`cat ~/.claude/platform-commands/fetch-review-files.sh`
+   - **Fetch Commits:**
+     !`cat ~/.claude/platform-commands/fetch-review-commits.sh`
 
 4. **Display review summary** (store as `REVIEW_CONTEXT`):
    ```

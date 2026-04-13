@@ -20,19 +20,12 @@ Analyze a large review and propose how to split it into smaller, reviewable unit
 - `/git:split-request <number>` - Analyze review and propose split strategy
 - `/git:split-request` - Analyze current branch's review
 
-## Reference Files (conditional — read only when needed)
-
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details
-
 ## Instructions
 
-1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md` (matching detected platform).
-
-2. **Fetch review details**:
+1. **Fetch review details:**
+   !`cat ~/.claude/platform-commands/fetch-review-details.sh`
+   !`cat ~/.claude/platform-commands/checkout-review.sh`
    ```bash
-   $VIEW_CMD <number> $VIEW_JSON_FLAGS
-   $CHECKOUT_CMD <number>
    git log main..HEAD --oneline
    git diff main --stat
    ```

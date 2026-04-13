@@ -1,8 +1,8 @@
 ---
-description: "GitLab commands for fetching MR metadata, diffs, files, and commits."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitLab: Fetch Review Data
+# GitLab: Fetch Review Data (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 

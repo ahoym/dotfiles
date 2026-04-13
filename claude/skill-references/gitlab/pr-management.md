@@ -1,8 +1,8 @@
 ---
-description: "GitLab commands for creating/updating MRs, posting reviews, and branch management."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitLab: MR Management
+# GitLab: MR Management (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
