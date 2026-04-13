@@ -235,7 +235,8 @@ Write data files for template assembly, then call `fill-template.sh`:
        "ISSUE_UPDATED_AT": "<timestamp>",
        "LAST_COMMENT_ID": "<id or none>",
        "POST_ISSUE_COMMENT_CMD": "<literal command — see below>",
-       "FETCH_ISSUE_WITH_COMMENTS_CMD": "<literal command — see below>"
+       "FETCH_ISSUE_WITH_COMMENTS_CMD": "<literal command — see below>",
+       "CHECK_ISSUE_STATE_CMD": "<literal command — see below>"
      }
      ```
 
@@ -248,6 +249,10 @@ Write data files for template assembly, then call `fill-template.sh`:
      - `FETCH_ISSUE_WITH_COMMENTS_CMD` — literal value of:
        ```
        !`cat ~/.claude/platform-commands/fetch-issue-with-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `CHECK_ISSUE_STATE_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/check-issue-state.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
        ```
    - `body.txt` — issue body text
    - `comments.txt` — formatted comment thread
