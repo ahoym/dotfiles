@@ -235,7 +235,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` with `MODE` → `address`, `MODEL` → `claude-opus-4-6` (leaf — reads diffs, edits files, pushes commits), `ENTITY_PREFIX` → `"pr"`, `ENTITY_LABEL` → `"PR"`, `STATE_FIELD` → `"pr_state"`, `STATE_CHECK_CMD` → `"gh pr view"`, `TERMINAL_STATES` → `"MERGED CLOSED"`, `BRANCHES` → `"true"`, `WORKTREES` → `"true"`, `PROJECT_ROOT` → absolute path. Also write address-mode data files to `<RUN_DIR>/`:
 - `branch-cases.txt` — case body lines (e.g., `80) echo "feat/auth" ;;`)
 - `worktree-cases.txt` — case body lines (e.g., `80) echo "/path/to/wt" ;;`)
-- `new-worktree-prs.txt` — space-separated PR numbers needing new worktrees
+- `new-worktree-items.txt` — space-separated PR numbers needing new worktrees
 
 Then assemble via `fill-template.sh`. The worktree setup loop in the template includes the pre-flight state check before fetching — no manual addition needed.
 

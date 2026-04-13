@@ -13,7 +13,7 @@ RUN_DIR="{{RUN_DIR}}"           # absolute path
 CONCURRENCY={{CONCURRENCY}}
 INACTIVITY_TIMEOUT_SEC=${INACTIVITY_TIMEOUT:-600}
 MAX_ATTEMPTS=2
-PRS=({{PRS}})                   # space-separated PR numbers
+ITEMS=({{ITEMS}})               # space-separated entity numbers (PR or issue)
 MODE="{{MODE}}"                 # "review" or "address"
 MODE_LABEL="{{MODE_LABEL}}"     # "Review" or "Address" (pre-capitalized for bash 3.x)
 MODEL="${MODEL:-{{MODEL}}}"     # claude model — runtime env override supported
@@ -36,26 +36,26 @@ worktree_for() {
     esac
 }
 # PRs that need new worktrees (empty if all reused)
-NEW_WORKTREE_PRS=({@new-worktree-prs.txt})
+NEW_WORKTREE_ITEMS=({@new-worktree-items.txt})
 PROJECT_ROOT="{{PROJECT_ROOT}}"
 {{/BRANCHES}}
 
 # --- Worktree setup (address mode only) ---
 {{#WORKTREES}}
 setup_worktrees() {
-    if [ ${#NEW_WORKTREE_PRS[@]} -eq 0 ]; then
+    if [ ${#NEW_WORKTREE_ITEMS[@]} -eq 0 ]; then
         echo "All worktrees reused from existing checkouts."
         return
     fi
     mkdir -p "$RUN_DIR/worktrees"
-    for pr_num in "${NEW_WORKTREE_PRS[@]}"; do
+    for item_num in "${NEW_WORKTREE_ITEMS[@]}"; do
         local branch
-        branch=$(branch_for "$pr_num")
+        branch=$(branch_for "$item_num")
         local wt
-        wt=$(worktree_for "$pr_num")
+        wt=$(worktree_for "$item_num")
         if [ ! -d "$wt" ]; then
             git -C "$PROJECT_ROOT" worktree add "$wt" "$branch" || {
-                echo "WARNING: Failed to create worktree for PR $pr_num, skipping"
+                echo "WARNING: Failed to create worktree for ${ENTITY_LABEL} $item_num, skipping"
                 continue
             }
         else
@@ -66,9 +66,9 @@ setup_worktrees() {
 
 cleanup_worktrees() {
     # Only clean up worktrees we created, not pre-existing ones
-    for pr_num in "${NEW_WORKTREE_PRS[@]}"; do
+    for item_num in "${NEW_WORKTREE_ITEMS[@]}"; do
         local wt
-        wt=$(worktree_for "$pr_num")
+        wt=$(worktree_for "$item_num")
         git -C "$PROJECT_ROOT" worktree remove "$wt" --force 2>/dev/null || true
     done
 }
@@ -82,7 +82,7 @@ echo ====================================================
 echo "Sweep ${MODE_LABEL} Runner"
 echo ====================================================
 echo "Run directory: $RUN_DIR"
-echo "PRs:           ${PRS[*]}"
+echo "${ENTITY_LABEL}s:         ${ITEMS[*]}"
 echo "Concurrency:   $CONCURRENCY"
 echo "Started at:    $(date)"
 echo ====================================================
@@ -102,16 +102,16 @@ if [ -f "${RUN_DIR}/manifest-updates.json" ]; then
         action=$(printf '%s' "$line" | jq -r '.action // empty' 2>/dev/null) || continue
         item_id=$(printf '%s' "$line" | jq -r '.id // .item.id // empty' 2>/dev/null) || continue
         if [ "$action" = "add" ] && [ -n "$item_id" ]; then
-            # Dedup: skip if already in PRS array
+            # Dedup: skip if already in ITEMS array
             local already_present=false
-            for existing in "${PRS[@]}"; do
+            for existing in "${ITEMS[@]}"; do
                 if [ "$existing" = "$item_id" ]; then
                     already_present=true
                     break
                 fi
             done
             if [ "$already_present" = false ] && [ -f "${RUN_DIR}/${ENTITY_PREFIX}-${item_id}/prompt.txt" ]; then
-                PRS+=("$item_id")
+                ITEMS+=("$item_id")
             fi
         elif [ "$action" = "close" ] && [ -n "$item_id" ]; then
             close_reason=$(printf '%s' "$line" | jq -r '.reason // empty' 2>/dev/null)
@@ -125,8 +125,8 @@ fi
 
 # --- State writer ---
 write_state() {
-    local pr_num=$1 state=$2
-    local pr_dir="${RUN_DIR}/${ENTITY_PREFIX}-${pr_num}"
+    local item_num=$1 state=$2
+    local item_dir="${RUN_DIR}/${ENTITY_PREFIX}-${item_num}"
     local now
     now=$(date -Iseconds 2>/dev/null || date +%Y-%m-%dT%H:%M:%S%z)
     {
@@ -137,7 +137,7 @@ write_state() {
             printf '%s\n' "$1"
             shift
         done
-    } > "${pr_dir}/state.md"
+    } > "${item_dir}/state.md"
 }
 
 # --- Terminal state check ---
@@ -151,11 +151,11 @@ is_terminal_state() {
 }
 
 # --- Per-PR function ---
-process_pr() {
-    local pr_num=$1
-    local pr_dir="${RUN_DIR}/${ENTITY_PREFIX}-${pr_num}"
-    local log_file="${pr_dir}/output.log"
-    local status_file="${pr_dir}/status.md"
+process_item() {
+    local item_num=$1
+    local item_dir="${RUN_DIR}/${ENTITY_PREFIX}-${item_num}"
+    local log_file="${item_dir}/output.log"
+    local status_file="${item_dir}/status.md"
     local start_time=$(date +%s)
     local ts=$(date +%H:%M:%S)
 
@@ -167,38 +167,38 @@ process_pr() {
         local cached_state
         cached_state=$(grep "^${STATE_FIELD}:" "$status_file" 2>/dev/null | awk '{print $2}')
         if is_terminal_state "$cached_state"; then
-            echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED ($cached_state, from status.md)"
+            echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED ($cached_state, from status.md)"
             return
         fi
     fi
 
     # Pre-flight: skip if rate-limited (after terminal check so completed sessions aren't regressed)
     if [ -f "${RUN_DIR}/.rate-limited" ]; then
-        printf '# %s #%s\nmilestone: skipped\nreason: rate-limited\n' "$ENTITY_LABEL" "$pr_num" > "$status_file"
-        echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED (rate-limited)"
+        printf '# %s #%s\nmilestone: skipped\nreason: rate-limited\n' "$ENTITY_LABEL" "$item_num" > "$status_file"
+        echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED (rate-limited)"
         return
     fi
 
     # Pre-flight: skip terminal entities (API fallback for first run or missing status.md)
     local state
-    state=$($STATE_CHECK_CMD "$pr_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
+    state=$($STATE_CHECK_CMD "$item_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
     if is_terminal_state "$state" || [ "$state" = "UNKNOWN" ]; then
-        printf '# %s #%s\nmilestone: skipped\nreason: %s\n%s: %s\n' "$ENTITY_LABEL" "$pr_num" "$state" "$STATE_FIELD" "$state" > "$status_file"
-        echo "[$ts] ${ENTITY_LABEL} #${pr_num}: SKIPPED ($state)"
+        printf '# %s #%s\nmilestone: skipped\nreason: %s\n%s: %s\n' "$ENTITY_LABEL" "$item_num" "$state" "$STATE_FIELD" "$state" > "$status_file"
+        echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED ($state)"
         return
     fi
 
-    echo "[$ts] ${ENTITY_LABEL} #${pr_num}: launching claude -p session..."
+    echo "[$ts] ${ENTITY_LABEL} #${item_num}: launching claude -p session..."
     printf '# %s #%s Status\nmilestone: launching\nstarted_at: %s\n' \
-        "$ENTITY_LABEL" "$pr_num" "$(date -Iseconds)" > "$status_file"
+        "$ENTITY_LABEL" "$item_num" "$(date -Iseconds)" > "$status_file"
 
     # Archive previous cycle's raw.jsonl (raw-1.jsonl, raw-2.jsonl, ...)
-    if [ -f "$pr_dir/raw.jsonl" ]; then
+    if [ -f "$item_dir/raw.jsonl" ]; then
         local archive_num=1
-        while [ -f "${pr_dir}/raw-${archive_num}.jsonl" ]; do
+        while [ -f "${item_dir}/raw-${archive_num}.jsonl" ]; do
             archive_num=$((archive_num + 1))
         done
-        mv "$pr_dir/raw.jsonl" "${pr_dir}/raw-${archive_num}.jsonl"
+        mv "$item_dir/raw.jsonl" "${item_dir}/raw-${archive_num}.jsonl"
     fi
 
     # Determine launch mode: resume or fresh start
@@ -208,28 +208,28 @@ process_pr() {
     local cycle=1
     local prev_cost_usd=0
 
-    if [ -f "$pr_dir/session.reset" ]; then
-        rm -f "$pr_dir/session.state" "$pr_dir/session.reset"
-    elif [ -f "$pr_dir/session.state" ]; then
+    if [ -f "$item_dir/session.reset" ]; then
+        rm -f "$item_dir/session.state" "$item_dir/session.reset"
+    elif [ -f "$item_dir/session.state" ]; then
         local state_mtime
-        state_mtime=$(stat -f%m "$pr_dir/session.state" 2>/dev/null \
-            || stat -c%Y "$pr_dir/session.state" 2>/dev/null || echo 0)
+        state_mtime=$(stat -f%m "$item_dir/session.state" 2>/dev/null \
+            || stat -c%Y "$item_dir/session.state" 2>/dev/null || echo 0)
         local state_age=$(( $(date +%s) - state_mtime ))
         if [ "$state_age" -lt 21600 ]; then
-            resume_session_id=$(grep '^session_id=' "$pr_dir/session.state" | cut -d= -f2)
-            prev_cost_usd=$(grep '^prev_cost_usd=' "$pr_dir/session.state" | cut -d= -f2 || echo 0)
-            cycle=$(grep '^cycle=' "$pr_dir/session.state" | cut -d= -f2 || echo 1)
+            resume_session_id=$(grep '^session_id=' "$item_dir/session.state" | cut -d= -f2)
+            prev_cost_usd=$(grep '^prev_cost_usd=' "$item_dir/session.state" | cut -d= -f2 || echo 0)
+            cycle=$(grep '^cycle=' "$item_dir/session.state" | cut -d= -f2 || echo 1)
             if [ -n "$resume_session_id" ]; then
                 use_resume=true
                 resume_flag="--resume $resume_session_id"
             fi
         else
-            rm -f "$pr_dir/session.state"
+            rm -f "$item_dir/session.state"
         fi
     fi
 
     # Append cycle boundary to live.md so director can distinguish cycles
-    printf '\n### Cycle %d — %s ###\n' "$cycle" "$(date -Iseconds)" >> "$pr_dir/live.md"
+    printf '\n### Cycle %d — %s ###\n' "$cycle" "$(date -Iseconds)" >> "$item_dir/live.md"
 
     # Resolve stream monitor path (works from any CWD via HOME)
     local monitor="${HOME}/.claude/skill-references/stream-monitor.sh"
@@ -240,11 +240,11 @@ process_pr() {
         local exit_status=""
         local attempt_start=$(date +%s)
 
-        write_state "$pr_num" "running" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "started_at: $(date -Iseconds)"
+        write_state "$item_num" "running" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "started_at: $(date -Iseconds)"
 
         # Add attempt boundary marker for raw.jsonl (append-only across retries)
         if [ "$attempt" -gt 1 ]; then
-            printf '### attempt %d ###\n' "$attempt" >> "$pr_dir/raw.jsonl"
+            printf '### attempt %d ###\n' "$attempt" >> "$item_dir/raw.jsonl"
         fi
 
         # Launch with stream monitoring if monitor exists, otherwise fall back to plain pipe
@@ -253,28 +253,28 @@ process_pr() {
                 if [ "$use_resume" = true ]; then
                     printf 'Cycle %d. Check directives.md for new directives since your last run. Continue.' "$cycle"
                 else
-                    cat "${pr_dir}/prompt.txt"
+                    cat "${item_dir}/prompt.txt"
                 fi
             } \
-                | sh -c "echo \$\$ > ${pr_dir}/session.pid; exec claude -p --model $MODEL --verbose --output-format stream-json $resume_flag" \
-                | "$monitor" "$pr_dir" \
-                | tee -a "$pr_dir/raw.jsonl" >> "$log_file" &
+                | sh -c "echo \$\$ > ${item_dir}/session.pid; exec claude -p --model $MODEL --verbose --output-format stream-json $resume_flag" \
+                | "$monitor" "$item_dir" \
+                | tee -a "$item_dir/raw.jsonl" >> "$log_file" &
             local pipe_pid=$!
 
             # Inactivity monitoring loop
             while kill -0 "$pipe_pid" 2>/dev/null; do
                 sleep 30
                 local now_epoch=$(date +%s)
-                local live_file="${pr_dir}/live.md"
+                local live_file="${item_dir}/live.md"
                 if [ -f "$live_file" ]; then
                     local live_mtime
                     live_mtime=$(stat -c %Y "$live_file" 2>/dev/null || stat -f %m "$live_file" 2>/dev/null || echo "$now_epoch")
                     local idle_seconds=$((now_epoch - live_mtime))
                     if [ "$idle_seconds" -gt "$INACTIVITY_TIMEOUT_SEC" ]; then
-                        echo "[$(date +%H:%M:%S)] ${ENTITY_LABEL} #${pr_num}: inactivity timeout (${idle_seconds}s idle, attempt ${attempt}/${MAX_ATTEMPTS})"
+                        echo "[$(date +%H:%M:%S)] ${ENTITY_LABEL} #${item_num}: inactivity timeout (${idle_seconds}s idle, attempt ${attempt}/${MAX_ATTEMPTS})"
                         # Kill the claude session
-                        if [ -f "${pr_dir}/session.pid" ]; then
-                            kill "$(cat "${pr_dir}/session.pid")" 2>/dev/null || true
+                        if [ -f "${item_dir}/session.pid" ]; then
+                            kill "$(cat "${item_dir}/session.pid")" 2>/dev/null || true
                         fi
                         kill "$pipe_pid" 2>/dev/null || true
                         wait "$pipe_pid" 2>/dev/null || true
@@ -294,7 +294,7 @@ process_pr() {
             fi
         else
             local fallback_timeout=$((INACTIVITY_TIMEOUT_SEC * 2))
-            if timeout "$fallback_timeout" sh -c "cat \"\$1\" | claude -p --model $MODEL 2>&1 | tee -a \"\$2\"" _ "${pr_dir}/prompt.txt" "$log_file"; then
+            if timeout "$fallback_timeout" sh -c "cat \"\$1\" | claude -p --model $MODEL 2>&1 | tee -a \"\$2\"" _ "${item_dir}/prompt.txt" "$log_file"; then
                 exit_status="success"
             else
                 local fallback_rc=$?
@@ -312,14 +312,14 @@ process_pr() {
 
         # Handle exit status — success takes priority over transient rate limits
         if [ "$exit_status" = "success" ]; then
-            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
+            echo "[$end_ts] ${ENTITY_LABEL} #${item_num}: DONE (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
 
             # Compute context window usage from the latest assistant message's usage block.
             # cache_read + cache_creation + input_tokens = total tokens the model processed this turn,
             # which equals the conversation context size at that point.
             local context_used=0 context_pct=0 context_window=200000
             local last_usage
-            last_usage=$(jq -c 'select(.type == "assistant") | .message.usage // empty' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
+            last_usage=$(jq -c 'select(.type == "assistant") | .message.usage // empty' "$item_dir/raw.jsonl" 2>/dev/null | tail -1)
             if [ -n "$last_usage" ]; then
                 local in_tok cc_tok cr_tok
                 in_tok=$(printf '%s' "$last_usage" | jq -r '.input_tokens // 0')
@@ -334,7 +334,7 @@ process_pr() {
                 context_pct=$((context_used * 100 / context_window))
             fi
 
-            write_state "$pr_num" "completed" \
+            write_state "$item_num" "completed" \
                 "attempt: $attempt" \
                 "max_attempts: $MAX_ATTEMPTS" \
                 "duration_seconds: $duration" \
@@ -344,14 +344,14 @@ process_pr() {
 
             # Persist session state for next cycle (resume support)
             local result_line
-            result_line=$(jq -c 'select(.type == "result" and .subtype == "success")' "$pr_dir/raw.jsonl" 2>/dev/null | tail -1)
+            result_line=$(jq -c 'select(.type == "result" and .subtype == "success")' "$item_dir/raw.jsonl" 2>/dev/null | tail -1)
             if [ -n "$result_line" ]; then
                 local new_session_id new_cost_usd
                 new_session_id=$(printf '%s' "$result_line" | jq -r '.session_id // empty')
                 new_cost_usd=$(printf '%s' "$result_line" | jq -r '.total_cost_usd // 0')
                 if [ -n "$new_session_id" ]; then
                     printf 'session_id=%s\nprev_cost_usd=%s\ncycle=%d\n' \
-                        "$new_session_id" "$new_cost_usd" "$((cycle + 1))" > "$pr_dir/session.state"
+                        "$new_session_id" "$new_cost_usd" "$((cycle + 1))" > "$item_dir/session.state"
                 fi
             fi
             return
@@ -360,16 +360,16 @@ process_pr() {
         # Rate limit detection (only on failure — transient limits during successful sessions are harmless)
         if grep -q "hit your limit" "$log_file" 2>/dev/null; then
             exit_status="rate-limited"
-            printf '# %s #%s Status\nmilestone: rate-limited\n' "$ENTITY_LABEL" "$pr_num" > "$status_file"
+            printf '# %s #%s Status\nmilestone: rate-limited\n' "$ENTITY_LABEL" "$item_num" > "$status_file"
             touch "${RUN_DIR}/.rate-limited"
-            write_state "$pr_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
+            write_state "$item_num" "rate-limited" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS"
             break
         fi
 
         # Resume fallback: if session not found, switch to fresh start (don't count as an attempt)
-        if [ "$use_resume" = true ] && grep -q "No conversation found" "$pr_dir/raw.jsonl" 2>/dev/null; then
-            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: resume session expired — falling back to fresh start"
-            rm -f "$pr_dir/session.state"
+        if [ "$use_resume" = true ] && grep -q "No conversation found" "$item_dir/raw.jsonl" 2>/dev/null; then
+            echo "[$end_ts] ${ENTITY_LABEL} #${item_num}: resume session expired — falling back to fresh start"
+            rm -f "$item_dir/session.state"
             use_resume=false
             resume_session_id=""
             resume_flag=""
@@ -380,26 +380,26 @@ process_pr() {
 
         # Failure — retry or escalate
         if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-            echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: FAILED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS}) — retrying in 5s..."
-            write_state "$pr_num" "retrying" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "previous_exit: $exit_status"
+            echo "[$end_ts] ${ENTITY_LABEL} #${item_num}: FAILED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS}) — retrying in 5s..."
+            write_state "$item_num" "retrying" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "previous_exit: $exit_status"
             sleep 5
             continue
         fi
 
         # Final attempt exhausted
-        echo "[$end_ts] ${ENTITY_LABEL} #${pr_num}: ERRORED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
+        echo "[$end_ts] ${ENTITY_LABEL} #${item_num}: ERRORED (${duration}s, attempt ${attempt}/${MAX_ATTEMPTS})"
         printf '# %s #%s Status\nmilestone: errored\nerror: %s after %d attempts\n' \
-            "$ENTITY_LABEL" "$pr_num" "$exit_status" "$MAX_ATTEMPTS" > "$status_file"
-        write_state "$pr_num" "errored" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "exit_reason: $exit_status" "escalation: needs-director"
+            "$ENTITY_LABEL" "$item_num" "$exit_status" "$MAX_ATTEMPTS" > "$status_file"
+        write_state "$item_num" "errored" "attempt: $attempt" "max_attempts: $MAX_ATTEMPTS" "exit_reason: $exit_status" "escalation: needs-director"
         return
     done
 }
 
-export -f process_pr write_state is_terminal_state
+export -f process_item write_state is_terminal_state
 export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD STATE_CHECK_CMD TERMINAL_STATES
 
 # --- Launch ---
-printf '%s\n' "${PRS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_pr "$@"' _ {}
+printf '%s\n' "${ITEMS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_item "$@"' _ {}
 
 # --- Summary ---
 OVERALL_END=$(date +%s)

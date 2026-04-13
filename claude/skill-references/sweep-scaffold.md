@@ -126,7 +126,7 @@ chmod +x <RUN_DIR>/let-it-rip.sh
   "MODEL": "<model>",
   "RUN_DIR": "<absolute path>",
   "CONCURRENCY": "3",
-  "PRS": "80 81 82",
+  "ITEMS": "80 81 82",
   "TIMESTAMP": "<YYYY-MM-DD-HHMM>",
   "ENTITY_PREFIX": "pr",
   "ENTITY_LABEL": "PR",
@@ -148,7 +148,7 @@ chmod +x <RUN_DIR>/let-it-rip.sh
 **Address mode data files** (written to `<RUN_DIR>/` alongside metadata.json):
 - `branch-cases.txt` — case-statement body for `branch_for()` (e.g., `80) echo "feat/auth" ;;`)
 - `worktree-cases.txt` — case-statement body for `worktree_for()` (e.g., `80) echo "/path/to/wt" ;;`)
-- `new-worktree-prs.txt` — space-separated PR numbers needing new worktrees (empty if all reused)
+- `new-worktree-items.txt` — space-separated entity numbers needing new worktrees (empty if all reused)
 
 These are included via `{@file}` references in the template. Review mode doesn't need them — the block conditional strips the enclosing section.
 
