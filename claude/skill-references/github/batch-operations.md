@@ -1,8 +1,8 @@
 ---
-description: "GitHub commands for batch PR metadata fetching (used by extract-request-learnings)."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: Batch Operations
+# GitHub: Batch Operations (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 

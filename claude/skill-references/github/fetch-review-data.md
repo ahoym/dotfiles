@@ -1,8 +1,8 @@
 ---
-description: "GitHub commands for fetching PR metadata, diffs, files, and commits."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: Fetch Review Data
+# GitHub: Fetch Review Data (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 

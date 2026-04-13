@@ -1,8 +1,8 @@
 ---
-description: "GitLab commands for batch MR metadata fetching (used by extract-request-learnings)."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitLab: Batch Operations
+# GitLab: Batch Operations (Deprecated — see commands/)
 
 **Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
 
