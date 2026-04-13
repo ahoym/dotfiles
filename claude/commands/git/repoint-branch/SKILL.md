@@ -39,7 +39,7 @@ Extract independent changes from a compound branch into a new branch targeting m
 
 ## Instructions
 
-0. **Platform commands** — commands below are GitHub-specific (`gh`). No platform detection needed.
+0. **Platform commands** — all commands below are plain `git`. PR creation delegates to `/git:create-request` (handles both GitHub and GitLab).
 
 1. **Parse arguments**:
    - Extract `--name <branch-name>` if provided
@@ -98,10 +98,7 @@ Extract independent changes from a compound branch into a new branch targeting m
    git push -u origin <new-branch-name>
    ```
    Ask: "Create a PR to main? (y/n)"
-   If yes, run `/git:create-request` or:
-   ```bash
-   gh pr create --base main --title "<title>" --body "..."
-   ```
+   If yes, run `/git:create-request`.
 
 9. **Return to original branch**:
    ```bash
