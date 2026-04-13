@@ -142,8 +142,6 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 Note: process lifecycle (inactivity detection, kill, retry) is owned by the runner, not the director.
 
-Out-of-scope review findings become GitHub issues (filed in the CWD repo), not operator pings. When escalating, still present what you see, what you think it means, and what you'd recommend.
-
 ## Phase 5: Convergence + Wrap-up
 
 **Never merge PRs and never offer to merge.** Merging is the operator's review checkpoint — the moment they read what agents produced. When a director session reaches a PR-mergeable terminal state, present convergence and stop. Don't propose merge as a "next step" option, even when it's clearly the right move and the PR is in the operator's own repo. The operator merges when they're ready.
