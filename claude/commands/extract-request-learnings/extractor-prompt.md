@@ -23,7 +23,7 @@ Review metadata:
 
 ## Data fetching
 
-Use these scripts from `~/.claude/platform-commands/`:
+Use these scripts from `~/.claude/platform-commands/` (cat each and execute the result):
 
 **Step 1 (always run):**
 - `fetch-review-comments.sh` — use the full fetch variant

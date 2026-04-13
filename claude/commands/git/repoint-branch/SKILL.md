@@ -39,7 +39,7 @@ Extract independent changes from a compound branch into a new branch targeting m
 
 ## Instructions
 
-0. **Platform commands** — platform-specific commands are inlined below via `!` preprocessing. No detection needed.
+0. **Platform commands** — commands below are GitHub-specific (`gh`). No platform detection needed.
 
 1. **Parse arguments**:
    - Extract `--name <branch-name>` if provided
