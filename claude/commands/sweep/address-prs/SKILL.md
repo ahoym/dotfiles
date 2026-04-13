@@ -64,8 +64,6 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
@@ -84,9 +82,9 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 - **`--concurrency=<N>`** → `CONCURRENCY` (default 3)
 - **`--resolve-conflicts`** → `RESOLVE_CONFLICTS` (default false) — resolve merge conflicts with base branch before addressing comments
 
-### Phase 2: Platform Detection & PR Fetch
+### Phase 2: PR Fetch
 
-Follow `platform-detection.md`. Then fetch open PRs:
+Fetch open PRs (platform commands are inlined via `!` preprocessing):
 - Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,mergeable,reviews,comments`
 - All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft,mergeable --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
 

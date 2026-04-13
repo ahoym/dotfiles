@@ -37,13 +37,9 @@ Extract independent changes from a compound branch into a new branch targeting m
 /repoint-branch .claude/guidelines/ .claude/commands/ --name feature/claude-config-lite
 ```
 
-## Reference Files (conditional — read only when needed)
-
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-
 ## Instructions
 
-0. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
+0. **Platform commands** — platform-specific commands are inlined below via `!` preprocessing. No detection needed.
 
 1. **Parse arguments**:
    - Extract `--name <branch-name>` if provided

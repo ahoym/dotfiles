@@ -18,8 +18,6 @@ Create a pull request (GitHub) or merge request (GitLab), or update an existing 
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/pr-management.md` / `gitlab/pr-management.md` — Create/update PR, check existing
 - `request-body-template.md` — Read before composing review body (step 9). Located in the skill's base directory.
 
 ## Pre-Review Checklist
@@ -35,7 +33,7 @@ Before creating the review, verify these items are complete:
 
 ## Instructions
 
-1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/pr-management.md` (matching detected platform).
+1. **Gather platform commands** — platform-specific commands are inlined below via `!` preprocessing. No detection or file loading needed.
 
 2. **Gather context** (run in parallel):
    - `git status` - Check for uncommitted changes
@@ -61,9 +59,9 @@ Before creating the review, verify these items are complete:
 
    Skip checks that aren't configured for the project. Don't install new tools.
 
-5. **Check for existing review** — follow **"Check for Existing Review"** in the platform cluster files.
-   - If a review already exists, ask the operator: "$REVIEW_UNIT #N already exists for this branch. Update its description instead of creating new?"
-   - If yes, use `$EDIT_CMD` instead of `$CREATE_CMD`
+5. **Check for existing review:**
+   !`cat ~/.claude/platform-commands/check-existing-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   - If a review already exists, ask the operator: "Review #N already exists for this branch. Update its description instead of creating new?"
 
 6. **Determine base branch**:
    - If `$ARGUMENTS` provided, use that as base
@@ -80,7 +78,11 @@ Before creating the review, verify these items are complete:
 
 9. **Compose review body** — Read `request-body-template.md` from the skill's base directory. Structure the body following that template.
 
-10. **Write body and create/update review** — Using the pr-management cluster file loaded in step 1, follow the **"Create or Update PR (Body via File)"** section. Use `<BRANCH_NAME>` in the temp filename for parallel safety.
+10. **Write body and create/update review** — Use `<BRANCH_NAME>` in the temp filename for parallel safety.
+    **Create:**
+    !`cat ~/.claude/platform-commands/create-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+    **Update (if existing review):**
+    !`cat ~/.claude/platform-commands/update-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
 11. **Clean up** — remove the temp body file and empty `tmp/claude-artifacts/change-request-replies/` directory (per the platform commands section).
 
