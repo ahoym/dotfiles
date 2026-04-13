@@ -81,7 +81,7 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 
 ### Phase 2: PR Fetch
 
-Fetch open PRs (platform commands are inlined via `!` preprocessing):
+Fetch open PRs (GitHub-specific commands):
 - Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,reviews,comments`
 - All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
 
