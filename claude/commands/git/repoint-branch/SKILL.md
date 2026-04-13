@@ -37,13 +37,9 @@ Extract independent changes from a compound branch into a new branch targeting m
 /repoint-branch .claude/guidelines/ .claude/commands/ --name feature/claude-config-lite
 ```
 
-## Reference Files (conditional — read only when needed)
-
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-
 ## Instructions
 
-0. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Set `CLI`, `REVIEW_UNIT`, and API command patterns accordingly. All commands below use GitHub (`gh`) syntax; substitute GitLab equivalents if on GitLab.
+0. **Platform commands** — all commands below are plain `git`. PR creation delegates to `/git:create-request` (handles both GitHub and GitLab).
 
 1. **Parse arguments**:
    - Extract `--name <branch-name>` if provided
@@ -102,10 +98,7 @@ Extract independent changes from a compound branch into a new branch targeting m
    git push -u origin <new-branch-name>
    ```
    Ask: "Create a PR to main? (y/n)"
-   If yes, run `/git:create-request` or:
-   ```bash
-   gh pr create --base main --title "<title>" --body "..."
-   ```
+   If yes, run `/git:create-request`.
 
 9. **Return to original branch**:
    ```bash

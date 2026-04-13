@@ -23,17 +23,17 @@ Review metadata:
 
 ## Data fetching
 
-Read `~/.claude/skill-references/<PLATFORM>/comment-interaction.md` for comment commands and `~/.claude/skill-references/<PLATFORM>/fetch-review-data.md` for PR metadata commands (where `<PLATFORM>` is `github` or `gitlab`). Use these sections from those files:
+Use these scripts from `~/.claude/platform-commands/` (cat each and execute the result):
 
 **Step 1 (always run):**
-- **Fetch Inline/Review Comments** — use the full fetch variant
-- **Fetch Issue/Top-Level Comments**
+- `fetch-review-comments.sh` — use the full fetch variant
+- `fetch-issue-comments.sh`
 
 **Step 2 (always run):**
-- **Fetch Review Details**
+- `fetch-review-details.sh`
 
 **Step 3 (if discussion count > 10, OR state is closed, OR description signals substantial implementation — new module/adapter/integration/refactor):**
-- **Fetch Files Changed**
+- `fetch-review-files.sh`
 
 Do not fetch any other endpoints. These commands provide all the signal needed.
 

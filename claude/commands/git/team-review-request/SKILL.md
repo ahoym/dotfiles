@@ -38,7 +38,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `persona-routing.md` — Read at step 5 for persona selection and step 10 for merge algorithm
 - `reviewer-prompt-template.md` — Read at step 8, injected into subagent prompts
 - `single-reviewer-mode.md` — Read only when N=1 (step 5 selects one persona)
@@ -50,7 +49,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 **Orchestrator personas:** Read `~/.claude/commands/set-persona/team-lead.md` and `~/.claude/commands/set-persona/reviewer.md` at skill start. The `team-lead` persona guides merge, overview composition, and deliberation. The `reviewer` persona provides base review instincts. These are the orchestrator's own lenses — distinct from the domain reviewer personas selected for subagents in step 5.
 
-1. **Detect platform** — follow **Platform Detection** from the base reference. If not already detected this session, read `~/.claude/skill-references/platform-detection.md` and set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read the matching platform cluster files.
+1. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
 2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
