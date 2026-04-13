@@ -196,7 +196,12 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` with `MODE` → `review`, `MODEL` → `claude-sonnet-4-6` (orchestrator — heavy work is in `git:team-review-request`'s subagents), `ENTITY_PREFIX` → `"pr"`, `ENTITY_LABEL` → `"PR"`, `STATE_FIELD` → `"pr_state"`, `STATE_CHECK_CMD` → `"gh pr view"`, `TERMINAL_STATES` → `"MERGED CLOSED"`, `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees). Then assemble via `fill-template.sh`.
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` using the runner schema from sweep-scaffold.md with these review-mode overrides:
+- `MODE` → `"review"`, `MODE_LABEL` → `"Review"`
+- `MODEL` → `"claude-sonnet-4-6"` (orchestrator — heavy work is in `git:team-review-request`'s subagents)
+- `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees)
+
+All other keys (entity type, `CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults for PRs. Then assemble via `fill-template.sh`.
 
 ### Phase 7: Announce, Progress Check, Retro
 
