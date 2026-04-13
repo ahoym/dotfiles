@@ -47,25 +47,9 @@ If no matches: `📚 [pre-confirm] no matching learnings found`
 
 Read the comment thread. Identify the clarifier's questions, operator's answers, and design decisions. Then explore relevant code to validate — verify files exist, scope assertions are accurate, and your plan accounts for actual code state.
 
-## Step 10b: Split Assessment
-
-Before drafting the plan, evaluate whether the implementation decomposes into independent PRs:
-
-**Split when:**
-- The plan has 2+ phases that could each merge independently (Phase A doesn't block Phase B)
-- Changes span multiple independent subsystems
-- The resulting single PR would touch enough files that a reviewer can't hold the full context (~30+ files)
-
-**Don't split when:**
-- Phases are inherently sequenced (schema change + code that uses it)
-- Splitting creates intermediate states that break the build
-- The overhead of separate issues/PRs/reviews isn't justified by the scope
-
-**When splitting:** Structure the plan as sub-issues, not phases. Each sub-issue gets: a title, 1-2 sentence scope (what's in/out), file targets, and dependency order. The comment should propose creating these as separate GitHub issues. One issue → one PR → one review cycle. This is non-negotiable for plans with independent phases.
-
 ## Step 11: Draft and Post Confirmation
 
-Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan — structured as sub-issues if Step 10b identified independent phases, or as phases of a single PR if tightly coupled; (3) open questions only if genuine; (4) explicit ask for confirmation.
+Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan; (3) open questions only if genuine; (4) explicit ask for confirmation.
 
 Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, then post:
 ```bash
@@ -87,19 +71,6 @@ Comment format:
 ...
 
 ### Proposed implementation
-
-[If independent phases identified in Step 10b, use sub-issue format:]
-
-This decomposes into N independent sub-issues:
-
-1. **[Sub-issue title]** — [scope, file targets, acceptance criteria]
-2. **[Sub-issue title]** — [scope, file targets, acceptance criteria]
-...
-Dependency order: [independent / 2 stacks on 1 / etc.]
-
-Want me to create these as separate GitHub issues?
-
-[If tightly coupled, use single-plan format:]
 
 **Phase 1: [name]**
 - [ ] `path/to/file.md` — [what changes]
