@@ -173,7 +173,7 @@ Write data files for template assembly, then call `fill-template.sh`:
      }
      ```
 
-     **Platform command injection (Option C):** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
 
      - `FETCH_LATEST_INLINE_COMMENT_ID_CMD` — literal value of:
        ```

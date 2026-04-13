@@ -201,7 +201,7 @@ Write data files for template assembly, then call `fill-template.sh`:
      }
      ```
 
-     **Platform command injection (Option C):** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
 
      - `CHECK_PR_MERGEABLE_CMD` — literal value of:
        ```

@@ -240,7 +240,7 @@ Write data files for template assembly, then call `fill-template.sh`:
      }
      ```
 
-     **Platform command injection (Option C):** The following keys inject literal platform commands into runtime templates via `fill-template.sh`. The SKILL.md `!cat`-inlines the script content at load time; the agent writes the literal command string as a metadata.json value:
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`. The SKILL.md `!cat`-inlines the script content at load time; the agent writes the literal command string as a metadata.json value:
 
      - `POST_ISSUE_COMMENT_CMD` — literal value of:
        ```
