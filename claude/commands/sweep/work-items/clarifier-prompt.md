@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`, `{POST_ISSUE_COMMENT_CMD}`, `{FETCH_ISSUE_WITH_COMMENTS_CMD}`
 **File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
@@ -82,7 +82,7 @@ GOOD: "The auth flow currently redirects to `/dashboard` after login (see `auth-
 
 Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, then post:
 ```bash
-gh issue comment {ISSUE_NUMBER} --body-file {ISSUE_DIR}/comment-body.md
+{POST_ISSUE_COMMENT_CMD}
 ```
 
 Comment format:
@@ -163,7 +163,7 @@ Then add any new observations: codebase insights, architectural patterns discove
 
 **Re-fetch watermark after posting.** Your comment in Step 11 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
 ```bash
-gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
+{FETCH_ISSUE_WITH_COMMENTS_CMD}
 ```
 
 Write final status using the **re-fetched** values:

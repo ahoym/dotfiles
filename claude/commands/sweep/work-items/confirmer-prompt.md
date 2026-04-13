@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`
+**Placeholders (from metadata.json):** `{ISSUE_NUMBER}`, `{ISSUE_TITLE}`, `{ISSUE_URL}`, `{ISSUE_LABELS}`, `{OWNER_REPO}`, `{MODEL_NAME}`, `{PERSONA_NAME}`, `{RUN_DIR}`, `{ISSUE_DIR}`, `{ISSUE_UPDATED_AT}`, `{LAST_COMMENT_ID}`, `{POST_ISSUE_COMMENT_CMD}`, `{FETCH_ISSUE_WITH_COMMENTS_CMD}`
 **File inclusions:** `{@../preflight.md}` (shared steps + work item context), which itself includes `{@body.txt}`, `{@comments.txt}`, `{@../repo-summary.txt}`
 
 ---
@@ -47,13 +47,29 @@ If no matches: `📚 [pre-confirm] no matching learnings found`
 
 Read the comment thread. Identify the clarifier's questions, operator's answers, and design decisions. Then explore relevant code to validate — verify files exist, scope assertions are accurate, and your plan accounts for actual code state.
 
+## Step 10b: Split Assessment
+
+Before drafting the plan, evaluate whether the implementation decomposes into independent PRs:
+
+**Split when:**
+- The plan has 2+ phases that could each merge independently (Phase A doesn't block Phase B)
+- Changes span multiple independent subsystems
+- The resulting single PR would touch enough files that a reviewer can't hold the full context (~30+ files)
+
+**Don't split when:**
+- Phases are inherently sequenced (schema change + code that uses it)
+- Splitting creates intermediate states that break the build
+- The overhead of separate issues/PRs/reviews isn't justified by the scope
+
+**When splitting:** Structure the plan as sub-issues, not phases. Each sub-issue gets: a title, 1-2 sentence scope (what's in/out), file targets, and dependency order. The comment should propose creating these as separate GitHub issues. One issue → one PR → one review cycle. This is non-negotiable for plans with independent phases.
+
 ## Step 11: Draft and Post Confirmation
 
-Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan with files, phases, and verification; (3) open questions only if genuine; (4) explicit ask for confirmation.
+Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan — structured as sub-issues if Step 10b identified independent phases, or as phases of a single PR if tightly coupled; (3) open questions only if genuine; (4) explicit ask for confirmation.
 
 Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, then post:
 ```bash
-gh issue comment {ISSUE_NUMBER} --body-file {ISSUE_DIR}/comment-body.md
+{POST_ISSUE_COMMENT_CMD}
 ```
 
 **Be concise.** Answers: one sentence each showing you understood, not parroting. Plan: checklist with file paths and one-line descriptions. No multi-paragraph explanations — the issue thread has the reasoning.
@@ -71,6 +87,19 @@ Comment format:
 ...
 
 ### Proposed implementation
+
+[If independent phases identified in Step 10b, use sub-issue format:]
+
+This decomposes into N independent sub-issues:
+
+1. **[Sub-issue title]** — [scope, file targets, acceptance criteria]
+2. **[Sub-issue title]** — [scope, file targets, acceptance criteria]
+...
+Dependency order: [independent / 2 stacks on 1 / etc.]
+
+Want me to create these as separate GitHub issues?
+
+[If tightly coupled, use single-plan format:]
 
 **Phase 1: [name]**
 - [ ] `path/to/file.md` — [what changes]
@@ -130,7 +159,7 @@ Append a dated section to `{ISSUE_DIR}/learnings.md`. Start with **Learnings pro
 
 **Re-fetch watermark after posting.** Your comment in Step 11 changed the issue's `updatedAt` and added a new comment ID. Fetch the current values now:
 ```bash
-gh issue view {ISSUE_NUMBER} --json updatedAt,comments --jq '{updatedAt, last_comment_id: (.comments[-1].id // null)}'
+{FETCH_ISSUE_WITH_COMMENTS_CMD}
 ```
 
 Write final status using the **re-fetched** values:

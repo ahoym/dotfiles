@@ -92,12 +92,21 @@ Parse `$ARGUMENTS` to extract:
 
 ### Phase 2: Issue Fetch
 
-1. Fetch work items (GitHub-specific commands):
-   - Specific numbers: `gh issue view <N> --json number,title,body,labels,assignees,comments,url,updatedAt`
-   - Label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
-   - No filters: `gh issue list --state open --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
+1. Fetch work items — platform-specific commands are inlined below via `!` preprocessing:
+   - Specific numbers (includes comments):
+     ```
+     !`cat ~/.claude/platform-commands/fetch-issue.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
+     Add `updatedAt` to the `--json` fields.
+   - All open (with optional label filter):
+     ```
+     !`cat ~/.claude/platform-commands/list-open-issues.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
 
-3. For items fetched via list (no comments included), fetch comments per issue: `gh api repos/{owner}/{repo}/issues/<N>/comments --paginate`
+3. For items fetched via list (no comments included), fetch comments per issue:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-issue-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
 4. Store each item as: `{number, title, body, comments[], url, labels[], updatedAt}`
 
@@ -111,12 +120,12 @@ For each work item, check these conditions (in order):
 
 For each referenced blocker issue, determine its resolution state:
 
-```bash
+```
 # Check issue state
-gh issue view <N> --json state -q '.state'
+!`cat ~/.claude/platform-commands/check-issue-state.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 # Check for PRs linked to the blocker (sweep branches + body references)
-gh pr list --state all --search "head:sweep/<N>-" --json number,headRefName,state
-gh pr list --state all --search "#<N>" --json number,headRefName,state,body
+!`cat ~/.claude/platform-commands/list-prs-by-branch.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+!`cat ~/.claude/platform-commands/list-prs-by-issue-ref.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 ```
 
 Filter PR results: for the `#<N>` search, confirm the PR body actually references the blocker issue (avoid false positives from substring matches — e.g., `#9` matching `#99`). Check for `Relates to #<N>`, `Fixes #<N>`, `Closes #<N>`, or `Blocked by:.*#<N>` patterns.
@@ -140,8 +149,8 @@ Record as `base_branch` in the item's metadata for Phase 5 worktree setup.
 **Batch optimization:** collect all unique blocker numbers across all issues and fetch their states + PRs in one pass before evaluating individual items. Cache results to avoid redundant API calls when multiple issues share blockers.
 
 **b. Existing PR linked.** Check for open PRs with branch matching `sweep/<id>-*`:
-```bash
-gh pr list --state open --json headRefName,number,url
+```
+!`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 ```
 Filter client-side. If match found: mark as `SKIP(PR exists (#N))`.
 
@@ -224,9 +233,22 @@ Write data files for template assembly, then call `fill-template.sh`:
        "RUN_DIR": "<absolute path>",
        "ISSUE_DIR": "<absolute path>",
        "ISSUE_UPDATED_AT": "<timestamp>",
-       "LAST_COMMENT_ID": "<id or none>"
+       "LAST_COMMENT_ID": "<id or none>",
+       "POST_ISSUE_COMMENT_CMD": "<literal command — see below>",
+       "FETCH_ISSUE_WITH_COMMENTS_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection (Option C):** The following keys inject literal platform commands into runtime templates via `fill-template.sh`. The SKILL.md `!cat`-inlines the script content at load time; the agent writes the literal command string as a metadata.json value:
+
+     - `POST_ISSUE_COMMENT_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/post-issue-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_ISSUE_WITH_COMMENTS_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-issue-with-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
    - `body.txt` — issue body text
    - `comments.txt` — formatted comment thread
 
