@@ -72,7 +72,7 @@ Comment format:
 
 **Delivery structure**: Single PR containing: [scope] OR Separate PRs (N total): [one line per PR scope]
 
-> When declaring Separate PRs: propose concrete sub-issues below (title, scope, dependency order).
+<!-- When declaring Separate PRs: propose concrete sub-issues below (title, scope, dependency order). -->
 
 ### Proposed implementation
 
