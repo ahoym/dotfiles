@@ -2,7 +2,7 @@
 
 **Usage:** Assembled by `fill-template.sh` — do not fill placeholders manually.
 
-**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{BRANCH}`, `{BASE}`, `{MODE}`, `{RESOLVE_CONFLICTS}`, `{HAS_CONFLICTS}`, `{WORKTREE_PATH}`, `{PERSONA_INSTRUCTION}`, `{RUN_DIR}`, `{PR_DIR}`, `{LAST_SHA_FIELD}`
+**Placeholders (from metadata.json):** `{PR_NUMBER}`, `{PR_TITLE}`, `{PR_URL}`, `{OWNER_REPO}`, `{BRANCH}`, `{BASE}`, `{MODE}`, `{RESOLVE_CONFLICTS}`, `{WORKTREE_PATH}`, `{PERSONA_INSTRUCTION}`, `{RUN_DIR}`, `{PR_DIR}`, `{LAST_SHA_FIELD}`
 **File inclusions:** `{@../sweep-pr-preflight.md}` (Steps 1-4: directives, watermark, state check, status update)
 
 ---
@@ -39,11 +39,17 @@ git branch --show-current
 
 **Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
 
-If `{HAS_CONFLICTS}` is `true` (or the PR has developed conflicts since assessment), resolve merge conflicts with the base branch:
-1. Read `~/.claude/commands/git/resolve-conflicts/SKILL.md` and follow its instructions inline (do NOT use the Skill tool — `claude -p` sessions cannot invoke skills via the Skill tool)
-2. Update `{PR_DIR}/status.md` milestone to `resolving-conflicts`
+Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`):
+- **MERGEABLE** → no conflicts, proceed to the next step
+- **UNKNOWN** → wait 5 seconds and retry once. If still UNKNOWN, treat as CONFLICTING (conservative — avoids proceeding with live conflicts)
+- **CONFLICTING** → resolve:
+  1. Use the Skill tool: `skill="git:resolve-conflicts"`, `args="{BASE}"`
+  2. If the Skill succeeds, update `{PR_DIR}/status.md` milestone to `conflicts-resolved`
+  3. If the Skill fails (permission denied, error), update `{PR_DIR}/status.md` milestone to `conflicts-resolution-failed` and exit immediately
 
-If `{RESOLVE_CONFLICTS}` is `false`, skip this step entirely.
+**Permission required:** `Skill(git:resolve-conflicts *)` in `permissions.allow`. For `claude -p` sessions launched with `--allowedTools`, the pattern must also appear in the `--allowedTools` list.
+
+If `{RESOLVE_CONFLICTS}` is `false`, run a lightweight conflict check: `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`. If CONFLICTING, update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message — do not proceed to address comments, as push will fail. If MERGEABLE or UNKNOWN, proceed.
 
 ## Step 7: Search Learnings
 

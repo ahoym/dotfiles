@@ -32,9 +32,11 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 
 `claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `results.md` sections. `Write` and `Edit` patterns do not imply `Read` access.
 
-## `claude -p` Skill Tool Requires `Skill(*)` Permission
+## `claude -p` Skill Tool Requires Scoped Permission
 
-The Skill tool IS available in `claude -p` sessions — a permission denial is not the same as tool unavailability. Add `Skill(*)` to `~/.claude/settings.json` `permissions.allow`. Without it, `claude -p` sessions silently fail when trying to invoke skills (the session completes with `success` but produces no work).
+The Skill tool IS available in `claude -p` sessions and works for invoking skills (e.g., verified working: `git:resolve-conflicts`, `git:team-review-request`, `git:address-request-comments`). Add scoped patterns like `Skill(git:team-review-request *)` to `~/.claude/settings.json` `permissions.allow`. Without a matching pattern, `claude -p` sessions silently skip the Skill call (no permission denial in logs — the session just works around it by doing the work manually, often incorrectly). Prefer scoped patterns over `Skill(*)` to limit what headless sessions can invoke.
+
+**`--allowedTools` override:** For `claude -p` sessions launched with `--allowedTools`, Skill patterns must also appear in the `--allowedTools` list — `permissions.allow` alone is insufficient. The `--allowedTools` flag is more restrictive: it defines the complete tool set, and global allow patterns don't override it.
 
 ## `--output-format stream-json` Requires `--verbose` with `claude -p`
 
@@ -127,6 +129,10 @@ Match the model to the runner's role. **Orchestrator runners** mainly invoke oth
 ## Active Intent Capture: Draft, Lock, Update
 
 Capture intent at session start as a structured artifact (`<session_dir>/intents/<id>.md`), not as conversation context. Director drafts from item metadata, operator confirms or revises, result is locked. In-session scope expansion goes through an explicit update step (append revision section, log to `decisions.md`) — never silent mutation. The locked artifact survives context compaction and grounds decision-making: "is this in scope?" becomes a checkable question against the file, not a subjective recall.
+
+## TOCTOU in Orchestration Pre-Filters
+
+When an orchestration skill reads state at Phase N for an optimization decision (e.g., pre-filter unchanged items) and re-reads at Phase M for an authoritative decision (e.g., convergence check), items excluded at Phase N could have new activity by Phase M. Classic time-of-check/time-of-use applied to skill orchestration: either re-check excluded items at the authoritative phase, or accept that the optimization can miss state changes between phases.
 
 ## Compose Escalation Through Existing Decision Frameworks
 

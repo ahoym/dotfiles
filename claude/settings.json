@@ -38,6 +38,10 @@
       "Bash(gh issue *)",
       "Bash(gh pr *)",
 
+      "Skill(git:team-review-request *)",
+      "Skill(git:address-request-comments *)",
+      "Skill(git:resolve-conflicts *)",
+
       "Bash(glab api *)",
       "Bash(glab auth *)",
       "Bash(glab mr *)",

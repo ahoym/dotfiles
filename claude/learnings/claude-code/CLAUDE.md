@@ -16,6 +16,8 @@ Claude Code platform mechanics, agent infrastructure, and orchestration patterns
 | shell-patterns.md | Shell expansion safety: $(cat) non-recursive expansion, injection prevention |
 | web-session-sync.md | Web session sync: when sync is needed vs not, branch workflows |
 | sweep-sessions.md | Sweep director patterns: claude -p learnings-team gate gaps, GitLab/GitHub state casing |
+| skill-design-patterns.md | Skill architecture: standalone-first design, reference file placement, conditional mode loading |
+| statusline.md | Statusline JSON schema, terminal width in subprocess, field availability timing |
 
 ## Sub-clusters
 

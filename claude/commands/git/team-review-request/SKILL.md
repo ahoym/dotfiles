@@ -150,9 +150,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     ### Findings
 
-    <Grouped by theme, not by persona. Each finding has signal-strength tags:>
-    - **[persona-1, persona-2]** <finding summary>
-    - **[persona-3]** <unique finding>
+    <Grouped by theme, not by persona. ONE line per bullet — area + gist only, ≤20 words. Details live in inline comments.>
+    - **[persona-1, persona-2]** Error handling gap in intent file I/O boundary
+    - **[persona-3]** CLARIFY escalation has no blocking signal for degraded outcome
 
     ### ⚖️ Dissent
 
@@ -168,7 +168,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
 
-    **Body discipline.** The body is a themed summary, not a finding ledger. Each `### Findings` bullet is one line naming the area and gist — no file paths, line numbers, fixes, or rationale (those live in the inline comment). Summary-only findings (no inline) get one sentence + `(summary-only)` tag. Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
+    **Body discipline.** The body is a themed summary, not a finding ledger. Each `### Findings` bullet is **one line, ≤20 words** — area and gist only. No file paths, line numbers, fixes, or rationale (those live in the inline comment). If a bullet needs more than one line, it's too detailed for the body — move the detail to the inline comment. Summary-only findings (no inline) get one sentence + `(summary-only)` tag. Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
 13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 

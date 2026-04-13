@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline
 - **Related:** none
 
 ---
@@ -214,6 +214,32 @@ In skill files, `$ARGUMENTS` is the CLI-substituted value (replaced before the m
 ## `disable-model-invocation: true` for Irreversible Skills
 
 Skills with irreversible side effects (publish, tag, deploy) should set `disable-model-invocation: true` — prevents the model from autonomously invoking them when it determines they'd fulfill the user's intent.
+
+## Template Phase Ordering: Block Conditionals Before File Inclusion
+
+When a template engine supports both block conditionals (`{{#KEY}}...{{/KEY}}`) and file inclusion (`{@file}`), block conditionals must run first. File inclusions inside dead blocks trigger file-not-found warnings if inclusion runs before block stripping — the files don't exist because the skill didn't write them (they're mode-specific).
+
+## Shell Template Auto-Detection: Skip Single-Brace Substitution
+
+Templates that use `{{KEY}}` (double-brace) are shell scripts where `${var}` must not be touched. Auto-detect by checking for `{{[A-Z_][A-Z_0-9]*}}` patterns; when found, skip `{KEY}` single-brace substitution entirely. Without this, `{MODE}` inside `${MODE}` gets replaced, corrupting every shell variable that shares a name with a metadata key.
+
+## Template Examples Are the Primary Compliance Mechanism
+
+Prose rules that follow a template are often ignored when the template itself models the wrong format. Agents pattern-match against the template's structure when composing output — a `<finding summary>` placeholder gets expanded into full sentences even if a body-discipline rule says "one line only." Fix: make the template demonstrate the constraint with concrete examples and explicit caps (e.g., `≤20 words`). The template is the instruction; the prose rule is backup.
+
+## Speculative Metadata Fields Drift in Template Pipelines
+
+**Keywords:** speculative metadata, template pipeline, schema drift, manifest fields
+
+When a template pipeline makes adding fields cheap (write key to metadata.json, reference `{KEY}` in template), schemas accumulate speculative fields — pairs that look distinct on paper but have identical runtime behavior. Before adding a metadata field, verify: does the template branch on this value independently of existing fields? If the runtime check supersedes the assessment-time value (e.g., conflict state checked at runtime regardless of what metadata says), the field belongs in the manifest (director-facing) not the prompt metadata (agent-facing).
+
+## Delegating Prompts Must Not Expose Delegated Inputs
+
+**Keywords:** skill delegation, prompt isolation, delegated inputs, Skill call ordering
+
+Prompts that delegate to a skill (via `Skill()`) should not give the session access to the skill's primary inputs (diff, comments, PR state) before the delegation. If the session can fetch the diff and reason about it, it will — and may decide the skill invocation is unnecessary. The skill's own quick-exit and re-review logic handles trivial cases correctly; the wrapper prompt's job is to reach the Skill call, not to pre-evaluate whether it's needed.
+
+**Design rule:** Make the Skill call the first action after preflight passes. Put optional steps (learnings search, persona activation) after the Skill returns or inside the skill itself.
 
 ## Cross-Refs
 

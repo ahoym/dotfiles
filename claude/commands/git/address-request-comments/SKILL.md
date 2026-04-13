@@ -100,10 +100,7 @@ When `COMMENT_ONLY=true`:
 9. **Post review actions summary on the platform**:
    After processing, post a top-level comment covering only items that need operator attention — escalations, pushbacks, partial agreements, clarifications awaiting response. Implemented suggestions are documented in their inline thread replies and **must not** appear as table rows. The top-level comment is for operator-actionable status, not an audit log of completed work.
 
-   **If zero items need operator attention, post the single-line variant — never a table.** No exceptions, even if the implemented count is high.
-   ```
-   N suggestions implemented — see inline comments.
-   ```
+   **If zero items need operator attention, skip the top-level comment entirely.** Inline thread replies are sufficient — a summary comment that says "everything was implemented" adds no signal. Only post a top-level comment when the table has rows (escalations, partial agreements, pushbacks).
 
    When operator attention is needed:
    ```

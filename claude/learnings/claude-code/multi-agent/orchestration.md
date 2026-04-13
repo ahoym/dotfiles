@@ -204,6 +204,10 @@ If either fails with permission error → write milestone: errored to status.md,
 
 This catches misconfigured `--allowedTools` or missing `settings.json` patterns within seconds, instead of failing mid-implementation after minutes of code exploration. Especially valuable for implementer agents that need Write/Edit/Bash and are launched in worktrees where permission inheritance is less predictable.
 
+## Consolidate Template Variables When the Caller Resolves the Value
+
+When a prompt template needs a branch name, pass one `BASE_BRANCH` variable — not both `DEFAULT_BRANCH` and `BASE_BRANCH` with conditional logic in the template. The caller (skill/orchestrator) already determines the right value; pushing that decision into the agent's template adds complexity with no benefit. The agent just uses `{BASE_BRANCH}` for worktree creation, PR targeting, etc. — it doesn't need to know whether that value is `main` or a dependency's branch.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

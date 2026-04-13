@@ -35,6 +35,10 @@ The artifact contract (prompt.txt, status.md, results.md, live.md) works identic
 
 Directors do orchestration (plan, dispatch, monitor, synthesize) — Sonnet-appropriate. Workers do domain analysis (reading complex code, making judgment calls) — Opus-appropriate. The intuition that "higher tier in hierarchy = bigger model" is backwards; match model to task complexity, not organizational rank. Use `--model` on each `claude -p` invocation.
 
+## Slash-Command Syntax Fails in Headless Sessions
+
+`/skill-name` syntax doesn't resolve in `claude -p` — use `Skill` tool calls instead. Skills designed for both interactive and headless invocation should default to `Skill("skill-name")` and only use slash-command syntax when interactive context is guaranteed. Applies to any skill an orchestrator might invoke.
+
 ## Cross-Refs
 
 No cross-cluster references.

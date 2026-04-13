@@ -44,7 +44,7 @@ For each comment in `PREVIOUS_COMMENTS` (skipping closed threads per the termina
 Route follow-ups: partially-addressed and not-addressed comments are handled by the originating persona's subagent (identified from the comment's persona attribution). If the originating persona is not in `RE_REVIEW_PERSONAS`, the orchestrator handles the follow-up directly.
 
 Build output lists:
-- `REACTIONS`: `{comment_id, emoji}` — rocket for resolved, thumbsup for acknowledged
+- `REACTIONS`: `{comment_id, emoji}` — rocket for resolved, thumbsup for acknowledged. **`comment_id` = the reply that resolved the thread** (fallback to original only when no reply exists).
 - `FOLLOW_UPS`: `{comment_id, body, persona}` — for partially/not addressed
 
 ## Launch Scoped Reviewers
@@ -76,7 +76,7 @@ Carried forward: <carried-forward personas>
 
 ### New Findings
 
-<Merged findings from re-launched personas — same format as first review with signal-strength tags>
+<N> new finding(s) — see inline comments.
 
 ### ⚖️ Dissent (if any)
 
@@ -89,7 +89,7 @@ Carried forward: <carried-forward personas>
 
 Append footnote with `Role: Team-Reviewer`.
 
-**Body discipline.** The body is a delta summary, not a per-finding ledger. Previous findings are counts only — never a table or list of fixes/commits/verifications (those live in the inline thread replies). Allowed sections only: delta summary, reviewer roster, previous-findings counts, New Findings, Dissent, Positive Signals.
+**Body discipline.** The body is a delta summary, not a per-finding ledger. Previous findings are counts only — never a table or list of fixes/commits/verifications (those live in the inline thread replies). New findings are counts only — details live in the inline comments posted with the review. Allowed sections only: delta summary, reviewer roster, previous-findings counts, New Findings (count + "see inline comments"), Dissent, Positive Signals.
 
 ## Post Re-Review Actions
 

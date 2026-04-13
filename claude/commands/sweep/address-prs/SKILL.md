@@ -165,7 +165,7 @@ Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` wit
 }
 ```
 
-The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` reflects the assessment-time `mergeable` state — the session checks again at runtime since the state may change.
+The `resolve_conflicts` and `base` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` in the manifest reflects the assessment-time `mergeable` state — informational only, it does not gate address session launch. The addresser handles runtime conflict detection regardless of this value (director-facing, not passed to the prompt — the session checks at runtime since the state may change).
 
 #### Data files & prompt assembly
 
@@ -183,7 +183,6 @@ Write data files for template assembly, then call `fill-template.sh`:
        "BASE": "<base branch>",
        "MODE": "first-pass or new-comments",
        "RESOLVE_CONFLICTS": "true or false",
-       "HAS_CONFLICTS": "true or false",
        "WORKTREE_PATH": "<absolute path to worktree>",
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",
@@ -208,9 +207,12 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `address` and `{{MODEL}}` → `claude-opus-4-6` (this runner is a leaf — it reads diffs, edits files, runs git, and pushes commits itself). Additionally fill `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks.
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` with `MODE` → `address`, `MODEL` → `claude-opus-4-6` (leaf — reads diffs, edits files, pushes commits), `BRANCHES` → `"true"`, `WORKTREES` → `"true"`, `PROJECT_ROOT` → absolute path. Also write address-mode data files to `<RUN_DIR>/`:
+- `branch-cases.txt` — case body lines (e.g., `80) echo "feat/auth" ;;`)
+- `worktree-cases.txt` — case body lines (e.g., `80) echo "/path/to/wt" ;;`)
+- `new-worktree-prs.txt` — space-separated PR numbers needing new worktrees
 
-The worktree setup loop (`setup_worktrees`) must also include the pre-flight state check from the scaffold, before fetching or creating worktrees. Without it, the script fails on `git fetch` for merged branches before the launch loop's skip ever fires.
+Then assemble via `fill-template.sh`. The worktree setup loop in the template includes the pre-flight state check before fetching — no manual addition needed.
 
 ### Phase 6: Announce, Progress Check, Retro
 
