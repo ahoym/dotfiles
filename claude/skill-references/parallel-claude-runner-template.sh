@@ -20,7 +20,7 @@ MODEL="${MODEL:-{{MODEL}}}"     # claude model — runtime env override supporte
 ENTITY_PREFIX="{{ENTITY_PREFIX}}"     # "pr" or "issue" — controls directory naming
 ENTITY_LABEL="{{ENTITY_LABEL}}"       # "PR" or "Issue" — controls log labels
 STATE_FIELD="{{STATE_FIELD}}"         # "pr_state" or "issue_state" — status.md field name
-STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" or "gh issue view" — word-split intentionally; must be "<tool> <subcommand>" only, no embedded flags
+STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" / "glab mr view" or "gh issue view" / "glab issue view" — word-split intentionally; must be "<tool> <subcommand>" only, no embedded flags
 TERMINAL_STATES="{{TERMINAL_STATES}}" # space-separated single-word state tokens (word-boundary matched by is_terminal_state)
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
@@ -150,7 +150,7 @@ is_terminal_state() {
     esac
 }
 
-# --- Per-PR function ---
+# --- Per-item function ---
 process_item() {
     local item_num=$1
     local item_dir="${RUN_DIR}/${ENTITY_PREFIX}-${item_num}"
@@ -182,7 +182,12 @@ process_item() {
     # Pre-flight: skip terminal entities (API fallback for first run or missing status.md)
     local state
     state=$($STATE_CHECK_CMD "$item_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
-    if is_terminal_state "$state" || [ "$state" = "UNKNOWN" ]; then
+    if [ "$state" = "UNKNOWN" ]; then
+        printf '# %s #%s\nmilestone: api-error\nreason: state-check-failed\n%s: UNKNOWN\n' "$ENTITY_LABEL" "$item_num" "$STATE_FIELD" > "$status_file"
+        echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED (api-error)"
+        return
+    fi
+    if is_terminal_state "$state"; then
         printf '# %s #%s\nmilestone: skipped\nreason: %s\n%s: %s\n' "$ENTITY_LABEL" "$item_num" "$state" "$STATE_FIELD" "$state" > "$status_file"
         echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED ($state)"
         return
