@@ -9,6 +9,7 @@
 # For complex mutations, write query to .graphql file and use uppercase -F:
 #   glab api graphql -F query=@tmp/claude-artifacts/change-request-replies/gql-1.graphql
 # Lowercase -f query=@file does NOT read the file — passes literal "@file" string.
+# Alternatively, inline the mutation directly (lowercase -f with literal string):
 glab api graphql -f query='mutation {
   createDiffNote(input: {
     noteableId: "gid://gitlab/MergeRequest/<mr_id>",
