@@ -49,7 +49,7 @@ Read the comment thread. Identify the clarifier's questions, operator's answers,
 
 ## Step 11: Draft and Post Confirmation
 
-Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan; (3) open questions only if genuine; (4) explicit ask for confirmation.
+Post a comment with: (1) your understanding of each answer in your own words (not parroting), flagging tensions or implications; (2) a concrete implementation plan — state the delivery structure before listing phases: "Single PR containing:" or "Separate PRs (N total):" with one-line scope per PR; when declaring Separate PRs, propose concrete sub-issues with titles, scopes, and dependency order; (3) open questions only if genuine; (4) explicit ask for confirmation.
 
 Write the comment body to `{ISSUE_DIR}/comment-body.md` using the Write tool, then post:
 ```bash
@@ -70,6 +70,10 @@ Comment format:
 
 ...
 
+**Delivery structure**: Single PR containing: [scope] OR Separate PRs (N total): [one line per PR scope]
+
+> When declaring Separate PRs: propose concrete sub-issues below (title, scope, dependency order).
+
 ### Proposed implementation
 
 **Phase 1: [name]**
@@ -80,7 +84,9 @@ Comment format:
 - [ ] ...
 
 ### Verification
-- [How you'll verify each phase works]
+<!-- For Single PR: one verification block for the issue -->
+<!-- For Separate PRs: one verification entry per sub-issue -->
+- [How you'll verify each change works]
 
 ### Open questions (if any)
 - [Genuine concerns only]
