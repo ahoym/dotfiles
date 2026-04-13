@@ -92,7 +92,7 @@ Parse `$ARGUMENTS` to extract:
 
 ### Phase 2: Issue Fetch
 
-1. Fetch work items (platform commands are inlined via `!` preprocessing):
+1. Fetch work items (GitHub-specific commands):
    - Specific numbers: `gh issue view <N> --json number,title,body,labels,assignees,comments,url,updatedAt`
    - Label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
    - No filters: `gh issue list --state open --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
