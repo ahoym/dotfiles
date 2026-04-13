@@ -50,6 +50,10 @@ PLATFORM_LINK="$TARGET_DIR/platform-commands"
 
 if [ -f "$PLATFORM_FILE" ]; then
   PLATFORM=$(cat "$PLATFORM_FILE")
+  case "$PLATFORM" in
+    github|gitlab) ;;
+    *) echo "  error: invalid cached platform '$PLATFORM'; delete .platform and re-run"; exit 1 ;;
+  esac
   echo "  platform: $PLATFORM (cached in .platform)"
 else
   printf "  Which platform does this machine use? [github/gitlab]: "
@@ -72,7 +76,7 @@ else
   else
     if [ -e "$PLATFORM_LINK" ] || [ -L "$PLATFORM_LINK" ]; then
       backup="$PLATFORM_LINK.backup.$(date +%s)"
-      echo "  backup platform-commands -> $(basename $backup)"
+      echo "  backup platform-commands -> $(basename "$backup")"
       mv "$PLATFORM_LINK" "$backup"
     fi
     ln -s "$PLATFORM_SRC" "$PLATFORM_LINK"
