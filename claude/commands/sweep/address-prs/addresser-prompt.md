@@ -39,13 +39,17 @@ git branch --show-current
 
 **Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
 
-Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`). If CONFLICTING, resolve:
-1. Update `{PR_DIR}/status.md` milestone to `resolving-conflicts`
-2. Use the Skill tool: `skill="git:resolve-conflicts"`, `args="{BASE}"`
+Check whether the PR has merge conflicts with the base branch (run `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`):
+- **MERGEABLE** → no conflicts, proceed to the next step
+- **UNKNOWN** → wait 5 seconds and retry once. If still UNKNOWN, treat as CONFLICTING (conservative — avoids proceeding with live conflicts)
+- **CONFLICTING** → resolve:
+  1. Use the Skill tool: `skill="git:resolve-conflicts"`, `args="{BASE}"`
+  2. If the Skill succeeds, update `{PR_DIR}/status.md` milestone to `conflicts-resolved`
+  3. If the Skill fails (permission denied, error), update `{PR_DIR}/status.md` milestone to `conflicts-resolution-failed` and exit immediately
 
-If no conflicts exist at runtime, proceed to the next step.
+**Permission required:** `Skill(git:resolve-conflicts *)` in `permissions.allow`. For `claude -p` sessions launched with `--allowedTools`, the pattern must also appear in the `--allowedTools` list.
 
-If `{RESOLVE_CONFLICTS}` is `false`, skip this step entirely.
+If `{RESOLVE_CONFLICTS}` is `false`, run a lightweight conflict check: `gh pr view {PR_NUMBER} --json mergeable --jq .mergeable`. If CONFLICTING, update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message — do not proceed to address comments, as push will fail. If MERGEABLE or UNKNOWN, proceed.
 
 ## Step 7: Search Learnings
 

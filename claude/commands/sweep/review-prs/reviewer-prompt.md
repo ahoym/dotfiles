@@ -31,9 +31,11 @@ You MUST use the Skill tool: `skill="git:team-review-request"`, `args="{PR_NUMBE
 
 Do NOT review manually — even if you can see the diff is trivial, unchanged, or a rebase-only. The skill handles re-review detection, emoji reactions on resolved comments, the re-review body template, and persona routing. Skipping the skill produces malformed reviews (issue comments instead of proper reviews, no reactions on resolved findings).
 
-Do NOT fetch the diff, analyze changes, or make any review judgment before this step. The skill does all of that internally.
+Do NOT fetch the diff, analyze changes, or make any review judgment before this step. The skill does all of that internally. Do NOT use PR title, comment content, or review summaries from preflight data to reason about whether a review is needed — the skill handles its own quick-exit logic.
 
 Update `{PR_DIR}/status.md` milestone: `reviewing` → `posted`.
+
+**Post-Skill learnings note:** If the skill's output references domain concepts relevant to the write-artifacts phase (Step 6-7), load the relevant learnings cluster before writing `learnings.md`. The skill handles learnings for its own review work, but the wrapper retains responsibility for artifact-writing context.
 
 ## Step 6: Write Artifacts
 

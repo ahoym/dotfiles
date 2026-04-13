@@ -165,7 +165,7 @@ Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` wit
 }
 ```
 
-The `resolve_conflicts` and `base` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` in the manifest reflects the assessment-time `mergeable` state (director-facing, not passed to the prompt — the session checks at runtime since the state may change).
+The `resolve_conflicts` and `base` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` in the manifest reflects the assessment-time `mergeable` state — informational only, it does not gate address session launch. The addresser handles runtime conflict detection regardless of this value (director-facing, not passed to the prompt — the session checks at runtime since the state may change).
 
 #### Data files & prompt assembly
 
