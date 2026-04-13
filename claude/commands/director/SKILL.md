@@ -33,6 +33,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - **Mode**: `review`, `address`, `review+address`, or empty (ask operator)
    - **Passthrough flags**: `--prs=...` forwarded to subordinate skills
    - **Offset**: `--offset=N` minutes between review/address launches (default 3)
+   - **Convergence**: if the operator requests "run to convergence" or "converge", read `convergence-loop.md` from this skill's directory and enter convergence loop mode after Phase 3 launch
 2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces manifest.json + item directories + a runner script — not just sweep skills.
 3. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
 4. **Prerequisites** (warn, don't block):
@@ -75,6 +76,10 @@ To check status: take the last entry for an item, read `<run_dir>/<item-dir>/sta
 
 **Compound mode**: assess review first, launch review runner in the background immediately, then assess address while review is already running. This parallelizes address assessment with review execution, reducing total wall-clock time.
 
+**Artifact generation batching:** Sweep skills generate artifacts internally. When the director writes supporting files (session.json updates, directives, preflight copies), batch independent writes in parallel.
+
+**Always invoke sweep skills for assessment — never generate artifacts directly.** The director's role is to orchestrate, not to replicate assessment logic. Sweep skills handle platform detection, skip filtering, persona discovery, and the full metadata schema. Direct artifact generation bypasses these and makes sessions harder to debug and predict.
+
 ## Phase 3: Launch
 
 1. For each run in session manifest, launch its runner script via `Bash(run_in_background: true)`:
@@ -91,13 +96,29 @@ To check status: take the last entry for an item, read `<run_dir>/<item-dir>/sta
 
 ## Phase 4: Monitor + React
 
+**Decision matrix applies to every action in this phase.** Read `~/.claude/skill-references/director-decision-matrix.md` and classify before acting: routine → auto-decide and report. Dissent/cost-time → decide and log to `decisions.md`. Irreversible/security/scope-expansion → escalate.
+
 The director is event-driven, not polling. It reads state on-demand: when a background task completes, when the operator asks, or when evaluating convergence.
 
 **Triggers:**
 
-1. **Background task completes** (runner finishes). Read all `<run_dir>/*/state.md` and `<run_dir>/*/status.md`. Build the unified monitoring table per the playbook's Monitoring Table Format. Check for escalations:
-   - `state: errored` + `escalation: needs-director` -- read `live.md` tail for diagnostics, investigate root cause, write directive for next launch or escalate to operator.
-   - `state: rate-limited` -- check `.rate-limited` sentinel, advise operator on retry timing.
+1. **Background task completes** (runner finishes). Read all `<run_dir>/*/state.md` and `<run_dir>/*/status.md`. Build the unified monitoring table per the playbook's Monitoring Table Format. Then execute this checklist — every item, every time:
+
+   **a. Escalations:**
+   - `state: errored` + `escalation: needs-director` → read `live.md` tail for diagnostics, investigate root cause, write directive for next launch or escalate to operator.
+   - `state: rate-limited` → check `.rate-limited` sentinel, advise operator on retry timing.
+
+   **b. Conflicts (decision matrix: routine — auto-decide):**
+   - Any PR shows `mergeable: CONFLICTING` in `status.md` → write directive to `<run_dir>/pr-<N>/directives.md` instructing the addresser to resolve conflicts. If no address run exists yet, generate one with `RESOLVE_CONFLICTS: "true"`. Do not ask the operator. Do not do the rebase yourself. Log to `decisions.md` and surface the action taken.
+
+   **c. Convergence:** evaluate per the Convergence Rules below.
+
+   **d. Decision gate (before surfacing anything to operator):**
+   - Load `~/.claude/skill-references/director-decision-matrix.md` if not loaded this phase
+   - For each action about to take: classify its tier (routine / decide-with-report / escalate)
+   - If routine → execute, log action taken, surface result
+   - If escalate → present with recommendation
+   - **NEVER present a routine decision as a question.** "Should I resolve the conflicts?" when the matrix says "routine — auto-decide" is a failure. Execute and report: "Resolved conflicts on #87 via addresser directive."
 
 2. **Operator asks for status.** Read all `state.md` + `status.md`, present the monitoring table.
 
@@ -121,7 +142,7 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 Note: process lifecycle (inactivity detection, kill, retry) is owned by the runner, not the director.
 
-**Decision Framework**: follow the playbook's Decision Framework section (`~/.claude/skill-references/director-playbook.md`) for every judgment call. The escalation default has shifted — the director decides autonomously for routine/in-scope/taste-based calls, logs rationale to `<session_dir>/decisions.md` for dissent / cost-time / out-of-scope categories, and escalates to the operator only for irreversible, security, scope-expansion, intent-conflict, or external-surface actions. Out-of-scope review findings become GitHub issues (filed in the CWD repo), not operator pings. When escalating, still present what you see, what you think it means, and what you'd recommend.
+Out-of-scope review findings become GitHub issues (filed in the CWD repo), not operator pings. When escalating, still present what you see, what you think it means, and what you'd recommend.
 
 ## Phase 5: Convergence + Wrap-up
 

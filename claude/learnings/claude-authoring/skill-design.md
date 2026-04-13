@@ -225,7 +225,7 @@ Templates that use `{{KEY}}` (double-brace) are shell scripts where `${var}` mus
 
 ## Template Examples Are the Primary Compliance Mechanism
 
-Prose rules that follow a template are often ignored when the template itself models the wrong format. Agents pattern-match against the template's structure when composing output — a `<finding summary>` placeholder gets expanded into full sentences even if a body-discipline rule says "one line only." Fix: make the template demonstrate the constraint with concrete examples and explicit caps (e.g., `≤20 words`). The template is the instruction; the prose rule is backup.
+Prose rules that follow a template are often ignored when the template itself models the wrong format. Agents pattern-match against the template's structure when composing output — a `<finding summary>` placeholder gets expanded into full sentences even if a body-discipline rule says "one line only." Concrete case: a `### Findings` section with example bullets like `- Error handling gap in X` taught agents to list each finding individually, despite prose saying "group by theme." The fix was replacing the examples with `N finding(s) — see inline comments.` — a format that can't be expanded into a per-finding list. The template is the instruction; the prose rule is backup.
 
 ## Speculative Metadata Fields Drift in Template Pipelines
 

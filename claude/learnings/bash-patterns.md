@@ -251,6 +251,10 @@ grep -oE '`[a-zA-Z0-9_/-]+\.md`|^\| [a-zA-Z0-9_/-]+\.md ' "$file" | sed 's/`//g;
 
 When posting GitLab GraphQL mutations (e.g., `createDiffNote` for inline review comments), the body must be JSON-escaped and embedded in the query string. Using `BODY=$(jq -Rs . < file)` triggers permission prompts due to `$()`. Write a shell script file instead: the script internally uses `$()` without triggering Claude Code's permission system (which only scans inline Bash tool commands, not executed scripts). Pattern: Write tool → script file with `jq` + `glab api graphql` calls → Bash tool executes script. This also enables parallelizing multiple API calls with `&` + `wait`.
 
+## Re-Validate Cached Values After Reading
+
+Scripts that cache user input to disk and re-read it on subsequent runs create a second trust entry point. The pattern "validate on input, trust the cache" is fragile — a corrupted or manually-edited cache file bypasses all validation. Re-run the same validation (e.g., `case "$PLATFORM" in github|gitlab)`) after the cache read, not just on the interactive input path.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)
