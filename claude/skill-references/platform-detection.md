@@ -4,7 +4,7 @@ description: "DEPRECATED — Platform is now resolved at setup time via setup-cl
 
 # Platform Detection (Deprecated)
 
-> **Note:** Skills no longer read this file. Platform commands are inlined via `!` preprocessing from `~/.claude/platform-commands/` (a symlink to the correct platform's `commands/` directory, created by `setup-claude.sh`). This file is retained only as a fallback for `claude -p` subagent sessions that may not have the symlink.
+> **Note:** Skills are being migrated away from this file. Platform commands are inlined via `!` preprocessing from `~/.claude/platform-commands/` (a symlink to the correct platform's `commands/` directory, created by `setup-claude.sh`). This file is retained only as a fallback for `claude -p` subagent sessions that may not have the symlink.
 
 Before executing any platform-specific commands, detect whether the repository uses GitHub or GitLab.
 
