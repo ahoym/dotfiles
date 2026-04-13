@@ -30,7 +30,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-**Role:** Addresser. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution). This skill uses `YOUR_ROLE=Addresser` and `OTHER_ROLE=Reviewer` throughout.
+**Role:** Addresser. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform commands, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution). This skill uses `YOUR_ROLE=Addresser` and `OTHER_ROLE=Reviewer` throughout.
 
 ### Mode Detection
 
@@ -56,7 +56,7 @@ When `COMMENT_ONLY=true`:
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
 
-3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files. **Skip if `COMMENT_ONLY`.**
+3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform command scripts. **Skip if `COMMENT_ONLY`.**
 
 4. **Load relevant learnings**: Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob each provider's `localPath/` and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
@@ -82,11 +82,11 @@ When `COMMENT_ONLY=true`:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
-   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform cluster files. No text reply needed.
+   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform command scripts. No text reply needed.
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
-   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
+   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform command scripts. Use **Reply File Naming** convention from the base reference.
 
 8. **Act on suggestions based on agreement** — **Skip if `COMMENT_ONLY`.**
 
@@ -125,7 +125,7 @@ When `COMMENT_ONLY=true`:
    | 2 | auth.py:48 | Restructure auth flow | Commented (disagree) — pushed back |
    ```
 
-   Follow **Post Top-Level Comment** in the platform cluster files.
+   Follow **Post Top-Level Comment** in the platform command scripts.
 
 10. **Implement changes** — **Skip if `COMMENT_ONLY`.**
     a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
@@ -152,7 +152,7 @@ When `COMMENT_ONLY=true`:
 
     **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
-    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
+    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically
