@@ -38,7 +38,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `persona-routing.md` — Read at step 5 for persona selection and step 10 for merge algorithm
 - `reviewer-prompt-template.md` — Read at step 8, injected into subagent prompts
 - `single-reviewer-mode.md` — Read only when N=1 (step 5 selects one persona)
