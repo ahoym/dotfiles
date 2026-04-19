@@ -103,6 +103,8 @@ The director does not poll `live.md` as a primary monitoring channel. It reads `
 
 ## Monitoring Table Format
 
+Use `bash ~/.claude/skill-references/sweep-status-summary.sh <run-dir>` to read status.md + state.md across all item dirs. Use `bash ~/.claude/skill-references/sweep-results.sh <run-dir>` to read results.md + learnings.md. These handle both `pr-*/` and `issue-*/` layouts and avoid permission-prompting `for pr in ...; do cat ...` loops.
+
 Read all `pr-*/state.md` (runner lifecycle) and `pr-*/status.md` (session domain state) and present:
 
 | PR | State | Mergeable | Milestone | Runner State | Attempt | Directives |

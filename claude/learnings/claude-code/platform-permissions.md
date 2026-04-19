@@ -179,7 +179,14 @@ Sweep and director skills sometimes rename directories within `tmp/claude-artifa
 
 ## Bash Loops and Pipes Trigger Permission Prompts
 
-`for` loops, `cat` in Bash, and piped commands don't match single-command permission patterns like `Bash(gh pr view:*)`. Use individual parallel tool calls (each matches the pattern independently) or write a script to `tmp/` and run via `bash tmp/...` which matches `Bash(bash tmp/claude-artifacts/**)`.
+`for` loops, `cat` in Bash, and piped commands don't match single-command permission patterns like `Bash(gh pr view:*)`. Use individual parallel tool calls (each matches the pattern independently) or wrap in a script under an auto-allowed path:
+
+| Path | Auto-allowed pattern | Use for |
+|------|---------------------|---------|
+| `tmp/claude-artifacts/<name>.sh` | `Bash(bash tmp/claude-artifacts/**)` | One-off session scripts (cleaned up later) |
+| `~/.claude/skill-references/<name>.sh` | `Bash(bash ~/.claude/skill-references/**)` | Reusable scripts across sessions/projects |
+
+Skill-references scripts compound — invest one session writing them, every future session benefits. Examples: `permission-analyzer.sh`, `sweep-status-summary.sh`, `gh-issues-fetch-state.sh`, `work-items-generate-runner.sh`.
 
 ## Root-Level Files Inaccessible to `claude -p` Sessions
 
