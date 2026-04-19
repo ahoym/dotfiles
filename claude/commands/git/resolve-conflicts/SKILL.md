@@ -25,7 +25,12 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
 0. **Platform commands** — platform-specific commands are inlined below via `!` preprocessing. No detection needed.
 
-0.5. **Detect in-progress rebase/merge**: check `.git/rebase-merge/`, `.git/rebase-apply/`, `.git/MERGE_HEAD`. If any exist, the operation is already underway — skip steps 1-6 (args, branch detection, fetch, preview, strategy, start) and jump to step 7 to resolve the existing conflicts, then continue with step 8+. For in-progress interactive rebase with redundant upcoming commits (e.g., branch's incremental fixes already squash-merged into base — diagnose via same-title base commit with larger tree), edit `.git/rebase-merge/git-rebase-todo` to drop redundant `pick` lines before `git rebase --skip`.
+0.5. **Detect in-flight conflict state**: run `git status --porcelain` first. If any path shows `UU`, `AA`, `DU`, `UD`, `DD`, `AU`, or `UA`, you're mid-resolution — conflicts already exist from a prior `git merge`, `git rebase`, `git stash pop`, or `git cherry-pick`. In that case:
+   - **Skip steps 1–6.** Don't re-run merge/rebase orchestration. The conflict markers are already in place.
+   - Jump to step 7 with `IN_FLIGHT=true`. Finalize with the mode's native continuation: merge → `git commit`, rebase → `git rebase --continue`, stash-pop → `git stash drop` after staging (no commit needed on the in-flight op itself), cherry-pick → `git cherry-pick --continue`.
+   - For in-progress interactive rebase with redundant upcoming commits (e.g., branch's incremental fixes already squash-merged into base — diagnose via same-title base commit with larger tree), edit `.git/rebase-merge/git-rebase-todo` to drop redundant `pick` lines before `git rebase --skip`.
+
+   **Worktree CWD check**: if the target branch is checked out in another worktree, `git checkout <branch>` will fail with "already used by worktree at <path>". Run `git worktree list` and `cd` into the worktree's path before proceeding. All subsequent git commands operate on that worktree's state.
 
 1. **Parse arguments**:
    - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true`
@@ -145,11 +150,13 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
    **Resolution flow:**
    - **All conflicts in the current commit/merge are additive** → propose a single batch combine-both resolution listing each conflict as a row in a table. Single approval covers all of them. Do NOT prompt per-conflict.
-   - **Mixed or any contested** → present the table, mark additive rows as auto-combine, and ask the operator per contested row only:
-     - Keep ours (current branch in merge / base branch in rebase)
-     - Keep theirs (base branch in merge / your commit in rebase)
-     - Combine both
-     - Custom resolution
+   - **Mixed or any contested** → present the table, mark additive rows as auto-combine, and ask the operator per contested row only. "Combine both" is not a single strategy — pick the sub-strategy that matches the content:
+     - **Keep ours** (current branch in merge / base branch in rebase)
+     - **Keep theirs** (base branch in merge / your commit in rebase)
+     - **Additive union**: both sides added disjoint content (e.g., different new sections in a docs file). Concatenate both, preserve heading level conventions, de-dup any accidentally-overlapping content.
+     - **Subsumption drop**: one side is strictly weaker — narrower permission pattern, subset of the other's coverage, older naming since renamed. Drop the weaker side, keep the stronger.
+     - **Rename-aware rewrite**: one side renamed symbols/variables outside the conflict region (e.g., `pr_num → item_num`). Apply the other side's *intent* against the new names, not verbatim. Cross-check any references the stash/commit introduced.
+     - **Custom resolution**
    - **Bare rename replay** (e.g., main added `foo` + siblings; your branch has a later commit renaming `foo` → `bar`) resolves as: keep all main's additions, apply the rename to the one symbol, drop the conflict frame. Propose as a single action.
 
    Apply the resolution and stage each file:
@@ -157,7 +164,19 @@ Flags can be combined: `/resolve-conflicts --merge main`
    git add <resolved-file>
    ```
 
-8. **Complete the operation**:
+8. **Scan for symbol drift outside conflict regions** (code files only):
+
+   When one side renames symbols (variables, functions, keys) outside the conflict boundaries, git auto-merges content from the *unchanged* side that still references old names. Conflict markers don't flag this — the merged file parses but uses inconsistent names.
+
+   After staging each code file, check for renames in the commits touching it:
+   ```bash
+   git log --oneline -p origin/<base-branch>..HEAD -- <file> | grep -E '^[-+].*\b\w+\s*=' | head -20
+   ```
+   If renames exist, grep the resolved file for the old names and rewrite stragglers before finalizing. Prose-heavy files (docs, learnings) rarely need this check.
+
+9. **Complete the operation**:
+
+   **If IN_FLIGHT=true (from pre-flight):** finalize with the mode's native continuation — `git commit` for merge, `git rebase --continue` for rebase, `git stash drop` for stash-pop (no commit of the pop itself), `git cherry-pick --continue` for cherry-pick. Skip steps 11-12.
 
    **If STRATEGY=merge:**
    ```bash
@@ -168,9 +187,9 @@ Flags can be combined: `/resolve-conflicts --merge main`
    ```bash
    git rebase --continue
    ```
-   Repeat steps 7-8 for each commit with conflicts until rebase completes.
+   Repeat steps 7-9 for each commit with conflicts until rebase completes.
 
-9. **Restore stashed changes** (if `STASHED=true`):
+10. **Restore stashed changes** (if `STASHED=true`):
    ```bash
    git stash pop
    ```
@@ -201,7 +220,6 @@ Flags can be combined: `/resolve-conflicts --merge main`
     - Leave unstaged and let the operator handle it
 
     Do NOT silently amend or commit — the decision depends on project convention (squash-merge vs linear history) and the operator's preference.
-
 11. **Push to update the PR**:
 
     **If STRATEGY=merge:**
@@ -289,6 +307,8 @@ Rebase complete. Force push to update PR? → Pushed. PR #8 is now mergeable.
 
 - **Default is auto-selection** — prefers rebase for clean history, falls back to merge when it's cheaper (merge commits on branch, or rebase would re-conflict the same files across multiple commits)
 - **Use `--rebase` or `--merge`** to skip auto-selection and force a strategy
-- Always fetch the latest base branch before starting
-- Abort if needed: `git merge --abort` or `git rebase --abort`
+- **In-flight conflicts are auto-detected** — if `git status` already shows unmerged paths (from stash pop, interrupted merge/rebase, cherry-pick), the skill jumps to resolution and uses the right native continuation
+- **Worktrees**: if the target branch is checked out in another worktree, `cd` into its path first — `git checkout <branch>` fails while another worktree holds it
+- Always fetch the latest base branch before starting (skipped in in-flight mode)
+- Abort if needed: `git merge --abort` · `git rebase --abort` · `git stash pop` keeps stash, so `git checkout .` + leave stash · `git cherry-pick --abort`
 - Rebase rewrites history — requires `--force-with-lease` push
