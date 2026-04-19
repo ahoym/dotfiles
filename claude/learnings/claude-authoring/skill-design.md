@@ -313,6 +313,12 @@ When a skill has downstream consumers — synthesis phases that grep for section
 
 **Rule:** before restructuring a skill's output format, grep the skill (and any subskills under the same directory) for the section names. Preserve referenced headings; reorganize only the bodies. If a heading rename is genuinely needed, update the consumer in the same edit.
 
+## SKILL Spec / Runtime Drift Is a Bug
+
+When a SKILL says "do NOT read X" + lists adaptations X needs (e.g., directory naming, mode-specific cases), the adaptations either belong **in X** (so the spec doesn't lie) OR the SKILL needs an explicit step that runs them (post-template patch, dedicated alternate template).
+
+**Design rule:** "Do NOT read X" next to "but X doesn't do Y/Z" is drift. Resolve by making X do Y/Z, or by removing the "Do NOT" so agents can read and adapt.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
