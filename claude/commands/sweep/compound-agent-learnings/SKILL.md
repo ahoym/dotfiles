@@ -15,6 +15,16 @@ Per-item `learnings.md` files in `tmp/claude-artifacts/sweep-*/` contain agent o
 - Director Phase 5 wrap-up, after all sessions reach terminal state
 - Manually, to retroactively extract from prior run dirs
 
+## Prerequisites
+
+For prompt-free execution, ensure these allow patterns in `~/.claude/settings.json`:
+
+```json
+"Read(tmp/claude-artifacts/**)",
+"Edit(~/.claude/learnings/**)",
+"Write(~/.claude/learnings/**)"
+```
+
 ## Steps
 
 1. **Find files.** Glob `<RUN_DIR>/{issue,pr}-*/learnings.md`. None → exit "No agent learnings found."
