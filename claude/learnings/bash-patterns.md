@@ -405,6 +405,23 @@ wt=$(setup)
 
 For one-off JSON validation, data munging, or arithmetic, reach for `jq`, `node -e`, or shell builtins/coreutils before `python3 -c '...'`. Python invocations require their own permission patterns and add friction; lightweight alternatives are domain-appropriate and usually already allowlisted. Pick the tool by domain: `jq` for JSON, `node -e` / `bun` for JS, `awk`/`grep`/`sed` for text. Only reach for Python when no lightweight alternative fits.
 
+## `xargs -I {} bash -c` Subshell Scoping
+
+Exported bash arrays don't propagate into `xargs -I {} bash -c '...'` subshells; only scalar exports survive. Pass list membership via an exported space-joined string + `case`:
+
+```bash
+export FOO_STR="${FOO[*]}"
+is_member() {
+    case " ${FOO_STR:-} " in
+        *" $1 "*) return 0 ;;
+        *)        return 1 ;;
+    esac
+}
+export -f is_member
+```
+
+`export FOO` for arrays does nothing in the child; `declare -p FOO` in the subshell shows nothing.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

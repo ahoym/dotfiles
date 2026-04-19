@@ -165,6 +165,10 @@ Before flagging a path reference as stale due to a sibling rename, verify whethe
 
 **Reviewer test:** find the config (`*.json`, `*.toml`, `*.yaml`) that names the path. If it still references the old name, the references are correct — don't post the finding.
 
+### GitHub review comments don't track stale-against-fixed-code state
+
+The GitHub review API doesn't mark inline comments as stale when the underlying code was fixed in a subsequent commit. A comment posted against line X of commit A will appear as "active" even if commit B fixed the issue. Addressers must read current file state (+ git log for the touched lines) before implementing — otherwise they'll redo or conflict with prior fixes. Cross-reference the comment's commit SHA with `git log --oneline <path>` to see if fixes landed after.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — PR/MR scoping and workflow patterns (complementary: workflow vs review)

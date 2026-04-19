@@ -374,6 +374,21 @@ Decision rule: if the swap commit leaves `pytest` red until the data migration c
 
 The cutover commit may be hundreds of files by count (data add/delete churn). That's fine — what matters is logical coherence, not line count. Bisect granularity through a cutover is just "before/after the cutover" anyway.
 
+## `@patch` Decorators Break When Code Moves
+
+When extracting a function into a new module, every test `@patch("old_module.symbol")` referencing imports-at-the-old-location breaks silently — the patch targets a name that no longer exists in the new caller's namespace. Mock at the new import location: if `sleep` moved from `logic.plz.operations` into `logic.libs.execution`, patches must become `@patch("logic.libs.execution.sleep")`.
+
+Audit step after any extraction: `grep -r "@patch.*old_module" tests/` and rewrite each. Tests that still pass after the move are passing for the wrong reason — they're patching a no-op.
+
+## Closure State Dicts for Callback-Driven Helpers
+
+When extracting a callback loop (e.g., `retry_until_filled(place_fn, update_fn, ...)`), two patterns keep the signature small:
+
+1. **`place_fn` returns `Optional[tuple[...]]`** — `None` signals exit-early, tuple carries forward state. One signature covers normal, dry-run, and "nothing to do" paths without an extra `check_fn` parameter.
+2. **Closure state dicts** — when `update_fn` needs values `place_fn` computed (price, ticker, qty), use a mutable dict captured in closure scope. Avoids a separate context object or expanding the helper's signature.
+
+Both push state-passing into the caller's closures, keeping the helper itself stateless.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
