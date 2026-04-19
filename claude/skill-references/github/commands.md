@@ -1,17 +1,23 @@
 ---
-description: "Index — GitHub command clusters. Skills should reference specific cluster files, not this index."
+description: "Index — GitHub command clusters and atomic scripts. Skills use !cat platform-commands/<cmd>.sh for atomic commands."
 ---
 
 # GitHub Commands (Index)
 
-Commands are split into clusters so skills load only what they need:
+## Atomic Command Scripts (`commands/*.sh`)
 
-| Cluster | File | Contents |
-|---------|------|----------|
-| **Fetch review data** | `fetch-review-data.md` | Fetch Review Details, Diff, Files Changed, Commits |
-| **Comment interaction** | `comment-interaction.md` | Fetch/Reply/Edit/React to comments (inline, review, top-level) |
-| **PR management** | `pr-management.md` | Create/Update PR, Post Review, Checkout, Check Existing, Find Approvers |
-| **Batch operations** | `batch-operations.md` | Fetch Review Metadata, Verify Access, Count Total (for extract-request-learnings) |
-| **Issue operations** | `issue-operations.md` | List Issues, Fetch Details, Post Comments, Check Linked PRs, Detect Sweeper Comments |
+Skills inline these via `!cat ~/.claude/platform-commands/<cmd>.sh`. See `commands/` subdirectory for all scripts.
 
-Skills reference clusters by name in their Reference Files section. After platform detection, read from `~/.claude/skill-references/{github,gitlab}/`.
+## Cluster Reference Files (Deprecated)
+
+Legacy cluster files — retained for accumulated platform knowledge, not loaded by skills:
+
+| Cluster | File | Status |
+|---------|------|--------|
+| **Comment interaction** | `comment-interaction.md` | Retained — jq escaping gotchas, -F vs -f, permission prompt workarounds |
+
+Deleted clusters (content migrated to learnings):
+- `pr-management.md` → `~/.claude/learnings/git-github-api.md`
+- `issue-operations.md` → `~/.claude/learnings/git-github-api.md`
+- `batch-operations.md` → `~/.claude/learnings/git-github-api.md`
+- `fetch-review-data.md` → deleted (content redundant with request-interaction-base.md)

@@ -12,13 +12,17 @@ description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained
 
 Write the MR body to `tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.
 
-**Use absolute paths with `$(cat)`** — `$(cat)` resolves relative to the shell's CWD, which may differ from the project root.
+**Use API with `-F description=@<file>`** — avoids `$(cat)` permission prompts. Use absolute paths since the shell's CWD may differ from the project root.
 
 ```bash
 # Write body via Write tool to tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md, then:
-glab mr create --target-branch <base-branch> --title "<title>" --description "$(cat <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
-# Or update existing:
-glab mr update <number> --description "$(cat <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md)"
+# Create:
+glab api projects/:id/merge_requests -X POST \
+  -f source_branch=<BRANCH_NAME> -f target_branch=<base-branch> -f title="<title>" \
+  -F description=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md
+# Update existing:
+glab api projects/:id/merge_requests/<IID> -X PUT \
+  -F description=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md
 ```
 
 ## Post Review with Inline Comments
