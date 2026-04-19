@@ -56,7 +56,10 @@
       "Bash(rm -rf docs/learnings/_staging*)",
       "Bash(mv tmp/claude-artifacts/**)",
       "Bash(mv ~/**/tmp/claude-artifacts/**)",
-      "Bash(rm tmp/claude-artifacts:*)",
+      "Bash(rm tmp/claude-artifacts/**)",
+      "Bash(rm ~/**/tmp/claude-artifacts/**)",
+      "Bash(rmdir tmp/claude-artifacts/**)",
+      "Bash(rmdir ~/**/tmp/claude-artifacts/**)",
 
       "Read(claude/**)",
       "Read(tmp/claude-artifacts/**)",
