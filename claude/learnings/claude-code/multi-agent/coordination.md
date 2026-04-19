@@ -180,7 +180,18 @@ cat prompt | (cd "$wt" && mise exec -- claude -p ...) # yarn works
 
 Only wrap with `mise exec` when `mise.toml` exists in the worktree — repos without mise don't need it.
 
+## Worktree-List TOCTOU Between Assessment and Launch
+
+`git worktree list` captured at assessment time may not match launch time — worktrees can be created or removed externally between phases. Sweep manifests that record `worktree_reused` + absolute paths at assessment can point at nonexistent directories by the time the runner executes. Symptom: runner's `git worktree add` fails with "already used by worktree at <other-path>" because a worktree was created elsewhere between assessment and launch.
+
+Mitigations:
+- Re-check `git worktree list` in the runner's `setup_worktrees` before creating new ones
+- Fall back to reusing any existing worktree for the target branch (search all paths, not just the expected one)
+- Make the assessment-time `worktree` path a hint, not a contract — runner treats it as "try this, else discover"
+
+Related to TOCTOU in orchestration pre-filters (director/failure-modes.md).
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — director-layer patterns (watermark rerun, directives, convergence rules)
+- `~/.claude/learnings/claude-code/multi-agent/director/failure-modes.md` — director failure modes including TOCTOU in orchestration pre-filters

@@ -258,6 +258,17 @@ When a skill spawns agents inline (via the Agent tool, waiting for results in wa
 3. **Adapt the runner.** The `parallel-claude-runner-template.sh` is PR-centric. For non-PR items (issues, tickets), adapt: directory naming (`issue-<N>`), state checks (issue open/closed vs PR merged), conditional worktrees (only for roles that modify code).
 4. **Define convergence per role.** Different roles converge differently (implementer: PR opened; clarifier: comment posted; reviewer: review posted). Document in the skill's Convergence section for directors.
 
+## Prompt Injection via Issue/Comment Body Is Architecturally Inherent to Sweep Orchestration
+
+Any sweep that fetches issue or PR body content and pipes it through `fill-template.sh` → `claude -p` has a prompt injection surface. A crafted body containing template delimiters (`{{KEY}}`), shell metacharacters, or prompt-overriding instructions can hijack the generated prompt. This is not a bug in any specific skill — it's inherent to the pattern of "fetch untrusted text → interpolate into agent prompt."
+
+Trust boundary options:
+- **Operator-authored issues (typical)**: acceptable risk; operator is implicitly trusting their own inputs
+- **Public repos or external contributors**: requires sanitization — escape template delimiters, strip control chars, or pass content as a file reference rather than inline interpolation
+- **Dependency (e.g., `fill-template.sh`'s expansion semantics)**: the template engine's security model assumes all input is trusted; agents invoking it should document that assumption
+
+Not listed as a per-skill finding because any sweep skill inherits it. Worth surfacing to the operator explicitly when setting up a sweep against anything other than operator-authored content.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

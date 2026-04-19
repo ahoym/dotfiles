@@ -228,6 +228,14 @@ For Terraform specifically: bake `prevent_destroy` into modules for irreplaceabl
 
 `Skill(git:address-request-comments *)` with wildcard requires args in the permission match string. In `claude -p` sessions, `Skill("git:address-request-comments", "24")` may not match the `*` pattern — the tool invocation format passes args separately from the skill name. Adding `Skill(git:address-request-comments)` (no wildcard) alongside the `*` variant fixed the denial. Apply to all skills invoked from `claude -p`: `Skill(name)` + `Skill(name *)`.
 
+## Hook-Injection Gate Blocks `cd <abs-path> && <cmd>` and `git -C <abs-path> <cmd>` in Headless Sessions
+
+Claude Code treats both `cd <abs-path> && <cmd>` and `git -C <abs-path> <cmd>` as potential hook-injection vectors ("executes hooks from the target directory") and requires operator approval. **No permission pattern overrides this** — it's a platform-level gate, not a permission-matching decision. Headless `claude -p` sessions cannot approve manual prompts, so these patterns fail outright.
+
+Implication: any workflow that needs a headless session to operate on a specific directory must have CWD pre-set by the launcher (see `headless-nesting.md` → "Launcher Must Set CWD"). The session cannot `cd` itself in, and cannot use `git -C` to target a different path. Plain `git <cmd>` in the already-set CWD is the only reliable path.
+
+Interactive sessions hit the same gate but can approve — so workflows tested interactively may silently break when moved to `claude -p`.
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-code/multi-agent/headless-nesting.md` — launcher CWD pattern that compensates for this gate

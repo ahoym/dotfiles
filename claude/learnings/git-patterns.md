@@ -312,6 +312,28 @@ The system prompt's `gitStatus` block is a snapshot from session start and does 
 ## Co-Locate Cross-Ref Doc Updates With Their Targets
 
 When a skill/doc adds links to files being modified in another in-progress change, ship both in the same PR. Splitting them means the cross-refs point at files that either don't exist yet (new) or have stale content until the target PR lands. Applies to: skill "Related Learnings" sections, CLAUDE.md index entries, any `~/.claude/learnings/...` reference.
+## Hunk Splitting Across Commits Without `git add -p`
+
+Agent workflows can't drive interactive `git add -p`. Split one file across N sequential commits by editing the working tree to each commit's subset:
+
+1. Save full modified file to `/tmp/<name>.md`.
+2. Revert hunks belonging to later commits; stage + commit the first subset.
+3. For each next commit: add the next subset's hunks back; stage + commit.
+4. Final commit: copy the saved full version back.
+
+Order commits additively so each step only adds lines — simpler than shrinking and re-growing. Skip the save/restore if the file belongs to one commit only.
+
+## Stash + Worktree for Moving Uncommitted Drift to a New Branch
+
+When main has uncommitted drift that belongs on a different branch (e.g., multi-session accumulation), use stash as the transport into a fresh worktree:
+
+```bash
+git stash push -u -m <label>                    # -u includes untracked
+git worktree add ../<path> -b <branch>          # from main HEAD
+cd ../<path> && git stash pop                   # pop applies in new worktree
+```
+
+Stashes live in the shared `.git` dir, so `pop` in any worktree of the same repo applies the stash there. Working tree state including untracked files transfers cleanly. Complementary to "use worktrees to avoid stashing" (§ Worktrees for Claude Code Settings Isolation) — here stash is the transport mechanism, not a workaround to avoid.
 
 ## Rebase `--onto` After Upstream Squash Merge
 

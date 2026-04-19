@@ -319,6 +319,35 @@ When a SKILL says "do NOT read X" + lists adaptations X needs (e.g., directory n
 
 **Design rule:** "Do NOT read X" next to "but X doesn't do Y/Z" is drift. Resolve by making X do Y/Z, or by removing the "Do NOT" so agents can read and adapt.
 
+## Loud-Failure Safety Net for CWD-Scoped Prompts
+
+Prompts that depend on a specific CWD (worktree-scoped sessions, project-root-scoped runners) should verify via `pwd` at an early step and `exit errored` on mismatch. Loud failure beats silent wrong-CWD corruption — a session that does the wrong thing in the wrong directory can produce convincing-but-invalid output.
+
+```markdown
+## Step 5: Verify CWD
+
+Your shell CWD is already `{WORKTREE_PATH}`. Verify:
+`​``bash
+pwd
+`​``
+
+If `pwd` reports a different path, update `status.md` milestone to `errored` (reason: `launcher CWD fix missing`) and exit.
+```
+
+Validated in practice: when the runner's `cd` fix silently broke (non-exported function, see bash-patterns.md), the safety net caught the CWD mismatch and exited cleanly instead of corrupting the working tree. Worth the two extra tool calls.
+
+## Directive Override vs Template-Encoded Boolean
+
+When a prompt template encodes a boolean flag at generation time (e.g., `RESOLVE_CONFLICTS="false"` substituted into a `{RESOLVE_CONFLICTS}` placeholder), a later director-written directive that says "do X anyway" only works if the directive is an explicit action instruction, not a flag flip. The template's conditional Step already read the stale boolean — the directive can't retroactively change it.
+
+Two patterns that work:
+- **Explicit-action directive**: "Invoke `/git:resolve-conflicts main` before Step N." The agent acts on the directive text regardless of the template conditional.
+- **Regenerate metadata + prompt**: flip the flag in `metadata.json`, re-run `fill-template.sh` to produce a new `prompt.txt`, then relaunch.
+
+The regeneration path is more reliable because it keeps template semantics consistent. The directive path is faster but only works when the skill/template supports "override by action" (not all do).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)
+- `~/.claude/learnings/claude-code/multi-agent/headless-nesting.md` — launcher CWD pattern the safety net guards against
+- `~/.claude/learnings/bash-patterns.md` — `xargs` + `export -f` gap that motivated the safety net
