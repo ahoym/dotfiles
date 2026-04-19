@@ -252,8 +252,6 @@ Pick markup based on which audience must see the content. Mixing both within one
 
 ## Placeholder Conventions in Command Templates
 
-**Keywords:** command template, placeholder, angle bracket, agent substitution, improvisation
-
 Command templates meant for agent substitution must use a consistent placeholder convention — default to `<ANGLE_BRACKET>` and never embed literal-looking prefixes like `/absolute/path/to/`. Agents match `<name>` placeholders mechanically but treat realistic-looking strings as real values, and will improvise a fix rather than flag the template — often breaking adjacent flags in the process (e.g., silently swapping `-F` for `-f`, turning a file-read into a literal-string post).
 
 **Design rule:** Every substitutable token in a template uses the same angle-bracket syntax. If a token looks like a real path/URL/value, either wrap it in angle brackets or move it out of the template entirely.
