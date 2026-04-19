@@ -126,8 +126,13 @@ chmod +x <RUN_DIR>/let-it-rip.sh
   "MODEL": "<model>",
   "RUN_DIR": "<absolute path>",
   "CONCURRENCY": "3",
-  "PRS": "80 81 82",
+  "ITEMS": "80 81 82",
   "TIMESTAMP": "<YYYY-MM-DD-HHMM>",
+  "ENTITY_PREFIX": "pr",
+  "ENTITY_LABEL": "PR",
+  "STATE_FIELD": "pr_state",
+  "STATE_CHECK_CMD": "gh pr view",
+  "TERMINAL_STATES": "MERGED CLOSED",
   "BRANCHES": "",
   "WORKTREES": "",
   "PROJECT_ROOT": ""
@@ -138,10 +143,12 @@ chmod +x <RUN_DIR>/let-it-rip.sh
 
 **Block conditionals:** `BRANCHES` and `WORKTREES` control `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks in the template. Non-empty → block kept; empty → block stripped. Review mode sets both to empty. Address mode sets both to a truthy value (e.g., `"true"`).
 
+**Entity type keys:** `ENTITY_PREFIX` controls directory naming (`pr-<N>` vs `issue-<N>`). `ENTITY_LABEL` controls log labels. `STATE_FIELD` controls the `status.md` field name for cached state. `STATE_CHECK_CMD` controls the API pre-flight command. `TERMINAL_STATES` is a space-separated list of states that trigger pre-flight skip. Every sweep skill must provide all 5 keys — there are no defaults.
+
 **Address mode data files** (written to `<RUN_DIR>/` alongside metadata.json):
 - `branch-cases.txt` — case-statement body for `branch_for()` (e.g., `80) echo "feat/auth" ;;`)
 - `worktree-cases.txt` — case-statement body for `worktree_for()` (e.g., `80) echo "/path/to/wt" ;;`)
-- `new-worktree-prs.txt` — space-separated PR numbers needing new worktrees (empty if all reused)
+- `new-worktree-items.txt` — space-separated entity numbers needing new worktrees (empty if all reused)
 
 These are included via `{@file}` references in the template. Review mode doesn't need them — the block conditional strips the enclosing section.
 
@@ -149,8 +156,8 @@ These are included via `{@file}` references in the template. Review mode doesn't
 
 The generated script has a two-tier pre-flight before launching each session:
 
-1. **Local status.md check (free).** Read `pr_state` from the PR's existing `status.md`. If MERGED or CLOSED, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
-2. **API fallback (1 API call).** If no `status.md` exists or `pr_state` is not terminal, use `fetch-pr-watermark.sh` (or equivalent platform command) to check current state. This covers first runs and PRs whose state changed externally. The API fallback also writes `pr_state` to `status.md` so subsequent cycles use the local check.
+1. **Local status.md check (free).** Read `STATE_FIELD` from the entity's existing `status.md`. If the value is in `TERMINAL_STATES`, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
+2. **API fallback (1 API call).** If no `status.md` exists or the state field is not terminal, use `STATE_CHECK_CMD` to check current state. This covers first runs and entities whose state changed externally. The API fallback also writes the state field to `status.md` so subsequent cycles use the local check.
 
 Address mode: the same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees.
 
@@ -161,7 +168,7 @@ Artifacts written to <RUN_DIR>/
 
   manifest.json    — <M> eligible, <K> skipped
   let-it-rip.sh    — concurrency: <CONCURRENCY>
-  pr-<N>/          — <M> PR directories with prompts
+  <ENTITY_PREFIX>-<N>/  — <M> item directories with prompts
 
 To launch:        bash <RUN_DIR>/let-it-rip.sh
 Re-run (loop):    bash <RUN_DIR>/let-it-rip.sh  (same command — sessions with no changes exit cleanly)
@@ -171,7 +178,7 @@ Retro:            "Retro on <RUN_DIR>"
 
 ## Progress Check
 
-Read all `pr-*/status.md` files, present:
+Read all `<ENTITY_PREFIX>-*/status.md` files, present:
 
 | PR | Milestone | Started |
 |----|-----------|---------|
@@ -180,7 +187,7 @@ Read all `pr-*/status.md` files, present:
 
 ## Retro
 
-Read `manifest.json`, all `pr-*/results.md`, and all `pr-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+Read `manifest.json`, all `<ENTITY_PREFIX>-*/results.md`, and all `<ENTITY_PREFIX>-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
 
 ## Convergence
 
