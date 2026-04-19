@@ -256,6 +256,12 @@ Command templates meant for agent substitution must use a consistent placeholder
 
 **Design rule:** Every substitutable token in a template uses the same angle-bracket syntax. If a token looks like a real path/URL/value, either wrap it in angle brackets or move it out of the template entirely.
 
+## SKILL Spec / Runtime Drift Is a Bug
+
+When a SKILL says "do NOT read X" + lists adaptations X needs (e.g., directory naming, mode-specific cases), the adaptations either belong **in X** (so the spec doesn't lie) OR the SKILL needs an explicit step that runs them (post-template patch, dedicated alternate template).
+
+**Design rule:** "Do NOT read X" next to "but X doesn't do Y/Z" is drift. Resolve by making X do Y/Z, or by removing the "Do NOT" so agents can read and adapt.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent collaboration architecture (review cycles, auto-implementation patterns migrated from here)

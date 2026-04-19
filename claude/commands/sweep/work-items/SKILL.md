@@ -68,7 +68,9 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/work-items-generate-runner.sh` — **Recommended entrypoint.** One bash call: assembles preflight + body/comments + per-issue prompts + runner. Inputs: `manifest.json`, `metadata.json`, `repo-summary.txt`, per-issue `metadata.json`. Auto-extracts `IMPLEMENT_ISSUES` from manifest and computes `PROJECT_ROOT`.
+- `~/.claude/skill-references/work-items-runner-template.sh` — Work-items-specific runner template (issue-<N>/ dirs, `gh issue view`, `IMPLEMENT_ISSUES` array, conditional worktree setup, per-issue cwd). Used by work-items-generate-runner.sh.
+- `~/.claude/skill-references/parallel-claude-runner-template.sh` — Generic PR-centric template (used by `sweep:address-prs` / `sweep:review-prs`). Do NOT use directly for work-items — it lacks issue semantics + worktree-from-main setup.
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
 - `~/.claude/skill-references/sweep-agent-preflight.md` — Shared preflight steps (1-5 + Work Item + Repo Context) for all agent prompts
@@ -265,7 +267,11 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Generate a runner script adapted for work items. Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` — write `<RUN_DIR>/metadata.json` and assemble via `fill-template.sh`. Do NOT read the runner template directly. Work-item-specific metadata overrides and adaptations:
+**Recommended path:** after writing manifest.json + runner metadata.json + repo-summary.txt + per-issue metadata.json, invoke `bash ~/.claude/skill-references/work-items-generate-runner.sh <RUN_DIR>` — it handles preflight copy, body/comments fetch, prompt assembly, and runner generation via the work-items-specific template (`work-items-runner-template.sh`). The work-item-specific behaviors below are baked into that template.
+
+**Manual path** (if not using the helper script): generate via `fill-template.sh ~/.claude/skill-references/work-items-runner-template.sh <RUN_DIR>`. Do NOT use `parallel-claude-runner-template.sh` directly — it's PR-centric and requires sed-patching for issue semantics.
+
+Work-item-specific metadata overrides and adaptations (handled by the template):
 
 - **Model selection**: `MODEL` → `claude-opus-4-6` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
 - **Entity type keys**: Set in `metadata.json` per the sweep-scaffold.md schema. Issue-specific values:
