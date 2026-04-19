@@ -18,6 +18,9 @@ All gates are mandatory when their trigger fires. No exceptions.
 | **Keyword** | Domain keyword or quoted term in user message | Glob filenames → unloaded matches. Quoted terms bypass dedup. | No |
 | **Domain shift** | User message introduces new domain | Glob filenames → new domain keywords | No |
 | **Pre-edit check** | First Edit/Write in unloaded tech domain | Glob filenames → file's tech domain | No |
+| **Skill-task start** | Before executing a complex/long-running skill (sweeps, multi-agent, refactors) | Glob filenames → skill's domain terms (e.g., `sweep`, `director`, `compound`, `worktree`, `multi-agent`) | No |
+
+**Skill-task gate rationale:** Other gates fire on the user's domain, not the skill's operational domain. Multi-agent / sweep / refactor skills have their own learnings clusters that go unloaded when the user message doesn't name them. Load operational learnings before the skill's first substantive action.
 
 **Dedup**: don't re-load files already read this session. When context compression makes history uncertain, err toward re-checking.
 
