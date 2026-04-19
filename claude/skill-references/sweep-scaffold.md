@@ -178,7 +178,7 @@ Retro:            "Retro on <RUN_DIR>"
 
 ## Progress Check
 
-Read all `<ENTITY_PREFIX>-*/status.md` files, present:
+Use `bash ~/.claude/skill-references/sweep-status-summary.sh <run-dir>` to read `status.md` + `state.md` across all item dirs (handles both `pr-*/` and `issue-*/`). Avoid raw `for … cat` loops — they trigger permission prompts. Present:
 
 | PR | Milestone | Started |
 |----|-----------|---------|
@@ -187,7 +187,7 @@ Read all `<ENTITY_PREFIX>-*/status.md` files, present:
 
 ## Retro
 
-Read `manifest.json`, all `<ENTITY_PREFIX>-*/results.md`, and all `<ENTITY_PREFIX>-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+Use `bash ~/.claude/skill-references/sweep-results.sh <run-dir>` to read `results.md` + `learnings.md` across all item dirs. `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line. Read `manifest.json` directly for the eligible/skipped breakdown.
 
 ## Convergence
 

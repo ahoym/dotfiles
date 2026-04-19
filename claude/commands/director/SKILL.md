@@ -102,7 +102,7 @@ The director is event-driven, not polling. It reads state on-demand: when a back
 
 **Triggers:**
 
-1. **Background task completes** (runner finishes). Read all `<run_dir>/*/state.md` and `<run_dir>/*/status.md`. Build the unified monitoring table per the playbook's Monitoring Table Format. Then execute this checklist — every item, every time:
+1. **Background task completes** (runner finishes). Use `bash ~/.claude/skill-references/sweep-status-summary.sh <run-dir>` to read all `state.md` + `status.md` at once (handles both `pr-*/` and `issue-*/` layouts; avoids permission-prompting raw `cat` loops). Use `bash ~/.claude/skill-references/sweep-results.sh <run-dir>` when `results.md` + `learnings.md` are needed. Build the unified monitoring table per the playbook's Monitoring Table Format. Then execute this checklist — every item, every time:
 
    **a. Escalations:**
    - `state: errored` + `escalation: needs-director` → read `live.md` tail for diagnostics, investigate root cause, write directive for next launch or escalate to operator.

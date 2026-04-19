@@ -99,12 +99,11 @@ Save new patterns and learnings from the current session into global skills, gui
      - **Skills** → `~/.claude/commands/<skill-name>/SKILL.md`
      - **Guidelines** → `~/.claude/guidelines/<guideline-name>.md`
      - **Learnings** → resolve `localPath` from the provider whose `writeScope` matches the learning's scope. Project-local learnings use `projectLocal.path` (relative to project root).
-   - **Multi-provider write:** For each **Global** learning, write to all providers with `writeScope: "global"` and `writable: true` (not just the `defaultWriteTarget`). For each additional writable provider beyond the default:
+   - **Multi-provider write:** For each **Global** learning, write to all providers with `writeScope: "global"` and `writable: true` (not just the `defaultWriteTarget`). **Early exit:** if only one `writeScope: "global"` provider exists (count providers first from `learnings-providers.json`), skip multi-write silently — don't deliberate, don't ask the operator. For each additional writable provider beyond the default:
      - Use `localPath` from the provider entry as the write target
      - **New file**: add an index entry to the provider directory's `CLAUDE.md` (format: `` - `filename.md` — one-sentence description ``)
      - **Existing file**: no index update needed unless the description is stale
      - Cross-refs in the copy must use paths relative to the provider's `localPath` (rewrite any `~/.claude/learnings/` refs)
-     - If no additional global providers exist, skip multi-write silently
 
 4. **Verify and report**:
    - Read back each written file to confirm content was saved correctly

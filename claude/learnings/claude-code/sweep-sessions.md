@@ -157,3 +157,35 @@ When reading a SKILL's content from the `Skill` tool message, lines like ``!`cat
 ## Director Must Run Full Review→Address→Re-Review Cycles
 
 Convergence requires the full cycle: review → address → re-review. Skipping the address step and calling "0 new findings" convergence is wrong — the addresser processes operator comments and implements reviewer suggestions that the reviewer only replies to. A reviewer reply-only cycle is not a substitute for an address cycle. After every review that posts new content (findings, replies, reactions), launch the addresser before re-reviewing.
+
+## work-items Implementer Worktree Setup Pattern
+
+Implementer prompt's Step 14 does `git branch -m sweep/<N>-<slug>` — it RENAMES the current branch. Runner only needs to provide a worktree on a placeholder branch; agent derives the slug from the issue title and renames.
+
+Pattern (`~/.claude/skill-references/work-items-runner-template.sh`):
+- Runner creates worktree at `<RUN_DIR>/worktrees/issue-<N>` on placeholder `sweep/<N>-impl` from `BASE_BRANCH` (read from issue's metadata.json).
+- Per-issue launch: `sh -c "cd '$worktree' && exec claude -p ..."` — each parallel session runs in its own worktree.
+- Worktrees preserved across runs; operator removes manually with `git worktree remove`.
+- For non-default base branches (stacked deps): `git fetch origin <BASE_BRANCH>` first.
+
+## Worktree `claude -p` Settings: Committed vs Gitignored
+
+A worktree session sees the settings files that exist in its checkout. Boundary is **committed vs gitignored**, not project vs global:
+
+| File | Visible in worktree |
+|------|---------------------|
+| `~/.claude/settings.json` | Yes |
+| `.claude/settings.json` (committed) | Yes |
+| `.claude/settings.local.json` (gitignored) | No |
+
+Implementer test/lint patterns (`uv run pytest`, `npm test`, etc.) must live in `~/.claude/settings.json` or **committed** `.claude/settings.json` — `settings.local.json` won't propagate.
+
+## Default to Operator-Greenlit Scope; Don't Narrow Silently
+
+When the operator approves a scope (N items, full task), default to executing the full scope. If you have reason to narrow, name it explicitly ("I'd rather validate against 2 first because X") so they can accept or override.
+
+Silent narrowing forces the operator to detect what's missing. Even when narrowing is the right call, name the reason inline.
+
+## Director Should Run `/sweep:compound-agent-learnings` Before Wrap-Up
+
+Per-issue `learnings.md` files written by `claude -p` agents die in `tmp/` unless promoted. Director Phase 5 (wrap-up) should invoke `/sweep:compound-agent-learnings <RUN_DIR>` to extract generalizable observations and route them through `/learnings:compound`. This applies to all sweep skills (work-items, address-prs, review-prs).
