@@ -18,6 +18,6 @@ Legacy cluster files — retained for accumulated platform knowledge, not loaded
 | **MR management** | `pr-management.md` | Retained — GraphQL createDiffNote, line positioning, flat JSON gotcha |
 
 Deleted clusters (content migrated to learnings):
-- `batch-operations.md` → `~/.claude/learnings/gitlab/batch-operations-patterns.md`
+- `batch-operations.md` → deleted (migration target `~/.claude/learnings/gitlab/batch-operations-patterns.md` does not exist — content was not migrated)
 - `issue-operations.md` → deleted (unimplemented v2 stub)
 - `fetch-review-data.md` → deleted (content redundant with skill instructions)

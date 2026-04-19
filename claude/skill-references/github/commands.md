@@ -17,7 +17,7 @@ Legacy cluster files — retained for accumulated platform knowledge, not loaded
 | **Comment interaction** | `comment-interaction.md` | Retained — jq escaping gotchas, -F vs -f, permission prompt workarounds |
 
 Deleted clusters (content migrated to learnings):
-- `pr-management.md` → `~/.claude/learnings/git-github-api.md`
-- `issue-operations.md` → `~/.claude/learnings/git-github-api.md`
-- `batch-operations.md` → `~/.claude/learnings/git-github-api.md`
+- `pr-management.md` → `~/.claude/learnings/git-github-api.md` (`claude/learnings/git-github-api.md`)
+- `issue-operations.md` → `~/.claude/learnings/git-github-api.md` (`claude/learnings/git-github-api.md`)
+- `batch-operations.md` → `~/.claude/learnings/git-github-api.md` (`claude/learnings/git-github-api.md`)
 - `fetch-review-data.md` → deleted (content redundant with request-interaction-base.md)
