@@ -24,6 +24,9 @@ if [ $# -eq 0 ]; then
 fi
 
 for n in "$@"; do
+    case "$n" in
+      ''|*[!0-9]*) echo "ERROR: invalid issue number: $n" >&2; exit 1 ;;
+    esac
     printf '===issue-%s===\n' "$n"
     gh issue view "$n" --json state,updatedAt,comments --jq '{
         state,

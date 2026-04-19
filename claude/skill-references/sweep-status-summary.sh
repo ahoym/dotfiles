@@ -63,7 +63,7 @@ for d in "${item_dirs[@]}"; do
     if [ "$LOG_TAIL" -gt 0 ] && [ -f "$d/output.log" ]; then
         echo ""
         echo "[output.log — last $LOG_TAIL lines]"
-        tail -n "$LOG_TAIL" "$d/output.log"
+        tail -n "$LOG_TAIL" "$d/output.log" | cat -v
     fi
     if [ "$SHOW_RETRO" = true ]; then
         if [ -f "$d/results.md" ]; then

@@ -16,7 +16,7 @@ trap 'rm -f "$tmp_files" "$tmp_events"' EXIT
 # Find SESSIONS_LIMIT most recently modified jsonl files
 find "$PROJECTS_DIR" -maxdepth 3 -name '*.jsonl' -type f -print 2>/dev/null \
   | while IFS= read -r f; do
-      printf "%s %s\n" "$(stat -f '%m' "$f" 2>/dev/null || echo 0)" "$f"
+      printf "%s %s\n" "$(stat -f '%m' "$f" 2>/dev/null || stat -c '%Y' "$f" 2>/dev/null || echo 0)" "$f"
     done \
   | sort -rn \
   | head -n "$SESSIONS_LIMIT" \
