@@ -152,3 +152,11 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 4. Present a final summary: per-run retro (read each run's `*/results.md` and `*/learnings.md`).
 5. Review `<session_dir>/decisions.md` as part of the retro — surface decide-with-report entries (dissent, cost-time, out-of-scope) so the operator can audit autonomous calls and flag any that should have been escalated.
 6. Offer to invoke `/session-retro`. When accepted, the retro skill will read all worker `learnings.md` files before compounding — high-value worker observations are easy to lose otherwise.
+
+## Related Learnings
+
+Reference files — load on demand when relevant friction surfaces. Not required for every invocation.
+
+- `~/.claude/learnings/claude-code/sweep-sessions.md` — sweep template limitations (PR-centric runner), watermark logic, confirmer/clarifier lifecycle, template script validation traps
+- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — state.md vs status.md, inactivity detection, three-channel convergence, directives, manifest-updates
+- `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — parallel agents, rerun semantics, append-only artifacts, session-resumable patterns

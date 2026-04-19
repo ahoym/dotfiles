@@ -233,6 +233,10 @@ When a batch import touches many files across multiple commits but individual fi
 
 When resolving a merge conflict where main deletes a file that HEAD modifies, grep the repo for references to the deleted file before accepting the deletion. A file may be referenced by cross-refs, index entries, or import paths that won't break loudly. Only accept deletion when references are limited to ephemeral artifacts (generated output, temp files).
 
+## "Keep Theirs" Everywhere → Verify Branch Isn't Empty
+
+When merging upstream into a feature branch and *every* conflict resolves to "keep theirs," verify `git diff origin/<base>..origin/<branch> --stat` after the merge. A sibling PR may have superseded all the branch's changes — the merge will succeed but the resulting diff is empty. Check before pushing or addressing comments to avoid wasted work on a redundant PR.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

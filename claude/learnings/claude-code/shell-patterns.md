@@ -22,6 +22,22 @@ Any quoted string in a Bash tool call — `echo "..."`, `sed "s/^/ /"`, `sleep 1
 
 **Fix:** Avoid quoted strings entirely. Use dedicated tools (Read instead of `cat`, Write instead of `echo >`, Edit instead of `sed`). For polling loops, use plain `sleep N` without a trailing echo. For text processing, use Grep with context flags instead of `sed`/`awk`.
 
+## `!cat platform-commands/*.sh` Only Works in Skills, Not Real Shell Scripts
+
+The `!`-prefix preprocessing that inlines `~/.claude/platform-commands/*.sh` happens in the skill loader, not in bash. Actual `.sh` files (sweep runners, templates) can't use this pattern. For platform-agnostic shell scripts, detect at runtime:
+
+```bash
+if command -v gh &>/dev/null; then
+    state=$(gh pr view "$pr_num" --json state -q '.state' 2>/dev/null)
+elif command -v glab &>/dev/null; then
+    state=$(glab mr view "$pr_num" -F json 2>/dev/null | jq -r '.state')
+fi
+```
+
+## platform-commands `.sh` Files Are Templates, Not Executables
+
+The scripts under `~/.claude/platform-commands/` contain `<placeholder>` syntax (e.g., `gh pr view <number> --json ...`), not `$1` argument substitution. They are designed to be inlined via `!cat` and have placeholders substituted by the LLM at skill-execution time. Calling `bash <script>.sh <arg>` won't work — the `<arg>` syntax is literal, not parsed.
+
 ## Sandbox Treats `~/.claude/` as Sensitive — Use Pre-Allowed Scripts
 
 Individual `cp` commands targeting `~/.claude/` trigger "sensitive file" permission prompts regardless of allow patterns in settings.json. The sandbox's sensitive-file detection is path-based and can't be overridden. Inline `for` loops with `&&` also trigger an "ambiguous syntax with command separators" warning.
