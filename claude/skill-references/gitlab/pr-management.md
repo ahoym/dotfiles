@@ -6,24 +6,7 @@ description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained
 
 > **Note:** Skills are being migrated away from this file. Commands have been extracted to atomic `.sh` files in `commands/` and are inlined via `!` preprocessing. This file is retained as human-readable reference until migration is complete.
 
-**Use these templates verbatim** — substitute placeholders but don't simplify, reformat, or drop parameters.
-
-## Create or Update MR (Body via File)
-
-Write the MR body to `tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md` first to avoid quoting issues.
-
-**Use API with `-F description=@<file>`** — avoids `$(cat)` permission prompts. Use absolute paths since the shell's CWD may differ from the project root.
-
-```bash
-# Write body via Write tool to tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md, then:
-# Create:
-glab api projects/:id/merge_requests -X POST \
-  -f source_branch=<BRANCH_NAME> -f target_branch=<base-branch> -f title="<title>" \
-  -F description=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md
-# Update existing:
-glab api projects/:id/merge_requests/<IID> -X PUT \
-  -F description=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md
-```
+**Create/Update MR commands:** See `commands/create-review.sh` and `commands/update-review.sh` (single source of truth).
 
 ## Post Review with Inline Comments
 
