@@ -200,7 +200,7 @@ After completing your implementation:
 1. Rename your branch: `git branch -m feat/add-e2e/foundation`
 2. Stage and commit: `git add <files> && git commit -m "<message>\n\nCo-Authored-By: Claude <model> <noreply@anthropic.com>"`
 3. Push: `git push -u origin feat/add-e2e/foundation`
-4. Create PR using the platform commands: `!cat ~/.claude/platform-commands/create-review.sh`
+4. Create PR: `cat ~/.claude/platform-commands/create-review.sh` (read and follow the commands in this file)
 5. Include the PR URL in your Completion Report
 ```
 
@@ -218,7 +218,7 @@ After completing your implementation:
 1. Rename your branch: `git branch -m feat/add-e2e/setup-spec`
 2. Stage and commit (only your new files, not cherry-picked ones — they're already committed)
 3. Push: `git push -u origin feat/add-e2e/setup-spec`
-4. Create PR using the platform commands: `!cat ~/.claude/platform-commands/create-review.sh`
+4. Create PR: `cat ~/.claude/platform-commands/create-review.sh` (read and follow the commands in this file)
 5. Include the PR URL in your Completion Report
 ```
 
