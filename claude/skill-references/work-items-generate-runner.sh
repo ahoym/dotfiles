@@ -4,6 +4,8 @@
 # into a single auto-approved bash invocation, avoiding per-command permission
 # prompts when the LLM orchestrates a sweep.
 #
+# Dependencies: fill-template.sh, sweep-agent-preflight.md (both in skill-references/)
+#
 # Usage:
 #   bash ~/.claude/skill-references/work-items-generate-runner.sh <RUN_DIR>
 #
@@ -61,6 +63,11 @@ while IFS=$'\t' read -r number role; do
         exit 1
     }
 
+    # Note: issue body/comments are included via {@body.txt}/{@comments.txt} in
+    # templates. fill-template.sh expands {@...} iteratively — if issue content
+    # contains {@path} patterns, they resolve relative to $issue_dir (up to 5
+    # passes). Risk is low (issues are operator-authored) but be aware of the
+    # injection path if processing untrusted issue content.
     gh issue view "$number" --json body --jq '.body' > "$issue_dir/body.txt"
     gh issue view "$number" --json comments --jq \
         '.comments[] | "=== Comment \(.id) by \(.author.login) at \(.createdAt) ===\n\n\(.body)\n"' \
