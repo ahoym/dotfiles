@@ -185,6 +185,21 @@ Use it as a review gate: reviewer runs the branch end-to-end with `DRY_RUN=1` ag
 
 Introduce the flag as part of the first PR that touches the affected call site — same PR that migrates to the abstraction or refactors the entry point. Cheap to wire in (~20 lines), turns every subsequent refactor PR in the chain into a testable artifact against production-shaped inputs at zero real-world cost. Especially valuable for the highest-risk structural transitions (eager-fetching rewrites, DI migrations, retry-loop relocations).
 
+## `@patch` Decorators Break When Code Moves
+
+When extracting a function into a new module, every test `@patch("old_module.symbol")` referencing imports-at-the-old-location breaks silently — the patch targets a name that no longer exists in the new caller's namespace. Mock at the new import location: if `sleep` moved from `logic.plz.operations` into `logic.libs.execution`, patches must become `@patch("logic.libs.execution.sleep")`.
+
+Audit step after any extraction: `grep -r "@patch.*old_module" tests/` and rewrite each. Tests that still pass after the move are passing for the wrong reason — they're patching a no-op.
+
+## Closure State Dicts for Callback-Driven Helpers
+
+When extracting a callback loop (e.g., `retry_until_filled(place_fn, update_fn, ...)`), two patterns keep the signature small:
+
+1. **`place_fn` returns `Optional[tuple[...]]`** — `None` signals exit-early, tuple carries forward state. One signature covers normal, dry-run, and "nothing to do" paths without an extra `check_fn` parameter.
+2. **Closure state dicts** — when `update_fn` needs values `place_fn` computed (price, ticker, qty), use a mutable dict captured in closure scope. Avoids a separate context object or expanding the helper's signature.
+
+Both push state-passing into the caller's closures, keeping the helper itself stateless.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors

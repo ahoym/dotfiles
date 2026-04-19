@@ -115,6 +115,10 @@ Focused single-purpose MRs (one fix, one feature) get same-day review and merge.
 
 Both inline review comments with code suggestions and bot-generated suggestions can be "resolved" by the author without applying the suggested change. Resolved threads signal "addressed" to reviewers, but the underlying issue may persist. During re-review, check that resolved threads with code suggestions actually had the fix applied — don't assume resolution equals implementation.
 
+### GitHub review comments don't track stale-against-fixed-code state
+
+The GitHub review API doesn't mark inline comments as stale when the underlying code was fixed in a subsequent commit. A comment posted against line X of commit A will appear as "active" even if commit B fixed the issue. Addressers must read current file state (+ git log for the touched lines) before implementing — otherwise they'll redo or conflict with prior fixes. Cross-reference the comment's commit SHA with `git log --oneline <path>` to see if fixes landed after.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — PR/MR scoping and workflow patterns (complementary: workflow vs review)
