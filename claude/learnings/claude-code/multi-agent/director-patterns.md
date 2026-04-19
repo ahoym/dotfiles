@@ -158,6 +158,22 @@ The runner's `cleanup_worktrees` EXIT trap fires unconditionally — including w
 
 `git worktree add -b <branch> <path> origin/main` fails when `<branch>` already exists locally from a prior timed-out run (worktree cleaned up but branch not deleted). The session falls back to working in the project root successfully — functional but bypasses worktree isolation. Fix: add `git branch -D <branch> 2>/dev/null` before `git worktree add -b` in the setup function, or use `--force` flag.
 
+## Runner Pre-Flight: Entity Terminal States Only, Not Role Convergence
+
+The runner's bash pre-flight skip should gate only on **entity terminal states** (`issue_state: CLOSED`, `pr_state: MERGED/CLOSED`) — never on role convergence signals (`comment_posted`, `pr_opened`, `confirmation_posted`). Convergence signals mean "this role's job is done for now," not "this entity is done." Adding them to pre-flight causes confirm/implement cycles to false-skip after the clarifier posts. The session's internal watermark logic handles "nothing new since last pass" — the runner's job is the cheap cost-optimization skip for truly terminal entities. Same boundary as `state.md` (runner) vs `status.md` (session): don't read session-domain signals in runner code.
+
+## Missing `fill-template.sh` Keys Fail Silently
+
+`fill-template.sh` has no defaults — missing keys in metadata.json leave raw `{KEY}` placeholders in the output. Worse: agents often reason around unresolved placeholders (inferring the intended command from context) rather than erroring. The session succeeds, but the pipeline is fragile. Every skill must explicitly provide every key its template references. Verify with `grep '\{[A-Z_]*\}' prompt.txt` after assembly — a clean run has zero matches.
+
+## Standalone Worktree Agent for Bootstrap Infrastructure
+
+When fixing infrastructure that the sweep flow itself depends on (e.g., the runner template), prefer `Agent(isolation: "worktree")` over generating sweep artifacts. The sweep flow would need to manually patch the very template being fixed — a chicken-and-egg. The worktree agent gets a clean checkout, implements from a fully-specified plan, and pushes a branch. The director still doesn't touch the working tree; the worktree agent is just a different execution vehicle than `claude -p` with metadata.json artifacts.
+
 ## Compose Escalation Through Existing Decision Frameworks
 
 Secondary agents that need to escalate (verifier asking for clarification, validator finding ambiguity) should route through whatever decision framework already governs the primary loop — not build a parallel escalation channel. Verifier mid-run clarification flows through the same operator-cession framework the director uses (silent for routine, decide-with-report for partial, escalate to operator for ambiguous). Composability over duplication: one escalation surface for the operator to learn, one set of categories, one log location.
+
+## Compound Findings Halve Per Cycle When Author Fixes Root Causes
+
+Substantive PRs in compound review+address mode follow a predictable trajectory: findings count roughly halves each cycle (e.g., 10 → 5 → 0). Three cycles is typical for a PR with 3 HIGH findings; clean re-review (0 new findings) is the convergence signal. If findings don't shrink between cycles, the addresser is patching symptoms rather than root causes — write a directive or escalate.

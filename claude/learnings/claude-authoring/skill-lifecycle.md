@@ -4,6 +4,18 @@ Skill lifecycle and maintenance — stale path references, producer-consumer con
 
 ---
 
+## Triage Rubric for Orphaned Reference Docs
+
+When auditing reference files no longer loaded by any skill, classify each as:
+
+| Verdict | Criteria |
+|---------|----------|
+| **Delete** | Content fully captured in active scripts/skills; no unique knowledge |
+| **Move to learnings** | Contains gotchas, patterns, or domain knowledge worth preserving but not at execution time |
+| **Keep deprecated** | Institutional knowledge (API quirks, jq escaping, GraphQL mutations, platform-specific behavior) future debuggers will need |
+
+After deletion/move: sweep `keyword-index.json`, deep-dive trackers, and cross-refs in other learnings for dangling paths. Update cluster-index files (e.g., `commands.md`) to reflect current state — a stale index that lists deleted files misleads future readers.
+
 ## Stale Path References Are the Primary Skill Maintenance Issue
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.

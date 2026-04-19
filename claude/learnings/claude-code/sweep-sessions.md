@@ -146,6 +146,14 @@ When a confirmer proposes sub-issues as part of its confirmation comment, it sho
 
 When a confirmer's plan has N independent phases that could each produce a separate PR, the confirmer should propose sub-issues — not present them as phases of a single implementation. One issue → one PR is the default; multi-phase plans that don't split upfront create monolithic PRs that are hard to review, slow to merge, and block clean phases behind dirty ones. The clarifier's scope assessment identifies the split; the confirmer should honor it by proposing concrete sub-issues with titles, scopes, and dependency order.
 
+## `parallel-claude-runner-template.sh` Is PR-Centric
+
+The shared runner template hardcodes `pr-<N>/` directories, `PRS=()` array, `gh pr view` state checks, and worktree setup keyed on PR numbers. It does not support `sweep:work-items` mode. Options: (a) write a purpose-built runner per item-type (simpler for clarify-only runs with no worktrees), or (b) generalize the template with `ITEM_PREFIX` / `ITEM_ARRAY` / `STATE_CHECK_CMD` substitutions. Option (a) is correct when only one sweep type needs the alternative; option (b) is worth the yak-shave once two+ non-PR sweeps exist.
+
+## SKILL.md `!cat` Preprocessing Expands at Load Time
+
+When reading a SKILL's content from the `Skill` tool message, lines like ``!`cat ~/.claude/platform-commands/foo.sh`` are expanded to the script's actual content before you see the message. The raw SKILL.md file still contains the `!cat` reference. **Before editing** a SKILL.md to "stop inlining commands," Grep/Read the raw file — it may already use `!cat`. The visible inline text is a render artifact, not the source.
+
 ## Director Must Run Full Review→Address→Re-Review Cycles
 
 Convergence requires the full cycle: review → address → re-review. Skipping the address step and calling "0 new findings" convergence is wrong — the addresser processes operator comments and implements reviewer suggestions that the reviewer only replies to. A reviewer reply-only cycle is not a substitute for an address cycle. After every review that posts new content (findings, replies, reactions), launch the addresser before re-reviewing.

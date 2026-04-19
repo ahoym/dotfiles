@@ -9,3 +9,5 @@ XRPL integration patterns: orderbook mechanics, AMM, cross-currency payments, DE
 | cross-currency-payments.md | Cross-currency payments: delivered_amount, path finding, slippage |
 | dex-data.md | External APIs: OnTheDEX token data, market data sources |
 | permissioned-domains.md | Permissioned domains and credentials setup |
+| trade-forensics.md | Parsing tx meta for DEX trade detection, volume attribution, trust-line delta interpretation |
+| wallet-clustering.md | Funder tracing, operator identification, cluster detection heuristics |
