@@ -43,3 +43,7 @@ The scripts under `~/.claude/platform-commands/` contain `<placeholder>` syntax 
 Individual `cp` commands targeting `~/.claude/` trigger "sensitive file" permission prompts regardless of allow patterns in settings.json. The sandbox's sensitive-file detection is path-based and can't be overridden. Inline `for` loops with `&&` also trigger an "ambiguous syntax with command separators" warning.
 
 **Fix:** Create a bash script at a pre-allowed path (e.g., `~/.claude/commands/<skill>/finalize.sh`) and invoke it via `bash ~/.claude/commands/<skill>/finalize.sh`. This matches `Bash(bash ~/.claude/commands/**)` in global settings and runs without prompts. The script handles all `cp` operations to `~/.claude/` internally.
+
+## Pair `rm` and `rmdir` Permission Patterns
+
+When adding `Bash(rm <path>/**)` to allow-list cleanup under a directory, also add `Bash(rmdir <path>/**)`. Cleanup compounds like `rm <dir>/file && rmdir <dir>` need both sub-commands covered — `rm` alone isn't enough. Same for tilde variants: pair `Bash(rm ~/**/<path>/**)` with `Bash(rmdir ~/**/<path>/**)`.
