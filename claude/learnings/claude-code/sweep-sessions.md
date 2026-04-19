@@ -185,3 +185,7 @@ Implementer test/lint patterns (`uv run pytest`, `npm test`, etc.) must live in 
 When the operator approves a scope (N items, full task), default to executing the full scope. If you have reason to narrow, name it explicitly ("I'd rather validate against 2 first because X") so they can accept or override.
 
 Silent narrowing forces the operator to detect what's missing. Even when narrowing is the right call, name the reason inline.
+
+## Director Should Run `/sweep:compound-agent-learnings` Before Wrap-Up
+
+Per-issue `learnings.md` files written by `claude -p` agents die in `tmp/` unless promoted. Director Phase 5 (wrap-up) should invoke `/sweep:compound-agent-learnings <RUN_DIR>` to extract generalizable observations and route them through `/learnings:compound`. This applies to all sweep skills (work-items, address-prs, review-prs).

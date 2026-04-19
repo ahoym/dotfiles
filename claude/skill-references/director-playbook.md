@@ -136,7 +136,7 @@ First cycle: full table. Subsequent cycles: delta-only (changed rows), with a on
 After every runner completion in compound mode, the director executes this decision tree automatically — no operator prompt needed:
 
 1. **Address runner completes** → read review `results.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (all PRs terminal?).
-2. **Review runner completes** → read `results.md`. If findings posted (inline comments > 0 OR thread replies > 0) → relaunch address. If skipped or 0 findings → review converging, start 30m skip window.
+2. **Review runner completes** → read `results.md`. If **new** findings posted (new inline comments > 0 OR new thread replies > 0) → relaunch address. If skipped or 0 new findings → review converging, start 30m skip window. **A re-review body declaring "0 new findings, N prior resolved" is NOT findings posted** — `milestone: posted` with 0 new work means the loop is converging, don't relaunch.
 3. **Both converged** → proceed to Phase 5.
 
 "Runner completed" ≠ "converged." A completed runner means one cycle finished — convergence requires the domain rules above to be satisfied.
@@ -228,7 +228,9 @@ This is the pattern used for the framework PR (PR 79) built mid-session on its o
 
 ## Worker Learnings Triage
 
-During convergence wrap-up (Phase 5), the director must triage worker learnings before closing the session:
+During convergence wrap-up (Phase 5), the director must triage worker learnings before closing the session. **Invoke `/sweep:compound-agent-learnings <run-dir>` to handle this end-to-end** — it reads all `*/learnings.md` files, assesses observations for promotion, and presents candidates in the standard Type/Scope/Utility table format. Don't triage manually; the dedicated skill is more thorough and consistent.
+
+Manual fallback (if the skill is unavailable or you need custom scoping):
 
 1. **Read** each completed run's `*/learnings.md` files.
 2. **Assess** each observation for promotion:
