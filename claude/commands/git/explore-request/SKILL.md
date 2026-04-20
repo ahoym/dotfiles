@@ -22,30 +22,24 @@ Pull down a review to understand its changes, get context, and ask questions.
 - `/git:explore-request <url>` - Explore review by URL
 - `/git:explore-request` - Explore review for current branch (if one exists)
 
-## Reference Files (conditional — read only when needed)
-
-- `~/.claude/skill-references/platform-detection.md` — read if platform not yet detected this session
-- `~/.claude/skill-references/github/fetch-review-data.md` / `gitlab/fetch-review-data.md` — Fetch PR/MR details, diff, files, commits
-
 ## Instructions
 
-1. **Detect platform** — if not already detected this session, read `~/.claude/skill-references/platform-detection.md` and follow its logic to determine GitHub vs GitLab. Then read `~/.claude/skill-references/{github,gitlab}/fetch-review-data.md` (matching detected platform).
-
-2. **Parse review identifier** from `$ARGUMENTS`:
+1. **Parse review identifier** from `$ARGUMENTS`:
    - If empty, use current branch's review
    - If numeric, treat as review number
    - If URL (contains `URL_PATTERN`), extract review number from URL
 
-3. **Fetch review metadata** (run in parallel):
+2. **Fetch review metadata** (run in parallel):
+   - **Fetch Review Details:**
+     !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   - **Fetch Files Changed:**
+     !`cat ~/.claude/platform-commands/fetch-review-files.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   - **Fetch Commits:**
+     !`cat ~/.claude/platform-commands/fetch-review-commits.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
-   Using the fetch-review-data cluster file loaded in step 1, follow:
-   - **Fetch Review Details** — get number, title, body, author, branches, state, timestamps
-   - **Fetch Files Changed** — get list of modified file paths
-   - **Fetch Commits** — get short SHAs and commit messages
-
-4. **Display review summary** (store as `REVIEW_CONTEXT`):
+3. **Display review summary** (store as `REVIEW_CONTEXT`):
    ```
-   $REVIEW_UNIT $REVIEW_PREFIX<number>: <title>
+   PR #<number>: <title>
    Author: <author>
    Branch: <source_branch> → <target_branch>
    Status: <state>
@@ -65,27 +59,23 @@ Pull down a review to understand its changes, get context, and ask questions.
    ...
    ```
 
-5. **Fetch the diff** (store as `REVIEW_DIFF`):
-   ```bash
-   $DIFF_CMD <number>
-   ```
+4. **Fetch the diff** (store as `REVIEW_DIFF`):
+   !`cat ~/.claude/platform-commands/fetch-review-diff.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
    If diff is large (>500 lines), summarize by file:
    - Show first 50 lines of each file's diff
    - Note "... and X more lines" for truncated sections
 
-6. **Offer to checkout** the review branch (optional):
+5. **Offer to checkout** the review branch (optional):
    Ask: "Would you like me to checkout this branch locally? (y/n)"
 
    If yes:
-   ```bash
-   $CHECKOUT_CMD <number>
-   ```
+   !`cat ~/.claude/platform-commands/checkout-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
-7. **Enter Q&A mode**:
+6. **Enter Q&A mode**:
    Present to the operator:
    ```
-   I now have full context on $REVIEW_UNIT $REVIEW_PREFIX<number>. You can ask me:
-   - What does this $REVIEW_UNIT change?
+   I now have full context on PR #<number>. You can ask me:
+   - What does this PR change?
    - Why was <file> modified?
    - Are there any potential issues?
    - How does <function/class> work now?
@@ -94,7 +84,7 @@ Pull down a review to understand its changes, get context, and ask questions.
    Ask any questions about this review, or say "done" to exit.
    ```
 
-8. **Answer questions** using `REVIEW_CONTEXT` and `REVIEW_DIFF`:
+7. **Answer questions** using `REVIEW_CONTEXT` and `REVIEW_DIFF`:
    - Reference specific files and line numbers when answering
    - Read additional files if needed for context
    - If a question requires understanding code not in the diff, use Read tool

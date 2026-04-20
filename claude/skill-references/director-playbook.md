@@ -18,48 +18,7 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 
 ## Decision Framework
 
-The director has ceded decision power for routine calls but escalates on high-blast-radius, ambiguous-intent, or external-surface actions. Three tiers:
-
-### Escalate to operator (operator makes the call)
-1. **Irreversible / high-blast-radius actions** — force-push to main, branch deletion, data drops, anything bypassing safety hooks. Operator pulls the trigger even when "obviously fine."
-2. **Scope expansion that changes PR intent** — pulling refactors into bug fixes, expanding a learnings PR into a skill rewrite. Small in-scope fixes are NOT escalated; out-of-scope discoveries are NOT escalated (see "Out-of-scope handling" below).
-3. **Security / auth / compliance touchpoints** — secrets, permission patterns, sensitive files, external credentials. Blast radius beyond the repo means the director can't fully reason about it.
-4. **Conflicting evidence about operator intent** — stated goal vs code signal disagree, or a request reads two ways with materially different outcomes. Escalate **with a written report** in `decisions.md` — not just a verbal ask. (Written-report-first variant: log the report at escalation time, then chat.)
-5. **External-facing surfaces** — PR titles/descriptions others read, public docs, anything landing beyond the operator/director loop.
-
-### Decide-with-report (director decides, logs rationale to `decisions.md`)
-6. **Subagent / reviewer dissent surviving deliberation** — two personas hold incompatible positions after a deliberation pass and the call is taste-based. Director makes the call and logs why.
-7. **Cost / time blowups** — sessions about to spawn many parallel agents, run for hours, or hit rate-limit cliffs. Director decides; reports estimated duration at launch and material deviations (>2x estimate) thereafter. No scheduled chatter — only deviation reports. Operator can checkpoint mid-session via chat.
-
-### Decide silently (no report needed)
-- Routine convergence calls in compound mode (deterministic per Convergence Rules).
-- Small in-scope fixes that match the PR's intent.
-- Choosing between equivalent technical paths.
-- Body discipline / formatting / template decisions.
-- Whether to write a directive for a summary-only finding inside the current scope.
-
-### Out-of-scope handling
-
-When a review surfaces a finding clearly outside the current PR's scope, the director:
-1. Files a GitHub issue in the CWD repo (or, in multi-repo sessions, the repo most relevant to the issue). Issue body includes: source PR/session reference, the finding text, suggested fix if any, and the persona that surfaced it.
-2. Logs the issue creation in `decisions.md` so the operator can audit what got punted.
-3. Optionally spawns `/sweep:work-items` to address immediately, **only if context window allows** (director discretion based on remaining tokens).
-
-### `decisions.md` schema
-
-Lives at `<session_dir>/decisions.md` alongside `session.json`. Append-only dated sections:
-
-```markdown
-## <ISO timestamp> — <one-line title>
-
-**Category**: <dissent | cost-time | out-of-scope | irreversible | scope-expansion | security | intent-conflict | external-surface>
-**Decision**: <what was decided>
-**Why**: <rationale, including what was weighed>
-**Reversal cost**: <how easy is this to undo>
-**Reported to operator**: <yes/no — yes for escalated categories, no for decide-with-report categories>
-```
-
-Write to `decisions.md` at decision time for categories 4, 6, 7. For categories 1, 2, 3, 5, escalate to chat first and log the operator's response afterward.
+Extracted to `~/.claude/skill-references/director-decision-matrix.md` — a standalone file loadable independently from this playbook. Read it at the start of Phase 4 and apply it to every action.
 
 ## Prerequisites Checklist
 
@@ -232,6 +191,7 @@ Director-approved fix for <file>. <description of approved change>. Post a top-l
   Directive from <original timestamp> satisfied. No further action needed.
   ```
 - Sessions should check whether directives are already satisfied before acting — prevents redundant invocations
+- **Director-side dedup:** Before writing a new directive, read existing directives for the same PR and check whether the target is already covered by a prior directive (satisfied or not). Duplicate directives cause redundant session launches — the session reads all directives and acts on each one independently
 
 ## Re-Assessment Triggers
 
@@ -241,6 +201,8 @@ Re-run the sweep skill (not just the runner) when:
 - Fundamental scope change (different PR filter, new repo)
 
 Do NOT re-assess just because a cycle skipped — that is normal convergence behavior. Re-running the runner script is sufficient for ongoing cycles.
+
+**Watermark propagation across session boundaries.** When re-invoking a sweep skill for a new cycle (new run_dir), the new session starts without the prior run's watermarks — triggering full comment re-analysis for every PR. To avoid this: before relaunching, copy each item's `status.md` from the prior run_dir into the new run_dir. The new session reads the watermark and skips items with no changes since the last pass. For quick reruns (same run_dir), this is handled automatically — the runner reuses existing `status.md` files.
 
 ## Branch-Position Patterns
 

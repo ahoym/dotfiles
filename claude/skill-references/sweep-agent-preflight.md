@@ -5,9 +5,9 @@
 
 Verify you can perform critical operations before investing time in analysis. Run this smoke test:
 ```bash
-gh issue view {ISSUE_NUMBER} --json state -q '.state'
+{CHECK_ISSUE_STATE_CMD}
 ```
-If this fails with a permission error, write `milestone: errored` and `error: permission denied — gh` to `{ISSUE_DIR}/status.md` and exit immediately. This catches misconfigured `--allowedTools` early.
+Replace `<N>` with {ISSUE_NUMBER}. If this fails with a permission error, write `milestone: errored` and `error: permission denied — gh/glab` to `{ISSUE_DIR}/status.md` and exit immediately. This catches misconfigured `--allowedTools` early.
 
 ## Step 2: Resolve Provider Paths
 
@@ -30,8 +30,9 @@ If `{ISSUE_DIR}/status.md` exists, read `last_sweep_updated_at` and `last_commen
 
 Fetch the issue's current state and last comment body:
 ```bash
-gh issue view {ISSUE_NUMBER} --json state,updatedAt,comments --jq '{state, updatedAt, last_comment_id: (.comments[-1].id // null), last_comment_body: (.comments[-1].body // null)}'
+{FETCH_ISSUE_WITH_COMMENTS_CMD}
 ```
+Replace `<N>` with {ISSUE_NUMBER}.
 
 **State check (earliest exit):** If state is `CLOSED`, set `milestone: skipped`, `issue_state: closed` in `{ISSUE_DIR}/status.md` and exit immediately.
 

@@ -64,8 +64,6 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
@@ -84,14 +82,23 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 - **`--concurrency=<N>`** → `CONCURRENCY` (default 3)
 - **`--resolve-conflicts`** → `RESOLVE_CONFLICTS` (default false) — resolve merge conflicts with base branch before addressing comments
 
-### Phase 2: Platform Detection & PR Fetch
+### Phase 2: PR Fetch
 
-Follow `platform-detection.md`. Then fetch open PRs:
-- Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,mergeable,reviews,comments`
-- All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft,mergeable --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
+Fetch open PRs — platform-specific commands are inlined below via `!` preprocessing:
+- Specific numbers (adapt to include `isDraft,mergeable,reviews,comments` fields):
+  ```
+  !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+- All open (adapt to include `isDraft,mergeable` fields):
+  ```
+  !`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+  Then fetch `reviews,comments` per PR separately.
 
 For each PR, also fetch inline review comments:
-`gh api repos/{owner}/{repo}/pulls/<N>/comments --paginate`
+```
+!`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
 ### Phase 3: Filter, Skip Detection, Worktree & Persona Discovery
 
@@ -99,7 +106,7 @@ For each PR, also fetch inline review comments:
 
 **Persona detection:** List available personas via `ls ~/.claude/commands/set-persona/*.md` (do NOT use the Glob tool — it fails to resolve symlinked `~/.claude/` paths). Exclude `SKILL.md`. If the listing returns zero files, **warn the operator**: "⚠ No persona files found at `~/.claude/commands/set-persona/` — check path resolution. Proceeding without personas." For each eligible PR, match the best persona based on:
 1. PR title and branch name keywords (e.g., `claude-config`, `react`, `java`, `xrpl`)
-2. Changed file paths from `gh pr diff --stat` (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
+2. Changed file paths from the review diff (e.g., files under `claude/` → `claude-config-expert`, files under `src/components/` → `react-frontend`)
 3. Review comment content domains
 
 If no persona matches confidently, leave as `none`. Record the detected persona per PR for the summary and prompt generation.
@@ -165,7 +172,7 @@ Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` wit
 }
 ```
 
-The `resolve_conflicts`, `base`, and `has_conflicts` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` reflects the assessment-time `mergeable` state — the session checks again at runtime since the state may change.
+The `resolve_conflicts` and `base` fields are only present when `--resolve-conflicts` is passed. `has_conflicts` in the manifest reflects the assessment-time `mergeable` state — informational only, it does not gate address session launch. The addresser handles runtime conflict detection regardless of this value (director-facing, not passed to the prompt — the session checks at runtime since the state may change).
 
 #### Data files & prompt assembly
 
@@ -183,14 +190,31 @@ Write data files for template assembly, then call `fill-template.sh`:
        "BASE": "<base branch>",
        "MODE": "first-pass or new-comments",
        "RESOLVE_CONFLICTS": "true or false",
-       "HAS_CONFLICTS": "true or false",
        "WORKTREE_PATH": "<absolute path to worktree>",
        "PERSONA_INSTRUCTION": "<persona activation text — see below>",
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
-       "LAST_SHA_FIELD": "last_addressed_sha"
+       "LAST_SHA_FIELD": "last_addressed_sha",
+       "CHECK_PR_MERGEABLE_CMD": "<literal command — see below>",
+       "FETCH_LATEST_INLINE_COMMENT_ID_CMD": "<literal command — see below>",
+       "FETCH_PR_WATERMARK_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+
+     - `CHECK_PR_MERGEABLE_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_LATEST_INLINE_COMMENT_ID_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-latest-inline-comment-id.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_PR_WATERMARK_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-pr-watermark.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
 
    **`PERSONA_INSTRUCTION` value:**
    - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`
@@ -208,9 +232,23 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `address` and `{{MODEL}}` → `claude-opus-4-6` (this runner is a leaf — it reads diffs, edits files, runs git, and pushes commits itself). Additionally fill `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keep `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks.
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` using the runner schema from sweep-scaffold.md with these address-mode overrides:
+- `MODE` → `"address"`, `MODE_LABEL` → `"Address"`
+- `MODEL` → `"claude-opus-4-6"` (leaf — reads diffs, edits files, pushes commits)
+- `BRANCHES` → `"true"`, `WORKTREES` → `"true"`, `PROJECT_ROOT` → absolute path
 
-The worktree setup loop (`setup_worktrees`) must also include the pre-flight state check from the scaffold, before fetching or creating worktrees. Without it, the script fails on `git fetch` for merged branches before the launch loop's skip ever fires.
+Entity type keys for PRs:
+```json
+{"ENTITY_PREFIX": "pr", "ENTITY_LABEL": "PR", "STATE_FIELD": "pr_state",
+ "STATE_CHECK_CMD": "gh pr view", "TERMINAL_STATES": "MERGED CLOSED"}
+```
+
+All other keys (`CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults. Also write address-mode data files to `<RUN_DIR>/`:
+- `branch-cases.txt` — case body lines (e.g., `80) echo "feat/auth" ;;`)
+- `worktree-cases.txt` — case body lines (e.g., `80) echo "/path/to/wt" ;;`)
+- `new-worktree-items.txt` — space-separated entity numbers needing new worktrees
+
+Then assemble via `fill-template.sh`. The worktree setup loop in the template includes the pre-flight state check before fetching — no manual addition needed.
 
 ### Phase 6: Announce, Progress Check, Retro
 

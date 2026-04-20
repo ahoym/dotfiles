@@ -108,6 +108,52 @@ The runner can compute per-cycle context window usage by parsing the latest assi
 
 Main is still the preferred director branch — cleanest, fewest gotchas. But the active-branch case is **supported**, not a workaround: when the PR being swept IS the director's current branch, `git worktree list` reports the project root as the worktree for that branch, and the address sweep skill's worktree-reuse path picks it up automatically. No `git worktree add`, no separate `Agent` needed. Discipline: director must not touch the working tree (only reads `tmp/claude-artifacts/.../state.md`) and must not interleave its own commits concurrently with agent commits — sequential is fine. The off-branch case (working on a *different* branch while sweeps run on the active one) is the one that needs `Agent(isolation: "worktree")`. Don't conflate them. Validated end-to-end across an 8-cycle compound mode session on the active branch.
 
+## Reviewer Prompt Gap: Skill Bypass on Re-Review
+
+`claude -p` review sessions skip the `Skill("git:team-review-request")` call when reasoning space exists between the preflight watermark check and the skill invocation. The session fetches the diff, decides "content unchanged" or "all findings addressed," and posts a `gh pr comment` (issue comment) directly — bypassing re-review reactions, the re-review body template, and proper `gh pr review` posting. Diagnostic signal: the review URL is an `issuecomment-*` fragment instead of a `pullrequestreview-*` fragment, and no emoji reactions appear on resolved inline comments.
+
+**Fix:** Make the Skill call the first action after preflight passes — no diff fetch, no analysis, no learnings search between them. The skill handles its own quick-exit, re-review detection, and learnings loading internally. The wrapper prompt retains responsibility for domain-context learnings needed by the write-artifacts/write-learnings phases that run after the Skill returns.
+
+**See also:** `~/.claude/learnings/claude-authoring/skill-design.md` § "Delegating Prompts Must Not Expose Delegated Inputs" for the general principle.
+
+**Validated:** After collapsing the gap, session 2 posted a proper `pullrequestreview` with 8 inline comments, and session 3's re-review posted reactions on the correct reply comments. The `issuecomment` diagnostic signal is reliable for detecting regressions.
+
+## Director Artifact Generation Can Be Batched
+
+When generating artifacts for a single-PR session, all writes (manifests, metadata, data files, preflight copies) are independent and can be issued in parallel. Prompt assembly (`fill-template.sh`) depends on metadata being written first but all prompts can be assembled in parallel. Runner assembly depends on runner metadata. Three sequential batches: data files → prompts → runners. Reduces wall-clock time for multi-PR sessions.
+
 ## GitLab vs GitHub state values in runner scripts
 
 GitLab `glab mr view` returns lowercase state values (`"opened"`, `"merged"`, `"closed"`), while GitHub `gh pr view` returns uppercase (`"OPEN"`, `"MERGED"`, `"CLOSED"`). Runner script pre-flight checks must match the platform's casing. The sweep runner template uses `gh` patterns — when generating for GitLab, substitute both the CLI commands and the state string comparisons.
+
+## Static Prompt Can't Transition Lifecycle Roles
+
+Runner scripts replay the same `prompt.txt` on every relaunch. A clarifier prompt that completes (posts questions, gets answers, posts acknowledgment) will skip on relaunch — its own Sweeper comment is the latest, watermark matches, no new activity. To transition from clarify → confirm → implement, invoke `sweep:work-items` again for a fresh assessment that evaluates conversation state and generates artifacts with the matching template. The runner is the loop target for *within-role* reruns; cross-role transitions require reassessment.
+
+## Sub-Issues From Confirmed Plans Lack Sweeper History
+
+Issues created by the director from a confirmed parent plan (e.g., #92/#93 from #90's confirm pass) have no Sweeper comments. The lifecycle assigns `clarify` despite full specification. Workaround: post an operator comment ("Plan confirmed from #N. Implement.") before assessment. The assessment sees the operator comment with no prior Sweeper → still assigns clarify. The real fix: assessment should detect `Relates to #N` + parent issue has `Sweeper-Confirm` approval + operator comment referencing the parent → skip to implement.
+
+## Template Scripts Fail `bash -n` Validation
+
+Platform-command scripts use `<PLACEHOLDER>` syntax (e.g., `gh pr view <N> --json ...`) which isn't valid bash. `bash -n` verification triggers permission denials (no allow pattern for `bash -n`) and would fail on syntax anyway. The scripts are command templates, not executable scripts — validation should check format/structure, not bash syntax. Don't add a `bash -n` permission pattern for these.
+
+## Confirmer Should Pre-Seed Sub-Issue Approval
+
+When a confirmer proposes sub-issues as part of its confirmation comment, it should also post approval comments on those sub-issues (after the director creates them). This eliminates the manual step where the operator or director must post "Plan confirmed from #N. Implement." before the assessment can assign the implement role. The confirmer already has the confirmed plan context — it can propagate approval downstream.
+
+## Confirmer Must Propose Sub-Issues for Independent Phases
+
+When a confirmer's plan has N independent phases that could each produce a separate PR, the confirmer should propose sub-issues — not present them as phases of a single implementation. One issue → one PR is the default; multi-phase plans that don't split upfront create monolithic PRs that are hard to review, slow to merge, and block clean phases behind dirty ones. The clarifier's scope assessment identifies the split; the confirmer should honor it by proposing concrete sub-issues with titles, scopes, and dependency order.
+
+## `parallel-claude-runner-template.sh` Is PR-Centric
+
+The shared runner template hardcodes `pr-<N>/` directories, `PRS=()` array, `gh pr view` state checks, and worktree setup keyed on PR numbers. It does not support `sweep:work-items` mode. Options: (a) write a purpose-built runner per item-type (simpler for clarify-only runs with no worktrees), or (b) generalize the template with `ITEM_PREFIX` / `ITEM_ARRAY` / `STATE_CHECK_CMD` substitutions. Option (a) is correct when only one sweep type needs the alternative; option (b) is worth the yak-shave once two+ non-PR sweeps exist.
+
+## SKILL.md `!cat` Preprocessing Expands at Load Time
+
+When reading a SKILL's content from the `Skill` tool message, lines like ``!`cat ~/.claude/platform-commands/foo.sh`` are expanded to the script's actual content before you see the message. The raw SKILL.md file still contains the `!cat` reference. **Before editing** a SKILL.md to "stop inlining commands," Grep/Read the raw file — it may already use `!cat`. The visible inline text is a render artifact, not the source.
+
+## Director Must Run Full Review→Address→Re-Review Cycles
+
+Convergence requires the full cycle: review → address → re-review. Skipping the address step and calling "0 new findings" convergence is wrong — the addresser processes operator comments and implements reviewer suggestions that the reviewer only replies to. A reviewer reply-only cycle is not a substitute for an address cycle. After every review that posts new content (findings, replies, reactions), launch the addresser before re-reviewing.

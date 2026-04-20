@@ -40,9 +40,9 @@ Each `prompt.txt` begins with these shared steps before mode-specific work:
 
 2. **Read existing watermark.** If `status.md` exists, read `last_<mode>_sha` and `last_comment_id`. If it doesn't exist, this is the first run — proceed to step 4.
 
-3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) via `gh`:
-   - Inline: `gh api repos/{owner}/{repo}/pulls/<N>/comments --jq '.[-1].id // empty'`
-   - Top-level + state: `gh pr view <N> --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
+3. **Compare against current PR state.** Fetch the PR's current HEAD SHA, state, mergeable status, and latest comment IDs (both inline review comments AND top-level PR comments) using platform-command scripts:
+   - Inline: use `fetch-latest-inline-comment-id.sh` (replace `<N>` with PR number, `{owner}/{repo}` with repo)
+   - Top-level + state: use `fetch-pr-watermark.sh` (replace `<N>` with PR number) — parse JSON to extract `latest_commit` (first 7 chars of last commit oid), `state`, `mergeStateStatus`, `mergeable`, and `latest_top_level_comment_id`
    - Use the MAX of inline and top-level comment IDs as the effective `last_comment_id` for watermark comparison. Top-level comments include operator directives that inline-only checks miss.
 
    **State check (earliest exit):** If state is MERGED or CLOSED, set `milestone: skipped`, `pr_state: <state>` in `status.md` and exit immediately.
@@ -106,22 +106,58 @@ Error handling: always write all artifacts before exiting, even on failure. On e
 
 ## let-it-rip.sh Generation
 
-Read `@~/.claude/skill-references/parallel-claude-runner-template.sh` and fill placeholders:
-- `{{MODE}}` → skill-specific mode string
-- `{{RUN_DIR}}` → absolute path to run directory
-- `{{CONCURRENCY}}` → from parsed arguments
-- `{{PRS}}` → space-separated eligible PR numbers
-- `{{TIMESTAMP}}` → current timestamp
-- `{{MODEL}}` → claude model for the runner. **The skill picks this based on runner role:** if the runner is a lightweight *orchestrator* that mostly invokes other skills/subagents (e.g., `sweep:review-prs` calling `git:team-review-request`), `claude-sonnet-4-6` is fine — the heavy work is in spawned subagents. If the runner is a *leaf* doing the actual work itself (reading diffs, editing files, running git, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`), use `claude-opus-4-6`. Use the `[1m]` variant only when context demands it (very large diffs / multi-file refactors).
+Write `<RUN_DIR>/metadata.json` with runner config, then assemble via `fill-template.sh`:
 
-Address mode additionally fills `{{PROJECT_ROOT}}`, `{{BRANCH_CASES}}`, `{{WORKTREE_CASES}}`, `{{NEW_WORKTREE_PRS}}` and keeps `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks. Review mode removes those blocks.
+```bash
+bash ~/.claude/skill-references/fill-template.sh \
+  ~/.claude/skill-references/parallel-claude-runner-template.sh <RUN_DIR> \
+  > <RUN_DIR>/let-it-rip.sh
+chmod +x <RUN_DIR>/let-it-rip.sh
+```
+
+**Do NOT read the runner template** — `fill-template.sh` handles all substitution. The skill only writes data files.
+
+#### Runner metadata.json schema
+
+```json
+{
+  "MODE": "review",
+  "MODE_LABEL": "Review",
+  "MODEL": "<model>",
+  "RUN_DIR": "<absolute path>",
+  "CONCURRENCY": "3",
+  "ITEMS": "80 81 82",
+  "TIMESTAMP": "<YYYY-MM-DD-HHMM>",
+  "ENTITY_PREFIX": "pr",
+  "ENTITY_LABEL": "PR",
+  "STATE_FIELD": "pr_state",
+  "STATE_CHECK_CMD": "gh pr view",
+  "TERMINAL_STATES": "MERGED CLOSED",
+  "BRANCHES": "",
+  "WORKTREES": "",
+  "PROJECT_ROOT": ""
+}
+```
+
+**`MODEL` selection — based on runner role:** orchestrator runners that delegate to subagents (e.g., `sweep:review-prs` → `git:team-review-request`) → `claude-sonnet-4-6`. Leaf runners doing actual work (reading diffs, editing files, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`) → `claude-opus-4-6`. `[1m]` variant only when context demands it.
+
+**Block conditionals:** `BRANCHES` and `WORKTREES` control `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks in the template. Non-empty → block kept; empty → block stripped. Review mode sets both to empty. Address mode sets both to a truthy value (e.g., `"true"`).
+
+**Entity type keys:** `ENTITY_PREFIX` controls directory naming (`pr-<N>` vs `issue-<N>`). `ENTITY_LABEL` controls log labels. `STATE_FIELD` controls the `status.md` field name for cached state. `STATE_CHECK_CMD` controls the API pre-flight command. `TERMINAL_STATES` is a space-separated list of states that trigger pre-flight skip. Every sweep skill must provide all 5 keys — there are no defaults.
+
+**Address mode data files** (written to `<RUN_DIR>/` alongside metadata.json):
+- `branch-cases.txt` — case-statement body for `branch_for()` (e.g., `80) echo "feat/auth" ;;`)
+- `worktree-cases.txt` — case-statement body for `worktree_for()` (e.g., `80) echo "/path/to/wt" ;;`)
+- `new-worktree-items.txt` — space-separated entity numbers needing new worktrees (empty if all reused)
+
+These are included via `{@file}` references in the template. Review mode doesn't need them — the block conditional strips the enclosing section.
 
 ### Pre-flight State Check
 
 The generated script has a two-tier pre-flight before launching each session:
 
-1. **Local status.md check (free).** Read `pr_state` from the PR's existing `status.md`. If MERGED or CLOSED, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
-2. **API fallback (1 API call).** If no `status.md` exists or `pr_state` is not terminal, call `gh pr view` to check current state. This covers first runs and PRs whose state changed externally. The API fallback also writes `pr_state` to `status.md` so subsequent cycles use the local check.
+1. **Local status.md check (free).** Read `STATE_FIELD` from the entity's existing `status.md`. If the value is in `TERMINAL_STATES`, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
+2. **API fallback (1 API call).** If no `status.md` exists or the state field is not terminal, use `STATE_CHECK_CMD` to check current state. This covers first runs and entities whose state changed externally. The API fallback also writes the state field to `status.md` so subsequent cycles use the local check.
 
 Address mode: the same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees.
 
@@ -132,7 +168,7 @@ Artifacts written to <RUN_DIR>/
 
   manifest.json    — <M> eligible, <K> skipped
   let-it-rip.sh    — concurrency: <CONCURRENCY>
-  pr-<N>/          — <M> PR directories with prompts
+  <ENTITY_PREFIX>-<N>/  — <M> item directories with prompts
 
 To launch:        bash <RUN_DIR>/let-it-rip.sh
 Re-run (loop):    bash <RUN_DIR>/let-it-rip.sh  (same command — sessions with no changes exit cleanly)
@@ -142,7 +178,7 @@ Retro:            "Retro on <RUN_DIR>"
 
 ## Progress Check
 
-Read all `pr-*/status.md` files, present:
+Read all `<ENTITY_PREFIX>-*/status.md` files, present:
 
 | PR | Milestone | Started |
 |----|-----------|---------|
@@ -151,7 +187,7 @@ Read all `pr-*/status.md` files, present:
 
 ## Retro
 
-Read `manifest.json`, all `pr-*/results.md`, and all `pr-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+Read `manifest.json`, all `<ENTITY_PREFIX>-*/results.md`, and all `<ENTITY_PREFIX>-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
 
 ## Convergence
 

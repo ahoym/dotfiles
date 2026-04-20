@@ -8,9 +8,9 @@ If `{PR_DIR}/status.md` exists, read `{LAST_SHA_FIELD}` and `last_comment_id`. I
 
 ## Step 3: Compare Against Current PR State
 
-Fetch the PR's current HEAD SHA, state, and latest comment IDs:
-- Inline: `gh api repos/{OWNER_REPO}/pulls/{PR_NUMBER}/comments --jq '.[-1].id // empty'`
-- Top-level + state: `gh pr view {PR_NUMBER} --json commits,state,mergeStateStatus,mergeable,comments --jq '{latest_commit: .commits[-1].oid[0:7], state, mergeStateStatus, mergeable, latest_top_level_comment_id: (.comments[-1].id // null)}'`
+Fetch the PR's current HEAD SHA, state, and latest comment IDs (replace `<N>` with {PR_NUMBER}, `{owner}/{repo}` with {OWNER_REPO}):
+- Inline: `{FETCH_LATEST_INLINE_COMMENT_ID_CMD}`
+- Top-level + state: `{FETCH_PR_WATERMARK_CMD}` — parse the JSON response to extract `latest_commit` (first 7 chars of last commit oid), `state`, `mergeStateStatus`, `mergeable`, and `latest_top_level_comment_id` (last comment's id or null)
 
 Use the MAX of inline and top-level comment IDs as the effective `last_comment_id`.
 

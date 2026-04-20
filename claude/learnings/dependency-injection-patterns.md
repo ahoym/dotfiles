@@ -39,3 +39,13 @@ After the move: tests import the module without credentials; missing-credential 
 Python `Protocol` (PEP 544) is duck-typed — concrete implementations don't need to inherit. This matters when wrapping existing module-level functions as an adapter: you can write a `_SchwabAdapter` class that delegates to existing functions without touching the existing module hierarchy. ABC inheritance would force the concrete to declare inheritance, which couples the adapter to the protocol file permanently.
 
 Use ABC only when you need runtime `isinstance()` checks (rare) or abstract-method enforcement at instantiation (rarer).
+
+## Protocol return types: domain models, not first-implementation dicts
+
+When a protocol method returns data, return typed dataclasses defined in a shared models layer — not dicts shaped like the first implementation's API response. `get_balance() -> AccountBalance` forces every adapter to normalize into the same typed contract. `get_balance() -> dict` with a comment "returns Schwab-shaped dict" makes the "broker-agnostic" protocol secretly Schwab-native, and every future adapter must reverse-engineer and reproduce that shape.
+
+Place return-type models alongside existing domain models (e.g., `logic/models/AccountBalance.py` next to `logic/models/Candle.py`), not co-located with the protocol. Keeps the protocol file small (signatures + imports) and follows existing conventions for cross-boundary data shapes.
+
+## Composition root env-gating and test ergonomics
+
+An env-gated composition root (`BROKER=schwab|tradestation`, raises `RuntimeError` if unset) is safe for tests **when dependency discipline ensures test code never imports it**. If `logic/libs/*` takes `Account` as a parameter, tests construct `Account(broker=FakeBrokerAdapter(), ...)` directly — they never touch `config/accounts.py`, so the env gate never fires. Only entry-point integration tests need the env var. This works precisely because the CI lint (forbidding `logic/libs/* → config/accounts.py`) guarantees the boundary holds.

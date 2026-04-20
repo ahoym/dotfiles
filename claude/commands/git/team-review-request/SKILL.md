@@ -38,7 +38,6 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `persona-routing.md` — Read at step 5 for persona selection and step 10 for merge algorithm
 - `reviewer-prompt-template.md` — Read at step 8, injected into subagent prompts
 - `single-reviewer-mode.md` — Read only when N=1 (step 5 selects one persona)
@@ -50,7 +49,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 **Orchestrator personas:** Read `~/.claude/commands/set-persona/team-lead.md` and `~/.claude/commands/set-persona/reviewer.md` at skill start. The `team-lead` persona guides merge, overview composition, and deliberation. The `reviewer` persona provides base review instincts. These are the orchestrator's own lenses — distinct from the domain reviewer personas selected for subagents in step 5.
 
-1. **Detect platform** — follow **Platform Detection** from the base reference. If not already detected this session, read `~/.claude/skill-references/platform-detection.md` and set `CLI`, `REVIEW_UNIT`, and API command patterns. Then read the matching platform cluster files.
+1. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
 2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
@@ -150,9 +149,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     ### Findings
 
-    <Grouped by theme, not by persona. Each finding has signal-strength tags:>
-    - **[persona-1, persona-2]** <finding summary>
-    - **[persona-3]** <unique finding>
+    N finding(s) — see inline comments.
 
     ### ⚖️ Dissent
 
@@ -168,13 +165,12 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
 
-    **Body discipline.** The body is a themed summary, not a finding ledger. Each `### Findings` bullet is one line naming the area and gist — no file paths, line numbers, fixes, or rationale (those live in the inline comment). Summary-only findings (no inline) get one sentence + `(summary-only)` tag. Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
+    **Body discipline.** The body is a count + pointer, not a finding list. The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths, no rationale. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.` Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
 13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
 
-    ```bash
-    gh api repos/{owner}/{repo}/pulls/<REQUEST_NUMBER>/reviews \
-      --input tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json
+    ```
+    !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.

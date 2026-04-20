@@ -1,8 +1,8 @@
 ---
-description: "GitHub commands for fetching, posting, and reacting to PR comments."
+description: "DEPRECATED — Commands extracted to commands/*.sh files. Retained as human-readable reference."
 ---
 
-# GitHub: Comment Interaction
+# GitHub: Comment Interaction (Deprecated — see commands/)
 
 **Important:** Never use `!=` in jq expressions passed via `gh --jq` — the `!` gets shell-escaped. Use positive equivalents like `select(.body | length > 0)`.
 
@@ -63,12 +63,14 @@ gh api repos/{owner}/{repo}/issues/<number>/comments --paginate | jq -f tmp/clau
 
 Write the message body to `tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md` first (avoids permission prompts from inline HEREDOC content, and prevents file conflicts when multiple agents operate on the same PR), then pass via `-F body=@`:
 
-**Use absolute paths with `-F body=@`** — `gh api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories.
+**Use absolute paths with `-F body=@`** — `gh api` resolves `@` paths relative to the shell's CWD, which may differ from the project root if earlier commands changed directories. **MUST use uppercase `-F`** (not `-f`) — `-F` reads the file, `-f` posts the literal string including the `@` prefix.
 
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md, then:
+# MUST use uppercase -F (not -f) with body=@path — -F reads the file, -f posts the literal string.
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  -F body=@/absolute/path/to/tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md -F in_reply_to=<comment_id>
+  -X POST -F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md \
+  -F in_reply_to=<comment_id>
 ```
 
 ## Edit Inline Comment
@@ -102,5 +104,6 @@ Write the message body to `tmp/claude-artifacts/change-request-replies/<pr_numbe
 
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
-gh pr comment <number> --body-file /absolute/path/to/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md
+# --body-file reads the file content. Use absolute path — CWD may differ from project root.
+gh pr comment <number> --body-file <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md
 ```

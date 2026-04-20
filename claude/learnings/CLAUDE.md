@@ -42,7 +42,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `refactoring-patterns.md` — Refactoring: survey before acting, scope discipline, rename-first PR, DRY_RUN review gate
 - `dependency-injection-patterns.md` — DI: composition root pattern, CI-enforced import discipline, protocols vs ABCs, import-time side effects
 - `git-patterns.md` — Git: rebase, worktree, commit hygiene, branch management
-- `git-github-api.md` — GitHub API: pagination, reviews endpoint, stacked PRs, cascade rebase
+- `git-github-api.md` — GitHub API: pagination, reviews endpoint, stacked PRs, cascade rebase, batch metadata, review payloads, sweeper detection
 - `review-conventions.md` — Code review: self-review, comment etiquette, LGTM, structured footnotes
 - `bash-patterns.md` — Bash: shell env default ordering, quoting gotchas
 - `python-specific.md` — Python: Pydantic v2 optional fields, serialization

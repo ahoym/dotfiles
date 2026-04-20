@@ -168,6 +168,31 @@ Sweep skills (`review-prs`, `address-prs`, `work-items`) copy preflight files an
 
 Without these, `claude -p` sessions fail silently (can't prompt for permission). These patterns must be in global `settings.json`, not project-level — worktree agents don't have access to `.claude/settings.local.json`.
 
+## `mv` Permission Patterns for Artifact Directory Operations
+
+Sweep and director skills sometimes rename directories within `tmp/claude-artifacts/` (e.g., `issue-83/` → `pr-83/` for runner template compatibility). `Read`/`Write`/`Edit` patterns don't cover `mv`. Add both CWD-relative and tilde-expanded patterns:
+
+```json
+"Bash(mv tmp/claude-artifacts/**)",
+"Bash(mv ~/**/tmp/claude-artifacts/**)"
+```
+
+## Bash Loops and Pipes Trigger Permission Prompts
+
+`for` loops, `cat` in Bash, and piped commands don't match single-command permission patterns like `Bash(gh pr view:*)`. Use individual parallel tool calls (each matches the pattern independently) or write a script to `tmp/` and run via `bash tmp/...` which matches `Bash(bash tmp/claude-artifacts/**)`.
+
+## Root-Level Files Inaccessible to `claude -p` Sessions
+
+Permission patterns cover `claude/`, `tmp/`, and `~/.claude/` but not project-root files like `setup-claude.sh`. `claude -p` sessions fail silently on Edit/Write to root-level paths. For implementers that need root files, either add explicit patterns or handle manually.
+
+## Worktree Creation Fails When CWD Is on Target Branch
+
+`git worktree add <path> <branch>` errors with "already used by worktree" when the main repo's CWD is checked out to that branch. Address runners hit this when the director session is on one of the PR branches. The runner falls back to launching without worktree isolation, but the session may have unintended side effects on the shared working tree.
+
+## `jq -f` Is Sandboxed — Requires `Bash(jq *)` Allow-Pattern
+
+The Write tool can create a jq filter file at `tmp/...`, but `jq -f tmp/filter.jq` is blocked by Claude Code's sandbox. This affects command files that use the write-filter-to-file workaround (designed to avoid quoted-string permission prompts from `jq '...'`). Add `Bash(jq *)` to `settings.json` allow patterns. ~8 command files across both platforms use this pattern.
+
 ## Cross-Refs
 
 No cross-cluster references.

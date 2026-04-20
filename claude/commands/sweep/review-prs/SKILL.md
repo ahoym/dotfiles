@@ -61,8 +61,6 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR fetch commands
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, announce/progress/retro formats
@@ -81,11 +79,18 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 - **`--concurrency=<N>`** → `CONCURRENCY` (default 3)
 - **`--include-drafts`** → `INCLUDE_DRAFTS` (default false)
 
-### Phase 2: Platform Detection & PR Fetch
+### Phase 2: PR Fetch
 
-Follow `platform-detection.md`. Then fetch open PRs:
-- Specific numbers: `gh pr view <N> --json number,title,headRefName,baseRefName,url,state,isDraft,reviews,comments`
-- All open: `gh pr list --state open --json number,title,headRefName,baseRefName,url,isDraft --limit <MAX_PRS>`, then fetch `reviews,comments` per PR separately
+Fetch open PRs — platform-specific commands are inlined below via `!` preprocessing:
+- Specific numbers (adapt to include `isDraft,reviews,comments` fields):
+  ```
+  !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+- All open (adapt to include `isDraft` field):
+  ```
+  !`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+  ```
+  Then fetch `reviews,comments` per PR separately.
 
 ### Phase 3: Filter and Skip Detection
 
@@ -162,9 +167,22 @@ Write data files for template assembly, then call `fill-template.sh`:
        "RUN_DIR": "<absolute path>",
        "PR_DIR": "<absolute path>",
        "STACKING_CONTEXT": "<stacking description or 'This PR is not part of a stack.'>",
-       "LAST_SHA_FIELD": "last_reviewed_sha"
+       "LAST_SHA_FIELD": "last_reviewed_sha",
+       "FETCH_LATEST_INLINE_COMMENT_ID_CMD": "<literal command — see below>",
+       "FETCH_PR_WATERMARK_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`:
+
+     - `FETCH_LATEST_INLINE_COMMENT_ID_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-latest-inline-comment-id.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_PR_WATERMARK_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-pr-watermark.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
 
 2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
    ```bash
@@ -178,7 +196,18 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` with `{{MODE}}` → `review` and `{{MODEL}}` → `claude-sonnet-4-6` (this runner is an orchestrator — the heavy work is in `git:team-review-request`'s spawned reviewer subagents). Remove `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks (review mode doesn't use worktrees).
+Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` using the runner schema from sweep-scaffold.md with these review-mode overrides:
+- `MODE` → `"review"`, `MODE_LABEL` → `"Review"`
+- `MODEL` → `"claude-sonnet-4-6"` (orchestrator — heavy work is in `git:team-review-request`'s subagents)
+- `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees)
+
+Entity type keys for PRs:
+```json
+{"ENTITY_PREFIX": "pr", "ENTITY_LABEL": "PR", "STATE_FIELD": "pr_state",
+ "STATE_CHECK_CMD": "gh pr view", "TERMINAL_STATES": "MERGED CLOSED"}
+```
+
+All other keys (`CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults. Then assemble via `fill-template.sh`.
 
 ### Phase 7: Announce, Progress Check, Retro
 

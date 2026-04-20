@@ -23,7 +23,6 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `request-reply-templates.md` — Read before composing replies (step 6)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected
 - `address-request-edge-cases.md` — Read when processing comments (step 5+). Skip on quiet no-ops.
@@ -31,7 +30,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Instructions
 
-**Role:** Addresser. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution). This skill uses `YOUR_ROLE=Addresser` and `OTHER_ROLE=Reviewer` throughout.
+**Role:** Addresser. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform commands, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution). This skill uses `YOUR_ROLE=Addresser` and `OTHER_ROLE=Reviewer` throughout.
 
 ### Mode Detection
 
@@ -48,7 +47,7 @@ When `COMMENT_ONLY=true`:
 - **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
 - **Adjust step 13** summary — report comments posted, not changes implemented
 
-1. **Detect platform and fetch** — follow the base reference: **Platform Detection** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform cluster files. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
+1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform command scripts. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
@@ -56,8 +55,9 @@ When `COMMENT_ONLY=true`:
    - Group by file path (from `path` on GitHub, `position` data on GitLab)
    - Show each comment with: file, line number, author, and content
    - Number each comment for reference (store as `COMMENTS` list)
+   - **Include new operator comments on previously-replied threads.** A commit-ref reply doesn't close a thread — check all threads for non-self comments (especially operator, no `Role:` tag) posted after the last addresser reply.
 
-3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform cluster files. **Skip if `COMMENT_ONLY`.**
+3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform command scripts. **Skip if `COMMENT_ONLY`.**
 
 4. **Load relevant learnings**: Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob each provider's `localPath/` and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
@@ -83,11 +83,11 @@ When `COMMENT_ONLY=true`:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
-   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform cluster files. No text reply needed.
+   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform command scripts. No text reply needed.
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
-   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform cluster files. Use **Reply File Naming** convention from the base reference.
+   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform command scripts. Use **Reply File Naming** convention from the base reference.
 
 8. **Act on suggestions based on agreement** — **Skip if `COMMENT_ONLY`.**
 
@@ -100,10 +100,7 @@ When `COMMENT_ONLY=true`:
 9. **Post review actions summary on the platform**:
    After processing, post a top-level comment covering only items that need operator attention — escalations, pushbacks, partial agreements, clarifications awaiting response. Implemented suggestions are documented in their inline thread replies and **must not** appear as table rows. The top-level comment is for operator-actionable status, not an audit log of completed work.
 
-   **If zero items need operator attention, post the single-line variant — never a table.** No exceptions, even if the implemented count is high.
-   ```
-   N suggestions implemented — see inline comments.
-   ```
+   **If zero items need operator attention, skip the top-level comment entirely.** Inline thread replies are sufficient — a summary comment that says "everything was implemented" adds no signal. Only post a top-level comment when the table has rows (escalations, partial agreements, pushbacks).
 
    When operator attention is needed:
    ```
@@ -129,7 +126,7 @@ When `COMMENT_ONLY=true`:
    | 2 | auth.py:48 | Restructure auth flow | Commented (disagree) — pushed back |
    ```
 
-   Follow **Post Top-Level Comment** in the platform cluster files.
+   Follow **Post Top-Level Comment** in the platform command scripts.
 
 10. **Implement changes** — **Skip if `COMMENT_ONLY`.**
     a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
@@ -156,7 +153,7 @@ When `COMMENT_ONLY=true`:
 
     **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
-    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform cluster files. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
+    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically

@@ -233,6 +233,18 @@ When a batch import touches many files across multiple commits but individual fi
 
 When resolving a merge conflict where main deletes a file that HEAD modifies, grep the repo for references to the deleted file before accepting the deletion. A file may be referenced by cross-refs, index entries, or import paths that won't break loudly. Only accept deletion when references are limited to ephemeral artifacts (generated output, temp files).
 
+## "Keep Theirs" Everywhere → Verify Branch Isn't Empty
+
+When merging upstream into a feature branch and *every* conflict resolves to "keep theirs," verify `git diff origin/<base>..origin/<branch> --stat` after the merge. A sibling PR may have superseded all the branch's changes — the merge will succeed but the resulting diff is empty. Check before pushing or addressing comments to avoid wasted work on a redundant PR.
+
+## Initial `gitStatus` in System Prompt is Frozen
+
+The system prompt's `gitStatus` block is a snapshot from session start and does **not** update. New untracked files created later in the session won't appear there. Always run a fresh `git status --short` before staging for a commit — especially when another process (hook, ralph, skill) may have added files mid-session. Missed files either leak into the wrong PR or force a follow-up commit.
+
+## Co-Locate Cross-Ref Doc Updates With Their Targets
+
+When a skill/doc adds links to files being modified in another in-progress change, ship both in the same PR. Splitting them means the cross-refs point at files that either don't exist yet (new) or have stale content until the target PR lands. Applies to: skill "Related Learnings" sections, CLAUDE.md index entries, any `~/.claude/learnings/...` reference.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

@@ -95,6 +95,22 @@ Concrete examples of routine (silent log): a transient `last_comment_id: none` i
 
 When adding features to a protocol or system, check git history for previously removed versions of the same concept. Prior art often contains design decisions, failure modes, and refinements that save reinvention. The removed version may need only a targeted fix rather than a from-scratch redesign.
 
+### Match design ambition to framing
+
+When the request uses architectural language ("dependency injection," "cleaner boundaries," "decoupling"), lead with the architecturally clean proposal. Don't default to "simplest thing that works" when the ask is "right thing." Read the register: "can we make this work?" → simple path fine. "Can we make this clean?" → lead with clean architecture, present the simple path as the fallback.
+
+### Challenge plan docs before executing them
+
+When asked to execute a plan (create issues, implement PRs), read it critically first — not just for understanding but for architectural soundness. Plans written in one session may embed assumptions worth revisiting: first-implementation-shaped abstractions (Schwab-shaped dicts as a "broker-agnostic" protocol), overloaded PRs (four concerns in one), or test ergonomics gaps (env gates that break test imports). Surface questions before creating artifacts — a 10-minute planning discussion that splits a PR or introduces typed models saves days of rework downstream.
+
+### Clarify deliverable structure before writing research/planning docs
+
+For research and planning tasks, ask about doc format and location **alongside** the scoping questions — before the first write. How many docs? What's each one's purpose? Where do they live? A research doc that gets restructured three times (one file → two → three, plus a directory move) costs more cumulative edits than asking the structure question upfront.
+
+## Stacking PRs: Check Unchanged Code for Dependencies on Removed Code
+
+The diff shows what changed — the bug is in what *didn't* change. When a PR removes a setup step (e.g., platform detection that sets variables), check all unchanged steps that referenced those variables. Partial migrations of individual files leave undefined variables that the diff won't flag. Review stacking PRs by reading unchanged sections for dependencies on removed code, not just the changed hunks.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/review-conventions.md` — code review patterns (complementary: workflow vs review)
@@ -102,3 +118,20 @@ When adding features to a protocol or system, check git history for previously r
 
 ### Remove TODOs before merging to main
 TODOs in production code are deferred decisions that accumulate silently. Resolve them before merge or convert to tracked tickets with context. A TODO without a ticket reference is a promise nobody is tracking.
+
+### Dependency-aware parallel work item processing
+
+When issues declare dependencies (`Blocked by: #N, #M`), an orchestrator can auto-detect which items are ready by resolving each blocker's state:
+
+| Blocker state | Item eligible? | Base branch |
+|---|---|---|
+| Issue closed or PR merged | Yes | default branch |
+| Open PR exists | Yes | blocker's PR branch (stacked) |
+| Open, no PR | **No — skip** | — |
+| Multiple blockers on different open PRs | Yes, but ⚠️ diamond dependency | default branch (can't merge two bases) |
+
+This eliminates manual wave planning — run the orchestrator on all issues, it picks up what's ready. Re-run after merges to peel off the next wave. Parse `Blocked by:` lines + `## Dependencies` sections; search PRs by both branch name convention (`sweep/<N>-*`) and body references (`Relates to #N`, `Fixes #N`) to avoid missing manually-created PRs. Batch blocker state lookups to avoid redundant API calls when multiple issues share blockers.
+
+### Surface all plan-mode design decisions in one message
+
+Surface all open design decisions (naming, output format, file organization, scope boundaries) in one message before requesting plan approval. Drip-feeding decisions via repeated exit-and-revise cycles adds round trips without adding clarity.

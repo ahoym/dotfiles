@@ -32,9 +32,11 @@ When worktree agents push commits to the director's active branch, `git pull` fa
 
 `claude -p` sessions with `--allowedTools` need explicit `Read` patterns for the run directory (e.g., `Read(~/**/tmp/sweep-reviews/**)`). Without it, the session may not be able to read `status.md` watermarks, `directives.md`, or prior `results.md` sections. `Write` and `Edit` patterns do not imply `Read` access.
 
-## `claude -p` Skill Tool Requires `Skill(*)` Permission
+## `claude -p` Skill Tool Requires Scoped Permission
 
-The Skill tool IS available in `claude -p` sessions — a permission denial is not the same as tool unavailability. Add `Skill(*)` to `~/.claude/settings.json` `permissions.allow`. Without it, `claude -p` sessions silently fail when trying to invoke skills (the session completes with `success` but produces no work).
+The Skill tool IS available in `claude -p` sessions and works for invoking skills (e.g., verified working: `git:resolve-conflicts`, `git:team-review-request`, `git:address-request-comments`). Add scoped patterns like `Skill(git:team-review-request *)` to `~/.claude/settings.json` `permissions.allow`. Without a matching pattern, `claude -p` sessions silently skip the Skill call (no permission denial in logs — the session just works around it by doing the work manually, often incorrectly). Prefer scoped patterns over `Skill(*)` to limit what headless sessions can invoke.
+
+**`--allowedTools` override:** For `claude -p` sessions launched with `--allowedTools`, Skill patterns must also appear in the `--allowedTools` list — `permissions.allow` alone is insufficient. The `--allowedTools` flag is more restrictive: it defines the complete tool set, and global allow patterns don't override it.
 
 ## `--output-format stream-json` Requires `--verbose` with `claude -p`
 
@@ -128,6 +130,50 @@ Match the model to the runner's role. **Orchestrator runners** mainly invoke oth
 
 Capture intent at session start as a structured artifact (`<session_dir>/intents/<id>.md`), not as conversation context. Director drafts from item metadata, operator confirms or revises, result is locked. In-session scope expansion goes through an explicit update step (append revision section, log to `decisions.md`) — never silent mutation. The locked artifact survives context compaction and grounds decision-making: "is this in scope?" becomes a checkable question against the file, not a subjective recall.
 
+## TOCTOU in Orchestration Pre-Filters
+
+When an orchestration skill reads state at Phase N for an optimization decision (e.g., pre-filter unchanged items) and re-reads at Phase M for an authoritative decision (e.g., convergence check), items excluded at Phase N could have new activity by Phase M. Classic time-of-check/time-of-use applied to skill orchestration: either re-check excluded items at the authoritative phase, or accept that the optimization can miss state changes between phases.
+
+## Runner Template Assumes PR Entity Type
+
+The `parallel-claude-runner-template.sh` hardcodes `pr-<N>` directory naming, `gh pr view` pre-flight checks, and `pr_state:` status keys. Work-item sweeps using `issue-<N>` directories require post-generation patches: rename directories to `pr-<N>`, replace `gh pr view` with `gh issue view` in the pre-flight, and adjust terminal-state logic (issues only have `CLOSED`, not `MERGED`). A future template improvement could parameterize the entity type via metadata (`ENTITY_TYPE`, `ENTITY_PREFIX`, `STATE_CHECK_CMD`).
+
+## Directors Orchestrate, Never Replicate
+
+Directors must always invoke sweep skills for assessment — never generate artifacts directly, even when the director "already knows" the PR state and metadata schema. Direct generation bypasses platform detection, skip filtering, persona discovery, and the full assessment flow. The predictability cost outweighs the performance gain: deterministic director behavior enables layering a higher orchestration tier above. The sweep skill is the single source of truth for assessment logic; the director is the single source of truth for convergence and relaunch decisions.
+
+## Decision Matrix Is Trust, Not Suggestion
+
+When a decision falls within the documented matrix (routine, in-scope, taste-based), execute and report — don't ask. Prompting the operator for a decision the matrix already covers forces them to re-grant trust they already codified. The pattern "I see X, the matrix says Y, should I do Y?" is worse than just doing Y and saying "did Y because X." Uncertainty is fine for genuinely ambiguous cases, but conflict resolution, convergence calls, and directive writes are explicitly routine. The decision framework exists to empower autonomous action — defaulting to "ask the human" under context pressure negates its purpose. Route through the addresser via directives, not by doing the git work directly.
+
+## Use `sweep-status.sh` for Status Checks
+
+`~/.claude/skill-references/sweep-status.sh` exists for reading run directory status. Use it instead of ad-hoc Bash `for` loops or `cat` commands, which trigger permission prompts (they don't match single-command patterns like `Bash(gh pr view:*)`). The script matches `Bash(bash ~/.claude/skill-references/**)` and outputs a formatted table.
+
+## Worktree EXIT Trap Destroys Uncommitted Implementer Work
+
+The runner's `cleanup_worktrees` EXIT trap fires unconditionally — including when the session timed out before committing. All files written by `Write` tool to the worktree are lost. The branch persists locally (no commits, same as base), creating a second failure on relaunch: `git worktree add -b <branch>` fails because the branch already exists. The session can fall back to working in the project root, but the first run's work is unrecoverable. Mitigation options: (1) skip cleanup when `state.md` shows non-`completed` terminal state, (2) commit WIP before cleanup, (3) don't clean up implementer worktrees at all (current skill note: "Worktrees are preserved").
+
+## Stale Branch Blocks Worktree Creation on Relaunch
+
+`git worktree add -b <branch> <path> origin/main` fails when `<branch>` already exists locally from a prior timed-out run (worktree cleaned up but branch not deleted). The session falls back to working in the project root successfully — functional but bypasses worktree isolation. Fix: add `git branch -D <branch> 2>/dev/null` before `git worktree add -b` in the setup function, or use `--force` flag.
+
+## Runner Pre-Flight: Entity Terminal States Only, Not Role Convergence
+
+The runner's bash pre-flight skip should gate only on **entity terminal states** (`issue_state: CLOSED`, `pr_state: MERGED/CLOSED`) — never on role convergence signals (`comment_posted`, `pr_opened`, `confirmation_posted`). Convergence signals mean "this role's job is done for now," not "this entity is done." Adding them to pre-flight causes confirm/implement cycles to false-skip after the clarifier posts. The session's internal watermark logic handles "nothing new since last pass" — the runner's job is the cheap cost-optimization skip for truly terminal entities. Same boundary as `state.md` (runner) vs `status.md` (session): don't read session-domain signals in runner code.
+
+## Missing `fill-template.sh` Keys Fail Silently
+
+`fill-template.sh` has no defaults — missing keys in metadata.json leave raw `{KEY}` placeholders in the output. Worse: agents often reason around unresolved placeholders (inferring the intended command from context) rather than erroring. The session succeeds, but the pipeline is fragile. Every skill must explicitly provide every key its template references. Verify with `grep '\{[A-Z_]*\}' prompt.txt` after assembly — a clean run has zero matches.
+
+## Standalone Worktree Agent for Bootstrap Infrastructure
+
+When fixing infrastructure that the sweep flow itself depends on (e.g., the runner template), prefer `Agent(isolation: "worktree")` over generating sweep artifacts. The sweep flow would need to manually patch the very template being fixed — a chicken-and-egg. The worktree agent gets a clean checkout, implements from a fully-specified plan, and pushes a branch. The director still doesn't touch the working tree; the worktree agent is just a different execution vehicle than `claude -p` with metadata.json artifacts.
+
 ## Compose Escalation Through Existing Decision Frameworks
 
 Secondary agents that need to escalate (verifier asking for clarification, validator finding ambiguity) should route through whatever decision framework already governs the primary loop — not build a parallel escalation channel. Verifier mid-run clarification flows through the same operator-cession framework the director uses (silent for routine, decide-with-report for partial, escalate to operator for ambiguous). Composability over duplication: one escalation surface for the operator to learn, one set of categories, one log location.
+
+## Compound Findings Halve Per Cycle When Author Fixes Root Causes
+
+Substantive PRs in compound review+address mode follow a predictable trajectory: findings count roughly halves each cycle (e.g., 10 → 5 → 0). Three cycles is typical for a PR with 3 HIGH findings; clean re-review (0 new findings) is the convergence signal. If findings don't shrink between cycles, the addresser is patching symptoms rather than root causes — write a directive or escalate.

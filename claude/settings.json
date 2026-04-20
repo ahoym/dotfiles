@@ -4,8 +4,11 @@
       "Bash(bash ~/.claude/commands/**)",
       "Bash(bash ~/.claude/skill-references/**)",
       "Bash(bash tmp/claude-artifacts/**)",
-      "Bash(chmod +x *)",
+      "Bash(chmod +x tmp/claude-artifacts/**)",
+      "Bash(chmod +x ~/**/tmp/claude-artifacts/**)",
       "Bash(cp ~/.claude/skill-references/**)",
+      "Bash(cp tmp/claude-artifacts/**)",
+      "Bash(cp ~/**/tmp/claude-artifacts/**)",
 
       "Bash(brew list:*)",
       "Bash(curl:*)",
@@ -38,6 +41,10 @@
       "Bash(gh issue *)",
       "Bash(gh pr *)",
 
+      "Skill(git:team-review-request *)",
+      "Skill(git:address-request-comments *)",
+      "Skill(git:resolve-conflicts *)",
+
       "Bash(glab api *)",
       "Bash(glab auth *)",
       "Bash(glab mr *)",
@@ -47,7 +54,12 @@
       "Bash(mkdir -p tmp:*)",
       "Bash(mkdir -p ~/.claude:*)",
       "Bash(rm -rf docs/learnings/_staging*)",
-      "Bash(rm tmp/claude-artifacts:*)",
+      "Bash(mv tmp/claude-artifacts/**)",
+      "Bash(mv ~/**/tmp/claude-artifacts/**)",
+      "Bash(rm tmp/claude-artifacts/**)",
+      "Bash(rm ~/**/tmp/claude-artifacts/**)",
+      "Bash(rmdir tmp/claude-artifacts/**)",
+      "Bash(rmdir ~/**/tmp/claude-artifacts/**)",
 
       "Read(claude/**)",
       "Read(tmp/claude-artifacts/**)",

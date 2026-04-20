@@ -29,7 +29,7 @@ When step 5 selects only one persona, the orchestrator reviews directly — no s
 
    ### Findings
 
-   <Bulleted themes — group by concern, not by file>
+   N finding(s) — see inline comments.
 
    ### Positive Signals
 

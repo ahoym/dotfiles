@@ -68,9 +68,6 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- @~/.claude/skill-references/platform-detection.md — GitHub vs GitLab detection
-- `~/.claude/skill-references/{github,gitlab}/issue-operations.md` — Issue fetch, comment commands
-- `~/.claude/skill-references/{github,gitlab}/pr-management.md` — PR creation (for implementer context)
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
@@ -93,16 +90,23 @@ Parse `$ARGUMENTS` to extract:
 - **Max**: `--max=<N>` → `MAX_ISSUES` (default 30)
 - **Concurrency**: `--concurrency=<N>` → `CONCURRENCY` (default 5)
 
-### Phase 2: Platform Detection & Issue Fetch
+### Phase 2: Issue Fetch
 
-1. Follow `platform-detection.md` to determine GitHub vs GitLab. Read the matching `issue-operations.md` cluster.
+1. Fetch work items — platform-specific commands are inlined below via `!` preprocessing:
+   - Specific numbers (includes comments):
+     ```
+     !`cat ~/.claude/platform-commands/fetch-issue.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
+     Add `updatedAt` to the `--json` fields.
+   - All open (with optional label filter):
+     ```
+     !`cat ~/.claude/platform-commands/list-open-issues.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
 
-2. Fetch work items:
-   - Specific numbers: `gh issue view <N> --json number,title,body,labels,assignees,comments,url,updatedAt`
-   - Label filter: `gh issue list --state open --label <LABEL> --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
-   - No filters: `gh issue list --state open --json number,title,body,labels,assignees,updatedAt --limit <MAX>`
-
-3. For items fetched via list (no comments included), fetch comments per issue: `gh api repos/{owner}/{repo}/issues/<N>/comments --paginate`
+3. For items fetched via list (no comments included), fetch comments per issue:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-issue-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
 4. Store each item as: `{number, title, body, comments[], url, labels[], updatedAt}`
 
@@ -112,9 +116,41 @@ For each work item, check these conditions (in order):
 
 **a. Issue closed.** If state is closed, mark as `SKIP(Closed)`.
 
+**a2. Blocked by unresolved dependencies.** Parse the issue body for dependency declarations. Look for lines matching `Blocked by:` (case-insensitive) and extract all `#(\d+)` references. Also check `## Dependencies` sections — extract `#(\d+)` from any line within that section.
+
+For each referenced blocker issue, determine its resolution state:
+
+```
+# Check issue state
+!`cat ~/.claude/platform-commands/check-issue-state.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+# Check for PRs linked to the blocker (sweep branches + body references)
+!`cat ~/.claude/platform-commands/list-prs-by-branch.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+!`cat ~/.claude/platform-commands/list-prs-by-issue-ref.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
+
+Filter PR results: for the `#<N>` search, confirm the PR body actually references the blocker issue (avoid false positives from substring matches — e.g., `#9` matching `#99`). Check for `Relates to #<N>`, `Fixes #<N>`, `Closes #<N>`, or `Blocked by:.*#<N>` patterns.
+
+A blocker is **resolved** if any of these are true:
+- The blocker issue is `CLOSED`
+- The blocker has a **merged** PR (code is on main)
+- The blocker has an **open** PR (code exists on a branch)
+
+A blocker is **unresolved** only when the issue is open AND has no PR (no code exists anywhere to build on).
+
+If **any** blocker is unresolved, mark as `SKIP(Blocked by #N, #M (no PR))` — list all unresolved blockers in the reason.
+
+If all blockers are resolved, the dependency gate passes. Additionally, **determine the base branch**:
+- If every blocker's code is on main (issue closed or PR merged) → base branch is `default_branch`
+- If exactly **one** blocker has an open (unmerged) PR → base branch is that PR's `headRefName`
+- If **multiple** blockers have open PRs on **different** branches → base branch is `default_branch` and mark with `⚠️ diamond dependency` in the summary. Stacking is only safe on a single linear chain. The operator should merge at least one blocker before the dependent can stack cleanly.
+
+Record as `base_branch` in the item's metadata for Phase 5 worktree setup.
+
+**Batch optimization:** collect all unique blocker numbers across all issues and fetch their states + PRs in one pass before evaluating individual items. Cache results to avoid redundant API calls when multiple issues share blockers.
+
 **b. Existing PR linked.** Check for open PRs with branch matching `sweep/<id>-*`:
-```bash
-gh pr list --state open --json headRefName,number,url
+```
+!`cat ~/.claude/platform-commands/list-open-prs.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 ```
 Filter client-side. If match found: mark as `SKIP(PR exists (#N))`.
 
@@ -163,12 +199,13 @@ Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` 
   "default_branch": "<main or master>",
   "repo_summary_lines": <N>,
   "eligible": [
-    {"number": 12, "title": "...", "role": "implement", "url": "...", "labels": ["bug"]},
-    {"number": 8, "title": "...", "role": "clarify", "url": "...", "labels": ["enhancement"]}
+    {"number": 12, "title": "...", "role": "implement", "url": "...", "labels": ["bug"], "base_branch": "main"},
+    {"number": 8, "title": "...", "role": "clarify", "url": "...", "labels": ["enhancement"], "base_branch": "sweep/7-auth-refactor"}
   ],
   "skipped": [
     {"number": 15, "reason": "PR exists (#42)"},
-    {"number": 7, "reason": "Awaiting reply"}
+    {"number": 7, "reason": "Awaiting reply"},
+    {"number": 10, "reason": "Blocked by #8, #9 (no PR)"}
   ]
 }
 ```
@@ -190,15 +227,33 @@ Write data files for template assembly, then call `fill-template.sh`:
        "ISSUE_URL": "<url>",
        "ISSUE_LABELS": "<comma-separated>",
        "OWNER_REPO": "<owner/repo>",
-       "DEFAULT_BRANCH": "<main or master>",
+       "BASE_BRANCH": "<default branch or dependency PR branch>",
        "MODEL_NAME": "<model>",
        "PERSONA_NAME": "<persona or none>",
        "RUN_DIR": "<absolute path>",
        "ISSUE_DIR": "<absolute path>",
        "ISSUE_UPDATED_AT": "<timestamp>",
-       "LAST_COMMENT_ID": "<id or none>"
+       "LAST_COMMENT_ID": "<id or none>",
+       "POST_ISSUE_COMMENT_CMD": "<literal command — see below>",
+       "FETCH_ISSUE_WITH_COMMENTS_CMD": "<literal command — see below>",
+       "CHECK_ISSUE_STATE_CMD": "<literal command — see below>"
      }
      ```
+
+     **Platform command injection:** The following keys inject literal platform commands into runtime templates via `fill-template.sh`. The SKILL.md `!cat`-inlines the script content at load time; the agent writes the literal command string as a metadata.json value:
+
+     - `POST_ISSUE_COMMENT_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/post-issue-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `FETCH_ISSUE_WITH_COMMENTS_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/fetch-issue-with-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
+     - `CHECK_ISSUE_STATE_CMD` — literal value of:
+       ```
+       !`cat ~/.claude/platform-commands/check-issue-state.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+       ```
    - `body.txt` — issue body text
    - `comments.txt` — formatted comment thread
 
@@ -210,14 +265,19 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Generate a runner script adapted for work items. Read `~/.claude/skill-references/parallel-claude-runner-template.sh` as a starting reference, then generate with these adaptations:
+Generate a runner script adapted for work items. Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` — write `<RUN_DIR>/metadata.json` and assemble via `fill-template.sh`. Do NOT read the runner template directly. Work-item-specific metadata overrides and adaptations:
 
-- **Model selection**: `{{MODEL}}` → `claude-opus-4-6` for implement runs (the implementer is a leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
-- **Directory naming**: `issue-<N>` instead of `pr-<N>`
-- **Config section**: `ISSUES=(<numbers>)` instead of `PRS`, `IMPLEMENT_ISSUES=(<numbers>)` for worktree tracking
-- **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from default branch (implementers start fresh).
+- **Model selection**: `MODEL` → `claude-opus-4-6` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
+- **Entity type keys**: Set in `metadata.json` per the sweep-scaffold.md schema. Issue-specific values:
+  ```json
+  {"ENTITY_PREFIX": "issue", "ENTITY_LABEL": "Issue", "STATE_FIELD": "issue_state",
+   "STATE_CHECK_CMD": "gh issue view", "TERMINAL_STATES": "CLOSED"}
+  ```
+- **Config arrays**: `IMPLEMENT_ISSUES=(<numbers>)` — issues that get worktrees vs in-place clarifiers. Write this array to the runner script so the worktree setup section knows which issues need checkouts.
+- **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from the issue's `BASE_BRANCH` (read from `metadata.json`). When `BASE_BRANCH` is the default branch, the implementer starts fresh. When it's a dependency's PR branch, the implementer stacks on top of that branch's work. **For non-default base branches:** run `git fetch origin <BASE_BRANCH>` before `git worktree add` — the dependency's branch likely only exists on the remote.
+- **PR target for stacked branches**: When `BASE_BRANCH` is not the default branch, the implementer's PR must target `BASE_BRANCH` (not main). The `BASE_BRANCH` value is available in `metadata.json` and must be passed through to the implementer prompt so `gh pr create --base <BASE_BRANCH>` is used.
 - **Pre-flight state check**:
-  1. Local `status.md` check — skip if `issue_state: closed` or `pr_opened: true` or `comment_posted: true`
+  1. Local `status.md` check — skip if `issue_state: CLOSED` (terminal entity state only — role convergence signals like `comment_posted` and `pr_opened` are the session's responsibility, not the runner's)
   2. API fallback — `gh issue view <N> --json state -q '.state'`, skip if closed
 - **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
 - **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).
@@ -229,12 +289,14 @@ The runner MUST use `stream-monitor.sh` for `live.md` observability (same patter
 ```
 Assessed N issues. M eligible (I implement, C clarify, F confirm), K skipped:
 
-| # | Title | Role | Skip Reason |
-|---|-------|------|-------------|
-| 12 | Fix login redirect | Implement | -- |
-| 8 | Add dark mode | Clarify | -- |
-| 15 | Refactor auth | Skip | PR exists (#42) |
-| 7 | Update deps | Skip | Awaiting reply |
+| # | Title | Role | Base | Skip Reason |
+|---|-------|------|------|-------------|
+| 12 | Fix login redirect | Implement | main | -- |
+| 8 | Add dark mode | Implement | sweep/7-auth | stacked on #7 |
+| 3 | Update nav | Clarify | -- | -- |
+| 15 | Refactor auth | Skip | -- | PR exists (#42) |
+| 10 | New endpoint | Skip | -- | Blocked by #8, #9 (no PR) |
+| 7 | Update deps | Skip | -- | Awaiting reply |
 ```
 
 Then announce artifacts (follow Announce Format from `sweep-scaffold.md`, substituting `issue-<N>` for `pr-<N>`):
@@ -267,7 +329,7 @@ Convergence is a director concern, not this skill's. Summary for directors:
 ## Important Notes
 
 - **Assessment only.** This skill generates artifacts and exits. It does not launch agents or wait for results.
-- **Agents are independent.** Each `claude -p` session operates alone. Parallel implementers may create conflicting PRs — the operator resolves manually.
+- **Agents are independent but dependency-aware.** Each `claude -p` session operates alone, but the assessment phase respects `Blocked by:` declarations — issues with unresolved blockers (no PR, no merged code) are skipped. When a blocker has an open PR, the dependent issue stacks on that branch. Parallel implementers on unrelated issues may still create conflicting PRs — the operator resolves manually.
 
 - **`Relates to` not `Closes`.** PRs reference issues with `Relates to #{N}`, never `Closes` or `Fixes`. The operator decides when to close.
 - **Footnote identity.** `Role: Sweeper` (clarifier) and `Role: Sweeper-Confirm` (confirmer) — used by skip detection to determine conversation stage.

@@ -1,0 +1,1 @@
+gh pr diff <number>

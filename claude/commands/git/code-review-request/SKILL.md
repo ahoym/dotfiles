@@ -37,16 +37,15 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- Platform cluster files — loaded via the base reference's Platform Detection section
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
 
-**Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
+**Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform commands, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
 
 1. **Verify active persona** — a persona is active if set via `/set-persona` or an ad-hoc prompt (e.g., "act as a senior infosec engineer", "you are a security reviewer"). For ad-hoc, extract a short name and proceed. If neither is active, glob `.claude/personas/` and `~/.claude/commands/set-persona/` for available personas, recommend the best match, and wait for activation. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
-2. **Detect platform** — follow **Platform Detection** from the base reference.
+2. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
 3. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
 
@@ -64,7 +63,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
-   **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Parse the JSON response to check:
+   **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform command scripts. Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
    - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
@@ -72,7 +71,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
+   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform command scripts (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
 
    This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 
@@ -83,7 +82,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER>: no changes since last review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-6. **Fetch PR metadata and diff** — run these in parallel using the platform cluster files:
+6. **Fetch PR metadata and diff** — run these in parallel using the platform command scripts:
 
    - **Fetch Diff** — use the **"Fetch Diff"** section
    - **Fetch Files Changed** — use the **"Fetch Files Changed"** section
@@ -127,7 +126,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 10. **Compose the review** — build the review payload:
 
-   **First review body** (summary — themes only, no file-specific details):
+   **First review body** (count + pointer, not a finding list):
    ```
    ## <Persona Name> Review: <REQUEST_TITLE>
 
@@ -135,12 +134,14 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    ### Findings
 
-   <Bulleted themes — group by concern, not by file. No filenames or line numbers here.>
+   N finding(s) — see inline comments.
 
    ### Positive Signals
 
    <What's done well — themes and patterns, not file-by-file inventory>
    ```
+
+   The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.`
 
    Append the **Footnote Format** from the base reference (Role: Reviewer) to the review body.
 
@@ -148,7 +149,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Each inline comment and follow-up reply** must also end with the footnote.
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform cluster files. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform command scripts. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 

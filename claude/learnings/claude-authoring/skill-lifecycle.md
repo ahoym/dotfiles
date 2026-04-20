@@ -4,6 +4,18 @@ Skill lifecycle and maintenance — stale path references, producer-consumer con
 
 ---
 
+## Triage Rubric for Orphaned Reference Docs
+
+When auditing reference files no longer loaded by any skill, classify each as:
+
+| Verdict | Criteria |
+|---------|----------|
+| **Delete** | Content fully captured in active scripts/skills; no unique knowledge |
+| **Move to learnings** | Contains gotchas, patterns, or domain knowledge worth preserving but not at execution time |
+| **Keep deprecated** | Institutional knowledge (API quirks, jq escaping, GraphQL mutations, platform-specific behavior) future debuggers will need |
+
+After deletion/move: sweep `keyword-index.json`, deep-dive trackers, and cross-refs in other learnings for dangling paths. Update cluster-index files (e.g., `commands.md`) to reflect current state — a stale index that lists deleted files misleads future readers.
+
 ## Stale Path References Are the Primary Skill Maintenance Issue
 
 Skills referencing specific file paths (`~/.claude/lab/script.sh`, `docs/learnings/topic.md`) go stale when files are moved, deleted, or renamed. In curation of 4 skills, 2 had broken path references. During curation, verify every file path in SKILL.md and reference files actually resolves. Paths to external scripts and cross-directory references are more fragile than paths within the skill's own directory.
@@ -93,6 +105,14 @@ Every fix to a runtime artifact (generated prompt, `let-it-rip.sh`, status.md fo
 ## Behavioral-Reversal Documentation Needs Prior Rationale
 
 When a skill rule does a complete 180° on a previously-stated capability claim (old: "can't reliably do X"; new: "X works inline"), the new text should briefly acknowledge why the old rule existed — even a parenthetical. Without this, future readers see a strong claim without knowing the rule was ever different. Ordinary updates don't need this treatment; only explicit reversals of prior "can't" / "don't" / "impossible" statements.
+
+## Learnings-to-Skill Graduation Gap
+
+Learnings accumulate during sessions; skills get updated when something breaks. No routine asks "which learnings have graduated to operational status and should be folded into their point-of-use skill?" Periodic audit: read learnings files adjacent to a skill, check each against the skill/playbook, and promote proven patterns. Director sessions are the highest-value trigger since they exercise the most learnings.
+
+## Deprecation Notes Must Describe Current State, Not Target State
+
+"Skills no longer load this file" is a falsifiable claim — if any consumer still loads it, the note is wrong. A future agent reading it may skip a still-needed file. Use progressive language ("being migrated away from") until all consumers are confirmed migrated. Verify consumer state before upgrading deprecation notes to past tense.
 
 ## Cross-Refs
 

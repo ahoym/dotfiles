@@ -1,16 +1,23 @@
 ---
-description: "Index — GitLab command clusters. Skills should reference specific cluster files, not this index."
+description: "Index — GitLab command clusters and atomic scripts. Skills use !cat platform-commands/<cmd>.sh for atomic commands."
 ---
 
 # GitLab Commands (Index)
 
-Commands are split into clusters so skills load only what they need:
+## Atomic Command Scripts (`commands/*.sh`)
 
-| Cluster | File | Contents |
-|---------|------|----------|
-| **Fetch review data** | `fetch-review-data.md` | Fetch Review Details, Diff, Files Changed, Commits |
-| **Comment interaction** | `comment-interaction.md` | Fetch/Reply/React to comments (inline, review, top-level) |
-| **MR management** | `pr-management.md` | Create/Update MR, Post Review, Checkout, Check Existing, Find Approvers |
-| **Batch operations** | `batch-operations.md` | Fetch Review Metadata, Verify Access, Count Total (for extract-request-learnings) |
+Skills inline these via `!cat ~/.claude/platform-commands/<cmd>.sh`. See `commands/` subdirectory for all scripts.
 
-Skills reference clusters by name in their Reference Files section. After platform detection, read from `~/.claude/skill-references/{github,gitlab}/`.
+## Cluster Reference Files (Deprecated)
+
+Legacy cluster files — retained for accumulated platform knowledge, not loaded by skills:
+
+| Cluster | File | Status |
+|---------|------|--------|
+| **Comment interaction** | `comment-interaction.md` | Retained — discussions vs notes, nested JSON gotcha, no-python3 rule, emoji names |
+| **MR management** | `pr-management.md` | Retained — GraphQL createDiffNote, line positioning, flat JSON gotcha |
+
+Deleted clusters (content migrated to learnings):
+- `batch-operations.md` → deleted (migration target `~/.claude/learnings/gitlab/batch-operations-patterns.md` does not exist — content was not migrated)
+- `issue-operations.md` → deleted (unimplemented v2 stub)
+- `fetch-review-data.md` → deleted (content redundant with skill instructions)
