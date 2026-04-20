@@ -622,6 +622,18 @@ These destroy untracked files, uncommitted changes, or both — with no recovery
 git stash --include-untracked -m "pre-reset-$(date +%Y%m%d-%H%M%S)"
 ```
 
+## Verify Source Clean After `git stash push -- <path>`
+
+`git stash push -- <pathspec>` is documented to revert the pathspec in the working tree after saving it, but a `.git/index.lock` race during compound `stash push && cd <worktree> && stash pop` can leave the stash created **and** the source file still dirty. Result: both source and destination end up with the same diff.
+
+Verify after push:
+```bash
+git stash push -m <label> -- <path>
+git diff --stat <path>   # must be empty; if not, the revert silently failed
+```
+
+Mitigation: run `stash push` and the cross-worktree `stash pop` as separate tool calls so any lock contention surfaces loudly instead of being swallowed by `&&` short-circuit.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands
