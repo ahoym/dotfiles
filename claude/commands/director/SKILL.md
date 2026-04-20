@@ -56,10 +56,10 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    ```
 8. **Capture intent** for each item. Create `<session_dir>/intents/` directory. For each PR/issue in scope:
    a. Read item metadata (PR title/description/linked issues, or issue body).
-   b. Draft an intent file from metadata following the schema in `/verify-business-logic`'s `director-mode.md`. (**Maintenance note:** Schema is defined and owned by `verify-business-logic/director-mode.md` — update this step if the schema changes.)
+   b. Read `~/.claude/commands/git/verify-business-logic/director-mode.md` for the current intent file schema. Draft an intent file from metadata following that schema. (**Maintenance note:** Schema is defined and owned by `verify-business-logic/director-mode.md` — update this step if the schema changes.)
    c. Present the draft to the operator: "Here's what I think we're building. Confirm, revise, or fill the gaps."
    d. Restructure the operator's response into the final intent shape and write to `<session_dir>/intents/<id>.md` (e.g., `pr-78.md`, `issue-56.md`). Set `Source: director-negotiated`.
-   e. One revision round if the operator wants to tighten anything. **Timeout fallback**: if no operator response within 5 minutes, proceed with `Source: inferred-from-pr-description` and log to `decisions.md` with category `intent-capture-timeout`. This aligns with the Decision Framework's pattern for routine autonomous decisions at lower confidence.
+   e. One revision round if the operator wants to tighten anything. **Timeout fallback**: if no operator response within 5 minutes, proceed with `Source: draft-timeout` and log to `decisions.md` with category `intent-capture-timeout`. This aligns with the Decision Framework's pattern for routine autonomous decisions at lower confidence. Note: `draft-timeout` (not `inferred-from-pr-description`) because the operator saw the draft — confidence is higher than a pure inference.
    f. Once confirmed (or timed out with fallback), the file is **locked** for the session — no silent mutations.
    g. Optionally write `<session_dir>/intents/index.md` — one line per item for session-at-a-glance.
    
@@ -164,12 +164,15 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 1. Check convergence by reading `*/status.md` across all run_dirs listed in `session.json`.
 2. Session ends when all runs converge.
 3. **Run convergence verifier** for each converged PR:
-   a. Invoke via Skill tool: `skill="git:verify-business-logic", args="<pr-number> --intent-file <session_dir>/intents/<id>.md --session-dir <session_dir>"`. **Naming mapping**: `<id>` uses the `pr-<N>` convention from Phase 1 Step 8d (e.g., PR 78 → `pr-78.md`).
-   b. If the verifier outputs `CLARIFY: <question>`, route through the Decision Framework:
-      - Simple/silent: answer from context and re-invoke verifier.
-      - Complex/escalate: ask operator, then re-invoke verifier with the answer.
+   a. **Pre-invocation check**: verify `<session_dir>/intents/<id>.md` exists. If missing (mid-session addition without intent capture), run Phase 1 Step 8 intent capture for this PR before invoking the verifier. **Naming mapping**: `<id>` uses the `pr-<N>` convention from Phase 1 Step 8d (e.g., PR 78 → `pr-78.md`).
+   b. Invoke via Skill tool: `skill="git:verify-business-logic", args="<pr-number> --intent-file <session_dir>/intents/<id>.md --session-dir <session_dir>"`.
+   c. If the verifier outputs `CLARIFY: <question>`, route through the Decision Framework:
+      - Simple/silent: answer from context and re-invoke verifier with `--clarify-answered` flag appended to args.
+      - Complex/escalate: ask operator, then re-invoke verifier with `--clarify-answered` flag.
       - Log to `decisions.md` with category `verifier-clarification`.
-   c. Verifier posts a top-level PR comment and writes `<session_dir>/verify-pr-<N>.md`.
+      - **Exit condition**: if re-invoked verifier outputs a second `CLARIFY:`, treat as `VERIFIED:intent-unclear`. Log `verifier-clarification-loop` to `decisions.md`. Do not re-invoke.
+   d. If verifier output is neither `CLARIFY:` nor `VERIFIED:*`, treat as verifier error. Log to `decisions.md` as `verifier-error`. Do not proceed to Step 4 for this PR without operator decision — either retry with corrected args or mark as `verification-skipped` with explicit acknowledgment.
+   e. Verifier posts a top-level PR comment and writes `<session_dir>/verify-pr-<N>.md`.
 4. Write final `director-state.md` per playbook format with terminal state.
 5. Present a final summary: per-run retro (read each run's `*/results.md` and `*/learnings.md`), including verifier reports.
 6. Review `<session_dir>/decisions.md` as part of the retro — surface decide-with-report entries (dissent, cost-time, out-of-scope, verifier-clarification) so the operator can audit autonomous calls and flag any that should have been escalated.
