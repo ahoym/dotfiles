@@ -7,10 +7,9 @@ Template for structuring the verification analysis. The skill populates placehol
 | Placeholder | Source | Required |
 |-------------|--------|----------|
 | `{{INTENT}}` | Intent file content (director mode) or self-captured summary (standalone) | Yes |
-| `{{INTENT_SOURCE}}` | `director-negotiated`, `operator-confirmed`, or `inferred-from-pr-description` | Yes |
+| `{{INTENT_SOURCE}}` | `director-negotiated`, `operator-confirmed`, `draft-timeout`, or `inferred-from-pr-description` | Yes |
 | `{{DIFF}}` | Full PR diff from `gh pr diff` | Yes |
 | `{{COMMENTS}}` | All PR comments and review threads from `gh` API | Yes |
-| `{{DISCIPLINE_RULES}}` | Content of `discipline-rules.md` | Yes |
 | `{{MODE}}` | `standalone` or `director` | Yes |
 
 ## Report Template
@@ -62,6 +61,7 @@ Template for structuring the verification analysis. The skill populates placehol
 
 - **`director-negotiated`**: "Intent was captured and confirmed by the operator at session start. Scope analysis is high-confidence."
 - **`operator-confirmed`**: "Intent was drafted from PR metadata and confirmed by the operator. Scope analysis is medium-confidence."
+- **`draft-timeout`**: "Intent was drafted from PR metadata and presented to the operator, but the operator did not respond within the timeout window. Scope analysis is medium-low confidence — the operator saw but did not confirm."
 - **`inferred-from-pr-description`**: "Intent was inferred from the PR description without explicit confirmation. Scope analysis is advisory — treat as suggestions to verify, not assertions."
 
 ## Mode-Specific Behavior
