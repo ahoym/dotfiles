@@ -27,15 +27,15 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 
 ## Scheduling
 
-- `scheduling-time-windows.md` — Runtime gates from `HH:MM-HH:MM` windows: cross-midnight semantics, weekday-anchored-on-open-day, market-aware excluded-open-days (CME Sun-Thu vs equities Mon-Fri), derive-from-window sleep cadence
+- `scheduling-time-windows.md` — Runtime gates from time windows: cross-midnight wrap, weekday/market-aware open-days, derive-from-window sleep cadence
 
 ## Deployment
 
 - `vercel-deployment.md` — Vercel: cron job limits, Postgres (Neon), environment variables
 - `kubernetes-helm-patterns.md` — Helm: bootstrapping apps from templates, prometheusrule boilerplate gotcha
 - `nginx-patterns.md` — nginx: alias+try_files SPA routing, add_header inheritance in named locations, Vite base path, proxy_pass trailing slash
-- `docker-compose-patterns.md` — Docker Compose: per-service `logging:` overrides daemon.json (multi-container CloudWatch rollouts)
-- `terraform-patterns.md` — Terraform: fallback-source `count` gating, `templatefile()` secret exposure surfaces, `lifecycle { ignore_changes }` recovery colocation
+- `docker-compose-patterns.md` — Docker Compose: per-service `logging:`, plugin form, EBUSY on file bind-mounts, path-migration mounts
+- `terraform-patterns.md` — Terraform: fallback-source `count` gating, `templatefile()` secret exposure, `lifecycle { ignore_changes }` recovery
 
 ## Security
 
