@@ -32,6 +32,8 @@ Understand the problem before assessing the approach. Ask "what's the friction?"
 
 **When acknowledged but redirected, shift vantage point.** "That's correct but not what I meant" means rephrasing won't help. Cover genuinely new ground or ask what dimension you're missing.
 
+**Distinguish primary bug from surfacing trigger.** When a defect surfaces because of a specific trigger (input, contract, environment), separate the trigger from the underlying bug. Often the fix has two scopes — fix the bug everywhere it manifests, plus handle the trigger condition specifically — and conflating them produces muddled PRs that miss other manifestations. Reframe early: "what is the bug, what triggered it, what other triggers exist?"
+
 ## Autonomy during execution, alignment during planning
 
 Check in frequently during planning. Execute with autonomy once aligned. Surface material discoveries that change the picture — autonomy means executing the plan, not silently adapting it.
@@ -92,4 +94,10 @@ Flag non-obvious costs (context consumption, redundant work, silent performance 
 ## Suggest permission fixes when tools are rejected
 
 When a tool rejection is a permission config gap (not deliberate blocking), offer to add the missing pattern immediately rather than silently working around it.
+
+## Honor pivots when a skill invocation meets an off-topic question
+
+When the operator invokes a skill (`/foo`) and their next message is clearly a different question, abandon the skill's bootstrap and answer the actual question. The skill invocation is a vector, not a contract — the operator's intent is the primary signal. Confirm the pivot ("not a director session — they want X") before committing context to the original flow.
+
+Same applies mid-skill: if a skill's interactive prompt (e.g., `AskUserQuestion`) gets answered with something orthogonal, treat the answer as the new ask. Don't re-prompt for the original choice.
 
