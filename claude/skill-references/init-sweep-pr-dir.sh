@@ -16,6 +16,13 @@ fi
 RUN_DIR="$1"
 shift
 
+# Validate PR numbers up front so a typo doesn't half-initialize the run-dir
+# with malformed `pr-foo/` or `pr----retro/` subdirs (which sweep-status-summary
+# would later surface via its `pr-*` glob).
+for pr in "$@"; do
+  [[ "$pr" =~ ^[0-9]+$ ]] || { echo "ERROR: not a PR number: $pr" >&2; exit 1; }
+done
+
 mkdir -p "$RUN_DIR"
 for pr in "$@"; do
   mkdir -p "$RUN_DIR/pr-$pr"
