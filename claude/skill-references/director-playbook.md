@@ -29,6 +29,12 @@ Before starting any sweep session:
 4. `tmp/claude-artifacts/sweep-reviews/` and `tmp/claude-artifacts/sweep-address/` exist or can be created
 5. `~/.claude/skill-references/stream-monitor.sh` exists and is executable — the runner falls back to plain `claude -p` if missing, but `live.md` observability requires it
 
+## Concurrency: match explicit item count
+
+When the operator names N items (`/director review+address 47 48 49`), pass `--concurrency=N` to each sweep skill. The skill default of 3 is for "all open" sweeps where the count is unknown — explicit selection signals "I want exactly these N running in parallel." Capping below the named count serializes later items unnecessarily.
+
+If the operator passes `--concurrency=N` explicitly, honor it as-is regardless of item count.
+
 ## Loop Setup: Offset Cadence
 
 Run review and address sweeps on offset schedules:
@@ -47,7 +53,7 @@ Launching review before address assessment parallelizes address artifact generat
 
 ## Session Observability
 
-`claude -p` sessions are fire-and-forget — the director is blind until the process exits. The runner template pipes through `stream-monitor.sh` to fill this gap:
+`claude -p` sessions are fire-and-forget. The runner pipes through `stream-monitor.sh` for visibility:
 
 ```
 cat prompt.txt \
@@ -56,54 +62,28 @@ cat prompt.txt \
   | tee $PR_DIR/raw.jsonl
 ```
 
-`stream-monitor.sh` is a pass-through filter: every event flows to stdout unchanged, but as a side effect it appends typed entries to `live.md`. The `sh -c`/`exec` wrapper captures the real `claude -p` PID to `session.pid` (the monitor reads it with a brief retry for pipeline race).
-
-### Stream-JSON Events
-
-`--output-format stream-json` (requires `--verbose`) emits newline-delimited JSON. Key event types:
-
-| Event | What it reveals |
-|-------|-----------------|
-| `system/init` | Model, tools, CWD |
-| `assistant` (tool_use) | Tool name, inputs. Subagent calls carry `parent_tool_use_id` |
-| `user` (tool_result) | Success/failure content, permission denials |
-| `rate_limit_event` | Throttling |
-| `result/success` | Duration, cost, turns, permission_denials[] |
-
-### Per-PR File Inventory
-
-| File | Writer | Reader | Lifecycle |
-|------|--------|--------|-----------|
-| `prompt.txt` | Sweep skill | Runner -> `claude -p` | Assessment |
-| `state.md` | Runner | Director | During session (overwritten per state change) |
-| `status.md` | Agent | Director, next agent | End of session |
-| `results.md` | Agent | Director | End of session (appended) |
-| `learnings.md` | Agent | Director, future sessions | End of session (appended) |
-| `directives.md` | Director | Agent (next session) | Append-only |
-| `session.pid` | Runner | Monitor, director | Launch |
-| `live.md` | `stream-monitor.sh` | Director | During session (appended) |
-| `raw.jsonl` | `tee` | Post-hoc debugging | During session |
-
-### live.md Entry Types
-
-Append-only log. Entry types: `started` (pid), `init` (model), `tool_call` (name, input, subagent tag), `escalation` (permission denials, repeated errors), `rate_limit`, `completed` (cost, duration, turns), `terminated` (pipe closed without result — crash or kill).
+The monitor appends typed events to `live.md` as a side effect. Reference docs live in `~/.claude/learnings/claude-code/multi-agent/director/`:
+- **Channel model + state.md/status.md split + live.md entry types + stream-json event schema** → `observability.md`
+- **Per-PR file inventory** (`prompt.txt`, `state.md`, `status.md`, `results.md`, `learnings.md`, `directives.md`, `session.pid`, `live.md`, `raw.jsonl`) → `observability.md`
 
 ### Director Intervention
 
-The runner handles inactivity detection and single-retry recovery automatically. The director only intervenes after the runner exhausts retries and escalates via `state.md`.
+The runner handles inactivity detection and single-retry recovery automatically. The director only intervenes after the runner exhausts retries and escalates via `state.md`. Read `live.md` only when investigating an escalation — never as a primary monitoring channel.
 
 | Detection (from state.md) | Action |
 |---------------------------|--------|
-| `state: errored` + `escalation: needs-director` | Read `live.md` tail for context, investigate root cause, write directive for next launch |
+| `state: errored` + `escalation: needs-director` | Read `live.md` tail, investigate root cause, write directive for next launch |
 | `state: rate-limited` | Check `.rate-limited` sentinel, advise operator on retry timing |
-| `escalation: permission_denial` (in live.md, surfaced during investigation) | Fix permission in settings, write directive |
-| `escalation: repeated_errors` (in live.md, surfaced during investigation) | Investigate root cause, write directive or escalate to operator |
+| `escalation: permission_denial` | Fix permission in settings, write directive |
+| `escalation: repeated_errors` | Investigate root cause, write directive or escalate |
 
-The director does not poll `live.md` as a primary monitoring channel. It reads `live.md` only when investigating an escalation from `state.md` to understand what went wrong.
+**Failure-mode shortcut:** if `state: completed` but `live.md` shows `is_error: true` + `context_used_tokens: 0` + short duration on multiple sessions same cycle, that's the **rate-limit storm** — fresh-timestamp restart, not in-place retry. See `failure-modes.md`.
 
 ## Monitoring Table Format
 
-Read all `pr-*/state.md` (runner lifecycle) and `pr-*/status.md` (session domain state) and present:
+Gather state via `bash ~/.claude/skill-references/sweep-status-summary.sh <run-dir>` (adds `--retro` to also include `results.md` + `learnings.md` — use for convergence evaluation). Reading `pr-*/state.md` and `pr-*/status.md` file-by-file via Bash `cat` triggers a permission prompt per file; the script is already allowlisted under `Bash(bash ~/.claude/skill-references/**)` so one call returns the full cross-PR summary without prompting.
+
+The script prints per-PR sections — build the monitoring table from its output:
 
 | PR | State | Mergeable | Milestone | Runner State | Attempt | Directives |
 |----|-------|-----------|-----------|--------------|---------|------------|
@@ -122,6 +102,7 @@ First cycle: full table. Subsequent cycles: delta-only (changed rows), with a on
 - **Converged**: all sessions skip (no new activity) for 30m wall-clock
 - **Not converged**: any session produced findings this cycle
 - **Auto-cancel**: after 30m of all-skip inactivity — reviews are reactive to changes
+- **Attended-session collapse**: for sessions where the operator is watching, an explicit additional review-runner invocation that hits the watermark-skip path (no new SHA, no new comment ID, ~60s exit) is sufficient convergence signal — no need to wait the full 30m. Reserve the wall-clock window for unattended/looping runs. The operator can interrupt if more activity arrives.
 
 ### Address Loop
 - **Converged**: all PRs terminal (MERGED or CLOSED)
@@ -165,8 +146,8 @@ Review for conciseness: identify verbose prose, duplication, and extraction cand
 ```
 
 ### Summary-Only Review Finding
-**When:** latest review results.md section has `findings > 0` AND `inline_comments == 0` (finding on unchanged lines, documented in summary only).
-**Why:** the address loop can't pick this up — no inline comment means no comment ID change, so the address agent's watermark matches and it skips.
+**When:** latest review results.md has `findings > inline_comments` — at least one finding lives in the review body only, not as an inline comment. Covers both the all-summary case (`inline_comments == 0`) and the mixed case (e.g. 10 inline + 1 summary-only).
+**Why:** the address loop's watermark tracks inline comment IDs. Inline-attached findings will trigger processing, but any summary-only finding rides along invisibly — without a directive it gets silently dropped.
 **Write to:** `<ADDRESS_RUN_DIR>/pr-<N>/directives.md`
 
 ```markdown
@@ -181,6 +162,24 @@ Review found a summary-only finding (no inline comment). Finding: <description f
 ```markdown
 ## <ISO timestamp>
 Director-approved fix for <file>. <description of approved change>. Post a top-level PR comment flagging the sensitive file edit after committing.
+```
+
+### Reviewer Dissent — Override vs Persona-Resolve
+**When:** review surfaces a HIGH/INFO dissent that holds after deliberation between reviewer personas.
+**Decide:**
+- **Override** — write directive instructing the addresser which side to take. Use when the dissent has a clear technical winner the addresser persona might miss.
+- **Persona-resolve** — record dissent context-only in `pr-<N>/directives.md` (informational, **not** override). Default for taste-based dissents when the addresser persona is well-matched to the domain. The addresser then chooses fix / agree-and-defer-with-reply / pushback / escalate-with-proposed-wording via its lens.
+
+Either path requires a `decisions.md` entry per the decision matrix. The director's "decide" doesn't have to mean overriding the addresser — sometimes the persona's lens resolves better than a pre-committed call. **Validated:** PR #183 left both held positions to a fintech-ledger-engineer addresser; agree-and-defer + pushback both panned out (next review cycle withdrew the disputed finding).
+
+### Watermark Skip Override
+**When:** addresser silently skipped a cycle despite known new inline comments — typically a preflight watermark detection bug (e.g., `--paginate --jq 'last | .id'` returning a page-bounded value rather than the true latest).
+**Why:** preflight skip happens before normal comment classification, so the addresser exits without seeing the new findings. The override directive is read in step 1 (before the skip check) and forces processing.
+**Write to:** `<ADDRESS_RUN_DIR>/pr-<N>/directives.md`
+
+```markdown
+## <ISO timestamp>
+Previous cycle skipped despite new comments. Process inline comment IDs [<id1>, <id2>, ...] this cycle. <Per-id: severity, finding summary, expected fix>. This directive overrides skip logic.
 ```
 
 ### Directive Lifecycle
@@ -266,6 +265,13 @@ Followed by the current monitoring table snapshot. This persists the director's 
 | Convergence rules | this playbook | individual sessions (they don't decide convergence) |
 | Directive patterns | this playbook | learnings (learnings capture discovery, playbook operationalizes) |
 | Process lifecycle (running, retry, timeout) | runner (`state.md`) | director (reads, doesn't write) |
-| Session observability | `stream-monitor.sh` + this playbook | runner template (just wires the pipeline) |
-| Stream-json event schema | `stream-monitor.sh` (parses events) | learnings (learnings capture discovery) |
+| Stream-json event schema, file inventory, channel model | `~/.claude/learnings/claude-code/multi-agent/director/observability.md` | this playbook (cross-refs only) |
+| Runner template gotchas (EXIT trap, stale branch, schema drift, fill-template gaps) | `director/runner-design.md` | this playbook |
+| Watermark/skip mechanics (single-pass, dual-signal, self-comment, post-action) | `director/watermarks-and-skip.md` | this playbook |
+| Failure modes (rate-limit storm, oscillation, TOCTOU) | `director/failure-modes.md` | this playbook |
+| Director meta-process (decision-matrix-is-trust, orchestrate-not-replicate) | `director/process-and-meta.md` | this playbook |
 | Artifact contract (directory structure, manifest schema) | `artifact-contract.md` | this playbook, learnings, sweep-scaffold |
+
+## Related Learnings
+
+- `~/.claude/learnings/claude-code/multi-agent/director/CLAUDE.md` — sub-cluster index (5 focused files, split from former `director-patterns.md`)

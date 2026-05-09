@@ -35,13 +35,14 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - **Offset**: `--offset=N` minutes between review/address launches (default 3)
    - **Convergence**: if the operator requests "run to convergence" or "converge", read `convergence-loop.md` from this skill's directory and enter convergence loop mode after Phase 3 launch
 2. If no mode specified, ask the operator what to orchestrate. This can be any skill that produces manifest.json + item directories + a runner script — not just sweep skills.
-3. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
-4. **Prerequisites** (warn, don't block):
+3. **Load decision matrix (eager — always)**: read `~/.claude/skill-references/director-decision-matrix.md`. The matrix gates every Phase 4 action (routine / decide-with-report / escalate). Loading lazily creates a "you have enough already" trap — the playbook's narrative load makes a deferred matrix-read feel optional. Eager load avoids it.
+4. **Load sweep playbook** (conditional): if mode is `review`, `address`, or `review+address`, read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence. Skip for non-sweep orchestration.
+5. **Prerequisites** (warn, don't block):
    - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
-5. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
-6. Initialize `session.json` (append-only item-centric index):
+6. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
+7. Initialize `session.json` (append-only item-centric index):
    ```json
    {
      "created_at": "<ISO>",
@@ -50,7 +51,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    }
    ```
    Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
-7. Initialize `decisions.md` in the session dir with a single header line (append-only decision log per the playbook's Decision Framework):
+8. Initialize `decisions.md` in the session dir with a single header line (append-only decision log per the playbook's Decision Framework):
    ```markdown
    # Director Decisions — <timestamp>
    ```
@@ -68,11 +69,14 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
 {
   "items": {
     "pr-69": [{"run_dir": "<path>", "skill": "sweep:review-prs"}],
-    "issue-56": [{"run_dir": "<path>", "skill": "sweep:work-items"}]
+    "issue-56": [{"run_dir": "<path>", "skill": "sweep:work-items"}],
+    "phase-E1": [{"run_dir": "<path>", "skill": "director-custom:plan-phases"}]
   }
 }
 ```
-To check status: take the last entry for an item, read `<run_dir>/<item-dir>/status.md`.
+Item-key conventions: `pr-<N>/`, `issue-<N>/`, `phase-<P>/` (plan-keyed sessions). To check status: take the last entry for an item, read `<run_dir>/<item-dir>/status.md`.
+
+**Plan-keyed sessions (custom shape)**: when no skill exists for the operator's intent — e.g., orchestrating a sequential plan's phases as items without creating GitHub issues — fork the runner template and write per-phase artifacts directly. The runner can carry dependency gates by reading each item's `metadata.json` for `blocked_by` and checking each blocker's `pr_number` via `gh pr view --json state`. Convergence per item = its `pr_number`'s state reaching `MERGED`. Use `phase-<P>/` directory naming so `sweep-status-summary.sh` recognizes the shape.
 
 **Compound mode**: assess review first, launch review runner in the background immediately, then assess address while review is already running. This parallelizes address assessment with review execution, reducing total wall-clock time.
 
@@ -96,7 +100,7 @@ To check status: take the last entry for an item, read `<run_dir>/<item-dir>/sta
 
 ## Phase 4: Monitor + React
 
-**Decision matrix applies to every action in this phase.** Read `~/.claude/skill-references/director-decision-matrix.md` and classify before acting: routine → auto-decide and report. Dissent/cost-time → decide and log to `decisions.md`. Irreversible/security/scope-expansion → escalate.
+**Decision matrix applies to every action in this phase.** The matrix was eager-loaded in Phase 1 (step 3). Classify before acting: routine → auto-decide and report. Dissent/cost-time → decide and log to `decisions.md`. Irreversible/security/scope-expansion → escalate.
 
 The director is event-driven, not polling. It reads state on-demand: when a background task completes, when the operator asks, or when evaluating convergence.
 
@@ -114,9 +118,9 @@ The director is event-driven, not polling. It reads state on-demand: when a back
    **c. Convergence:** evaluate per the Convergence Rules below.
 
    **d. Decision gate (before surfacing anything to operator):**
-   - Load `~/.claude/skill-references/director-decision-matrix.md` if not loaded this phase
-   - For each action about to take: classify its tier (routine / decide-with-report / escalate)
+   - For each action about to take: classify its tier (routine / decide-with-report / escalate) using the matrix loaded in Phase 1
    - If routine → execute, log action taken, surface result
+   - If decide-with-report → execute, append to `decisions.md` with reasoning, surface result
    - If escalate → present with recommendation
    - **NEVER present a routine decision as a question.** "Should I resolve the conflicts?" when the matrix says "routine — auto-decide" is a failure. Execute and report: "Resolved conflicts on #87 via addresser directive."
 
@@ -155,8 +159,8 @@ Note: process lifecycle (inactivity detection, kill, retry) is owned by the runn
 
 ## Related Learnings
 
-Reference files — load on demand when relevant friction surfaces. Not required for every invocation.
+**Load eagerly at Phase 1 for any compound or convergence session.** Friction-triggered loading is too lax — director sessions hit watermark/relaunch/escalation patterns that the linked files cover, and reaching for them only after friction wastes a cycle. Skip eager loading only for trivial single-mode sessions where convergence is already obvious.
 
-- `~/.claude/learnings/claude-code/sweep-sessions.md` — sweep template limitations (PR-centric runner), watermark logic, confirmer/clarifier lifecycle, template script validation traps
-- `~/.claude/learnings/claude-code/multi-agent/director-patterns.md` — state.md vs status.md, inactivity detection, three-channel convergence, directives, manifest-updates
+- `~/.claude/learnings/claude-code/multi-agent/director/CLAUDE.md` — sub-cluster index (observability, runner-design, watermarks-and-skip, failure-modes, process-and-meta). Read the index plus any focused file matching session shape.
+- `~/.claude/learnings/claude-code/sweep-sessions.md` — sweep template limitations (PR-centric runner), watermark logic, ack-without-push gap, confirmer/clarifier lifecycle, template script validation traps
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — parallel agents, rerun semantics, append-only artifacts, session-resumable patterns

@@ -3,7 +3,7 @@ Multi-agent patterns for Claude Code — orchestration, coordination, quality, p
 | File | When to read |
 |------|-------------|
 | orchestration.md | Work distribution, synthesis, parallelization, context compaction |
-| director-patterns.md | Director-layer: watermark rerun, directives channel, append-only artifacts, run lifecycle |
+| director/CLAUDE.md | Director-layer sub-cluster: observability, runner-design, watermarks-and-skip, failure-modes, process-and-meta (5 focused files; split from former director-patterns.md) |
 | coordination.md | Worktree commit/merge, staging, sandbox workarounds, file coordination |
 | quality.md | Verification, trust arc, agent-to-agent review, prompt design |
 | parallel-plans.md | Parallel plan execution, DAG shape, speedup bounds |
