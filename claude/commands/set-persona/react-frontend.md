@@ -40,10 +40,11 @@
 These learning files contain full recipes, code examples, and edge cases for each sub-domain. Load when working in the specific area:
 
 - `provider:default/code-quality-instincts.md` — Universal code quality instincts (no duplication, single source of truth, port intent)
-- `provider:default/frontend/react-patterns.md` — React 19 setState rules, hydration gating, lazy initializers, hook extraction, two-tier design, modals, polling
+- `provider:default/frontend/react-state-effects.md` — React 19 setState rules, hydration gating, lazy initializers, render-time sync
+- `provider:default/frontend/react-hooks-and-ui.md` — hook extraction, two-tier design, modals, polling, page decomposition
 - `provider:default/reactive-data-patterns.md` — Reactive refresh, client-side expiration tracking, silent fetch pattern
 - `provider:default/frontend/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `provider:default/frontend/accessibility-patterns.md` — ARIA attribute patterns with code examples
 - `provider:default/frontend/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
-- `provider:default/testing-patterns.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
-- `provider:default/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions
+- `provider:default/testing/testing-patterns.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
+- `provider:default/testing/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions

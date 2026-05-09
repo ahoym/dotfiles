@@ -47,4 +47,4 @@ Every finding MUST include inline code references — quote the exact problemati
 
 - `provider:default/resilience-patterns.md` — retry classification, fail-fast patterns, thundering herd
 - `provider:default/java/spring-boot-gotchas.md` — InterruptedException handling, @Retryable gotchas
-- `provider:default/java/concurrency-and-resources.md` — thread safety, interrupt flag, resource leaks
+- `provider:default/java/concurrency.md` — thread safety, ConcurrentMap/HashSet TOCTOU, per-entity polling/throttle

@@ -39,7 +39,7 @@ Load when working in the specific area:
 - `provider:default/code-quality-instincts.md` — Universal code quality patterns: naming, logging, dead code, wrapper methods
 - `provider:default/aws/messaging.md` — SQS/SNS/EventBridge patterns: queue selection, idempotent consumers, DLQ config, backpressure, Spring Cloud AWS
 - `provider:default/postgresql-query-patterns.md` — Window functions, CTEs, JSONB operations, partial indexes, partitioning strategy
-- `provider:default/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
+- `provider:default/testing/newman-postman.md` — Newman skipRequest gotchas, conditional assertions for idempotent seeding, export-environment manifest bridge
 - `provider:default/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
 - `provider:default/java/infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
 - `provider:default/java/observability-gotchas.md` — Logging pitfalls, metric cardinality, trace context propagation

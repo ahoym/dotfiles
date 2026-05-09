@@ -26,7 +26,7 @@
 
 ## Proactive Cross-Refs
 
-- `provider:default/gitlab-ci-cd.md`
+- `provider:default/cicd/gitlab.md`
 
 ## Cross-Refs
 
@@ -34,4 +34,5 @@ Load when working in the specific area:
 - `provider:default/aws/patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
 - `provider:default/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
 - `provider:default/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
-- `provider:default/gitlab-ci-cd.md` — GitLab CI/CD patterns, debugging with glab API, MR API endpoints, Docker build/push stage rules
+- `provider:default/cicd/gitlab-ci-patterns.md` — YAML anchors, Maven builds, BuildKit caching, pipeline optimization
+- `provider:default/cicd/gitlab.md` — glab CLI debugging, MR API endpoints, pipeline stage rules, CI guards
