@@ -216,12 +216,6 @@ This is a meaningful efficiency win: address sessions skip worktree setup (~10s 
 
 Caveat: the upstream sweep's worktrees must still exist when downstream runs. If the upstream sweep auto-cleaned, the downstream falls back to creating new worktrees under its own `<RUN_DIR>/worktrees/`. Document worktree lifecycle in any new sweep skill so chained sweeps know what they can rely on.
 
-## Cross-Refs
-
-- `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)
-
----
-
 ## Subagent-Skip Heuristic for Re-Review Cycles
 
 Re-reviews on small remediation commits don't need subagent fanout. Heuristic: `<100 lines diff + every prior finding has a "Fixed in <sha>" reply + no new abstractions` → orchestrator-inline verification in <2 minutes. Saves the 3× concurrent API sessions per persona × N PRs that subagents cost, plus context warm-up. Skip is not appropriate when the commit introduces new modules, new error paths, or new public functions — those need fresh persona attention.
@@ -233,3 +227,7 @@ Subagents lose track of diff structure mid-review and confidently produce false 
 ## Project-Context Persona Weighted Heavier on Project-Specific Dissent
 
 When personas disagree on a correctness finding and one persona has loaded project-specific context (e.g., a `<repo>/CLAUDE.md` documenting a warmup gotcha or a non-obvious code-path discriminator) while the other reasoned from general docs, the project-loaded persona's reading is more reliable on that specific concern. Don't auto-resolve to "highest severity wins" — check whether the dissent involves a *documented project-specific behavior*. If so, weight the project-context persona heavier. The dissent itself is still valuable (surfacing what the general-persona missed), but the resolution should not raise severity past the project-loaded persona's call.
+
+## Cross-Refs
+
+- `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

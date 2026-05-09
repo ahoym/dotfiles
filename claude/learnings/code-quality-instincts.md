@@ -120,11 +120,6 @@ When the same content appears in guidelines, code comments, and documentation, c
 
 Real sandbox UUIDs (vault IDs, wallet IDs, organization IDs) committed to source control could overlap with staging/prod values and create confusion or security exposure. Treat sandbox identifiers as potentially sensitive — use clearly fictional placeholders like `<vault-id>` or `00000000-0000-0000-0000-000000000001` in committed docs.
 
-## Cross-Refs
-
-- `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
-- `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology
-
 ### Use reported timestamps from external systems, not Instant.now()
 When integrating with external systems (banks, exchanges, APIs), use the system's reported timestamp for event/transaction records. `Instant.now()` captures when your service processed the event, not when it actually occurred -- creating inaccurate timing data that compounds across retries, queue delays, and timezone differences. Fall back to `Instant.now()` only when the external system genuinely doesn't provide a timestamp. A missing timestamp from an external system that normally provides one is a signal worth investigating, not silently papering over.
 
@@ -277,3 +272,8 @@ When a directory's contents change frequently (data files, generated artifacts, 
 ## Cache layering: committed-stable + ephemeral-dynamic with one-way writes
 
 When a system has both committed-to-git stable inputs (reproducible across commits) and dynamically-fetched data (broker/API/today's response), have one lookup function try the committed cache first, ephemeral cache second, dynamic fetch last. **Critical invariant: dynamic fetches write only to the ephemeral cache, never to the committed one.** Otherwise a fresh API call silently overwrites your reproducible fixture and tests start drifting. The committed cache stays ground truth, mutated only via an explicit operation (a fetcher script run, a vendor backfill). Per-key automatic preference means a single consumer can mix sources transparently — committed for keys that have it, ephemeral for the rest, no flag, no fallback chain to manage.
+
+## Cross-Refs
+
+- `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
+- `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology

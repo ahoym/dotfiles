@@ -68,12 +68,6 @@ Neither default is safe — both create silent, money-moving failure modes. In f
 
 IEEE-754 round-trip through `str()` can produce `0.30000000000000004`-style artifacts at the boundary. schwab-py and similar SDKs accept string prices — constructing them with `f"{price:.2f}"` (explicit precision) or `str(Decimal(str(price)).quantize(Decimal("0.01")))` (Decimal round-trip) is the safe path. Bare `str(float_price)` can reject at the exchange or fill at an unintended price.
 
-## Cross-Refs
-
-- `~/.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)
-
----
-
 ### NaN/Inf guard at financial calculation boundary
 
 Broker-supplied prices can be non-finite from network errors, halted markets, or synthetic mid-quotes. Helpers that propagate NaN/Inf downstream produce silent incorrectness — `tick_size > 0` guards reject malformed config but pass NaN through `round()` and `*` unchanged. Add `if not math.isfinite(price): raise ValueError(...)` at the boundary of any price helper before downstream math. Same applies to size/quantity helpers fed from broker fills.
@@ -87,3 +81,7 @@ Any flag distinguishing "real money" from "simulated" behavior needs both a posi
 A dataclass `equity: float = 0.0` lets a missed construction site silently produce wrong-but-plausible numbers — `equity=0.0` plus `invested=18000` makes P/L log as `-$18,000`, a total-loss signal that looks legitimate enough to delay investigation. For any field that drives money-affecting computation (balance, equity, principal, notional), prefer required (no default). Loud `TypeError` on missed init beats silent corruption.
 
 Defaults remain appropriate for accumulators (`fees_paid: float = 0.0` accumulating from zero) and metadata (`label: str = ""`). For *inputs* to derived monetary calculations, treat the missing default as a feature — it forces every construction site to be explicit about the value.
+
+## Cross-Refs
+
+- `~/.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)
