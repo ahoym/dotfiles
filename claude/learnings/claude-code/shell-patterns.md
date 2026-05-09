@@ -22,6 +22,10 @@ Any quoted string in a Bash tool call — `echo "..."`, `sed "s/^/ /"`, `sleep 1
 
 **Fix:** Avoid quoted strings entirely. Use dedicated tools (Read instead of `cat`, Write instead of `echo >`, Edit instead of `sed`). For polling loops, use plain `sleep N` without a trailing echo. For text processing, use Grep with context flags instead of `sed`/`awk`.
 
+### Multi-line `git commit` messages: write to tmp file, use `-F`
+
+Avoid `git commit -m "subject"` for any non-trivial message. Write the full message via Write tool to `tmp/claude-artifacts/COMMIT_MSG.txt`, then `git commit -F tmp/claude-artifacts/COMMIT_MSG.txt`. Both `Write(tmp/claude-artifacts/**)` and `Bash(git commit:*)` are typically allowlisted so no prompt fires. Clean up the tmp file after the commit lands.
+
 ## `!cat platform-commands/*.sh` Only Works in Skills, Not Real Shell Scripts
 
 The `!`-prefix preprocessing that inlines `~/.claude/platform-commands/*.sh` happens in the skill loader, not in bash. Actual `.sh` files (sweep runners, templates) can't use this pattern. For platform-agnostic shell scripts, detect at runtime:

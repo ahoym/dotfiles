@@ -131,6 +131,10 @@ For credentials whose name ends in `.env`, use `Read(**/*.env)`. It won't match 
 
 `settings.json` (project) and `settings.local.json` (local) **merge additively** for permission arrays. Duplicating patterns across both is harmless but redundant. Precedence (highest → lowest): managed → CLI args → `settings.local.json` → `settings.json` → `~/.claude/settings.json`. Deny at any level cannot be overridden by allow at another.
 
+## Per-machine paths belong in `settings.local.json`
+
+Permission patterns referencing personal-project absolutes (`/Users/<user>/<codename>/**`) belong in `settings.local.json` (gitignored), not committed `settings.json`. Runtime behavior is identical via the additive merge above, but codenames + usernames don't leak through committed dotfiles. Verify with `git ls-files claude/settings.local.json` (empty output) and a `.gitignore` entry.
+
 ## Scoping Bash Permissions: Helper Scripts
 
 When a skill needs Bash commands that don't match existing patterns, wrap them in a helper script and pre-approve just that script:

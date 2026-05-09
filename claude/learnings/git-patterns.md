@@ -450,6 +450,10 @@ git stash pop
 
 Avoid copying the prerequisite's commits into your branch — creates duplicate commits that conflict on rebase once the prerequisite merges.
 
+## `--autosquash` requires `-i` — forward-fix beats workarounds
+
+`git rebase --autosquash` only works under `git rebase -i`, which the Claude Code harness disallows. `GIT_SEQUENCE_EDITOR=:` / `=true` doesn't help — the rebase still asserts on `-i`. For amending a non-HEAD commit in an unpushed feature branch, forward-fix with a follow-up commit and squash on merge (or have the operator squash locally) is simpler than any non-interactive workaround.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

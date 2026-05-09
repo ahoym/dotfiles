@@ -62,6 +62,10 @@ Users need to know what to install before following setup steps. Structure: prer
 
 Audit for: internal project/repo names, MR/PR numbers, absolute paths with usernames, internal tool names, team names, org-specific identifiers. Focus effort on tracked files; `settings.local.json` is gitignored.
 
+### Sensitive-data scan: two-pass + baseline-vs-new triage
+
+`git diff HEAD` covers modified-file additions only — untracked files need a separate `grep`/`Read` pass since `diff` skips them entirely. For each finding, distinguish HEAD-baseline (already committed, operator-accepted) from new-in-diff before flagging — sanitization should scope to actual new exposure, not re-litigate accepted content. Present a triage table tagged by severity + new-vs-baseline so the operator decides once.
+
 ### PR splitting strategy for large PRs
 
 When splitting a large PR, separate refactors and structural changes first (independent, merge to main), features last (dependent, merge after structure). Structure → tests → feature is the natural dependency order.
