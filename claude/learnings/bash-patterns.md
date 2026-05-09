@@ -169,6 +169,10 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 zsh interprets `[]` in command arguments as glob patterns. `glab api -f position[base_sha]=<value>` fails with `no matches found`. Escape with backslashes: `-f position\[base_sha\]=<value>`. Same applies to any CLI tool passing bracket-notation params in zsh. Better yet, avoid bracket notation entirely — use GraphQL variables or JSON payloads instead.
 
+## zsh parses `==token==` as a comparison/test operator
+
+A Bash command line with an argument starting `==` (e.g., `echo ==branch==` or `==section===` as an output section divider) fails in zsh with `(eval): ==token=== not found` — zsh treats leading `==` as a parser-level operator. Surfaces commonly when emitting section markers between command outputs in a single Bash call. Fixes: use plain markers (`--- branch ---`, `### section ###`, or just labels), or split into separate Bash calls. The latter pairs naturally with the bash-hygiene rule against compound `&&` chains.
+
 ## rsync --delete Auto-Removes Renamed Directories
 
 `rsync --delete` removes anything in the target that doesn't exist in the source. So renaming a source directory (e.g., `old-name/` → `new-name/`) automatically deletes the old-named directory from the target — no need for separate `rm -rf` cleanup commands.

@@ -389,6 +389,18 @@ def test_routes(mock_fn):
 
 Use `autospec=True` (or `create_autospec(real_fn)`) on routing/integration tests where the test is verifying *that* a function gets called with *what* — exactly the case where signature drift between caller and callee silently regresses. Pure unit tests of the function itself don't need it.
 
+## Autouse hermetic fixture when adding new on-disk lookups
+
+Adding a new filesystem lookup (e.g., a new cache layer) to a function with existing mock-based tests can break test isolation silently: real on-disk files matching the test's ticker / key short-circuit the mocked code path, returning real data before the mock fires. Defense — autouse fixture that points the new lookup at an empty tmp dir for ALL tests in the module. Tests that specifically exercise the new lookup repoint the constant to a populated tmp dir within the test body.
+
+```python
+@pytest.fixture(autouse=True)
+def _isolate_perpetual_dir(tmp_path, monkeypatch):
+    monkeypatch.setattr(my_module, "_PERPETUAL_DIR", tmp_path / "_empty")
+```
+
+Symptom that surfaces the leak: an existing test asserting "broker was called" fails because the new lookup found a real file and returned before the broker path. The failing test is high-signal — it tells you which existing tests had implicit assumptions about on-disk state, not just about mocks. Use `monkeypatch.setattr(module, "ATTR", val)` (import-based), not `setattr("pkg.module.ATTR", ...)` (string-based) — the import form is typo-checked and survives renames.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/frontend/nextjs.md` — route handler test structure

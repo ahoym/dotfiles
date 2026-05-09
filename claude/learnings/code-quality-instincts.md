@@ -269,3 +269,11 @@ If one branch of a system works and another is broken, before designing a fundam
 ## Trace silent defaults when output is suspiciously zero/round
 
 When a computed value lands on `0`, `None`, `[]`, or your input baseline exactly, suspect a silent default upstream. Common culprits: `next((x for x in xs if pred(x)), None)`, `dict.get(key, 0)`, `bal.get("Equity", 0.0)`, exception swallowed in a try/except. Trace which default produced the round number — the bug is almost always there, not in the math. Diagnostic: change the default to a sentinel (`raise`, `NaN`, a unique string) and re-run; if the symptom changes, the default was hiding the bug.
+
+## Truth-by-construction indexes for growing directories
+
+When a directory's contents change frequently (data files, generated artifacts, files arriving from multiple workflows), maintain its index by **regenerating it from on-disk state on every write**, not by hand. The index becomes a function of the directory; it can never drift. Pattern: writer walks the tree → renders the index → atomic-replaces. Examples: data fetcher always re-walks and rewrites a catalog at the end of every run; CI regenerates a manifest on each commit. Skip "last regenerated" timestamps if you want diffs to reflect only data changes — a freshness stamp creates spurious diffs every run while adding zero correctness signal (the per-row "last bar" / "last build" is the freshness signal you want).
+
+## Cache layering: committed-stable + ephemeral-dynamic with one-way writes
+
+When a system has both committed-to-git stable inputs (reproducible across commits) and dynamically-fetched data (broker/API/today's response), have one lookup function try the committed cache first, ephemeral cache second, dynamic fetch last. **Critical invariant: dynamic fetches write only to the ephemeral cache, never to the committed one.** Otherwise a fresh API call silently overwrites your reproducible fixture and tests start drifting. The committed cache stays ground truth, mutated only via an explicit operation (a fetcher script run, a vendor backfill). Per-key automatic preference means a single consumer can mix sources transparently — committed for keys that have it, ephemeral for the rest, no flag, no fallback chain to manage.
