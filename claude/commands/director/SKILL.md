@@ -41,20 +41,16 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
    - `gh auth status` succeeds
    - `~/.claude/skill-references/stream-monitor.sh` exists and is executable
    - Current branch is `main` (standard path avoids worktree conflicts)
-6. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
-7. Initialize `session.json` (append-only item-centric index):
-   ```json
-   {
-     "created_at": "<ISO>",
-     "session_dir": "<path>",
-     "items": {}
-   }
+6. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`.
+7. Bootstrap the session directory + initial files via the helper:
+   ```bash
+   bash ~/.claude/skill-references/director-bootstrap.sh <timestamp>
    ```
-   Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
-8. Initialize `decisions.md` in the session dir with a single header line (append-only decision log per the playbook's Decision Framework):
-   ```markdown
-   # Director Decisions — <timestamp>
-   ```
+   Creates `tmp/claude-artifacts/director-sessions/<timestamp>/` with:
+   - `session.json` — append-only item-centric index. Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs that touched it. Append-only — never update or remove entries. To check an item's status: read the last run_dir in its list, then read `<item-dir>/status.md`.
+   - `decisions.md` — append-only decision log per the playbook's Decision Framework, seeded with a `# Director Decisions — <timestamp>` header.
+
+   The helper validates the timestamp format and atomic-creates the dir (fails loudly on a parallel-invocation race).
 
 ## Phase 2: Assess + Generate Artifacts
 
