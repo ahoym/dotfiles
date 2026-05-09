@@ -47,7 +47,9 @@ When `COMMENT_ONLY=true`:
 - **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
 - **Adjust step 13** summary — report comments posted, not changes implemented
 
-1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments via **Fetch Inline/Review Comments** from the platform command scripts. Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
+1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments by running the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
+   !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 
@@ -89,6 +91,8 @@ When `COMMENT_ONLY=true`:
 
    Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform command scripts. Use **Reply File Naming** convention from the base reference.
 
+   **Before proceeding to step 8, run the Footnote Enforcement check** from the base reference against every comment ID you just posted. Missing footnotes must be fixed here — not deferred — since later steps (mutual resolution, watermarks, self-filter) all depend on the `Role:` tag.
+
 8. **Act on suggestions based on agreement** — **Skip if `COMMENT_ONLY`.**
 
    **Auto-implement** when both agents converge (addresser agrees with reviewer's suggestion). Also auto-implement typo/bug fixes (corrections, not debatable).
@@ -97,12 +101,15 @@ When `COMMENT_ONLY=true`:
 
    Use **Comment Identity** from the base reference to distinguish reviewer/operator comments. Operator suggestions follow the same escalation logic (agree = implement, disagree = escalate).
 
-9. **Post review actions summary on the platform**:
-   After processing, post a top-level comment covering only items that need operator attention — escalations, pushbacks, partial agreements, clarifications awaiting response. Implemented suggestions are documented in their inline thread replies and **must not** appear as table rows. The top-level comment is for operator-actionable status, not an audit log of completed work.
+9. **Top-level summary (conditional — default is skip)**:
 
-   **If zero items need operator attention, skip the top-level comment entirely.** Inline thread replies are sufficient — a summary comment that says "everything was implemented" adds no signal. Only post a top-level comment when the table has rows (escalations, partial agreements, pushbacks).
+   **Default: do not post a top-level comment.** Inline thread replies are the complete record. A summary restating what's already in threads adds no signal and costs the operator's attention.
 
-   When operator attention is needed:
+   **Post only when the table would have rows that need operator attention** — escalations, pushbacks, partial agreements, clarifications awaiting response. Implemented suggestions are documented in their inline thread replies and **must not** appear as table rows. The top-level comment exists for operator-actionable status, not as an audit log of completed work.
+
+   Decision gate before drafting: enumerate items needing operator attention. If the count is zero, stop — do not draft, do not post. If the count is non-zero, draft the summary covering only those items.
+
+   When the gate passes (non-zero operator-actionable items):
    ```
    ## Review actions
 
@@ -153,7 +160,7 @@ When `COMMENT_ONLY=true`:
 
     **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
-    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment.
+    For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment. **Append the Footnote Format — same rules as step 7 — and run the Footnote Enforcement check against every commit-ref reply before proceeding to step 13.**
 
     For suggestions that were skipped (not approved):
     - Do not reply automatically

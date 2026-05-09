@@ -6,9 +6,13 @@ Loaded when `MODE=re-review` (step 2 found a previous team review with matching 
 
 Two-phase check with short-circuit — see step 3 in SKILL.md for the full commands.
 
-**Phase 1** (1 call): Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
+**Phase 1** (1 call): Run the **Fetch Activity Signals (consolidated)** script:
+!`cat ~/.claude/platform-commands/fetch-activity-signals.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
 
-**Phase 2** (1 call, only if phase 1 found nothing): Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 10). Filter out self-comments (`Role:.*Team-Reviewer` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
+**Phase 2** (1 call, only if phase 1 found nothing): Run the **Fetch Recent Inline Comments (quick-exit check)** script (fetches 10):
+!`cat ~/.claude/platform-commands/fetch-recent-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Filter out self-comments (`Role:.*Team-Reviewer` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
 
 1 call when there's new activity in phase 1, 2 calls when polling quietly. Covers all four activity signals: commits, non-empty review submissions, top-level comments, inline review comments.
 
@@ -16,7 +20,7 @@ Two-phase check with short-circuit — see step 3 in SKILL.md for the full comma
 
 The key difference from single-persona re-review: only re-launch personas whose domains are affected by new changes.
 
-1. **Identify new commits** — commits with timestamps after `LAST_REVIEW_TS`. Store as `NEW_COMMITS`.
+1. **Identify new commits** — commits with timestamps after `LAST_REVIEW_TS`. Store as `NEW_COMMITS`. **Rebase recovery:** if the previous review's `commit_id` (from the review's `commit` field) is no longer reachable from `HEAD` (`git merge-base --is-ancestor <SHA> HEAD` exits non-zero), the branch was rebased. Recover the equivalent post-rebase SHA via commit-subject grep: `git log --oneline --grep="<exact subject of last-reviewed commit>"`. Use that SHA as the diff base. Without this fallback, `git diff <stale-SHA>..HEAD` falls back to the merge-base and pulls in unrelated history, producing a CHANGED_FILES set that includes every file touched on main.
 2. **Derive changed files** — from `NEW_COMMITS`, extract `CHANGED_FILES_SINCE_LAST`.
 3. **Re-run persona selection** — apply `persona-routing.md` against `CHANGED_FILES_SINCE_LAST` only. This produces `RE_REVIEW_PERSONAS` (the personas to re-launch).
 4. **Identify carried-forward personas** — personas from the original review that are NOT in `RE_REVIEW_PERSONAS`. Their findings carry forward without re-review.
@@ -29,11 +33,13 @@ Announce:
 
 ## Fetch Previous Comment State
 
-Use **"Fetch Inline/Review Comments"** from the platform cluster files. Filter for comments containing `*Role:* Team-Reviewer` in their body. These are the team's previous comments.
+Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
+!`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter for comments containing `*Role:* Team-Reviewer` in their body — these are the team's previous comments.
 
 For each previous comment, identify the originating persona from the inline comment attribution (e.g., `[fintech-ledger]` or `[fintech-ledger, java-spring]`).
 
-Fetch replies for each by filtering for `in_reply_to_id` matching the comment ID. Store as `PREVIOUS_COMMENTS` with `{id, path, line, body, created_at, personas}`.
+Replies are present in the same fetch — group by `in_reply_to_id == <team_comment_id>`. Store as `PREVIOUS_COMMENTS` with `{id, path, line, body, created_at, personas, replies: [...]}`.
 
 ## Analyze Previous Comment Responses
 
@@ -49,7 +55,9 @@ Build output lists:
 
 ## Launch Scoped Reviewers
 
-For each persona in `RE_REVIEW_PERSONAS`:
+**Subagent-skip heuristic.** When `NEW_COMMITS` is small (< ~100 changed lines) and consists purely of remediation for prior findings — no new logic, no new attack surface, no domain expansion — the orchestrator can handle the re-review inline and skip subagent launches. Verify each "Fixed in `<sha>`" claim against branch HEAD code directly. This applies the team-lead "fewer high-quality findings > comprehensive coverage" instinct: subagent overhead isn't worth it when the delta is bounded and in known domains. When in doubt, launch.
+
+For each persona in `RE_REVIEW_PERSONAS` (when not skipped per the heuristic above):
 - Front-load persona content (same as step 6)
 - Launch as a foreground reviewer subagent, but with the diff scoped to `NEW_COMMITS` only
 - Each subagent also receives relevant `FOLLOW_UPS` for comments it originally authored

@@ -63,7 +63,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
-   **Phase 1 (1 call):** Use **"Fetch Activity Signals (consolidated)"** from the platform command scripts. Parse the JSON response to check:
+   **Phase 1 (1 call):** Run the **Fetch Activity Signals (consolidated)** script:
+   !`cat ~/.claude/platform-commands/fetch-activity-signals.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
    - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
@@ -71,7 +73,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform command scripts (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
+   **Phase 2 (1 call, only if phase 1 found nothing):** Run the **Fetch Recent Inline Comments (quick-exit check)** script (fetches 10):
+   !`cat ~/.claude/platform-commands/fetch-recent-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
 
    This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 

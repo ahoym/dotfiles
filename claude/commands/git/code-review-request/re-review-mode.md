@@ -6,17 +6,23 @@ Loaded when `MODE=re-review` (step 4 found a previous review with matching Perso
 
 Two-phase check with short-circuit — see step 5 in SKILL.md for the full commands.
 
-**Phase 1** (1 call): Use **"Fetch Activity Signals (consolidated)"** from the platform cluster files. Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
+**Phase 1** (1 call): Run the **Fetch Activity Signals (consolidated)** script:
+!`cat ~/.claude/platform-commands/fetch-activity-signals.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
 
-**Phase 2** (1 call, only if phase 1 found nothing): Use **"Fetch Recent Inline Comments (quick-exit check)"** from the platform cluster files (fetches 10). Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
+**Phase 2** (1 call, only if phase 1 found nothing): Run the **Fetch Recent Inline Comments (quick-exit check)** script (fetches 10):
+!`cat ~/.claude/platform-commands/fetch-recent-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
 
 1 call when there's new activity in phase 1, 2 calls when polling quietly. Covers all four activity signals: commits, non-empty review submissions, top-level comments, inline review comments.
 
 ## Fetch previous comment state
 
-Use **"Fetch Inline/Review Comments"** from the platform cluster files. Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
+Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
+!`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
 
-For each of our previous comments, fetch replies by filtering all comments for `in_reply_to_id` matching the comment ID.
+Replies are present in the same fetch — group by `in_reply_to_id == <our_comment_id>` to attach each reply to its parent.
 
 Store as `PREVIOUS_COMMENTS` (our comments + their replies).
 
