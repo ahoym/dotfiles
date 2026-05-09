@@ -15,15 +15,23 @@ if [ $# -lt 1 ]; then
 fi
 
 TIMESTAMP="$1"
-SESSION_DIR="tmp/claude-artifacts/director-sessions/$TIMESTAMP"
-ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-if [ -e "$SESSION_DIR" ]; then
-  echo "Session dir already exists: $SESSION_DIR" >&2
+# Strict format guard: prevents path traversal, JSON-injection via the heredoc
+# below, and stray quotes in the markdown heading. Closes TOCTOU together with
+# the atomic mkdir below — same-minute parallel /director invocations both pass
+# the regex but only one wins the mkdir.
+if [[ ! "$TIMESTAMP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
+  echo "ERROR: timestamp must match YYYY-MM-DD-HHMM (got: $TIMESTAMP)" >&2
   exit 1
 fi
 
-mkdir -p "$SESSION_DIR"
+SESSION_DIR="tmp/claude-artifacts/director-sessions/$TIMESTAMP"
+ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Atomic — no `-p`. Fails on the loser of any race; parent dir must already
+# exist (caller's responsibility, satisfied by tmp/claude-artifacts/* lifecycle).
+mkdir -p tmp/claude-artifacts/director-sessions
+mkdir "$SESSION_DIR"
 
 cat > "$SESSION_DIR/session.json" <<EOF
 {
