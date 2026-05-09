@@ -118,8 +118,5 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
-  "effortLevel": "medium",
-  "theme": "dark-daltonized",
-  "editorMode": "vim",
-  "agentPushNotifEnabled": true
+  "effortLevel": "medium"
 }
