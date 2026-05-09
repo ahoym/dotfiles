@@ -115,7 +115,39 @@ Focused single-purpose MRs (one fix, one feature) get same-day review and merge.
 
 Both inline review comments with code suggestions and bot-generated suggestions can be "resolved" by the author without applying the suggested change. Resolved threads signal "addressed" to reviewers, but the underlying issue may persist. During re-review, check that resolved threads with code suggestions actually had the fix applied — don't assume resolution equals implementation.
 
+### Re-review: orchestrator-handled verification when fixes are surgical
+
+For multi-persona team-review re-cycles, skip re-launching subagents when each fix commit names the addressed comment ID and changes are well-scoped to one finding. The orchestrator (with team-lead + reviewer lens) can read the new code at the changed lines directly. Re-launching three persona subagents on surgical, single-purpose fixes burns context for no signal gain.
+
+**Re-launch instead when:** broad refactor commits touch unrelated areas, fix commits don't reference the addressed comment, or fixes introduce new public surface (helpers, types, modules) where domain-specific concerns might emerge. Cheap heuristic: if `git log --oneline` since `LAST_REVIEW_TS` reads like a series of `Addresses review comment #X` lines, skip subagents and verify directly.
+
+### Pushback during review: accept vs re-raise
+
+Pushback (addresser declines a finding with reasoning) is a prompt for team-lead deliberation, not a fourth classification. Reflexively maintaining is as wrong as reflexively accepting. Decide via two filters:
+
+- **Accept** when (a) the underlying concern is addressed orthogonally (e.g., structural suggestion declined but auditability addressed via per-account logging), AND (b) the change is high-reversibility (cosmetic, naming, structure of a small collection). Reply with concur + reasoning, mark thread resolved.
+- **Re-raise with new context** when the pushback misses the actual failure mode, or the change is low-reversibility (data model, public API, irreversible state).
+
+The auditability/correctness concern that motivated the original finding is the load-bearing piece — if it's been satisfied another way, the structural form rarely matters.
+
+## Re-review after rebase = fresh first-review semantics
+
+When a PR is rebased onto a new base (split, restack, dependency-update force-push), the rebase commit replaces all file content from the old base's perspective — there are no "new commits to scope to" in the diff vs the new base, only one rebase commit that re-presents the entire branch. Re-review tooling that scopes findings to "commits since last review" silently produces zero findings. Detection: rebase commits show every file in the branch with the entire file marked as added/removed. Action: treat the rebased diff as a fresh first-review and run all personas against the full diff.
+
+### PR scope = diff vs new base, not vs old-cycle head
+
+`git diff <prev-cycle-head>..<head>` after a rebase pulls in every change that landed on main between the old base and new base — for an active main, that's typically dozens of unrelated files. Use `git diff <PR-base>..<head>` (diff vs current main) to see PR scope. Diagnostic: if the diff stat lists files unrelated to the PR's stated purpose (docs sweeps, sibling-feature additions, infra changes), you're seeing rebase noise. Switch to base-vs-head before reasoning about findings — code inherited from a recently-merged sibling PR can otherwise look like a new addition and produce false-positive findings.
+
+## Body-content role-footnote filters drift; prefer timestamp-based filtering
+
+A `body ~ "Role: Team-Reviewer"` filter for "comments from previous team review" breaks when the footnote format drifts between cycles (`*Role: Team-Reviewer*` vs `*Role:* Team-Reviewer`). The footnote is human-edited prose; format conventions evolve. For "comments since last team review", store `LAST_REVIEW_TS` and filter `created_at > LAST_REVIEW_TS` — this is invariant to footnote format. Body-content role-tag filters remain valid as a per-comment role check on individual comments, just not as the primary cycle discriminator.
+
+## Author = Reviewer Identity Surface (AI-Assisted Workflows)
+
+In AI-assisted development, the same git/platform user often posts as both PR author *and* reviewer-bot. Identity heuristics that assume "author ≠ reviewer" misfire — username-based self-filters mark reviewer comments as "self" and skip them. **Rule:** key self-filter on the structured footnote `Role:` tag (e.g., `Role: Team-Reviewer`, `Role: Addresser`), not the username. Same applies to "find someone else to review" prompts — the dimension that matters is the agent role, not the account.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — PR/MR scoping and workflow patterns (complementary: workflow vs review)
 - `~/.claude/learnings/claude-code/multi-agent/orchestration.md` — agent-to-agent review cycle and mutual agreement patterns that reference the structured footnote convention defined here
+- `~/.claude/learnings/git-github-api.md` — `commit_id` mutation and empty-body review records that motivate timestamp-based filtering

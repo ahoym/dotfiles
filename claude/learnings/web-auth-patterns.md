@@ -62,3 +62,19 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 ```
+
+## OAuth bootstrap script error paths can leak credentials
+
+Error handlers that dump API response data — `print(response.text)`, `json.dumps(token_data, indent=2)`, generic exception loggers — leak tokens when the response is partially-successful. Example: `offline_access` scope is excluded; the response has `access_token` but not `refresh_token`. The script's "missing refresh_token" branch fires and dumps the body, exposing `access_token` to terminal/CI history.
+
+Defense-in-depth for any error handler that touches an API response containing credentials:
+
+```python
+# BAD: dumps full body including tokens
+print(f"Unexpected response: {json.dumps(token_data, indent=2)}")
+
+# GOOD: field names only, never values
+print(f"Unexpected response keys: {list(token_data.keys())}")
+```
+
+Pair with `urlparse(url).netloc == ...` validation on the redirect URI (see `code-quality-instincts.md` → URL allow-listing) — these tend to coexist in OAuth scripts and break together.

@@ -106,13 +106,24 @@ Error handling: always write all artifacts before exiting, even on failure. On e
 
 ## let-it-rip.sh Generation
 
-Write `<RUN_DIR>/metadata.json` with runner config, then assemble via `fill-template.sh`:
+Write `<RUN_DIR>/metadata.json` with runner config + each `pr-<N>/metadata.json`, then call the mode's consolidated wrapper:
+
+```bash
+# review or address modes
+bash ~/.claude/skill-references/sweep-prs-generate-runner.sh <RUN_DIR>
+
+# work-items mode
+bash ~/.claude/skill-references/work-items-generate-runner.sh <RUN_DIR>
+```
+
+The wrappers consolidate per-item prompt assembly + runner assembly + chmod + `bash -n` validation into a single allowlisted call (`Bash(bash ~/.claude/skill-references/**)`), avoiding per-step permission prompts. They derive the prompt template from `metadata.json`'s MODE field.
+
+**Direct fill-template.sh fallback** — only when neither wrapper fits (e.g., custom shapes):
 
 ```bash
 bash ~/.claude/skill-references/fill-template.sh \
   ~/.claude/skill-references/parallel-claude-runner-template.sh <RUN_DIR> \
   > <RUN_DIR>/let-it-rip.sh
-chmod +x <RUN_DIR>/let-it-rip.sh
 ```
 
 **Do NOT read the runner template** — `fill-template.sh` handles all substitution. The skill only writes data files.
@@ -176,9 +187,31 @@ Progress:         "Check progress on <RUN_DIR>"
 Retro:            "Retro on <RUN_DIR>"
 ```
 
+## Auto-Launch
+
+After announce, launch the runner in the background:
+
+```
+Bash(command="bash <RUN_DIR>/let-it-rip.sh", run_in_background=true)
+```
+
+Use a path **relative to project root** (e.g., `bash tmp/claude-artifacts/sweep-<mode>/<TIMESTAMP>/let-it-rip.sh`) so it matches the `Bash(bash tmp/claude-artifacts/**)` permission pattern. Absolute paths force a permission prompt.
+
+Tell the operator: launched, background task ID, where logs land, and that you'll surface progress on demand or notify on completion.
+
+**Skip auto-launch only when:**
+- The announce shows `0 eligible` (nothing to do)
+- The operator's invocation included `--no-launch` or equivalent opt-out
+- A prior launch is already running for this run dir (check the runner background task; do not double-launch)
+- This skill is running inside a `/director` compound flow — director owns launch sequencing (offset cadence, post-review waits, conflict-resolution gating). When unclear whether director called you, default to launching: the director will see the runner already running and skip its own launch step.
+
+Otherwise launch. The runner's per-session watermark/skip logic makes accidental relaunches safe — sessions that see no new state exit cleanly.
+
 ## Progress Check
 
-Read all `<ENTITY_PREFIX>-*/status.md` files, present:
+Run `bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR>` instead of cat-ing files manually. The script handles all entity prefixes (`issue-<N>/`, `pr-<N>/`, `phase-<P>/`), prints `status.md` + `state.md` per item, and returns an aggregate counter line at the end. Flags: `--logs N` to tail `output.log` per item, `--retro` to also dump `results.md` + `learnings.md`.
+
+Synthesize the result into a monitoring table:
 
 | PR | Milestone | Started |
 |----|-----------|---------|
@@ -187,7 +220,7 @@ Read all `<ENTITY_PREFIX>-*/status.md` files, present:
 
 ## Retro
 
-Read `manifest.json`, all `<ENTITY_PREFIX>-*/results.md`, and all `<ENTITY_PREFIX>-*/learnings.md`. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per PR plus a round count. Include: skipped PRs, aggregated learnings by theme, and summary line.
+Run `bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --retro` to dump per-item `status.md`, `state.md`, `results.md`, and `learnings.md` in one pass. Read `manifest.json` separately for skip reasons. Note that `results.md` and `learnings.md` are append-only — each run adds a dated section. Show the latest round per item plus a round count. Include: skipped items, aggregated learnings by theme, and summary line.
 
 ## Convergence
 

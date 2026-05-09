@@ -15,6 +15,7 @@ All gates are mandatory when their trigger fires. No exceptions.
 | **Session start** | Before FIRST tool call | Glob filenames → ambient context + user message | No |
 | **Plan mode entry** | Before `EnterPlanMode` | Glob filenames + grep content → broad task terms | Yes — set one if none active |
 | **Implementation start** | Before executing approved plan | Glob persona dirs → tech stack | Yes — activate match |
+| **Review entry** | Invoking a review/audit skill that doesn't self-load learnings (e.g., native `/simplify`, `/security-review`) BEFORE launching review subagents. Skip if the skill's instructions already include a "load learnings" step (`git:code-review-request`, `git:team-review-request`, `git:address-request-comments` all handle this internally) | Glob filenames + grep content → quality, testing, security, perf, language-specific gotchas relevant to the diff | No |
 | **Keyword** | Domain keyword or quoted term in user message | Glob filenames → unloaded matches. Quoted terms bypass dedup. | No |
 | **Domain shift** | User message introduces new domain | Glob filenames → new domain keywords | No |
 | **Pre-edit check** | First Edit/Write in unloaded tech domain | Glob filenames → file's tech domain | No |
@@ -52,3 +53,5 @@ Plan mode uses block format with per-file matched/skipped lines and explicit no-
 Personas = lens (priorities, tradeoffs). Learnings = knowledge (gotchas, patterns). Both operate independently.
 
 **Subagent propagation**: include persona filename in subagent prompts for domain work. Skip for utility tasks.
+
+**Review subagent propagation**: when a review-entry gate fired and you're delegating review to subagents (e.g., `/simplify`'s parallel reuse/quality/efficiency agents), include the loaded learnings as "known patterns to check against" in each agent's prompt. Subagents do their own searches, but seeding them with the patterns you already loaded prevents independent rediscovery and tightens findings against your documented conventions. Native skills (those defined in Claude Code itself, not under `~/.claude/`) can't be modified — but you control what goes into the subagent prompts they tell you to write, so the propagation happens at prompt-construction time.

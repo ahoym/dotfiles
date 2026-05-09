@@ -4,9 +4,23 @@ Patterns for how engineering work is organized, scoped, and tracked — PR split
 
 ---
 
+### Three-source config drift in deploy PRs
+
+When a PR adds or modifies a service in `docker-compose.yaml`, the same config keys often appear in `README.md` and a runbook (e.g., `deploy.md`). All three drift independently. Before merging, grep all doc sources for the keys touched:
+
+```bash
+rg -l "TRADING_WINDOW|TS_TOKEN_PATH" docs/ scripts/ README.md
+```
+
+The compose value is usually the source of truth (executable); docs need to follow. Catching this at PR time is cheaper than producing a fourth contradictory source post-merge.
+
 ### Defer large cross-cutting refactors to tracked issues
 
 When code review surfaces a systemic improvement (e.g., float-to-Decimal conversion), file an issue rather than scope-creeping the current PR. The PR stays focused; the improvement gets tracked. Even for straightforward rename/reorganization tasks, creating an issue first establishes traceability and makes the "why" discoverable later (`Fixes #N` for clean linking).
+
+### Surface skipped review findings as follow-up issues
+
+When `/simplify` or a multi-agent review surfaces findings you decline to apply (out of scope, debate over premise, marginal value), file them as issues rather than dropping silently — the operator decides priority later, signal isn't lost. Before filing, `gh issue list` to position the new issue against existing tracked work (cross-reference: `distinct from #N which tracks…`). Split issues by scope — feature-specific cleanup vs project-wide style — even when the user asks for "an issue" (singular). Bundling unrelated scopes muddies the issue's focus and makes "close as wontfix" harder per-item.
 
 ### Plan-first PRs as exploration pattern
 
@@ -47,6 +61,10 @@ Users need to know what to install before following setup steps. Structure: prer
 ### Sensitive data audit checklist for shared dotfiles
 
 Audit for: internal project/repo names, MR/PR numbers, absolute paths with usernames, internal tool names, team names, org-specific identifiers. Focus effort on tracked files; `settings.local.json` is gitignored.
+
+### Sensitive-data scan: two-pass + baseline-vs-new triage
+
+`git diff HEAD` covers modified-file additions only — untracked files need a separate `grep`/`Read` pass since `diff` skips them entirely. For each finding, distinguish HEAD-baseline (already committed, operator-accepted) from new-in-diff before flagging — sanitization should scope to actual new exposure, not re-litigate accepted content. Present a triage table tagged by severity + new-vs-baseline so the operator decides once.
 
 ### PR splitting strategy for large PRs
 
@@ -95,6 +113,10 @@ Concrete examples of routine (silent log): a transient `last_comment_id: none` i
 
 When adding features to a protocol or system, check git history for previously removed versions of the same concept. Prior art often contains design decisions, failure modes, and refinements that save reinvention. The removed version may need only a targeted fix rather than a from-scratch redesign.
 
+### Check open issues/PRs before laying out a design spectrum
+
+For any "how should we approach X?" question, search the project's open issues, PRs, and `docs/plans/` first — `gh issue list --search <topic>`, `gh pr list`, `ls docs/plans/`. The architectural decision may already be scoped with tradeoffs documented and an implementation in flight. Re-deriving the spectrum from scratch wastes effort and risks landing on a different answer than the team chose.
+
 ### Match design ambition to framing
 
 When the request uses architectural language ("dependency injection," "cleaner boundaries," "decoupling"), lead with the architecturally clean proposal. Don't default to "simplest thing that works" when the ask is "right thing." Read the register: "can we make this work?" → simple path fine. "Can we make this clean?" → lead with clean architecture, present the simple path as the fallback.
@@ -110,6 +132,14 @@ For research and planning tasks, ask about doc format and location **alongside**
 ## Stacking PRs: Check Unchanged Code for Dependencies on Removed Code
 
 The diff shows what changed — the bug is in what *didn't* change. When a PR removes a setup step (e.g., platform detection that sets variables), check all unchanged steps that referenced those variables. Partial migrations of individual files leave undefined variables that the diff won't flag. Review stacking PRs by reading unchanged sections for dependencies on removed code, not just the changed hunks.
+
+## Dev-as-Test-Bed Reorders Hardening Rollouts
+
+When introducing risky infra changes (KMS rollout, secret-fetch systemd ordering, OIDC trust policies), apply to a non-prod env first, observe ~1 week, then prod. Each downstream PR's risk profile improves — alarm thresholds tune against dev traffic; cutover dry-runs surface format mismatches before prod ever sees them.
+
+Sequencing implication: if an MVP plan reads "set up dev after hardening lands," reorder. Dev-env PR slots **second** (after the foundational IaC PR), before each hardening PR. Pattern: dev-env → hardening N in dev → ~1-week observation → hardening N in prod → next hardening PR.
+
+Catch: ephemeral dev (apply/destroy on demand) doesn't accumulate observation time. Use long-lived sim-mode dev for rollouts where the value is the burn-in window (alarm tuning, integration regressions). Use ephemeral dev for the apply/destroy iteration cycle itself.
 
 ## Cross-Refs
 
@@ -135,3 +165,41 @@ This eliminates manual wave planning — run the orchestrator on all issues, it 
 ### Surface all plan-mode design decisions in one message
 
 Surface all open design decisions (naming, output format, file organization, scope boundaries) in one message before requesting plan approval. Drip-feeding decisions via repeated exit-and-revise cycles adds round trips without adding clarity.
+
+### Surface cross-issue scope shifts when batch-answering
+
+When answering questions across linked issues in one pass, an answer on issue A often narrows or expands issue B's scope (e.g., "bake the safety check into A's implementation" → B becomes config-only). Flag these explicitly in the summary report — `Issue A → Issue B: <scope change>`. Without the flag, downstream readers treat each issue's scope as last-stated; the implicit dependency goes unrecorded and resurfaces during implementation as confusion.
+
+### Manual pre-merge gates for live-system parity
+
+Some ACs unit tests can't verify — adapter migrations, contract changes against external APIs, behavioral parity between old and new code paths against real traffic. Surface these as PR-body checkboxes the merger ticks off after manual verification, not as buried notes in commit messages or design docs.
+
+Examples worth a checkbox: *"Run branch end-to-end against real API with `DRY_RUN=1` for one trading window"* · *"Diff orders placed against pre-migration baseline"*. Pre-merge checklist + a labeled "manual verification" status check are how the gate stays visible during review.
+
+### Three-pronged scope-narrowing as a deferral path
+
+When a review surfaces a finding that requires architectural scope (cross-process locking, async variant, retry policy) the right deferral isn't "file an issue" alone — three things move together:
+
+1. **Update the PR description / class docstring** to drop any over-promised claim (e.g., "supports concurrent processes" → "single-process only"). The shipping artifact must not lie about what it does.
+2. **File the follow-up issue** capturing scope, motivation, and acceptance criteria. Bundle related deferrals by *shared lifecycle/scope* — cross-process lock + async variant + connection reuse all touch the same locking/lifecycle plumbing → one issue, not three.
+3. **Add an inline `.. note::` / runtime-visible callout** at the constraint site. The docstring callout makes the limitation operator-visible at the API surface, not buried in an issue tracker.
+
+Reviewers explicitly accept this pattern when all three prongs land — narrowing scope alone reads as evasion, narrowing + tracking + runtime-visible callout reads as discipline. Apply when the fix requires meaningful new infrastructure (locks, daemons, parallel class hierarchy), the current deployment doesn't exercise the gap, and a future consumer will trip it. Skip the runtime callout only when the gap genuinely doesn't manifest in the current consumer surface.
+
+### Pre-implementation diff check before starting a planned PR
+
+When executing a multi-PR plan (E1 → E6 etc.), `git diff main feat/<predecessor>` before starting PR N. Earlier PR authors sometimes absorb the next PR's diff naturally — splitting them would have left awkward intermediate test states, so the natural commit boundary covers both. If the diff already includes PR N's planned change, mark PR N as obsolete and skip it. Pattern surfaces when plans were drafted before authoring; what looks like a separate PR on paper is often two lines that ride along with the previous one.
+
+### Pre-PR grep dictates scope: narrow + named follow-up PR
+
+When pre-PR grep surfaces an unanticipated live consumer of supposed-dead code (e.g., `backtesting/utils.py` importing `oracle.get_daily_data` during a "delete dead `plz/data.py`" PR), don't silently expand scope to absorb the refactor. Ship the cleanly-doable subset (delete the genuinely-dead module) and file a **named follow-up PR** for the deferred work — e.g., `E4` → `E4 narrow` + `E4b`. Distinct from the three-pronged review-deferral pattern: that's an issue + runtime callout for review-surfaced architectural scope; this is a peer PR for plan-execution scope discovered via pre-flight grep. Both PRs reference each other in their bodies so the deferral is discoverable.
+
+### Doc-sweep PR over piecemeal doc updates across feature PRs
+
+When a feature PR series deletes/renames files that learnings/architecture docs reference, fixing piecemeal in each feature PR creates doc-thrash and scope creep. Each feature PR notes the carry-over in its body ("`docs/learnings/integrations.md` still references deleted paths — separate doc-sweep PR pending"); the consolidated sweep ships once the feature series stabilizes. Feature PRs stay focused on code; the sweep PR is a single low-risk diff a reviewer can validate against a grep.
+
+### Multi-PR plan → parent index issue + sub-issues with one per-initiative label
+
+When a plan decomposes into N PRs, scaffold tracking as **one parent issue + N sub-issues**, all carrying a single per-initiative label (`mnq-myapp`, `IaC MVP`). Parent issue body: brief goal, locked architecture decisions, and a task-list of sub-issues using `- [ ] #N — title` syntax (GitHub auto-tracks completion as sub-issues close). Sub-issue bodies: `## Scope` (with "What's in PR N" / "What's NOT in PR N"), `## Acceptance criteria` (checkbox list), `## Risks`, `## Suggested lens` (which review persona is primary/secondary), `## Cross-references`. Plan.md remains the canonical living doc — issues reference it and don't duplicate decisions; updating decisions happens in the doc, not by editing N issues.
+
+Workflow: read 1–2 existing issues to learn the repo's body shape, propose a sample, get operator OK on the template before bulk-creating. Bulk-create sub-issues first (parallel `gh issue create` calls), capture their numbers from stdout, then create the parent referencing the captured numbers in the task list. GitHub-relative paths in issue bodies resolve from repo root — use `[text](docs/plans/foo/plan.md)`, not `[text](../blob/main/docs/plans/foo/plan.md)`.

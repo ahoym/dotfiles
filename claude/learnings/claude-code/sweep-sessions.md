@@ -38,6 +38,47 @@ This directive overrides skip logic.
 
 The directive's presence forces the address session to proceed even if the watermark matches.
 
+## Operator Directive Overrides Dependency-Blocker SKIP
+
+`sweep:work-items` Phase 3.a2 normally SKIPs an issue whose `Blocked by: #N` chain has unresolved blockers (no PR, not merged). Operator can override by including an explicit assumption in the run-level `directives.md`:
+
+```markdown
+# Run-level directives
+Assume #X (B2a) and #Y (B2b) will be merged soon. Base off `main`.
+- Treat their symbols as if they exist; if a runtime check would currently fail,
+  call it out in the PR body but do NOT modify their target files.
+```
+
+When this directive is present, list the blocked issue as `eligible` with `base_branch: main`. The implementer respects the boundary — writes code referencing the assumed-merged symbols, flags any not-yet-functional runtime in the PR body. Reviewer rebases post-blocker-merge.
+
+**When to use:** operator wants to parallelize implementation across the dependency chain. Avoids waiting on serial merges when downstream work is mechanically independent.
+
+**When NOT to use:** if the blocked issue's implementation can't be sensibly written without seeing the blocker's interface (e.g., the blocker is itself unfinalized), proceeding anyway just creates rework.
+
+## Prose-Style Dependencies Invisible to sweep:work-items Parser
+
+The Phase 3.a2 dependency parser only honors `Blocked by:` lines and `## Dependencies` sections. Prose like "Depends on P1.3 and P2.1" inside a Scope or Cross-references block is invisible — the issue is treated as having zero blockers and marked eligible.
+
+**Director compensation pattern when running sweep:work-items on a multi-issue plan:**
+1. Before trusting the eligible/skip lists, scan each issue body for prose dep phrases (`Depends on`, `Hard gates`, `requires`, `gated on #N`).
+2. Cross-check against `gh pr list --state all` to find PRs for each referenced issue.
+3. Apply the same skill rule manually: blocker is resolved if issue CLOSED **or** has any PR (open or merged).
+4. Override the assessor's `eligible` → `skipped` for items the parser missed, log to `decisions.md`.
+
+Cheap because most plan-issue bodies have ≤5 prose dep references; the cross-check is 1 `gh pr list` call cached across the sweep.
+
+### Stacked PR Variant (operator wants parallelism)
+
+When prose-deps point to **unmerged open PRs** and the operator chooses to stack rather than wait, manually set `BASE_BRANCH` to the predecessor's `headRefName` in each issue's `metadata.json` before invoking `work-items-generate-runner.sh`:
+
+```json
+{"BASE_BRANCH": "sweep/153-mnq-backtest-runner-walkforward-spy", ...}
+```
+
+The work-items runner does `git fetch origin <BASE_BRANCH>` for non-default bases. The implementer's prompt picks up `--base <BASE_BRANCH>` for `gh pr create`. **Pre-launch check:** `git ls-remote origin <branch>` to confirm the predecessor branch exists on origin (runner's fetch is silent-fail).
+
+**Diamond constraint:** stack only on a single linear chain. If an issue depends on multiple unmerged PRs on different branches, fall back to `BASE_BRANCH=main` and accept the missing-symbol risk OR wait for at least one predecessor to merge.
+
 ## Worktree Path Confusion in Address Sessions
 
 `claude -p` address sessions running in worktrees hit path confusion: the prompt references file paths relative to the main repo root, but the session's CWD is the worktree. Sessions self-correct via `pwd` but burn 10+ tool calls on "file not found" errors first.
@@ -146,9 +187,17 @@ When a confirmer proposes sub-issues as part of its confirmation comment, it sho
 
 When a confirmer's plan has N independent phases that could each produce a separate PR, the confirmer should propose sub-issues — not present them as phases of a single implementation. One issue → one PR is the default; multi-phase plans that don't split upfront create monolithic PRs that are hard to review, slow to merge, and block clean phases behind dirty ones. The clarifier's scope assessment identifies the split; the confirmer should honor it by proposing concrete sub-issues with titles, scopes, and dependency order.
 
-## `parallel-claude-runner-template.sh` Is PR-Centric
+## `parallel-claude-runner-template.sh` Handles Both PRs and Issues
 
-The shared runner template hardcodes `pr-<N>/` directories, `PRS=()` array, `gh pr view` state checks, and worktree setup keyed on PR numbers. It does not support `sweep:work-items` mode. Options: (a) write a purpose-built runner per item-type (simpler for clarify-only runs with no worktrees), or (b) generalize the template with `ITEM_PREFIX` / `ITEM_ARRAY` / `STATE_CHECK_CMD` substitutions. Option (a) is correct when only one sweep type needs the alternative; option (b) is worth the yak-shave once two+ non-PR sweeps exist.
+The runner template is generalized: `ITEMS=(...)`, `ENTITY_PREFIX` (`pr`|`issue`), `ENTITY_LABEL`, `STATE_FIELD`, `STATE_CHECK_CMD` (`gh pr view`|`gh issue view`), `TERMINAL_STATES`. Block conditionals `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` strip worktree setup when empty — clarify-only `sweep:work-items` runs set both to `""`. All 5 entity keys are required — no defaults.
+
+## `sweep-status-summary.sh` for Work-Items, Not `sweep-status.sh`
+
+`~/.claude/skill-references/sweep-status.sh` only iterates `pr-*/` — returns empty output on work-items runs with no error. Use `sweep-status-summary.sh` instead; it handles both `pr-*/` and `issue-*/` and has `--logs N` / `--retro` flags. Default to summary for any sweep status check.
+
+## Persona Auto-Detect Sharpens Clarifier Output
+
+In a two-issue parallel clarify sweep, the CI-lint issue triggered `platform-engineer` persona and the clarifier found 3 existing codebase violations of the constraint being proposed (blocking signal the operator would have otherwise hit on merge). The no-persona issue produced well-formed questions but didn't grep for violations. For constraint/lint/guardrail issues specifically, persona activation is load-bearing — it shifts the clarifier from "ask what the spec means" to "verify the spec against current code."
 
 ## SKILL.md `!cat` Preprocessing Expands at Load Time
 
@@ -157,3 +206,88 @@ When reading a SKILL's content from the `Skill` tool message, lines like ``!`cat
 ## Director Must Run Full Review→Address→Re-Review Cycles
 
 Convergence requires the full cycle: review → address → re-review. Skipping the address step and calling "0 new findings" convergence is wrong — the addresser processes operator comments and implements reviewer suggestions that the reviewer only replies to. A reviewer reply-only cycle is not a substitute for an address cycle. After every review that posts new content (findings, replies, reactions), launch the addresser before re-reviewing.
+
+## Deferred-Only Address Outcomes Stall the Review Watermark
+
+When every reviewer comment on a PR ends up deferred (planning-doc exception, out-of-scope deferral) with no public reply and no commit, the review watermark never advances. Subsequent review cycles skip via SHA+comment-id match — so the reviewer never sees the addresser's internal "agreed but deferred" decision and can't approve-in-session the way the planning-doc flow expects. The compound loop stalls silently; the PR appears converged but actually needs operator input.
+
+**Fix:** addresser must post a public reply for every comment it acts on — including "agreed, deferring to follow-up" and "agreed, awaiting approval for this specific wording." Public reply = new comment id = watermark advances = reviewer gets to respond next cycle. A zero-commit address cycle should still produce N public replies for N reviewer comments.
+
+## Ack-Without-Push Leaves False Confidence on GitHub
+
+Addresser session posts the ack reply ("Agree, fixing X...") then exits before commit/push — local edit stays uncommitted while GitHub shows progress. Next session catches it via `last_addressed_sha` mismatch, but the gap creates a window where reviewers see "addresser engaged" with no code change.
+
+**Diagnostic:** `last_addressed_sha` still pointing at pre-fix SHA + GitHub ack reply present + uncommitted changes in worktree.
+
+**Fix:** addresser-prompt should treat ack-reply + commit + push as atomic — write the ack only after the commit lands, or roll back the ack on push failure. Without this, the loop self-recovers but burns a cycle on rediscovery.
+
+## Compound-Loop Happy Path: Reviewer Can Approve Escalation In-Session
+
+Planning-doc escalations don't always require operator sign-off. When the addresser escalates with proposed wording and posts the reply publicly, the next review cycle's reviewer persona reads it, agrees, and posts an approval reply. The following address cycle picks up the reviewer approval as "new comment → implement" and commits the change. Operator never intervenes.
+
+Conditions: addresser must post proposed wording publicly (not just escalate internally), reviewer persona must treat the thread as actionable, and the compound loop must be allowed enough cycles to complete the approve→implement handoff. This is why the deferred-only stall above is a problem — the stall prevents this happy path entirely.
+
+## Watermark format consistency — store IDs in the format the runtime fetch returns
+
+When a sweep skill writes a comment-ID watermark to `status.md`, it must match the format that subsequent runtime fetches return. GitHub returns inline comment IDs as REST-numeric (`3142970549`) via `gh api repos/.../pulls/N/comments`, but as GraphQL node IDs (`PRRC_kwDOIBAjJc67VVX1`) via `gh api graphql` or `gh pr view --json comments`. Storing one and comparing against the other makes equality always fail — every cycle triggers false "new work" detection and re-processes already-addressed comments, or (worse) the comparison silently fails open and the loop never converges. Pick one format (REST numeric is the common case for `pulls/N/comments` watermarks) and use it consistently across write and read.
+
+## Reaction API: `+1`/`-1`, not `thumbs_up`/`thumbs_down`; inline vs top-level use different endpoints
+
+GitHub reactions API content values are `+1`, `-1`, `laugh`, `confused`, `heart`, `hooray`, `rocket`, `eyes`. Wrong content (e.g., `thumbs_up`) returns HTTP 422. Reviewer/addresser sessions posting reactions on review comments must use these literal values.
+
+Endpoint paths differ by comment type:
+- **Inline review comments**: `repos/{owner}/{repo}/pulls/comments/{id}/reactions`
+- **Top-level PR comments (issue comments)**: `repos/{owner}/{repo}/issues/comments/{id}/reactions`
+
+The numeric ID for top-level comments lives in the comment URL fragment (`#issuecomment-NNNNNN`), not the GraphQL node ID. Mixing endpoints (e.g., posting an inline-style reaction on a top-level comment ID) returns 404. Confirmed by the PR 147 cycle 1 reviewer when reacting 👍 on an addresser pushback reply.
+
+## Detached-HEAD worktree push: `git push origin HEAD:<branch>`
+
+Address-session workers operating in worktrees that are detached HEAD or whose branch is checked out elsewhere can't `git push origin <branch>` directly — git refuses with "the current branch is not on '<branch>'" or similar. The fix is `git push origin HEAD:<branch>`, which pushes the current commit to the named remote branch regardless of local checkout state.
+
+This is a recurring pattern for sweep-address sessions because:
+1. The runner may reuse worktrees from prior sweeps where the branch is locked or checked out by another worktree
+2. New worktrees created via `git worktree add <path> <branch>` sometimes land in detached-HEAD state when the branch already exists elsewhere
+
+Worker prompts that involve `git push` should mention this fallback explicitly so the agent doesn't waste cycles on "current branch" errors.
+
+## Reactions don't count toward compound auto-relaunch
+
+The compound auto-relaunch rule fires on "inline comments > 0 OR thread replies > 0" — reactions on existing comments are neither, so a review cycle that posts only reactions (e.g., 👍 on an addresser pushback reply, 🚀 on a "Fixed in xyz" reply) doesn't change comment IDs and the watermark stays in sync. No address relaunch needed for reactions-only cycles. If a different PR in the same run has thread replies, the run-level relaunch still fires — but on the reactions-only PR the address session will skip via watermark match. This is correct behavior, not a gap.
+
+## Locked worktree → create new instead of reusing
+
+`git worktree list` may show worktrees in `locked` state — agent-isolation skills (e.g., `Agent(isolation: "worktree")`) lock their worktrees while the agent runs. Reusing a locked worktree from a different agent risks concurrent-edit collisions. When discovering worktrees for sweep-address reuse, treat `locked` as "owned by another process" and create a new worktree under the run dir instead. The few seconds of `git worktree add` cost beats debugging a partial-state collision.
+
+## Confirmer comments can introduce cross-PR deps the body misses
+
+`sweep:work-items` Phase 3.a2's `Blocked by:` scan reads issue bodies only, not comments. When a Sweeper-Confirm reply accepts a cross-PR dep ("Cross-PR dep accepted — P1.3 lands first or in parallel"), the dep is invisible to the next implement-stage sweep — auto-stacking won't trigger and the dependent's worktree is created from `main`.
+
+**Fix:** before re-invoking sweep on the dependent issue, edit its body to add `Blocked by: #<blocker>`. Phase 3.a2 then sees the blocker has an open PR and sets `base_branch` to that PR's `headRefName`. Body edits are persistent and visible in the GitHub UI; per-issue `directives.md` overrides require remembering to write them each cycle.
+
+## Implementer branches are title slugs, not `sweep/<N>-impl`
+
+The skill's SKILL.md uses `sweep/<N>-impl` as the worktree-add example, but the implementer-prompt creates slugged branches like `sweep/152-etf-mnq-translation-contract-sizing`. Hardcoding `sweep/<N>-impl` as a stacked dependent's `BASE_BRANCH` fails with "branch not found."
+
+For any manual stacking-override path, resolve the literal branch from the blocker's PR before writing metadata:
+
+```bash
+gh pr view <blocker-pr> --json headRefName -q '.headRefName'
+```
+
+Phase 3.a2 already does this when `Blocked by:` resolution finds a single open PR — the cautionary note is for ad-hoc directive paths.
+
+## `gh api -f body=@file` is literal — use `-F` or expand the file first
+
+`gh api -f` (raw-field) treats `@` as a literal character. `gh api -f body=@reply.txt` posts the string `@reply.txt`, not the file's contents. Two ways to post a file body:
+
+```bash
+# Typed field — @file IS expanded
+gh api repos/.../comments -F body=@reply.txt
+
+# Or read the file into a variable explicitly
+body=$(cat reply.txt)
+gh api repos/.../comments -f body="$body"
+```
+
+Bites address-session workers posting multi-line reply bodies generated to a file — failures show up as comment bodies containing the literal path string instead of the intended content.

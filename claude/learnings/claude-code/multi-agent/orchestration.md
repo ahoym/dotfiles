@@ -208,6 +208,26 @@ This catches misconfigured `--allowedTools` or missing `settings.json` patterns 
 
 When a prompt template needs a branch name, pass one `BASE_BRANCH` variable — not both `DEFAULT_BRANCH` and `BASE_BRANCH` with conditional logic in the template. The caller (skill/orchestrator) already determines the right value; pushing that decision into the agent's template adds complexity with no benefit. The agent just uses `{BASE_BRANCH}` for worktree creation, PR targeting, etc. — it doesn't need to know whether that value is `main` or a dependency's branch.
 
+## Worktree Reuse Across Sweep Types
+
+Worktrees created by one sweep skill (e.g., `sweep-work-items` building feature branches) can be reused as-is by a downstream sweep skill (`sweep-address` reviewing those same branches). The discovery step in sweep:address-prs runs `git worktree list` and matches `headRefName` against existing worktree paths — no new `git worktree add` needed.
+
+This is a meaningful efficiency win: address sessions skip worktree setup (~10s + disk IO per PR), and the working directory state (e.g., a half-implemented feature) is preserved across the review→address handoff. Practical confirmation: a 5-PR address sweep using 5 reused worktrees from a prior `sweep-work-items/<ts>/worktrees/` dir converged across 3 cycles with zero worktree friction.
+
+Caveat: the upstream sweep's worktrees must still exist when downstream runs. If the upstream sweep auto-cleaned, the downstream falls back to creating new worktrees under its own `<RUN_DIR>/worktrees/`. Document worktree lifecycle in any new sweep skill so chained sweeps know what they can rely on.
+
+## Subagent-Skip Heuristic for Re-Review Cycles
+
+Re-reviews on small remediation commits don't need subagent fanout. Heuristic: `<100 lines diff + every prior finding has a "Fixed in <sha>" reply + no new abstractions` → orchestrator-inline verification in <2 minutes. Saves the 3× concurrent API sessions per persona × N PRs that subagents cost, plus context warm-up. Skip is not appropriate when the commit introduces new modules, new error paths, or new public functions — those need fresh persona attention.
+
+## Subagent Diff Hallucination — Always Verify Against Actual Diff
+
+Subagents lose track of diff structure mid-review and confidently produce false negatives like *"no test changes appear in this diff"* when 160+ lines of test changes exist. Treat any "no X in diff"-class finding as suspect. Orchestrator must `gh pr diff <N> --name-only` (or `glab` equivalent) and cross-check against the subagent's claim before posting. Discard the finding silently — don't ask the subagent to re-check, the hallucination is sticky within its context window.
+
+## Project-Context Persona Weighted Heavier on Project-Specific Dissent
+
+When personas disagree on a correctness finding and one persona has loaded project-specific context (e.g., a `<repo>/CLAUDE.md` documenting a warmup gotcha or a non-obvious code-path discriminator) while the other reasoned from general docs, the project-loaded persona's reading is more reliable on that specific concern. Don't auto-resolve to "highest severity wins" — check whether the dissent involves a *documented project-specific behavior*. If so, weight the project-context persona heavier. The dissent itself is still valuable (surfacing what the general-persona missed), but the resolution should not raise severity past the project-loaded persona's call.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

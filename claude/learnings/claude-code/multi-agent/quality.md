@@ -4,6 +4,14 @@ Multi-agent quality and validation — verification patterns, trust arc, agent-t
 
 ---
 
+## Diff-Only Line Numbers Drift in Subagents
+
+Subagents that derive line numbers from diff text rather than reading the actual file produce 8-35 line drift on new files. The `@@ -X,Y +X,Y @@` hunk header is reliable for *where* changes start; relative counting from there is error-prone past ~30 lines. Before posting inline review comments, the team-lead must re-read each cited file and correct the line numbers — diff-driven inline comments will land at the wrong location otherwise (or anchor to nothing on stacked PRs, returning `line: null`).
+
+## Cross-Check Inline Classification Against Addresser Summary
+
+When re-reviewing an Address pass, the addresser typically posts a top-level summary ("15 implemented, 3 escalated, 2 reacted"). Use it as a sanity-check on per-thread classification — discrepancies signal where the inline analysis may have miscategorized a thread. The summary is one extra read and catches whole classes of misclassification.
+
 ## Verify Subagent Research Actually Used Web Sources
 
 When delegating research to subagents (Task tool with `claude-code-guide` or `Explore`), check the **sources** in their output — not just the conclusions. Subagents may read local files and existing learnings instead of performing fresh web searches, then present recycled information as new research. This is especially problematic when the local files contain the very claims you're trying to validate.
@@ -81,3 +89,19 @@ Paired-agent loops (reviewer/addresser, planner/implementer) catch drift in what
 ## Two Confidence Tiers in Agent Output Reports
 
 Agent reports that mix deterministic checks with judgment-based ones should frame them differently. Deterministic checks (structural rules, presence/absence) → assertions with citations ("thread #X has 0 reactions, rule says reaction-only"). Judgment-based checks (intent alignment, scope drift) → questions framed for operator review ("intent doc line 4 says X, diff shows Y, wanted to flag"). Same report, distinct sections, distinct framings — calibrates trust appropriately and prevents the report from overpromising on the judgment half.
+
+## Subagent-Skip on Pure Remediation Commits
+
+For re-review of commits that purely implement prior-cycle recommendations — delta ≤ ~100 lines, all changes in already-flagged files, no new code paths — the team-lead can verify the delta directly without re-launching reviewer subagents. Saves ~3-4× tokens with no quality loss; the team-lead maps each prior finding to a diff line, confirms the implementation matches the recommendation, flags any gaps. Skip only when all three conditions hold; any new code path resets to full subagent review.
+
+## Verify Subagent Claims About Files They Didn't Read
+
+Reviewer subagents inferring file contents they don't have access to (docker-compose, deploy configs, sibling modules) produce false-but-plausible claims. The risk surfaces as **severity inflation**: a finding's severity often hinges on a specific file claim, and a fabricated claim can push HIGH → CRITICAL. **Detection signal:** persona severities span 4+ levels (e.g., financial=CRITICAL, correctness=HIGH, architecture=LOW) — that spread means at least one persona is reasoning from a load-bearing claim the others didn't make. **Fix:** before posting, the team-lead reads the cited file and verifies the specific assertion. Drop the inflated severity to what the verified evidence supports; keep the underlying concern if real.
+
+## Negative-Set Filtering by Subagents Is Permissive
+
+Delegation prompts shaped "find X **not already in** Y" (dedupe against existing learnings, find missing tests, surface uncovered cases) over-include — items that exist in Y leak into the candidate list because matching a negative set is harder than enumerating, and agents prefer false positives to false negatives. Treat output as a candidate pool, not the final list; second-pass dedup against Y by the orchestrator is mandatory before any downstream write. Symptom: a 24-row "novel" table that shrinks to 9 once the orchestrator re-checks against the dedup targets it cited in the original prompt.
+
+## Subagent Bullet Summaries Strip Load-Bearing Specifics
+
+When promoting subagent findings to durable docs (learnings, ADRs, RFCs), bullet-form summaries often drop qualifiers the full source contains — the `is_finite()` companion guard to a `Decimal` coercion, the preflight error-elimination that makes `|| true` correct, the regex-arm ordering that makes ambiguity testable. Grep the source artifacts the agent cited before writing — bullets are an inventory, not a contract.

@@ -1,4 +1,5 @@
 {
+  "env": {},
   "permissions": {
     "allow": [
       "Bash(bash ~/.claude/commands/**)",
@@ -6,10 +7,10 @@
       "Bash(bash tmp/claude-artifacts/**)",
       "Bash(chmod +x tmp/claude-artifacts/**)",
       "Bash(chmod +x ~/**/tmp/claude-artifacts/**)",
+      "Bash(cd ~/**/tmp/claude-artifacts/**)",
       "Bash(cp ~/.claude/skill-references/**)",
       "Bash(cp tmp/claude-artifacts/**)",
       "Bash(cp ~/**/tmp/claude-artifacts/**)",
-
       "Bash(brew list:*)",
       "Bash(curl:*)",
       "Bash(date:*)",
@@ -18,7 +19,6 @@
       "Bash(jq *)",
       "Bash(ls:*)",
       "Bash(wc:*)",
-
       "Bash(git add:*)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
@@ -35,20 +35,22 @@
       "Bash(git stash:*)",
       "Bash(git status:*)",
       "Bash(git switch:*)",
-
+      "Bash(git -C ~/**/tmp/claude-artifacts/**)",
       "Bash(gh api *)",
       "Bash(gh auth *)",
       "Bash(gh issue *)",
       "Bash(gh pr *)",
-
+      "Bash(gh run *)",
+      "Bash(uv run *)",
       "Skill(git:team-review-request *)",
+      "Skill(git:team-review-request:*)",
       "Skill(git:address-request-comments *)",
+      "Skill(git:address-request-comments:*)",
       "Skill(git:resolve-conflicts *)",
-
+      "Skill(git:resolve-conflicts:*)",
       "Bash(glab api *)",
       "Bash(glab auth *)",
       "Bash(glab mr *)",
-
       "Bash(mkdir -p claude:*)",
       "Bash(mkdir -p docs:*)",
       "Bash(mkdir -p tmp:*)",
@@ -60,7 +62,6 @@
       "Bash(rm ~/**/tmp/claude-artifacts/**)",
       "Bash(rmdir tmp/claude-artifacts/**)",
       "Bash(rmdir ~/**/tmp/claude-artifacts/**)",
-
       "Read(claude/**)",
       "Read(tmp/claude-artifacts/**)",
       "Read(~/**/tmp/claude-artifacts/**)",
@@ -71,7 +72,6 @@
       "Read(~/.claude/learnings-providers.json)",
       "Read(~/.claude/skill-references/**)",
       "Read(~/.claude/skills/**)",
-
       "Edit(claude/**)",
       "Edit(tmp/claude-artifacts/**)",
       "Edit(~/**/tmp/claude-artifacts/**)",
@@ -81,7 +81,6 @@
       "Edit(~/.claude/learnings*/**)",
       "Edit(~/.claude/skill-references/**)",
       "Edit(~/.claude/skills/**)",
-
       "Write(claude/**)",
       "Write(tmp/claude-artifacts/**)",
       "Write(~/**/tmp/claude-artifacts/**)",
@@ -91,7 +90,6 @@
       "Write(~/.claude/learnings*/**)",
       "Write(~/.claude/skill-references/**)",
       "Write(~/.claude/skills/**)",
-
       "Update(claude/**)",
       "Update(tmp/claude-artifacts/**)",
       "Update(~/**/tmp/claude-artifacts/**)",
@@ -115,11 +113,10 @@
       "Bash(git push origin main *)"
     ]
   },
-  "env": {},
   "model": "opus[1m]",
-  "effortLevel": "medium",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
-  }
+  },
+  "effortLevel": "medium"
 }

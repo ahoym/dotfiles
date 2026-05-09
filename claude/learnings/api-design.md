@@ -115,6 +115,32 @@ Generating `UUID.randomUUID()` inside a client prevents the orchestration layer 
 
 Include correlation/request IDs in all log statements for integration operations. Without this, debugging requires correlating logs by timestamp alone.
 
+## Vendor APIs return errors at multiple levels
+
+Batch-capable APIs (broker order placement, bulk imports, batch S3 ops) return errors at TWO levels: top-level `errors` array AND per-record `error` fields within the result array. The envelope can succeed (HTTP 200, no top-level errors) while individual items fail (per-order `Error: "Insufficient buying power"`). The top-level check is obvious; the per-record sweep is easy to miss. Implement both checks for any multi-record API and surface per-record failures at WARN/ERROR (not DEBUG) — they're rejection signals, not noise.
+
+## Log full failed-record envelope, not just the named error field
+
+When logging per-record failures from a batch API, log the entire failed record dict — not just `record["Error"]` or `record["Message"]`. APIs commonly attach diagnostic fields (`RejectReason`, `Code`, `Hint`, echoed request fields) alongside the terse error code. Logging only the named field drops them silently — production rejections then require a separate forensics fetch to recover the actual reason.
+
+```python
+# Bad — drops RejectReason / Status / echoed request data
+logger.error("API error on %s: %s", record["id"], record["Error"])
+
+# Good — full record captures any diagnostic fields the API attaches
+logger.error("API error on %s: %s | full record: %s", record["id"], record["Error"], record)
+```
+
+Default to full-record logging on failure paths. Cost is bytes; value is debug-time when remote-side reasons aren't predictable in advance.
+
+## Adapter and client layers can have separate validation tiers
+
+When wrapping a vendor API behind an adapter (BrokerAdapter → VendorClient), the two layers often enforce different symbol/input regexes — adapter validation is typically stricter than client validation because each layer covers a different surface. The client may accept symbol form X for data endpoints while the adapter rejects X for order placement, both correctly mirroring vendor semantics (e.g., continuous futures symbols are queryable but not orderable). Before concluding "the wrapper rejects X," trace which call path the validation actually runs on — single-regex assumptions miss this layered pattern.
+
+## Backward-Compat Defaults: Remove When No Caller Depends On Them
+
+A "backward-compat default" added during a refactor (`def f(x, y, *, margin=MNQ_MARGIN_PER_CONTRACT)`) becomes load-bearing the moment any future caller relies on it. If existing callers all pass the value explicitly, the default never served its purpose — and now hides what looks like genericity behind a domain-specific value (a module *appears* generic but silently uses contract-specific constants). Two-step API evolution: add with default → verify all callers pass explicitly → remove the default. The honest signature forces new callers to be explicit about domain-specific constants instead of inheriting silent ones.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/financial/applications.md` — idempotency patterns

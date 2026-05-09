@@ -50,6 +50,38 @@ No currency standard requires >18 decimals (XRP=6, fiat=2-4, Ethereum=18). For i
 
 Nullable fields throw NPE in `reduce(BigDecimal.ZERO, BigDecimal::add)`. Add `.filter(Objects::nonNull)` or use `Optional.ofNullable().orElse(BigDecimal.ZERO)` before reducing. Extends to individual operations: guard with `BigDecimal.ZERO` before subtraction when methods like `getFeeAmount()` can return null.
 
+## Broker-API `.get(key, default)` fallback direction determines failure mode
+
+When parsing broker responses in retry/order-state logic, the default on a missing field picks the failure semantic:
+
+```python
+# Fall back to 0: if remainingQuantity is missing, treat as "fully filled"
+remaining = order.get("remainingQuantity", 0)  # ghost fill
+
+# Fall back to full qty: if missing, treat as "nothing filled"
+remaining = order.get("remainingQuantity", order.get("quantity", 0))  # spurious cancel
+```
+
+Neither default is safe — both create silent, money-moving failure modes. In financial code, prefer `raise ValueError` over any default when a field flows into a fill/cancel/ledger decision. Document the expected broker contract (which fields are always present) and fail loudly on violation.
+
+## `str(float)` is unsafe for limit prices sent to broker APIs
+
+IEEE-754 round-trip through `str()` can produce `0.30000000000000004`-style artifacts at the boundary. schwab-py and similar SDKs accept string prices — constructing them with `f"{price:.2f}"` (explicit precision) or `str(Decimal(str(price)).quantize(Decimal("0.01")))` (Decimal round-trip) is the safe path. Bare `str(float_price)` can reject at the exchange or fill at an unintended price.
+
+### NaN/Inf guard at financial calculation boundary
+
+Broker-supplied prices can be non-finite from network errors, halted markets, or synthetic mid-quotes. Helpers that propagate NaN/Inf downstream produce silent incorrectness — `tick_size > 0` guards reject malformed config but pass NaN through `round()` and `*` unchanged. Add `if not math.isfinite(price): raise ValueError(...)` at the boundary of any price helper before downstream math. Same applies to size/quantity helpers fed from broker fills.
+
+### Dry-run / sim binary safety flags need bidirectional tests
+
+Any flag distinguishing "real money" from "simulated" behavior needs both a positive test (`flag=False → execute=True`) and a negative test (`flag=True → execute=False`). Positive-only gives false confidence the gate works bidirectionally — a typo inverting the `if` block still passes the positive test. Apply the same rule to `is_dry_run_enabled`, `simulate=True`, `paper_trading=True`, and any `live_orders` toggle.
+
+### Required field beats `0.0` default on load-bearing money fields
+
+A dataclass `equity: float = 0.0` lets a missed construction site silently produce wrong-but-plausible numbers — `equity=0.0` plus `invested=18000` makes P/L log as `-$18,000`, a total-loss signal that looks legitimate enough to delay investigation. For any field that drives money-affecting computation (balance, equity, principal, notional), prefer required (no default). Loud `TypeError` on missed init beats silent corruption.
+
+Defaults remain appropriate for accumulators (`fees_paid: float = 0.0` accumulating from zero) and metadata (`label: str = ""`). For *inputs* to derived monetary calculations, treat the missing default as a feature — it forces every construction site to be explicit about the value.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)

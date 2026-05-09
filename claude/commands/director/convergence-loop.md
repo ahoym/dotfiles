@@ -1,25 +1,33 @@
 # Convergence Loop Mode
 
-Read this when the operator requests "run to convergence," "converge," or "go until convergence." This mode auto-chains review→address→re-review cycles without returning to the operator between steps.
+Read this when the operator requests "run to convergence," "converge," or "go until convergence." This mode auto-chains review↔address cycles without returning to the operator between steps.
 
 ## When to enter
 
 - Operator explicitly requests convergence (e.g., "converge on 87 and 88")
 - Operator says "run to convergence please" or similar
 
+## Starting order
+
+The loop is order-symmetric — the convergence criteria don't depend on which mode runs first.
+
+- **Default: review-first.** Use when PRs are at fresh-review state or operator didn't specify.
+- **Address-first variant.** Use when the operator says "address X then review until convergence" or PRs already have unaddressed review comments from a prior cycle that should be cleared before fresh review. Single-cycle convergence is common in this case — the address pass clears the queue, the review verifies, done.
+
+The loop body below uses `mode-A → mode-B → re-mode-A` where `(A, B)` defaults to `(review, address)` but can be `(address, review)` per operator request.
+
 ## Loop
 
 ```
-1. Launch review runner (background)
+1. Launch mode-A runner (background)
 2. On completion: read all status.md + results.md
 3. Decision gate (per decision matrix):
-   a. Any PR has mergeable: CONFLICTING → write directive to addresser, include in address run
-   b. Any PR has new findings (inline comments > 0) → proceed to step 4
-   c. Any PR has new operator/addresser comments needing reviewer reply → proceed to step 4 (reviewer handles replies)
-   d. All PRs: 0 new findings AND no unprocessed comments → CONVERGED, go to step 7
-4. Launch address runner (background)
+   a. Any PR has mergeable: CONFLICTING → write directive to addresser, include in next address run
+   b. Mode-A produced new content (findings/commits/replies) that mode-B should process → proceed to step 4
+   c. Mode-A skipped on all PRs AND no unprocessed comments → CONVERGED, go to step 7
+4. Launch mode-B runner (background) — minimum 3-min offset from mode-A launch
 5. On completion: read all status.md + results.md
-6. Go to step 1 (re-review to verify address work)
+6. Go to step 1 (re-mode-A to verify mode-B work)
 7. Report final state to operator
 ```
 

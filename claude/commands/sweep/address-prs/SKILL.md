@@ -34,8 +34,17 @@ Detect platform first (see Phase 2), then check the matching CLI patterns:
 **GitHub patterns:**
 ```json
 "Bash(gh pr view:*)", "Bash(gh pr diff:*)", "Bash(gh pr list:*)",
-"Bash(gh api:*)", "Bash(gh pr review:*)", "Bash(gh pr comment:*)"
+"Bash(gh api:*)", "Bash(gh pr review:*)", "Bash(gh pr comment:*)",
+"Bash(gh pr checks:*)", "Bash(gh run view:*)"
 ```
+
+**CI-gate patterns (Step 10 of addresser-prompt.md):** The addresser runs project-local lint/test commands after pushing. These are project-specific; add the matching pattern to `permissions.allow`:
+- Python (uv): `"Bash(uv run *)"`
+- Node (npm): `"Bash(npm run *)"`, `"Bash(npm test:*)"`
+- Ruby: `"Bash(bundle exec *)"`
+- etc.
+
+Without the matching pattern, Step 10a (local lint) silently fails in `claude -p` sessions and CI will only be caught by the remote poll — still safe, but slower.
 
 **GitLab patterns:**
 ```json
@@ -151,7 +160,13 @@ Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 5: Generate Artifacts
 
-Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
+Create run directory: `tmp/claude-artifacts/sweep-address/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value — `$()` subshells in Bash commands break permission pattern matching. Initialize the run dir + per-PR subdirs + copy shared preflight in a single call:
+
+```bash
+bash ~/.claude/skill-references/init-sweep-pr-dir.sh <RUN_DIR> <pr-numbers...>
+```
+
+This matches the `Bash(bash ~/.claude/skill-references/**)` allow pattern — no per-invocation permission prompt. Worktrees under `<RUN_DIR>/worktrees/` are created later by the runner, not here. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
@@ -220,12 +235,7 @@ Write data files for template assembly, then call `fill-template.sh`:
    - If persona detected: `Read ~/.claude/commands/set-persona/<name>.md and adopt its priorities, tradeoffs, and domain focus.`
    - If none: `No persona was detected during assessment. If a directive specifies a persona, read that persona file. Otherwise proceed without a persona lens.`
 
-2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
-   ```bash
-   cp ~/.claude/skill-references/sweep-pr-preflight.md <RUN_DIR>/sweep-pr-preflight.md
-   ```
-
-3. **Assemble prompt:**
+2. **Assemble prompt:**
    ```bash
    bash ~/.claude/skill-references/fill-template.sh addresser-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
    ```
@@ -256,6 +266,10 @@ Follow the corresponding sections in `sweep-scaffold.md`. Mode-specific retro ta
 
 | PR | Title | Rounds | Latest Status | Auto-implemented | Escalated | Commits |
 |----|-------|--------|---------------|------------------|-----------|---------|
+
+### Phase 7: Auto-Launch Runner
+
+Follow **Auto-Launch** in `sweep-scaffold.md`. Use the relative path `bash tmp/claude-artifacts/sweep-address/<TIMESTAMP>/let-it-rip.sh` so the existing `Bash(bash tmp/claude-artifacts/**)` permission matches.
 
 ## Important Notes
 

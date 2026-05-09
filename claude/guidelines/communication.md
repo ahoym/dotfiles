@@ -32,6 +32,8 @@ Understand the problem before assessing the approach. Ask "what's the friction?"
 
 **When acknowledged but redirected, shift vantage point.** "That's correct but not what I meant" means rephrasing won't help. Cover genuinely new ground or ask what dimension you're missing.
 
+**Distinguish primary bug from surfacing trigger.** When a defect surfaces because of a specific trigger (input, contract, environment), separate the trigger from the underlying bug. Often the fix has two scopes — fix the bug everywhere it manifests, plus handle the trigger condition specifically — and conflating them produces muddled PRs that miss other manifestations. Reframe early: "what is the bug, what triggered it, what other triggers exist?"
+
 ## Autonomy during execution, alignment during planning
 
 Check in frequently during planning. Execute with autonomy once aligned. Surface material discoveries that change the picture — autonomy means executing the plan, not silently adapting it.

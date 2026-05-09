@@ -42,6 +42,8 @@ A guideline is redundant when skills already handle the behavior as part of thei
 
 **Rule:** Guidelines should shape ambiguous situations, not override explicit instructions. If a skill handles the default and the operator explicitly asks for something different, honor the operator.
 
+**When listing multiple skills/triggers in a gate, sniff each one before committing.** A gate may be right in spirit but redundantly broad in its trigger list — half the listed skills may already implement the behavior internally. Read each candidate skill's `SKILL.md` (grep for the relevant keywords) and tighten the trigger list to only those that genuinely need the prescription. Signal that surfaces the gap: a partner asking "doesn't `<X>` already do this?" — treat that as a verify cue, not pushback to argue with. Distinguishes the gate from the wrap-around behavior: the gate fills the gap, the skill-internal step covers itself.
+
 ## Pseudocode at the Universal Tier
 
 When extracting universal guidelines (see `routing-table.md` → "Universal vs Language-Specific" for the tier taxonomy), use pseudocode examples rather than language-specific ones. Pseudocode makes the universal tier portable across projects — language-specific examples anchor it to one stack.

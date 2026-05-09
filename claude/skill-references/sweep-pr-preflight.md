@@ -1,3 +1,5 @@
+**Permission denial = STOP, never retry.** Re-read the inlined script and run it verbatim. If no sanctioned shape covers your need, escalate — do not improvise.
+
 ## Step 1: Read Directives
 
 Read `{RUN_DIR}/directives.md` and `{PR_DIR}/directives.md` if they exist. These are instructions from the director — incorporate them into this pass. Directives may override skip logic, add focus areas, or provide context.

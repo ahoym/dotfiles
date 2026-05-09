@@ -41,3 +41,17 @@ When integrating with an API where calls are destructive (data marked as consume
 ### Wrap each source independently in multi-source data merges
 
 When calling multiple data sources and merging results, wrap each source call in independent try-catch so failure of one source doesn't suppress the other. Return partial results rather than throwing when any single endpoint fails. This is especially important when one source is a fallback for the other — a thrown exception from the primary endpoint should not prevent the fallback from running.
+
+### Silent fallback to stale state is worse than crashing (financial code)
+
+In financial/trading systems, a backwards-compat fallback that reads potentially-stale state without logging is a high-severity blind spot during migration windows — monitoring stays green while the algo decides on wrong monetary state (cash, positions, DCA counters). Always log a distinctively-prefixed warning on fallback entry:
+
+```python
+logger.warning("LIMITS_FALLBACK: %s not found, falling back to %s", primary, legacy)
+```
+
+A unique prefix (`LIMITS_FALLBACK`, `ACCOUNTING_FALLBACK`) makes ops dashboards alertable on it. Prefer a loud fail over a silent succeed whenever the fallback could read stale state — incident diagnosis is far easier with explicit traces than with "system was healthy until balances diverged."
+
+## Symmetric Failure Handling Across Sibling Helpers
+
+When extracting code into sibling helper functions (e.g., `_close_leg` and `_open_leg`, or `_pre_commit` and `_post_commit`), failure-handling must be symmetric. Asymmetry — open leg wraps persistence in `try/except` + CRITICAL log + re-raise, but close leg doesn't — hides risk: the same failure mode exists on both sides, but only one is guarded. **Review heuristic:** when reviewing extracted helpers, scan the diff for failure handling and confirm both siblings have the same pattern. If one has a guard the other doesn't, either both need it or neither does.

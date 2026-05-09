@@ -113,6 +113,10 @@ When a reference file is read by every invocation of a skill (not conditionally)
 
 `# Write body via Write tool first:` in a `.sh` command file is both human documentation and an LLM execution directive after `!cat` inlining. The imperative ordering ("Write first, then run") isn't stylistic — it's the execution sequence the agent follows. When authoring `.sh` primitives, write comments as if they're step instructions, because after preprocessing, they are.
 
+## `!`-Inline Helper Scripts; Don't Reference By Name
+
+Skill instructions like *"Use 'Fetch Inline Comments' from the platform cluster files"* push the agent toward inventing the command from the name — drift, `/tmp/` paths, missing fields. Replace with a literal `!`cat ~/.claude/platform-commands/<script>.sh`` block so the resolved script body is in front of the agent at decision time. The reference-by-name pattern reads as documentation but functions as a guess prompt. If a SKILL.md says "use X," the script content for X must appear directly below it.
+
 ## Cross-Refs
 
 No cross-cluster references.

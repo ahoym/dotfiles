@@ -62,6 +62,27 @@ Use the model you're currently running (e.g., "Claude Opus 4.6"). This footnote 
 
 **Use list items (`-`) for each label.** This ensures each label renders on its own line in GitLab markdown without relying on blank-line separation.
 
+### Footnote Enforcement (mandatory post-reply check)
+
+Do not trust that the reply template was followed — verify after posting. After any step that posts replies (initial-ack, commit-ref, top-level summary), fetch the posted comments by ID and confirm each body contains the `Role:` line.
+
+```bash
+# GitHub example — fetch a posted reply and check for Role footnote
+gh api repos/{owner}/{repo}/pulls/comments/<id> --jq '.body' | grep -q "^- \*Role:\*" || echo "MISSING FOOTNOTE on <id>"
+```
+
+If any reply is missing the footnote:
+1. **Preferred:** edit the comment body to append the footnote (GitHub: `gh api --method PATCH repos/{owner}/{repo}/pulls/comments/<id> -f body=@<file>`; GitLab: `glab api --method PUT projects/<id>/merge_requests/<mr>/notes/<note_id> -f body=@<file>`).
+2. Fallback: delete the comment and repost with the correct body.
+3. Record the fix in `results.md` — do not silently leave missing footnotes.
+
+**Why this matters:** `Role:.*<ROLE>` is the identity key for self-filtering, mutual resolution, and watermark logic. Missing footnotes cause:
+- Redundant re-addressing (agent sees its own reply as an operator comment and re-processes)
+- Missed mutual resolution (agent doesn't recognize its own reply as the last substantive thread reply)
+- False re-review triggers (reviewer sees addresser replies as new operator activity)
+
+A single omitted footnote corrupts every downstream cycle until it's fixed. Verify before moving on.
+
 **Persona detection (precedence order):**
 1. Formal persona (activated via a persona skill) → use the persona name
 2. Ad-hoc persona prompt in conversation (e.g., "you are a senior Java backend engineer...") → extract a short name (e.g., "Senior Java Backend Engineer")

@@ -49,3 +49,41 @@ Place return-type models alongside existing domain models (e.g., `logic/models/A
 ## Composition root env-gating and test ergonomics
 
 An env-gated composition root (`BROKER=schwab|tradestation`, raises `RuntimeError` if unset) is safe for tests **when dependency discipline ensures test code never imports it**. If `logic/libs/*` takes `Account` as a parameter, tests construct `Account(broker=FakeBrokerAdapter(), ...)` directly — they never touch `config/accounts.py`, so the env gate never fires. Only entry-point integration tests need the env var. This works precisely because the CI lint (forbidding `logic/libs/* → config/accounts.py`) guarantees the boundary holds.
+
+## Migration ergonomics: env gate vs legacy entry-point scripts
+
+Tests can be solved by the DI boundary, but legacy entry-point scripts (`run__*.py`, scratchpads, ad-hoc REPLs) that import the composition root directly will break the moment a hard `raise RuntimeError("ENV not set")` lands. Every developer running an old script must now know about the new env var.
+
+For migration safety, default to the prior implementation and log the implicit choice:
+
+```python
+if BROKER is None:
+    logger.warning("BROKER unset; defaulting to %r", _DEFAULT_BROKER)
+    BROKER = _DEFAULT_BROKER
+```
+
+Backwards compat preserved, intent surfaced in logs (so the migration isn't silently masked), explicit `BROKER=other` still selects deliberately. Drop the default once all entry points are updated and a deprecation window has passed.
+
+## Test-only DI parameters are a smell
+
+If you're tempted to add a constructor parameter whose only purpose is to inject a test double, prefer the alternatives: monkey-patch the underscore attribute in the test, use a factory, or build a fixture. A "DI seam" no production caller ever passes bloats the public API and signals "this knob exists" to readers when it doesn't.
+
+**Why:** the `# noqa: D107`-style `_http: httpx.Client` field is already an internal attribute by convention. Tests writing `client._http = MagicMock()` is idiomatic Python. Adding `http_client: httpx.Client | None = None` to `__init__` to spare tests from the underscore poke trades a real public-surface change for cosmetic test cleanliness.
+
+**How to apply:** before adding a constructor param "for testability," check that at least one production code path will pass it. If not, leave the existing internal attribute and let tests reach in.
+
+## Adapter owns broker-specific identity translation
+
+When a broker uses a different identifier than the human-friendly account number for its API (Schwab: account number → account hash; many APIs: user id → external uid), put the translation **inside the adapter**, not on the domain model. Adapter constructor takes the map: `SchwabAdapter(client, account_hashes={...})`. The model holds the human id; consumers pass `account.id`; the adapter resolves and forwards.
+
+If translation lives on the model (e.g., `Account.id` holds the hash), broker semantics leak into the supposedly broker-agnostic model — every consumer must know which broker it's talking to in order to choose the right id field. The whole point of the adapter is to absorb that knowledge.
+
+## Diagnose incomplete migration via entry-point import chain
+
+Composition root + protocol delivers import-time independence only when no broker-agnostic call site imports legacy concrete modules at the top level. When `BROKER=newbackend` crashes at startup despite the composition root being correctly gated, the gap is at the call sites — not the abstraction.
+
+Diagnostic: trace `from X import Y` from the entry point outward; flag any top-level import of legacy concrete modules. Function-scope imports (`def foo(): from legacy import x`) are import-safe — they only fire on call, so a code path that doesn't reach them stays clean.
+
+Blocker set = union of top-level legacy-concrete imports along the entry point's import graph. CI lint prevents *new* violations; this diagnostic catches *existing* ones inherited from before the lint landed.
+
+Lazy imports (function-scope `from X import Y`) are also a deliberate tool: when you can't yet move a side-effecting import behind the composition root, deferring it inside a getter function is a cheap way to make the module import-safe for env-gated alternatives. Treat as a transitional measure — the cleaner end-state is the side effect inside the adapter constructor.

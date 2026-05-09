@@ -119,6 +119,10 @@ When a directory has a curated index (`CLAUDE.md` listing all files with descrip
 
 **Consumer impact:** Any search guideline or skill that reads the index path needs updating (e.g., `learnings-team-search.md`). Validation scripts (`check-index.sh`) also need the new path and should exclude the index file from their own scan.
 
+## Auto-generated catalogs as nested CLAUDE.md files
+
+When a directory holds a growing collection of files (data, generated artifacts, vendor exports), name its auto-regenerated index `CLAUDE.md` rather than `INDEX.md` / `CATALOG.md`. The auto-discovery behavior (parent walk on launch, downward discovery when an agent reads a file there) means the catalog loads exactly when an agent is operating in that subtree — no `@`-import or path-injection needed from root. Pair the catalog with a "targeted-read mandate" so agents pick specific files from the table rather than glob the directory. Cross-ref: see `code-quality-instincts.md` ("Truth-by-construction indexes for growing directories") for the regen-on-write pattern that keeps the catalog from drifting.
+
 ## Symlinked Repos Expose Project CLAUDE.md to Consumer Agents
 
 When a repo is symlinked into `~/.claude/` (e.g., `~/.claude/learnings-team/ → <repo>`), its root `CLAUDE.md` becomes visible to agents searching the symlink path. If that file contains contributor instructions (how to add learnings, file naming conventions, check scripts), it's noise for consumer agents who only want the learnings index.
