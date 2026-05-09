@@ -25,10 +25,6 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `postgresql-query-patterns.md` — PostgreSQL: window functions, CTEs, JSONB, indexing, schema design, migration safety
 - `local-dev-seeding.md` — Local dev seeding: hybrid API + SQL architecture for repeatable test data
 
-## Scheduling
-
-- `scheduling-time-windows.md` — Runtime gates from time windows: cross-midnight wrap, weekday/market-aware open-days, derive-from-window sleep cadence
-
 ## Deployment
 
 - `vercel-deployment.md` — Vercel: cron job limits, Postgres (Neon), environment variables

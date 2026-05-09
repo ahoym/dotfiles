@@ -16,3 +16,4 @@ Financial and ledger engineering: monetary calculations, ledger architecture, pr
 | futures-order-type-restrictions.md | Per-contract MKT-order rules (VIX-family rejects MKT on Cboe) + wide-crossing-LMT mitigation pattern |
 | futures-tick-rounding.md | Per-contract tick grid (MNQ=0.25, VX/VXM=0.05) — `round(price, 2)` rejects on Cboe; snap with `round(round(p/tick)*tick, 4)` |
 | market-calendars.md | Market-calendar library selection — disentangle from DataFrame library choice (NYSE holidays, futures roll math) |
+| scheduling-time-windows.md | Runtime gates from time windows: cross-midnight wrap, weekday/market-aware open-days, derive-from-window sleep cadence |
