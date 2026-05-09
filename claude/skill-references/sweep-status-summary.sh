@@ -1,8 +1,10 @@
 #!/bin/bash
 # sweep-status-summary.sh
 # Read status.md + state.md + tail of output.log across all item dirs in a sweep run
-# and print a structured monitoring report. Works for both pr-<N>/ (sweep:*-prs)
-# and issue-<N>/ (sweep:work-items) layouts.
+# and print a structured monitoring report. Works for:
+#   - pr-<N>/      (sweep:*-prs)
+#   - issue-<N>/   (sweep:work-items)
+#   - phase-<P>/   (plan-keyed director sessions)
 #
 # Usage:
 #   bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> [--logs N]
@@ -29,12 +31,12 @@ echo "=== Sweep Status Summary ==="
 echo "Run dir: $RUN_DIR"
 echo ""
 
-# Find all item dirs (issue-* or pr-*)
+# Find all item dirs (issue-*, pr-*, or phase-*)
 shopt -s nullglob
-item_dirs=("$RUN_DIR"/issue-* "$RUN_DIR"/pr-*)
+item_dirs=("$RUN_DIR"/issue-* "$RUN_DIR"/pr-* "$RUN_DIR"/phase-*)
 
 if [ ${#item_dirs[@]} -eq 0 ]; then
-    echo "No item directories found (expected issue-<N>/ or pr-<N>/)"
+    echo "No item directories found (expected issue-<N>/, pr-<N>/, or phase-<P>/)"
     exit 0
 fi
 
@@ -89,10 +91,14 @@ done
 done_count=0
 errored_count=0
 skipped_count=0
+gated_count=0
+pending_merge_count=0
 if [ ${#status_files[@]} -gt 0 ]; then
     done_count=$( { grep -l '^milestone: done' "${status_files[@]}" 2>/dev/null || true; } | wc -l | tr -d ' ')
     errored_count=$( { grep -l '^milestone: errored' "${status_files[@]}" 2>/dev/null || true; } | wc -l | tr -d ' ')
     skipped_count=$( { grep -l '^milestone: skipped' "${status_files[@]}" 2>/dev/null || true; } | wc -l | tr -d ' ')
+    gated_count=$( { grep -l '^milestone: gated' "${status_files[@]}" 2>/dev/null || true; } | wc -l | tr -d ' ')
+    pending_merge_count=$( { grep -l '^milestone: pr-pending-merge' "${status_files[@]}" 2>/dev/null || true; } | wc -l | tr -d ' ')
 fi
 total=${#item_dirs[@]}
-echo "Total: $total | Done: $done_count | Errored: $errored_count | Skipped: $skipped_count"
+echo "Total: $total | Done: $done_count | Errored: $errored_count | Skipped: $skipped_count | Gated: $gated_count | Pending merge: $pending_merge_count"

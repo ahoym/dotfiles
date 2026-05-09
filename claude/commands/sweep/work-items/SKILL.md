@@ -70,7 +70,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
-- @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns
+- @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, **progress-check script**
 - `~/.claude/skill-references/sweep-agent-preflight.md` — Shared preflight steps (1-5 + Work Item + Repo Context) for all agent prompts
 - `implementer-prompt.md` — Read when generating implementer prompts
 - `clarifier-prompt.md` — Read when generating clarifier prompts
@@ -85,7 +85,7 @@ Read `~/.claude/settings.json`, check every required pattern is present (exact s
 ### Phase 1: Parse Arguments
 
 Parse `$ARGUMENTS` to extract:
-- **Issue numbers**: regex `#(\d+)` → `ISSUE_NUMBERS[]`
+- **Issue numbers**: regex `#?(\d+)` → `ISSUE_NUMBERS[]` (accepts both `#12 #15` and bare comma/space-separated `12,15` or `12 15`)
 - **Labels**: `--label=<value>` → `LABELS[]`
 - **Max**: `--max=<N>` → `MAX_ISSUES` (default 30)
 - **Concurrency**: `--concurrency=<N>` → `CONCURRENCY` (default 5)
@@ -183,8 +183,9 @@ For each eligible work item, determine the role based on its conversation stage:
 > | No prior Sweeper comment | **clarify** | Always — agent posts questions/analysis first |
 > | Sweeper asked questions, operator replied (rule e) | **clarify-confirm** | Always — agent posts understanding + plan |
 > | Sweeper confirmed, operator replied (rule f) | **implement** or **clarify** | Apply decision rule below |
+> | Sweeper-Confirm posted, no operator reply, but operator explicitly invoked sweep on this issue | **implement** or **clarify** | Treat invocation as implicit approval — apply decision rule below |
 >
-> **Decision rule (stage 3 only):** Can you identify all three? (a) Specific file targets (b) Expected behavior change (c) Verification method. All three → **implement**. Any missing → **clarify** (restart cycle).
+> **Decision rule (stage 3/4 only):** Can you identify all three? (a) Specific file targets (b) Expected behavior change (c) Verification method. All three → **implement**. Any missing → **clarify** (restart cycle).
 
 Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` with an `issue-<N>/` subdirectory per eligible issue. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir`.
 
@@ -265,7 +266,17 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 #### let-it-rip.sh
 
-Generate a runner script adapted for work items. Follow **let-it-rip.sh Generation** in `sweep-scaffold.md` — write `<RUN_DIR>/metadata.json` and assemble via `fill-template.sh`. Do NOT read the runner template directly. Work-item-specific metadata overrides and adaptations:
+**Preferred path — use the consolidated generator.** After writing `manifest.json`, `<RUN_DIR>/metadata.json`, `repo-summary.txt`, and per-issue `issue-<N>/metadata.json`, run:
+
+```bash
+bash ~/.claude/skill-references/work-items-generate-runner.sh <RUN_DIR>
+```
+
+This fetches body/comments via `gh`, assembles each prompt via `fill-template.sh` (picking the right template per role), auto-wires `IMPLEMENT_ISSUES` + `PROJECT_ROOT`, and assembles `let-it-rip.sh` from the **work-items-native** template (`~/.claude/skill-references/work-items-runner-template.sh`). The work-items template — not the generic `parallel-claude-runner-template.sh` — handles implementer-mode specifics: `git worktree add -b sweep/<N>-impl <wt> <base>` (creates new branch from base), `cd` into the worktree before launching `claude -p`, and skips worktree setup when `IMPLEMENT_ISSUES` is empty.
+
+**Do not** hand-assemble via the generic `parallel-claude-runner-template.sh` for implement mode — it requires existing branches, doesn't `cd`, and won't work for fresh sweep branches.
+
+Work-item-specific metadata overrides and adaptations (written into `metadata.json` before invoking the generator):
 
 - **Model selection**: `MODEL` → `claude-opus-4-6` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
 - **Entity type keys**: Set in `metadata.json` per the sweep-scaffold.md schema. Issue-specific values:
@@ -314,7 +325,11 @@ Progress:         "Check progress on <RUN_DIR>"
 Retro:            "Retro on <RUN_DIR>"
 ```
 
-Proceed directly to artifact generation after the summary ��� do not wait for confirmation.
+Proceed directly to artifact generation after the summary — do not wait for confirmation.
+
+### Phase 7: Auto-Launch Runner
+
+Follow **Auto-Launch** in `sweep-scaffold.md`. Use the relative path `bash tmp/claude-artifacts/sweep-work-items/<TIMESTAMP>/let-it-rip.sh` so the existing `Bash(bash tmp/claude-artifacts/**)` permission matches. Skip if `0 eligible` or `--no-launch` was passed.
 
 ## Convergence (director-layer)
 

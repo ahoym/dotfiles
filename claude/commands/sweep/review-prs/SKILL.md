@@ -132,7 +132,13 @@ Proceed directly to artifact generation — do not wait for confirmation.
 
 ### Phase 6: Generate Artifacts
 
-Create run directory: `tmp/claude-artifacts/sweep-reviews/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value in `mkdir` — `$()` subshells in Bash commands break permission pattern matching. Follow **Artifact Structure** in `sweep-scaffold.md`.
+Create run directory: `tmp/claude-artifacts/sweep-reviews/<YYYY-MM-DD-HHMM>` with a `pr-<N>/` subdirectory per eligible PR. Compute the timestamp in a separate Bash call first (`date +%Y-%m-%d-%H%M`), then use the literal value — `$()` subshells in Bash commands break permission pattern matching. Initialize the run dir + per-PR subdirs + copy shared preflight in a single call:
+
+```bash
+bash ~/.claude/skill-references/init-sweep-pr-dir.sh <RUN_DIR> <pr-numbers...>
+```
+
+This matches the `Bash(bash ~/.claude/skill-references/**)` allow pattern — no per-invocation permission prompt. Follow **Artifact Structure** in `sweep-scaffold.md`.
 
 #### manifest.json
 
@@ -184,12 +190,7 @@ Write data files for template assembly, then call `fill-template.sh`:
        !`cat ~/.claude/platform-commands/fetch-pr-watermark.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
        ```
 
-2. **Copy shared preflight** to run directory (for `{@../sweep-pr-preflight.md}` inclusion):
-   ```bash
-   cp ~/.claude/skill-references/sweep-pr-preflight.md <RUN_DIR>/sweep-pr-preflight.md
-   ```
-
-3. **Assemble prompt:**
+2. **Assemble prompt:**
    ```bash
    bash ~/.claude/skill-references/fill-template.sh reviewer-prompt.md <RUN_DIR>/pr-<N> > <RUN_DIR>/pr-<N>/prompt.txt
    ```
@@ -215,6 +216,10 @@ Follow the corresponding sections in `sweep-scaffold.md`. Retro table includes s
 
 | PR | Title | Rounds | Latest Mode | Personas | Findings | Status |
 |----|-------|--------|-------------|----------|----------|--------|
+
+### Phase 8: Auto-Launch Runner
+
+Follow **Auto-Launch** in `sweep-scaffold.md`. Use the relative path `bash tmp/claude-artifacts/sweep-reviews/<TIMESTAMP>/let-it-rip.sh` so the existing `Bash(bash tmp/claude-artifacts/**)` permission matches. Skip if `0 eligible` or `--no-launch` was passed.
 
 ## Important Notes
 

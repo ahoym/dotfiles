@@ -39,7 +39,7 @@ Update `{PR_DIR}/status.md` milestone: `reviewing` → `posted`.
 
 ## Step 6: Write Artifacts
 
-Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
+Append a dated section to `{PR_DIR}/results.md` (plural — never `result.md`; the singular form is invisible to `sweep-status-summary.sh --retro` and silently lost). Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
 
 ```markdown
 ## Review — <ISO timestamp>

@@ -14,7 +14,7 @@
 #                          each entry needs at minimum: number, role
 #                          role is one of: clarify | confirm | implement
 #   metadata.json        — runner config (MODE, MODE_LABEL, MODEL, RUN_DIR,
-#                          CONCURRENCY, PRS, TIMESTAMP, BRANCHES, WORKTREES,
+#                          CONCURRENCY, ITEMS, TIMESTAMP, BRANCHES, WORKTREES,
 #                          PROJECT_ROOT) per sweep-scaffold.md
 #   repo-summary.txt     — shared repo context (~50 lines)
 #   issue-<N>/metadata.json — per-issue template metadata (one file per
