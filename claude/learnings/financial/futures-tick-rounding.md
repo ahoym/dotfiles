@@ -1,7 +1,6 @@
 Futures order prices must snap to the contract's minimum price increment (tick), not just round to cents. Exchanges reject off-grid LMTs.
-
-**Keywords:** futures, tick size, price increment, LMT order, off-grid, broker reject, MNQ, VX, VXM, Cboe, CME
-**Related:** futures-order-type-restrictions.md, numeric-precision-strategy.md, order-book-pricing.md
+- **Keywords:** futures, tick size, price increment, LMT order, off-grid, broker reject, MNQ, VX, VXM, Cboe, CME
+- **Related:** ~/.claude/learnings/financial/futures-order-type-restrictions.md, ~/.claude/learnings/financial/numeric-precision-strategy.md, ~/.claude/learnings/financial/order-book-pricing.md
 
 ## The bug
 

@@ -1,7 +1,6 @@
 Per-contract order-type rules on futures: VIX-family rejects MKT, mitigation via wide-crossing LMT.
-
-**Keywords:** futures, MKT, market order, limit order, VIX, VXM, VX, Cboe, CFE, contract specification, order rejection, RejectReason
-**Related:** futures-etf-translation.md, order-book-pricing.md
+- **Keywords:** futures, MKT, market order, limit order, VIX, VXM, VX, Cboe, CFE, contract specification, order rejection, RejectReason
+- **Related:** ~/.claude/learnings/financial/futures-etf-translation.md, ~/.claude/learnings/financial/order-book-pricing.md
 
 ## The gotcha
 

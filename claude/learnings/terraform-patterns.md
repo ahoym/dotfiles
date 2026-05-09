@@ -1,7 +1,6 @@
 Terraform / OpenTofu patterns and IaC review gotchas.
-
-**Keywords:** terraform, opentofu, tf, iac, hcl, var, data-source, lifecycle, templatefile, secrets
-**Related:** none
+- **Keywords:** terraform, opentofu, tf, iac, hcl, var, data-source, lifecycle, templatefile, secrets
+- **Related:** none
 
 ## Fallback-Source Pattern: Always Gate `data` with `count`
 

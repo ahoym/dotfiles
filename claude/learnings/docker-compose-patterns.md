@@ -1,7 +1,6 @@
-# Docker Compose Patterns
-
-**Keywords:** docker-compose, awslogs, cloudwatch, daemon.json, logging driver, multi-container, deploy, compose v1, compose v2, compose v5, plugin install, systemd, ExecStart
-**Related:** none
+Docker Compose patterns: per-service logging overrides, plugin form, atomic-rename mount gotchas, filesystem-path migrations.
+- **Keywords:** docker-compose, awslogs, cloudwatch, daemon.json, logging driver, multi-container, deploy, compose v1, compose v2, compose v5, plugin install, systemd, ExecStart, EBUSY, bind-mount, atomic rename, file vs directory mount, path migration, host filesystem
+- **Related:** none
 
 ## Per-service `logging:` overrides global daemon.json
 

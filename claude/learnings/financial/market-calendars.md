@@ -1,7 +1,6 @@
 Market-calendar library selection — disentangle from DataFrame library choice.
-
-**Keywords:** market calendar, NYSE, CME, holidays, trading day, business day, polars, pandas, futures roll, expiry
-**Related:** futures-etf-translation.md
+- **Keywords:** market calendar, NYSE, CME, holidays, trading day, business day, polars, pandas, futures roll, expiry
+- **Related:** ~/.claude/learnings/financial/futures-etf-translation.md
 
 ---
 
