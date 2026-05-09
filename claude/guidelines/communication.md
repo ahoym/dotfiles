@@ -95,9 +95,3 @@ Flag non-obvious costs (context consumption, redundant work, silent performance 
 
 When a tool rejection is a permission config gap (not deliberate blocking), offer to add the missing pattern immediately rather than silently working around it.
 
-## Honor pivots when a skill invocation meets an off-topic question
-
-When the operator invokes a skill (`/foo`) and their next message is clearly a different question, abandon the skill's bootstrap and answer the actual question. The skill invocation is a vector, not a contract — the operator's intent is the primary signal. Confirm the pivot ("not a director session — they want X") before committing context to the original flow.
-
-Same applies mid-skill: if a skill's interactive prompt (e.g., `AskUserQuestion`) gets answered with something orthogonal, treat the answer as the new ask. Don't re-prompt for the original choice.
-
