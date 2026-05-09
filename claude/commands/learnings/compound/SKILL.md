@@ -44,6 +44,7 @@ Save new patterns and learnings from the current session into global skills, gui
      - References project-specific entities (table names, API endpoints, service names, config values, internal tooling) → **Project-local**
      - Broadly reusable pattern, no context-specific details → **Global**
      - Useful across projects but too specific to share (internal tool names, team conventions, proprietary domain details) → **Private**
+   - **Sniff target file before finalizing utility.** For each candidate, `Read(target_file, limit=80)` (or grep for the candidate's keywords) to check if an existing section already covers the pattern. If yes: downgrade utility (Medium → Low) and reframe as a clarification/extension, or drop entirely. This catches redundancy *before* the table-build step, so utility ratings are honest and you don't waste tokens drafting a learning the file already encodes. Skip when target file doesn't exist yet (new file) — there's nothing to collide with.
 
 2. **Display learnings for selection**:
 

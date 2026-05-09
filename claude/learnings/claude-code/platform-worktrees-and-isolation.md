@@ -95,6 +95,20 @@ After a worktree agent completes, the parent session's shell CWD may end up insi
 
 `git worktree add <path> <branch>` fails with `fatal: invalid reference` when the branch exists only on the remote and hasn't been fetched locally. The runner's worktree setup loop needs `git fetch origin <branch>` before `git worktree add`. Symptom: `WARNING: Failed to create worktree for PR N, skipping` in runner output, but the session still launches (falls back to running without a worktree, which may or may not work depending on what the session needs to do).
 
+## Worktrees Don't Inherit Gitignored Files
+
+Standard git behavior: `git worktree add` copies tracked files only. Gitignored files (`.env`, `*token.json`, `.venv`, local config, credentials) are **not** present in a new worktree. Any skill that runs project code inside a worktree — dry-run smoke tests, integration tests, tools that read config from a file — will trip on missing files that exist only in the main checkout.
+
+**Symptom:** `KeyError: 'SCHWAB'` / `FileNotFoundError: config/.env` / `No token data found` during `uv run python ...` from inside a worktree. Identical command succeeds from project root.
+
+**Mitigations (in order of safety):**
+1. **Commit a `.template` file** (e.g., `config/.env.dry-run.template` with dummy values) and have the caller copy it to the real name when absent. Dummy values are safe to commit; real values stay gitignored.
+2. **Generate the file inline** at runtime via heredoc (`cat > config/.env <<'EOF' ... EOF`) — avoids committing even dummies.
+3. **Symlink from worktree to main tree** (`ln -s /main/config/.env <worktree>/config/.env`) — exposes real creds to any process running in the worktree; only use when the sandbox boundary is elsewhere.
+4. **Never copy real secret files into worktrees.** Temporary files persist; cleanup is fragile.
+
+For import-only smoke tests (catching circular imports, syntax errors) the inline dummy is sufficient. For anything that exercises the real config path — keychain/secrets-manager + env-var injection is the long-term answer, not file-based secrets.
+
 ## Cross-Refs
 
 No cross-cluster references.

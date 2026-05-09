@@ -1,5 +1,5 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
-- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, parallel batch
+- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -98,6 +98,23 @@ When a refactoring plan includes both "add tests" and "split/extract" phases, us
 
 **Why this beats patching first:** The patch may be thrown away during the split, the extracted API naturally prevents the bug class, and tests from Phase 1 serve as regression tests for Phase 2.
 
+## Reach for sub-functions before engines/DSLs
+
+When modularizing a deeply-nested `if/elif/else` policy, the first move is **named sub-functions**, not a combinator engine (`Rule(when, signal, with_side_effect)` walked by a `RuleChain`, etc.). Engines cost real budget:
+
+- **Vocabulary tax.** A reader has to learn the engine's primitives (`Rule`, `when`, `then=/otherwise=`, `with_side_effect`) before they can read any leaf. Sub-functions are plain Python — `def _bullish_branch(ds): if ...: return Signal(...)` reads top to bottom.
+- **Stack-trace opacity.** Engine predicates are usually inline `lambda ds: ...`; an exception inside an indicator points at "predicate at line 67," not at a named branch. Sub-functions named `_bullish_branch` / `_bearish_branch` show up in tracebacks and grep results.
+- **Unrealized "rules-as-data" upside.** The engine pays for itself only if you actually iterate, mock, or compose rules at runtime. If the call sites are `engine(datasets)` and nothing else, you've paid the abstraction tax without spending it.
+
+**Sub-function recipe:**
+1. First pass: extract each branch as a named `def`. `_bullish_branch(ds)`, `_bearish_branch(ds)`, etc. Plain `if/return` at every level.
+2. Second pass: deduplicate repeated patterns into shared helpers (`_shorts_vs_bonds`, `_fluxing_or_overbought`). Helpers emerge from the duplication, not from a top-down design.
+3. Only graduate to an engine if a real consumer needs introspection/composition/runtime reordering and sub-functions can't serve it. That bar is rare.
+
+**Tell that an engine is over-abstracted:** every call site is `engine(input)`; tests still mock indicator imports at module level (engine adds nothing); no code iterates the rule list; no test composes rules at runtime. If those are all true, sub-functions would have done the same job for less.
+
+**Concrete payoff observed:** A 7-level `if/elif/else` algo refactored first to a `Rule`/`when`/`signal` engine (~250 LOC across `rule_chain.py` + algo + engine tests), then re-refactored to sub-functions (~135 LOC, no new vocabulary). Same 22 branch-coverage tests passed in both versions — they were behavioral, not engine-bound. Sub-function version was strictly easier to read.
+
 ## Deciding What NOT to Refactor
 
 Some identified opportunities aren't worth pursuing. Skip when:
@@ -184,6 +201,122 @@ For refactor PRs whose acceptance criterion is "zero behavior change" (touching 
 Use it as a review gate: reviewer runs the branch end-to-end with `DRY_RUN=1` against real dependencies **before and after** the PR, diffs the two logs. Zero diff = zero behavior change confirmed, including interactions unit tests can't cover (conditional code paths, indicator fall-through, timing-dependent branches, real API response variance).
 
 Introduce the flag as part of the first PR that touches the affected call site — same PR that migrates to the abstraction or refactors the entry point. Cheap to wire in (~20 lines), turns every subsequent refactor PR in the chain into a testable artifact against production-shaped inputs at zero real-world cost. Especially valuable for the highest-risk structural transitions (eager-fetching rewrites, DI migrations, retry-loop relocations).
+
+## Read the implementation plan before scoping a multi-PR migration
+
+Issue bodies state ACs but rarely state the *boundary* — what's deferred to the next PR vs done now. The linked design or implementation plan gives the phase context that prevents scope creep. Without it, ACs like "all calls route through the adapter" sound total when the plan actually splits them across this PR (libs surface), the next PR (internal factories), and a third (test-mocking migration).
+
+Order: issue body for ACs → linked plan for phase boundaries → code for current state → only then estimate scope.
+
+## Tuple → dataclass mock migration: replace_all per unique value
+
+When migrating `MagicMock(return_value=(N, N, N))` → `MagicMock(return_value=Foo(N, N, N))`, don't try one regex over the test file. Tuple literals appear in multiple shapes (poll returns, factory returns mixing dict + scalars), so a broad regex over-matches.
+
+Recipe:
+1. `grep -n "return_value=(" file.py` — list every unique tuple value
+2. For each unique value, `Edit replace_all=true` with `return_value=(N, N, N)` → `return_value=Foo(N, N, N)`
+3. Handle list-context cases (`side_effect=[(N, N, N), Exc]`) as targeted single edits — `replace_all` won't match across the bracket boundary
+
+## Vendor-integration vs domain-wiring split
+
+Adapter / multi-vendor PRs naturally split along two seams:
+
+- **Vendor integration:** SDK/HTTP client, normalization, adapter class implementing the protocol. Depends only on the protocol shape — once that's merged, this is greenfield work that lands fully inert (nothing imports it; composition root still rejects the env value).
+- **Domain wiring:** composition-root branch (`if BROKER == "x":`), contract-test extension with recorded fixtures + golden files. Depends on test infra + activation gates from the same phase.
+
+When a ticket says "Blocked by: Phase X complete," check whether the gate is **mechanical** (types/protocol not yet defined → genuinely blocking) or **prudential** (avoid review-track collision, conservative serialization → splittable). Prudential gates are the seam — split into B2a (vendor, parallel-safe with the cascade) and B2b (wiring, gated). Cuts critical-path time without violating the original gate's intent.
+
+## `TYPE_CHECKING` import-cycle dance signals modules to fold
+
+`if TYPE_CHECKING: from foo import Bar` exists solely to dodge a runtime circular import. When the dancing module's helpers all take `Bar` as primary arg (`def helper(bar: Bar, ...)`), it's effectively `Bar`'s methods written awkwardly — the modules are too tightly coupled to be split cleanly. Fold the helpers into `Bar` as methods:
+
+- The `TYPE_CHECKING` workaround vanishes
+- The call surface gets one canonical home (`bar.helper(...)` instead of `helper(bar, ...)`)
+- New helpers naturally land as methods, keeping "all calls live in one place" enforceable
+
+Demote the underlying transport methods to private (`_get`/`_post`/etc.) at the same time — they were public solely to be reachable from the now-deleted helper module. SDK-style classes (boto3, schwab-py) follow this shape.
+
+## Rebase add/add resolution: prefer trunk wholesale when implementations converge
+
+See `~/.claude/learnings/git-patterns.md` → "Add/add rebase conflict where trunk independently shipped the same extraction." The refactoring corollary: when two parallel PRs ship the same extraction and one merges first, the second branch should rebase and take trunk's version wholesale — line-by-line merging produces a Frankenstein that satisfies neither code review.
+
+## Classify pre-existing behavior before "preserving" it through a refactor
+
+When migrating code through an abstraction, behavior that "looks weird" is one of three things:
+
+| Classification | Action |
+|---|---|
+| **Intentional design** (operator-controlled invariant, safety rail) | Preserve verbatim, document *why* |
+| **Latent bug** that no caller exercises | Preserve as-is, file follow-up |
+| **Trivially scoped fix** in the migration's blast radius | Fix in same PR |
+
+Mistaking intentional design for a bug produces follow-up tickets that propose changing intentional behavior — work that would actively break the system.
+
+Verify *why* before classifying. Signals of intentional design:
+- Inline comments explaining the decision
+- Operator-controlled config (limits files, feature flags) that depends on the behavior
+- Tests asserting "this is the contract" (not just "this is what the code does")
+- **Commented-out alternative code paths** — deliberate-abandonment signal. If `# x = broker_field` sits dead inside an active function, someone *chose* to stop reading `broker_field` and left the comment as documentation. Read it as "we used to do this and explicitly don't anymore," not "stale code to clean up."
+
+If unsure, ask before classifying. The default of "preserve and follow-up" is the wrong answer when the behavior is load-bearing.
+
+## Domain-keyed registry beats threading product-specific values through call sites
+
+When a function needs per-product values (margin/notional for a futures contract, decimals for a currency, rate-limit for a vendor), and those values are *properties of the domain entity* identified by a key the function already parses, push the lookup into a registry — don't thread them through every caller.
+
+```python
+# Anti-pattern: param-thread
+def trigger_position(ticker, account, *, margin: float, notional: float): ...
+# Caller now needs product knowledge:
+trigger_position(ticker, acct, margin=MNQ_MARGIN, notional=MNQ_NOTIONAL)
+
+# Pattern: registry keyed by base symbol
+@dataclass(frozen=True)
+class ContractSpec:
+    margin_per_contract: float
+    notional_per_contract: float
+
+CONTRACT_SPECS: dict[str, ContractSpec] = {
+    "MNQ": ContractSpec(4_100.0, 20_000.0),
+}
+
+def trigger_position(ticker, account):
+    _, base_symbol = _parse_ticker(ticker)
+    spec = CONTRACT_SPECS[base_symbol]
+    ...
+
+# Caller is now product-agnostic:
+trigger_position(ticker, acct)
+```
+
+Tells: caller has to import constants whose names contain the product (`MNQ_*`); two parallel parameters always travel together; tests pass the same constants every time. Refactor signal — the values aren't really arguments, they're a property of the parsed key.
+
+Don't put it on the *Account* (or other call-site-adjacent type) just because the values are needed there — accounts could trade multiple products, and Account would acquire fields it doesn't own. The contract identifies the spec; the registry resolves it.
+
+## Re-export moved helpers to preserve caller compat
+
+When relocating a private helper into a new module during a refactor, re-export from the original module so existing imports keep working:
+
+```python
+# old_module.py — after moving helpers to new_module
+from new_module import _helper_a, _helper_b
+
+__all__ = [..., "_helper_a", "_helper_b"]
+```
+
+Keeps the refactor diff scoped to the structural change — caller renames belong in a separate pass. Especially valuable when private helpers are tested directly (`from logic.foo.roll import _third_friday`); without re-export, every test import has to churn alongside the move.
+
+## Smoke-test Docker import after `CMD` path changes
+
+After a refactor moves the script invoked by `CMD ["python", "./path/script.py"]`, run an explicit import check — `ls` and `python --version` confirm the image *built*, not that it can *run*:
+
+```bash
+docker run --rm --entrypoint python <image> -c 'import config.X; import logic.Y'
+```
+
+`ls scripts/trading/` passes on broken images; pytest passes too because it auto-adds rootdir to `sys.path`. The `ModuleNotFoundError` only surfaces at the production runtime path. The build success + lint pass + test pass combo is not a green light for a path-relocation refactor — the runtime import is the only reliable signal.
+
+Pairs with `python-specific.md` → "`python ./path/script.py` puts only the script's dir on `sys.path`" for the underlying mechanism.
 
 ## Cross-Refs
 

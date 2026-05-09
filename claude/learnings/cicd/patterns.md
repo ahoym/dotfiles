@@ -42,6 +42,40 @@ When CI changes can't be tested locally, push intermediate commits to validate t
 
 Passing passwords via `docker login -p` exposes credentials in process listings (`ps aux`). Use `echo "$SECRET" | docker login --password-stdin` instead. This applies to any CI/CD pipeline or script that authenticates to a container registry.
 
+## Local-vs-remote ruff divergence
+
+`uv run ruff check .` can report clean locally while CI fails on the same SHA. Causes observed: stale venv, worktree with a pre-populated `.venv` not resync'd after a `pyproject.toml` bump, different ruff version in the CI image. Don't treat local-clean as sufficient — CI is authoritative. If an addresser / commit loop is reporting local-clean but CI red, add a `uv sync --frozen` before `ruff check` or delete and recreate the venv.
+
+## `rg`/`grep` + `|| true` + `pipefail` silently voids checks
+
+`rg` and `grep` exit codes are 0 (match), 1 (no match), 2 (error). Under `set -euo pipefail`, you need `|| true` for the no-match case — but it absorbs error exits too. So `rg pattern files 2>/dev/null || true` reports clean when the pattern is absent AND when `rg` is missing, the path is wrong, or the binary segfaults.
+
+Fix is **preflight + scoped suppression**, not blanket `|| true`:
+```bash
+command -v rg >/dev/null || { echo "rg not installed" >&2; exit 2; }
+[[ -d "$ROOT" ]] || { echo "missing $ROOT" >&2; exit 2; }
+matches=$(rg --no-config "$pattern" "$ROOT" || true)  # now || true is semantically correct: only no-match path remains
+```
+
+Also: ubuntu-latest GHA runners don't include `ripgrep`. `apt-get install` on those runners must precede with `apt-get update -q` — package cache age varies across image rotations and stale caches return 404 on `install`.
+
+## GitHub Environments + OIDC `environment:` Claim Binding
+
+Per-env CI/CD blast radius — bind GitHub Environments to AWS account boundaries via the OIDC subject claim:
+
+```hcl
+# Prod role's trust policy (in prod AWS account)
+StringEquals = {
+  "token.actions.githubusercontent.com:sub" = "repo:org/repo:environment:prod"
+}
+```
+
+Workflow shape: `environment` input (`dev` | `prod`) selects which AWS role to assume AND which GitHub Environment to bind to. GitHub Environments configured with required-reviewer on prod → manual approval gate inside GitHub before deploy starts. Belt-and-suspenders to OIDC: even if the trust policy were misconfigured, the approval still blocks prod deploys.
+
+Acceptance test: trust policy must reject runs claiming the wrong env. Test with `environment=dev` against the prod role and confirm `AssumeRoleWithWebIdentity` fails. Two trust-policy bugs to catch: wrong-repo (covered by `:sub` repo prefix) and wrong-env (covered by the `:environment:` segment).
+
+Note: GitHub Environments are repo-settings, not Terraform-managed. Required-reviewer config lives in repo settings; document in the runbook.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/frontend/typescript-ci-gotchas.md` — pnpm/Node CI specifics (lockfile, Playwright caching, ESLint)

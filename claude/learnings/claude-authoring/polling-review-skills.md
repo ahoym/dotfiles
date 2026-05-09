@@ -112,6 +112,30 @@ This interacts with ownership-based mode detection: terminal state is an additio
 
 GitLab inline comment replies require the discussion ID (not the note ID). Resolving note→discussion requires fetching all discussions. When replying to N threads, fetch discussions once and extract all N discussion IDs from the same response — don't make N separate paginated fetches. Pattern: `glab api projects/:id/merge_requests/<N>/discussions --paginate | jq -r '.[] | select(.notes[]?.id == <NOTE_ID>) | .id'` for each note, but against the same cached response.
 
+## Scoped Re-Review Diffs Create Blind Spots
+
+Re-review mode scopes the diff to new-commit changes only — this is usually right (avoids re-reviewing already-resolved code). But it creates false positives when a subagent flags something that was addressed in a *prior* commit the scoped diff doesn't show. Observed: architecture-reviewer flagged a `handle_order_tick` name collision between two modules — but one module had already removed the function in an earlier commit not in the scoped diff.
+
+**Mitigation:** when generating the scoped-diff prompt, supplement with a "changes from prior commits (abbreviated)" section listing file-level deletions and renames. Three bullet points is enough: `<file>: removed <symbol>`, `<file>: renamed <a> → <b>`, `<file>: deleted`. That single supplement eliminated the two false positives observed this session.
+
+## Footnote Enforcement Requires Post-Reply Verification
+
+Reply templates clearly specify the structured footnote (`Role: Addresser` / `Role: Reviewer`), but `claude -p` agents sometimes skip it under context pressure — especially when batching replies. Missing footnotes break downstream self-filter, mutual resolution, and watermark logic on subsequent cycles.
+
+**Enforcement pattern:** after any step that posts replies, fetch the posted comments by ID and grep for the `Role:` line. Edit or repost any missing the footnote. Do not defer — a single missed footnote corrupts every downstream cycle for that comment ID until it's fixed. See `~/.claude/skill-references/request-interaction-base.md` for the verification script skeleton.
+
+## Re-fetch the diff at every re-review-cycle entry — never trust session memory
+
+Operator-driven back-to-back skill invocations tempt the orchestrator to reuse the diff from a prior round ("operator just asked again, no new commits expected since I just looked"). This fails when the addresser has pushed between rounds — the new-persona subagent then reviews stale code and surfaces findings already addressed.
+
+Rule: every re-review-cycle entry runs the activity-signals quick-exit AND re-fetches the diff before injecting it into a subagent prompt. Apply uniformly to poll-driven AND operator-driven invocations. The skill's "always run the API-based quick-exit check" mandate covers detection; this extends it to the diff-injection step.
+
+## Operator-driven extra rounds: add a new persona, don't re-engage the same one
+
+When the operator re-invokes a review skill with no new code or comments since the last cycle, re-launching the same persona surfaces mostly LLM variance — minor wording shifts, no findings of substance. Pick a persona orthogonal to the prior set (e.g., `performance-reviewer` after security/correctness/architecture; `platform-engineer` after performance) — fresh lens, non-overlapping findings.
+
+When the relevant persona pool is exhausted, decline gracefully ("the relevant lenses are already covered; further rounds will repeat") rather than padding the team for thoroughness theater.
+
 ## Cross-Refs
 
 - `skill-references-and-loading.md` — "Inline Critical Conditions" pattern that the devolution fix applies

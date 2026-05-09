@@ -279,6 +279,116 @@ When a test suite uses `FakeAdapter`-style mocks for external services, unit tes
 
 Invest when: any codebase where a mocked adapter layer hides a real protocol boundary. Cost is one recording script plus committed fixtures; payoff is catching API drift on the next CI run after an upstream change, not three releases later in prod. Especially valuable for trading systems, payment integrations, any adapter whose input shape is externally owned.
 
+## `monkeypatch.delenv(KEY, raising=False)` over `patch.dict({}, clear=True)` for env isolation
+
+```python
+@pytest.fixture(autouse=True)
+def _clear_my_env_var(monkeypatch):
+    monkeypatch.delenv("DRY_RUN", raising=False)
+```
+
+Surgical: removes only the variable the test cares about. `patch.dict({}, clear=True)` nukes the whole environment including `PATH`, `HOME`, virtualenv pointers, and any inherited shell vars the test indirectly depends on — if a downstream import resolves a binary via `PATH`, you've created a hard-to-debug isolation regression.
+
+Use when:
+- Module under test reads an env var at function-call time (not import time)
+- Some tests need the var unset (autouse fixture covers them) and others need specific values (those override with `monkeypatch.setenv` or `patch.dict({"VAR": "val"})`)
+- Host shell may have the var exported (e.g., a developer running with `DRY_RUN=1` would otherwise see different behavior than CI)
+
+`raising=False` means absent-key isn't an error — fixture is idempotent.
+
+## Adapter mocks: don't fabricate the response shape
+
+When the test author writes both the mock fixture *and* the code reading it, an aligned field-name mistake survives every test. Mock returns `{"accountId": "..."}`, reader reads `data["accountId"]`, real API returns `accountNumber` — green test, broken adapter. Contract tests catch this eventually (see "Contract tests against recorded real responses"); fixture origin prevents it.
+
+Ground mock fixtures in real API output: copy from a recorded response, the upstream SDK's own fixtures, or a docstring example pasted from the API docs. Never invent the shape from the code-under-test.
+
+## Translation-layer tests must assert post-translation values
+
+When an adapter translates one identifier into another before calling the wrapped client (`account_id` → `account_hash`, `user_id` → `external_uid`), passing the already-translated value to the test makes the translation untestable — `assert_called_once_with("hash_x")` passes whether translation runs or is a no-op. Pass the *pre-translation* value, assert the *post-translation* value reaches the client:
+
+```python
+adapter, client = make_adapter(account_hashes={"acct_a": "hash_a"})
+adapter.get_balance("acct_a")  # pre-translation input
+assert client.get_account.call_args.args[0] == "hash_a"  # post-translation
+```
+
+Add at least one negative test: unregistered id raises a clear error rather than silently passing through.
+
+## Tests against a class with no production consumers test internals, not value
+
+Before extending test coverage on a class, grep for production callers (`rg ClassName\\(`). If only tests instantiate it, the tests are validating internals — and the DI seams baked into the constructor encode an imagined shape, not what production wiring will actually need. Symptom: constructor sprouts `Optional` injection params labelled "for testability" while no production call site supplies them. Surface the missing production consumer first; design seams against real call sites.
+
+## Expose injected mocks in the fixture's return tuple
+
+When migrating tests from private-attribute access (`client._http = MagicMock()`) to constructor-injected mocks via a DI seam, return the mock from the fixture so tests assert on it directly:
+
+```python
+# BAD — fixture hides the mock; tests reach into private state
+def _client(env="sim"):
+    client = TradeStationClient(token_manager=MagicMock(), env=env)
+    client._http = MagicMock()                  # mutates private attr
+    return client
+
+def test_get_balances(self):
+    client = _client()
+    client.get_balances("ACC1")
+    client._http.get.assert_called_once()       # asserts on private attr
+
+# GOOD — fixture surfaces the mock; tests assert on the seam
+def _client(env="sim"):
+    http = MagicMock(spec=httpx.Client)
+    client = TradeStationClient(
+        token_manager=MagicMock(), env=env, http_client=http,
+    )
+    return client, http                          # tuple exposes the mock
+
+def test_get_balances(self):
+    client, http = _client()
+    client.get_balances("ACC1")
+    http.get.assert_called_once()                # asserts on injected mock
+```
+
+The DI seam exists precisely so tests don't need private access; if the fixture forces tests back into `client._private`, the seam is wasted. Returning the mock as part of the tuple keeps the encapsulation and makes the seam load-bearing.
+
+For multi-mock fixtures (token manager + http client + clock + ...), return a `(client, *mocks)` tuple or a small dataclass so tests destructure only what they need.
+
+## Mock domain methods, not the HTTP layer, after a client HTTP→SDK refactor
+
+When a client refactors from low-level HTTP (`client.get/post/delete` returning `httpx.Response`) to SDK-style domain methods (`client.get_balances/place_order` returning parsed dicts), adapter tests must follow — drop the response wrapper and mock the domain method directly:
+
+```python
+# Before — mock HTTP layer; production code unwraps via .json():
+client.get.return_value = MagicMock(json=lambda: {"Bars": [...]})
+
+# After — mock domain method; raw dict, no wrapper:
+client.get_barcharts.return_value = {"Bars": [...]}
+```
+
+Assertion targets shift too: `client.post.call_args.kwargs["json"]` → `client.place_order.call_args.args[0]`. Side-effect chains for multiple endpoints split per-method: `client.get.side_effect = [resp1, resp2]` becomes `client.get_balances.return_value = ...; client.get_positions.return_value = ...`. The `_mock_response` httpx-shaped helper becomes vestigial — delete it. Symptom of skipped migration: tests pass before the rebase (mocks return MagicMocks, assertions accidentally tolerate them) but the adapter calls into a different code path entirely against a real client.
+
+## `@patch` mocks accept any signature — `autospec=True` for routing tests
+
+A bare `@patch("module.func")` replaces the symbol with `MagicMock()` that has no signature constraint. If the production call site is missing required kwargs of the *real* function, the mock swallows the call silently and `assert_called_once_with(...)` (which checks only the args you list) passes. The bug surfaces only at runtime in the un-mocked deploy.
+
+```python
+# Real signature: trigger_position_futures(ticker, account, *, margin: float, notional: float)
+
+# Production code BUG (missing required kwargs):
+trigger_position_futures(ticker, account, execute_orders=True)
+
+# Test passes because mock has no signature spec:
+@patch("module.trigger_position_futures")
+def test_routes(mock_fn):
+    let_it_fly("+@MNQ", account, execute_orders=True)
+    mock_fn.assert_called_once_with("+@MNQ", account, execute_orders=True)  # ✓ green
+
+# Fix — autospec=True binds the mock to the real signature:
+@patch("module.trigger_position_futures", autospec=True)
+# Now the production-side call raises TypeError at test time, matching prod.
+```
+
+Use `autospec=True` (or `create_autospec(real_fn)`) on routing/integration tests where the test is verifying *that* a function gets called with *what* — exactly the case where signature drift between caller and callee silently regresses. Pure unit tests of the function itself don't need it.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/frontend/nextjs.md` — route handler test structure

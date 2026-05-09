@@ -1,8 +1,16 @@
 Fundamental practices that apply across languages and frameworks. These are the filters that should run on every line of code — during implementation, not just refactoring.
-- **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming, placeholder, UUID, sandbox, documentation security
+- **Keywords:** DRY, single source of truth, dead code, guard variables, log security, PII, enums, test coverage, domain isolation, naming, placeholder, UUID, sandbox, documentation security, source-of-truth reconstruction, generalization vs new paradigm, silent default tracing
 - **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/refactoring-patterns.md
 
 ---
+
+## "No layer owns this" vs "wrong layer owns this"
+
+Architectural review heuristic: distinguish missing-safety-net (no layer enforces a constraint) from misplaced-safety-net (wrong layer enforces it). The remediation differs — missing requires adding a guard somewhere; misplaced requires a refactor. An addresser rebuttal "this layer shouldn't own X" does NOT resolve the finding if no layer currently owns X. Re-review must close the loop on which layer will own it, not just which one shouldn't.
+
+## Verify "execution path untouched" claims for plumbing-layer changes
+
+When a PR changes a translation/routing table (e.g., signal-to-symbol map) but claims the live execution path is untouched, verify the execution layer's behavior when the downstream resource is unconfigured. The execution layer typically gates on configuration; if the gate's failure mode is silent (skip vs raise), the plumbing change can produce unintended behavior in production. "Probably safe" isn't a merge gate for financial systems — verify or guard explicitly.
 
 ## Don't duplicate logic across modules
 
@@ -125,3 +133,139 @@ In multi-currency systems, add explicit denomination fields (e.g., `marketValueA
 
 ### Remove unnecessary abstraction layers with single implementations
 When an interface has exactly one implementation and no realistic prospect of additional ones, prefer using the concrete class directly. Indirection layers (e.g., a `Store` interface wrapping a single DAO) add cognitive load without providing polymorphic value. If a second implementation materializes later, extracting an interface is a straightforward refactor. The cost of premature abstraction (extra files, indirection, harder debugging) exceeds the cost of extracting later.
+
+### Nested guard mis-scope: test orthogonal boundary conditions
+
+Defensive guards often fail not because they're wrong, but because they're at the wrong level of the if/else tree. Author thinks about one anomalous case `(filled<0, remaining<0)`, places the guard inside that branch, ships. Misses the orthogonal case `(filled<0, remaining==0)` which takes a different branch and bypasses the guard entirely.
+
+**Review heuristic:** for every new defensive guard, enumerate the 4 quadrants of its conditions. `(filled<0, remaining<0)`, `(filled<0, remaining>=0)`, `(filled>=0, remaining<0)`, `(filled>=0, remaining>=0)`. Confirm which quadrants the guard actually covers. If the guard's stated intent is "catch anomalous filled", it must live where all anomalous-filled paths converge, not inside one anomalous-remaining branch.
+
+### `url.startswith(prefix)` is not URL allow-listing
+
+`url.startswith("https://example.com")` passes for `https://example.com.evil.com/`. Without a path/separator anchor, prefix-matching a URL is a bypass class. Compare parsed components instead:
+
+```python
+from urllib.parse import urlparse
+parsed = urlparse(url)
+if parsed.scheme == "https" and parsed.netloc == "example.com":
+    ...
+```
+
+INFO-level for loopback URIs (`127.0.0.1:N`), HIGH-level for any internet-facing OAuth redirect URI validation, webhook origin check, or CORS allow-list. Same class as path-prefix bypass (`/admin` vs `/administrative`).
+
+### Transport-layer dataclasses don't carry behavior choice
+
+When a dataclass identifies *who* (e.g., `Account` with `id`, `broker`, `limits_key`), don't add fields that select *what algorithm to run on it*. Coupling identity to behavior is a layering violation that bleeds business decisions into transport types.
+
+Pattern: keep behavior selection at the entry point as `(identity, callable)` pairs. The loop collapses to `for identity in IDENTITIES:` once all converge on one behavior.
+
+```python
+DISPATCH = [
+    (account_a, lambda: algo_v2()),
+    (account_b, lambda: algo_v2(main_ticker="UPRO")),
+]
+for identity, behavior_fn in DISPATCH:
+    run(behavior_fn(), identity)
+```
+
+## Sibling-field validation gap
+
+When a function validates one field (e.g., `if AveragePrice <= 0: raise`), scan for which other fields share the same invariant. For numeric normalization, the answer is usually all of them — a guarded `AveragePrice` next to an unguarded `Quantity` is a bug waiting on bad input. Review heuristic when reading a guard: list the sibling fields in the same dict/struct and verify each.
+
+## Constructor kwarg silently ignored after testability refactor
+
+When adding optional kwargs that shadow env-var or config reads (e.g., `def __init__(self, client_secret: str | None = None)`), trace every consumer of the original source to verify the kwarg is actually stored on `self` and read from there. The shadow-and-discard pattern — kwarg accepted, validated as not-None, then discarded while consumers still read the env var — is easy to introduce when init grows. The bug looks correct (validation passes, no exception) but runtime silently uses the wrong value. Detection: when reviewing a constructor that adds DI seams, grep every reference to the original source and confirm it now reads from the instance.
+
+## Pull the cause when redundancy looks suspicious
+
+Code that looks redundant (restatement docstrings, repetitive validation, peer-mismatched imports) often exists because something enforces it: a lint rule, a "project convention," a legacy contract. Find the cause before proposing removal — treating symptoms leaves them to recur.
+
+Examples:
+- Ruff `D` (pydocstyle) enforces D102/D103, so authors satisfy with restatement docstrings (`"""Tests that <name>."""`). The rule is the cause; stripping docstrings without a `per-file-ignores` for `tests/**` lint-fails.
+- A project's `from foo.utils.logger import logger` shared-logger pattern looks like a convention but loses per-module namespace (`getLogger(__name__)`). Peer-aligning to the smell compounds it; the canonical Python idiom is the right move even when it diverges from "convention."
+
+Heuristic: when a reviewer flags redundancy, read what produces the pattern (lint config, shared utility implementation, historical PR). The fix is often at the cause, not the symptom — and sometimes the cause reveals the "redundancy" is load-bearing.
+
+## Test-only state in production code signals wrong-level DI seam
+
+Fields, branches, or error paths that exist solely to support test injection (e.g., a `_token_injected` flag gating a runtime "injected token expired and cannot refresh" branch) mean the seam was placed at the wrong abstraction level — production code shouldn't know it's being tested. Fix: inject the collaborator (Protocol + impls), not the data the collaborator produces. The flag and its branch disappear because production no longer distinguishes "real init" from "test init."
+
+Detection: grep for `_*_injected`, `_test_*`, `_is_mock_*`, or error messages mentioning "injected"/"mock"/"test path." Each hit is a candidate for collaborator extraction.
+
+## Env-discriminator default args are a footgun
+
+For classes whose constructor takes an env arg distinguishing real-money from fake-money behavior (`sim`/`live`, `prod`/`staging`, `real`/`dry-run`), don't default it. Cost asymmetry argues fail-loud at the construction boundary — silently running on the wrong env can mean data loss, real losses, or worse. Make the arg required so callers state intent explicitly:
+
+```python
+# BAD — silent default, future copy-paste from a test fixture lands in sim
+def __init__(self, *, env: str = "sim") -> None: ...
+
+# GOOD — TypeError on omission forces the caller to pick
+def __init__(self, *, env: str) -> None: ...
+```
+
+Pair with a positive test (`test_env_is_required` raising `TypeError` on `env=` omission) to lock the contract — removing the default is only half the fix; the test guards against future regressions.
+
+Same logic for any boundary where the cost of the wrong choice is asymmetric: payment vs. dry-run, live trading vs. paper, prod DB vs. staging.
+
+## Document non-leakage contracts on pluggable Protocol surfaces
+
+When a wrapper exception inlines `str(exc)` from a pluggable backend (TokenStore, FetchAdapter, BrokerAdapter), the wrapper has a non-leakage contract that's invisible to anyone implementing a new backend. Document it on the Protocol's docstring, not just enforce it at runtime:
+
+```python
+class TokenStore(Protocol):
+    """Protocol for OAuth token persistence backends.
+
+    Implementations MUST NOT include credential material in exception
+    messages. The manager drops the chain via ``from None`` when wrapping
+    store failures, but the message body is preserved — a store that
+    echoes secrets in `str(exc)` would leak through any handler that
+    surfaces the wrapping exception's message.
+    """
+```
+
+Belt-and-braces with the runtime fix (`from None` chain-drop on the wrapper). A runtime scrub catches today's known leak vector, but the Protocol contract teaches future implementers what the surface promises — they see the constraint at the API definition, not after a security review flags their backend. Same pattern applies to: adapter-injected log messages (must not echo PII), plugin error codes (must not leak internal state), custom comparator/equality functions (must be total / commutative if the consumer treats them so). Any time wrapper code trusts the Protocol's *behavior*, document the trust on the Protocol — not just in the wrapper's implementation comments.
+
+## General-typed guard with specific-constant body = silent contract mismatch
+
+Guard like `is_futures = trade.contract_root is not None` is general (any contract_root); body that hardcodes `MNQ_NOTIONAL_PER_CONTRACT` is specific. When the general case fires (e.g., NQ, ES), the body silently produces wrong results with no error. Either narrow the guard (`is_mnq = trade.contract_root == "MNQ"`) or parameterize the body. A flavor of "test the universal quantifier."
+
+## Symmetric-fix scan after a targeted fix
+
+A fix to one early-exit path in a loop (e.g., `continue` advancing a pointer in the futures branch) often needs the same fix in structurally analogous branches (the ETF branch). Reviewer's first pass typically flags the salient one; the addresser must scan for siblings — not just patch the cited line. Pattern: after reading a fix, grep for the same control-flow construct elsewhere in the function. "Bug class, not bug instance."
+
+## Probe before encoding test anchors
+
+Before asserting a date, holiday, library lookup, or external constant in a test, run a one-liner to verify rather than reasoning from spec:
+
+```bash
+python -c "from datetime import date; import holidays; print(date(2024,6,19) in holidays.financial_holidays('NYSE', years=2024))"
+```
+
+Prevents fictitious test data and discovers library behavior (does this calendar include Juneteenth? what year was it added?) before encoding into a parametrize table. Tests that anchor on wrong dates pass silently and rot — the assertion holds against your incorrect mental model, not reality.
+
+## "Already in state X" guards must compare full identity, not partial
+
+No-op guards on idempotent operations (`if already_in_X: return`) must compare every field that distinguishes a meaningful transition, not just one. Bug pattern: a futures position-rotation guard compared `direction` (LONG/SHORT) only, so `+@VXM` → `+@VX` (both LONG) silently no-op'd instead of rotating bases.
+
+Lint smell: parsing a tuple and discarding fields with `_` immediately above an equality check on the kept fields:
+
+```python
+current_direction, _ = parse(current)   # discarded base
+desired_direction, _ = parse(desired)
+if current_direction == desired_direction: return  # missing base in compare
+```
+
+The `_` is a flag. If a parsed field participates in equality in any sibling code path, it usually belongs in *this* compare too. When in doubt, compare the full normalized form (the input string itself, or the full parsed tuple) — partial-equality bugs are silent and only surface when a previously-degenerate dimension (here: base symbol — always the same product before VX rotation landed) becomes meaningful.
+
+## Don't reconstruct what the source-of-truth already computes
+
+When the system-of-record (broker, database, external API) exposes an aggregate (account equity, sum, materialized view) that you currently compute by hand from its components, prefer reading the aggregate directly. Hand-rolled reconstructions silently drift when the components stop tracking the underlying truth — e.g. local `cashAtHand + position.market_value` worked for equities (cashAtHand tracks broker cash) but broke for futures (cashAtHand frozen at allocation, MarketValue is notional). The broker's own equity field was right both times. Pattern smell: any time a calculation locally mirrors what an SoR field reports, that mirror is a maintenance liability waiting for one regime to invalidate one of the inputs.
+
+## When proposing a new approach, check if it's a generalization of the working case
+
+If one branch of a system works and another is broken, before designing a fundamentally new mechanism for the broken case, examine the working case carefully. The working code may already be implementing the right pattern — just inlined, hand-rolled, or specialized. The smallest fix is often **promoting** the working pattern to use the proper primitive directly, which fixes the broken case as a side effect without introducing a new paradigm. Symptom of having missed this: feeling like you're adding a "second way to do P/L" / "futures-specific branch" / "new abstraction layer" — back up and ask whether the existing way is doing what the new way would do, just locally.
+
+## Trace silent defaults when output is suspiciously zero/round
+
+When a computed value lands on `0`, `None`, `[]`, or your input baseline exactly, suspect a silent default upstream. Common culprits: `next((x for x in xs if pred(x)), None)`, `dict.get(key, 0)`, `bal.get("Equity", 0.0)`, exception swallowed in a try/except. Trace which default produced the round number — the bug is almost always there, not in the math. Diagnostic: change the default to a sentinel (`raise`, `NaN`, a unique string) and re-run; if the symptom changes, the default was hiding the bug.

@@ -13,3 +13,6 @@ Financial and ledger engineering: monetary calculations, ledger architecture, pr
 | ledger-schema-migration.md | Balance-first to entry-first, dual-write, zero-downtime cutover |
 | event-sourcing-cqrs.md | Event store design, projections, schema evolution, snapshots |
 | futures-etf-translation.md | Leveraged ETF → micro futures: ticker mapping, P/L translation, discrete sizing, DCA mechanics |
+| futures-order-type-restrictions.md | Per-contract MKT-order rules (VIX-family rejects MKT on Cboe) + wide-crossing-LMT mitigation pattern |
+| futures-tick-rounding.md | Per-contract tick grid (MNQ=0.25, VX/VXM=0.05) — `round(price, 2)` rejects on Cboe; snap with `round(round(p/tick)*tick, 4)` |
+| market-calendars.md | Market-calendar library selection — disentangle from DataFrame library choice (NYSE holidays, futures roll math) |

@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline, default skip, conditional step, gate phrasing
 - **Related:** none
 
 ---
@@ -71,6 +71,10 @@ When two repos have independently evolved the same skill, merge by keeping uniqu
 ## Skill Improvement: Fix and Assess In-Session
 
 Apply skill improvements in the same session they surface — context fades across sessions. After running a skill, note what worked, what didn't, and prioritize: regression prevention >> efficiency; one-line fixes >> structural overhauls. Cap at 3-5 improvements. If a skill hits a bug mid-execution, fix immediately — scope to one constraint workaround per incident.
+
+## Extend Canonical Helpers, Don't Bypass Them
+
+When a workflow needs a field the canonical helper script doesn't expose (e.g., `fetch-inline-comments.sh` missing `in_reply_to_id` for re-review thread classification), patch the helper rather than open-code a one-off `gh api` call. Workarounds compound: every future invocation re-discovers the gap, the skill text drifts away from the helper, and the helper stays incomplete for the next workflow that hits the same need. The cost of patching the helper is usually a single line in the projection; the cost of bypassing it is paid forever.
 
 ## AskUserQuestion Has a 4-Option Maximum
 
@@ -255,6 +259,65 @@ Pick markup based on which audience must see the content. Mixing both within one
 Command templates meant for agent substitution must use a consistent placeholder convention — default to `<ANGLE_BRACKET>` and never embed literal-looking prefixes like `/absolute/path/to/`. Agents match `<name>` placeholders mechanically but treat realistic-looking strings as real values, and will improvise a fix rather than flag the template — often breaking adjacent flags in the process (e.g., silently swapping `-F` for `-f`, turning a file-read into a literal-string post).
 
 **Design rule:** Every substitutable token in a template uses the same angle-bracket syntax. If a token looks like a real path/URL/value, either wrap it in angle brackets or move it out of the template entirely.
+
+## Helper-Script Pattern for Multi-Step Skill Setup
+
+When a skill's Phase 6 (artifact generation) does 3-5 shell operations that each match a different allow pattern (`mkdir`, `cp`, `chmod`, ...), the permission prompts add friction — especially on first invocation in a new project. Consolidate into a single `~/.claude/skill-references/<name>.sh` helper script invoked as `bash ~/.claude/skill-references/<name>.sh <args>`.
+
+This matches `Bash(bash ~/.claude/skill-references/**)` — one allow pattern, no per-invocation prompts. The script handles the multi-step setup internally. Skills reference it from their SKILL.md Phase 6 instead of inlining `mkdir`/`cp` commands.
+
+**Example:** `init-sweep-pr-dir.sh <run_dir> <pr_numbers...>` creates the run_dir, per-PR subdirs, and copies the shared preflight — replacing 3+ bash calls with one, and eliminating 3+ permission prompts per sweep invocation.
+
+Design rules:
+- Script takes positional args only (no flags) — bash `$1 $2 ...` is robust; getopts adds surface area.
+- Echo a one-line confirmation on success (`Initialized <dir> with N subdirs`) so the caller sees the action.
+- Keep it idempotent — `mkdir -p`, `cp` only if source exists — so the helper is safe to re-run.
+
+## Enumerate Template Placeholders Upfront, Not Iteratively
+
+Before writing `metadata.json` for a template-driven skill (`fill-template.sh` consumers), enumerate the template's full placeholder set in one pass:
+
+```bash
+grep -oE '\{\{[A-Z_]+\}\}' <template>.sh | sort -u
+```
+
+Then include every key in metadata. Chasing missing placeholders through failed launches wastes cycles: you fix one placeholder, hit the next, fix that, hit another. The `grep -oE` pass costs one tool call and replaces 3-5 launch attempts.
+
+Also check `{@file}` references with `grep -oE '\{@[a-z_.-]+\}' <template>.sh` — those need corresponding data files in the run dir, named exactly as the template references them (not per a doc that may be stale).
+
+## Generation-Time Warnings Are Signal, Not Noise
+
+`fill-template.sh` emits `WARNING: file not found: <name>` or similar when its `{@file}` includes reference missing data files. These are not warnings — they mean the generated script has unreplaced placeholders or broken inclusions.
+
+**Rule:** after any `fill-template.sh` invocation, grep the output for `{{` and `{@` — both should be zero. Non-zero means the generated artifact is broken and launching it will waste API budget. This also catches genuine template bugs (e.g., new placeholders added without corresponding metadata key updates).
+
+Never launch past a generation warning on the assumption it's harmless. The one time this session I did, cycle 6 burned two launches and ~5 minutes of diagnosis before I ran the grep check.
+
+## Re-Derive from Canonical Docs, Don't Pattern-Copy from Prior Artifacts
+
+When building the Nth artifact in a recurring skill (cycle N of a sweep, nth PR's metadata, etc.), resist the temptation to copy structure from cycle N-1's output. Skill docs evolve; the template schema may have been updated between your cycles. Pattern-copying perpetuates stale schemas across cycles — the original staleness compounds until something actually breaks.
+
+**Rule:** at the top of each cycle's artifact generation, open the skill's canonical doc (scaffold, SKILL.md, template) once. Read the current schema. Build metadata from that, not from the prior cycle's `metadata.json`. The 30-second overhead is cheaper than the 5-minute debug when a silent schema drift finally trips a real load.
+
+## Conditional steps lead with the default, not the branch
+
+A skill step's heading and lead sentence prime the agent's default behavior. If a step is conditional ("post X when Y is true, otherwise skip"), leading with "Post X" frames posting as the default and skipping as the exception — the agent drafts first and cuts later, even when the skip condition applies.
+
+**Rule:** when the default is skip, say so in the heading and lead sentence; put the do-branch behind an explicit gate.
+
+```markdown
+# Before (primes drafting):
+## Post summary comment
+Post a summary covering X, Y, Z. If there's nothing to report, skip.
+
+# After (primes skipping):
+## Summary comment (conditional — default is skip)
+**Default: do not post.** Inline replies are the complete record.
+**Gate:** if the table would have zero rows, stop — do not draft. Otherwise:
+[draft template…]
+```
+
+The gate phrasing ("If zero, stop — do not draft, do not post") prevents the silent drafting-then-cutting loop. Applies to any optional output (summary comments, retro messages, status updates, completion reports).
 
 ## Cross-Refs
 

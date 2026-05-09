@@ -1,5 +1,5 @@
 Claude Code permission system — Bash prefix matching, Read/Write/Edit pattern gotchas, settings merge, worktree permission mismatches, and .claude/ path protection.
-- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch, deny precedence, deny-first, allow override, filesystem deny, personal directories, colon separator, glob boundary, shell glob sandbox
+- **Keywords:** permissions, Bash prefix matching, settings.json, settings.local.json, Write permission, Edit permission, .claude/ protection, helper scripts, worktree permission mismatch, deny precedence, deny-first, allow override, filesystem deny, personal directories, colon separator, glob boundary, shell glob sandbox, .env deny pattern, prefix vs suffix glob, credential file protection
 - **Related:** none
 
 ---
@@ -121,6 +121,12 @@ Deny rules **always win** over allow rules regardless of specificity. A deny on 
 
 The `sandbox.filesystem.denyRead` + `allowRead` arrays may offer allow-overrides-deny at the sandbox level (the schema says allowRead "takes precedence"), but this is untested.
 
+## Read Deny Glob: `**/.env*` Matches Prefix, Not Suffix
+
+`Read(**/.env*)` matches files whose name **starts** with `.env` — `.env`, `.env.commands`, `config/.env` — but NOT files **ending** with `.env` like `config/tradestation.env`. The `.env` is literal; `*` only consumes characters after it.
+
+For credentials whose name ends in `.env`, use `Read(**/*.env)`. It won't match `*.env.template` siblings (correct — templates are typically placeholder-safe). Pair the broad pattern with explicit per-file entries when auditing matters: `Read(./config/tradestation.env)` is grep-able and survives glob refactors.
+
 ## Settings File Merge Behavior
 
 `settings.json` (project) and `settings.local.json` (local) **merge additively** for permission arrays. Duplicating patterns across both is harmless but redundant. Precedence (highest → lowest): managed → CLI args → `settings.local.json` → `settings.json` → `~/.claude/settings.json`. Deny at any level cannot be overridden by allow at another.
@@ -192,6 +198,20 @@ Permission patterns cover `claude/`, `tmp/`, and `~/.claude/` but not project-ro
 ## `jq -f` Is Sandboxed — Requires `Bash(jq *)` Allow-Pattern
 
 The Write tool can create a jq filter file at `tmp/...`, but `jq -f tmp/filter.jq` is blocked by Claude Code's sandbox. This affects command files that use the write-filter-to-file workaround (designed to avoid quoted-string permission prompts from `jq '...'`). Add `Bash(jq *)` to `settings.json` allow patterns. ~8 command files across both platforms use this pattern.
+
+## Two Layers of Agent Safety: Workflow Rails vs Platform Rails
+
+Allowlists and wrapper scripts are the **workflow layer** — convenient but bypassable (the agent finds an adjacent unblocked command, or invokes the underlying tool with a different flag pattern). The **platform layer** is what the underlying system *physically refuses*:
+
+| Domain | Workflow rail | Platform rail |
+|---|---|---|
+| Cloud IaC | Allowlist `terraform plan/validate`, deny `apply/destroy` | `prevent_destroy` lifecycle blocks, deletion protection, separate AWS account |
+| Databases | Allowlist `SELECT`, deny `DELETE`/`DROP` | Read-only replicas, row-level security, explicit grant model |
+| Filesystems | Allowlist `Read`, deny `Write` on paths | Read-only mounts, `chattr +i` on configs |
+
+Workflow rails make the right thing easy. Platform rails make the wrong thing impossible. Real safety requires both — when auditing an agent's blast radius, ask "what does the platform refuse?", not just "what's allowlisted?"
+
+For Terraform specifically: bake `prevent_destroy` into modules for irreplaceable resources (state buckets, EIPs, log groups). Allowlist `terraform plan/validate`; never allowlist `apply`/`destroy`. Both layers compose — even an operator running `apply` interactively can't accidentally destroy a `prevent_destroy`-protected resource.
 
 ## Cross-Refs
 
