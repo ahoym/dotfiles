@@ -37,7 +37,8 @@ RUN_DIR="${1:?Usage: sweep-prs-generate-runner.sh <RUN_DIR>}"
 SKILL_REFS="$HOME/.claude/skill-references"
 
 # Derive mode + prompt template
-MODE=$(jq -r '.MODE // empty' "$RUN_DIR/metadata.json")
+MODE=$(jq -r '.MODE // empty' "$RUN_DIR/metadata.json") \
+    || { echo "ERROR: failed to parse $RUN_DIR/metadata.json (corrupt or non-JSON)" >&2; exit 1; }
 case "$MODE" in
     review)
         prompt_template="$HOME/.claude/commands/sweep/review-prs/reviewer-prompt.md"
@@ -62,7 +63,13 @@ esac
 
 # 1. For each eligible PR: assemble prompt
 prs_processed=0
+# Materialize the eligible list first so jq parse failures surface with a clear
+# error rather than as an empty stream silently consumed by the loop body.
+ELIGIBLE_NUMBERS=$(jq -r '.eligible[].number' "$RUN_DIR/manifest.json") \
+    || { echo "ERROR: failed to parse $RUN_DIR/manifest.json (corrupt or non-JSON)" >&2; exit 1; }
+
 while IFS= read -r number; do
+    [ -n "$number" ] || continue
     pr_dir="$RUN_DIR/pr-$number"
     [ -d "$pr_dir" ] || { echo "ERROR: $pr_dir missing — run init-sweep-pr-dir.sh first" >&2; exit 1; }
     [ -f "$pr_dir/metadata.json" ] || {
@@ -76,7 +83,13 @@ while IFS= read -r number; do
     printf "  pr %s (%s) — prompt=%s lines\n" \
         "$number" "$MODE" \
         "$(wc -l < "$pr_dir/prompt.txt")"
-done < <(jq -r '.eligible[].number' "$RUN_DIR/manifest.json")
+done <<< "$ELIGIBLE_NUMBERS"
+
+# Empty .eligible[] would silently produce a zero-PR runner; surface explicitly.
+[ "$prs_processed" -gt 0 ] || {
+    echo "ERROR: no eligible PRs in $RUN_DIR/manifest.json — nothing to generate" >&2
+    exit 1
+}
 
 # 2. Assemble runner from the generic parallel template
 OUT="$RUN_DIR/let-it-rip.sh"
@@ -85,14 +98,16 @@ bash "$SKILL_REFS/fill-template.sh" \
     "$RUN_DIR" > "$OUT"
 chmod +x "$OUT"
 
-# 3. Validate syntax — catches placeholder leaks and template assembly bugs early
-if ! bash -n "$OUT" 2>/tmp/sweep-prs-syntax-err; then
+# 3. Validate syntax — catches placeholder leaks and template assembly bugs early.
+# Per-RUN_DIR error file (not /tmp/...) so parallel director-orchestrated
+# review+address invocations don't clobber each other's syntax-error logs.
+SYNTAX_ERR="$RUN_DIR/.syntax-err"
+if ! bash -n "$OUT" 2>"$SYNTAX_ERR"; then
     echo "ERROR: generated runner failed bash -n syntax check:" >&2
-    cat /tmp/sweep-prs-syntax-err >&2
-    rm -f /tmp/sweep-prs-syntax-err
+    cat "$SYNTAX_ERR" >&2
     exit 1
 fi
-rm -f /tmp/sweep-prs-syntax-err
+rm -f "$SYNTAX_ERR"
 
 echo ""
 echo "Generated artifacts in $RUN_DIR (mode=$MODE):"
