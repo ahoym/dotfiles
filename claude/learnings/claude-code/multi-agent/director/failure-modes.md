@@ -32,14 +32,20 @@ The recovery pattern: **don't rerun the same `let-it-rip.sh`**. Re-invoke the sw
 - Worktrees from the prior sweep persist — new artifacts can reference them via `worktree-cases.txt` without re-creating
 - Per-PR `directives.md` written at the run-dir level (e.g., `Fixes #N` body keyword) carry over only if you keep using the same address run-dir; for fresh address artifacts, copy the directive over
 
-Symptoms that say "you hit the storm": `context_used_tokens: 0` + `duration_seconds < 60` + `is_error: true` in `live.md`'s `completed` event, on multiple PRs in the same cycle. Distinguishes from genuine rate limits (which produce `rate_limit` events and `.rate-limited` sentinel).
+Symptoms that say "you hit the storm": `context_used_tokens: 0` + `duration_seconds < 60` + `"is_error":true` in `output.log`'s `completed` event, on multiple PRs in the same cycle. Distinguishes from genuine rate limits (which produce `rate_limit` events and `.rate-limited` sentinel).
+
+**Diagnosis — prompt-free path:**
+```
+bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --logs 30
+```
+Tails each item's `output.log` (the stream-json record) — contains `rate_limit_event`, `is_error`, `context_used_tokens`. Allowlisted under `Bash(bash ~/.claude/skill-references/**)`. Do NOT use `tail`/`cat` on `live.md` or `output.log` directly — those aren't allowlisted and prompt the operator on every call.
 
 ## 30-Second Exit Diagnosis: raw.jsonl Turn-Text First
 
-A `claude -p` session exiting in <60s has multiple distinct failure modes that look identical at the `live.md` event-tag level. **Always read `raw.jsonl` turn text before hypothesizing the cause** — the `live.md` synthesis can mislead.
+A `claude -p` session exiting in <60s has multiple distinct failure modes that look identical at the event-tag level. **Always read `raw.jsonl` turn text before hypothesizing the cause** — `live.md`'s synthesis can mislead.
 
-| Cause | duration | is_error | context_tokens | live.md tag | raw.jsonl turn_text reveals |
-|-------|----------|----------|---------------|-------------|----------------------------|
+| Cause | duration | is_error | context_tokens | event tag | raw.jsonl turn_text reveals |
+|-------|----------|----------|---------------|-----------|----------------------------|
 | Genuine 5h rate limit | <60s | false | 0 | `rate_limit` | API blocked turn 1 |
 | Compound-mode storm | <60s | **true** | 0 | `completed is_error: true` | session never ran |
 | **Resume-cache short-circuit** | ~30s | false | ~40k | `rate_limit` (informational) | *"already posted, nothing to do"* |
@@ -48,9 +54,10 @@ A `claude -p` session exiting in <60s has multiple distinct failure modes that l
 The **resume-cache short-circuit** is the trap: `claude -p --resume <session_id>` carries cached context from prior cycles, so the model "remembers" cycle N-1's `milestone: posted` and self-skips without reading directives or re-checking watermarks. The `rate_limit_event` in stream-json is informational (`status: allowed`) and unrelated to the bail-out — but its presence in `live.md` makes it look causal.
 
 **Diagnostic gate (pre-action):**
-1. `cat raw.jsonl | jq -c '{type, turn_text: .message.content[0].text, result}'`
-2. If turn_text contains "already posted", "complete", "nothing to do" → resume-cache short-circuit, **not rate limit**
-3. Recovery: fresh-timestamp restart (same as compound storm), since `claude --resume` keeps reading the same `session_id` even with directives present
+1. **First pass — allowlisted summary:** `bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --logs 60`. Greps the output.log dump for `rate_limit_event`, `"is_error":true`, `"already posted"`, `"complete"`, `"nothing to do"`. Often resolves the diagnosis without going deeper.
+2. **Deep pass — turn text:** if step 1 is ambiguous, read `raw.jsonl` directly: `cat raw.jsonl | jq -c '{type, turn_text: .message.content[0].text, result}'`. May prompt for permission if `Bash(cat:*)` isn't allowlisted — accept the prompt only when step 1 was inconclusive.
+3. If turn_text contains "already posted", "complete", "nothing to do" → resume-cache short-circuit, **not rate limit**.
+4. Recovery: fresh-timestamp restart (same as compound storm), since `claude --resume` keeps reading the same `session_id` even with directives present.
 
 **Anti-pattern:** jumping to the rate-limit hypothesis based on the `live.md` `rate_limit` tag without reading turn text. One real session lost ~4 hours waiting for a 5h quota reset that wasn't actually blocking.
 

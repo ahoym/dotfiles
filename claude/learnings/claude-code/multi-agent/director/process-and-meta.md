@@ -75,3 +75,9 @@ Adjustment: weight clarify higher for operator-authored issues even when all thr
 When the operator names a subset for a re-sweep ("re-run on #101 and #103") AND signals suggest fresh activity on nearby items (recent replies, active back-and-forth on related issues, timestamps within the last ~10 minutes), surface the gap BEFORE executing: *"I notice #100 was also replied to just now — include it?"*
 
 Scope typos and omissions are common in fast conversations. The director has more signal than the operator in the moment (last-comment timestamps from earlier fetches, session history). Proactively verify rather than processing the literal request and then discovering the gap mid-cycle. One extra line pre-launch beats one aborted session and one operator correction.
+
+## Review Persona ≠ Addresser Persona — Don't Auto-Propagate at Initial Handoff
+
+Review personas (architecture, correctness, security, etc.) are the *reviewer's* finding lens. The addresser needs the *engineering* lens that matches the changed domain — often a different shape. Resist writing a director directive setting `addresser persona = first review persona` just because the review signal is fresh and uncertainty feels uncomfortable. When the assessment-time persona match isn't confident, leave the addresser at `none` and let the addresser-prompt's per-finding judgment carry the work. If cycle-1 re-review reveals weak/generic responses, *then* write a persona directive for cycle-2.
+
+Distinct from the matrix's "Persona propagation — carry forward persona from prior runs": that rule covers *subsequent* runs on the same item. This rule covers the *initial* review→address handoff. Empirical: compound session on PRs #197/#198 left both addressers at `none`; both produced clean implementations (12 of 15 findings auto-implemented, 1 well-reasoned partial, 2 explicit no-change with context) — confirming the no-directive default earns its keep.

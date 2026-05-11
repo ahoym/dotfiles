@@ -34,6 +34,15 @@ Lives in `.claude/web-skills/web-create-pr/SKILL.md`. When invoked from a web se
 3. Prompts user on conflicts (no auto-resolve)
 4. Pushes with `--force-with-lease` and creates a clean PR against main
 
+### When the Guard Fails: Rebase, Don't Repoint
+
+`guard-commands` failure prints the fix verbatim: `git rebase --onto origin/main <skills-commit-sha>`. Follow it. Repointing the PR base to `web-session` makes the check inapplicable but is wrong twice:
+
+1. `web-session` is force-pushed by `sync-web-session.yml` on every push to main — anything merged into it is overwritten on the next sync.
+2. Workflow updates and docs need to land on `main` to take effect; `web-session` is derived.
+
+Confirm the situation with `git log --oneline origin/main..HEAD` — a `[web-session] sync skills` commit in the output is the trigger. After rebase, `gh pr edit <N> --base main` + force-push to land it.
+
 ## Future Simplification
 
 `/web-create-pr` is fully repo-agnostic — no project-specific references. Candidate for promotion to dotfiles (`~/.claude/commands/`), which would reduce per-project setup from 3 files to 2 (just the workflows). Deferred until the pattern is validated across multiple repos.

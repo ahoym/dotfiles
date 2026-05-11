@@ -105,6 +105,15 @@ When skill A's reference file says "same criteria as skill B's reference file," 
 
 When a reference file is read by every invocation of a skill (not conditionally), use `@` eager loading instead of a conditional read instruction. The context cost is identical — the agent reads it either way — but eager loading saves a tool call and guarantees availability. Reserve conditional reads (`read X if mode is Y`) for files genuinely needed only in some code paths.
 
+## Eager-Pointer + Lazy-Index for Sprawling Helper Directories
+
+When a `skill-references/` subtree mixes executables, templates, and stubs (~10+ files across multiple typologies), agents reach for ad-hoc Bash instead of finding the right helper. Fix:
+
+- **Lazy `INDEX.md`** at the directory root listing each helper with usage one-liner + the typology table (executable wrapper / template / platform stub).
+- **Eager one-line pointer** in `~/.claude/CLAUDE.md` (or the skill that touches the dir) cueing "consult `<dir>/INDEX.md` before complex Bash."
+
+Pointer costs ~150 tokens session-start; index loads only when triggered. This pattern beats memory entries that encode *negative* rules ("don't `tail`/`cat` directly") because the index delivers the *positive* answer at the moment of need — and a flat one-page reference scales better than a growing list of "don't do X" memories that only fire if the agent already knows to look.
+
 ## `!` Preprocessing Is SKILL.md-Only (Empirically Confirmed)
 
 `!` preprocessing runs when the CLI loads a SKILL.md via the Skill tool — it substitutes `!`cmd`` with stdout before the agent sees the file. Files read at runtime via the Read tool get raw text — `!` directives appear as literal strings. Implications: (1) shared reference files like `request-interaction-base.md` can contain `!`cat` includes and they'll resolve when the skill loads them via `@`, but NOT when an agent reads them with the Read tool mid-session. (2) Subagent prompt templates assembled at runtime can't benefit from `!` — use explicit `.sh` filenames for the subagent to `cat` at execution time. (3) `@`-reference in SKILL.md enables `!` for templates but forces always-on loading — a tradeoff between preprocessing and context cost.

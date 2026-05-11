@@ -1,5 +1,5 @@
 Terraform / OpenTofu patterns and IaC review gotchas.
-- **Keywords:** terraform, opentofu, tf, iac, hcl, var, data-source, lifecycle, templatefile, secrets
+- **Keywords:** terraform, opentofu, tf, iac, hcl, var, data-source, lifecycle, templatefile, secrets, prevent_destroy, ephemeral env, dev sandbox, agent-driven IaC, AWS account boundary, multi-account, organizations sub-account
 - **Related:** none
 
 ## Fallback-Source Pattern: Always Gate `data` with `count`
@@ -71,6 +71,20 @@ aws ec2 describe-addresses --filters Name=tag:Environment,Values=dev \
 ```
 
 Defense in depth: `AWS_PROFILE` guard + `Environment=<env>` tag filter are independent failure domains. One gate failing doesn't expose prod resources.
+
+## Agent-Driven IaC: Account Boundary > IAM Scope
+
+When an environment exists for AI agents to iterate on infra (apply, destroy, re-apply without operator-in-the-loop), the boundary between agent-touchable and untouchable resources should be **AWS account, not IAM policy**.
+
+| Mechanism | Failure mode |
+|---|---|
+| Read-only IAM on the agent's role | Agent observes but cannot iterate end-to-end — defeats the purpose of having a sandbox. |
+| Scoped-write IAM (`Allow` on `dev/*`, `Deny` on `prod/*`) | Policy correctness is the only thing keeping prod safe. One misauthored `Condition` exposes prod. |
+| Separate AWS account; agent has credentials only for the dev account | Mathematical isolation. Prod credentials physically aren't in the agent's scope; no policy bug crosses the boundary. |
+
+The account-boundary model also unblocks dev as a real integration test bed — agent can apply the same modules prod uses, observe alarms, validate teardown — instead of a shadow environment with read-only fidelity.
+
+Operator setup is one-time: AWS Organizations sub-account, bootstrap an IAM user with `AdministratorAccess` *inside* the dev account (the account boundary is the safety wall, so permissive IAM inside it doesn't expand blast radius), add a named profile to `~/.aws/credentials`. Optionally enforce `Environment=<env>` via Organizations tag policy as defense-in-depth for tag-filtered destroy sweeps. State backend can be the same S3 bucket as prod with a different `key` prefix; bucket-level IAM keeps the dev role from writing under `prod/*`.
 
 ## Terraform PR Verification Ladder
 

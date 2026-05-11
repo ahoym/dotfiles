@@ -95,3 +95,20 @@ Migrating a canonical filesystem path inside the container (e.g. `read_x` falls 
 Before merging a path-migration PR, grep `docker-compose.yaml`, runbooks, terraform, and any `update_image_*.sh` scripts for the legacy filename and update each. Smoke check: `docker run --rm` the container, mutate state, exit, then re-mount and re-run — if the second run sees stale state, the mount and the canonical path disagree.
 
 Symptom in stateful order-flow systems: action committed externally (broker fill, payment posted) and persisted in-container, `--rm` kills the container, host file still reflects pre-action state, next iteration sees stale state and re-runs the action → duplicate effect. Recovery: `docker cp` from a still-running container, or reconstruct from the external system of record.
+
+## Bind-mount inherits host file perms; strict-perm apps need host-side chmod
+
+Single-file bind-mounts (`-v host/cred.json:/ctn/cred.json`) inherit the host file's mode verbatim into the container. Apps enforcing strict perms on credentials (e.g. `0o600` token files, SSH keys, GPG keyrings) trip immediately if the host file is `0o644`/`0o664`:
+
+```
+PermissionError: Token file /ctn/cred.json has insecure permissions 0o664; expected 0o600
+```
+
+Fix is on the host, not in the container or Dockerfile: `chmod 600 ~/path/to/cred.json`.
+
+Compounds with the EBUSY/atomic-rename pattern above: if the app *also* rotates the file (`os.replace` → EBUSY → in-place fallback → `os.fchmod 0o600`), the fallback's `fchmod` may not propagate on some kernels. Worst case: rotation succeeds with the file at default umask (`0o644`), strict-perm check fires on the *next* read, container restarts into a crash loop until host `chmod 600` is reapplied. Directory mount avoids both. Logs that signal the degraded path:
+
+```bash
+docker logs <ctn> 2>&1 | grep -E 'EBUSY|fchmod|insecure permissions'
+```
+First warning = degraded but working. Second (`insecure permissions ... after EBUSY fallback`) = next read will crash.

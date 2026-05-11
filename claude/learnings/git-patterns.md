@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -96,6 +96,31 @@ When a branch has commits mixing two concerns (e.g., docs + implementation plans
 5. Clean up untracked files, force-push-with-lease
 
 **Why soft-reset over interactive rebase:** When the concern boundary doesn't align with commit boundaries (e.g., first commit has files from both concerns), `reset --soft` + selective unstage is simpler than splitting commits during rebase.
+
+## Carve-Out Branch First, Then Cherry-Pick to Rewrite Source
+
+Sibling to soft-reset split — preserves the source's commit boundaries instead of collapsing. When splitting a feature branch into a stacked pair (carve-out → main, source → carve-out):
+
+```bash
+# Carve out the subset onto a new branch off main
+git checkout -b feat/foo-base origin/main
+git checkout feat/source -- <subset-paths>
+git commit && git push -u origin feat/foo-base
+
+# Rewrite source: cherry-pick original commits onto the carve-out base
+git checkout -b tmp/rewrite feat/foo-base
+git cherry-pick <orig-sha-1>            # auto-dedupes hunks already in base
+git cherry-pick <orig-sha-2>
+git branch -f feat/source HEAD           # re-point original branch
+git switch feat/source && git branch -D tmp/rewrite
+git push --force-with-lease
+```
+
+Cherry-pick detects hunks present in the new base (including byte-identical file additions) and silently drops them — the rewritten commit contains only the genuinely-new diff. No `git rm` surgery, no `cherry-pick --no-commit` + manual unstaging.
+
+Pick this over soft-reset when downstream commits depend on the source's original commit boundary structure (soft-reset collapses to one commit). Pick soft-reset when the split scope crosses commit boundaries irregularly.
+
+**Followup:** `gh pr edit <N> --base feat/foo-base` to stack the PR. After carve-out merges, plain `git rebase origin/main` auto-skips the carve-out commit (`warning: skipped previously applied commit`).
 
 ## Verify Remote/Project Identity Before Cross-Repo Work
 
@@ -453,6 +478,53 @@ Avoid copying the prerequisite's commits into your branch — creates duplicate 
 ## `--autosquash` requires `-i` — forward-fix beats workarounds
 
 `git rebase --autosquash` only works under `git rebase -i`, which the Claude Code harness disallows. `GIT_SEQUENCE_EDITOR=:` / `=true` doesn't help — the rebase still asserts on `-i`. For amending a non-HEAD commit in an unpushed feature branch, forward-fix with a follow-up commit and squash on merge (or have the operator squash locally) is simpler than any non-interactive workaround.
+
+## Path-scoped log predicts textual rebase conflicts
+
+Before `git rebase`, intersect the file-sets of both sides:
+
+```bash
+git log <merge-base>..origin/<base> --oneline -- $(git diff --name-only <merge-base>..HEAD)
+```
+
+Empty → base hasn't touched any file your branch modified → rebase is textually clean (zero conflict markers). One non-empty line per overlapping file gives you the exact conflict surface to inspect before running `rebase`.
+
+Faster than `git merge-tree` (prompts for permission in `claude -p`) and more precise than the diff-intersection fallback, which flags files-both-sides-touched but not whether main's edits land in the same hunks.
+
+Companion to "Pre-rebase semantic check" (API drift after clean textual replay) and "Post-rebase blast radius" (full test run after replay). This one decides whether you need conflict-resolution rounds at all.
+
+## Non-interactive commit splitting via edit-revert + temporal staging
+
+When one file has changes belonging to two commits and `git add -p` / `git rebase -i` are unavailable (Claude Code harness disallows interactive flags), split the file's changes by re-editing the working tree across two commits:
+
+1. Capture both deltas in your head (read `git diff <file>`).
+2. **Edit-revert** the second commit's bits in the working tree — file now contains only the first commit's changes.
+3. `git add <file>` + commit #1.
+4. **Restore** the second commit's bits via Edit (the first commit's content is now in HEAD; what remains in working tree is only the delta you just re-applied).
+5. `git add <file>` + commit #2.
+
+Cleaner than `git stash --keep-index` (interactive) or `git restore --staged` gymnastics. Test the intermediate state between steps 2 and 3 (`uv run pytest <relevant>`) to confirm the split point is coherent. Different from "Split Mixed-Concern Branch via Soft Reset" — that's for splitting *commits*; this is for splitting *file-level changes* that span two intended commits.
+
+## Pushing to a merged-and-deleted PR branch silently recreates it
+
+GitHub's auto-delete-on-merge removes the remote branch after PR squash-merge. The local clone still has the branch ref locally and `git status` may say "up to date" against a stale cached origin ref. Pushing a new commit *succeeds* but the output line is:
+
+```
+* [new branch]      mahoy/<branch> -> mahoy/<branch>
+```
+
+That `[new branch]` is the tell — origin had to create the ref fresh. The new commit is orphaned: not attached to the merged PR (closed), not attached to any open PR, not reachable from main. Easy to miss because the push didn't error.
+
+Recover by cherry-picking onto a fresh branch from main:
+```bash
+git checkout -b <new-branch> origin/main
+git cherry-pick <orphan-sha>
+git push -u origin <new-branch>
+gh pr create --base main
+git push origin --delete <recreated-stale-branch>     # cleanup the orphan ref
+```
+
+Prevent by checking PR state before pushing post-merge: `gh pr view <num> --json state` returning `MERGED` is the signal to switch to a new branch from main instead of continuing on the (now-stale) feature branch.
 
 ## Cross-Refs
 

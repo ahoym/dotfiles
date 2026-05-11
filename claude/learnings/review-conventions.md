@@ -89,6 +89,17 @@ Identifying an issue ("this looks off") and suggesting a fix ("change it to X") 
 - **Think independently about what would make the content better.** Even within a correctly-applied rule, the default remedy may be wrong. "Renumber sequentially" flattens a deliberate grouping; "restructure as sub-items" preserves the author's intent. Lead with the suggestion that improves the content, not the one the rule defaults to.
 - **When uncertain, identify without prescribing.** "This `3a` numbering looks odd — is the intent to group these as variants of the same gotcha, or are they independent items?" surfaces the issue without committing to a fix direction.
 
+### Inline review comment shape: recommendation-first
+
+The diff anchor IS the problem statement — don't restate what the diff shows.
+
+- **Lead with the recommendation.** Drop the diff-restatement preamble.
+- **One fix > tradeoff tree.** Pick one and say so; alternatives can come up in the reply if the addresser pushes back. Listing options with cost annotations turns the comment into a planning artifact.
+- **Sparse cross-refs.** Cite a learning only when the citation isn't self-evident from the recommendation. `Per X → "Y"` adds zero value when the comment already explains Y.
+- **Code earns its lines.** A 3-line working fix beats a paragraph explaining the fix.
+
+Target 1-2 paragraphs per inline. If a comment exceeds that, ask whether each paragraph adds new content or echoes the anchor.
+
 ### Prioritize findings by impact, not discovery order
 
 When a review produces more findings than the author can reasonably act on, rank by:

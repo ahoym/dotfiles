@@ -24,3 +24,19 @@ Three-layer output beats raw JSON dump:
 ```
 
 The candidate-summary header is highest-signal: proves field name AND type AND shape in one line. Verify against multiple variants (cash + margin, equities + futures) — fixture-only verification misleads because fixtures often capture one variant.
+
+### Pin a bug with a failing regression test BEFORE the fix
+
+When fixing a non-trivial bug, write the test first and confirm it fails for the reason you think the bug is. Then apply the fix and confirm the test now passes. Two payoffs: (a) you've empirically verified the bug exists where you think it does — not somewhere else producing the same symptom; (b) the test stays in the suite as a permanent regression guard against the same class of bug returning.
+
+Especially valuable for bugs found via end-to-end runs (where the symptom and root cause are several layers apart) and for shared-mutable-state bugs where the failure is order-dependent. Cheap insurance against "fixed the wrong thing" or "the fix introduced a new bug."
+
+### Diverging "same" runs → suspect ephemeral state, re-run before reasoning
+
+When two runs of nominally-identical config produce different results, suspect ephemeral state before re-deriving from logs: in-flight code state mid-edit, cached data refresh between runs, partial config-file write, an env var that got toggled. Re-run the canonical baseline in the current session against current state before drawing conclusions about which result is "correct" — saves you from analyzing a phantom run that no longer reproduces.
+
+The mistake mode is treating one of the divergent runs as authoritative and reasoning about *why it differs* from the other, when both may be artifacts. Reproducing on current state collapses the search space to one number.
+
+### Broker permission probe sequence: symbol → market-data → preview-endpoint
+
+Probe broker-account capability without risking capital by layering: (1) symbol lookup (broker recognizes it?), (2) live quote (data flowing?), (3) preview/dry-run endpoint (account accepts the order?). The preview is the definitive permission test — symbol and quote can succeed on accounts that still can't trade the instrument, because permission validation usually runs deeper in the order pipeline than market-data access.

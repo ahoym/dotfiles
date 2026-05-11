@@ -145,6 +145,26 @@ When agents operate without an operator setting a persona (e.g., sweep:work-item
 
 The auto-detected persona improves both learnings search (narrows cluster matching) and work quality (applies domain-specific priorities and gotchas). Log the detection: `🎭 Persona: <name>` or `🎭 No persona match — proceeding without`. Include persona in status.md for director visibility.
 
+## Persona Proactive-Load Paths Decay Silently
+
+The set-persona skill warns-but-proceeds when a `## Proactive loads` or `## Proactive Cross-Refs` entry resolves to a missing file. Stale paths sit in personas indefinitely without breaking activation — only an attentive operator on activation notices the warning. Two prevention rules:
+
+1. **On rename/move:** `grep -rln <old-filename> ~/.claude/commands/set-persona/ ~/.claude/learnings/` immediately. Persona refs use the `provider:<name>/path` slug, so grep the bare filename to catch both slug and absolute-path forms.
+2. **On persona activation:** if the proactive-load count from the announcement doesn't match the persona's declared list, investigate before relying on the persona's gotcha coverage.
+3. **Periodic batch audit:** Rules 1–2 are prophylactic; refs accumulate when past reorgs skipped them. Enumerate every slug and test existence:
+
+   ```bash
+   grep -rho -E 'provider:default/[A-Za-z0-9._/-]+\.md' ~/.claude/commands/set-persona/ \
+     | sort -u | while read ref; do
+         path=~/.claude/learnings/${ref#provider:default/}
+         test -e $path || echo MISSING $ref
+       done
+   ```
+
+   Triage broken refs into three fix shapes — **path move** (swap path only), **rename** (find replacement via `head -3` on cluster candidates; line-1 descriptions persist across renames and often restate the original ref's description verbatim), or **split** (one file → many; expand single ref into N, partitioning the original description by new-file scope — the description IS the partition guide).
+
+Sibling pattern to `learnings-organization.md`'s cross-ref staleness, but the persona surface is distinct: cross-refs are read on-demand (failure visible at use time), proactive-loads are read at activation (failure visible only in the activation announcement, then forgotten).
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-authoring/learnings-organization.md` — cross-ref staleness in learnings (sibling concern, different surface)

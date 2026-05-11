@@ -28,9 +28,18 @@ Active sessions that take long are valid; silence is the failure signal. Use `li
 
 `claude -p --output-format stream-json` fails with "Error: When using --print, --output-format=stream-json requires --verbose." The error goes to stderr and the session exits immediately — `status.md` stays at `launching`, output log is empty, and the runner reports success (exit 0). Use `claude -p --verbose --output-format stream-json`.
 
-## Use `sweep-status-summary.sh` for Status Checks
+## Use `sweep-status-summary.sh` for Status Checks AND Log Tailing
 
-`~/.claude/skill-references/sweep-status-summary.sh` exists for reading run directory status. Use it instead of ad-hoc Bash `for` loops or `cat` commands, which trigger permission prompts (they don't match single-command patterns like `Bash(gh pr view:*)`). The script matches `Bash(bash ~/.claude/skill-references/**)` and outputs a formatted per-item section dump that the director parses into the monitoring table.
+`~/.claude/skill-references/sweep-status-summary.sh` exists for reading run directory status. Use it instead of ad-hoc Bash `for` loops or `cat`/`tail` commands, which trigger permission prompts (they don't match single-command patterns like `Bash(gh pr view:*)`). The script matches `Bash(bash ~/.claude/skill-references/**)` and outputs a formatted per-item section dump that the director parses into the monitoring table.
+
+**Three modes — pick by what you need:**
+| Need | Invocation |
+|------|-----------|
+| Monitoring table (status + state) | `sweep-status-summary.sh <RUN_DIR>` |
+| Log tailing (per-PR `output.log`, last N lines — stream-json with `rate_limit_event`, `is_error`, tool calls) | `sweep-status-summary.sh <RUN_DIR> --logs N` |
+| Retro (also dump `results.md` + `learnings.md`) | `sweep-status-summary.sh <RUN_DIR> --retro` |
+
+The `--logs` mode is the prompt-free path for diagnosing rate-limit storms, resume-cache short-circuits, and other failure modes that require reading per-session output. Reach for it before `tail`/`cat` on `live.md`/`output.log`/`raw.jsonl`. Cross-ref: `failure-modes.md` "30-Second Exit Diagnosis" walks through the log-grep workflow.
 
 ## Reviewer Convergence-Cycle Skips `results.md` Append
 

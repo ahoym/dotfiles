@@ -328,6 +328,49 @@ matches=$(rg --no-config "$PATTERN" "$SEARCH_DIR" || true)              # || tru
 
 Same shape applies to `grep` (1=no-match, 2=error) and `diff` (1=different, 2=error). Don't try to remove `|| true` — eliminate what it could mask.
 
+## Race-safe leaf-dir creation: `mkdir -p parent && mkdir leaf`
+
+The TOCTOU pattern `[ -e "$DIR" ] || mkdir -p "$DIR"` lets parallel callers both pass the existence check and both succeed via `-p` idempotence — they then race on the contents. Atomic alternative:
+
+```bash
+mkdir -p "$(dirname "$LEAF")"   # parent — idempotent, race-safe
+mkdir "$LEAF"                    # leaf  — fails on the loser of any race
+```
+
+`mkdir` (no `-p`) on the leaf is the atomic primitive: either you created it or you didn't. Use this whenever the leaf dir's *creation event* matters (session dirs, run dirs, lock dirs). When parents are guaranteed to exist, the second line alone is enough.
+
+## `done <<< "$VAR"` over `done < <(cmd)` keeps `set -e` honest
+
+Process substitution `< <(cmd)` runs `cmd` in a subshell whose exit status is **invisible** to the outer `set -e` and to `|| { ... }` wrappers — a corrupted-input failure produces an empty stream, the loop body silently no-ops, and the script exits 0. Capture first, then iterate via here-string:
+
+```bash
+ITEMS=$(jq -r '.eligible[].number' "$MANIFEST") \
+    || { echo "ERROR: failed to parse $MANIFEST" >&2; exit 1; }
+
+while IFS= read -r item; do
+    [ -n "$item" ] || continue   # here-strings can emit a trailing empty line
+    ...
+done <<< "$ITEMS"
+```
+
+Tradeoff: loses streaming (whole output materialized in memory). Use process-substitution form when the input is unbounded (logs, large query results) and you've explicitly decided silent-empty-on-failure is acceptable. For bounded scriptable input — manifests, config dumps, grep results that drive control flow — capture-then-iterate is the safer default.
+
+## `cmd | tail -N` doesn't emit until EOF — hides hung processes
+
+Piping a long-running command through `tail -N` makes the output appear silent until `cmd` exits — `tail` reads stdin and only prints the last N lines at EOF. A hung process produces zero-byte output indistinguishable from a slow one; you'll watch a 0-line file for minutes thinking nothing's happening.
+
+Symptom: `wc -l output.log` returns 0 while `ps` shows the process running and consuming CPU.
+
+Fixes (pick by intent):
+
+```bash
+cmd > out.log 2>&1                      # write file directly; tail -f to watch live
+cmd 2>&1 | grep --line-buffered KEY     # streaming filter; grep -m1 for first match
+cmd 2>&1 | tee out.log | tail -20       # tee splits, file lives, tail still buffers
+```
+
+The `tee out.log | tail -N` form is the safest default: you preserve the live log for `tail -f` debugging and still get the post-completion summary.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

@@ -179,6 +179,15 @@ Issues created by the director from a confirmed parent plan (e.g., #92/#93 from 
 
 Platform-command scripts use `<PLACEHOLDER>` syntax (e.g., `gh pr view <N> --json ...`) which isn't valid bash. `bash -n` verification triggers permission denials (no allow pattern for `bash -n`) and would fail on syntax anyway. The scripts are command templates, not executable scripts — validation should check format/structure, not bash syntax. Don't add a `bash -n` permission pattern for these.
 
+**Helper search corollary:** when looking for a skill-reference helper to satisfy an operator's "is there a script for this?" question, the `.sh` files split into two shapes:
+
+| Shape | Location pattern | Invocation | Examples |
+|-------|------------------|-----------|----------|
+| Executable wrapper | `~/.claude/skill-references/*.sh` (top level) | `bash <path> <args>` | `sweep-status-summary.sh`, `init-sweep-pr-dir.sh`, `director-bootstrap.sh` |
+| Template stub | `~/.claude/skill-references/<platform>/commands/*.sh` | Inlined into prompts via `fill-template.sh`; placeholders like `<N>` | `fetch-pr-watermark.sh`, `check-pr-mergeable.sh`, `consolidated-fetch.sh` |
+
+Top-level `.sh` files are runnable. Per-platform `commands/` `.sh` files are command-text templates — open one to confirm: a single `gh pr view <N> --json …` line is a stub. When no executable wrapper exists, fall back to plain allowlisted CLI (`gh pr view <N> --json state,mergeable`), and parse JSON via `jq` — not `gh -q` with a quoted format string (those trip permission prompts).
+
 ## Confirmer Should Pre-Seed Sub-Issue Approval
 
 When a confirmer proposes sub-issues as part of its confirmation comment, it should also post approval comments on those sub-issues (after the director creates them). This eliminates the manual step where the operator or director must post "Plan confirmed from #N. Implement." before the assessment can assign the implement role. The confirmer already has the confirmed plan context — it can propagate approval downstream.

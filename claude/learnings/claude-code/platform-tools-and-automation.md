@@ -19,6 +19,8 @@ When monitoring background Bash commands launched with `run_in_background: true`
 - `TaskOutput` with `block: true` and a timeout waits for completion cleanly
 - Ad-hoc Bash commands on output files require Bash permission patterns that aren't typically pre-configured, causing repeated permission prompts
 
+**Don't spawn a redundant wait-loop.** Background Bash tasks auto-emit a `<task-notification>` when they exit — re-spawning a second background task as an `until [ -f .../task-id.exit ]; do sleep 2; done` polling loop wastes a permission prompt slot and burns CPU until you manually stop it (the `.exit` marker file isn't created by the harness, so the loop never satisfies). If you need to chain work after a background task, the completion notification re-invokes you with full context; just return from the turn and wait.
+
 ## WebFetch Cannot Parse PDF Files
 
 `WebFetch` returns raw binary for PDFs — it can't extract text. The `Read` tool supports PDFs natively but requires `poppler-utils` (`brew install poppler`). If poppler isn't available, find text conversions via web search (gists, blog summaries, markdown conversions) as a fallback.
@@ -223,6 +225,19 @@ When the same string appears in multiple locations of a file (e.g., a cross-ref 
 ```
 
 Zero context cost until the condition fires. Use `@` for guidelines that apply every session; use tables for domain-specific deep references that only matter in certain tasks.
+
+## Edit/Write Refuses Symlinked `file_path` — Resolve First
+
+The Edit and Write tools reject paths that resolve to a symlink with: `Refusing to write through symlink: <path>. Resolve the symlink and pass the real target path explicitly.` This is a runtime safety guard, not a permission rule — it fires regardless of allowlist patterns. Read tolerates symlinks; only writers reject.
+
+Workaround:
+
+```bash
+readlink ~/.claude/settings.local.json
+# /Users/<user>/WORKSPACE/dotfiles/claude/settings.local.json
+```
+
+Then pass the resolved absolute path to Edit/Write. Common trip points: individually-symlinked entries under `~/.claude/` (`CLAUDE.md`, `settings.json`, `settings.local.json`) — directory-level symlinks (`commands/`, `learnings/`) are normalized through earlier and don't trigger this guard.
 
 ## Cross-Refs
 
