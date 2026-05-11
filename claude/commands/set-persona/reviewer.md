@@ -21,4 +21,4 @@ Base persona for all code review workflows. Provides universal review instincts 
 ## Proactive loads
 - `provider:default/code-quality-instincts.md`
 - `provider:default/process-conventions.md`
-- `provider:default/code-review-methodology.md`
+- `provider:default/review-conventions.md`

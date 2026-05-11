@@ -46,7 +46,8 @@ Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `provider:default/
 ## Cross-Refs
 
 Load when working in the specific area:
-- `provider:default/frontend/react-patterns.md` — React 19 setState rules, hydration gating, lazy initializers, hook extraction, two-tier design, modals, polling
+- `provider:default/frontend/react-state-effects.md` — React 19 setState rules, hydration gating, lazy initializers, render-time sync
+- `provider:default/frontend/react-hooks-and-ui.md` — hook extraction, two-tier design, modals, polling, page decomposition
 - `provider:default/frontend/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `provider:default/xrpl/patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
 - `provider:default/xrpl/amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation

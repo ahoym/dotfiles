@@ -273,7 +273,91 @@ When a directory's contents change frequently (data files, generated artifacts, 
 
 When a system has both committed-to-git stable inputs (reproducible across commits) and dynamically-fetched data (broker/API/today's response), have one lookup function try the committed cache first, ephemeral cache second, dynamic fetch last. **Critical invariant: dynamic fetches write only to the ephemeral cache, never to the committed one.** Otherwise a fresh API call silently overwrites your reproducible fixture and tests start drifting. The committed cache stays ground truth, mutated only via an explicit operation (a fetcher script run, a vendor backfill). Per-key automatic preference means a single consumer can mix sources transparently — committed for keys that have it, ephemeral for the rest, no flag, no fallback chain to manage.
 
+## Trailing-edge mid-formation bars in append-only caches
+
+Append-only caches with `prefer="existing"` (or any "existing wins on overlap") merge policy cement any mid-period snapshot the previous run wrote. If the fetcher runs mid-session/mid-bar and writes the still-forming bar, the next refresh's *finalized* end-of-period bar is dropped — its `datetime` collides with the snapshot, and existing wins. The cache silently degrades to mid-formation state for that period forever.
+
+Fix: drop existing bars whose timestamp is at/after the start of the currently-open period **before** the merge. Compute a per-Unit cutoff (start-of-today UTC for Daily, start-of-current-bucket for Minute, ISO-Monday for Weekly, first-of-month for Monthly), filter `existing` to bars `< cutoff`, then merge. Finalized prior-period bars stay protected; the trailing edge yields to the fresh fetch.
+
+```python
+cutoff_ms = _current_period_cutoff_ms(unit, interval)
+finalized_existing = [c for c in existing if c["datetime"] < cutoff_ms]
+merged = merge_candles(finalized_existing, fetched, prefer="existing")
+```
+
+Sub-case of the "Cache layering" entry above — the one-way-write invariant doesn't help when the writer writes garbage early. Same hazard whenever a refresh policy biases toward existing on conflict and a refresh can run before the period closes.
+
+## Two near-duplicate functions differing only in body work → callable-param helper
+
+When two public functions share 90%+ of their body and differ only in one line of work (`json.dump(data, f)` vs `f.write(content)`, etc.), extract one private helper that takes a `write_fn` (or `body_fn`/`work_fn`) callable and pass the body-specific call as a lambda. Cleaner than a string-discriminator branch (`if mode == "json": ...`) because the caller's intent is a function, not a flag.
+
+```python
+def _write_atomic(path, write_fn):
+    target = Path(path); target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(prefix=target.name + ".", suffix=".tmp", dir=str(target.parent))
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f: write_fn(f)
+        os.replace(tmp_path, target)
+    except BaseException:
+        try: os.unlink(tmp_path)
+        except FileNotFoundError: pass
+        raise
+
+def write_json_atomic(path, data, *, indent=2):
+    _write_atomic(path, lambda f: json.dump(data, f, indent=indent))
+
+def write_text_atomic(path, content):
+    _write_atomic(path, lambda f: f.write(content))
+```
+
+Pairs with the "Avoid unnecessary wrapper methods" entry — the inverse case. The 1-line wrappers stay because they document the public API + provide type signatures + are the import target. The shared helper is private and absorbs the ceremony.
+
+## Keep a 1-line wrapper that carries non-obvious work or has multiple call sites
+
+The "Avoid unnecessary wrapper methods" entry targets pure delegation (`def get_user(): return self._svc.get_user()`). Two situations where a small wrapper *is* worth keeping:
+
+1. **Non-obvious work in the body.** `iso_to_epoch_ms(s)` looks like 1 line but encodes the `tzinfo is None → replace(tzinfo=UTC)` defaulting choice. Inlining duplicates the conditional at every call site or silently drops it (and the next inline copy will).
+2. **Multi-call usage of a literal one-liner.** `epoch_ms_to_iso(ms)` is genuinely `datetime.fromtimestamp(ms/1000, tz=UTC).isoformat().replace("+00:00", "Z")`. Used once → inline. Used three times → keep the name; inlining duplicates the formatting choice (`.replace("+00:00", "Z")`) three places, so a future tweak has to be applied three times.
+
+Filter: inline when the wrapper is *both* pure delegation *and* called once. Keep when either condition fails.
+
+## Intent comments (WHY) vs narration comments (WHAT)
+
+When trimming code-narrating comments, distinguish the two:
+
+- **Keep intent.** `# Walk lower-priority source first so higher-priority overwrites on overlap` — explains *why* the loop is structured that way (priority semantics on overlap). The structure isn't obvious from the code alone.
+- **Drop narration.** `# Source labels match parameter names so error messages name the offending argument directly` — restates a one-line decision visible from the code. The next reader will see `("new", new)` and `("existing", existing)` and connect the dots.
+
+Filter: if removing the comment leaves the same teaching to a reader who reads the code, drop it. If the structure looks arbitrary without the comment, keep it. Agent-authored code tends to over-narrate the WHAT — this is a high-yield trim pass.
+
+## Asymmetric policies between sibling readers — document once, point from helpers
+
+When two readers of the same file/data shape have different error policies (fail-loud vs log-and-skip; halt-on-corrupt vs degrade-and-continue), don't duplicate the rationale on each helper's docstring — the policy is one invariant. Move the explanation to one shared owner (the public function the helpers are reachable through, or the module docstring of the file that hosts the lookup path), and leave a one-liner pointer on each helper:
+
+```python
+def _load_from_perpetual_daily(ticker):
+    """Return perpetual candles for `ticker`, or None on miss/empty.
+
+    Fails loud on corrupt JSON — see module docstring for the policy rationale.
+    """
+```
+
+Same SSOT principle as code/types — the policy is a definition, and definitions have one canonical home. Readers of the public API see the asymmetry once; helper-level doc churn drops; future updates change one paragraph instead of N near-copies.
+
+## Two-ledger divergence — parallel state systems must encode the same domain rules
+
+When two systems track the same domain quantity (analytics ledger + cash ledger; orders DB + payments DB; cache + source-of-truth), they can drift if they encode different domain math. The bug is invisible until a downstream consumer reads the wrong ledger.
+
+Diagnostic: trace which ledger each consumer reads. If sizing/decisions read ledger A and reporting reads ledger B, and A and B disagree, the system has internally inconsistent state. Tests of either ledger in isolation pass — only end-to-end runs that exercise the consumer surface the divergence.
+
+Common shape: one ledger uses a domain multiplier (point_value, FX rate, scale factor), the other doesn't. Whichever side gets read by the *next* sizing decision becomes the rate-limiter on system behavior. Fix at the seam: either teach the dumb ledger the multiplier (couples it to domain), or settle the domain math externally and post the result as a normalized cash delta (keeps the dumb ledger asset-class-agnostic).
+
+## Adding to default-iterated registries: verify before adding
+
+Adding an entry to a list/dict iterated by default (`_DEFAULT_*` maps, ticker tables, plugin registries) makes iteration fail-fast on any failing entry — later entries get skipped. Verify in isolation (probe / dry-run) before adding to the default, or make iteration error-tolerant per-entry (try/except + WARN, continue).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
 - `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology
+- `~/.claude/learnings/financial/vendor-divergence.md` — vendor-specific validation patterns relocated from this file

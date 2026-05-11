@@ -25,6 +25,14 @@ DO NOT DOCUMENT:
 - Boilerplate sections with nothing notable to say — if a section would just say "nothing unusual here", omit it entirely
 - Transitive dependencies or internal implementation details of third-party libraries
 
+FORMAT:
+- Default to tables for parallel data (per-item attributes), ASCII diagrams for flows / relationships / state machines.
+- Prose only when neither table nor diagram fits; cap section intros at 3 sentences.
+- Omit Overview if Key Findings + tables already convey it.
+- Key Findings: ≤7 bullets, one line each. Prefer file:line references over restating what a table already shows.
+- Gotchas: one-line bullets with file:line refs.
+- Do not restate column headers in prose alongside a table.
+
 PATH FORMAT:
 - ALWAYS use repo-relative paths (e.g., `backend/src/main/java/...`), NEVER absolute paths (e.g., `/Users/.../backend/...`).
 - This applies to all file references in your output — entity locations, script paths, config files, test files, etc.
@@ -109,25 +117,29 @@ For deployment: Docker setup, container relationships, deployment scripts.
 # Structure
 
 ## Project Overview
-[1-2 paragraphs: what this project is, how it's organized, key technology choices]
+[≤3 sentences: what it is, how it's organized, primary tech. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## Modules
-For each module: name, purpose, location, entry point, key dependencies, relationships to other modules.
+| Module | Location | Purpose | Entry point | Depends on |
+|--------|----------|---------|-------------|------------|
 
 ## Build System
-Tool, build commands (full project + per-module), test/lint/format commands, profiles/configurations.
+| Operation | Command | Notes |
+|-----------|---------|-------|
+[build full / build module / test / lint / format / per-profile invocations]
 
 ## Dependencies
-[Key external dependencies that define the project's character — not every utility library]
+[Only deps that constrain behavior — one-line each: `lib X@version — constrains Y`. Omit if none.]
 
 ## CI/CD Pipeline
-[Pipeline stages, triggers, what each does]
+| Stage | Trigger | Does | Artifacts |
+|-------|---------|------|-----------|
 
 ## Deployment
-[Docker setup, containers, deployment scripts]
+[ASCII container diagram if multi-container; else table: `| Component | Image / script | Purpose |`]
 
 ## Scripts & Utilities
 | Script | Purpose |
@@ -135,7 +147,7 @@ Tool, build commands (full project + per-module), test/lint/format commands, pro
 | [path] | [what it does] |
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -197,30 +209,34 @@ Also: API versioning strategy, common error response format, pagination patterns
 # API Surface
 
 ## Endpoints Overview
-[Count, groupings, versioning strategy]
+[≤3 sentences: count, groupings, versioning strategy. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## REST Endpoints
-Group by controller/resource. For each group, provide an endpoint table:
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
+Group by controller/resource. For each group:
+| Method | Path | Description | Auth | Request | Response |
+|--------|------|-------------|------|---------|----------|
 
 ## Request/Response Models
-For each important model: name, which endpoints use it, key fields with types.
+| Model | Used by | Key fields (name: type) |
+|-------|---------|--------------------------|
 
 ## gRPC / GraphQL / Other Interfaces
-[If applicable: service names, methods, schema, WebSocket endpoints, CLI commands]
+[If applicable, same tabular treatment: `| Service.method | Schema | Notes |`. Omit if none.]
 
 ## API Conventions
-Versioning, error format, pagination pattern, authentication mechanism, validation approach.
+| Aspect | Convention |
+|--------|------------|
+[versioning, error format, pagination, auth mechanism, validation, CORS]
 
 ## Middleware & Filters
-[What exists, execution order, what each does]
+| Order | Filter / Middleware | Purpose | File:line |
+|-------|---------------------|---------|-----------|
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -291,31 +307,41 @@ Use Glob and Grep to find, then read every match:
 # Data Model
 
 ## Overview
-[Entity count, key relationships, database technology]
+[≤3 sentences: entity count, DB tech. Omit if Key Findings + ER diagram cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## Core Entities
-For each entity: table/collection name, purpose, key fields (name, type, description), relationships (direction, cardinality, join), special handling (encryption, auditing, soft delete).
+For each entity, one subsection with:
+- One-line purpose
+- Fields table: `| Field | Type | Notes |` (notes = annotations, constraints, encryption, soft-delete)
+- Relationships table (if any): `| Relation | Cardinality | Target | Join |`
 
 ## Entity Relationships
-[Prose description or text diagram showing how major entities connect]
+[ASCII ER diagram. Boxes for entities, labeled arrows with cardinality (`1—*`, `*—*`). Prose only as fallback.]
 
 ## State Machines
-For each status flow: ASCII state diagram, transition triggers, and conditions.
+For each state flow:
+- ASCII state diagram (boxes for states, labeled arrows for transitions)
+- Transition table: `| From | To | Trigger | Conditions |`
 
 ## Database Details
-Database technology, schema, key views, notable indexes, important constraints.
+| Aspect | Value |
+|--------|-------|
+[engine, schema name, notable views, indexes, constraints — one row each]
 
 ## Data Patterns
-Encryption, auditing, soft deletes, converters, versioning — whatever patterns exist.
+| Pattern | Where | Mechanism |
+|---------|-------|-----------|
+[encryption, auditing, soft deletes, converters, versioning]
 
 ## Migration Highlights
-[Notable structural changes — new tables, major alterations, data migrations]
+| Migration | Type | Change |
+|-----------|------|--------|
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -385,28 +411,36 @@ Also: shared HTTP client config, common retry patterns, timeout defaults, connec
 # Integrations
 
 ## Overview
-[External service count, common patterns]
+[≤3 sentences: service count, dominant patterns. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## External Services
-For each service: purpose, type (REST/gRPC/SDK/Queue/Webhook), auth method, key operations, error handling strategy, config required, code location.
+| Service | Type | Auth | Key operations | Resilience | Config | Code |
+|---------|------|------|----------------|------------|--------|------|
+(Type: REST / gRPC / SDK / Queue / Webhook. Resilience: list what's present — retry / timeout / circuit-breaker / idempotency.)
 
 ## Integration Patterns
-HTTP client library, retry strategy, circuit breaker approach, timeout defaults, connection pooling.
+| Aspect | Value |
+|--------|-------|
+[HTTP client library, retry strategy, circuit breaker approach, timeout defaults, connection pooling]
 
 ## Authentication Summary
-[Shared auth patterns, token management, credential storage]
+| Pattern | Used by | Token / credential management |
+|---------|---------|--------------------------------|
 
 ## Message Queues / Async
-[If applicable: technology, topics/queues, producers, consumers, message formats]
+| Tech | Topic / Queue | Producer | Consumer | Message format |
+|------|----------------|----------|----------|----------------|
 
 ## Webhook System
-[If applicable: registration, delivery, signature verification, retry]
+| Aspect | Mechanism |
+|--------|-----------|
+[registration, delivery, signature verification, retry]
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -487,32 +521,39 @@ Use Glob and Grep to find, then read every match:
 # Processing Flows
 
 ## Overview
-[Key business domain, main workflows, processing philosophy]
+[≤3 sentences: business domain, main workflows. Omit if Key Findings + diagrams cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## Core Workflows
-For each workflow: trigger, numbered steps with service/method references, outcome, error handling, code location.
+For each workflow:
+- ASCII flow diagram (trigger → steps → outcome; show branches for error paths)
+- Step table: `| # | Step | Service.method | Notes |`
+- Error handling: one-line summary
 
 ## Scheduled Operations
 | Job | Schedule | Purpose | Location |
 |-----|----------|---------|----------|
 
 ## Event Flows
-For each event type: emitter, consumer(s), payload, side effects.
+| Event | Emitter | Consumer(s) | Payload | Side effects |
+|-------|---------|-------------|---------|--------------|
 
 ## Business Rules
-[Key validations, calculations, algorithms — the domain-specific rules that define correctness]
+| Rule | Where (file:line) | Logic |
+|------|-------------------|-------|
 
 ## Transaction Boundaries
-[Where boundaries exist, propagation strategies, rationale]
+| Boundary | Propagation | Rationale |
+|----------|-------------|-----------|
 
 ## Error & Recovery Flows
-[Retry, compensation, manual intervention, recovery jobs]
+| Failure mode | Recovery | Trigger | Location |
+|--------------|----------|---------|----------|
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -597,43 +638,51 @@ Use Glob and Grep to find, then read every match:
 # Configuration & Operations
 
 ## Overview
-[Configuration approach, key operational concerns]
+[≤3 sentences: config approach, operational shape. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## Configuration Hierarchy
-[Config sources and their precedence]
+| Precedence | Source | Notes |
+|------------|--------|-------|
+(Highest precedence first — runtime overrides, env vars, profile files, defaults.)
 
 ## Environment Profiles
-| Profile | Purpose | Key Differences |
+| Profile | Purpose | Key differences |
 |---------|---------|-----------------|
 
 ## Key Configuration Properties
-[Important properties grouped by category — only what matters for understanding and operating the system]
+| Category | Property | Default | Purpose |
+|----------|----------|---------|---------|
 
 ## Feature Flags
 | Flag | Default | Purpose |
 |------|---------|---------|
 
 ## Monitoring & Metrics
-Metrics (counters, timers, gauges), health checks, logging config (format, levels, destinations).
+| Metric / probe | Type (counter/timer/gauge/health) | Purpose | Location |
+|----------------|------------------------------------|---------|----------|
+
+Logging: one-line summary of format, levels, destinations.
 
 ## Secrets Management
-[How secrets are managed, what exists, where referenced. NO actual values.]
+| Secret | Source (vault/env/file) | Used by | Notes |
+|--------|--------------------------|---------|-------|
+(NO actual values — only names and references.)
 
 ## Deployment
-[How the app is deployed — Docker, K8s, scripts, manual]
+[ASCII deployment diagram if multi-container/K8s; else table: `| Component | How deployed | Notes |`]
 
 ## Operational Scripts
 | Script | Purpose | Usage |
 |--------|---------|-------|
 
 ## Local Development Setup
-[What's needed to run locally]
+Prereqs as one-line bullets above; numbered steps (≤7) below with exact commands.
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]
@@ -707,36 +756,43 @@ Read every test utility, config, mock, and base class file. For actual test file
 # Testing
 
 ## Overview
-[Testing philosophy, maturity, coverage approach]
+[≤3 sentences: testing philosophy, maturity. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[3-7 most important non-obvious discoveries]
+[≤7 bullets, one line each]
 
 ## Test Types
-| Type | ~Count | Location Pattern | Run Command |
+| Type | ~Count | Location pattern | Run command |
 |------|--------|------------------|-------------|
 
 ## Test Frameworks
-[Testing libraries and tools used]
+| Framework | Type (runner / assert / mock) | Used by |
+|-----------|-------------------------------|---------|
 
 ## Test Utilities & Base Classes
-For each: location, purpose, what it provides, which tests use it.
+| Utility / base | Location | Provides | Used by |
+|----------------|----------|----------|---------|
 
 ## Mocking Strategy
-| External Dependency | Mock Approach | Location |
-|--------------------|---------------|----------|
+| External dependency | Mock approach | Location |
+|---------------------|---------------|----------|
 
 ## Test Data Management
-[Factories, builders, fixtures, SQL seeds, transactional rollback — whatever approach is used]
+| Approach | Where | Used by |
+|----------|-------|---------|
+(factories, builders, fixtures, SQL seeds, transactional rollback, etc.)
 
 ## Test Patterns & Conventions
-[Naming conventions, setup/teardown, assertion style, organization]
+| Aspect | Convention |
+|--------|------------|
+(naming, setup/teardown, assertion style, organization)
 
 ## CI/CD Test Pipeline
-[Stages, parallelization, test reporting]
+| Stage | Parallelization | Reporting | Notes |
+|-------|------------------|-----------|-------|
 
 ## Gotchas
-[Non-obvious patterns that would surprise a developer new to this codebase]
+[One-line bullets with file:line refs]
 
 ## Scan Limitations
 [Coverage gaps and areas not fully explored]

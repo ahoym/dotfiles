@@ -1,5 +1,5 @@
 Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
-- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m
+- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword
 - **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -522,6 +522,18 @@ class BrokerAdapter(Protocol):
 
 Underused because the invariant feels like consumer concern. The Protocol is the contract surface — that's where the rule belongs. Pairs with `code-quality-instincts.md` → "Document non-leakage contracts on pluggable Protocol surfaces".
 
+## Keyword-only enforcement: audit external callers, not just the changed module
+
+When adding `*` to a signature to make a parameter keyword-only (`def f(x, *, datasets):`), commits typically update internal callers in the same file but skip external ones. Positional callers now `TypeError` at runtime — invisible to lint, only caught by tests that actually hit the path.
+
+Grep every callsite of every changed function across the repo before considering the refactor complete:
+
+```bash
+grep -rn -E "(fn1|fn2|fn3)\(" --include="*.py" -l | grep -v <changed-file>
+```
+
+For each hit, verify the now-keyword param is passed as `name=value`. CI passes if test coverage is thin — runtime is where it bites. Same audit discipline as renames/removals (`git-workflow.md` → "API Changes").
+
 ## DST drift in `datetime + timedelta(days=N)` vs epoch math
 
 `datetime.fromtimestamp(t) + timedelta(days=85)` adds 85 calendar days in **local time**; `datetime.fromtimestamp(t + 85 * 86_400)` adds 85 × 86,400 seconds in **UTC**. Across a DST transition these differ by an hour. For tests asserting against system computation that uses epoch arithmetic, mirror the system's math — don't reconstruct via wall-clock `timedelta`.
@@ -535,6 +547,45 @@ assert expiry == datetime.fromtimestamp(creation_ts + 85 * 86_400)
 ```
 
 Same hazard in any "deadline" / "expiry" / "bucket boundary" code that mixes `timedelta(days=...)` with epoch-based persistence.
+
+## Concurrent-writer race on deterministic `<target>.tmp` filename
+
+`tmp = target.with_suffix(target.suffix + ".tmp"); write(tmp); os.replace(tmp, target)` is atomic vs crash and concurrent readers, **not** vs concurrent writers. Two overlapping writers race on the same `.tmp`; both `os.replace` it; whichever loses has its bytes silently overwritten. Use `tempfile.mkstemp(prefix=target.name + ".", suffix=".tmp", dir=target.parent)` per writer + `try/finally` cleanup so each writer renames its own bytes.
+
+```python
+fd, tmp_path = tempfile.mkstemp(prefix=target.name + ".", suffix=".tmp", dir=str(target.parent))
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        write_fn(f)
+    os.replace(tmp_path, target)
+except BaseException:
+    try: os.unlink(tmp_path)
+    except FileNotFoundError: pass
+    raise
+```
+
+Common in shared atomic-write helpers reused by multiple call sites (fetcher + standalone regen script, parallel agents writing per-key files). Pairs with the `os.fdopen` ownership pattern above — each writer owns its fd from acquisition.
+
+## Argparse: validate the resolved value, not the raw `args.x or []`
+
+Parse-time gates that read `args.flag` before `main()` defaults it can miss combinations that materialize after defaulting. Symptom: `--ts-symbol @MNQ` (no `--ticker`) passes a `len(tickers) > 1` check (raw `args.ticker is None` → `[]`), then `main()` defaults `tickers = ["NQ", "QQQ"]` and `tickers[0]` silently swallows the override into one ticker only — partial-application bug.
+
+Two fixes (pick by intent):
+1. **Move validation to `main()`** after defaulting: `if args.flag and len(resolved_list) != 1: parser.error(...)`.
+2. **Require the explicit form** in `_parse_args`: `if args.flag and not args.x: parser.error("--flag requires --x to be set explicitly")`. Cleaner when "operate on all defaults" doesn't compose with the flag's semantics anyway.
+
+Family: `dict.get(k) or fb` ≠ `dict.get(k, fb)` — both are "fallback collapsed silently" gotchas, but the argparse one bites at the resolved-vs-raw layering boundary, not the falsy-value one.
+
+## Headless matplotlib default for CLI scripts
+
+CLI / CI / web sessions need matplotlib headless. `plt.show()` blocks indefinitely without a display server, masquerading as a hung process — the script appears to print metrics then "stops" forever. Fix at the entry point: default `show_plot=False`, expose `--show-plot` to opt back in. Charts still write to disk via `savefig` — only the GUI window is gated.
+
+```python
+parser.add_argument("--show-plot", action="store_true",
+    help="Open chart interactively. Default off so process exits in CI/web.")
+```
+
+`MPLBACKEND=Agg` (env var) is the alternative when the script can't be changed — Agg backend turns `plt.show()` into a no-op. Either path; the flag is more discoverable than the env var in long-lived projects.
 
 ## Cross-Refs
 

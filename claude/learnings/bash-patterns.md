@@ -1,5 +1,5 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
@@ -314,6 +314,22 @@ docker run ... -v "/tmp/wrapper.py:/workspace/wrapper.py" image python /workspac
 
 **Single-quoted delimiter (`<<'EOF'`) is critical** — unquoted `<<EOF` performs `$VAR`/`$(...)` interpolation, silently mangling `$1`, `$@`, `${...}` patterns inside the body.
 
+## `git commit -F - <<'EOF'` for multi-line commit messages
+
+`git commit -m "subject\n\nbody"` triggers a permission prompt (quoted string) and `\n` doesn't expand — git takes the literal `\n` as part of the subject line. Pipe a single-quoted heredoc to stdin instead:
+
+```bash
+git commit -F - <<'EOF'
+chore: subject line
+
+Body paragraph with `code`, "quotes", and $sigils all safe inside <<'EOF'.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+```
+
+Single-quoted `<<'EOF'` prevents `$VAR`/`$(...)` expansion in the body — matters when the commit mentions shell sigils (`$1`, `${...}`, command substitutions). Same shape works for `gh pr edit --body-file -` when you want to skip the temp-file step.
+
 ## `ripgrep` exit code 1 = "no matches"; pair `|| true` with preflight error elimination
 
 Multi-valued exit codes: `0` = match, `1` = no match, `2` = real error (bad regex, missing path, IO failure). Under `set -euo pipefail` both `1` and `2` abort, but for CI lint scripts `1` ("no violations found") is the success case. Naive fix `rg ... || true` masks `2` too — silently swallows real errors.
@@ -327,6 +343,49 @@ matches=$(rg --no-config "$PATTERN" "$SEARCH_DIR" || true)              # || tru
 ```
 
 Same shape applies to `grep` (1=no-match, 2=error) and `diff` (1=different, 2=error). Don't try to remove `|| true` — eliminate what it could mask.
+
+## Race-safe leaf-dir creation: `mkdir -p parent && mkdir leaf`
+
+The TOCTOU pattern `[ -e "$DIR" ] || mkdir -p "$DIR"` lets parallel callers both pass the existence check and both succeed via `-p` idempotence — they then race on the contents. Atomic alternative:
+
+```bash
+mkdir -p "$(dirname "$LEAF")"   # parent — idempotent, race-safe
+mkdir "$LEAF"                    # leaf  — fails on the loser of any race
+```
+
+`mkdir` (no `-p`) on the leaf is the atomic primitive: either you created it or you didn't. Use this whenever the leaf dir's *creation event* matters (session dirs, run dirs, lock dirs). When parents are guaranteed to exist, the second line alone is enough.
+
+## `done <<< "$VAR"` over `done < <(cmd)` keeps `set -e` honest
+
+Process substitution `< <(cmd)` runs `cmd` in a subshell whose exit status is **invisible** to the outer `set -e` and to `|| { ... }` wrappers — a corrupted-input failure produces an empty stream, the loop body silently no-ops, and the script exits 0. Capture first, then iterate via here-string:
+
+```bash
+ITEMS=$(jq -r '.eligible[].number' "$MANIFEST") \
+    || { echo "ERROR: failed to parse $MANIFEST" >&2; exit 1; }
+
+while IFS= read -r item; do
+    [ -n "$item" ] || continue   # here-strings can emit a trailing empty line
+    ...
+done <<< "$ITEMS"
+```
+
+Tradeoff: loses streaming (whole output materialized in memory). Use process-substitution form when the input is unbounded (logs, large query results) and you've explicitly decided silent-empty-on-failure is acceptable. For bounded scriptable input — manifests, config dumps, grep results that drive control flow — capture-then-iterate is the safer default.
+
+## `cmd | tail -N` doesn't emit until EOF — hides hung processes
+
+Piping a long-running command through `tail -N` makes the output appear silent until `cmd` exits — `tail` reads stdin and only prints the last N lines at EOF. A hung process produces zero-byte output indistinguishable from a slow one; you'll watch a 0-line file for minutes thinking nothing's happening.
+
+Symptom: `wc -l output.log` returns 0 while `ps` shows the process running and consuming CPU.
+
+Fixes (pick by intent):
+
+```bash
+cmd > out.log 2>&1                      # write file directly; tail -f to watch live
+cmd 2>&1 | grep --line-buffered KEY     # streaming filter; grep -m1 for first match
+cmd 2>&1 | tee out.log | tail -20       # tee splits, file lives, tail still buffers
+```
+
+The `tee out.log | tail -N` form is the safest default: you preserve the live log for `tail -f` debugging and still get the post-completion summary.
 
 ## Cross-Refs
 

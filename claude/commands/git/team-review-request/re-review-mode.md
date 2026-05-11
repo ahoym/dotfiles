@@ -57,6 +57,10 @@ Build output lists:
 
 **Subagent-skip heuristic.** When `NEW_COMMITS` is small (< ~100 changed lines) and consists purely of remediation for prior findings — no new logic, no new attack surface, no domain expansion — the orchestrator can handle the re-review inline and skip subagent launches. Verify each "Fixed in `<sha>`" claim against branch HEAD code directly. This applies the team-lead "fewer high-quality findings > comprehensive coverage" instinct: subagent overhead isn't worth it when the delta is bounded and in known domains. When in doubt, launch.
 
+**Refining the line threshold: commit hygiene > line count.** The 100-line gate is a starting heuristic; the stronger signal is whether each fix commit's one-liner names its target finding (e.g., `fix(file_writer): per-writer tempfile so concurrent writers don't race`). With 1:1 commit-to-finding mapping, inline verification stays auditable past ~700 changed lines. Vague or bundled commits collapse the heuristic — fall back to subagent re-launch.
+
+**Inline verification reads whole-function context; subagents read the hunk.** Bugs that span the diff edge — e.g., a parse-time check on `args.ticker` that doesn't account for a default applied 30 lines later in `main()` — need the wider read. When the heuristic fires, read 5-10 lines around each fix anchor rather than re-running diff-scoped subagents.
+
 For each persona in `RE_REVIEW_PERSONAS` (when not skipped per the heuristic above):
 - Front-load persona content (same as step 6)
 - Launch as a foreground reviewer subagent, but with the diff scoped to `NEW_COMMITS` only

@@ -105,3 +105,13 @@ Delegation prompts shaped "find X **not already in** Y" (dedupe against existing
 ## Subagent Bullet Summaries Strip Load-Bearing Specifics
 
 When promoting subagent findings to durable docs (learnings, ADRs, RFCs), bullet-form summaries often drop qualifiers the full source contains — the `is_finite()` companion guard to a `Decimal` coercion, the preflight error-elimination that makes `|| true` correct, the regex-arm ordering that makes ambiguity testable. Grep the source artifacts the agent cited before writing — bullets are an inventory, not a contract.
+
+## Subagent Constraint Relaxation: Replace + Enumerate + Mandate Autonomy
+
+When relaxing a hard-ruled constraint in a subagent prompt template (e.g., template says *"work only from the diff, do not read repo files"*), the relaxation must do three things:
+
+1. **Replace, don't stack.** "You may also Read files for verification" leaves both rules active and the agent fills the ambiguity with permission-experimentation. Phrase as replacement: *"Override: instead of working only from the diff, you may also Read individual files for path verification."*
+2. **Enumerate allowed mechanisms.** Vague "you may verify paths" lets the agent reach for whatever tool first surfaces a permission prompt (`ls /Users/...`, `cat`, `find`) and stop to ask the orchestrator. Spell out the shape: *"Use `Read(absolute_path)` for files; `ls <CWD-relative>` for directories. Avoid `ls /Users/...` absolute paths — they prompt."*
+3. **Mandate autonomy.** Add explicitly: *"Complete the deliverable autonomously. Log friction as a low-severity finding and continue — do not stop the review to ask the orchestrator meta-questions."* Without this, agents treat permission friction as a blocker and return half-baked output requiring relaunch with corrective guidance.
+
+Symptom of missing any of the three: subagent returns a meta-question ("should I use ls or Read?") instead of the findings JSON, costing a full retry-launch cycle. All three are cheap at prompt-construction time and prevent the most expensive failure mode in review-skill orchestration.

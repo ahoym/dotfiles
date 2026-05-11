@@ -12,6 +12,8 @@ This repo (dotfiles) stores Claude Code config under `claude/` (not `.claude/`).
 
 For Glob/Grep use `claude/` CWD-relative paths. For Edit/Write either `~/.claude/` or `claude/` paths work.
 
+**Read/Edit path matching:** Edit's "recent Read" check is path-string-keyed, not realpath-keyed. A Read via `claude/foo.md` doesn't satisfy a follow-up Edit on `~/.claude/foo.md` (or vice versa) — the symlink topology means both resolve to the same file, but the tool tracks the literal string. Pair Read + Edit on the same path form.
+
 ## Bash Script Invocation
 
 When invoking generated scripts via `bash`, use the **CWD-relative path** that matches the permission pattern, not an absolute path. Permission patterns are literal-string-matched: `Bash(bash tmp/claude-artifacts/**)` matches `bash tmp/claude-artifacts/.../let-it-rip.sh` but **not** `bash /Users/.../dotfiles/tmp/claude-artifacts/.../let-it-rip.sh`. Absolute paths bypass the pattern and trigger an approval prompt.

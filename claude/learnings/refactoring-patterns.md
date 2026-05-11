@@ -1,5 +1,5 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
-- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax
+- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -207,6 +207,33 @@ Introduce the flag as part of the first PR that touches the affected call site �
 Issue bodies state ACs but rarely state the *boundary* — what's deferred to the next PR vs done now. The linked design or implementation plan gives the phase context that prevents scope creep. Without it, ACs like "all calls route through the adapter" sound total when the plan actually splits them across this PR (libs surface), the next PR (internal factories), and a third (test-mocking migration).
 
 Order: issue body for ACs → linked plan for phase boundaries → code for current state → only then estimate scope.
+
+## Targeted bulk line-deletion via Python config-dict script
+
+When a sweep needs to delete N hand-picked lines across M files (e.g., stripping restatement docstrings flagged by manual review), a small Python script with `{path: [line_numbers]}` config beats N `Edit` calls or fragile sed regex:
+
+```python
+STRIP = {
+    "tests/foo.py": [22, 45, 67, ...],   # line numbers from manual triage
+    "tests/bar.py": [12, 88, ...],
+}
+
+def process(path, line_nums):
+    lines = open(path).readlines()
+    drop = set(n - 1 for n in line_nums)
+    drop |= {n + 1 for n in drop if n + 1 < len(lines) and lines[n + 1].strip() == ""}
+    open(path, "w").writelines(ln for i, ln in enumerate(lines) if i not in drop)
+```
+
+**Why this beats alternatives:**
+- The dict IS the audit trail — operator can read the rubric and the script in one glance.
+- One pass per file vs. N `Edit` calls; no per-file Read-before-Edit cycle.
+- Reversible: adjust the dict and re-run on a fresh checkout.
+- Auto-strips the trailing blank line so class-with-just-methods doesn't end up with a stray gap.
+
+**When sed is wrong here:** regex over `class … docstring … blank … def … docstring` is fragile to indent and accidentally catches helper docstrings you wanted to keep. Use sed for regex bulk rewrites (see `~/.claude/learnings/bash-patterns.md` → "Bulk Path Rewriting with sed Files"); use this script for hand-curated line lists where the classification lived in the operator's head.
+
+**Workflow:** read each file once → classify line-by-line into the strip set → run script → run tests + lint. The judgment lives in the dict; the script is just executor.
 
 ## Tuple → dataclass mock migration: replace_all per unique value
 

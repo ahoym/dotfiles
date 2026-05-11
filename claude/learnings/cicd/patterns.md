@@ -38,6 +38,14 @@ When CI changes can't be tested locally, push intermediate commits to validate t
 - Set job timeouts: 5 min for fast jobs, 15 min for E2E
 - Diagnosing failures: `gh run view <RUN_ID> --job <JOB_ID> --log-failed` — pipe through `tail -80`
 
+## Stale CI Checks After PR Base Change
+
+PR-targeted workflows filtered by `on.pull_request.branches: [main]` don't re-trigger when a PR's base is repointed to a different branch — the filter applies to the *new* base, so subsequent commits skip the workflow and the prior failed check stays red.
+
+Clear it with `gh run rerun <run-id> --failed`. The rerun executes the same job, but runtime API calls (e.g., `gh api repos/.../pulls/N/files`) return the PR's *current* state — so a check that failed against the old base often passes against the new one without any code changes.
+
+Diagnosis: compare the failed run's `headSha` and `createdAt` against `gh pr view <N> --json updatedAt,baseRefName`. If the PR was edited (base changed) after the run, the failure reflects a prior state.
+
 ## Use `docker login --password-stdin` instead of `-p` flag
 
 Passing passwords via `docker login -p` exposes credentials in process listings (`ps aux`). Use `echo "$SECRET" | docker login --password-stdin` instead. This applies to any CI/CD pipeline or script that authenticates to a container registry.

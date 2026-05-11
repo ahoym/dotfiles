@@ -49,3 +49,28 @@ The summary-only directive pattern is well-known for cycle-0 reviews where `find
 **Detection:** every review cycle's `results.md` should be checked for `New Findings > New Inline Comments`, not just first-pass. If the differential is non-zero on a re-review, write the directive **immediately** — before launching the next address cycle — instead of relying on the cycle to surface the miss.
 
 **Director rule:** read each completed review's `results.md` proactively on runner-completion notification. Don't defer body-only-finding detection to the address session — its watermark/classification logic can't see body content.
+
+## Status.md Reset Destroys Watermark — Addresser Directives-Only Short-Circuit
+
+Runner pre-flight overwrites `status.md` to `milestone: launching` between cycles, discarding the prior cycle's `last_addressed_sha` / `last_comment_id`. The next addresser session reads the launching stub, finds no watermark, and early-exits when `directives.md` shows all existing directives satisfied — never reaching the step that fetches current comment IDs and compares. Reply-only exit paths (the addresser posts a thread reply but no commit) also often skip writing the next `results.md` round, so director observability stays blind to what actually happened.
+
+| Symptom | Value |
+|---------|-------|
+| `duration_seconds` | <60 |
+| `is_error` | false |
+| `context_used_tokens` | 40k–80k |
+| `status.md` | `milestone: launching` only — no `last_*` fields |
+| `results.md` | unchanged from prior cycle |
+| GitHub comments | new IDs above prior `last_comment_id` |
+| Agent final text | variant of *"no new directives, work complete"* |
+
+Distinct from the **resume-cache short-circuit** in `failure-modes.md` (which carries `rate_limit_event` informational + cached cycle-N-1 context) and from **legitimate watermark skip** (which writes `milestone: skipped`). Detection: `grep -L last_comment_id <RUN_DIR>/pr-*/status.md` after a sub-60s runner exit.
+
+**Workaround:** write a watermark-skip-override directive with explicit `Process inline comment id=<N>. Either <implement fix> or <post public reply explaining deferral>.` The agent reads it in step 1 and proceeds past the directive check.
+
+**Root-cause fix candidates:**
+1. Runner pre-flight preserves prior `last_*` fields when bumping milestone to `launching` (don't overwrite the whole file).
+2. Addresser prompt step 2 fails loudly when `status.md` exists with `started_at` but no `last_comment_id` — corrupt state, not first-run.
+3. Reply-only exit paths must still append a `results.md` round + write `status.md` with `milestone: done` (or `addressed-via-reply`) and the refreshed watermark.
+
+**Related:** "Re-Review Body-Only Finding Hidden by Reaction-Advanced Watermark" above — same hidden-work shape, classification cause rather than watermark loss.

@@ -1,5 +1,5 @@
 Patterns for how engineering work is organized, scoped, and tracked — PR splitting, MR scoping, phased delivery, and preparatory refactoring.
-- **Keywords:** PR splitting, MR scoping, cherry-pick, preparatory refactoring, scope creep, staged renames, plan-first PR, PR description, git history, safeguards
+- **Keywords:** PR splitting, MR scoping, cherry-pick, preparatory refactoring, scope creep, staged renames, plan-first PR, PR description, git history, safeguards, plan retirement, plan lifecycle, acceptance criteria, issue closure, tracking issue maintenance
 - **Related:** ~/.claude/learnings/review-conventions.md, ~/.claude/learnings/code-quality-instincts.md
 
 ---
@@ -13,6 +13,17 @@ rg -l "TRADING_WINDOW|TS_TOKEN_PATH" docs/ scripts/ README.md
 ```
 
 The compose value is usually the source of truth (executable); docs need to follow. Catching this at PR time is cheaper than producing a fourth contradictory source post-merge.
+
+### Cross-reference comments in executables for multi-source docs
+
+When a config value or convention lives in N doc locations *and* an executable script, add a one-line comment in the executable pointing to the canonical doc:
+
+```bash
+# Mount source: schwab.env → see docs/per-broker-env-rollout.md
+docker run -v "$PWD/config/schwab.env:/workspace/config/.env:ro" ...
+```
+
+Makes `grep schwab.env` surface all N+1 locations atomically — the executable joins the three-source-drift check above instead of hiding from it.
 
 ### Defer large cross-cutting refactors to tracked issues
 
@@ -203,3 +214,25 @@ When a feature PR series deletes/renames files that learnings/architecture docs 
 When a plan decomposes into N PRs, scaffold tracking as **one parent issue + N sub-issues**, all carrying a single per-initiative label (`mnq-myapp`, `IaC MVP`). Parent issue body: brief goal, locked architecture decisions, and a task-list of sub-issues using `- [ ] #N — title` syntax (GitHub auto-tracks completion as sub-issues close). Sub-issue bodies: `## Scope` (with "What's in PR N" / "What's NOT in PR N"), `## Acceptance criteria` (checkbox list), `## Risks`, `## Suggested lens` (which review persona is primary/secondary), `## Cross-references`. Plan.md remains the canonical living doc — issues reference it and don't duplicate decisions; updating decisions happens in the doc, not by editing N issues.
 
 Workflow: read 1–2 existing issues to learn the repo's body shape, propose a sample, get operator OK on the template before bulk-creating. Bulk-create sub-issues first (parallel `gh issue create` calls), capture their numbers from stdout, then create the parent referencing the captured numbers in the task list. GitHub-relative paths in issue bodies resolve from repo root — use `[text](docs/plans/foo/plan.md)`, not `[text](../blob/main/docs/plans/foo/plan.md)`.
+
+### Retire plan.md once issues absorb its decisions
+
+Companion to "Multi-PR plan → parent index issue" above. Plan.md is canonical *during* issue scaffolding; once sub-issues hold scope/criteria, README holds operational steps, and durable rationale has moved to learnings, plan.md drifts behind the real source of truth. Lingering stale plans confuse future readers about which document is authoritative.
+
+Audit-and-retire pass:
+
+| Plan content | Destination |
+|---|---|
+| Goal / Decisions / Action items duplicated in sub-issues | drop with the plan |
+| Deferred non-blockers (e.g., AWS Config, alternate-region dev) | tracking issue's "Future / not yet scoped" section |
+| Post-cutover cleanup (e.g., delete legacy bootstrap script) | new sub-issue with the initiative label |
+| Rejected design alternatives + verified platform constraints | learnings file |
+| Operational color (cost / timing estimates) | drop |
+
+Then delete the plan file. Heuristic for "is it time?": if the plan's "Decisions" section reads like a transcript of the sub-issue bodies, the plan has retired.
+
+### Issue closure tracks acceptance criteria, not PR merge
+
+When an issue's acceptance criteria mix code-shippable items (modules, scripts, README updates) with operator-side action (cutover, decommission, observation period, postmortem), merging the implementing PR doesn't close the issue. The issue stays open as a tracking artifact for the operator-side work, with the merged PR linked.
+
+Auditing migration progress: distinguish "PR landed, issue intentionally still open because cutover hasn't run" from "issue forgotten." A glance at the criteria checklist tells you which. Don't auto-close on merge for cutover-bearing issues.

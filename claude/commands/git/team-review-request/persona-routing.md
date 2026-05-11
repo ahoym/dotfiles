@@ -68,6 +68,12 @@ Precedence over heuristic matching. Forced personas count toward the utility-bas
 
 **Inject into correctness prompt:** "Focus on boundary validation (UUID parsing, enum mapping), null guards on SDK returns, exception cause-chain nullability, and silent pagination truncation."
 
+### Non-trivial size or thin-wrapper density → architecture-reviewer
+
+**Match:** PR adds 500+ new lines OR introduces 5+ new internal helper functions OR module docstrings exceeding ~30 lines.
+
+**Force:** `architecture-reviewer` — adds the readability-first lens. The defect-oriented personas (financial, correctness, claude-config) don't flag verbose code, near-duplicate helpers, or over-documented internals — those pass defect review and fail architecture review. If the cap excludes architecture-reviewer, recommend a follow-up `/simplify` pass.
+
 ---
 
 ## Merge Algorithm

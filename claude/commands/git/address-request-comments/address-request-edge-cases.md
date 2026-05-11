@@ -104,6 +104,14 @@ git checkout <original_branch>
 
 This keeps the review focused on its intended scope and makes reviews easier.
 
+## Re-read cited learning's detection criteria when pushing back on misapplied findings
+
+When a finding cites a learning (e.g., *Test-only state in production code signals wrong-level DI seam*) and the suggested change feels off, re-read the cited learning's detection criteria before drafting the pushback. Many learnings have explicit fingerprints — `_*_injected` flags, error messages mentioning "injected"/"mock"/"test path", runtime branches that exist only for tests — and a finding that doesn't match those fingerprints is mis-applying the learning.
+
+Pushback structure: name the criteria, point out the case doesn't match, suggest where the learning *would* apply. Example: *"the criteria are about test-only runtime branches in production; `_PERPETUAL_DAILY_DIR` is read identically in production and tests — `monkeypatch` repoints the filesystem location, not a code path."* Reviewers can concede on substance instead of on tone.
+
+Pairs with the "Push back when warranted" core principle — this is the *how* once you've decided to push back.
+
 ## After LGTM Verification
 
 After verifying and confirming an LGTM, note to the operator that the review is approved and further comment monitoring is unlikely to be needed. An approved review rarely receives new comments.

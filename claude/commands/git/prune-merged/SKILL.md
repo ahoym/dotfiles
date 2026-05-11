@@ -34,12 +34,19 @@ Remove local branches that have already been merged into remote main.
 
    **Method B - Squash merges (remote branch deleted after PR merge):**
    ```bash
-   git branch -vv | grep ': gone]' | awk '{print $1}'
+   # Handle the `+ branch` prefix `git branch -vv` adds for worktree-attached
+   # branches — `awk '{print $1}'` would extract `+` and silently drop the branch.
+   git branch -vv | grep ': gone]' | awk '$1=="+"{print $2; next} {print $1}'
    ```
 
    Combine both lists, removing duplicates. This catches:
    - Branches with commits directly in origin/main history (regular merge)
    - Branches whose remote tracking branch was deleted after merge (squash merge)
+
+   **Bucket worktree-attached separately.** Lines starting with `+` in `git branch -vv`
+   are checked out in another worktree and cannot be deleted with `git branch -D` until
+   detached. Capture them so step 4 can list them as "blocked by worktree" rather than
+   attempting (and failing) to delete them, and so the operator sees what to detach.
 
 3. **Handle dry-run mode**:
    - If `$ARGUMENTS` contains `--dry-run`:
@@ -61,6 +68,17 @@ Remove local branches that have already been merged into remote main.
      |--------|-------------|
      | feature/auth | 3 days ago |
      | fix/login-bug | 1 week ago |
+     ```
+
+   - If any worktree-attached merged branches were captured in step 2, list them
+     in a separate "Blocked by worktree" table with the worktree path so the
+     operator can detach them and re-run:
+     ```
+     Blocked by worktree (skipped — detach with `git worktree remove <path>`):
+
+     | Branch | Worktree Path |
+     |--------|---------------|
+     | sweep/137-foo | tmp/.../worktrees/issue-137 |
      ```
 
    - Use `AskUserQuestion` to confirm:
