@@ -234,11 +234,13 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    Write a **cross-domain overview** — this is the unique value that individual domain files cannot provide on their own. Do NOT simply concatenate the domain files.
 
+   **Format rules (same as domain files):** default to tables for parallel data and ASCII diagrams for flows / relationships; prose only when neither fits; cap section intros at 3 sentences; omit a section if its tables/diagrams already convey it.
+
    Structure:
    - **Scan metadata** as HTML comment at the top (commit, branch, date, dimensions)
-   - **Project Summary** (2-3 paragraphs): What the system does, key architectural decisions, technology choices. Synthesize insights from ALL domain files.
-   - **Architecture Overview**: How the major components connect. Cross-reference structure, data model, integrations, and processing flows.
-   - **Module Dependency Graph**: ASCII art showing how the major modules/packages depend on each other. Use box-drawing characters. Show the data flow direction. Example format:
+   - **Project Summary** (≤3 sentences) of what the system does. Follow with a one-line bullet list of architectural decisions and technology choices.
+   - **Architecture Overview** (≤3 sentences) introducing the diagram below.
+   - **Module Dependency Graph**: ASCII art showing how the major modules/packages depend on each other. Use box-drawing characters and show data flow direction. Example:
      ```
      ┌─────────────┐     ┌──────────────┐
      │  API Layer   │────▶│ Service Layer │
@@ -250,44 +252,52 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
              │ Adapters  │ │   DB    │ │  Events  │
              └──────────┘ └─────────┘ └──────────┘
      ```
-   - **Cross-Cutting Patterns**: Shared patterns that span multiple domains — authentication, error handling, naming conventions, transaction management, retry strategies.
-   - **Key Workflows End-to-End**: Trace the most important business flows through the full stack (API → service → data → integrations → events). Reference specific domain files for deeper detail.
-   - **Critical Path to Productivity**: A recommended reading order for a developer new to the codebase. List 5-8 files/docs in priority order, with a one-line explanation of what each teaches you. Start with the highest-leverage context (e.g., "1. CLAUDE.md — project overview and essential commands") and end with deep-dives. This section answers: "If I only have 30 minutes, what should I read?"
-   - **Resilience Assessment**: Cross-reference the integrations domain file to produce a consolidated view of resilience coverage across all external services. For each integration, report:
-     - Retry logic: present/absent (and mechanism if present)
-     - Timeouts: configured/unconfigured
-     - Circuit breaker: present/absent
-     - Idempotency keys: used/not used
-     Format as a table for quick scanning. Flag the overall posture (e.g., "0 of 7 integrations have retry logic") and note any integrations that are outliers (better or worse than the norm).
-   - **Test Coverage Gaps**: Cross-reference the structure and testing domain files to identify source modules with no corresponding test file. List untested modules with a brief note on their risk level (e.g., "core business logic — high risk" vs "utility formatting — low risk"). This is structural coverage (test file exists), not line-level coverage.
-   - **Documentation Gaps**: What's missing from existing docs, categorized by severity:
-     - **Critical** — Missing documentation that blocks productivity
-     - **Medium** — Missing but inferable from code
-     - **Low** — Nice-to-have improvements
-   - For each gap: what's missing, where it should be documented, suggested content
+   - **Cross-Cutting Patterns** — table:
+     | Pattern | Domains | Mechanism | Notes |
+     |---------|---------|-----------|-------|
+     (auth, error handling, naming conventions, transactions, retries, etc.)
+   - **Key Workflows End-to-End** — for each top workflow:
+     - ASCII flow diagram (API → service → data → integrations → events)
+     - Step table: `| # | Step | Layer | File:line | Notes |`
+     - Cross-refs to domain files for deeper detail
+   - **Critical Path to Productivity** — 5–8 files in reading order, table:
+     | Order | File | What it teaches |
+     |-------|------|------------------|
+     Answers "If I only have 30 minutes, what should I read?"
+   - **Resilience Assessment** — table per integration:
+     | Service | Retry | Timeout | Circuit breaker | Idempotency |
+     |---------|-------|---------|-----------------|-------------|
+     Cells show mechanism if present, blank if absent. Below the table: one-line overall posture (e.g., "0 of 7 integrations have retry logic") and call out outliers.
+   - **Test Coverage Gaps** — table, sorted by risk:
+     | Module | Test file? | Risk | Notes |
+     |--------|------------|------|-------|
+     Structural coverage only (test file exists), not line-level.
+   - **Documentation Gaps** — table:
+     | Severity | What's missing | Where it should go | Suggested content |
+     |----------|----------------|---------------------|--------------------|
+     Severities: **Critical** (blocks productivity) · **Medium** (inferable from code) · **Low** (nice-to-have).
 
 5. **Synthesize inconsistencies.md:**
 
-   Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found — if there are no docs, skip it.
+   Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found — if there are no docs, skip it. Same format rules as SYSTEM_OVERVIEW.md: tables-first, prose only when needed.
 
-   **Doc-vs-code inconsistencies:**
-   - Find specific discrepancies: the doc says X but the code does Y
-   - Categorize by severity:
-     - **Critical** — Actively misleading (wrong commands, incorrect architecture)
-     - **Medium** — Partially wrong (incomplete flows, outdated patterns)
-     - **Low** — Minor inaccuracies (stale versions, outdated links)
-   - For each inconsistency, include:
-     - **Doc source:** file path and section name
-     - **What it claims:** the incorrect content
-     - **What the code actually does:** the correct behavior with evidence (file path, line)
-     - **Suggested fix:** the exact replacement text or edit needed to correct the documentation
+   **Doc-vs-code inconsistencies** — table:
+   | Severity | Doc source (file § section) | Claim | Reality (file:line) | Suggested fix | Status |
+   |----------|------------------------------|-------|---------------------|----------------|--------|
 
-   **Config artifact drift** (separate section):
-   Cross-reference configuration templates and declarations against their canonical code sources. Common checks:
-   - `.env.template` / `.env.example` vs the canonical env var definitions in code (e.g., `env_vars.py`, `config.ts`, `application.properties`) — flag variables present in template but absent in code (dead), and variables in code but missing from template (undocumented)
+   Severities:
+   - **Critical** — actively misleading (wrong commands, incorrect architecture)
+   - **Medium** — partially wrong (incomplete flows, outdated patterns)
+   - **Low** — minor inaccuracies (stale versions, outdated links)
+
+   Status column carries the auto-fix outcome (see step 7): `[FIXED]` or `[UNFIXED — reason]`.
+
+   **Config artifact drift** — separate table with the same columns. Cross-reference configuration templates and declarations against their canonical code sources:
+   - `.env.template` / `.env.example` vs canonical env var definitions in code (e.g., `env_vars.py`, `config.ts`, `application.properties`) — flag variables present in template but absent in code (dead), and variables in code but missing from template (undocumented)
    - CI pipeline commands vs actual build system commands (e.g., CI runs `npm test` but `package.json` defines `yarn test`)
    - Dockerfile base image versions vs project-level version declarations (e.g., `python:3.11` in Dockerfile vs `3.12` in `pyproject.toml`)
-   Only check artifacts that exist — skip silently if the project has no templates or CI config. Format findings the same way as doc inconsistencies (source, claim, reality, fix).
+
+   Skip silently if no templates or CI config exist.
 
 6. **Add cross-references between domain files:**
 
