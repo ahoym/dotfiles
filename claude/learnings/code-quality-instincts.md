@@ -370,6 +370,10 @@ Defense: pair the sign/finite check with a **magnitude ceiling** — per-symbol 
 
 To verify what a vendor actually serves, write a probe that calls the underlying client/API directly and **skips the production converter/validator path** — otherwise the validator short-circuits on the first bad bar and you see the post-rejection view, not ground truth. Pattern: same window + same signature checks across vendors, raw response saved to a gitignored scratch path for replay, the probe script committed alongside a findings doc so spot-checks stay reproducible.
 
+## Adding to default-iterated registries: verify before adding
+
+Adding an entry to a list/dict iterated by default (`_DEFAULT_*` maps, ticker tables, plugin registries) makes iteration fail-fast on any failing entry — later entries get skipped. Verify in isolation (probe / dry-run) before adding to the default, or make iteration error-tolerant per-entry (try/except + WARN, continue).
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — complementary process-level patterns

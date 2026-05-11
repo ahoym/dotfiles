@@ -133,6 +133,17 @@ logger.error("API error on %s: %s | full record: %s", record["id"], record["Erro
 
 Default to full-record logging on failure paths. Cost is bytes; value is debug-time when remote-side reasons aren't predictable in advance.
 
+## Single-resource APIs can return 200 with error envelope replacing the payload
+
+Sibling to the batch case above, at envelope level. A vendor may return `200 OK` with `{"Error": "Failed", "Message": "..."}` *instead of* the expected `{"Bars": [...]}` payload — no expected field at all. `data.get("Bars") or []` collapses to "empty data" and validators never see the error; `raise_for_status()` doesn't catch this since HTTP is 200. Common with entitlement gates and rate limits.
+
+Validate shape positively before defaulting:
+
+```python
+if "Error" in data or "Bars" not in data:
+    raise RuntimeError(f"vendor error: {data.get('Message', data)}")
+```
+
 ## Adapter and client layers can have separate validation tiers
 
 When wrapping a vendor API behind an adapter (BrokerAdapter → VendorClient), the two layers often enforce different symbol/input regexes — adapter validation is typically stricter than client validation because each layer covers a different surface. The client may accept symbol form X for data endpoints while the adapter rejects X for order placement, both correctly mirroring vendor semantics (e.g., continuous futures symbols are queryable but not orderable). Before concluding "the wrapper rejects X," trace which call path the validation actually runs on — single-regex assumptions miss this layered pattern.

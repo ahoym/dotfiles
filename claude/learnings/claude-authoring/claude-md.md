@@ -1,28 +1,30 @@
-Core patterns for writing effective CLAUDE.md files: conditional @ references, subdirectory criteria, documenting relationships, pointer pattern, single source of truth, and stating conclusions.
-- **Keywords:** CLAUDE.md, @ reference, eager load, subdirectory criteria, symlink, navigational hub, relationships, pointers, single source of truth
-- **Related:** none
+Core patterns for writing effective CLAUDE.md files: lazy sub-CLAUDE.md index (plain paths, not `@`), subdirectory criteria, documenting relationships, pointer pattern, single source of truth, and stating conclusions.
+- **Keywords:** CLAUDE.md, @ reference, eager load, lazy reference, plain path index, subdirectory criteria, symlink, navigational hub, relationships, pointers, single source of truth
+- **Related:** ~/.claude/learnings/claude-code/explore-repo.md
 
 ---
 
-## Conditional `@` Reference Pattern
+## Subdirectory CLAUDE.md: Lazy Plain-Path Index, Not `@`
 
 **Problem:** Putting all context inline in root CLAUDE.md bloats token usage for every agent invocation, even when the agent only needs context for one subsystem.
 
-**Solution:** Use conditional `@` references in root CLAUDE.md that point to subdirectory CLAUDE.md files. Agents auto-load CLAUDE.md files when they enter directories directly, so the subdirectory files serve double duty:
-1. **Top-down discovery** — an agent reading root CLAUDE.md sees the reference and can load it if relevant
-2. **Bottom-up auto-loading** — an agent that enters the directory directly gets the context automatically
+**Solution:** Decompose into subdirectory CLAUDE.md files and reference them from root as a **plain-path index** — not `@`-references.
 
-**Format in root CLAUDE.md:**
 ```markdown
 ## Context-Specific Guides
 
-@database/CLAUDE.md - Migration conventions and schema design
-@server/orders/CLAUDE.md - Order processing architecture and state machine
-@server/billing/CLAUDE.md - Payment and settlement flows
-@test/utils/CLAUDE.md - Test infrastructure and shared helpers
+Read on-demand when working in the relevant subdirectory:
+
+- `database/CLAUDE.md` — Migration conventions and schema design
+- `server/orders/CLAUDE.md` — Order processing architecture and state machine
+- `test/utils/CLAUDE.md` — Test infrastructure and shared helpers
 ```
 
-**Key insight:** `@` references eagerly load the referenced file's content into every conversation. This makes root CLAUDE.md a navigational hub, but each `@` reference has a real token cost. Use this pattern to organize context into focused subdirectory files — the agent pays only for the subset relevant to its task when entering a directory directly, rather than loading everything from a monolithic root file.
+**Why not `@`:** `@` references eagerly load the referenced file into **every** session's context, regardless of task. The "agent pays only for the subset relevant" framing is wrong for sub-CLAUDE.md — `@` collapses subdirectory files back into the always-on root payload.
+
+**Why lazy works:** CLAUDE.md auto-discovery gives you the bottom-up benefit *for free* — an agent entering `server/orders/` auto-loads `server/orders/CLAUDE.md` whether or not root referenced it. The plain-path index in root only adds top-down discoverability (agent sees the entry, reads on demand) without paying the eager-load cost.
+
+**When `@` IS appropriate:** Content that genuinely belongs in every session — global guidelines, shared conventions, the project's core rules. Reserve `@` for "load every time"; use plain paths for "load when relevant." See also: `~/.claude/learnings/claude-code/explore-repo.md` § "CLAUDE.md Should Not `@`-Include Scan Artifacts" for the same principle applied to scan output.
 
 ## Subdirectory CLAUDE.md Criteria
 
@@ -150,4 +152,4 @@ The breadcrumb bridges the gap: no token cost beyond ~25 tokens, no automatic be
 
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-code/explore-repo.md` § "CLAUDE.md Should Not `@`-Include Scan Artifacts" — same lazy-vs-eager principle applied to scan output
