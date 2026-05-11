@@ -88,6 +88,7 @@ Determine what work needs to be done by checking existing output files.
 
    - Only re-scan domains whose files were **materially** affected by the changes. Apply judgment: a 2-line property addition won't change a 350-line config scan, and adding test cases to an existing test file won't change the testing infrastructure scan. Re-scan when the changes would meaningfully alter the domain file's content (new integrations, new entities, new test patterns), not when they're incremental additions to existing patterns. When in doubt, stamp-update rather than re-scan.
    - If the diff is too large (100+ files changed) or the mapping is ambiguous, fall back to re-scanning all stale domains
+   - **If `<stale-commit>` is unreachable** (e.g., scan was run on a deleted feature branch like `claude/create-feature-branch-*`), `git diff` and `git log` against it will fail. Detect via `git rev-parse <stale-commit>` returning non-zero, then fall back to re-scanning all stale domains. Don't try to find a nearest-ancestor — it's not worth the heuristic complexity.
    - **Important:** If `CLAUDE.md` or `README.md` changed, mark ALL domains for re-scan (project-level docs affect all agents' context)
 
 4. **Clean up stale synthesis files:**
