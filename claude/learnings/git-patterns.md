@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -171,6 +171,41 @@ Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address
 **Cross-branch:** Stash on branch A, pop on diverged branch B — files modified in the divergent commits conflict even if the stash didn't touch them. For delete/modify conflicts: `git rm <file>`. For text: keep the stash's changes.
 
 **Post-rebase:** Stash dirty files to unblock rebase, pop after completion — conflicts if rebase modified those files. Resolution: keep the rebased version (post-rebase is authoritative), drop the stash.
+
+**Untracked-file conflicts (`-u` stash):** Error reads `<file> already exists, no checkout` — stash pop refuses to overwrite. The untracked files live at `stash@{0}^3` (third parent of the stash commit; tracked changes are at `^1`/`^2`).
+
+- List: `git ls-tree -r stash@{0}^3 --name-only`
+- **Diff first** before any extraction — after a recent merge, untracked stash files are often bit-identical to what's now committed. Bisect with `diff -q <(git show stash@{0}^3:<path>) <path>` to find true differences and avoid wasted work on collisions that are noise.
+- Extract stash version side-by-side (keep both): `git archive stash@{0}^3 | tar -x -C tmp/rescued/` or per-file `git show stash@{0}^3:<path> > <dest>`.
+- Apply stash's tracked changes separately when pop is blocked atomically: `git stash show -p stash@{0} | git apply --3way`.
+
+## `git apply --3way --check` Output Is Misleading
+
+`git apply --3way --check` reports `Applied patch to '<file>' cleanly.` even though `--check` makes it a dry-run (no actual write). A 3-way merge can also resolve every hunk as already-applied — the apply succeeds without changing the tree. Either way the message is the same as a real apply.
+
+**Always verify with `git diff` / `git status` after applying.** Empty diff after `git apply --3way` (without `--check`) means the patch was a no-op — content already present, often because the source branch already absorbed those changes.
+
+## Atomic Commit Split via Temp-Revert (no `git add -p`)
+
+When you need two atomic commits from one file's changes and interactive staging (`git add -p`) is unavailable (Claude Code harness, scripted contexts), Edit-revert one slice, commit the rest, Edit-restore, commit again:
+
+1. `Edit` the file to remove the lines belonging to commit B (keep commit A's content).
+2. `git add <file> [other commit-A files]` → `git commit -F msg-A.txt`.
+3. `Edit` to restore commit B's lines.
+4. `git add -A` → `git commit -F msg-B.txt`.
+
+Verify each commit's contents with `git diff HEAD~..HEAD --stat` after the first commit to confirm only commit-A's scope landed. The intermediate state must still pass tests — choose which slice goes first accordingly (typically the standalone tooling change, then the data/config that consumes it).
+
+## Preemptive `(#NNN)` in Commit Subjects — Verify Before Pushing
+
+Claude often drafts commit subjects with placeholder PR numbers (`feat: ... (#199)`) that don't match the eventual PR. Before pushing or opening a PR:
+
+```bash
+gh pr view <NNN> --json state 2>&1   # GraphQL error → no such PR
+gh issue view <NNN> --json title     # may be an issue number instead
+```
+
+If the suffix is stale, amend the subject (`git commit --amend -F <new-msg>` with the suffix stripped) and `git push --force-with-lease`. The `#NNN` references inside the commit body may still be valid (often the parent *issue*, not the PR) — verify each separately. Related: GitHub PR and issue numbers share a namespace (`git-github-api.md` → "gh pr view <N> fails when N is an issue number").
 
 ## Symlinked Dirs Revert Edits on Branch Switch
 
