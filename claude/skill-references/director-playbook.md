@@ -68,16 +68,22 @@ The monitor appends typed events to `live.md` as a side effect. Reference docs l
 
 ### Director Intervention
 
-The runner handles inactivity detection and single-retry recovery automatically. The director only intervenes after the runner exhausts retries and escalates via `state.md`. Read `live.md` only when investigating an escalation — never as a primary monitoring channel.
+The runner handles inactivity detection and single-retry recovery automatically. The director only intervenes after the runner exhausts retries and escalates via `state.md`. Read logs only when investigating an escalation — never as a primary monitoring channel.
+
+**Log inspection — always via the allowlisted helper:**
+```
+bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --logs N
+```
+Tails each item's `output.log` (stream-json: tool calls, errors, `rate_limit_event`, `is_error`). Do NOT `tail`/`cat` `live.md` or `output.log` directly — those aren't allowlisted and prompt the operator. Need turn text or full event history? See `failure-modes.md` for the `raw.jsonl` deep-inspection path.
 
 | Detection (from state.md) | Action |
 |---------------------------|--------|
-| `state: errored` + `escalation: needs-director` | Read `live.md` tail, investigate root cause, write directive for next launch |
+| `state: errored` + `escalation: needs-director` | `sweep-status-summary.sh --logs 30` for that run, investigate root cause, write directive for next launch |
 | `state: rate-limited` | Check `.rate-limited` sentinel, advise operator on retry timing |
 | `escalation: permission_denial` | Fix permission in settings, write directive |
 | `escalation: repeated_errors` | Investigate root cause, write directive or escalate |
 
-**Failure-mode shortcut:** if `state: completed` but `live.md` shows `is_error: true` + `context_used_tokens: 0` + short duration on multiple sessions same cycle, that's the **rate-limit storm** — fresh-timestamp restart, not in-place retry. See `failure-modes.md`.
+**Failure-mode shortcut:** if `state: completed` but `output.log` (via `sweep-status-summary.sh --logs N`) shows `"is_error":true` + `context_used_tokens: 0` + short duration on multiple sessions same cycle, that's the **rate-limit storm** — fresh-timestamp restart, not in-place retry. See `failure-modes.md`.
 
 ## Monitoring Table Format
 

@@ -19,6 +19,8 @@ Avoid quoted strings in Bash commands (e.g., `echo "---"`, `echo "DONE"`). Quote
 
 Check `pwd` before assuming you need to change directories. Don't `cd` or `git -C` into CWD — permission patterns match `git status`, not `cd /path && git status` or `git -C /path status`, so either forces manual approval. When targeting a different directory, prefer a single `cd` over repeated `git -C` — `cd` prompts once, `-C` prompts on every command.
 
+Before complex Bash (loops, `gh -q '<format>'` quoted format strings, multi-step pipes), check `~/.claude/skill-references/INDEX.md` for an allowlisted helper. The infrastructure invests in `bash ~/.claude/skill-references/**` wrappers; reaching for them keeps the operator out of the permission-prompt loop. The INDEX distinguishes executable wrappers (`bash <path> <args>`), templates (consumed by `fill-template.sh`), and platform command stubs (`{github,gitlab}/commands/*.sh` — read the file, run the underlying CLI directly).
+
 # Read Tool
 
 Prefer offset + limit over full re-reads. After reading a file once, note line numbers for sections you'll need later. Don't re-read to verify an Edit — trust the success message or use a 5-line targeted read. Avoid reading a file in full right before a Write when you already have the content in context. Every unnecessary Read costs ~200-500 tokens; across a multi-file refactor with multiple passes, that compounds to 2-5k+ wasted tokens.
