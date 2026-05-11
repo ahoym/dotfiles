@@ -1,6 +1,6 @@
 Vendor data quality patterns: sentinel values, cross-vendor failure mode divergence, and probe-based validation bypass for ground-truth discovery.
 - **Keywords:** vendor, sentinel, TradeStation, Schwab, UVXY, VX, data quality, magnitude ceiling, probe, validator bypass, numeric range
-- **Related:** tradestation-api.md, futures-etf-translation.md
+- **Related:** ~/.claude/learnings/financial/tradestation-api.md, ~/.claude/learnings/financial/futures-etf-translation.md
 
 ---
 
