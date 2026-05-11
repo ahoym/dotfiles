@@ -26,6 +26,7 @@ Helpers, templates, and reference docs under `~/.claude/skill-references/`. **Ch
 | `permission-analyzer.sh` | `bash <path>` (env: `SESSIONS_LIMIT`, `MIN_COUNT`) | Rank read-only Bash/MCP candidates for allowlist promotion across recent transcripts. |
 | `gh-issues-fetch-state.sh` | `bash <path> <N> [<N> ...]` | Fetch state + updatedAt + latest-comment metadata for GH issues. JSON output, `===issue-<N>===` separators. |
 | `stream-monitor.sh` | (piped) `... \| claude -p ... \| stream-monitor.sh <PR_DIR> \| tee raw.jsonl` | Pass-through filter; writes `live.md` events as side effect. Used by runners, rarely by hand. |
+| `vp-agent-template.sh` | `bash <path> [TASK] [RUN_DIR_BASE]` | Multi-tier VP→Director→Worker launcher (research/exploration, not sweep). Note: `-template` suffix is a misnomer — this is a direct-run launcher, not a `fill-template.sh` input. |
 
 ## Templates
 
@@ -33,7 +34,6 @@ Helpers, templates, and reference docs under `~/.claude/skill-references/`. **Ch
 |----------|-----------|--------|
 | `parallel-claude-runner-template.sh` | `sweep-prs-generate-runner.sh` | `<RUN_DIR>/let-it-rip.sh` for review/address |
 | `work-items-runner-template.sh` | `work-items-generate-runner.sh` | `<RUN_DIR>/let-it-rip.sh` for work-items |
-| `vp-agent-template.sh` | (run directly) `bash <path> [TASK] [RUN_DIR_BASE]` | Multi-tier VP→Director→Worker launcher (research/exploration, not sweep) |
 
 ## Platform Command Stubs by Purpose
 
