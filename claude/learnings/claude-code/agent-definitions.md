@@ -55,6 +55,24 @@ skills:
 ```
 The agent's markdown body is the system prompt; skills provide domain knowledge preloaded into context. This is the **inverse** of `context: fork` — here the agent controls the system prompt, not the skill. Use when the agent needs domain knowledge from multiple skills without the overhead of discovering them.
 
+## When to Fold an Agent Into a Persona
+
+If an agent's value is *applying a lens* — priority weighting, gotcha awareness, tradeoff calibration, review focus — rather than *executing isolated work* — multi-step research, parallel exploration, context-heavy reading — the agent is overhead. Promote it to a persona.
+
+| Signal | Verdict |
+|--------|---------|
+| Always invoked as "review this with X mindset" / "think about this as Y" | Fold to persona |
+| Invocations look like "go do Z autonomously, return a report" | Keep as agent |
+| Value is judgment per token of output | Fold to persona |
+| Value is parallelism, isolation, or context budget protection | Keep as agent |
+| Body reads like a system prompt of preferences, not a task spec | Fold to persona |
+
+Personas pay near-zero structural cost (they're a lens loaded into the main loop) where agents pay isolation overhead (separate context, tool plumbing, return-value coordination). When the work was always happening inline anyway, the agent's isolation buys nothing.
+
+Composition lets you fold multiple specialist agents into one fused persona without losing structure — the `## Extends: base-persona` pattern preserves the inheritance shape (e.g., `python-quant-dev` extends `python-engineer`; `java-fintech` extends `fintech-ledger-engineer` and `java-backend`). Two formerly-separate agent personalities can live in one persona file when the activation triggers overlap heavily.
+
+**Provenance footprints to clean on fold:** persona files synthesized from former agents often carry `## Delegation hints` sections or "delegate to the agents for isolated deep dives" header fragments. Once the agents are gone, those are stale refs — strip them during the fold or in a follow-up pass.
+
 ## Cross-Refs
 
 No cross-cluster references.

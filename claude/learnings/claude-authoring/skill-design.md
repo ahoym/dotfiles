@@ -1,5 +1,5 @@
 Skill design fundamentals — composition, creation heuristics, responsibility boundaries, and validation patterns.
-- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline, default skip, conditional step, gate phrasing
+- **Keywords:** skill design, compose, AskUserQuestion, skill responsibility, stateful mode, gap vs inconsistency, exploration skill, portable, bash commands, validation, intake gate, triage, open contribution, $ARGUMENTS, disable-model-invocation, irreversible, template compliance, prompt template, body discipline, default skip, conditional step, gate phrasing, section descriptors, output format, numeric caps, table skeletons, downstream consumers, section headings as api, preview field
 - **Related:** none
 
 ---
@@ -318,6 +318,25 @@ Post a summary covering X, Y, Z. If there's nothing to report, skip.
 ```
 
 The gate phrasing ("If zero, stop — do not draft, do not post") prevents the silent drafting-then-cutting loop. Applies to any optional output (summary comments, retro messages, status updates, completion reports).
+
+## Section Descriptors Prime Output Format
+
+A section descriptor like `[1-2 paragraphs: ...]` or `For each module: name, purpose, location, entry point, ...` reads to the agent as "produce a paragraph" or "produce a prose list." Even when global FORMAT rules say "prefer tables," agents follow the local structural cue. Sibling of "Template Examples Are the Primary Compliance Mechanism" — same principle, different artifact (section descriptor vs. example placeholder).
+
+**Rule:** replace prose-shaped descriptors with structures that can't be expanded into prose:
+- **Table skeletons** for parallel per-item data: `| Module | Location | Purpose | Entry point | Depends on |` beats "For each module: name, location, purpose, ..."
+- **Required diagrams** for flows / relationships / state: "ASCII flow diagram (trigger → steps → outcome)" beats "trace the workflow."
+- **Numeric caps** on prose that must remain: `≤3 sentences`, `≤7 bullets`. Caps are checkable across reps; "concise" / "prefer" degrade.
+
+## AskUserQuestion Previews for Directive Wording
+
+When asking the operator to pick between variants of how a rule will be worded (strictness levels, scope, phrasing), put the actual proposed text in each option's `preview` field. The operator picks the wording they'll live with, not their interpretation of a description. Descriptions explain the trade-off; previews show the exact text that lands in the skill. Especially useful when the difference between options is subtle phrasing rather than a visible artifact.
+
+## Section Headings Are an API for Downstream Phases
+
+When a skill has downstream consumers — synthesis phases that grep for section counts, sub-skills (`/explore-repo:brief`) that read named sections, validators that parse heading anchors — the section headings are a contract. Restructure content inside headings freely; rename or remove a heading and the consumer silently misses data.
+
+**Rule:** before restructuring a skill's output format, grep the skill (and any subskills under the same directory) for the section names. Preserve referenced headings; reorganize only the bodies. If a heading rename is genuinely needed, update the consumer in the same edit.
 
 ## Cross-Refs
 

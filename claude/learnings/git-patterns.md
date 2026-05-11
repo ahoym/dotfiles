@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -525,6 +525,17 @@ git push origin --delete <recreated-stale-branch>     # cleanup the orphan ref
 ```
 
 Prevent by checking PR state before pushing post-merge: `gh pr view <num> --json state` returning `MERGED` is the signal to switch to a new branch from main instead of continuing on the (now-stale) feature branch.
+
+## Rewind a non-current branch pointer with `git branch -f`
+
+`git branch -f <name> <ref>` moves the branch pointer to `<ref>` without checking it out — HEAD and the working tree are untouched. Use this when an unpushed commit sits on `main` and should live on a new feature branch instead, while the tree is dirty:
+
+```bash
+git switch -c feat/new          # branch at HEAD carries the unpushed commit; dirty tree follows
+git branch -f main origin/main  # rewinds main pointer; HEAD/worktree untouched
+```
+
+`git switch main && git reset --hard origin/main` would discard the dirty tree on the way back. The stash workaround (`stash --include-untracked && reset --hard && stash pop`) survives but adds round-trip risk on `pop`; `branch -f` skips it entirely.
 
 ## Cross-Refs
 

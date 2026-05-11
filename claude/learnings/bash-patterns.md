@@ -1,5 +1,5 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
@@ -313,6 +313,22 @@ docker run ... -v "/tmp/wrapper.py:/workspace/wrapper.py" image python /workspac
 ```
 
 **Single-quoted delimiter (`<<'EOF'`) is critical** — unquoted `<<EOF` performs `$VAR`/`$(...)` interpolation, silently mangling `$1`, `$@`, `${...}` patterns inside the body.
+
+## `git commit -F - <<'EOF'` for multi-line commit messages
+
+`git commit -m "subject\n\nbody"` triggers a permission prompt (quoted string) and `\n` doesn't expand — git takes the literal `\n` as part of the subject line. Pipe a single-quoted heredoc to stdin instead:
+
+```bash
+git commit -F - <<'EOF'
+chore: subject line
+
+Body paragraph with `code`, "quotes", and $sigils all safe inside <<'EOF'.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+```
+
+Single-quoted `<<'EOF'` prevents `$VAR`/`$(...)` expansion in the body — matters when the commit mentions shell sigils (`$1`, `${...}`, command substitutions). Same shape works for `gh pr edit --body-file -` when you want to skip the temp-file step.
 
 ## `ripgrep` exit code 1 = "no matches"; pair `|| true` with preflight error elimination
 
