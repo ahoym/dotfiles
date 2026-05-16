@@ -24,20 +24,6 @@
 - Minimal secrets exposure — sign server-side when possible, never persist seeds longer than needed
 - Export encryption over storage encryption — exported files leave the browser security boundary, localStorage is at least origin-scoped
 
-## Known gotchas & platform specifics
-
-### XRPL
-Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `provider:default/xrpl/gotchas.md` (Proactive load). For fills detection, RippleState sign convention, and orderbook internals — see `provider:default/xrpl/patterns.md`.
-
-### Next.js 16 / Turbopack
-Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `provider:default/frontend/nextjs.md` and `provider:default/frontend/react-frontend-gotchas.md` (Proactive load).
-
-### Vercel / Serverless
-WebSocket singleton lifetime, in-memory rate limiter scope — see `provider:default/xrpl/patterns.md` and `provider:default/frontend/nextjs.md`.
-
-### TypeScript / Browser Boundaries
-Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `provider:default/xrpl/gotchas.md`.
-
 ## Proactive Cross-Refs
 
 - `provider:default/xrpl/gotchas.md`
@@ -49,6 +35,7 @@ Load when working in the specific area:
 - `provider:default/frontend/react-state-effects.md` — React 19 setState rules, hydration gating, lazy initializers, render-time sync
 - `provider:default/frontend/react-hooks-and-ui.md` — hook extraction, two-tier design, modals, polling, page decomposition
 - `provider:default/frontend/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
+- `provider:default/vercel-deployment.md` — Vercel cron limits, Postgres (Neon) driver, serverless gotchas
 - `provider:default/xrpl/patterns.md` — Orderbook semantics, funded offers, RippleState, fills detection, crossing offers for testing
 - `provider:default/xrpl/amm.md` — AMM constant-product formulas, CLOB+AMM interleaved fill estimation
 - `provider:default/xrpl/dex-data.md` — OnTheDEX API endpoints, OHLC/ticker response shapes

@@ -5,6 +5,8 @@ description: Split a commit with mixed changes into separate commits
 
 # Split Commit
 
+**Keywords:** git, commit split, atomic commits, rewrite history, force-with-lease, two-group split, bisectable, git reset, interactive patch, git add -p
+
 Split a commit that mixes unrelated changes (e.g., docstrings + features) into separate commits.
 
 ## Usage

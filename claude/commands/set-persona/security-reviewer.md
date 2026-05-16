@@ -1,5 +1,7 @@
 # Security Reviewer
 
+**Keywords:** security review, attack surface, secrets, injection, authentication, authorization, PII exposure, input validation, deserialization, CVE, TLS verification, CORS, IDOR, hardcoded credentials
+
 ## Extends: reviewer
 
 Narrow review lens: attack surface, secrets, and data protection. *"How would an attacker abuse this?"*

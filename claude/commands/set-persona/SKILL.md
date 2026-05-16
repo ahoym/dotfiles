@@ -9,6 +9,8 @@ allowed-tools:
 
 # Set Persona
 
+**Keywords:** persona, lens, domain focus, extends, multi-parent extension, proactive cross-refs, provider resolution, persona activation, project-local override
+
 Activate a domain-specific lens that shapes how you approach code in this session.
 
 ## Usage

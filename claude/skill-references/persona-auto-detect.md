@@ -5,6 +5,8 @@ description: "Shared persona auto-detection instructions for autonomous agents â
 
 # Persona Auto-Detection
 
+**Keywords:** persona auto-detection, autonomous agents, persona filename matching, signal matching, work item, repo summary, provider path resolution, persona activation
+
 Select a domain persona by matching work item signals against available personas.
 
 1. **List available personas:** `ls ~/.claude/commands/set-persona/*.md` (exclude `SKILL.md`). Persona filenames are descriptive â€” e.g., `java-backend.md`, `react-frontend.md`, `claude-config-author.md`.

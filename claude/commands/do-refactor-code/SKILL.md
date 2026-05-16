@@ -14,6 +14,8 @@ allowed-tools:
 
 # Refactor Code
 
+**Keywords:** refactor, helper class extraction, helper method extraction, nested function extraction, test factory, large file decomposition, file split, dead code, naming, deep nesting, early returns
+
 Analyze a file or class for refactoring opportunities including helper class extraction, helper method extraction, nested function extraction, and test factory creation.
 
 ## Usage

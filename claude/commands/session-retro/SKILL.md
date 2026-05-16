@@ -8,6 +8,8 @@ allowed-tools:
 
 # Session Retro
 
+**Keywords:** retrospective, end of session, learnings load review, provenance tracking, skill performance, communication quality, improvements, compound learnings, soft gate audit
+
 End-of-session routine that captures learnings and facilitates a retrospective.
 
 ## Usage

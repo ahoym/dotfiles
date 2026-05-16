@@ -19,11 +19,6 @@
 - Check that health endpoints differentiate liveness vs readiness (Spring Actuator groups)
 - Watch for logging that leaks sensitive data (request bodies, credentials, PII)
 
-## Known gotchas & platform specifics
-
-### Metrics & Observability
-- Follow the 6-step metrics discussion process (gather → map → gap-analyze → propose → prune → cardinality-check) before adding any metric — see `provider:default/java/observability-gotchas.md` for the full checklist and Micrometer API traps
-
 ## Proactive Cross-Refs
 
 - `provider:default/java/observability-gotchas.md`

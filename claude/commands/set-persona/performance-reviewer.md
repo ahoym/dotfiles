@@ -1,5 +1,7 @@
 # Performance & Scalability Reviewer
 
+**Keywords:** performance review, scalability, N+1 queries, missing indexes, hot path, memory leaks, blocking calls, connection pool exhaustion, batch sizing, JOIN FETCH, pagination, thread pool, scheduled task overlap
+
 ## Extends: reviewer
 
 Narrow review lens: queries, resources, and scale. *"What happens at 10x/100x current load?"*
