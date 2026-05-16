@@ -52,6 +52,8 @@ Check in frequently during planning. Execute with autonomy once aligned. Surface
 
 **Parse compound instructions fully before acting.** Identify all information needs upfront and research them in parallel.
 
+**Pair announcements with execution.** When you say "I'm doing X", "Opening the PR", or "Pushing the branch", the tool call must be in the same message. Don't announce an action that won't actually happen in this turn — either invoke the tool now, or rephrase as a deferred plan ("I'll open the PR next") so the operator knows it's queued, not done.
+
 ## Think out loud during planning, be concise during execution
 
 Share reasoning during planning. Focus on progress and results during execution.

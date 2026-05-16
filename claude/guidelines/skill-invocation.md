@@ -18,6 +18,10 @@ When a skill has an explicit numbered step list, execute steps in sequence. Prer
 
 When a skill's instructions say "invoke `/other-skill`", just do it — don't ask the user "ready for the next step?" or "should I run this?" first. The skill's instructions are the authorization. This especially applies to orchestrating skills like `/session-retro` that invoke `/learnings:compound` as a defined step. If the user has already signaled they're ready to proceed, that's the green light for everything the current step entails.
 
+## Execute skill-classified routine decisions without re-asking
+
+When a skill explicitly classifies a decision as routine ("auto-decide, don't prompt", "decide silently and surface the action taken"), execute the action immediately and report what was done — don't convert it into a question. The skill's decision framework IS the authorization; re-asking undermines the autonomy model and adds friction. Applies to conflict resolution directives, convergence calls, relaunch decisions, and any action the playbook classifies as routine. The reporting ("surface the action taken") is the operator's visibility, not a confirmation gate.
+
 ## Load reference files before acting on their content
 
 When a skill step says to read a reference file, load it before proceeding — don't substitute training knowledge for documented templates. Reference files encode accumulated fixes that training recall misses.

@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "96e6aa8",
+    "last_rebuild_commit": "9e57818",
     "rebuilt_at": "2026-05-16",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -249,7 +249,7 @@
     },
     "stats": {
       "files": 240,
-      "terms": 4047
+      "terms": 4050
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -4185,6 +4185,9 @@
   "execstart": [
     "learnings/infrastructure/docker-compose-patterns.md"
   ],
+  "execute skill-classified routine decisions without re-asking": [
+    "guidelines/skill-invocation.md"
+  ],
   "execution scorecard": [
     "commands/parallel-plan/execute/SKILL.md"
   ],
@@ -6904,6 +6907,9 @@
   "nesting": [
     "learnings/claude-code/multi-agent/headless-nesting.md"
   ],
+  "never block on taskoutput after a background-agent launch": [
+    "learnings/claude-code/multi-agent/background-agent-capabilities.md"
+  ],
   "never dismiss review comments as duplicates based on topic": [
     "learnings/review-conventions.md"
   ],
@@ -8214,6 +8220,9 @@
   ],
   "prefer enums over strings for fields with known value sets": [
     "learnings/code-quality-instincts.md"
+  ],
+  "prefer jq, node -e, or shell builtins over python3 for one-off tasks": [
+    "learnings/bash-patterns.md"
   ],
   "prefer local payload over api response to reduce mock coupling": [
     "learnings/testing/testing-patterns.md"
