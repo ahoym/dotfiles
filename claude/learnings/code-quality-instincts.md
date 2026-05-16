@@ -356,8 +356,25 @@ Common shape: one ledger uses a domain multiplier (point_value, FX rate, scale f
 
 Adding an entry to a list/dict iterated by default (`_DEFAULT_*` maps, ticker tables, plugin registries) makes iteration fail-fast on any failing entry — later entries get skipped. Verify in isolation (probe / dry-run) before adding to the default, or make iteration error-tolerant per-entry (try/except + WARN, continue).
 
+## Respect input validators — survivor-of-rejection is often the worst sample
+
+When a strict input validator rejects vendor data (negative prices, non-finite values, sentinel patterns), the rejection IS the diagnostic. Workarounds that bypass the validator to land the suspect data convert a loud-fail into a silent-correctness-bug downstream.
+
+Two failure modes the validator-bypass pattern hides:
+
+1. **Poisoned data persists in the cache.** A vendor sentinel (`-2³¹/100`, `NaN`, near-zero placeholder) committed to the data layer contaminates every downstream computation — returns, correlations, regression, anything that does arithmetic on the column.
+2. **Single-regime survivor bias.** When the only data that passes validation is from a specific rally / crisis / regime, the validator has accidentally selected the worst possible sample for robustness testing — the analysis ends up testing strategies against the anomaly it wanted to stress-test against.
+
+**Decision rule for rejected data:**
+- Anchor at the post-rejection boundary if a useful clean window exists (years, not months).
+- Omit the symbol/series entirely if the only clean window IS the anomaly.
+- Never relax the validator to "let it through" without understanding what exactly is being let through.
+
+The validator's failure is information — honor it.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
 - `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology
 - `~/.claude/learnings/financial/vendor-divergence.md` — vendor-specific validation patterns relocated from this file
+- `~/.claude/learnings/financial/continuous-contract-data-quirks.md` — concrete instance of the validator-respect pattern in continuous-contract futures data

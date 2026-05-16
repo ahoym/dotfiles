@@ -138,7 +138,23 @@ Micro contracts save **commissions** (per-contract, 10× fewer per notional move
 
 **SPVXSTR linear roll** (UVXY's underlying index): `M1 weight = dt/dr` slides 100% → 0% over each contract month, `M2 = (dr−dt)/dr` slides 0% → 100%. Daily action: sell `1/dr` of M1 by notional, buy equivalent M2 notional. The "50/50 basket" framing is the cycle average, not the daily holding.
 
+## Count distinct underlyings, not tickers, when sizing a futures universe
+
+The same exposure ships in 4-6 wrappers (full-size + micro + ETF + leveraged variants). Ticker count overstates diversification because each cluster is one risk factor:
+
+| Underlying | Wrappers (all 1 factor) |
+|---|---|
+| S&P 500 | `SPY` (ETF) · `ES` (full futures) · `MES` (micro) · `UPRO` (3x ETF) · `SPXL` (3x ETF, different issuer) |
+| Nasdaq-100 | `QQQ` · `NQ` · `MNQ` · `TQQQ` · `SQQQ` · `TECL` (3x tech ≈ NQ-correlated) |
+| Russell 2000 | `IWM` · `RTY` · `M2K` · `TNA` · `URTY` |
+| Crypto | `BTC` (futures) + `MBT` (micro) — and any ETF analog |
+
+`UPRO` and `SPXL` are particularly easy to double-count: same product (3x daily-reset SPX) from different issuers (ProShares vs Direxion). Holding both is one factor, not two.
+
+**For diversification analysis, ask:** how many distinct *return drivers* does this universe contain? 30 tickers wrapping 8 underlyings is an 8-factor book, not a 30-factor book — the standard tooling that compares allocation by ticker count systematically overstates diversification of futures-heavy portfolios.
+
 ## Cross-Refs
 
 - `order-book-pricing.md` — Mid-price and slippage concepts apply to futures spread
 - `futures-order-type-restrictions.md` — Per-contract MKT-rejection rules; the cancel-and-replace ladder is the mitigation when MKT is disallowed (VIX-family on Cboe)
+- `continuous-contract-data-quirks.md` — Data-quality artifacts in continuous-contract series (back-adjustment, sentinels)

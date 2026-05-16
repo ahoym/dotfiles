@@ -77,3 +77,19 @@ def snap_price_to_tick(price: float, tick_size: float, mode: Literal["nearest", 
 ```
 
 Derive `mode` from existing leg semantics where possible: `mode = "ceil" if leg.cross_sign > 0 else "floor"` for crossing-LMT — avoids threading a new direction parameter through the call chain.
+
+## Trailing `round(_, N)` is bounded by decimal places, not magnitude
+
+The `round(_, 4)` tail is **not** "sufficient for tick sizes ≥ 0.0001" (despite the docstring). It's sufficient for ticks whose decimal expansion fits in 4 places. Magnitude is the wrong axis.
+
+Counter-example: CBOT 30Y T-Bond (ZB / `@US`) trades in 1/32 = 0.03125 — magnitude 3×10⁻² but 5 decimal places. `round(2.03125, 4) = 2.0313`, corrupting odd-tick prices.
+
+| Contract | Tick | Decimal places | Safe with `round(_, 4)` |
+|----------|------|----------------|------------------------|
+| MNQ, ES, NQ | 0.25 | 2 | ✅ |
+| VX, VXM | 0.05 | 2 | ✅ |
+| CL | 0.01 | 2 | ✅ |
+| ZB (US 30Y) | 1/32 = 0.03125 | 5 | ❌ — needs `round(_, 5)` |
+| ZN, ZF, ZT (notes) | 1/64 = 0.015625 | 6 | ❌ — needs `round(_, 6)` |
+
+**Onboarding audit:** when registering a new contract spec, check `tick_size`'s decimal-expansion length against the trailing `round(_, N)`. If insufficient, either bump `N` globally (cheap, safe — wider absorb window) or compute it from the tick: `decimal_places = abs(Decimal(str(tick_size)).as_tuple().exponent)`. The bug is latent until a finer-tick contract gets onboarded — no test will catch it without a fixture using that tick.

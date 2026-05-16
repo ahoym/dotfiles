@@ -1,6 +1,6 @@
-Docker Compose patterns: per-service logging overrides, plugin form, atomic-rename mount gotchas, filesystem-path migrations.
-- **Keywords:** docker-compose, awslogs, cloudwatch, daemon.json, logging driver, multi-container, deploy, compose v1, compose v2, compose v5, plugin install, systemd, ExecStart, EBUSY, bind-mount, atomic rename, file vs directory mount, path migration, host filesystem
-- **Related:** none
+Docker Compose patterns: per-service logging overrides, plugin form, atomic-rename mount gotchas, filesystem-path migrations, in-place container update scripts.
+- **Keywords:** docker-compose, awslogs, cloudwatch, daemon.json, logging driver, multi-container, deploy, compose v1, compose v2, compose v5, plugin install, systemd, ExecStart, EBUSY, bind-mount, atomic rename, file vs directory mount, path migration, host filesystem, update_image, docker stop, docker ps filter, docker image rm, set -e, in-place update
+- **Related:** ~/.claude/learnings/code-quality-instincts.md
 
 ## Per-service `logging:` overrides global daemon.json
 
@@ -112,3 +112,25 @@ Compounds with the EBUSY/atomic-rename pattern above: if the app *also* rotates 
 docker logs <ctn> 2>&1 | grep -E 'EBUSY|fchmod|insecure permissions'
 ```
 First warning = degraded but working. Second (`insecure permissions ... after EBUSY fallback`) = next read will crash.
+
+## In-place container update scripts: name-filter, guard, best-effort
+
+`update_image_*.sh`-style scripts that tear down an old container before starting a new one have three converging `set -e` failure modes:
+
+1. **Unfiltered `docker ps --filter status=running`** returns *every* running container — on a multi-container host (e.g. one container per broker), redeploying one silently stops every sibling too.
+2. **Unguarded `docker stop $X`** errors when nothing is running (cold start, prior crash) → script halts before the new container starts.
+3. **`docker image rm $IMG`** errors when the image is still referenced by a stopped container or another tag → script halts *after* the old container is gone, leaving the host half-down.
+
+Pattern (apply identically to every container the script manages):
+
+```bash
+RUNNING=$(docker ps -q --filter name=plz-algo-schwab || true)
+if [ -n "$RUNNING" ]; then
+  IMAGE=$(docker ps --filter name=plz-algo-schwab --format '{{.Image}}')
+  docker stop "$RUNNING"
+  docker container rm "$RUNNING"
+  docker image rm "$IMAGE" || true   # best-effort — image may still be referenced
+fi
+```
+
+Asymmetric teardown blocks across sibling containers in the same script are a smell — a guarded block next to an unguarded one means the unguarded one was added without the lessons of the guarded one. Fix every block to the same shape. (See `code-quality-instincts.md` → "Symmetric-fix scan after a targeted fix".)
