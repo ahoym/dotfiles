@@ -100,6 +100,10 @@ The implementation-start gate matches persona filenames against the task domain,
 
 When a persona has both an inline "Known gotchas & platform specifics" section AND a `## Proactive Cross-Refs` entry for a `*-gotchas.md` file covering the same domain, the inline section is likely a near-exact duplicate. Detection: compare inline items against the proactive cross-ref file. Resolution: port any unique items from the persona to the gotchas file, then remove the inline section. This is a systematic pattern — check all personas with both inline gotchas and proactive cross-refs.
 
+## Verify Inline Gotchas Have Unique Content Before Extracting to a Companion File
+
+Before creating a `*-gotchas.md` companion file from a persona's inline "Known gotchas & platform specifics" section, check whether the inline bullets are pure pointer-style refs to existing files (e.g., "see X for Y", "see Z for W") vs original content. When inline content is already pointers, extraction produces a thin file with no unique value — the right move is to remove the inline section and add the underlying files to `## Proactive Cross-Refs` directly. In one consolidation run, 2 of 3 personas flagged for "missing companion files" had pointer-only inline sections.
+
 ## Cross-Persona Duplication: Extract to Shared Dependency
 
 When two peer personas share duplicated content (e.g., both have React/Next.js gotchas), **extract to a shared learning file and reference from both** rather than choosing which persona "owns" the content. Ownership-based resolution ("the more specialized persona owns the gotcha") breaks down when neither persona is clearly more specialized for the shared domain — react-frontend is more specialized for React, xrpl-typescript-fullstack is more specialized for XRPL, but both legitimately need the React patterns.

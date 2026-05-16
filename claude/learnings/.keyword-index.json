@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "388d431",
+    "last_rebuild_commit": "96e6aa8",
     "rebuilt_at": "2026-05-16",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -249,7 +249,7 @@
     },
     "stats": {
       "files": 240,
-      "terms": 4043
+      "terms": 4047
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -3782,6 +3782,9 @@
   "downstream consumers": [
     "learnings/claude-authoring/skill-design.md"
   ],
+  "draft-then-apply for structural delegation": [
+    "learnings/claude-code/multi-agent/orchestration.md"
+  ],
   "dry": [
     "learnings/code-quality-instincts.md"
   ],
@@ -3823,6 +3826,9 @@
   ],
   "dual-write pattern": [
     "learnings/financial/ledger-schema-migration.md"
+  ],
+  "duplicate @ lines silently double always-on context": [
+    "learnings/claude-authoring/claude-md.md"
   ],
   "duplicate assertions": [
     "learnings/java/testing.md"
@@ -6645,6 +6651,9 @@
   ],
   "model-selection": [
     "learnings/claude-code/multi-agent/director/runner-design.md"
+  ],
+  "model-version drift in skill files": [
+    "learnings/claude-authoring/skill-lifecycle.md"
   ],
   "model_dump": [
     "learnings/python-specific.md"
@@ -12178,6 +12187,9 @@
   ],
   "verify cross-ref destinations exist before updating refs": [
     "learnings/claude-authoring/learnings-content.md"
+  ],
+  "verify inline gotchas have unique content before extracting to a companion file": [
+    "learnings/claude-authoring/personas.md"
   ],
   "verify merge state against origin/main, not local main": [
     "learnings/git-patterns.md"

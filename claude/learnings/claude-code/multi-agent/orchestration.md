@@ -243,6 +243,12 @@ Utility scripts for monitoring (`sweep-dashboard.sh`), killing sessions (`kill-s
 
 Agents fill idle gaps between launch and completion with status checks unless explicitly told to stop. Stating "event-driven, not polling" as an architectural principle is insufficient — the instruction "wait for the notification" must appear as a step immediately after every `Bash(run_in_background: true)` launch. This applies at every orchestration tier.
 
+## Draft-then-apply for structural delegation
+
+When delegating structural restructures (file splits, cluster promotions, content moves) to background agents, have the agent produce *drafts* under `tmp/claude-artifacts/<task>/` + a change-list (inbound-ref impact, dedup-opportunity table, recommended commit message) rather than applying directly. The orchestrator reviews the proposal and applies. Two wins: structural changes get a review gate without losing parallelism, and the orchestrator catches agent-side convention violations (e.g., intra-cluster refs in new sibling files) before they land.
+
+Pair with operator-decision-then-mechanical-execution: when the restructure has a shape question ("flat cluster vs sub-cluster?"), surface that decision to the operator *first*, then the mechanical execution (mkdir, `git mv`, update CLAUDE.md, audit inbound refs) can be delegated. Don't bundle shape + execution into one agent — the agent will pick a shape and you'll discover it midway through review.
+
 ## Converting Inline Orchestrators to Director Playbook Skills
 
 When a skill spawns agents inline (via the Agent tool, waiting for results in waves), it can be converted to the director playbook pattern: assessment-only skill → artifact generation → `let-it-rip.sh` runner. Key steps:
