@@ -1,3 +1,7 @@
+Greenfield schema design — when to promote vs defer entities, sidecar vs extension tradeoffs at v0.
+**Keywords:** schema, entity, promote, defer, greenfield, v0, migration, sidecar, consumer-count, table
+**Related:** ~/.claude/learnings/postgresql-query-patterns.md
+
 # Greenfield Schema Design — When to Promote, When to Defer
 
 ## First-class entities vs sidecars at v0 scale
