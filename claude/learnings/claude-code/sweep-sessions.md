@@ -87,9 +87,7 @@ The work-items runner does `git fetch origin <BASE_BRANCH>` for non-default base
 
 ## Review and Address Must Be Separate Sessions
 
-Never have the same agent both review and address an MR. A reviewer that knows it will also address goes easy; an addresser that wrote its own findings rubber-stamps them. In practice, a same-context review missed that a silent-failure workaround should have been challenged as a design problem — an independent reviewer would have pushed harder.
-
-The director presents review findings to the operator for sign-off before launching the address session. This is structural, not a guideline — review integrity requires independent context.
+Structural requirement for review integrity. See `~/.claude/skill-references/director-playbook.md` § Principles for the rule. Concrete observation: a same-context review once missed that a silent-failure workaround should have been challenged as a design problem — an independent reviewer would have pushed harder.
 
 ## Compressed Runner Scripts Break xargs Variable Passing
 

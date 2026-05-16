@@ -195,6 +195,18 @@ Open-question sections are investigation journals — they belong in working doc
 
 **Failure mode:** the answer ships in a sibling file in the same PR (the question already resolves itself at commit time, but the section reads as open). Catch by scanning the PR's other learning files before merging — if any sibling answers the question, drop the section.
 
+## Learnings Search in Headless Agent Prompts
+
+Agent prompts that do domain work (implementing, reviewing, clarifying) benefit from a learnings search step before the main work begins. Pattern:
+
+1. Read `~/.claude/learnings/CLAUDE.md` index → match clusters to domain → sniff headers → load matches
+2. Repeat for team learnings (`learnings-team/`) and project learnings (`docs/learnings/`)
+3. Announce with `📚 [pre-<mode>]` tags listing loaded files and intended influence
+4. **Provenance in learnings.md** (mandatory) — each agent logs which learnings it loaded and how they shaped the work. This is the only operator-visible record.
+5. **Audit trail in output** — implementers include a "Learnings Applied" section in PR bodies; reviewers reference learnings in review comments. Makes the influence reviewable.
+
+This pattern applies to any skill that spawns domain-work agents: sweep:work-items, sweep:review-prs, sweep:address-prs, or custom playbooks.
+
 ## Cross-Refs
 
 No cross-cluster references.

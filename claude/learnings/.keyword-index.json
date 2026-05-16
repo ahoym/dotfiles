@@ -1,7 +1,8 @@
 {
   "_meta": {
-    "last_rebuild_commit": "cd30e35_partial",
+    "last_rebuild_commit": "5e923e8_partial",
     "file_sources": {
+      "learnings/schema-design.md": "mechanical",
       "learnings/claude-authoring/personas.md": "mechanical",
       "learnings/xrpl/dex-data.md": "mechanical",
       "learnings/xrpl/permissioned-domains.md": "mechanical",
@@ -9,7 +10,7 @@
       "learnings/java/spring-boot.md": "mechanical",
       "learnings/vercel-deployment.md": "mechanical",
       "learnings/java/spring-boot-gotchas.md": "mechanical",
-      "learnings/cicd/patterns.md": "mechanical",
+      "learnings/cicd/github-actions-patterns.md": "mechanical",
       "learnings/frontend/nextjs.md": "mechanical",
 
       "learnings/java/observability.md": "mechanical",
@@ -170,10 +171,10 @@
   "neon": ["learnings/vercel-deployment.md"],
   "serverless": ["learnings/vercel-deployment.md", "learnings/frontend/typescript-ci-gotchas.md"],
   "shedlock": ["learnings/java/spring-boot-gotchas.md", "learnings/financial/period-end-closing.md"],
-  "docker build push": ["learnings/cicd/patterns.md"],
-  "composite action": ["learnings/cicd/patterns.md"],
-  "lint gate": ["learnings/cicd/patterns.md"],
-  "cancel-in-progress": ["learnings/cicd/patterns.md"],
+  "docker build push": ["learnings/cicd/github-actions-patterns.md"],
+  "composite action": ["learnings/cicd/github-actions-patterns.md"],
+  "lint gate": ["learnings/cicd/github-actions-patterns.md"],
+  "cancel-in-progress": ["learnings/cicd/github-actions-patterns.md"],
   "next.js": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md", "learnings/frontend/accessibility-patterns.md"],
   "proxy.ts": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md"],
   "turbopack": ["learnings/frontend/nextjs.md", "learnings/frontend/react-frontend-gotchas.md"],
@@ -181,8 +182,8 @@
   "rate limiter": ["learnings/frontend/nextjs.md"],
   "token bucket": ["learnings/frontend/nextjs.md"],
   "vitest": ["learnings/frontend/nextjs.md", "learnings/testing/testing-patterns.md"],
-  "github action": ["learnings/cicd/patterns.md", "learnings/frontend/typescript-ci-gotchas.md"],
-  "paths-ignore": ["learnings/cicd/patterns.md"],
+  "github action": ["learnings/cicd/github-actions-patterns.md", "learnings/frontend/typescript-ci-gotchas.md"],
+  "paths-ignore": ["learnings/cicd/github-actions-patterns.md"],
   "gitlab ci": ["learnings/cicd/gitlab.md"],
 
   "grafana": ["learnings/java/observability.md"],
@@ -634,5 +635,10 @@
   "batch operation": ["learnings/git-github-api.md", "learnings/gitlab/batch-operations-patterns.md"],
   "comment interaction": ["skill-references/github/comment-interaction.md", "skill-references/gitlab/comment-interaction.md"],
   "pr management": ["skill-references/gitlab/pr-management.md", "learnings/git-github-api.md"],
-  "request interaction": ["skill-references/request-interaction-base.md"]
+  "request interaction": ["skill-references/request-interaction-base.md"],
+  "greenfield schema": ["learnings/schema-design.md"],
+  "entity promotion": ["learnings/schema-design.md"],
+  "sidecar table": ["learnings/schema-design.md"],
+  "consumer count": ["learnings/schema-design.md"],
+  "v0 scale": ["learnings/schema-design.md"]
 }

@@ -36,7 +36,7 @@ Enforce `provider:default/code-quality-instincts.md` (no duplication, single sou
 
 ## Proactive Cross-Refs
 
-None at this time. A `provider:default/fintech-ledger-gotchas.md` file should be created as operational gotchas accumulate.
+None.
 
 ## Cross-Refs
 
