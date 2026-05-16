@@ -148,6 +148,38 @@ The `learnings:compound` dual-write targets `learnings/<topic>.md` at root level
 
 Compound staging can replace an existing file's entire content with a "Staged entries for..." header and a few new sections, destroying the original content. Recovery pattern: `git checkout -- <file>` to restore the original, then read the staging version from `git diff` or a saved copy to extract unique sections before they're lost. Never merge staging content first — the file on disk has already lost its original content.
 
+## Worktree settings.local.json Is Gitignored — Symlink Required
+
+Git worktrees from repos with `.claude/` tracked in git get `commands/` and `skill-references/` but NOT `settings.local.json` (gitignored). `claude -p` in the worktree finds `.claude/` but no permissions — every Edit/Write is denied. Fix: symlink `settings.local.json` specifically when `.claude/` already exists as a dir, or symlink the entire `.claude/` dir when it doesn't:
+
+```bash
+if [ -d "$wt/.claude" ]; then
+    ln -s "$repo/.claude/settings.local.json" "$wt/.claude/settings.local.json"
+elif [ -d "$repo/.claude" ]; then
+    ln -s "$repo/.claude" "$wt/.claude"
+fi
+```
+
+## Worktrees Inside Repo Inherit Permissions; Outside Don't
+
+Place worktrees at `$repo/.worktrees/$id` (inside the repo tree) so they inherit the repo's `.claude/settings.local.json` via the symlink above. Worktrees under a separate directory (e.g., `$DIRECTOR_DIR/.worktrees/`) require manual permission propagation and are harder to configure correctly. The repo-local path also keeps worktrees colocated with the code they're derived from.
+
+## mise in Worktrees: `trust` Is Insufficient — Use `mise exec --`
+
+`mise trust $wt/mise.toml` allows mise to manage the directory, but `claude -p` sessions don't source mise's shell hooks (`eval "$(mise activate bash)"`), so `yarn`/`node` stay off PATH. The fix is to launch through `mise exec --`:
+
+```bash
+# trust alone — PATH unchanged, tools missing:
+mise trust "$wt/mise.toml"
+cat prompt | (cd "$wt" && claude -p ...) # yarn not found
+
+# mise exec — injects tools into PATH for the child process:
+mise trust "$wt/mise.toml"
+cat prompt | (cd "$wt" && mise exec -- claude -p ...) # yarn works
+```
+
+Only wrap with `mise exec` when `mise.toml` exists in the worktree — repos without mise don't need it.
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/subagent-patterns.md` — universal subagent patterns (output verification, intermediate files, structured templates)

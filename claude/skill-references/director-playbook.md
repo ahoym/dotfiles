@@ -12,6 +12,8 @@ Structured guidance for the director (operator + main agent) when orchestrating 
 
 **Directors observe and direct — they don't touch the working tree.** All code changes flow through agents via directives or targeted `Agent(isolation: "worktree")` launches. The director writes only: directives, monitoring state, and sweep artifacts. This eliminates `git stash` friction from mixing local edits with agent-pushed commits on the same branch.
 
+**Exception — pragmatic takeover.** The "don't touch the working tree" rule is a default, not absolute. When the sub-agent path has broken down (silent worker failures, lost commits, unexpected branch state) AND the remaining scope is small and well-specified (concrete file paths, exact diffs, no design ambiguity), the director implementing directly is legitimate. Confirm with the operator before taking over and announce the deviation explicitly. The goal is shipping the change correctly, not preserving the director's non-intervention.
+
 **Standard path: director runs from `main`.** This avoids the active-branch workaround entirely — `git worktree add` works for every PR branch when the director isn't on one of them.
 
 **Review and address must be separate `claude -p` sessions.** Never have the same agent both review and address an MR. A reviewer that knows it will also address goes easy; an addresser that wrote its own findings rubber-stamps them. The director presents review findings to the operator for sign-off before launching the address session. This is not a guideline — it is a structural requirement for review integrity.
@@ -80,8 +82,9 @@ Tails each item's `output.log` (stream-json: tool calls, errors, `rate_limit_eve
 |---------------------------|--------|
 | `state: errored` + `escalation: needs-director` | `sweep-status-summary.sh --logs 30` for that run, investigate root cause, write directive for next launch |
 | `state: rate-limited` | Check `.rate-limited` sentinel, advise operator on retry timing |
-| `escalation: permission_denial` | Fix permission in settings, write directive |
-| `escalation: repeated_errors` | Investigate root cause, write directive or escalate |
+| `escalation: permission_denial` (in live.md, surfaced during investigation) | Fix permission in settings, write directive |
+| `escalation: repeated_errors` (in live.md, surfaced during investigation) | Investigate root cause, write directive or escalate to operator |
+| `state: completed` BUT `status.md` milestone stuck at early state (e.g., `launching`) AND no commit on target branch | Silent worker failure — runner exit ≠ session success. Read output.log tail, verify remote HEAD, check for unexpected main-worktree branch/state changes. Do NOT relaunch before diagnosing. |
 
 **Failure-mode shortcut:** if `state: completed` but `output.log` (via `sweep-status-summary.sh --logs N`) shows `"is_error":true` + `context_used_tokens: 0` + short duration on multiple sessions same cycle, that's the **rate-limit storm** — fresh-timestamp restart, not in-place retry. See `failure-modes.md`.
 
@@ -158,8 +161,38 @@ Review for conciseness: identify verbose prose, duplication, and extraction cand
 
 ```markdown
 ## <ISO timestamp>
-Review found a summary-only finding (no inline comment). Finding: <description from review summary>. Expected fix: <what to change and where>. This directive overrides skip logic.
+Review found a summary-only finding (no inline comment). This directive overrides skip logic.
+
+**Finding:** <what's wrong, one sentence>
+**Target:** <file:line, class.method, or MR metadata field — the exact site(s). For pattern-based fixes (stale URL path, renamed identifier, deprecated flag), instruct "grep the target for all occurrences of <pattern> — there may be multiple across sections.">
+**Reference:** <commit SHA of the pattern being replicated, or prior directive ID>
+**Expected change:** <concrete code change — what to write, not just what's wrong>
+**Test update:** <specific test assertion to add or update>
 ```
+
+**Prefer fix pointers over problem descriptions.** Workers implement pointed directives in one shot; descriptive ones often land adjacent but not exact. The same structure applies to any directive requesting a concrete code change (sensitive-file fixes, architectural corrections) — drop fields that don't apply, keep the named ones.
+
+### Cycle-Start Formatter/Linter Gate
+**When:** preempting R2 spillovers from CI-only format checks (`mvn spotless`, `prettier`, `golangci-lint`).
+**Write to:** `<ADDRESS_RUN_DIR>/directives.md` (global, not per-PR).
+
+```markdown
+## <ISO timestamp>
+Before any commit: run `<format-cmd>` and stage the result into the same commit. Verify with `<check-cmd>` exits 0 before push. If violations remain after apply, fix before committing — do not commit unformatted code.
+```
+
+**Why:** summary-only CI-format findings don't create inline comments, so addresser watermarks miss them next cycle. Gating at commit time kills the spillover at source. Place before runner launch or in the ~60s worktree-setup window — post-step-1 is too late.
+
+### Cycle-Start Merge-Main Gate
+**When:** running address cycles across a moving `main` (other MRs merging mid-run).
+**Write to:** `<ADDRESS_RUN_DIR>/directives.md` (global).
+
+```markdown
+## <ISO timestamp>
+Before Step 4: `git fetch origin <base> && git merge origin/<base> --no-edit`. On conflict → `/git:resolve-conflicts <base>`, commit `merge: resolve conflicts with <base>`, push, then proceed. After merge, re-run the formatter gate (merges reintroduce format drift).
+```
+
+**Why:** stale-branch drift between cycles leads to (a) review comments targeting code that's moved under a rebase, and (b) conflicts developing mid-cycle that the session can't escape. Merging at cycle start grounds each pass against latest `main`.
 
 ### Sensitive File Escalation
 **When:** addresser escalates a finding on a protected/sensitive file.
@@ -260,6 +293,18 @@ last_updated: <ISO timestamp>
 ```
 
 Followed by the current monitoring table snapshot. This persists the director's view across cycles — useful for handoff to a fresh session if context runs low. The `context_tokens_approx` field signals when to consider compounding learnings and handing off.
+
+## VP → Director Interface
+
+When a Director is launched by a VP tier (multi-repo orchestration), the VP communicates via the same directive pattern used Director → Worker:
+
+- **VP writes** `<VP_DIR>/director-<name>/directives.md` (append-only dated sections)
+- **Director reads** directives at each phase gate — before launching runners, before evaluating convergence
+- **Director writes** `<VP_DIR>/director-<name>/status.md` and `results.md` for VP monitoring
+
+Directors must check for VP directives before every phase transition. VP directives override Director-autonomous decisions (e.g., "set concurrency to 6", "force address launch now", "mark review converged").
+
+The VP uses `Bash(run_in_background: true)` to launch Directors and receives event-driven notifications on completion — no polling. Directors use the same pattern for runners.
 
 ## Single Source of Truth
 

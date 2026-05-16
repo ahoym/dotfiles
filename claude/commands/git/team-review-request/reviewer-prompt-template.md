@@ -46,6 +46,7 @@ Write a JSON file with this structure:
       "file": "relative/path/to/file.ext",
       "line_start": 42,
       "line_end": 45,
+      "anchor_token": "the specific code identifier (function name, variable, keyword) on line_start — used by the orchestrator to verify line accuracy",
       "severity": "critical|high|medium|low|info",
       "category": "correctness|security|performance|style|architecture|testing",
       "source": "persona|domain-learning|persona-confirmed-by-learning",
@@ -67,6 +68,8 @@ Write a JSON file with this structure:
 - **severity**: `critical` = will break production or introduce security vulnerability. `high` = significant correctness or design issue. `medium` = should fix but not blocking. `low` = minor improvement. `info` = observation, no action needed.
 - **category**: Choose the primary category. If a finding spans multiple, pick the most important one.
 - **source**: Be honest about provenance. `"persona"` means you would have flagged this without any domain learnings. `"domain-learning"` means the learning was essential to spotting it. `"persona-confirmed-by-learning"` means you saw the issue first, then found supporting context. This field helps the orchestrator assess whether multi-persona convergence reflects independent agreement or shared priming.
+- **line_start / line_end**: **Source-file line numbers** — the line as it exists in the file at the head SHA, derived from each file's `@@ -0,0 +N,M @@` (or `@@ -A,B +N,M @@`) hunk header. **NOT** the line position in the diff artifact file you Read. When a multi-file diff is provided as a single text file, content for the 2nd/3rd/4th file appears at large diff-file offsets (100s or 1000s of lines in) — those are not source lines. Count from the hunk header, or grep the file for the anchor token and use that source line.
+- **anchor_token**: The most specific code identifier on `line_start` — a function name, variable declaration, annotation, etc. The orchestrator uses this to verify your line number against the actual file before posting. Wrong line numbers cause inline comments to appear on irrelevant code. Pick the token that uniquely identifies the line (e.g., `"String reserved"`, `"@JsonNaming"`, `"get("total")`).
 - **recommendation**: Set to `null` when you've identified an issue but aren't confident in the right fix. This is better than a wrong suggestion.
 - **inline_comment**: This is what gets posted on the PR. Write it for a human reader — include the reasoning, not just the recommendation. Keep it concise but complete.
 

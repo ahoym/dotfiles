@@ -36,7 +36,7 @@ Match the model to the runner's role. **Orchestrator runners** mainly invoke oth
 
 ## Runner Template Assumes PR Entity Type
 
-The `parallel-claude-runner-template.sh` hardcodes `pr-<N>` directory naming, `gh pr view` pre-flight checks, and `pr_state:` status keys. Work-item sweeps using `issue-<N>` directories require post-generation patches: rename directories to `pr-<N>`, replace `gh pr view` with `gh issue view` in the pre-flight, and adjust terminal-state logic (issues only have `CLOSED`, not `MERGED`). A future template improvement could parameterize the entity type via metadata (`ENTITY_TYPE`, `ENTITY_PREFIX`, `STATE_CHECK_CMD`).
+Historical (resolved): the runner template hardcoded `pr-<N>` directory naming, `gh pr view` pre-flight, and `pr_state:` keys. Work-item sweeps needed post-generation patches. Now parameterized via metadata: `ENTITY_PREFIX`, `ENTITY_LABEL`, `STATE_FIELD`, `TERMINAL_STATES`, and `FETCH_ITEM_STATE_CMD` (literal platform command referencing `$pr_num`, used by both the launch probe and `process_item`'s API fallback). No post-generation patching required.
 
 ## Worktree EXIT Trap Destroys Uncommitted Implementer Work
 
@@ -64,9 +64,17 @@ Alive PIDs after the runner's background task reports completion = leaked proces
 
 ## Runner Template Schema Drift Between Skill Docs and Template
 
-Sweep skill SKILL.md and sweep-scaffold.md document a metadata.json schema (`MODE`, `PRS`, `BRANCHES`, ...) that may drift from what the runner template actually consumes (`ITEMS`, `ENTITY_LABEL`, `ENTITY_PREFIX`, `STATE_FIELD`, `STATE_CHECK_CMD`, `TERMINAL_STATES`). Missing placeholders cause the runner to emit `{{PLACEHOLDER}}` literals into `status.md` and skip sessions as `api-error`.
+Sweep skill SKILL.md and sweep-scaffold.md document a metadata.json schema (`MODE`, `PRS`, `BRANCHES`, ...) that may drift from what the runner template actually consumes (`ITEMS`, `ENTITY_LABEL`, `ENTITY_PREFIX`, `STATE_FIELD`, `FETCH_ITEM_STATE_CMD`, `TERMINAL_STATES`). Missing placeholders cause the runner to emit `{{PLACEHOLDER}}` literals into `status.md` and skip sessions as `api-error`.
 
 **Defensive check before launching a generated runner:** `grep -c "{{" <run_dir>/let-it-rip.sh` — should be 0. If nonzero, the metadata.json is missing keys the template expects. Re-derive the full list with `grep -oE "\\{\\{[A-Z_]+\\}\\}" <template>` and rebuild metadata.
+
+## Pre-Flight Probe Validates CLI Syntax, Not API Path
+
+The runner's pre-flight probe (template line ~101) dry-runs `FETCH_ITEM_STATE_CMD` with `pr_num=0` to catch CLI-flag errors (`Unknown flag`, `unrecognized argument`) before launching sessions. By design it tests command structure — not connectivity, auth, or whether the platform endpoint actually returns the expected shape. A 404 / empty body / list shape with `pr_num=0` is **expected** (item 0 doesn't exist) and falls through the matcher silently. The probe is a *parse-time* check, not a *runtime* check.
+
+Failure mode this leaves open: a schema mismatch between `FETCH_ITEM_STATE_CMD` and `process_item`'s consumption of it. If the pipeline returns `OPENED` but `is_terminal_state` expects `OPEN`, or returns empty on success, every session marks `api-error` and skips. Probe passes; sweep fails silently.
+
+**Stronger probe (future):** dry-run with `ITEMS[0]` (a real item known to exist) and assert non-empty output before launching. Tradeoff: one extra API call at runner start; catches end-to-end mismatches; turns a wasted sweep cycle into a fast-fail.
 
 ## Newly-Created Worktree Lags Remote — `git pull --rebase` Before Reading Source
 

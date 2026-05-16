@@ -43,7 +43,7 @@ Narrow review lens: state, logic, and edge cases. *"What breaks under unexpected
 
 Every finding MUST include inline code references — quote the exact problematic code from the diff, then show a concrete Before/After fix.
 
-## Learnings Cross-Refs
+## Proactive Cross-Refs
 
 - `provider:default/resilience-patterns.md` — retry classification, fail-fast patterns, thundering herd
 - `provider:default/java/spring-boot-gotchas.md` — InterruptedException handling, @Retryable gotchas

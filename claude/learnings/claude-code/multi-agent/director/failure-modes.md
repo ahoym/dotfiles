@@ -1,5 +1,5 @@
 Director-observed failure patterns: rate limits, races, scope drift, and convergence pathologies.
-- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp
+- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent
 - **Related:** watermarks-and-skip.md, process-and-meta.md
 
 ---
@@ -159,3 +159,33 @@ The default storm recovery (above) is fresh-timestamp restart because corrupted 
 **Test before in-place retry:** confirm every worker prompt has a self-filter (e.g., `grep -l "Role:.*<Mode>" <run_dir>/<entity>-*/prompt.txt`). Without it, in-place retry double-replies on already-processed comments — fall back to fresh-timestamp.
 
 **Race on watermark patches.** Manual `Write` to a worker's `status.md` between launch and worker step-2 read is timing-dependent: the runner setup writes `milestone: launching` on launch, and the worker overwrites again at step 4 (`milestone: started`). Patches landed mid-launch are clobbered. If a patch is required (e.g., to seed a watermark the worker will respect), write *before* `bash let-it-rip.sh`, not after.
+
+## GitLab `STATE_CHECK_CMD` vs `FETCH_ITEM_STATE_CMD` Schema Mismatch in Runner Template
+
+**Resolved:** the template now uses `FETCH_ITEM_STATE_CMD` as the single state-check command (both pre-launch probe and `process_item` API fallback). The breadcrumb below is preserved for debugging older runs or any environment still running the pre-fix template.
+
+`parallel-claude-runner-template.sh` (pre-fix) used two state-check conventions inconsistently:
+
+| Variable | Used at | Convention |
+|----------|---------|-----------|
+| `FETCH_ITEM_STATE_CMD` | pre-launch probe (line ~51) | Literal command with `$pr_num` interpolation |
+| `STATE_CHECK_CMD` | API fallback in `process_item` (line ~150) | gh-style prefix; runner appends `"$item_num" --json state -q '.state'` |
+
+For GitHub (`gh pr view`) the appended-flag form works. For GitLab (`glab api projects/:id/merge_requests/$pr_num | jq -r .state | tr ...`) the runner produces a broken pipeline — flags get appended after `tr`, the `$pr_num` in `STATE_CHECK_CMD` was already expanded empty at definition time, and the resulting `glab api projects/:id/merge_requests/` returns a 404 or list shape → all PRs marked `api-error` → zero sessions launched.
+
+**Probe doesn't catch it.** The probe at line 51 evaluates the `FETCH_ITEM_STATE_CMD` literal with `pr_num=0`, gets a 404, but the error-pattern matcher only triggers on `Unknown flag` / `unrecognized argument` / `flag provided but not defined`. 404 falls through silently.
+
+**Tactical fix (one run_dir):** patch generated `let-it-rip.sh` line ~150 to a literal GitLab invocation:
+```bash
+state=$(glab api "projects/:id/merge_requests/$item_num" 2>/dev/null | jq -r '.state // "UNKNOWN"' | tr '[:lower:]' '[:upper:]')
+[ -z "$state" ] && state="UNKNOWN"
+```
+GitLab returns `opened` → `OPENED` after uppercase; `MERGED`/`CLOSED` map to the terminal set as expected.
+
+**Upstream fix:** unify both keys to literal-with-`$pr_num` form across the template, or extend probe error patterns to include `404`. The current `gh pr view` shape leaks into GitLab-only environments.
+
+## Reviewer Subagent Diff Transcription Can Corrupt Findings
+
+When a subagent prompt embeds a diff for review, transcription errors during prompt construction can alter identifiers (e.g., `import jakarta.persistence.GenerationType;` → `import jakarta.persistence.GenerationType.UUID;`). The reviewer treats the corruption as real → posts a HIGH compile-error finding that doesn't reproduce in the actual source.
+
+**Mitigation:** for any HIGH severity finding before merging cross-persona review output, spot-check against the actual source: `git show origin/<branch>:<file> | sed -n '<line>p'`. Persona disagreement on a HIGH (e.g., one persona flags, another doesn't see it) is the strongest signal that one persona may be reading a corrupted excerpt.

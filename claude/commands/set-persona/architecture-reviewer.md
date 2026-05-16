@@ -44,7 +44,7 @@ Narrow review lens: coupling, conventions, and testability. *"Will the next engi
 
 Every finding MUST include inline code references — quote the exact problematic code from the diff, then show a concrete Before/After fix.
 
-## Learnings Cross-Refs
+## Proactive Cross-Refs
 
 - `provider:default/code-quality-instincts.md` — naming, logging, dead code, wrapper methods
 - `provider:default/process-conventions.md` — MR scoping, review process, infrastructure evidence

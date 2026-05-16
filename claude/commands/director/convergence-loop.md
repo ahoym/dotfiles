@@ -19,13 +19,14 @@ The loop body below uses `mode-A → mode-B → re-mode-A` where `(A, B)` defaul
 ## Loop
 
 ```
-1. Launch mode-A runner (background)
+1. Launch review runner via Bash(run_in_background: true). Wait for notification.
 2. On completion: read all status.md + results.md
 3. Decision gate (per decision matrix):
    a. Any PR has mergeable: CONFLICTING → write directive to addresser, include in next address run
-   b. Mode-A produced new content (findings/commits/replies) that mode-B should process → proceed to step 4
-   c. Mode-A skipped on all PRs AND no unprocessed comments → CONVERGED, go to step 7
-4. Launch mode-B runner (background) — minimum 3-min offset from mode-A launch
+   b. Any PR has new findings (inline comments > 0) → proceed to step 4
+   c. Any PR has new comments needing reviewer reply → proceed to step 4
+   d. All PRs: 0 new findings AND no unprocessed comments → CONVERGED, go to step 7
+4. Launch address runner via Bash(run_in_background: true). Wait for notification.
 5. On completion: read all status.md + results.md
 6. Go to step 1 (re-mode-A to verify mode-B work)
 7. Report final state to operator

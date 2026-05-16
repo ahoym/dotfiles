@@ -71,6 +71,7 @@ Bash permission patterns match on the **literal command prefix**. Common breaks:
 7. **`python3 -c` for JSON parsing:** `python3 -c "import json; ..."` triggers permission prompts because of quoted strings. Use `jq` instead — it's auto-permitted and handles the same tasks. When passing API output to subagents, prefer passing raw JSON directly rather than parsing in the main context at all.
 8. **Shell redirects break pattern matching.** `Bash(date:*)` matches `date -u +%s` but NOT `date -u +%s > file` — the redirect makes it a different command string. Fix: use separate tool calls (Bash for computation, Write/Edit for file I/O) instead of shell redirects.
 9. **`:` is the glob boundary, not `/`.** `*` after `/` only matches within that path segment (like filesystem globs). `*` after `:` matches the entire remaining command string including `/` characters. `Bash(rm tmp/claude-artifacts/change-request-replies/*)` fails for `rm tmp/claude-artifacts/change-request-replies/foo.md` — use `Bash(rm tmp:*)` instead. Same applies to `ls`, `mkdir`, and any command with path arguments.
+11. **`**` after `/` doesn't match across argument boundaries.** `Bash(cp ~/.claude/skill-references/**)` fails for `cp ~/.claude/skill-references/file.md tmp/destination.md` — the `**` does filesystem-style glob matching within the path and can't cross the space into the destination argument. Fix: use `Bash(cp ~/.claude/skill-references:*)` where `:*` matches the entire remaining command including all arguments. Empirically confirmed: both absolute and relative destination paths prompt with `**`; `:*` pattern added but awaiting fresh-session verification (permissions cached at start).
 10. **Sandbox blocks shell globs in destructive commands.** `rm tmp/claude-artifacts/change-request-replies/34-*` is rejected with "Glob patterns are not allowed in write operations" regardless of permission patterns. Must list files explicitly — but see #9 for the permission pattern that allows it.
 
 ## Write/Edit Permission Pattern Gotchas
@@ -216,6 +217,9 @@ Allowlists and wrapper scripts are the **workflow layer** — convenient but byp
 Workflow rails make the right thing easy. Platform rails make the wrong thing impossible. Real safety requires both — when auditing an agent's blast radius, ask "what does the platform refuse?", not just "what's allowlisted?"
 
 For Terraform specifically: bake `prevent_destroy` into modules for irreplaceable resources (state buckets, EIPs, log groups). Allowlist `terraform plan/validate`; never allowlist `apply`/`destroy`. Both layers compose — even an operator running `apply` interactively can't accidentally destroy a `prevent_destroy`-protected resource.
+## Skill Permission Patterns Need No-Args Variant for `claude -p`
+
+`Skill(git:address-request-comments *)` with wildcard requires args in the permission match string. In `claude -p` sessions, `Skill("git:address-request-comments", "24")` may not match the `*` pattern — the tool invocation format passes args separately from the skill name. Adding `Skill(git:address-request-comments)` (no wildcard) alongside the `*` variant fixed the denial. Apply to all skills invoked from `claude -p`: `Skill(name)` + `Skill(name *)`.
 
 ## Cross-Refs
 

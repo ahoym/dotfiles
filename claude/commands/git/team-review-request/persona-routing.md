@@ -31,6 +31,7 @@ Score each persona by the number of matching terms. Select the top personas up t
 - **Utility-based cap, not a fixed number.** Each additional reviewer must bring a distinct lens not covered by the others. Ask "would this persona see something the current set won't?" — if yes, include it regardless of count. If no, stop. For most PRs this lands at 2-3; for cross-cutting changes (service + deployment + API contract) it may be 4-5.
 - **Diminishing returns are real but not a gate.** Token cost scales linearly with reviewer count; review quality does not. The 4th reviewer is only worth it if their lens genuinely adds coverage. Don't pad the team for thoroughness theater.
 - When multiple personas tie on score, prefer more specialized over more general (e.g., `java-fintech` over `java-backend` when both match).
+- **Stack coverage requirement.** If domain term derivation produced any language/framework signal (java, react, typescript, xrpl, frontend, backend, kotlin, python, go), the selected team MUST include ≥1 language/framework-specific persona (`java-*`, `react-*`, `typescript-*`, `xrpl-*`, or domain experts like `fintech-ledger-engineer`). If the heuristic top-N misses one, force-include the highest-scoring stack persona — even if it pushes the cap by 1. Stack reviewers catch idiom-level gotchas (CGLIB-final, `as` casts, RxJava backpressure, JPA flush ordering) that stack-agnostic lens reviewers don't see. Lens-only teams are valid only when no stack signal is present (e.g., pure docs or config PR).
 
 ## Exclusions
 

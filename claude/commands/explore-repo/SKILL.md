@@ -9,12 +9,15 @@ allowed-tools:
   - Bash
   - Task
   - WebFetch
+  - AskUserQuestion
 ---
 
 ## Context
 - Project root: !`git rev-parse --show-toplevel 2>/dev/null`
 - Current branch: !`git branch --show-current 2>/dev/null`
 - HEAD: !`git rev-parse --short HEAD 2>/dev/null`
+- Upstream default: !`git rev-parse --abbrev-ref origin/HEAD 2>/dev/null`
+- Upstream default SHA: !`git rev-parse --short origin/HEAD 2>/dev/null`
 
 # Explore Repository
 
@@ -34,45 +37,83 @@ Operates in two modes based on file state — **scan mode** writes domain-specif
 
 ## Instructions
 
+### Phase 0: Scan Target Selection
+
+The skill scans the working tree as-is. Default expectation is the canonical baseline (latest upstream default branch) so the docs match what new readers see in `main`; pick the operator's current branch only when scanning in-flight work that isn't merged yet.
+
+1. **Refresh remote refs:** `git fetch origin --prune` (silent on success). If it fails (offline / no origin), skip step 2–3 and use the current branch as `SCAN_REF`.
+2. **Resolve upstream default:** `git rev-parse --abbrev-ref origin/HEAD` — typically `origin/main`. If unset, try `origin/main`, then `origin/master`. If none exist, fall back to the current branch as `SCAN_REF`.
+3. **Skip the prompt — silent fast paths.** No prompt needed in either case below; proceed using `<DEFAULT_REF>` as the metadata stamp.
+   - **Case A: HEAD == `<DEFAULT_REF>`.** Working tree is the baseline. Proceed in place.
+   - **Case B: HEAD is 1–5 commits ahead of `<DEFAULT_REF>` with doc-only changes.** This is the common case where a dev runs `/explore-repo` repeatedly on a branch off main and accumulates artifact commits. Detect it like this:
+     - Distance: `git rev-list --count <DEFAULT_REF>..HEAD`. If 0 → Case A. If >5 → fall through to step 4.
+     - Reachability: `git merge-base --is-ancestor <DEFAULT_REF> HEAD` (must succeed; otherwise fall through — HEAD diverged).
+     - Doc-only diff: `git diff --name-only <DEFAULT_REF>..HEAD`. Every changed path must match the doc-artifact allowlist:
+       - `docs/**` (any docs subdirectory, including `docs/explore-repo/`, `docs/learnings/`, `docs/features/`, etc.)
+       - `CLAUDE.md`, `**/CLAUDE.md` (root and subdirectory CLAUDE.md files — these are the skill's own outputs)
+       - `README.md`
+       - `.claude/**` (skill/settings tooling)
+     - If every path matches → silently take the fast path. Source code is identical to baseline; the docs are the only delta and will be regenerated.
+     - Announce: `📚 HEAD is N commit(s) ahead of <DEFAULT_REF> with doc-only changes — scanning at baseline (<DEFAULT_REF> @ <sha>)`.
+4. **Prompt the operator** (use `AskUserQuestion` if available; otherwise output the question and stop for input). Reached only when neither fast path in step 3 applied — HEAD diverged from the baseline by source-code changes, or by more than 5 commits, or it isn't a descendant of `<DEFAULT_REF>` at all:
+   - Question: `Scan target?`
+   - Option 1 (DEFAULT): `<DEFAULT_REF> @ <short-sha>` — "Latest upstream — recommended."
+   - Option 2: `<current-branch> @ <short-sha>` — "Current working-tree HEAD."
+5. **Verify working tree matches the chosen target.** (Step 3's fast paths already guarantee this; this step only applies when step 4 ran.)
+   - If the chosen ref equals current HEAD: proceed.
+   - Otherwise: stop the skill and tell the operator to check it out themselves, then re-run. Output:
+     ```
+     The chosen scan target (<DEFAULT_REF> @ <sha>) doesn't match working-tree HEAD (<current-branch> @ <sha>).
+     Check it out and re-run:
+         git fetch origin && git checkout <DEFAULT_REF>
+         /explore-repo
+     ```
+     Do NOT auto-checkout, stash, or create a worktree — leave it to the operator.
+6. **Set scan metadata** for downstream phases:
+   - `SCAN_REF` = the chosen branch ref (in fast paths, this is `<DEFAULT_REF>`).
+   - `SCAN_COMMIT` = the short SHA at that ref. In Case A this equals current HEAD; in Case B this is the SHA of `<DEFAULT_REF>`, even though working-tree HEAD is a few commits ahead — source code is identical, so the stamp reflects the baseline readers will see.
+   - Both flow into the metadata header (`commit:` and `branch:`) of every domain file and synthesis output. **All references to "current HEAD" in the rest of this file mean `SCAN_COMMIT`.**
+7. **Announce** in one line: `📚 Scan target: <SCAN_REF> @ <SCAN_COMMIT>`.
+
 ### Phase 1: Mode Detection
 
 Determine what work needs to be done by checking existing output files.
 
 1. **Check for domain scan files and synthesis files** (run in parallel):
-   - Glob for `docs/learnings/structure.md`
-   - Glob for `docs/learnings/api-surface.md`
-   - Glob for `docs/learnings/data-model.md`
-   - Glob for `docs/learnings/integrations.md`
-   - Glob for `docs/learnings/processing-flows.md`
-   - Glob for `docs/learnings/config-ops.md`
-   - Glob for `docs/learnings/testing.md`
-   - Glob for `docs/learnings/SYSTEM_OVERVIEW.md`
-   - Glob for `docs/learnings/inconsistencies.md`
+   - Glob for `docs/explore-repo/structure.md`
+   - Glob for `docs/explore-repo/api-surface.md`
+   - Glob for `docs/explore-repo/data-model.md`
+   - Glob for `docs/explore-repo/integrations.md`
+   - Glob for `docs/explore-repo/processing-flows.md`
+   - Glob for `docs/explore-repo/config-ops.md`
+   - Glob for `docs/explore-repo/testing.md`
+   - Glob for `docs/explore-repo/SYSTEM_OVERVIEW.md`
+   - Glob for `docs/explore-repo/inconsistencies.md`
 
 2. **Determine which files exist and check staleness:**
-   - Run `git rev-parse --short HEAD` and `git branch --show-current`
-   - For each existing scan file, read the first 10 lines and extract the `commit` from the scan metadata header
-   - A scan file is **stale** if its commit hash differs from current HEAD
-   - A scan file is **missing** if it doesn't exist at all
+   - Use `SCAN_COMMIT` and `SCAN_REF` from Phase 0 (already resolved).
+   - For each existing scan file, read the first 10 lines and extract the `commit` from the scan metadata header.
+   - A scan file is **stale** if its commit hash differs from `SCAN_COMMIT`.
+   - A scan file is **missing** if it doesn't exist at all.
 
 3. **Smart staleness — identify affected domains:**
-   - If any scan files are stale, run `git diff --stat <stale-commit>..HEAD` to see which files changed, **excluding the skill's own output files** from the diff using git pathspec exclusions:
+   - If any scan files are stale, run `git diff --stat <stale-commit>..<SCAN_COMMIT>` to see which files changed, **excluding the skill's own output files** from the diff using git pathspec exclusions:
      ```
-     git diff --stat <stale-commit>..HEAD \
-       ':!docs/learnings/structure.md' \
-       ':!docs/learnings/api-surface.md' \
-       ':!docs/learnings/data-model.md' \
-       ':!docs/learnings/integrations.md' \
-       ':!docs/learnings/processing-flows.md' \
-       ':!docs/learnings/config-ops.md' \
-       ':!docs/learnings/testing.md' \
-       ':!docs/learnings/SYSTEM_OVERVIEW.md' \
-       ':!docs/learnings/inconsistencies.md' \
+     git diff --stat <stale-commit>..<SCAN_COMMIT> \
+       ':!docs/explore-repo/structure.md' \
+       ':!docs/explore-repo/api-surface.md' \
+       ':!docs/explore-repo/data-model.md' \
+       ':!docs/explore-repo/integrations.md' \
+       ':!docs/explore-repo/processing-flows.md' \
+       ':!docs/explore-repo/config-ops.md' \
+       ':!docs/explore-repo/testing.md' \
+       ':!docs/explore-repo/SYSTEM_OVERVIEW.md' \
+       ':!docs/explore-repo/inconsistencies.md' \
        ':!.claude/'
      ```
      This prevents the synthesis phase's own writes and `.claude/` tooling changes (skill files, settings) from triggering re-scans.
 
-   - **Check branch topology before mapping domains.** Run `git log --oneline <stale-commit>..HEAD` to understand what the commits are. If the diff is entirely from branch switches or `.claude/` tooling work (no source code changes), skip re-scanning entirely — just stamp-update the metadata headers to current HEAD. Only proceed with domain mapping if the log shows commits that touched actual source code.
+   - **Check branch topology before mapping domains.** Run `git log --oneline <stale-commit>..<SCAN_COMMIT>` to understand what the commits are. If the diff is entirely from branch switches or `.claude/` tooling work (no source code changes), skip re-scanning entirely — just stamp-update the metadata headers to `SCAN_COMMIT`. Only proceed with domain mapping if the log shows commits that touched actual source code.
 
    - Map changed file paths to affected domains using this table:
 
@@ -100,7 +141,7 @@ Determine what work needs to be done by checking existing output files.
    | Condition | Mode | Action |
    |-----------|------|--------|
    | Any scan files missing (not all 7 present) | **Scan** | Scan missing domains |
-   | All 7 present, stale (commit differs from HEAD) | **Scan** | Re-scan only domains affected by changes (from step 3) |
+   | All 7 present, stale (commit differs from `SCAN_COMMIT`) | **Scan** | Re-scan only domains affected by changes (from step 3) |
    | All 7 present, current, no SYSTEM_OVERVIEW.md | **Synthesize** | Produce synthesized outputs |
    | All 7 present, current, SYSTEM_OVERVIEW.md exists but stale | **Synthesize** | Re-synthesize |
    | All 7 present, current, SYSTEM_OVERVIEW.md current | **Up-to-date** | Nothing to do |
@@ -156,13 +197,13 @@ For each agent:
 
 | # | Agent | Domain | Output File |
 |---|-------|--------|-------------|
-| 1 | Structure | Module layout, build system, dependencies, CI/CD | `docs/learnings/structure.md` |
-| 2 | API Surface | REST/gRPC/CLI endpoints, request/response shapes | `docs/learnings/api-surface.md` |
-| 3 | Data Model | Entities, schema, relationships, migrations, state machines | `docs/learnings/data-model.md` |
-| 4 | Integrations | External services, clients, authentication, error handling | `docs/learnings/integrations.md` |
-| 5 | Processing Flows | Core business logic, workflows, scheduled tasks, events | `docs/learnings/processing-flows.md` |
-| 6 | Config & Ops | Configuration, profiles, monitoring, secrets, deployment | `docs/learnings/config-ops.md` |
-| 7 | Testing | Test structure, patterns, utilities, how to run tests | `docs/learnings/testing.md` |
+| 1 | Structure | Module layout, build system, dependencies, CI/CD | `docs/explore-repo/structure.md` |
+| 2 | API Surface | REST/gRPC/CLI endpoints, request/response shapes | `docs/explore-repo/api-surface.md` |
+| 3 | Data Model | Entities, schema, relationships, migrations, state machines | `docs/explore-repo/data-model.md` |
+| 4 | Integrations | External services, clients, authentication, error handling | `docs/explore-repo/integrations.md` |
+| 5 | Processing Flows | Core business logic, workflows, scheduled tasks, events | `docs/explore-repo/processing-flows.md` |
+| 6 | Config & Ops | Configuration, profiles, monitoring, secrets, deployment | `docs/explore-repo/config-ops.md` |
+| 7 | Testing | Test structure, patterns, utilities, how to run tests | `docs/explore-repo/testing.md` |
 
 **Only launch agents for domains that need scanning** (missing or stale files, or explicitly requested via `$ARGUMENTS`).
 
@@ -185,7 +226,7 @@ Wait for all agents to complete. If any agent fails, note the failure — the mi
 
 **Post-scan validation:** After all agents complete, read the first 6 lines of each output file and verify:
 - The metadata header is multi-line format (not collapsed to a single line)
-- The `commit` field matches the current HEAD
+- The `commit` field matches `SCAN_COMMIT` and the `branch` field matches `SCAN_REF`
 - If any file has a malformed header, fix it in place
 
 ---
@@ -197,13 +238,15 @@ After all agents complete, print a brief summary:
 ```
 Scan Complete
 
+Target: <SCAN_REF> @ <SCAN_COMMIT>
+
 Domains scanned: [list]
 Domains skipped: [list, if any — already current]
 Domains failed: [list, if any]
 
 Output files:
-- docs/learnings/structure.md
-- docs/learnings/api-surface.md
+- docs/explore-repo/structure.md
+- docs/explore-repo/api-surface.md
 - ...
 
 Run /explore-repo again to synthesize into SYSTEM_OVERVIEW.md
@@ -217,7 +260,7 @@ Run /explore-repo again to synthesize into SYSTEM_OVERVIEW.md
 
 This phase runs in a fresh invocation with a clean context. Read domain files from disk — do NOT rely on any cached or in-memory results.
 
-1. **Read all 7 domain files** from `docs/learnings/`:
+1. **Read all 7 domain files** from `docs/explore-repo/`:
    - `structure.md`, `api-surface.md`, `data-model.md`, `integrations.md`, `processing-flows.md`, `config-ops.md`, `testing.md`
 
 2. **Read existing documentation** for comparison:
@@ -235,7 +278,12 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    Write a **cross-domain overview** — this is the unique value that individual domain files cannot provide on their own. Do NOT simply concatenate the domain files.
 
-   **Format rules (same as domain files):** default to tables for parallel data and ASCII diagrams for flows / relationships; prose only when neither fits; cap section intros at 3 sentences; omit a section if its tables/diagrams already convey it.
+   **Concision mandate (same standard as the domain agents):**
+   - Target length: 250–400 lines including diagrams.
+   - Default to tables for parallel data and ASCII diagrams for flows / relationships; prose only when neither fits.
+   - Cap section intros at 3 sentences; omit a section if its tables/diagrams already convey it.
+   - One-line bullets. ≤2-sentence paragraphs. No prose summaries of what a table just showed.
+   - All diagrams are ASCII box-and-arrow — no Mermaid, no rendered formats. Output must read in a plain terminal.
 
    Structure:
    - **Scan metadata** as HTML comment at the top (commit, branch, date, dimensions)
@@ -244,23 +292,23 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - **Module Dependency Graph**: ASCII art showing how the major modules/packages depend on each other. Use box-drawing characters and show data flow direction. Example:
      ```
      ┌─────────────┐     ┌──────────────┐
-     │  API Layer   │────▶│ Service Layer │
+     │  API Layer  │────▶│ Service Layer│
      └─────────────┘     └──────┬───────┘
                                 │
                     ┌───────────┼───────────┐
                     ▼           ▼           ▼
              ┌──────────┐ ┌─────────┐ ┌──────────┐
-             │ Adapters  │ │   DB    │ │  Events  │
+             │ Adapters │ │   DB    │ │  Events  │
              └──────────┘ └─────────┘ └──────────┘
      ```
    - **Cross-Cutting Patterns** — table:
      | Pattern | Domains | Mechanism | Notes |
      |---------|---------|-----------|-------|
      (auth, error handling, naming conventions, transactions, retries, etc.)
-   - **Key Workflows End-to-End** — for each top workflow:
-     - ASCII flow diagram (API → service → data → integrations → events)
+   - **Key Workflows End-to-End** — for each top workflow (≤3):
+     - ASCII flow / sequence diagram (API → service → data → integrations → events)
      - Step table: `| # | Step | Layer | File:line | Notes |`
-     - Cross-refs to domain files for deeper detail
+     - One-line "Trigger / Outcome / See `processing-flows.md`" — no prose narration of the steps
    - **Critical Path to Productivity** — 5–8 files in reading order, table:
      | Order | File | What it teaches |
      |-------|------|------------------|
@@ -268,11 +316,11 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - **Resilience Assessment** — table per integration:
      | Service | Retry | Timeout | Circuit breaker | Idempotency |
      |---------|-------|---------|-----------------|-------------|
-     Cells show mechanism if present, blank if absent. Below the table: one-line overall posture (e.g., "0 of 7 integrations have retry logic") and call out outliers.
+     Cells show mechanism if present, blank if absent. Below the table: one-line overall posture (e.g., "0 of 7 integrations have retry logic") and call out outliers. Don't repeat the per-service detail in prose.
    - **Test Coverage Gaps** — table, sorted by risk:
      | Module | Test file? | Risk | Notes |
      |--------|------------|------|-------|
-     Structural coverage only (test file exists), not line-level.
+     Structural coverage only (test file exists), not line-level. One bullet beneath summarizing posture.
    - **Documentation Gaps** — table:
      | Severity | What's missing | Where it should go | Suggested content |
      |----------|----------------|---------------------|--------------------|
@@ -305,9 +353,9 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    After synthesizing, go back and add a `## Cross-references` section at the bottom of each domain file (before `## Scan Limitations`) with links to related content in other domain files. The goal is to make each domain file navigable to its neighbors. Example:
    ```
    ## Cross-references
-   - Entity details: `docs/learnings/data-model.md` (full entity field listings)
-   - Integration clients: `docs/learnings/integrations.md` (HTTP client configuration)
-   - Workflow orchestration: `docs/learnings/processing-flows.md` (step function activities)
+   - Entity details: `docs/explore-repo/data-model.md` (full entity field listings)
+   - Integration clients: `docs/explore-repo/integrations.md` (HTTP client configuration)
+   - Workflow orchestration: `docs/explore-repo/processing-flows.md` (step function activities)
    ```
    Only add cross-references where there's a genuine relationship — don't cross-reference everything to everything.
 
@@ -342,21 +390,21 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
      - State machines or flow descriptions where applicable
      - Configuration properties table
      - Key gotchas and non-obvious patterns
-     - Cross-references to related domain files in `docs/learnings/`
+     - Cross-references to related domain files in `docs/explore-repo/`
 
      **Root CLAUDE.md cross-references:** Add a "Context-Specific Guides" section to root CLAUDE.md with conditional `@` references pointing to subdirectory CLAUDE.md files. This enables agent discovery from root context while keeping token cost low. Format:
      ```
      @path/to/CLAUDE.md - Brief description of what context it provides
      ```
 
-   - Keep CLAUDE.md content concise and navigational — deep detail belongs in the domain files under `docs/learnings/`.
+   - Keep CLAUDE.md content concise and navigational — deep detail belongs in the domain files under `docs/explore-repo/`.
 
 9. **Write output files:**
    ```bash
-   mkdir -p docs/learnings
+   mkdir -p docs/explore-repo
    ```
-   - Write `docs/learnings/SYSTEM_OVERVIEW.md`
-   - Write `docs/learnings/inconsistencies.md` (skip if no existing docs)
+   - Write `docs/explore-repo/SYSTEM_OVERVIEW.md`
+   - Write `docs/explore-repo/inconsistencies.md` (skip if no existing docs)
    - Update root CLAUDE.md (including auto-fixes from step 7)
    - Update README.md (if auto-fixes from step 7 apply)
    - Create subdirectory CLAUDE.md files as needed
@@ -390,7 +438,8 @@ Use these actual counts in the summary below — do not estimate or approximate.
 Synthesis Complete
 
 Project: [name] ([language/framework])
-Scan: [commit hash] on [branch] at [date]
+Scan: <SCAN_REF> @ <SCAN_COMMIT> at [date]
+
 
 Codebase:
 - [N] modules | [N] REST endpoints | [N] entities | [N] external integrations | [N] core workflows
@@ -409,20 +458,20 @@ Documentation Health:
 - [N] config artifact drift items
 
 Output:
-- docs/learnings/SYSTEM_OVERVIEW.md
-- docs/learnings/inconsistencies.md
+- docs/explore-repo/SYSTEM_OVERVIEW.md
+- docs/explore-repo/inconsistencies.md
 - CLAUDE.md ([NEW — created from scratch] or [updated]). If new, add a 1-2 line synopsis: "Covers: [what sections were included, e.g., architecture, commands, patterns, gotchas, API surface]"
 - [list any subdirectory CLAUDE.md files created]
 - [list any auto-fixed files: CLAUDE.md, README.md]
 
 Domain docs (for deeper context):
-- docs/learnings/structure.md
-- docs/learnings/api-surface.md
-- docs/learnings/data-model.md
-- docs/learnings/integrations.md
-- docs/learnings/processing-flows.md
-- docs/learnings/config-ops.md
-- docs/learnings/testing.md
+- docs/explore-repo/structure.md
+- docs/explore-repo/api-surface.md
+- docs/explore-repo/data-model.md
+- docs/explore-repo/integrations.md
+- docs/explore-repo/processing-flows.md
+- docs/explore-repo/config-ops.md
+- docs/explore-repo/testing.md
 ```
 
 ---
@@ -434,6 +483,6 @@ Domain docs (for deeper context):
 - **Domain files are first-class documentation.** They're useful standalone — a developer can read `data-model.md` directly without needing the overview.
 - **Domain files are git-tracked.** They persist across sessions and inform future scans via staleness checks.
 - The scan metadata commit hash enables staleness detection. On future runs, only stale or missing domains get re-scanned.
-- All ambiguities and unresolved questions go in the output, not as blocking questions during execution. The skill runs fully autonomously.
+- The skill blocks **once** in Phase 0 to confirm scan target (default: latest upstream). After that, all ambiguities and unresolved questions go in the output, not as blocking questions — the rest of the skill runs autonomously.
 - When suggesting documentation locations, prefer conditional `@` references in CLAUDE.md over dumping everything inline — optimize for token efficiency.
 - Graceful degradation: if an agent fails, note the gap. The missing file will be picked up on the next scan run.

@@ -44,7 +44,7 @@ Narrow review lens: money, idempotency, and audit. *"Could this lose money, doub
 
 Every finding MUST include inline code references — quote the exact problematic code from the diff, then show a concrete Before/After fix.
 
-## Learnings Cross-Refs
+## Proactive Cross-Refs
 
 - `provider:default/financial/applications.md` — fee calculation invariants, zero-divisor guards, decimal precision
 - `provider:default/financial/domain-ledger-architecture.md` — entry lifecycle, balance composition, reconciliation

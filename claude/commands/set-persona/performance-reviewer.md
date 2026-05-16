@@ -45,7 +45,7 @@ Narrow review lens: queries, resources, and scale. *"What happens at 10x/100x cu
 
 Every finding MUST include inline code references — quote the exact problematic code from the diff, then show a concrete Before/After fix.
 
-## Learnings Cross-Refs
+## Proactive Cross-Refs
 
 - `provider:default/postgresql-query-patterns.md` — window functions, CTEs, partial indexes, partitioning
 - `provider:default/java/observability-gotchas.md` — metric cardinality, timer patterns

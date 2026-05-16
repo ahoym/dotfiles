@@ -198,7 +198,7 @@ When a confirmer's plan has N independent phases that could each produce a separ
 
 ## `parallel-claude-runner-template.sh` Handles Both PRs and Issues
 
-The runner template is generalized: `ITEMS=(...)`, `ENTITY_PREFIX` (`pr`|`issue`), `ENTITY_LABEL`, `STATE_FIELD`, `STATE_CHECK_CMD` (`gh pr view`|`gh issue view`), `TERMINAL_STATES`. Block conditionals `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` strip worktree setup when empty — clarify-only `sweep:work-items` runs set both to `""`. All 5 entity keys are required — no defaults.
+The runner template is generalized: `ITEMS=(...)`, `ENTITY_PREFIX` (`pr`|`issue`), `ENTITY_LABEL`, `STATE_FIELD`, `TERMINAL_STATES`, plus `FETCH_ITEM_STATE_CMD` (literal platform command referencing `$pr_num` — same key used by both the launch probe and `process_item`'s API fallback). Block conditionals `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` strip worktree setup when empty — clarify-only `sweep:work-items` runs set both to `""`. All 4 entity keys + `FETCH_ITEM_STATE_CMD` are required — no defaults.
 
 ## `sweep-status-summary.sh` for Work-Items, Not `sweep-status.sh`
 
@@ -300,3 +300,59 @@ gh api repos/.../comments -f body="$body"
 ```
 
 Bites address-session workers posting multi-line reply bodies generated to a file — failures show up as comment bodies containing the literal path string instead of the intended content.
+
+## GitLab State Normalization: `OPENED` vs `OPEN`
+
+GitLab returns `opened` for open MRs, which normalizes to `OPENED` via `tr '[:lower:]' '[:upper:]'`. The runner pre-flight compared against `OPEN` (GitHub convention) — mismatch caused immediate skip of valid MRs. The runner template must accept both: `if [ "$state" != "OPEN" ] && [ "$state" != "OPENED" ]`. GitHub returns `OPEN`; GitLab returns `OPENED`. Don't assume cross-platform state string parity.
+
+## `claude -p` Sessions Short-Circuit on Merge Conflicts
+
+When a `claude -p` session fetches MR watermark data and sees `merge_status: cannot_be_merged`, it may autonomously exit with `push-failed-conflicts` regardless of later prompt steps that instruct conflict resolution. The LLM generates the error message itself — it's not from the prompt template. Fix: write a directive with explicit "Do NOT exit early because of merge conflicts" instructions. Directives are read before the watermark step and carry stronger weight than conditional steps later in the prompt.
+
+## Review Convergence Loops Can Expand Before Converging
+
+Full fresh re-reviews find new issues each cycle because they examine the entire diff, not just verification of prior fixes. Findings can increase (4 → 5 → 7) before converging (→ 2 → 0). Escalate to operator after 2 consecutive cycles of scope growth. Natural convergence pattern: initial spikes settle as the code hardens and remaining findings are increasingly low-severity or acknowledged design decisions.
+
+## Runner `session.state` Must Be Cleared for Clean Relaunches
+
+The runner persists `session.state` with `session_id` for resume support. On relaunch (new cycle), a stale `session.state` triggers `No conversation found with session ID` and the session exits in ~30s with 0 context tokens. Always clear `session.state` alongside `status.md` and `state.md` before relaunching.
+
+## `glab api` Notes Endpoint Rejects `-F per_page=N`
+
+`glab api projects/:id/merge_requests/<IID>/notes -F per_page=5` returns HTTP 400. The endpoint works without pagination params — fetch all notes then filter client-side with `jq`. This differs from other `glab api` endpoints that accept `-F` pagination.
+
+## Agent Worktrees Block Runner Worktree Creation
+
+When an `Agent(isolation: "worktree")` creates a worktree on a PR branch (e.g., for a one-off fix), the address runner can't create its own worktree for the same branch — `git worktree add` errors with "already used by worktree." The runner skips that PR silently. Fix: `git worktree prune` before relaunching address runners, or explicitly `git worktree remove` stale agent worktrees. The director should prune between cycles as part of the relaunch sequence.
+
+## Review Sessions Write Inconsistent Result Filenames
+
+Some `claude -p` review sessions write to `result.md` (singular), others to `results.md` (plural). The sweep scaffold specifies `results.md`, but sessions sometimes deviate. Director monitoring must check both: `pr-*/result*.md`. Consider normalizing in the runner's post-session step.
+
+## fill-template.sh Expands Placeholders in Documentation Headers
+
+Template files with documentation headers containing `{KEY}` and `{@file}` patterns (e.g., `**Placeholders:** \`{PR_NUMBER}\``, `**File inclusions:** \`{@../preflight.md}\``) get those patterns expanded during assembly, duplicating content. All 5 sweep prompt templates had this. Fix: strip everything above the first `---` separator before processing — added as Phase 0 in fill-template.sh.
+
+## `glab api -F` Fails for GET Query Parameters
+
+`glab api projects/:id/merge_requests/N/notes -F sort=desc -F per_page=1` returns HTTP 400. The `-F` flag sends form data for POST requests, not query params for GET. Use `--paginate | jq '[.[].id] | max'` for watermark lookups, or encode params in the URL: `glab api "projects/:id/merge_requests/N/notes?sort=desc&per_page=1"`. The `--paginate` approach is more reliable across glab versions.
+
+## GitLab `has_conflicts` Stale After Force-Push — Use `git merge-tree`
+
+Both `merge_status: cannot_be_merged` and `has_conflicts: true` persist for minutes after a rebase + force-push. The stale cache causes false conflict exits in address sessions. Fix: use `git merge-tree origin/main origin/main origin/<branch> | grep -q CONFLICT` for local verification — accurate immediately, no API cache dependency.
+
+## Stale Worktree Records Block Runner Worktree Creation
+
+`git worktree add` fails with `fatal: '<branch>' is already used by worktree at '<path>'` when prunable worktree records exist (directory deleted but git metadata remains). **Don't blanket `git worktree prune`** — that breaks active-branch reuse where the runner legitimately reuses an existing worktree. Instead: `test -d <path>` before `git worktree add`; if the directory is missing, prune only that specific stale record (`git worktree remove <path> --force`), then retry. Also affects `Agent(isolation: "worktree")` — agent worktrees that aren't auto-cleaned block subsequent `git worktree add` for the same branch.
+
+## live.md Append-Only Across Cycles — Filter by Timestamp
+
+`grep -c "createDiffNote" live.md` counts across ALL review cycles, not just the current one. For per-cycle analysis, use cycle boundary markers (`### Cycle N — <timestamp> ###`) and filter by timestamp range. Cumulative counts caused a false "7 new findings" assessment when only 0 existed in the latest cycle.
+
+## Compound `cd && git` Blocked in `claude -p` Sessions
+
+Claude Code's bare-repository-attack guard blocks `cd /path && git command` as a compound command. This is a hardcoded security check, not overridable by permission patterns. Prompt templates must instruct separate Bash calls: first `cd`, then `git` as independent tool invocations. The addresser-prompt.md Step 5 was updated to enforce this.
+
+## Director Must Maintain `director-state.md` Per Playbook
+
+Skipping `director-state.md` updates between cycles causes cumulative count errors (live.md grep across cycles) and prevents cross-session handoff. Write `cycle`, `review_cycles`, `address_cycles`, convergence state, and the current monitoring table snapshot after each phase transition. The state file is the director's ground truth — without it, convergence assessment relies on ad-hoc live.md parsing.

@@ -227,6 +227,21 @@ Subagents lose track of diff structure mid-review and confidently produce false 
 ## Project-Context Persona Weighted Heavier on Project-Specific Dissent
 
 When personas disagree on a correctness finding and one persona has loaded project-specific context (e.g., a `<repo>/CLAUDE.md` documenting a warmup gotcha or a non-obvious code-path discriminator) while the other reasoned from general docs, the project-loaded persona's reading is more reliable on that specific concern. Don't auto-resolve to "highest severity wins" — check whether the dissent involves a *documented project-specific behavior*. If so, weight the project-context persona heavier. The dissent itself is still valuable (surfacing what the general-persona missed), but the resolution should not raise severity past the project-loaded persona's call.
+## Agent Delegation for Post-Hoc Cleanup
+
+When bulk operations produce incorrect results (wrong line numbers, duplicate comments, missing inline positioning), launch parallel Agent subagents to clean up — one per item or small batch. The agent prompt needs: the API commands (with examples), what to verify, and what to fix. Agents read the actual state themselves; the orchestrator doesn't need to pre-read each item.
+
+Pattern: write one detailed cleanup prompt, parameterize only the item ID, launch N agents in parallel. Each agent: fetches state → identifies issues → verifies against source of truth (file content, diff) → fixes (delete + repost). ~30-50 tool uses per agent, 2-5 minutes wall clock. Scales linearly — 6 agents cleaning 6 MRs finish in the same time as 1 cleaning 1.
+
+Key: the prompt must include concrete API examples (`glab api graphql -F query=@...`), not just descriptions. Agents copy-paste working examples; they improvise from descriptions (often incorrectly).
+
+## Orchestrator Scripts: Parameterize by Run Dir, Not Tier
+
+Utility scripts for monitoring (`sweep-dashboard.sh`), killing sessions (`kill-sessions.sh`), and liveness checks (`session-liveness.sh`) work at both VP and Director tiers when parameterized by `<run_dir>`. Store in `~/.claude/skill-references/orchestrator/` as standalone utilities, not generated per-session. Standalone scripts pick up fixes immediately; generated scripts require regeneration.
+
+## "Wait, Don't Poll" Must Be a Concrete Instruction
+
+Agents fill idle gaps between launch and completion with status checks unless explicitly told to stop. Stating "event-driven, not polling" as an architectural principle is insufficient — the instruction "wait for the notification" must appear as a step immediately after every `Bash(run_in_background: true)` launch. This applies at every orchestration tier.
 
 ## Cross-Refs
 

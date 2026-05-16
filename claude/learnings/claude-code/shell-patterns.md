@@ -1,5 +1,5 @@
 Shell safety patterns for Bash tool usage — quoting, expansion, and injection prevention.
-- **Keywords:** shell, bash, expansion, injection, $(cat), command substitution, quoting, glab, mr title
+- **Keywords:** shell, bash, expansion, injection, $(cat), command substitution, quoting, glab, mr title, tee, pipe, permission, pattern matching
 - **Related:** none
 
 ---
@@ -41,6 +41,11 @@ fi
 ## platform-commands `.sh` Files Are Templates, Not Executables
 
 The scripts under `~/.claude/platform-commands/` contain `<placeholder>` syntax (e.g., `gh pr view <number> --json ...`), not `$1` argument substitution. They are designed to be inlined via `!cat` and have placeholders substituted by the LLM at skill-execution time. Calling `bash <script>.sh <arg>` won't work — the `<arg>` syntax is literal, not parsed.
+## Piped Commands Break Permission Pattern Matching
+
+`bash ~/.claude/skill-references/fill-template.sh ... | tee file | wc -l` triggers a permission prompt even though `Bash(bash ~/.claude/skill-references/**)` is in settings. The `**` glob matches the path but not across pipe characters — the permission check sees the full command string including `| tee ... | wc -l`.
+
+**Fix:** Run the allowed command alone (`bash ~/.claude/skill-references/fill-template.sh ...`), then use the Write tool to save the output. Never pipe an allowed command through `tee`, `>`, or other redirections — they change the command string beyond what the pattern matches. If you need line counts, use a separate `wc -l` call on the written file.
 
 ## Sandbox Treats `~/.claude/` as Sensitive — Use Pre-Allowed Scripts
 

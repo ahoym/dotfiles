@@ -4,7 +4,7 @@ description: "Shared patterns for skills that interact with PR/MR comments: plat
 
 # Request Interaction Base
 
-Shared logic for `address-request-comments` and `code-review-request`. Skills read sections selectively — not all sections apply to every invocation.
+Shared logic for `address-request-comments`, `code-review-request`, and `team-review-request`. Skills read sections selectively — not all sections apply to every invocation.
 
 **Read once per session.** Cache the contents after the first read. On subsequent invocations (e.g., polling via `/loop`), skip re-reading unless a new commit modifies this file — the commit SHA check in the quick-exit already detects that.
 
@@ -21,9 +21,10 @@ Parse JSON response — no `--jq` (avoids quoted string permission prompts). Sto
 ## Terminal State Handling
 
 After the consolidated fetch, check state first. If terminal (merged or closed):
-1. Use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`
-2. If found, cancel it with `CronDelete`
-3. Announce and stop
+1. Load deferred tool schemas: `ToolSearch("select:CronList,CronDelete")`
+2. Use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`
+3. If found, cancel it with `CronDelete`
+4. Announce and stop
 
 ## Incremental Fetch Rules
 
@@ -100,7 +101,7 @@ Top-level comments: `tmp/claude-artifacts/change-request-replies/<number>-<perso
 
 A thread is mutually resolved when ALL of these are true:
 - The comment is from the **other** role (`Role:.*<OTHER_ROLE>` in body)
-- The comment is a resolution signal (contains: "resolved", "acknowledged", "sounds good", "thread resolved", "no code change needed", "no action needed", or is purely emoji like 👍/🤝)
+- The comment is a resolution signal (contains: "resolved", "acknowledged", "sounds good", "thread resolved", "no code change needed", "no action needed", a short "I agree" / "agreed" / "agree on …" — including agreement on deferring to a follow-up MR — or is purely emoji like 👍/🤝)
 - You have already posted a substantive reply on the same thread (`in_reply_to_id` matches a thread where your role's reply exists)
 - No unaddressed operator comments (no `Role:` tag in body) exist in the thread after your last reply. An operator comment between your reply and the resolution signal breaks the resolution chain — that comment must be processed first.
 

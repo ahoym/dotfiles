@@ -86,6 +86,17 @@ When reviewing code that calls external services (gRPC stubs, HTTP clients, SDK 
 
 Paired-agent loops (reviewer/addresser, planner/implementer) catch drift in what each agent says *about the others' work* but not what each agent says *about itself* — its own output format, body shape, or response discipline. The reviewer's body format isn't critiqued by the addresser, and the next-cycle reviewer doesn't critique its previous self; operators catch this drift manually. When format discipline matters, add an out-of-band verifier that reads the converged state and checks each agent's output against its own discipline rules — not just cross-agent semantic correctness.
 
+## Persona-in-Prompt Dramatically Improves Agent Output Quality
+
+Embedding a persona ("You are a senior Spring Boot / Java engineer") + explicit test requirements + a "Quality bar" section in `claude -p` prompts produces dramatically better results than mechanical task descriptions. Observed: first-generation prompts ("create these files, follow existing patterns") → 0 tests, minimal code. Second-generation prompts with persona + quality bar + required test scenarios → 10-16 tests per agent, Javadoc, defensive coding, proper MR descriptions.
+
+Key prompt sections that drive quality:
+- **Persona** — sets the bar ("you care about clean architecture, testability")
+- **"Read existing code first"** — forces pattern matching before writing
+- **"Tests (required)"** — with specific test class names and scenario lists
+- **"Quality bar"** — 3-4 bullet points on what good looks like
+- **"Full agency"** — "keep what's good, rewrite what's not" unlocks improvement over prior attempts
+
 ## Two Confidence Tiers in Agent Output Reports
 
 Agent reports that mix deterministic checks with judgment-based ones should frame them differently. Deterministic checks (structural rules, presence/absence) → assertions with citations ("thread #X has 0 reactions, rule says reaction-only"). Judgment-based checks (intent alignment, scope drift) → questions framed for operator review ("intent doc line 4 says X, diff shows Y, wanted to flag"). Same report, distinct sections, distinct framings — calibrates trust appropriately and prevents the report from overpromising on the judgment half.

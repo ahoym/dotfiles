@@ -27,6 +27,11 @@ Helpers, templates, and reference docs under `~/.claude/skill-references/`. **Ch
 | `gh-issues-fetch-state.sh` | `bash <path> <N> [<N> ...]` | Fetch state + updatedAt + latest-comment metadata for GH issues. JSON output, `===issue-<N>===` separators. |
 | `stream-monitor.sh` | (piped) `... \| claude -p ... \| stream-monitor.sh <PR_DIR> \| tee raw.jsonl` | Pass-through filter; writes `live.md` events as side effect. Used by runners, rarely by hand. |
 | `vp-agent-template.sh` | `bash <path> [TASK] [RUN_DIR_BASE]` | Multi-tier VP→Director→Worker launcher (research/exploration, not sweep). Note: `-template` suffix is a misnomer — this is a direct-run launcher, not a `fill-template.sh` input. |
+| `copy-ref.sh` | `bash <path> <filename> <dest>` | Copy a file from `~/.claude/skill-references/` to a destination — bypasses Bash tool sandbox restriction on `cp` with out-of-project sources. |
+| `orchestrator/kill-sessions.sh` | `bash <path> <run_dir> [--runners]` | Kill running `claude -p` sessions in a sweep run dir (via `session.pid`). `--runners` also kills `let-it-rip.sh` runner processes. |
+| `orchestrator/session-liveness.sh` | `bash <path> <run_dir\|session_dir>` | Show alive/dead state for sessions in a run/session dir + tail of each `live.md`. |
+| `orchestrator/sweep-dashboard.sh` | `bash <path> <run_dir> [<run_dir2> ...]` | Cross-run worker state dashboard (state.md / status.md / live.md per item, plus per-run summary counts). |
+| `implementer/diff-line-lookup.sh` | `bash <path> <pr/mr_number> [search_token]` | Map diff `+` lines to `file:line: content` for inline-comment line-number verification. Auto-detects `gh` vs `glab`. |
 
 ## Templates
 

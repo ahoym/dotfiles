@@ -50,6 +50,12 @@ Companion to `spring-boot.md`. One-liner tripwires for common Spring Boot mistak
 
 - Java format strings: `$n` is not a recognized format specifier — it compiles and runs silently but the argument is dropped. Use `%n` for a platform-appropriate newline or `\n` for a literal LF. The `$` prefix has no meaning in `String.format` / SLF4J format strings.
 
+- Spring bean lifecycle (`DisposableBean`/`AutoCloseable`) checks the actual bean instance, not the `@Bean` method's declared return type. Returning `Executor` from a method that creates `ThreadPoolTaskExecutor` does NOT hide lifecycle — Spring still calls `destroy()`. Narrowing return types is valid API design.
+
+- Financial SPI records: make all invariants explicit even when technically redundant. `total >= 0` is implied by `available >= 0` + `available <= total`, but an explicit check gives the correct error message when a vendor mapping bug produces a negative total.
+
+- Don't include raw financial values in exception messages (`"was: " + amount`). If `IllegalArgumentException` surfaces through `@ExceptionHandler` to an API response, the amount leaks. Keep validation messages generic.
+
 ## Cross-Refs
 
 No cross-cluster references.

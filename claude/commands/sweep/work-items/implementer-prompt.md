@@ -120,7 +120,11 @@ e. Create PR:
      - `api-design.md` — Followed consistent error response shape
      ```
      If no learnings were applied: `## Learnings Applied\nNone`
-   - Run: `gh pr create --base {BASE_BRANCH} --title "<title>" --body-file {ISSUE_DIR}/pr-body.md`
+   - Create the PR/MR using the `/git:create-request` skill:
+     ```
+     Invoke Skill("git:create-request") with base branch {BASE_BRANCH}, title, and body from {ISSUE_DIR}/pr-body.md.
+     ```
+     The skill handles platform detection (GitHub PR vs GitLab MR) automatically.
    - When `{BASE_BRANCH}` is not `main` or `master` (i.e., it's a dependency's PR branch), this creates a **stacked PR**. Add a note at the top of the PR body: `> ⚠️ Stacked PR — targets \`{BASE_BRANCH}\`. Merge that PR first, then rebase this one onto main.`
 
 ## Boundaries

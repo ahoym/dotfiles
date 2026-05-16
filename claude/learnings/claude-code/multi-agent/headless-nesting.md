@@ -35,6 +35,14 @@ The artifact contract (prompt.txt, status.md, results.md, live.md) works identic
 
 Directors do orchestration (plan, dispatch, monitor, synthesize) — Sonnet-appropriate. Workers do domain analysis (reading complex code, making judgment calls) — Opus-appropriate. The intuition that "higher tier in hierarchy = bigger model" is backwards; match model to task complexity, not organizational rank. Use `--model` on each `claude -p` invocation.
 
+## `--max-turns` for Long-Running Sessions
+
+Default `claude -p` turn limit is 100. Compound Director sessions (assessment + launch + monitor + converge) easily exceed this — a 6-MR compound sweep uses ~80 turns on assessment alone. Use `--max-turns 500` for Directors running compound sweeps. Single-mode sessions (review-only or address-only) need `--max-turns 200`. Workers (invoked by runners) rarely exceed 100 turns since they handle a single MR.
+
+## `ScheduleWakeup` Does Not Work in `claude -p`
+
+`ScheduleWakeup` is an interactive-session tool. In `claude -p`, calling it exits the session immediately (the timer has nowhere to fire). Directors that need to wait for background tasks should use `Bash(run_in_background: true)` and receive notifications, not schedule wakeups.
+
 ## Slash-Command Syntax Fails in Headless Sessions
 
 `/skill-name` syntax doesn't resolve in `claude -p` — use `Skill` tool calls instead. Skills designed for both interactive and headless invocation should default to `Skill("skill-name")` and only use slash-command syntax when interactive context is guaranteed. Applies to any skill an orchestrator might invoke.

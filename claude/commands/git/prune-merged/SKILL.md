@@ -34,10 +34,12 @@ Remove local branches that have already been merged into remote main.
 
    **Method B - Squash merges (remote branch deleted after PR merge):**
    ```bash
-   # Handle the `+ branch` prefix `git branch -vv` adds for worktree-attached
-   # branches — `awk '{print $1}'` would extract `+` and silently drop the branch.
-   git branch -vv | grep ': gone]' | awk '$1=="+"{print $2; next} {print $1}'
+   # Handle the `+ branch` (worktree-attached) and `* branch` (current) prefixes
+   # `git branch -vv` adds — `awk '{print $1}'` would extract the marker and silently drop the branch.
+   git branch -vv | grep ': gone]' | sed 's/^[+* ] *//' | awk '{print $1}'
    ```
+
+   The `sed` strips the leading `+` (worktree-checked-out) or `*` (current branch) marker that `git branch -vv` puts in column 1. Without it, `awk '{print $1}'` returns the marker as a phantom branch name and drops the real one.
 
    Combine both lists, removing duplicates. This catches:
    - Branches with commits directly in origin/main history (regular merge)

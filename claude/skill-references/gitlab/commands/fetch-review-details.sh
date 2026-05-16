@@ -1,1 +1,1 @@
-glab mr view <number> --output json
+glab mr view <number> -F json
