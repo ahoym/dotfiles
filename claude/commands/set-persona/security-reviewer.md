@@ -41,6 +41,6 @@ Narrow review lens: attack surface, secrets, and data protection. *"How would an
 
 Every finding MUST include inline code references — quote the exact problematic code from the diff, then show a concrete Before/After fix. For CRITICAL/HIGH findings, include a proof-of-concept attack scenario.
 
-## Learnings Cross-Refs
+## Proactive Cross-Refs
 
 - `provider:default/java/infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
