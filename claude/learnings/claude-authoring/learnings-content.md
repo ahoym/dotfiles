@@ -142,6 +142,21 @@ When discoveries from a learnings file get promoted into reference docs or skill
 
 Batch import scripts that `cp` staging files to final locations overwrite without merging — no distinction between "new content to merge" and "established file to preserve." Diff staging against existing files and flag overwrites when the existing file is larger.
 
+## Per-file diff direction beats "larger file" heuristic
+
+The "existing file is larger" check misses files where the target is shorter but holds unique content the source removed. Sharper: per file, count added vs removed lines.
+
+```bash
+plus=$(diff "$current/$f" "$source/$f" | grep -c '^> ')
+minus=$(diff "$current/$f" "$source/$f" | grep -c '^< ')
+```
+
+- `+N -0..1` → source is purely additive; safe to bulk port.
+- `+0 -N` or `+small -large` → current is ahead; source represents an older state. Skip bulk port (regresses), surgical-merge or skip.
+- Mixed `+N -N` → 3-way merge required; read both versions.
+
+Caught 5 cases in one port session where the target had unique content the source had deleted — bulk porting would have silently regressed them.
+
 ## Platform-Specific CLI References Leak Through Sanitization
 
 Sanitization strips project names but misses platform CLI tools (`glab` in a GitHub repo, `gh` in a GitLab repo). Check for platform CLI mismatches when sanitizing extracted content.

@@ -428,6 +428,18 @@ git commit -m "feat: <single message>"
 
 Same mechanic as "Split Mixed-Concern Branch via Soft Reset" applied in reverse — collapse instead of split. The cherry-picked commits' messages are lost; if individual histories matter, use interactive rebase with `squash`/`fixup` instead.
 
+## `--fixup` + autosquash for non-interactive mid-stack amendments
+
+For fixes spanning multiple historical commits in a feature branch, skip manual `git rebase -i` entirely:
+
+```bash
+git add <file>; git commit --fixup=<original-sha>   # repeat per target commit
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+git push --force-with-lease
+```
+
+`--fixup` creates `fixup! <original subject>` commits; `--autosquash` auto-arranges them adjacent to targets and marks them for fold; `GIT_SEQUENCE_EDITOR=true` accepts the auto-arranged plan without opening an editor. Net: amend N historical commits in one non-interactive rebase. Use when straight `--amend` doesn't suffice (multiple target commits) and you don't need to change anything else in the rebase plan.
+
 ## Merged-with-edits invalidates rebase identity
 
 When local commits land on main via squash-merge or merge-with-edits (review feedback applied during merge), they're textually different from your local versions. Rebase doesn't recognize them as already-applied and conflicts on the oldest feature commit — even though it's "already merged."
