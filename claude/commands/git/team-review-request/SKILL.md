@@ -55,7 +55,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    ```
    Parse JSON response. Store `REQUEST_NUMBER`, `REQUEST_TITLE`, `HEAD_BRANCH`, `BASE_BRANCH`.
 
-   **Terminal State Handling:** Check state first. If terminal (merged or closed): use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`, cancel it with `CronDelete` if found, announce and stop.
+   **Terminal State Handling:** Check state first. If terminal (merged or closed): load deferred tool schemas via `ToolSearch("select:CronList,CronDelete")`, then use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`, cancel it with `CronDelete` if found, announce and stop.
 
    Check for previous team reviews using the `reviews` data already fetched. Filter for `*Role:* Team-Reviewer` in review bodies. If found, set `MODE=re-review`, store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`, and read `re-review-mode.md` from this skill's directory. Otherwise, set `MODE=first-review`.
 

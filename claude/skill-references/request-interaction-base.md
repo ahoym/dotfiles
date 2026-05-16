@@ -21,9 +21,10 @@ Parse JSON response — no `--jq` (avoids quoted string permission prompts). Sto
 ## Terminal State Handling
 
 After the consolidated fetch, check state first. If terminal (merged or closed):
-1. Use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`
-2. If found, cancel it with `CronDelete`
-3. Announce and stop
+1. Load deferred tool schemas: `ToolSearch("select:CronList,CronDelete")`
+2. Use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`
+3. If found, cancel it with `CronDelete`
+4. Announce and stop
 
 ## Incremental Fetch Rules
 
