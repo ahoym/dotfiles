@@ -1,5 +1,5 @@
 Process principles and meta-patterns for the director role: paradigm, decision discipline, scope management, escalation composition.
-- **Keywords:** supervisor, decision-matrix, computable-state, orchestrate, replicate, escalation, intent, directive-timing, adjacent-items
+- **Keywords:** supervisor, decision-matrix, computable-state, orchestrate, replicate, escalation, intent, directive-timing, adjacent-items, severity-calibration, persona-attribution, dissent-vs-divergence
 - **Related:** runner-design.md, failure-modes.md
 
 ---
@@ -81,3 +81,11 @@ Scope typos and omissions are common in fast conversations. The director has mor
 Review personas (architecture, correctness, security, etc.) are the *reviewer's* finding lens. The addresser needs the *engineering* lens that matches the changed domain — often a different shape. Resist writing a director directive setting `addresser persona = first review persona` just because the review signal is fresh and uncertainty feels uncomfortable. When the assessment-time persona match isn't confident, leave the addresser at `none` and let the addresser-prompt's per-finding judgment carry the work. If cycle-1 re-review reveals weak/generic responses, *then* write a persona directive for cycle-2.
 
 Distinct from the matrix's "Persona propagation — carry forward persona from prior runs": that rule covers *subsequent* runs on the same item. This rule covers the *initial* review→address handoff. Empirical: compound session on PRs #197/#198 left both addressers at `none`; both produced clean implementations (12 of 15 findings auto-implemented, 1 well-reasoned partial, 2 explicit no-change with context) — confirming the no-directive default earns its keep.
+
+## Severity Calibration on Concern-Aligned, Severity-Divergent Findings
+
+When two reviewer personas independently surface the same underlying concern but disagree on severity by 3+ levels (e.g., HIGH vs INFO), the gap usually reflects domain-knowledge asymmetry — one persona's lens encodes prior-incident severity, the other rates the surface-level change. This is **not** the dissent pattern (incompatible recommendations); it's the same recommendation calibrated to different priors.
+
+**Merge rule:** take the higher severity with combined attribution (`HIGH (java-fintech) / INFO (correctness-reviewer): <finding>`). Don't trigger the dissent-deliberation flow — there's nothing to deliberate, just different calibration. The attribution preserves the calibration delta for the addresser; downgrading to the lower severity loses the domain signal.
+
+Triggers the dissent flow only when one persona says "fix" and the other says "don't fix" — incompatible action, not just different urgency.

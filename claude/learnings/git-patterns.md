@@ -572,6 +572,22 @@ git branch -f main origin/main  # rewinds main pointer; HEAD/worktree untouched
 
 `git switch main && git reset --hard origin/main` would discard the dirty tree on the way back. The stash workaround (`stash --include-untracked && reset --hard && stash pop`) survives but adds round-trip risk on `pop`; `branch -f` skips it entirely.
 
+## Never `git clean -fd`, `git checkout -f`, or `git reset --hard`
+
+These destroy untracked files, uncommitted changes, or both — with no recovery path. Untracked files aren't in any commit and `git reflog` can't help.
+
+| Destructive command | What it destroys | Recovery |
+|---|---|---|
+| `git clean -fd` | All untracked files and directories | **None** |
+| `git checkout -f` | All uncommitted modifications | **None** (unless stashed) |
+| `git reset --hard` | Staged + unstaged changes, moves HEAD | Reflog for commits only, not working tree |
+
+**Always use `git stash --include-untracked` first.** Stash preserves everything (tracked modifications + untracked files) and is recoverable via `git stash list` / `git stash pop`. In scripts, stash with a descriptive message for auditability:
+
+```bash
+git stash --include-untracked -m "pre-reset-$(date +%Y%m%d-%H%M%S)"
+```
+
 ## Cross-Refs
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands

@@ -387,6 +387,20 @@ cmd 2>&1 | tee out.log | tail -20       # tee splits, file lives, tail still buf
 
 The `tee out.log | tail -N` form is the safest default: you preserve the live log for `tail -f` debugging and still get the post-completion summary.
 
+## Function Return Values: `git` and Other Commands Pollute stdout
+
+Functions that return a value via `printf '%s' "$result"` and are captured via `val=$(func)` must ensure ALL other commands send output to stderr. `git worktree add`, `git branch`, and similar commands write status messages to stdout which get mixed into the return value:
+
+```bash
+# Wrong — $wt contains "Preparing worktree...\nHEAD is now at...\n/path"
+setup() { git worktree add "$path" "$branch"; printf '%s' "$path"; }
+wt=$(setup)
+
+# Right — git output to stderr, only path on stdout
+setup() { git worktree add "$path" "$branch" >&2; printf '%s' "$path"; }
+wt=$(setup)
+```
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

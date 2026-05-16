@@ -236,3 +236,17 @@ Then delete the plan file. Heuristic for "is it time?": if the plan's "Decisions
 When an issue's acceptance criteria mix code-shippable items (modules, scripts, README updates) with operator-side action (cutover, decommission, observation period, postmortem), merging the implementing PR doesn't close the issue. The issue stays open as a tracking artifact for the operator-side work, with the merged PR linked.
 
 Auditing migration progress: distinguish "PR landed, issue intentionally still open because cutover hasn't run" from "issue forgotten." A glance at the criteria checklist tells you which. Don't auto-close on merge for cutover-bearing issues.
+
+## Confluence MCP Publishing
+
+### Markdown content format eliminates manual conversion
+
+`createConfluencePage` and `updateConfluencePage` accept `contentFormat: "markdown"` — Confluence auto-converts to XHTML storage format. Code blocks get language-specific `<ac:structured-macro>` macros automatically. No need to hand-build storage format XML.
+
+### cloudId accepts site URL; spaceId requires lookup
+
+`cloudId` accepts the site URL directly (e.g., `<your-org>.atlassian.net`), not just UUID. But `createConfluencePage` requires numeric `spaceId` — get it via `getConfluenceSpaces` with `keys` filter. Page operations (`getConfluencePage`, `updateConfluencePage`) only need `cloudId` + `pageId`.
+
+### Page tree publishing: parent first, children parallel
+
+Update the parent page first to confirm the page ID, then create all child pages concurrently with `parentId`. Siblings have no ordering dependency — batch all `createConfluencePage` calls in one message for parallel execution.
