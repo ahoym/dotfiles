@@ -10,6 +10,10 @@ argument-hint: "[review] [address] [review+address] [custom] [--prs=#47,#46] [--
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(n/a)"`
 - Remote: !`git remote get-url origin 2>/dev/null || echo "(n/a)"`
 
+## Director Contract
+
+Directors observe and direct — they never touch the working tree. All code changes flow through `claude -p` sessions launched via generated scripts. The director writes only: directives, monitoring state, and artifacts. Never hand-write runner scripts — always use `parallel-claude-runner-template.sh`.
+
 ## Mode Detection
 
 Determine the orchestration mode from context + arguments:
@@ -37,7 +41,7 @@ For prompt-free execution, add these allow patterns to `~/.claude/settings.local
 
 ## Eager-load at bootstrap
 
-Read **`default:claude-code/multi-agent/director/CLAUDE.md`** before Phase 1 — it indexes the director sub-cluster (process-and-meta, runner-design, watermarks-and-skip, observability, failure-modes). Read process-and-meta.md and runner-design.md eagerly; read others lazily when their domain surfaces (failure-modes on escalation; observability on log inspection; watermarks-and-skip on skip-logic confusion). Together these own the core director contract (director-as-supervisor paradigm, three-channel interface, runner-vs-session state separation, event-driven lifecycle, decision-matrix trust, watermark patterns, rate-limit handling).
+Read **`~/.claude/learnings/claude-code/multi-agent/director/CLAUDE.md`** before Phase 1 — it indexes the director sub-cluster (process-and-meta, runner-design, watermarks-and-skip, observability, failure-modes). Read process-and-meta.md and runner-design.md eagerly; read others lazily when their domain surfaces (failure-modes on escalation; observability on log inspection; watermarks-and-skip on skip-logic confusion). Together these own the core director contract (director-as-supervisor paradigm, three-channel interface, runner-vs-session state separation, event-driven lifecycle, decision-matrix trust, watermark patterns, rate-limit handling).
 
 **Load decision matrix (eager — always)**: read `~/.claude/skill-references/director-decision-matrix.md`. The matrix gates every Phase 4 action (routine / decide-with-report / escalate). Loading lazily creates a "you have enough already" trap — the playbook's narrative load makes a deferred matrix-read feel optional. Eager load avoids it.
 

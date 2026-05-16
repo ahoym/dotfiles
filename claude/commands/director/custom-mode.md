@@ -2,7 +2,7 @@
 
 Loaded when CWD is not a git repo, when `$ARGUMENTS` contains `custom`, or when an existing manifest with `"waves"` is detected. Handles multi-repo features, plan-driven orchestration, and any non-sweep parallel work.
 
-**Reference (lazy — read in their phases):** worktree setup, wave gating, permission pre-flight, and prompt quality patterns live in the director sub-cluster (`default:claude-code/multi-agent/director/runner-design.md` covers permissions + worktree setup; `observability.md` covers session monitoring; `failure-modes.md` covers retry/recovery). The bootstrap eager-loads only the sub-cluster index (`director/CLAUDE.md`); sub-cluster files are read on-demand when their domain surfaces below.
+**Reference (lazy — read in their phases):** worktree setup, wave gating, permission pre-flight, and prompt quality patterns live in the director sub-cluster (`~/.claude/learnings/claude-code/multi-agent/director/runner-design.md` covers permissions + worktree setup; `observability.md` covers session monitoring; `failure-modes.md` covers retry/recovery). The bootstrap eager-loads only the sub-cluster index (`director/CLAUDE.md`); sub-cluster files are read on-demand when their domain surfaces below.
 
 ## Bootstrap (custom-specific)
 
@@ -66,16 +66,16 @@ Each prompt should include:
 ### Runner script
 
 Generate `let-it-rip.sh` with wave-based execution. Read these sub-cluster files when entering this phase:
-- Worktree setup (`git worktree add ... >&2`, settings symlink, `mise trust`) — `default:claude-code/multi-agent/director/runner-design.md` (worktree-related sections: "Worktree Creation From Checked-Out Branch", "Stale Branch Blocks Worktree Creation on Relaunch", "Worktree EXIT Trap Destroys Uncommitted Implementer Work")
-- Agent launch with `mise exec --` when `mise.toml` present — `default:claude-code/multi-agent/coordination.md` § "Mise Exec Wrap"
-- Wave gating via `kill -0` polling (not `wait` — subshell PIDs aren't waitable) — pattern lives in the runner template itself; see also `default:claude-code/multi-agent/parallel-plans.md` for wave-pattern context
-- Heartbeat monitoring via worktree `git status` mtime — `default:claude-code/multi-agent/director/observability.md` (output-format buffering sections)
+- Worktree setup (`git worktree add ... >&2`, settings symlink, `mise trust`) — `~/.claude/learnings/claude-code/multi-agent/director/runner-design.md` (worktree-related sections: "Worktree Creation From Checked-Out Branch", "Stale Branch Blocks Worktree Creation on Relaunch", "Worktree EXIT Trap Destroys Uncommitted Implementer Work")
+- Agent launch with `mise exec --` when `mise.toml` present — `~/.claude/learnings/claude-code/multi-agent/coordination.md` § "Mise Exec Wrap"
+- Wave gating via `kill -0` polling (not `wait` — subshell PIDs aren't waitable) — pattern lives in the runner template itself; see also `~/.claude/learnings/claude-code/multi-agent/parallel-plans.md` for wave-pattern context
+- Heartbeat monitoring via worktree `git status` mtime — `~/.claude/learnings/claude-code/multi-agent/director/observability.md` (output-format buffering sections)
 
 **Skip completed items** by checking `item-<id>/status.md` for `milestone: completed`.
 
 ### Permissions audit
 
-Before launching, verify each repo's `.claude/settings.local.json` has: `Edit`/`Write`, build commands (`yarn *`, `mvn *`, etc.), git commit/push, MR creation (`glab mr*` or `gh pr*`). Read `default:claude-code/multi-agent/director/runner-design.md` § "Permissions for Sweep Sessions" and § "`claude -p` Skill Tool Requires Scoped Permission" for the full checklist when entering this phase. Surface missing permissions to the operator before launch.
+Before launching, verify each repo's `.claude/settings.local.json` has: `Edit`/`Write`, build commands (`yarn *`, `mvn *`, etc.), git commit/push, MR creation (`glab mr*` or `gh pr*`). Read `~/.claude/learnings/claude-code/multi-agent/director/runner-design.md` § "Permissions for Sweep Sessions" and § "`claude -p` Skill Tool Requires Scoped Permission" for the full checklist when entering this phase. Surface missing permissions to the operator before launch.
 
 ## Launch (uses shared Phase 3)
 
