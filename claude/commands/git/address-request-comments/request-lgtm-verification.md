@@ -28,7 +28,10 @@ Verdict: LGTM understanding matches main features.
 
 When a reviewer's LGTM summary doesn't match the implementation, reply back politely indicating the mismatch. **Do not reveal the actual implementation** — instead, hint at where they should focus.
 
-Post via **Post Top-Level Comment** in the platform cluster files:
+Post as a top-level comment:
+```
+!`cat ~/.claude/platform-commands/post-top-level-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
 > Thanks for the review! However, that summary doesn't quite match what this PR/MR implements.
 >
@@ -38,6 +41,6 @@ Post via **Post Top-Level Comment** in the platform cluster files:
 
 When a reviewer's LGTM summary accurately reflects the implementation, reply back confirming.
 
-Post via **Post Top-Level Comment** in the platform cluster files:
+Post as a top-level comment (same command as above):
 
 > Thanks! That summary accurately reflects the PR/MR.

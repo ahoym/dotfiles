@@ -139,22 +139,24 @@ bash ~/.claude/skill-references/fill-template.sh \
   "CONCURRENCY": "3",
   "ITEMS": "80 81 82",
   "TIMESTAMP": "<YYYY-MM-DD-HHMM>",
-  "ENTITY_PREFIX": "pr",
-  "ENTITY_LABEL": "PR",
-  "STATE_FIELD": "pr_state",
-  "STATE_CHECK_CMD": "gh pr view",
-  "TERMINAL_STATES": "MERGED CLOSED",
+  "FETCH_ITEM_STATE_CMD": "<platform-specific command — see below>",
   "BRANCHES": "",
   "WORKTREES": "",
   "PROJECT_ROOT": ""
 }
 ```
 
+**`FETCH_ITEM_STATE_CMD`** — platform-specific command that checks an item's state during runner pre-flight. The command references `$pr_num` (a bash variable resolved at runtime). Output **must** be normalized to uppercase (`OPEN`, `MERGED`, `CLOSED`) regardless of platform. Examples:
+- **GitHub:** `gh pr view "$pr_num" --json state -q '.state'` (already uppercase)
+- **GitLab:** `glab api projects/:id/merge_requests/$pr_num | jq -r .state | tr '[:lower:]' '[:upper:]'`
+- **Work items (GitHub):** `gh issue view "$pr_num" --json state -q '.state'`
+- **Work items (GitLab):** `glab api projects/:id/issues/$pr_num | jq -r .state | tr '[:lower:]' '[:upper:]'`
+
 **`MODEL` selection — based on runner role:** orchestrator runners that delegate to subagents (e.g., `sweep:review-prs` → `git:team-review-request`) → `claude-sonnet-4-6`. Leaf runners doing actual work (reading diffs, editing files, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`) → `claude-opus-4-6`. `[1m]` variant only when context demands it.
 
 **Block conditionals:** `BRANCHES` and `WORKTREES` control `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks in the template. Non-empty → block kept; empty → block stripped. Review mode sets both to empty. Address mode sets both to a truthy value (e.g., `"true"`).
 
-**Entity type keys:** `ENTITY_PREFIX` controls directory naming (`pr-<N>` vs `issue-<N>`). `ENTITY_LABEL` controls log labels. `STATE_FIELD` controls the `status.md` field name for cached state. `STATE_CHECK_CMD` controls the API pre-flight command. `TERMINAL_STATES` is a space-separated list of states that trigger pre-flight skip. Every sweep skill must provide all 5 keys — there are no defaults.
+**Entity type keys:** `ENTITY_PREFIX` controls directory naming (`pr-<N>` vs `issue-<N>`). `ENTITY_LABEL` controls log labels. `STATE_FIELD` controls the `status.md` field name for cached state. `TERMINAL_STATES` is a space-separated list of states that trigger pre-flight skip. Every sweep skill must provide all 4 keys — there are no defaults. The API pre-flight command itself is set via `FETCH_ITEM_STATE_CMD` (single key, used by both probe and process_item paths).
 
 **Address mode data files** (written to `<RUN_DIR>/` alongside metadata.json):
 - `branch-cases.txt` — case-statement body for `branch_for()` (e.g., `80) echo "feat/auth" ;;`)
@@ -168,7 +170,7 @@ These are included via `{@file}` references in the template. Review mode doesn't
 The generated script has a two-tier pre-flight before launching each session:
 
 1. **Local status.md check (free).** Read `STATE_FIELD` from the entity's existing `status.md`. If the value is in `TERMINAL_STATES`, skip immediately — no API call, no process overhead. This eliminates the biggest efficiency problem on rerun cycles.
-2. **API fallback (1 API call).** If no `status.md` exists or the state field is not terminal, use `STATE_CHECK_CMD` to check current state. This covers first runs and entities whose state changed externally. The API fallback also writes the state field to `status.md` so subsequent cycles use the local check.
+2. **API fallback (1 API call).** If no `status.md` exists or the state field is not terminal, use `FETCH_ITEM_STATE_CMD` to check current state. This covers first runs and entities whose state changed externally. The API fallback also writes the state field to `status.md` so subsequent cycles use the local check.
 
 Address mode: the same state check MUST also be included in the worktree setup loop (`setup_worktrees`), before fetching or creating worktrees.
 

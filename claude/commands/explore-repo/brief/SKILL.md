@@ -9,7 +9,7 @@ Load scan artifacts produced by `/explore-repo` and produce a concise synthesis.
 
 ## Usage
 
-- `/explore-repo:brief` - Brief the current repo's scan (default: `docs/learnings/`)
+- `/explore-repo:brief` - Brief the current repo's scan (default: `docs/explore-repo/`)
 - `/explore-repo:brief <path>` - Brief scan artifacts at a custom path
 
 ## Instructions
@@ -20,7 +20,7 @@ Determine whether a usable scan exists.
 
 1. **Resolve artifact path:**
    - If `$ARGUMENTS` is provided, use it as the artifact directory
-   - Otherwise, use `docs/learnings/` in the current working directory
+   - Otherwise, use `docs/explore-repo/` in the current working directory
 
 2. **Glob for all expected files** (run in parallel):
    - `<path>/structure.md`
@@ -49,7 +49,7 @@ Determine whether a usable scan exists.
      ```bash
      git diff --name-only <scan-commit>..HEAD -- ':!<artifact-path>/' ':!**/CLAUDE.md'
      ```
-     where `<artifact-path>` is the artifact directory resolved in step 1 (e.g., `docs/learnings`).
+     where `<artifact-path>` is the artifact directory resolved in step 1 (e.g., `docs/explore-repo`).
      - If the diff is **empty** — only scan artifacts and CLAUDE.md files changed since the scan → treat as **current** (the scan commit created these docs, not a code change)
      - If the diff is **non-empty** — source code changed → mark as **stale** and save the list of changed files for the brief output
    - If commits are identical → **current**

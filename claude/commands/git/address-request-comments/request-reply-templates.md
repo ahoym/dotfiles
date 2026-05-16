@@ -10,10 +10,12 @@ Every reply must end with this footnote block:
 
 ```
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* <persona or "none">
-*Role:* Addresser
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* <persona or "none">
+- *Role:* Addresser
 ```
+
+Use list items (`-`) on each line â€” single-line italics collapse in GitLab markdown without blank separators. The base reference (`request-interaction-base.md`) is authoritative on footnote format; this section must stay in sync.
 
 - **model**: The model you're running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6")
 - **Persona**: The active persona name, or "none" if no persona is set
@@ -29,9 +31,9 @@ The `Role` field is used by incremental fetches to filter out your own replies â
 Thanks for catching this! Updated `_END_YEAR` to 2026 in cfc995a.
 
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* none
-*Role:* Addresser
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* none
+- *Role:* Addresser
 ```
 
 ## Agreeing with Feedback
@@ -40,9 +42,9 @@ Thanks for catching this! Updated `_END_YEAR` to 2026 in cfc995a.
 Good call - these were definitely overkill. Inlined both functions in abc123.
 
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* none
-*Role:* Addresser
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* none
+- *Role:* Addresser
 ```
 
 ## Asking for Clarification
@@ -54,9 +56,9 @@ I think you're suggesting we extract this into a separate config dict - is that 
 or did you have a different approach in mind?
 
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* none
-*Role:* Addresser
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* none
+- *Role:* Addresser
 ```
 
 ## Respectfully Pushing Back
@@ -69,7 +71,7 @@ I kept this as a separate function because it's also called from `order_processo
 shared utils module work better, or am I missing something about the intended design?
 
 ---
-*Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
-*Persona:* none
-*Role:* Addresser
+- *Co-Authored with [Claude Code](https://claude.ai/code) (<model>)*
+- *Persona:* none
+- *Role:* Addresser
 ```

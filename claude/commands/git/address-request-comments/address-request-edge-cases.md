@@ -62,6 +62,8 @@ Be careful to distinguish comment types:
 
 For investigation requests: Analyze the request, provide your findings/recommendations, then explicitly ask for approval before making changes.
 
+**When the investigation reveals the premise is false** — e.g., operator asks to "follow the repo standard for X" but no such standard exists, or "match the existing pattern" but there's no existing instance — don't stop at "I found nothing." Offer concrete synthesized paths (`(a) defer with a tracking ticket — consistent with current state; (b) introduce X here as the first instance, scope ~Y`), name the blast radius of each, and escalate. The operator usually still wants *something* done; the investigation result is the input to a decision, not the answer.
+
 ## Planning Documents Exception
 
 For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, or any path containing `plans/`), do NOT auto-fix even if you agree with the comment. Planning documents require discussion, so reply with your thoughts and wait for explicit approval from the review author before making changes.
@@ -72,13 +74,20 @@ For `.md` files in plan directories (`docs/plans/`, `.claude/personal/plans/`, o
 
 Delta/summary comments (e.g., "Summary of Changes Since Last Update") should ALWAYS be posted as **top-level review comments**, not as thread replies. Top-level comments are easier to find and provide better visibility for tracking progress.
 
-Follow **Post Top-Level Comment** in the platform cluster files.
+Post as a top-level comment:
+```
+!`cat ~/.claude/platform-commands/post-top-level-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
 ## Re-review Requests
 
 After pushing new changes, search for ALL reviewers who gave LGTM comments and tag each of them asking for re-review.
 
-Follow **Find Approved Reviewers** in the platform cluster files to get the list, then **Post Top-Level Comment** to tag each reviewer asking for re-review.
+Find approved reviewers:
+```
+!`cat ~/.claude/platform-commands/find-approved-reviewers.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
+Then post a top-level comment tagging each reviewer asking for re-review (use the post-top-level-comment command above).
 
 **Important:** Tag ALL reviewers who gave LGTM comments, including the review author. When pair-programming with an AI agent, the operator is also reviewing the code changes made by the agent.
 
@@ -104,6 +113,12 @@ git checkout <original_branch>
 
 This keeps the review focused on its intended scope and makes reviews easier.
 
+## Cross-check the comment batch — fixes can subsume each other
+
+Before forming per-comment assessments, scan the full batch for comments that touch the same file or root cause. One comment's change can moot another's: *"add `@Builder` to `adapter/X.java`"* + *"these adapter types look like duplicates of `spi/X`"* → delete the adapter file, since the SPI version already has `@Builder`. Implementing each comment independently produces wasted work (adding `@Builder` to a file you'll delete) and incoherent thread replies (the two threads should reference each other).
+
+Reply on both threads to make the linkage explicit (*"tying to your other comment — file X is one of the duplicates; the SPI version already has the change you want"*), then implement the subsuming fix once.
+
 ## Re-read cited learning's detection criteria when pushing back on misapplied findings
 
 When a finding cites a learning (e.g., *Test-only state in production code signals wrong-level DI seam*) and the suggested change feels off, re-read the cited learning's detection criteria before drafting the pushback. Many learnings have explicit fingerprints — `_*_injected` flags, error messages mentioning "injected"/"mock"/"test path", runtime branches that exist only for tests — and a finding that doesn't match those fingerprints is mis-applying the learning.
@@ -111,6 +126,12 @@ When a finding cites a learning (e.g., *Test-only state in production code signa
 Pushback structure: name the criteria, point out the case doesn't match, suggest where the learning *would* apply. Example: *"the criteria are about test-only runtime branches in production; `_PERPETUAL_DAILY_DIR` is read identically in production and tests — `monkeypatch` repoints the filesystem location, not a code path."* Reviewers can concede on substance instead of on tone.
 
 Pairs with the "Push back when warranted" core principle — this is the *how* once you've decided to push back.
+
+## Role-prefixed operator directives override prior defers
+
+When an operator comment opens with a role name ("Addresser …", "Reviewer …"), it's a direct directive to that role and supersedes any earlier addresser stance — including a confident "deferring to a follow-up MR" reply. Re-evaluate fresh: implement the directive rather than restating the prior defer. The operator has seen the prior reply and is explicitly overriding it.
+
+Example: addresser replied "Deferring the package move to a separate cleanup MR." Operator follows up with "Addresser can we actually move it now?" → implement the move on this branch; don't re-argue the defer.
 
 ## After LGTM Verification
 

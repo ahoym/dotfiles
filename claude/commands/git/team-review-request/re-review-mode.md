@@ -6,13 +6,11 @@ Loaded when `MODE=re-review` (step 2 found a previous team review with matching 
 
 Two-phase check with short-circuit — see step 3 in SKILL.md for the full commands.
 
-**Phase 1** (1 call): Run the **Fetch Activity Signals (consolidated)** script:
+**Phase 1** (1 call): Run the **Fetch Activity Signals (consolidated)** script. Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
 !`cat ~/.claude/platform-commands/fetch-activity-signals.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-Check for: new commit SHA, new non-empty-body reviews from others, new top-level PR comments, or merged/closed state. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches. If any signal → proceed immediately.
 
-**Phase 2** (1 call, only if phase 1 found nothing): Run the **Fetch Recent Inline Comments (quick-exit check)** script (fetches 10):
+**Phase 2** (1 call, only if phase 1 found nothing): Fetch recent inline comments (10) via the quick-exit check script. Filter out self-comments (`Role:.*Team-Reviewer` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
 !`cat ~/.claude/platform-commands/fetch-recent-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-Filter out self-comments (`Role:.*Team-Reviewer` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full fetch.
 
 1 call when there's new activity in phase 1, 2 calls when polling quietly. Covers all four activity signals: commits, non-empty review submissions, top-level comments, inline review comments.
 
@@ -33,9 +31,8 @@ Announce:
 
 ## Fetch Previous Comment State
 
-Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
+Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`). Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter for comments containing `*Role:* Team-Reviewer` in their body — these are the team's previous comments.
 !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter for comments containing `*Role:* Team-Reviewer` in their body — these are the team's previous comments.
 
 For each previous comment, identify the originating persona from the inline comment attribution (e.g., `[fintech-ledger]` or `[fintech-ledger, java-spring]`).
 
@@ -107,11 +104,20 @@ Append footnote with `Role: Team-Reviewer`.
 
 Execute in order:
 
-**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, use "React to Comment" from platform cluster files. The reaction is the full acknowledgement — do not also post a text reply for resolved/acknowledged threads (see `review-comment-classification.md`).
+**a) React to resolved and acknowledged comments** — for each item in `REACTIONS`, react with the appropriate emoji. The reaction is the full acknowledgement — do not also post a text reply for resolved/acknowledged threads (see `review-comment-classification.md`).
+```
+!`cat ~/.claude/platform-commands/react-to-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
-**b) Post follow-up replies** — for each item in `FOLLOW_UPS` (partially-addressed and not-addressed only), use "Reply to Inline Comment" from platform cluster files. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
+**b) Post follow-up replies** — for each item in `FOLLOW_UPS` (partially-addressed and not-addressed only), reply to the inline comment thread. Each follow-up reply gets the footnote with `Role: Team-Reviewer`.
+```
+!`cat ~/.claude/platform-commands/reply-to-inline-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
-**c) Post the review** — use "Post Review with Inline Comments" with the re-review body and any new inline comments.
+**c) Post the review** — post the re-review body as a top-level comment, plus any new inline comments.
+```
+!`cat ~/.claude/platform-commands/post-top-level-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+```
 
 **Report:**
 ```

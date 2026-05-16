@@ -16,7 +16,17 @@ RULES:
 - Include file paths when referencing specific code so the reader can navigate to it.
 - ONLY write to your assigned output file. Do not create any other files.
 - Stay within your domain boundaries (see Domain Boundaries table below). If you find something interesting outside your domain, mention it briefly but do not deep-dive — the responsible agent will cover it.
-- DEDUPLICATE cross-domain findings. When a finding spans multiple domains (e.g., security config, naming conventions), ONE agent should report the full analysis (whichever domain owns it per the boundaries table). All other agents should mention it in one sentence with a cross-reference: "Security configuration permits all endpoints — see `docs/learnings/config-ops.md` for full analysis."
+- DEDUPLICATE cross-domain findings. When a finding spans multiple domains (e.g., security config, naming conventions), ONE agent should report the full analysis (whichever domain owns it per the boundaries table). All other agents should mention it in one sentence with a cross-reference: "Security configuration permits all endpoints — see `docs/explore-repo/config-ops.md` for full analysis."
+
+CONCISION MANDATE (this is a hard requirement, not a suggestion):
+- Target file length: 200–350 lines, including tables. If you blow past 400, you are being too verbose — cut.
+- Lead with the table or diagram. Prose is the fallback when structure won't work.
+- One-line bullets. No multi-sentence bullets. No paragraphs longer than 2 sentences.
+- Strip throat-clearing: no "In this section we will...", "It is worth noting that...", "The system has a...".
+- For each entity / endpoint / service / workflow / property: ONE table row, not a paragraph. Push the row's "why" into a single short cell, not a follow-up paragraph.
+- Gotchas: each one is ONE numbered bullet, ≤2 sentences. The first sentence is the rule, the second (optional) is the why.
+- Use diagrams for: state machines, end-to-end flows, dependency graphs, sequence interactions, branching logic. Use ASCII only — box-drawing characters (┌ ┐ └ ┘ │ ─ ▶ ◀) for components, arrows (→ ⇒) and labels for transitions. No Mermaid, no Graphviz, no rendered formats — output must read correctly in a plain terminal. Keep diagrams ≤25 lines wide and ≤30 lines tall; if you can't fit it, the diagram is doing too much — split or replace with a table.
+- Use tables for: anything enumerable (modules, endpoints, entities, properties, services, scheduled jobs, profiles, tests, scripts).
 
 DO NOT DOCUMENT:
 - Dependency version numbers unless the specific version constrains behavior (e.g., "Java 17 specifically, not 21" is worth noting; "Guava 33.3.1-jre" is not)
@@ -24,6 +34,8 @@ DO NOT DOCUMENT:
 - Every file in a directory — describe the pattern instead (e.g., "21 partner adapter modules following the {Partner}ServiceAdapter naming convention" not a list of all 21)
 - Boilerplate sections with nothing notable to say — if a section would just say "nothing unusual here", omit it entirely
 - Transitive dependencies or internal implementation details of third-party libraries
+- Field-by-field DTO listings when the type signatures are obvious — name the DTO, list the 2-3 fields that matter (validation, weird semantics, optional vs required), let the rest be implicit
+- Prose summaries of what a table just showed — the table IS the answer
 
 FORMAT:
 - Default to tables for parallel data (per-item attributes), ASCII diagrams for flows / relationships / state machines.
@@ -38,7 +50,7 @@ PATH FORMAT:
 - This applies to all file references in your output — entity locations, script paths, config files, test files, etc.
 
 FILE OUTPUT:
-- First, create the output directory: mkdir -p docs/learnings
+- First, create the output directory: mkdir -p docs/explore-repo
 - Write your complete output to `[OUTPUT_FILE]` using the Write tool.
 - Start the file with this EXACT metadata header format. Each field MUST be on its own line. Do NOT collapse into a single line:
   ```
@@ -70,7 +82,7 @@ Each agent owns specific aspects of the codebase. Respect these boundaries to av
 | Config & Ops | Configuration hierarchy, profiles, feature flags, metrics, monitoring, secrets management, deployment config | CI/CD pipeline stages (→ Structure), business logic (→ Flows) |
 | Testing | Test types, frameworks, utilities, patterns, CI test pipeline execution, mocking strategies | Application code being tested (→ other domains) |
 
-When you encounter something at a domain boundary, document it briefly with a cross-reference: "See `docs/learnings/{other-domain}.md` for details on [topic]."
+When you encounter something at a domain boundary, document it briefly with a cross-reference: "See `docs/explore-repo/{other-domain}.md` for details on [topic]."
 
 ---
 
@@ -78,7 +90,7 @@ When you encounter something at a domain boundary, document it briefly with a cr
 
 **Mandate:** Understand the project's organizational structure, module layout, build system, dependencies, and CI/CD pipeline.
 
-**Output file:** `docs/learnings/structure.md`
+**Output file:** `docs/explore-repo/structure.md`
 
 ### Prompt Template
 
@@ -120,37 +132,44 @@ For deployment: Docker setup, container relationships, deployment scripts.
 [≤3 sentences: what it is, how it's organized, primary tech. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## Modules
 | Module | Location | Purpose | Entry point | Depends on |
 |--------|----------|---------|-------------|------------|
+
+[If module relationships aren't obvious from the `Depends on` column, follow with a small ASCII box-and-arrow diagram showing dependency edges.]
 
 ## Build System
 | Operation | Command | Notes |
 |-----------|---------|-------|
 [build full / build module / test / lint / format / per-profile invocations]
 
+[Then 1-3 bullets for non-obvious build behavior — auto-format on `validate`, special profiles, generated sources. Skip if nothing notable.]
+
 ## Dependencies
-[Only deps that constrain behavior — one-line each: `lib X@version — constrains Y`. Omit if none.]
+[Only *character-defining* deps that constrain behavior — one-line each: `lib X@version — constrains Y`. Skip utility libs. Omit section if none.]
 
 ## CI/CD Pipeline
 | Stage | Trigger | Does | Artifacts |
 |-------|---------|------|-----------|
 
+[For non-trivial topology, prefix with an ASCII left-to-right pipeline (e.g. `[build] → [test] → [package] → [deploy-dev] → [deploy-staging] → [deploy-prod (manual)]`).]
+
 ## Deployment
-[ASCII container diagram if multi-container; else table: `| Component | Image / script | Purpose |`]
+[ASCII container topology diagram if multi-container/K8s (init container → app, sidecars, etc.); else table: `| Component | Image / script | Purpose |`. Note image-name overrides and ordering constraints.]
 
 ## Scripts & Utilities
-| Script | Purpose |
-|--------|---------|
-| [path] | [what it does] |
+| Script | Purpose | Status |
+|--------|---------|--------|
+
+[Status column: Active / Dormant / Broken — flag dormant scripts so readers don't trust them.]
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only — what you couldn't read, what's outside this repo.]
 ```
 
 ---
@@ -159,7 +178,7 @@ For deployment: Docker setup, container relationships, deployment scripts.
 
 **Mandate:** Map all external-facing interfaces — REST endpoints, gRPC services, CLI commands, event interfaces.
 
-**Output file:** `docs/learnings/api-surface.md`
+**Output file:** `docs/explore-repo/api-surface.md`
 
 ### Prompt Template
 
@@ -209,37 +228,49 @@ Also: API versioning strategy, common error response format, pagination patterns
 # API Surface
 
 ## Endpoints Overview
-[≤3 sentences: count, groupings, versioning strategy. Omit if Key Findings + tables cover it.]
+[≤3 sentences: count, groupings, versioning strategy, async-vs-sync semantics. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## REST Endpoints
-Group by controller/resource. For each group:
-| Method | Path | Description | Auth | Request | Response |
-|--------|------|-------------|------|---------|----------|
+Group by controller/resource. One table per group:
+| Method | Path | Description | Status | Auth | Request | Response |
+|--------|------|-------------|--------|------|---------|----------|
+
+[Status column flags non-200 happy paths, e.g. `202 Accepted`. Reference DTOs by name only — full fields go in Models below.]
 
 ## Request/Response Models
-| Model | Used by | Key fields (name: type) |
-|-------|---------|--------------------------|
+| Model | Used by | Key fields / validation |
+|-------|---------|-------------------------|
+
+[Key fields cell: only the 2-3 fields with non-obvious validation, weird semantics, or required-vs-optional that callers must know. Skip the rest — types are obvious from the name.]
 
 ## gRPC / GraphQL / Other Interfaces
-[If applicable, same tabular treatment: `| Service.method | Schema | Notes |`. Omit if none.]
+[Skip section entirely if none. If outbound only, one line pointing to integrations.md. Otherwise same tabular treatment: `| Service.method | Schema | Notes |`.]
 
 ## API Conventions
 | Aspect | Convention |
 |--------|------------|
-[versioning, error format, pagination, auth mechanism, validation, CORS]
+[versioning, error envelope, idempotency, pagination, auth mechanism, validation, CORS. Skip rows that aren't notable.]
+
+## Error Contract
+| Exception | HTTP | Body shape |
+|-----------|------|------------|
+
+[Only include exceptions handled by global advice — internal-only exceptions don't need a row.]
 
 ## Middleware & Filters
 | Order | Filter / Middleware | Purpose | File:line |
 |-------|---------------------|---------|-----------|
 
+[Prefix with an ASCII pipeline `request → [filter1] → [filter2] → controller` if non-linear. Skip section if there are no notable filters.]
+
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```
 
 ---
@@ -248,7 +279,7 @@ Group by controller/resource. For each group:
 
 **Mandate:** Understand the complete data layer — entities, schema, relationships, state machines, and migrations.
 
-**Output file:** `docs/learnings/data-model.md`
+**Output file:** `docs/explore-repo/data-model.md`
 
 ### Prompt Template
 
@@ -307,44 +338,51 @@ Use Glob and Grep to find, then read every match:
 # Data Model
 
 ## Overview
-[≤3 sentences: entity count, DB tech. Omit if Key Findings + ER diagram cover it.]
+[≤3 sentences: entity count, schema name, DB tech, ORM. Omit if Key Findings + ER diagram cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## Core Entities
 For each entity, one subsection with:
 - One-line purpose
-- Fields table: `| Field | Type | Notes |` (notes = annotations, constraints, encryption, soft-delete)
+- Fields table: `| Field | Type | Notes |` (notes = annotations, constraints, encryption, soft-delete, @Version, idempotency keys). Skip standard id/created_at/updated_at unless they have non-default semantics.
 - Relationships table (if any): `| Relation | Cardinality | Target | Join |`
 
 ## Entity Relationships
-[ASCII ER diagram. Boxes for entities, labeled arrows with cardinality (`1—*`, `*—*`). Prose only as fallback.]
+[ASCII ER diagram if 3+ entities with non-trivial relationships. Boxes for entities, labeled arrows with cardinality (`1───*`, `*───*`). Skip section if Core Entities tables already cover it.]
 
 ## State Machines
-For each state flow:
-- ASCII state diagram (boxes for states, labeled arrows for transitions)
-- Transition table: `| From | To | Trigger | Conditions |`
+For each state flow: ASCII state diagram with arrows labeled by transition trigger, then a transition table. Example shape:
+```
+        ┌─────────┐  processSubmit (adapter=CONFIRMED)
+PENDING ─┤         ├──────────▶ CONFIRMED
+        │         │  processSubmit (adapter=FAILED)
+        │         └──────────▶ FAILED
+        │  processSubmit (adapter=PROCESSING)
+        └─────────────▶ PROCESSING ───▶ ...
+```
+Transition table: `| From | To | Trigger | Conditions |`. No prose narration — the diagram IS the documentation.
 
 ## Database Details
 | Aspect | Value |
 |--------|-------|
-[engine, schema name, notable views, indexes, constraints — one row each]
+[engine, schema name, native ENUMs, notable views, partial indexes, unique constraints — one row each, skip rows that don't apply]
 
 ## Data Patterns
 | Pattern | Where | Mechanism |
 |---------|-------|-----------|
-[encryption, auditing, soft deletes, converters, versioning]
+[encryption, auditing, soft deletes, converters, optimistic locking, JSON columns, idempotency strategy. Skip patterns not used.]
 
 ## Migration Highlights
 | Migration | Type | Change |
 |-----------|------|--------|
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```
 
 ---
@@ -353,7 +391,7 @@ For each state flow:
 
 **Mandate:** Map all external service integrations, their communication patterns, authentication, and error handling.
 
-**Output file:** `docs/learnings/integrations.md`
+**Output file:** `docs/explore-repo/integrations.md`
 
 ### Prompt Template
 
@@ -411,39 +449,48 @@ Also: shared HTTP client config, common retry patterns, timeout defaults, connec
 # Integrations
 
 ## Overview
-[≤3 sentences: service count, dominant patterns. Omit if Key Findings + tables cover it.]
+[≤3 sentences: service count, dominant transport (REST/gRPC), auth pattern. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## External Services
-| Service | Type | Auth | Key operations | Resilience | Config | Code |
-|---------|------|------|----------------|------------|--------|------|
-(Type: REST / gRPC / SDK / Queue / Webhook. Resilience: list what's present — retry / timeout / circuit-breaker / idempotency.)
+| Service | Type | Auth | Key operations | Config | Code |
+|---------|------|------|----------------|--------|------|
+(Type: REST / gRPC / SDK / Queue / Webhook. Key operations: 2-4 verbs e.g. submit, pollStatus, fetchBalance. Code: package path.)
+
+## Resilience Matrix
+| Service | Retries | Timeout | Circuit Breaker | Idempotency Key |
+|---------|---------|---------|-----------------|-----------------|
+
+[Cells: the mechanism in 2-3 words ("`@Retryable` 3x", "`CompletableFuture.get(30s)`", "`requestId` header"). Empty cell = absent.]
 
 ## Integration Patterns
 | Aspect | Value |
 |--------|-------|
-[HTTP client library, retry strategy, circuit breaker approach, timeout defaults, connection pooling]
+[HTTP client library, retry strategy, circuit breaker approach, timeout defaults, connection pooling, bean-name routing, shared executor, SPI seam. Skip patterns not in active use.]
 
 ## Authentication Summary
 | Pattern | Used by | Token / credential management |
 |---------|---------|--------------------------------|
+[mechanism, token-provider sharing, credential source (env/Vault), separate-identity splits if any]
 
 ## Message Queues / Async
 | Tech | Topic / Queue | Producer | Consumer | Message format |
 |------|----------------|----------|----------|----------------|
 
+[Skip section if none.]
+
 ## Webhook System
 | Aspect | Mechanism |
 |--------|-----------|
-[registration, delivery, signature verification, retry]
+[registration, delivery, signature verification, retry. Skip section if none.]
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```
 
 ---
@@ -452,7 +499,7 @@ Also: shared HTTP client config, common retry patterns, timeout defaults, connec
 
 **Mandate:** Understand the core business logic, workflows, state transitions, scheduled operations, and event-driven patterns.
 
-**Output file:** `docs/learnings/processing-flows.md`
+**Output file:** `docs/explore-repo/processing-flows.md`
 
 ### Prompt Template
 
@@ -521,42 +568,65 @@ Use Glob and Grep to find, then read every match:
 # Processing Flows
 
 ## Overview
-[≤3 sentences: business domain, main workflows. Omit if Key Findings + diagrams cover it.]
+[≤3 sentences: business domain, main workflows, processing philosophy (sync/async/inbox/poller). Omit if Key Findings + diagrams cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## Core Workflows
 For each workflow:
-- ASCII flow diagram (trigger → steps → outcome; show branches for error paths)
+- ASCII flow or sequence diagram (trigger → steps → outcome; show branches for error paths). Example shape:
+  ```
+  HTTP                Service               DB              Adapter
+    │  POST /movements   │                    │                │
+    ├───────────────────▶│                    │                │
+    │                    │ 1. write journal   │                │
+    │                    ├───────────────────▶│                │
+    │                    │ 2. write PENDING   │                │
+    │                    ├───────────────────▶│                │
+    │  202 Accepted      │                    │                │
+    │◀───────────────────┤                    │                │
+    │   ┄┄ poller cycle ┄│                    │                │
+    │                    │ 3. submit          │                │
+    │                    ├──────────────────────────────────▶  │
+  ```
 - Step table: `| # | Step | Service.method | Notes |`
-- Error handling: one-line summary
+- One-line "trigger:", "outcome:", "code:" beneath. Skip prose narration — the diagram + table ARE the documentation.
 
 ## Scheduled Operations
-| Job | Schedule | Purpose | Location |
-|-----|----------|---------|----------|
+| Job | Schedule | ShedLock | Purpose | Code |
+|-----|----------|----------|---------|------|
 
 ## Event Flows
 | Event | Emitter | Consumer(s) | Payload | Side effects |
 |-------|---------|-------------|---------|--------------|
 
+[Skip section entirely if there's no internal event bus.]
+
+## State Transitions
+[Reference data-model.md state machines; document only NEW transitions or NEW triggers introduced by services here. One bullet per trigger: `processSubmit: PENDING → CONFIRMED|FAILED|PROCESSING|SUBMITTED based on adapter response`. Do not duplicate the diagram from data-model.md.]
+
 ## Business Rules
 | Rule | Where (file:line) | Logic |
 |------|-------------------|-------|
+[validation rules, idempotency comparison, status gates. Skip one-line input checks.]
 
 ## Transaction Boundaries
 | Boundary | Propagation | Rationale |
 |----------|-------------|-----------|
 
+[Only rows where the choice is non-default (TransactionTemplate vs @Transactional, NEW propagation, per-item txs in batch loops). Standard `@Transactional class` rows aren't notable.]
+
 ## Error & Recovery Flows
 | Failure mode | Recovery | Trigger | Location |
 |--------------|----------|---------|----------|
+[retry posture, compensation, manual intervention, recovery jobs]
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```
 
 ---
@@ -565,7 +635,7 @@ For each workflow:
 
 **Mandate:** Understand configuration management, deployment, monitoring, secrets handling, and operational tooling.
 
-**Output file:** `docs/learnings/config-ops.md`
+**Output file:** `docs/explore-repo/config-ops.md`
 
 ### Prompt Template
 
@@ -638,15 +708,15 @@ Use Glob and Grep to find, then read every match:
 # Configuration & Operations
 
 ## Overview
-[≤3 sentences: config approach, operational shape. Omit if Key Findings + tables cover it.]
+[≤3 sentences: config approach, secrets source, key operational stack (metrics + logging + health). Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## Configuration Hierarchy
 | Precedence | Source | Notes |
 |------------|--------|-------|
-(Highest precedence first — runtime overrides, env vars, profile files, defaults.)
+(Highest precedence first — runtime overrides, env vars, profile files, defaults. Prefix with an ASCII chain `defaults < application.properties < profile-overlay < env vars < Vault` if it aids skim.)
 
 ## Environment Profiles
 | Profile | Purpose | Key differences |
@@ -656,36 +726,50 @@ Use Glob and Grep to find, then read every match:
 | Category | Property | Default | Purpose |
 |----------|----------|---------|---------|
 
+[Categories: Database, Adapters, Auth0, Timeouts, etc. Each row ≤1 line. Skip standard framework properties unless they have non-default values.]
+
 ## Feature Flags
-| Flag | Default | Purpose |
-|------|---------|---------|
+| Flag | Default | Status | Purpose |
+|------|---------|--------|---------|
+
+[Status column: Active / Inactive (no consumer) / Vapor (referenced in config but no `@ConditionalOnProperty` matches). Vapor flags are critical to surface.]
 
 ## Monitoring & Metrics
-| Metric / probe | Type (counter/timer/gauge/health) | Purpose | Location |
-|----------------|------------------------------------|---------|----------|
+| Metric / probe | Type (counter/timer/gauge/health) | Tags | Source | Purpose | Location |
+|----------------|------------------------------------|------|--------|---------|----------|
+[Source: aspect/manual/auto. Skip framework-default metrics.]
 
-Logging: one-line summary of format, levels, destinations.
+## Health Checks
+[Bullets: each indicator + what it depends on. Skip if only framework defaults are wired.]
+
+## Logging
+| Profile | Format | Level | Destination |
+|---------|--------|-------|-------------|
+
+[Skip section if there's nothing non-default.]
 
 ## Secrets Management
 | Secret | Source (vault/env/file) | Used by | Notes |
 |--------|--------------------------|---------|-------|
-(NO actual values — only names and references.)
+(NO actual values — only names and references. Note what's stored where and what's NOT, e.g. local profile uses env vars.)
 
 ## Deployment
-[ASCII deployment diagram if multi-container/K8s; else table: `| Component | How deployed | Notes |`]
+[ASCII deployment diagram if multi-container/K8s; else table: `| Component | How deployed | Notes |`. Cross-reference structure.md for pipeline view.]
 
 ## Operational Scripts
 | Script | Purpose | Usage |
 |--------|---------|-------|
 
+[Skip if structure.md already covered scripts; cross-reference instead.]
+
 ## Local Development Setup
 Prereqs as one-line bullets above; numbered steps (≤7) below with exact commands.
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```
 
 ---
@@ -694,7 +778,7 @@ Prereqs as one-line bullets above; numbered steps (≤7) below with exact comman
 
 **Mandate:** Understand the testing strategy, patterns, utilities, and how to run tests.
 
-**Output file:** `docs/learnings/testing.md`
+**Output file:** `docs/explore-repo/testing.md`
 
 ### Prompt Template
 
@@ -756,10 +840,10 @@ Read every test utility, config, mock, and base class file. For actual test file
 # Testing
 
 ## Overview
-[≤3 sentences: testing philosophy, maturity. Omit if Key Findings + tables cover it.]
+[≤3 sentences: testing philosophy, maturity, coverage approach. Omit if Key Findings + tables cover it.]
 
 ## Key Findings
-[≤7 bullets, one line each]
+[≤7 bullets, one line each — non-obvious discoveries only]
 
 ## Test Types
 | Type | ~Count | Location pattern | Run command |
@@ -768,10 +852,12 @@ Read every test utility, config, mock, and base class file. For actual test file
 ## Test Frameworks
 | Framework | Type (runner / assert / mock) | Used by |
 |-----------|-------------------------------|---------|
+[one row per framework with one-line "used for X"]
 
 ## Test Utilities & Base Classes
 | Utility / base | Location | Provides | Used by |
 |----------------|----------|----------|---------|
+[One row per non-trivial helper. ≤1 line per cell.]
 
 ## Mocking Strategy
 | External dependency | Mock approach | Location |
@@ -785,15 +871,16 @@ Read every test utility, config, mock, and base class file. For actual test file
 ## Test Patterns & Conventions
 | Aspect | Convention |
 |--------|------------|
-(naming, setup/teardown, assertion style, organization)
+(naming, setup/teardown, assertion style, organization, slice-test usage. Skip rows that are vanilla.)
 
 ## CI/CD Test Pipeline
 | Stage | Parallelization | Reporting | Notes |
 |-------|------------------|-----------|-------|
+[Cross-reference structure.md if it already covered the pipeline; only add testing-specific details (parallelization, reporting, flaky-test handling) here.]
 
 ## Gotchas
-[One-line bullets with file:line refs]
+[Numbered list, each ≤2 sentences with file:line refs. Rule first, why second.]
 
 ## Scan Limitations
-[Coverage gaps and areas not fully explored]
+[Bullets only.]
 ```

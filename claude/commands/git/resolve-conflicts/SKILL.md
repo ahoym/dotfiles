@@ -25,6 +25,8 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
 0. **Platform commands** — platform-specific commands are inlined below via `!` preprocessing. No detection needed.
 
+0.5. **Detect in-progress rebase/merge**: check `.git/rebase-merge/`, `.git/rebase-apply/`, `.git/MERGE_HEAD`. If any exist, the operation is already underway — skip steps 1-6 (args, branch detection, fetch, preview, strategy, start) and jump to step 7 to resolve the existing conflicts, then continue with step 8+. For in-progress interactive rebase with redundant upcoming commits (e.g., branch's incremental fixes already squash-merged into base — diagnose via same-title base commit with larger tree), edit `.git/rebase-merge/git-rebase-todo` to drop redundant `pick` lines before `git rebase --skip`.
+
 1. **Parse arguments**:
    - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true`
    - If `$ARGUMENTS` contains `--merge`, set `STRATEGY=merge` (skip auto-selection in step 5)
@@ -137,12 +139,20 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
    **Rebase-specific: check for file renames.** If the base branch renamed files, conflicts appear under the new filename but contain content from the old. Check both filenames on the base branch to determine what content is already covered before resolving.
 
-   - Ask the operator: "How should this conflict be resolved?"
+   **Classify each conflict as additive or contested:**
+   - **Additive** — both sides add distinct, non-overlapping items to the same list-like region (import lists, function/method additions, record fields, mock factory arrays, config entries). Neither side modifies the other's lines; the shared context is just the enclosing brackets/braces/commas.
+   - **Contested** — sides touch the same symbol (rename, signature change, field-set overlap), reorder existing items, or disagree on a value.
+
+   **Resolution flow:**
+   - **All conflicts in the current commit/merge are additive** → propose a single batch combine-both resolution listing each conflict as a row in a table. Single approval covers all of them. Do NOT prompt per-conflict.
+   - **Mixed or any contested** → present the table, mark additive rows as auto-combine, and ask the operator per contested row only:
      - Keep ours (current branch in merge / base branch in rebase)
      - Keep theirs (base branch in merge / your commit in rebase)
      - Combine both
      - Custom resolution
-   - Apply the resolution and stage the file:
+   - **Bare rename replay** (e.g., main added `foo` + siblings; your branch has a later commit renaming `foo` → `bar`) resolves as: keep all main's additions, apply the rename to the one symbol, drop the conflict frame. Propose as a single action.
+
+   Apply the resolution and stage each file:
    ```bash
    git add <resolved-file>
    ```
@@ -166,7 +176,33 @@ Flags can be combined: `/resolve-conflicts --merge main`
    ```
    If stash pop itself conflicts (common after rebase — stash has pre-rebase content), resolve by keeping the post-rebase version (authoritative), then `git stash drop`.
 
-10. **Push to update the PR**:
+10. **Run project formatters/linters** (rebase-only; merge skips this):
+
+    Rebasing across formatter config or dependency changes routinely produces unstaged Prettier/ESLint/gofmt drift after `git rebase --continue` succeeds. Detect and run the project's fix command. Check for common scripts in order:
+    ```bash
+    # JS/TS projects (check package.json scripts)
+    yarn lint --fix || npm run lint -- --fix || pnpm lint --fix
+    # Go
+    gofmt -w . && goimports -w .
+    # Python
+    ruff format . && ruff check --fix .
+    # Java (Maven + Spotless)
+    ./mvnw spotless:apply || mvn spotless:apply
+    ```
+
+    After running, check for unstaged changes:
+    ```bash
+    git status --porcelain
+    ```
+
+    **If changes exist, ask the operator:**
+    - New commit on top (safest, explicit trail) — default recommendation
+    - Amend into the last rebased commit (cleaner history, but rewrites a just-rebased commit)
+    - Leave unstaged and let the operator handle it
+
+    Do NOT silently amend or commit — the decision depends on project convention (squash-merge vs linear history) and the operator's preference.
+
+11. **Push to update the PR**:
 
     **If STRATEGY=merge:**
     Ask: "Conflicts resolved. Push to update the PR?"
@@ -180,7 +216,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
     git push --force-with-lease origin <current-branch>
     ```
 
-11. **Verify PR status**:
+12. **Verify PR status**:
     ```
     !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```

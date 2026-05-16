@@ -250,8 +250,10 @@ Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/met
 Entity type keys for PRs:
 ```json
 {"ENTITY_PREFIX": "pr", "ENTITY_LABEL": "PR", "STATE_FIELD": "pr_state",
- "STATE_CHECK_CMD": "gh pr view", "TERMINAL_STATES": "MERGED CLOSED"}
+ "TERMINAL_STATES": "MERGED CLOSED"}
 ```
+
+`FETCH_ITEM_STATE_CMD` is set separately from platform detection (see sweep-scaffold.md → "FETCH_ITEM_STATE_CMD" examples).
 
 All other keys (`CONCURRENCY`, `RUN_DIR`, `TIMESTAMP`) follow the schema defaults. Also write address-mode data files to `<RUN_DIR>/`:
 - `branch-cases.txt` — case body lines (e.g., `80) echo "feat/auth" ;;`)

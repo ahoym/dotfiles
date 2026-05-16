@@ -23,9 +23,9 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 ## Reference Files (conditional — read only when needed)
 
 - `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
-- `request-reply-templates.md` — Read before composing replies (step 6)
+- `request-reply-templates.md` — Read before composing replies (step 8)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected
-- `address-request-edge-cases.md` — Read when processing comments (step 5+). Skip on quiet no-ops.
+- `address-request-edge-cases.md` — Read when processing comments (step 6+). Skip on quiet no-ops.
 - All provider directories from `~/.claude/learnings-providers.json`, plus `docs/learnings/` — Glob filenames at step 4; read files whose domain matches the comments' subject matter
 
 ## Instructions
@@ -42,10 +42,10 @@ Set `COMMENT_ONLY` mode using this precedence:
 Announce the mode after detection: `Mode: comment-only (not the author)` or `Mode: comment-only (explicit)` or `Mode: implement`.
 
 When `COMMENT_ONLY=true`:
-- **Skip** steps 3 (checkout), 8 (act on suggestions), 10 (implement), 11 (push), 12 (reply with commit ref)
-- **Adjust step 7** reply tone — use "recommend" / "suggest a follow-up" instead of "I'll fix" / "acknowledged, fixing"
-- **Adjust step 9** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
-- **Adjust step 13** summary — report comments posted, not changes implemented
+- **Skip** steps 3 (checkout), 9 (act on suggestions), 11 (implement), 12 (push), 13 (reply with commit ref)
+- **Adjust step 8** reply tone — use "recommend" / "suggest a follow-up" instead of "I'll fix" / "acknowledged, fixing"
+- **Adjust step 10** summary — action column uses "Commented (agree)", "Commented (disagree)", "Clarified", etc. instead of "Implemented" / "Awaiting your decision"
+- **Adjust step 14** summary — report comments posted, not changes implemented
 
 1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments by running the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
    !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
@@ -59,17 +59,29 @@ When `COMMENT_ONLY=true`:
    - Number each comment for reference (store as `COMMENTS` list)
    - **Include new operator comments on previously-replied threads.** A commit-ref reply doesn't close a thread — check all threads for non-self comments (especially operator, no `Role:` tag) posted after the last addresser reply.
 
-3. **Checkout the review branch** if not already on it — follow **Checkout Review Branch** in the platform command scripts. **Skip if `COMMENT_ONLY`.**
+3. **Checkout the review branch** if not already on it. **Skip if `COMMENT_ONLY`.**
+   ```
+   !`cat ~/.claude/platform-commands/checkout-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
-4. **Load relevant learnings**: Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob each provider's `localPath/` and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
+4. **Load relevant learnings** *(load-bearing — grounds assessments in cluster knowledge, not first principles; persona proactive loads don't replace this)*: Read `~/.claude/learnings-providers.json` to discover all provider directories. Glob each provider's `localPath/` and `docs/learnings/` filenames and identify any whose domain matches the comments' subject matter (e.g., a comment about skill structure → `claude-authoring-skills.md`, a comment about test patterns → `testing-*.md`). Read matched files so categorization and replies are grounded in established knowledge. Skip this for trivial comments (typos, praise).
 
-5. **Form independent assessment**: For each suggestion, determine what you think the right change is *before* evaluating whether you agree with the reviewer. Read the file context, pull relevant learnings, and reason about the problem independently. Agreement should be a conclusion you arrive at, not a starting position.
+5. **Activate persona** (Implementation-start gate): Before assessing suggestions or posting replies, fire the persona gate per `~/.claude/guidelines/context-aware-learnings.md`. Persona shapes both the assessment lens and the `*Persona:*` footer on every reply.
+
+   - Scan the comments' subject-matter domains (e.g., TypeScript, Go backend, infra, docs, CI).
+   - **No persona active + domain match exists:** announce `🎭 No persona active — recommending <name>. Set it?` and wait for operator confirmation before proceeding. Use `set-persona` once confirmed.
+   - **Persona already active:** announce `🎭 Persona active: <name> — proceeding`.
+   - **No domain match:** announce `🎭 No persona — none relevant, proceeding without`.
+
+   **Skip this step entirely** when every comment is trivial (typos, praise, LGTM reacts) — a domain lens is not load-bearing for a typo fix.
+
+6. **Form independent assessment**: For each suggestion, determine what you think the right change is *before* evaluating whether you agree with the reviewer. Read the file context, pull relevant learnings, and reason about the problem independently. Agreement should be a conclusion you arrive at, not a starting position.
 
    - **Multi-part comments:** Enumerate every distinct point the reviewer raises. Map your proposed change to each one. If your plan doesn't cover a point, either address it or push back on why.
    - **Multi-option suggestions:** When a reviewer offers alternatives, evaluate each against the content's structure. Don't default to the simplest fix.
    - **Push back when warranted:** If the reviewer's suggestion is wrong, incomplete, or misses context, say so — respectfully, with reasoning. This applies to both agent and operator reviewers.
 
-6. **Categorize each comment in `COMMENTS`**:
+7. **Categorize each comment in `COMMENTS`**:
    a. Read the relevant file and understand the context
    b. Categorize each comment as one of:
       - **Suggestion** - Proposes a code change, architectural change, or different approach
@@ -80,16 +92,19 @@ When `COMMENT_ONLY=true`:
 
    Apply the **Mutual Resolution Filter** from the base reference before replying.
 
-7. **Reply to all comments on the platform**:
+8. **Reply to all comments on the platform**:
    Read `request-reply-templates.md` for tone guidance, then reply directly on the platform:
    - For suggestions: Enumerate the reviewer's distinct points. Map your proposed change to each one. If your plan doesn't cover a point, address it or push back on why. Push back on points you disagree with rather than silently skipping them.
    - For clarification requests: Provide the explanation
    - For typo/bug fixes: Acknowledge and confirm you'll fix it (or "recommend fixing" if `COMMENT_ONLY`)
-   - For general feedback/positive signals: React with a `rocket` emoji only. Follow **React to Comment** in the platform command scripts. No text reply needed.
+   - For general feedback/positive signals: React with a `rocket` emoji only. No text reply needed.
+     ```
+     !`cat ~/.claude/platform-commands/react-to-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+     ```
 
    **IMPORTANT:** Do NOT prompt the operator in CLI for approval at this step. Always reply to comments on the platform first.
 
-   Append the **Footnote Format** from the base reference to every reply. Follow **Reply to Inline Comment** in the platform command scripts. Use **Reply File Naming** convention from the base reference.
+   **All replies thread under the parent discussion — even for top-level operator notes.** Every note has a `discussion_id`, whether it's inline (DiffNote with `position`) or top-level (no `position`). Use the discussion-reply endpoint (`reply-to-inline-comment.sh`) for both — it accepts any `discussion_id`. NEVER use `post-top-level-comment.sh` to "reply" to a top-level note: that endpoint creates a new floating discussion instead of threading under the parent, leaving the operator's directive as a single-note discussion with the addresser's responses scattered as siblings rather than children.
 
    **Before proceeding to step 8, run the Footnote Enforcement check** from the base reference against every comment ID you just posted. Missing footnotes must be fixed here — not deferred — since later steps (mutual resolution, watermarks, self-filter) all depend on the `Role:` tag.
 
@@ -133,9 +148,12 @@ When `COMMENT_ONLY=true`:
    | 2 | auth.py:48 | Restructure auth flow | Commented (disagree) — pushed back |
    ```
 
-   Follow **Post Top-Level Comment** in the platform command scripts.
+   **Post top-level comment:**
+   ```
+   !`cat ~/.claude/platform-commands/post-top-level-comment.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
-10. **Implement changes** — **Skip if `COMMENT_ONLY`.**
+11. **Implement changes** — **Skip if `COMMENT_ONLY`.**
     a. Group changes by logical concern (e.g., variable elimination, section reordering, typo fixes). Each group becomes its own commit.
     b. For each group:
        - Make the changes
@@ -151,14 +169,14 @@ When `COMMENT_ONLY=true`:
          ```
     c. Track which comments are addressed by each commit hash.
 
-11. **Push changes** — **Skip if `COMMENT_ONLY`.**
+12. **Push changes** — **Skip if `COMMENT_ONLY`.**
     ```bash
     git push origin <branch>
     ```
 
-12. **Reply to comments with commit reference** (after push — mandatory) — **Skip if `COMMENT_ONLY`.**
+13. **Reply to comments with commit reference** (after push — mandatory) — **Skip if `COMMENT_ONLY`.**
 
-    **Do not skip this step.** Step 7 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
+    **Do not skip this step.** Step 8 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
     For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment. **Append the Footnote Format — same rules as step 7 — and run the Footnote Enforcement check against every commit-ref reply before proceeding to step 13.**
 
@@ -166,7 +184,7 @@ When `COMMENT_ONLY=true`:
     - Do not reply automatically
     - Let the operator handle these manually or in a follow-up
 
-13. **Summary**: Report to the operator:
+14. **Summary**: Report to the operator:
     - Number of suggestions auto-implemented (mutual agreement) — or "commented on (agree)" if `COMMENT_ONLY`
     - Number of typo/bug fixes addressed — or "flagged" if `COMMENT_ONLY`
     - Number of comments replied to with clarification
@@ -174,4 +192,4 @@ When `COMMENT_ONLY=true`:
 
 ## Important Notes (conditional)
 
-- `address-request-edge-cases.md` — Read when processing comments (step 5+). Contains independent assessment guidance, categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**
+- `address-request-edge-cases.md` — Read when processing comments (step 6+). Contains independent assessment guidance, categorization edge cases, line number drift handling, approval vs investigation distinction, planning document exceptions, re-review requests, and keep-reviews-focused guidance. **Skip on quiet no-ops.**

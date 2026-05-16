@@ -20,8 +20,9 @@ MODEL="${MODEL:-{{MODEL}}}"     # claude model — runtime env override supporte
 ENTITY_PREFIX="{{ENTITY_PREFIX}}"     # "pr" or "issue" — controls directory naming
 ENTITY_LABEL="{{ENTITY_LABEL}}"       # "PR" or "Issue" — controls log labels
 STATE_FIELD="{{STATE_FIELD}}"         # "pr_state" or "issue_state" — status.md field name
-STATE_CHECK_CMD="{{STATE_CHECK_CMD}}" # "gh pr view" / "glab mr view" or "gh issue view" / "glab issue view" — word-split intentionally; must be "<tool> <subcommand>" only, no embedded flags
 TERMINAL_STATES="{{TERMINAL_STATES}}" # space-separated single-word state tokens (word-boundary matched by is_terminal_state)
+# State-check command: FETCH_ITEM_STATE_CMD is substituted literally below (line ~202)
+# with $pr_num available; supports gh and glab pipe forms uniformly.
 {{#BRANCHES}}
 # Branch mapping (address mode only — function for bash 3.x compat on macOS)
 branch_for() {
@@ -93,6 +94,24 @@ echo ""
 
 # Clear stale rate-limit sentinel from prior runs
 rm -f "${RUN_DIR}/.rate-limited"
+
+# --- Pre-flight: validate FETCH_ITEM_STATE_CMD ---
+# Dry-run the platform command with a dummy pr_num before launching sessions.
+# Catches flag/argument errors (e.g., `glab api --jq` — unsupported) that would
+# otherwise produce empty state for every PR and silently skip the whole sweep.
+_probe=$(
+    pr_num=0
+    {{FETCH_ITEM_STATE_CMD}} 2>&1
+) || true
+case "$_probe" in
+    *"Unknown flag"*|*"unrecognized argument"*|*"flag provided but not defined"*|*"unknown shorthand flag"*)
+        echo "BLOCKED: FETCH_ITEM_STATE_CMD appears invalid — aborting before launch." >&2
+        echo "Probe output:" >&2
+        echo "  $_probe" >&2
+        echo "Fix: update metadata.json → FETCH_ITEM_STATE_CMD, then regenerate let-it-rip.sh via fill-template.sh." >&2
+        exit 2
+        ;;
+esac
 
 OVERALL_START=$(date +%s)
 
@@ -180,8 +199,10 @@ process_item() {
     fi
 
     # Pre-flight: skip terminal entities (API fallback for first run or missing status.md)
+    # FETCH_ITEM_STATE_CMD references $pr_num — set it in subshell before invocation.
     local state
-    state=$($STATE_CHECK_CMD "$item_num" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
+    state=$(pr_num="$item_num"; {{FETCH_ITEM_STATE_CMD}} 2>/dev/null || echo "UNKNOWN")
+    [ -z "$state" ] && state="UNKNOWN"
     if [ "$state" = "UNKNOWN" ]; then
         printf '# %s #%s\nmilestone: api-error\nreason: state-check-failed\n%s: UNKNOWN\n' "$ENTITY_LABEL" "$item_num" "$STATE_FIELD" > "$status_file"
         echo "[$ts] ${ENTITY_LABEL} #${item_num}: SKIPPED (api-error)"
@@ -401,7 +422,7 @@ process_item() {
 }
 
 export -f process_item write_state is_terminal_state
-export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD STATE_CHECK_CMD TERMINAL_STATES
+export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD TERMINAL_STATES
 
 # --- Launch ---
 printf '%s\n' "${ITEMS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_item "$@"' _ {}

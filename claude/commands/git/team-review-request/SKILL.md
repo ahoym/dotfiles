@@ -24,10 +24,6 @@ No active persona required — this skill selects its own reviewers.
 For prompt-free execution, ensure these allow patterns in `~/.claude/settings.local.json`:
 
 ```json
-"Bash(gh pr view:*)",
-"Bash(gh pr diff:*)",
-"Bash(gh api:*)",
-"Bash(gh pr review:*)",
 "Read(~/.claude/learnings*/**)",
 "Read(~/.claude/learnings-providers.json)",
 "Read(~/.claude/commands/set-persona/**)",
@@ -37,7 +33,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared footnote format, reply naming, incremental tracking, mutual resolution, and comment identity patterns
 - `persona-routing.md` — Read at step 5 for persona selection and step 10 for merge algorithm
 - `reviewer-prompt-template.md` — Read at step 8, injected into subagent prompts
 - `single-reviewer-mode.md` — Read only when N=1 (step 5 selects one persona)
@@ -45,13 +41,21 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Instructions
 
-**Role:** Team Reviewer (orchestrator). Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform detection, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Team-Reviewer` throughout.
+**Role:** Team Reviewer (orchestrator). Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (footnotes, reply naming, incremental tracking, mutual resolution, comment identity). Platform commands are inlined at each step — no detection or cluster file reading needed. This skill uses `YOUR_ROLE=Team-Reviewer` throughout.
 
 **Orchestrator personas:** Read `~/.claude/commands/set-persona/team-lead.md` and `~/.claude/commands/set-persona/reviewer.md` at skill start. The `team-lead` persona guides merge, overview composition, and deliberation. The `reviewer` persona provides base review instincts. These are the orchestrator's own lenses — distinct from the domain reviewer personas selected for subagents in step 5.
 
 1. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
-2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
+2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch).
+
+   **Consolidated Fetch:**
+   ```
+   !`cat ~/.claude/platform-commands/consolidated-fetch.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+   Parse JSON response. Store `REQUEST_NUMBER`, `REQUEST_TITLE`, `HEAD_BRANCH`, `BASE_BRANCH`.
+
+   **Terminal State Handling:** Check state first. If terminal (merged or closed): use `CronList` to find any cron job whose prompt contains the skill name and `<REQUEST_NUMBER>`, cancel it with `CronDelete` if found, announce and stop.
 
    Check for previous team reviews using the `reviews` data already fetched. Filter for `*Role:* Team-Reviewer` in review bodies. If found, set `MODE=re-review`, store `LAST_REVIEW_ID` and `LAST_REVIEW_TS`, and read `re-review-mode.md` from this skill's directory. Otherwise, set `MODE=first-review`.
 
@@ -62,11 +66,27 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER>: no changes since last team review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-4. **Fetch PR metadata and diff** — run these in parallel using the platform cluster files:
-   - **Fetch Diff** → store as `FULL_DIFF`
-   - **Fetch Files Changed** → store as `CHANGED_FILES`
-   - **Fetch Review Details** → store `REQUEST_BODY`
-   - **Fetch Commits** → store as `COMMITS`
+4. **Fetch PR metadata and diff** — run these in parallel:
+
+   **Fetch Diff** → store as `FULL_DIFF`:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-diff.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+
+   **Fetch Files Changed** → store as `CHANGED_FILES`:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-files.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+
+   **Fetch Review Details** → store `REQUEST_BODY`:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+
+   **Fetch Commits** → store as `COMMITS`:
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-commits.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
@@ -111,13 +131,16 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 9. **Collect and verify findings** — read each subagent's output file. Verify per `~/.claude/skill-references/subagent-patterns.md`: spot-check that findings reference real files from the diff. Parse the structured JSON.
 
-    **Line number correction (mandatory):** Subagents derive line numbers from the diff, which is error-prone — off-by-1-3 lines is common. For each finding, verify and correct `line_start` before merging:
+    **Line number correction (MANDATORY — DO NOT SKIP):** Subagents derive line numbers from the diff, which is error-prone — off-by-1-3 lines is common. Inline comments posted on wrong lines undermine review credibility. For EVERY finding, verify and correct `line_start` before merging:
 
     a. Extract a recognizable code token from the finding's `summary` or `inline_comment` (e.g., a function name, variable, keyword — the most specific identifier mentioned).
+    a-prime. **Detect diff-artifact-offset reporting first.** When the diff is provided as a single concatenated text artifact, subagents sometimes return positions counting from the artifact start instead of source-file lines (e.g., `line_start: 336` for the 92nd line of the 8th file in a 765-line artifact). If `line_start` exceeds the source file's line count at head SHA (`git show <head_sha>:<file> | wc -l`), this is the failure mode — the ±5/±10 windows in (b)-(e) cannot recover it because the line doesn't exist in the file. Re-anchor immediately: `git show <head_sha>:<file>` + grep `anchor_token`, then skip (b)-(e). This is distinct from the `<= 5` placeholder case in (f), which catches the opposite extreme.
     b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`.
     c. Check if the code token appears at `line_start`. If yes, the line number is correct — move on.
     d. If not, scan the ±5 line window for the token. If found, update `line_start` (and `line_end` by the same delta) to the correct line.
     e. If the token isn't found within ±5 lines, widen to ±10. If still not found, keep the original and flag: `⚠️ Could not verify line number for <file>:<line_start> (<token>)`.
+
+    f. **New-file placeholder fix.** Subagents commonly emit `line_start: 1, line_end: 1` (or `0, 0`) for findings on wholly-new files in the diff — the ±5/±10 windows don't help. When `line_start <= 5` AND the file is fully `+` in the diff: fetch the MR-branch source via `git show origin/<HEAD_BRANCH>:<file>` and grep the `anchor_token` across the full file. Update `line_start`/`line_end` to the matched line. If the anchor is non-unique, pick the occurrence closest to the finding's described context.
 
     This step catches the most common subagent error (LLM line-counting imprecision) before it reaches GitLab. Correct lines before merging — merged findings inherit the corrected positions.
 
@@ -167,7 +190,9 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     **Body discipline.** The body is a count + pointer, not a finding list. The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths, no rationale. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.` Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
-13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json` following the **"Post Review with Inline Comments"** format from the platform cluster files. Event: `COMMENT`.
+13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json`. Event: `COMMENT`.
+
+    **Inline target must be in the diff.** GitLab `createDiffNote` (and GitHub's equivalent) require `newLine` to be a line that appears in the MR/PR diff (added or context). Findings whose target file is unchanged in the diff — e.g., a pre-existing helper class called from new code — cannot post inline. Re-anchor on a related changed line (the call site in a changed file) and reference the unchanged file in the body, OR demote to summary-only. Don't try to post and discover the rejection at request time.
 
     ```
     !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`

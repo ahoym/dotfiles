@@ -24,10 +24,6 @@ Requires an **active persona** — the persona provides the review lens (priorit
 For prompt-free execution, ensure these allow patterns in `~/.claude/settings.local.json`:
 
 ```json
-"Bash(gh pr view:*)",
-"Bash(gh pr diff:*)",
-"Bash(gh api:*)",
-"Bash(gh pr review:*)",
 "Read(~/.claude/learnings*/**)",
 "Read(~/.claude/learnings-providers.json)",
 "Read(~/.claude/commands/set-persona/**)",
@@ -43,11 +39,17 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 **Role:** Reviewer. Read `~/.claude/skill-references/request-interaction-base.md` for shared patterns (platform commands, consolidated fetch, incremental tracking, footnotes, reply naming, mutual resolution, comment identity). This skill uses `YOUR_ROLE=Reviewer` and `OTHER_ROLE=Addresser` throughout.
 
-1. **Verify active persona** — a persona is active if set via `/set-persona` or an ad-hoc prompt (e.g., "act as a senior infosec engineer", "you are a security reviewer"). For ad-hoc, extract a short name and proceed. If neither is active, glob `.claude/personas/` and `~/.claude/commands/set-persona/` for available personas, recommend the best match, and wait for activation. The persona shapes every aspect of the review — proceeding without one produces generic feedback.
+1. **Verify active persona** — a persona is active if set via `/set-persona` or an ad-hoc prompt (e.g., "act as a senior infosec engineer", "you are a security reviewer"). For ad-hoc, extract a short name and proceed. Announce per the observability format in `~/.claude/guidelines/context-aware-learnings.md`:
+   - **Persona already active:** `🎭 Persona active: <name> — proceeding`.
+   - **No persona active:** glob `.claude/personas/` and `~/.claude/commands/set-persona/` for available personas, pick the best match, announce `🎭 No persona active — recommending <name>. Set it?`, and wait for operator confirmation before proceeding.
+
+   The persona shapes every aspect of the review — proceeding without one produces generic feedback.
 
 2. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
 3. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). Then follow the base reference: **Consolidated Fetch** → **Terminal State Handling**.
+
+   **Linked-repo detection:** if the resolved request's repo differs from CWD's git remote, this is a **linked-repo review** — CWD is the fact-check substrate, the target is a different repo. Do not fall back to "detect from current branch" in this mode; require an explicit URL or `<owner>/<repo>#<number>`. Announce: `🔗 Linked-repo review: CWD <cwd-repo> → target <target-repo>`.
 
 4. **Check for previous reviews** — using the `reviews` data already fetched in step 3, filter for both `*Persona:* <PERSONA_NAME>` AND `*Role:* Reviewer` in review bodies. Both must match — the same persona may post as Author (via `address-request-comments`) and those are separate comment chains.
 
@@ -63,9 +65,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Re-review mode** — two-phase check, short-circuiting on the first signal:
 
-   **Phase 1 (1 call):** Run the **Fetch Activity Signals (consolidated)** script:
+   **Phase 1 (1 call):** Fetch activity signals via the **Fetch Activity Signals (consolidated)** script. Parse the JSON response to check:
    !`cat ~/.claude/platform-commands/fetch-activity-signals.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-   Parse the JSON response to check:
    - **New commits**: latest commit SHA differs from last reviewed
    - **New reviews from others**: any review with a non-empty body submitted after `LAST_REVIEW_TS` that doesn't contain our persona+role footnote. Ignore empty-body reviews — they're wrappers for inline comments, which phase 2 catches reliably.
    - **New top-level comments**: any comment created after `LAST_REVIEW_TS`
@@ -73,9 +74,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    If any activity signal → proceed to step 6+ (skip phase 2).
 
-   **Phase 2 (1 call, only if phase 1 found nothing):** Run the **Fetch Recent Inline Comments (quick-exit check)** script (fetches 10):
+   **Phase 2 (1 call, only if phase 1 found nothing):** Fetch recent inline comments (10) via the quick-exit check script. Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
    !`cat ~/.claude/platform-commands/fetch-recent-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-   Filter out self-comments (`Role:.*<YOUR_ROLE>` in body). Non-self present and some new → proceed. Non-self present and all old → skip. All self → inconclusive, fall through to full incremental fetch.
 
    This is 1 call when there's new activity in phase 1, 2 calls when polling quietly. All four activity signals (commits, non-empty reviews, top-level comments, inline comments) are covered.
 
@@ -86,12 +86,24 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    PR #<REQUEST_NUMBER>: no changes since last review (<LAST_REVIEW_TS>). Skipping. 🔄
    ```
 
-6. **Fetch PR metadata and diff** — run these in parallel using the platform command scripts:
+6. **Fetch PR metadata and diff** — run these in parallel:
 
-   - **Fetch Diff** — use the **"Fetch Diff"** section
-   - **Fetch Files Changed** — use the **"Fetch Files Changed"** section
-   - **Fetch Review Details** — for PR body and metadata
-   - **Fetch Commits** — use the **"Fetch Commits"** section
+   **Fetch Diff:**
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-diff.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+   **Fetch Files Changed:**
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-files.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+   **Fetch Review Details:**
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-details.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
+   **Fetch Commits:**
+   ```
+   !`cat ~/.claude/platform-commands/fetch-review-commits.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+   ```
 
    Store the diff as `FULL_DIFF`, file list as `CHANGED_FILES`, body as `REQUEST_BODY`, commits as `COMMITS`.
 
@@ -111,6 +123,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 9. **Analyze changes** — review through the active persona's lens. **Base analysis only on MR content** — the diff, changed files, MR body, commits, and loaded learnings. The consolidated fetch includes existing reviews and comments for mode detection only; do not read, reference, or let them influence your findings. Your review must be fully independent. Redundant findings across reviewers are expected; influenced findings are not.
 
+   **Linked-repo review (CWD ≠ target):** CWD's code is concrete implementation evidence. When the diff makes a claim CWD can verify or contradict (a contract shape, a field meaning, a behavior), grep CWD and cite the result. CWD code is *evidence*, not *opinion* — the independence rule still applies to other reviewers' findings, but verifiable code in a linked repo is the opposite of conjecture and should be used.
+
    **First review:** For each file, evaluate:
    - Does the change align with the persona's domain priorities?
    - Are there taxonomy, placement, or architectural concerns?
@@ -123,7 +137,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    **Separate identification from suggestion.** Finding an issue and proposing a fix require independent reasoning. A wrong suggestion compounds — the addresser implements it, the reviewer confirms it, and the operator unwinds multiple layers. Verify a rule's scope before citing it, think about what actually improves the content, and when uncertain, identify without prescribing.
 
    Build the output lists:
-   - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary.
+   - `INLINE_COMMENTS`: new findings on new/changed code. All specifics belong here — not in the summary. **Linked-repo citations** use a repo-name prefix: `<repo-name>/<path>:<line>`. Bare paths from a different repo are unresolvable for the target MR's reviewers.
    - `SUMMARY_POINTS`: high-level themes. No file-specific details.
 
    **No duplication between summary and inline comments.** The summary names themes; inline comments carry the specifics.
@@ -153,7 +167,10 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Each inline comment and follow-up reply** must also end with the footnote.
 
-11. **Post the review** — use the **"Post Review with Inline Comments"** section from the platform command scripts. Write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+11. **Post the review** — write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+    ```
+    !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
+    ```
 
     **Re-review only:** Also execute reactions and follow-ups per `re-review-mode.md`.
 

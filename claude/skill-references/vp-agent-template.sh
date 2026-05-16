@@ -7,8 +7,14 @@
 # Example: bash ~/.claude/skill-references/vp-agent-template.sh "Summarize this repo" ./tmp/vp
 #
 # Requires: claude CLI, ~/.claude/skill-references/stream-monitor.sh
-# Key learning: --allowedTools is mandatory on every claude -p invocation (headless sessions
-# auto-deny unpermitted tools; settings.local.json doesn't reliably propagate to nested sessions).
+# Key learnings:
+# - --allowedTools is mandatory on every claude -p invocation (headless sessions
+#   auto-deny unpermitted tools; settings.local.json doesn't reliably propagate to nested sessions).
+# - --max-turns 500 for compound Directors (assessment + monitor + converge burns 100+ turns).
+# - Event-driven, not polling: use Bash(run_in_background: true) and wait for notifications.
+# - VP → Director directives via director-<name>/directives.md (same append-only pattern as Director → Worker).
+# - Warm sessions: rerun same let-it-rip.sh to preserve session.state for --resume. Don't regenerate artifacts.
+# See: ~/.claude/learnings/claude-code/multi-agent/vp-tier-orchestration.md
 
 set -euo pipefail
 
@@ -18,6 +24,7 @@ TIMESTAMP=$(date +%Y-%m-%dT%H%M%S)
 RUN_DIR="$(cd "$RUN_DIR_BASE" 2>/dev/null && pwd || mkdir -p "$RUN_DIR_BASE" && cd "$RUN_DIR_BASE" && pwd)/${TIMESTAMP}"
 MONITOR="$HOME/.claude/skill-references/stream-monitor.sh"
 ALLOWED_TOOLS="Read Glob Grep Bash Write"
+MAX_TURNS="${3:-500}"  # compound Directors need 500+; simple tasks need ~100
 
 mkdir -p "$RUN_DIR/director" "$RUN_DIR/workers"
 
@@ -97,13 +104,13 @@ printf 'Launching Director session...\n\n'
 
 if [ -x "$MONITOR" ]; then
     cat "$RUN_DIR/director/prompt.txt" \
-        | sh -c "echo \$\$ > $RUN_DIR/director/session.pid; exec claude -p --allowedTools '$ALLOWED_TOOLS' --verbose --output-format stream-json" \
+        | sh -c "echo \$\$ > $RUN_DIR/director/session.pid; exec claude -p --max-turns $MAX_TURNS --allowedTools '$ALLOWED_TOOLS' --verbose --output-format stream-json" \
         | "$MONITOR" "$RUN_DIR/director" \
         | tee "$RUN_DIR/director/raw.jsonl" > /dev/null &
     DIRECTOR_PID=$!
 else
     cat "$RUN_DIR/director/prompt.txt" \
-        | sh -c "echo \$\$ > $RUN_DIR/director/session.pid; exec claude -p --allowedTools '$ALLOWED_TOOLS'" \
+        | sh -c "echo \$\$ > $RUN_DIR/director/session.pid; exec claude -p --max-turns $MAX_TURNS --allowedTools '$ALLOWED_TOOLS'" \
         > "$RUN_DIR/director/result-raw.txt" 2>&1 &
     DIRECTOR_PID=$!
 fi

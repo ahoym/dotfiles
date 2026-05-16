@@ -44,6 +44,16 @@ trap 'rm -f "$WORK" "$KV" "$NEXT"' EXIT
 
 cp "$TEMPLATE" "$WORK"
 
+# --- Phase 0: Strip documentation header above first --- separator ---
+# Prompt templates use a header block (title, placeholder docs, file inclusion
+# docs) for human authors. The assembled output starts after the first ---.
+# Without this, {KEY} and {@file} patterns in the docs get substituted/expanded.
+if grep -qm1 '^---$' "$WORK"; then
+    first_sep=$(grep -nm1 '^---$' "$WORK" | cut -d: -f1)
+    tail -n +"$((first_sep + 1))" "$WORK" > "$NEXT"
+    mv "$NEXT" "$WORK"
+fi
+
 # --- Generate KV pairs early (used by multiple phases) ---
 jq -r 'to_entries[] | select(.value != null) | "\(.key)\t\(.value | tostring)"' "$METADATA" > "$KV"
 

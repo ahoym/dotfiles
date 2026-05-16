@@ -39,7 +39,9 @@ Update `{PR_DIR}/status.md` milestone: `reviewing` → `posted`.
 
 ## Step 6: Write Artifacts
 
-Append a dated section to `{PR_DIR}/results.md` (plural — never `result.md`; the singular form is invisible to `sweep-status-summary.sh --retro` and silently lost). Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
+### results.md (append-only)
+
+Append a dated section to `{PR_DIR}/results.md` (plural — never `result.md`; the singular form is invisible to `sweep-status-summary.sh --retro` and silently lost). On the very first run, prepend a header: `# PR #{PR_NUMBER} — {PR_TITLE}`. Follow **Result & Learnings Append Pattern** in `sweep-scaffold.md`. Each section:
 
 ```markdown
 ## Review — <ISO timestamp>
@@ -59,7 +61,20 @@ Append a dated section to `{PR_DIR}/results.md` (plural — never `result.md`; t
 | Error | <none or message> |
 ```
 
-Use `last_reviewed_sha` as the watermark SHA key in `status.md`. On error, still write `milestone: errored`.
+### status.md (watermark)
+
+Write final status:
+
+```yaml
+milestone: done
+pr: {PR_NUMBER}
+pr_state: <OPEN / MERGED / CLOSED>
+last_reviewed_sha: <HEAD SHA at time of processing>
+last_comment_id: <MAX of inline and top-level comment IDs>
+updated_at: <ISO timestamp>
+```
+
+On error, still write `milestone: errored` with all watermark fields.
 
 ## Step 7: Write Learnings
 

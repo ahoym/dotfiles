@@ -29,27 +29,25 @@ You are an autonomous addresser agent. Your job is to address review comments on
 
 `cd` into the worktree directory: `{WORKTREE_PATH}`
 
-Verify the working directory is correct:
-```bash
-pwd
-git branch --show-current
-```
+Verify with **separate** Bash calls (do NOT combine with `&&`):
+1. `pwd`
+2. `git branch --show-current`
 
-## Step 6: Resolve Conflicts (conditional)
+## Step 6: Conflict Check
 
-**Only run this step when `{RESOLVE_CONFLICTS}` is `true`.**
+Run the conflict check: `{CHECK_PR_MERGEABLE_CMD}` (replace `<N>` with {PR_NUMBER}).
 
-Check whether the PR has merge conflicts with the base branch (run `{CHECK_PR_MERGEABLE_CMD}` replacing `<N>` with {PR_NUMBER}):
 - **MERGEABLE** → no conflicts, proceed to the next step
-- **UNKNOWN** → wait 5 seconds and retry once. If still UNKNOWN, treat as CONFLICTING (conservative — avoids proceeding with live conflicts)
-- **CONFLICTING** → resolve:
+- **UNKNOWN** → wait 5 seconds and retry once. If still UNKNOWN, treat as CONFLICTING
+{{#RESOLVE_CONFLICTS}}
+- **CONFLICTING** → resolve conflicts before proceeding:
   1. Use the Skill tool: `skill="git:resolve-conflicts"`, `args="{BASE}"`
   2. If the Skill succeeds, update `{PR_DIR}/status.md` milestone to `conflicts-resolved`
   3. If the Skill fails (permission denied, error), update `{PR_DIR}/status.md` milestone to `conflicts-resolution-failed` and exit immediately
-
-**Permission required:** `Skill(git:resolve-conflicts *)` in `permissions.allow`. For `claude -p` sessions launched with `--allowedTools`, the pattern must also appear in the `--allowedTools` list.
-
-If `{RESOLVE_CONFLICTS}` is `false`, run a lightweight conflict check: `{CHECK_PR_MERGEABLE_CMD}` (replace `<N>` with {PR_NUMBER}). If CONFLICTING, update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message — do not proceed to address comments, as push will fail. If MERGEABLE or UNKNOWN, proceed.
+{{/RESOLVE_CONFLICTS}}
+{{#LIGHTWEIGHT_CONFLICT_CHECK}}
+- **CONFLICTING** → update `{PR_DIR}/status.md` milestone to `push-failed-conflicts` and exit with a clear message. Do not proceed to address comments — push will fail.
+{{/LIGHTWEIGHT_CONFLICT_CHECK}}
 
 ## Step 7: Search Learnings
 
@@ -103,7 +101,9 @@ If after 2 remote iterations CI is still red, set milestone to `ci-failed` and c
 
 ## Step 11: Write Artifacts
 
-Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `sweep-scaffold.md`. Mode-specific result fields:
+### results.md (append-only)
+
+Append a new dated section to `{PR_DIR}/results.md`. On the very first run, prepend a header: `# PR #{PR_NUMBER} — {PR_TITLE}`. Each section:
 
 ```markdown
 ## Address — <ISO timestamp>
@@ -124,7 +124,21 @@ Follow **Result & Learnings Append Pattern** and **status.md Watermark** in `swe
 | Error | <none or message> |
 ```
 
-Use `last_addressed_sha` as the watermark SHA key in `status.md`. On error, still write `milestone: errored`.
+### status.md (watermark)
+
+Write final status:
+
+```yaml
+milestone: done
+pr: {PR_NUMBER}
+pr_state: <OPEN / MERGED / CLOSED>
+mergeable: <MERGEABLE / CONFLICTING / UNKNOWN>
+last_addressed_sha: <HEAD SHA at time of processing>
+last_comment_id: <MAX of inline and top-level comment IDs>
+updated_at: <ISO timestamp>
+```
+
+On error, still write `milestone: errored` with all watermark fields.
 
 ## Step 12: Write Learnings
 
