@@ -1,7 +1,7 @@
 Empirical comparison of background Agent subagents vs claude -p sessions for sweep orchestration. Tested 2026-04-14 from a multi-module Java/Spring repo.
 
 **Keywords:** background agent, claude -p, director, sweep, permissions, context window, skill invocation, cross-repo
-**Related:** autonomous-patterns.md, parallel-plans.md, ../sweep-sessions.md, ../platform-worktrees-and-isolation.md
+**Related:** none
 
 ---
 

@@ -1,6 +1,6 @@
 Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
 - **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword, dependency-groups, --no-dev, deferred import, dev-only dep, container venv, pyarrow
-- **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing-patterns.md
+- **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
 

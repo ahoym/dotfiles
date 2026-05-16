@@ -1,6 +1,6 @@
 Process principles and meta-patterns for the director role: paradigm, decision discipline, scope management, escalation composition.
 - **Keywords:** supervisor, decision-matrix, computable-state, orchestrate, replicate, escalation, intent, directive-timing, adjacent-items, severity-calibration, persona-attribution, dissent-vs-divergence
-- **Related:** runner-design.md, failure-modes.md
+- **Related:** none
 
 ---
 

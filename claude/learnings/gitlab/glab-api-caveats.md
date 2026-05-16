@@ -1,6 +1,6 @@
 `glab` CLI divergences from `gh` and common pitfalls.
 **Keywords:** glab, gitlab, api, jq, json, pagination, file-upload
-**Related:** diffnote-line-drift.md
+**Related:** none
 
 ## `--jq` does not exist
 
@@ -47,5 +47,4 @@ glab api projects/:id/merge_requests/<number>/notes --paginate | jq '...'
 
 ## Cross-Refs
 
-- `diffnote-line-drift.md` — line positioning quirks when posting inline comments
 - `~/.claude/skill-references/gitlab/commands/` — canonical command reference scripts

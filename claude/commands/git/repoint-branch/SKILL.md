@@ -90,7 +90,7 @@ Extract independent changes from a compound branch into a new branch targeting m
    git add <FILES_TO_EXTRACT>
    git commit -m "<descriptive message>
 
-   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+   Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
    ```
 
 8. **Push and offer to create PR**:

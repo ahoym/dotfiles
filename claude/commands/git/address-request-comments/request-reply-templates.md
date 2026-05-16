@@ -17,7 +17,7 @@ Every reply must end with this footnote block:
 
 Use list items (`-`) on each line — single-line italics collapse in GitLab markdown without blank separators. The base reference (`request-interaction-base.md`) is authoritative on footnote format; this section must stay in sync.
 
-- **model**: The model you're running as (e.g., "Claude Opus 4.6", "Claude Sonnet 4.6")
+- **model**: The model you're running as (e.g., "Claude Opus 4.7 (1M context)", "Claude Sonnet 4.6")
 - **Persona**: The active persona name, or "none" if no persona is set
 - **Role**: Always "Addresser" for this skill. Other skills use different roles (e.g., "Reviewer" for `git:code-review-request`)
 

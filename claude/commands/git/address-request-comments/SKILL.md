@@ -163,7 +163,7 @@ When `COMMENT_ONLY=true`:
          git commit -m "$(cat <<'EOF'
          <descriptive message for this group>
 
-         Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+         Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
          EOF
          )"
          ```

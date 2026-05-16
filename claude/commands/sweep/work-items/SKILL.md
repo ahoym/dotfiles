@@ -278,7 +278,7 @@ This fetches body/comments via `gh`, assembles each prompt via `fill-template.sh
 
 Work-item-specific metadata overrides and adaptations (written into `metadata.json` before invoking the generator):
 
-- **Model selection**: `MODEL` → `claude-opus-4-6` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
+- **Model selection**: `MODEL` → `claude-opus-4-7` for implement runs (leaf doing actual coding work). Clarify and confirm runs may use `claude-sonnet-4-6` (lighter, comment-driven). When mixing modes in one runner, default to opus.
 - **Entity type keys**: Set in `metadata.json` per the sweep-scaffold.md schema. Issue-specific values:
   ```json
   {"ENTITY_PREFIX": "issue", "ENTITY_LABEL": "Issue", "STATE_FIELD": "issue_state",

@@ -1,6 +1,6 @@
 Claude Code tool behavior and automation — @ references, cron patterns, polling cost, file operation prerequisites, symlink resolution, GitHub API patterns, and stream-json output.
 - **Keywords:** @ reference, cron, polling, /loop, TaskOutput, symlink, Glob, Read before Write, GitHub API, WebFetch, parallel tool call, CLAUDE.md auto-loading, stream-json, output-format, --verbose, parent_tool_use_id
-- **Related:** ~/.claude/learnings/claude-code/multi-agent/director-patterns.md
+- **Related:** none
 
 ---
 

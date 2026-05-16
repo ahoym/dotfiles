@@ -1,6 +1,6 @@
 Director-observed failure patterns: rate limits, races, scope drift, and convergence pathologies.
 - **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent
-- **Related:** watermarks-and-skip.md, process-and-meta.md
+- **Related:** none
 
 ---
 

@@ -23,4 +23,4 @@ Load when working in the specific area:
 - `provider:personal/vercel-deployment.md` — Cron job limits, Vercel Postgres (Neon HTTP driver), nullable column comparisons (personal provider only)
 - `provider:default/cicd/gitlab-ci-patterns.md` — GitLab CI patterns: YAML anchors, Maven, BuildKit, artifact scoping
 - `provider:default/cicd/gitlab.md` — glab CLI debugging, MR API endpoints, pipeline stage splitting
-- `provider:default/cicd/patterns.md` — GitHub Actions tripwires, composite actions, Docker build/push stage sharing
+- `provider:default/cicd/github-actions-patterns.md` — GitHub Actions tripwires, composite actions, Docker build/push stage sharing

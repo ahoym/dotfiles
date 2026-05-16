@@ -59,7 +59,7 @@ Every externally-posted reply, review body, and inline comment must end with:
 - *Persona:* <persona-name or "none">
 - *Role:* <Reviewer|Addresser>
 ```
-Use the model you're currently running (e.g., "Claude Opus 4.6"). This footnote is the identity key — detection of previous reviews, self-reply filtering, and mutual resolution all depend on it.
+Use the model you're currently running (e.g., "Claude Opus 4.7 (1M context)"). This footnote is the identity key — detection of previous reviews, self-reply filtering, and mutual resolution all depend on it.
 
 **Use list items (`-`) for each label.** This ensures each label renders on its own line in GitLab markdown without relying on blank-line separation.
 

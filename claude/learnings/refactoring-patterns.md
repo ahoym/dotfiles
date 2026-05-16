@@ -1,6 +1,6 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
 - **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests
-- **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
+- **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
 
