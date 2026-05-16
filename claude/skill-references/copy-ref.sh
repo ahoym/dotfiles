@@ -11,7 +11,7 @@ if [[ $# -lt 2 ]]; then
   exit 1
 fi
 
-src="$HOME/.claude/skill-references/$1"
+src="$HOME/.claude/skill-references/$(basename "$1")"
 dest="$2"
 
 if [[ ! -f "$src" ]]; then
