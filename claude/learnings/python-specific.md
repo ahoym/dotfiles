@@ -1,5 +1,5 @@
 Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
-- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword
+- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword, dependency-groups, --no-dev, deferred import, dev-only dep, container venv, pyarrow
 - **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -587,8 +587,27 @@ parser.add_argument("--show-plot", action="store_true",
 
 `MPLBACKEND=Agg` (env var) is the alternative when the script can't be changed — Agg backend turns `plt.show()` into a no-op. Either path; the flag is more discoverable than the env var in long-lived projects.
 
+## Keep optional/heavy deps out of the production image via `[dependency-groups].dev` + deferred imports
+
+Three-part combo for excluding optional deps (`pyarrow`, `matplotlib`, `jupyter`, etc.) from production containers while keeping them available for dev/research:
+
+1. **`pyproject.toml`** — declare under `[dependency-groups].dev`, not main `dependencies`.
+2. **Dockerfile** — `uv sync --frozen --no-install-project --no-dev` excludes dev-group deps from the image's venv.
+3. **Shared modules that ship in the image but only conditionally need the dep** — defer the import to function scope:
+
+   ```python
+   def regenerate_catalog(...):
+       from logic.utils.candle_store import read_candles  # noqa: PLC0415 — dev-only dep
+       ...
+   ```
+
+Verify the boundary holds before relying on it: grep production entry points' transitive imports to confirm nothing reaches the dev-only module. The deferred import is a tripwire — an accidental future production import fails loud with `ImportError`, not silently mid-call.
+
+`uv.lock` still pins the dep (`--frozen` respects it), so dev builds are reproducible; only the image venv stays clean.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
 - `~/.claude/learnings/testing-patterns.md` — Python module-level singleton test isolation
 - `~/.claude/learnings/web-auth-patterns.md` — OAuth bootstrap script error-path credential leakage
+- `~/.claude/learnings/docker-image-patterns.md` — WORKDIR + relative path resolution (paired with the dev-dep pattern above)

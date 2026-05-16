@@ -1,5 +1,5 @@
 Patterns for code review interactions — review judgment, self-review, reviewer behavior, comment etiquette, structured footnotes, approval flows, and review identity.
-- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline
+- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline, stale path, sibling rename, config ownership
 - **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/claude-code/multi-agent/orchestration.md
 
 ---
@@ -156,6 +156,14 @@ A `body ~ "Role: Team-Reviewer"` filter for "comments from previous team review"
 ## Author = Reviewer Identity Surface (AI-Assisted Workflows)
 
 In AI-assisted development, the same git/platform user often posts as both PR author *and* reviewer-bot. Identity heuristics that assume "author ≠ reviewer" misfire — username-based self-filters mark reviewer comments as "self" and skip them. **Rule:** key self-filter on the structured footnote `Role:` tag (e.g., `Role: Team-Reviewer`, `Role: Addresser`), not the username. Same applies to "find someone else to review" prompts — the dimension that matters is the agent role, not the account.
+
+## Sibling renames don't mean shared-prefix paths are stale
+
+Before flagging a path reference as stale due to a sibling rename, verify whether the path is owned by a config that still defines it. Two systems can share a path prefix while only one renames — the unrenamed system's config is the source of truth.
+
+**Example:** explore-repo renames its scan-output dir `docs/learnings/` → `docs/explore-repo/`. Skill references to `docs/learnings/` look stale at a glance, but `learnings-providers.json`'s `projectLocal.path` still resolves to `docs/learnings/` for the learnings search pipeline. The skill references are correct; the rename only affected scan output.
+
+**Reviewer test:** find the config (`*.json`, `*.toml`, `*.yaml`) that names the path. If it still references the old name, the references are correct — don't post the finding.
 
 ## Cross-Refs
 

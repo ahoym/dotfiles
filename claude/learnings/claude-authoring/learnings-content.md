@@ -1,5 +1,5 @@
 Craft patterns for writing learnings content — genericization, scope classification, header format, persona boundary tests, and provenance hygiene.
-- **Keywords:** genericize, project-specific, scope classification, persona-learning boundary, provenance, header format, standardized header, sniff window
+- **Keywords:** genericize, project-specific, scope classification, persona-learning boundary, provenance, header format, standardized header, sniff window, open question, investigation journal, epistemic state
 - **Related:** none
 
 ---
@@ -188,6 +188,12 @@ Learnings that describe writing patterns (ceremonial sentences, conciseness heur
 Authors writing about a design they've mentally committed to produce confident prose that doesn't reflect the epistemic state "this has not been validated." If a learnings section references an open PR/issue as the "next step," the section documents a proposal, not a validated pattern — even if the content reads like established guidance. The fix is a label (`[Proposed — pending #N]`), not removal. The insight is often valuable; the framing should match the confidence level.
 
 **Reviewer heuristic:** When a learning section contains "implementation plan" or links to an open PR as the source of truth, flag the missing epistemic label.
+
+## `## Open Question` sections don't belong in committed learnings
+
+Open-question sections are investigation journals — they belong in working docs (plans, scratch notes), not curated `learnings/`. Pre-commit test: resolved fact vs. pending investigation. If pending, move it out of `learnings/`.
+
+**Failure mode:** the answer ships in a sibling file in the same PR (the question already resolves itself at commit time, but the section reads as open). Catch by scanning the PR's other learning files before merging — if any sibling answers the question, drop the section.
 
 ## Cross-Refs
 

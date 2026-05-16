@@ -1,5 +1,5 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
-- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax
+- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
 
 ---
@@ -345,8 +345,38 @@ docker run --rm --entrypoint python <image> -c 'import config.X; import logic.Y'
 
 Pairs with `python-specific.md` → "`python ./path/script.py` puts only the script's dir on `sys.path`" for the underlying mechanism.
 
+## Round-trip-validate before deleting source data in destructive migrations
+
+A migration tool that deletes the source after writing the target must read the target back and compare byte-equivalent to the source *before* unlinking. Mismatch → preserve source, non-zero exit. Gate the destructive step behind a `--commit` (or `--apply`) flag so the default is dry-safe:
+
+```python
+write_to_new_format(target_dir, candles)
+ok, msg = validate_round_trip(candles, target_dir)
+if not ok:
+    return Result(ok=False, error=f"round-trip failed: {msg}")  # source preserved
+if commit:
+    source_path.unlink()
+```
+
+Compare field-by-field, not via a single equality check. Storage-layer type coercions are easy to miss (int64 vs float, ms vs s, NaN handling) and silent rounding can pass a naive `==`. The check is what proves the *new* format encodes the *same* information — not just "the file is non-empty."
+
+## Bundle format-cutover commits when readers + writers + data change together
+
+"One logical unit per commit" usually means *small* atomic commits. For a storage-format migration where readers, writers, and on-disk data must all change at once, the logical unit is *large* — splitting across commits leaves intermediate states with broken cache reads or red tests.
+
+Decision rule: if the swap commit leaves `pytest` red until the data migration commit lands, the two must bundle.
+
+| Split (preferred when possible) | Bundle (cutover) |
+|---|---|
+| Swap can fall through to old format → tests pass | Swap fails-loud without new format → tests fail |
+| Reader-only or writer-only change | Both readers and writers change |
+| No on-disk data change in the commit | Source data deleted in same operation |
+
+The cutover commit may be hundreds of files by count (data add/delete churn). That's fine — what matters is logical coherence, not line count. Bisect granularity through a cutover is just "before/after the cutover" anyway.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
 - `~/.claude/learnings/process-conventions.md` — PR splitting and review process
 - `~/.claude/learnings/testing-patterns.md` — test recipes for refactoring safety
+- `~/.claude/learnings/python-specific.md` — `[dependency-groups].dev` + deferred imports for production-image dep exclusion (relevant when the new format introduces a heavy dep)
