@@ -57,11 +57,11 @@ Personas reference gotcha files via a `## Proactive Cross-Refs` section — load
 
 ```markdown
 ## Proactive Cross-Refs
-- `learnings/xrpl-gotchas.md`
-- `learnings/react-frontend-gotchas.md`
+- `learnings/xrpl/gotchas.md`
+- `learnings/frontend/react-state-effects.md`
 
 ## Cross-Refs
-- `learnings/xrpl-patterns.md` — full recipes, API details
+- `learnings/xrpl/patterns.md` — full recipes, API details
 ```
 
 **Why separate files, not sections within patterns files:** The `Read` tool is all-or-nothing — no section-level extraction. Loading `xrpl-patterns.md` (200+ lines) to get 15 lines of gotchas wastes context. Small dedicated files keep proactive loading cheap.

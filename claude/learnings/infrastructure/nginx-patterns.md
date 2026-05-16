@@ -1,6 +1,6 @@
 nginx SPA hosting patterns, Vite base path handling, proxy config, and header inheritance gotchas.
 - **Keywords:** nginx, alias, try_files, add_header, named location, SPA, Vite, base path, proxy_pass, security headers, asset caching, capture group
-- **Related:** ~/.claude/learnings/frontend/react-frontend-gotchas.md, ~/.claude/learnings/web-auth-patterns.md
+- **Related:** ~/.claude/learnings/frontend/nextjs.md, ~/.claude/learnings/web-auth-patterns.md
 
 ---
 

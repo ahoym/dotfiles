@@ -33,7 +33,7 @@
 
 ## Proactive Cross-Refs
 
-- `provider:default/frontend/react-frontend-gotchas.md`
+None — canonical sources are listed in `## Cross-Refs` and load on demand.
 
 ## Cross-Refs
 

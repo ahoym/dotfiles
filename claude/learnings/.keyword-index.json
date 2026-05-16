@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "0aef541",
+    "last_rebuild_commit": "9f838a0",
     "rebuilt_at": "2026-05-16",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -172,7 +172,6 @@
       "learnings/financial/vendor-divergence.md": "mechanical",
       "learnings/frontend/accessibility-patterns.md": "mechanical",
       "learnings/frontend/nextjs.md": "mechanical",
-      "learnings/frontend/react-frontend-gotchas.md": "mechanical",
       "learnings/frontend/react-hooks-and-ui.md": "mechanical",
       "learnings/frontend/react-state-effects.md": "mechanical",
       "learnings/frontend/typescript-ci-gotchas.md": "mechanical",
@@ -247,8 +246,8 @@
       "skill-references/sweep-scaffold.md": "mechanical"
     },
     "stats": {
-      "files": 239,
-      "terms": 4013
+      "files": 238,
+      "terms": 4009
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -1114,7 +1113,6 @@
   ],
   "aria-label": [
     "learnings/frontend/accessibility-patterns.md",
-    "learnings/frontend/react-frontend-gotchas.md",
     "learnings/testing/playwright-patterns.md"
   ],
   "aria-pressed": [
@@ -3804,8 +3802,7 @@
     "learnings/claude-code/skill-platform-portability.md"
   ],
   "dynamic route params": [
-    "learnings/frontend/nextjs.md",
-    "learnings/frontend/react-frontend-gotchas.md"
+    "learnings/frontend/nextjs.md"
   ],
   "dynamic route params are async": [
     "learnings/frontend/nextjs.md"
@@ -4460,9 +4457,6 @@
   "findings": [
     "commands/do-security-audit/SKILL.md"
   ],
-  "first": [
-    "learnings/frontend/react-frontend-gotchas.md"
-  ],
   "first-class entities vs sidecars at v0 scale": [
     "learnings/schema-design.md"
   ],
@@ -4725,7 +4719,6 @@
     "learnings/xrpl/utilities.md"
   ],
   "getbyrole": [
-    "learnings/frontend/react-frontend-gotchas.md",
     "learnings/testing/playwright-patterns.md"
   ],
   "getorderbook": [
@@ -5295,9 +5288,6 @@
   ],
   "hybrid architecture (most common in production": [
     "learnings/financial/event-sourcing-cqrs.md"
-  ],
-  "hydration": [
-    "learnings/frontend/react-frontend-gotchas.md"
   ],
   "hydration mismatch": [
     "learnings/frontend/react-state-effects.md"
@@ -6877,12 +6867,10 @@
     "learnings/frontend/accessibility-patterns.md"
   ],
   "next.js 16": [
-    "learnings/frontend/nextjs.md",
-    "learnings/frontend/react-frontend-gotchas.md"
+    "learnings/frontend/nextjs.md"
   ],
   "next.js 16 / turbopack": [
-    "commands/set-persona/react-frontend.md",
-    "learnings/frontend/react-frontend-gotchas.md"
+    "commands/set-persona/react-frontend.md"
   ],
   "next.js 16: middleware.ts → proxy.ts": [
     "learnings/frontend/nextjs.md"
@@ -7824,7 +7812,6 @@
     "learnings/claude-authoring/learnings-content.md"
   ],
   "playwright": [
-    "learnings/frontend/react-frontend-gotchas.md",
     "learnings/testing/playwright-patterns.md"
   ],
   "playwright browser cache": [
@@ -8450,8 +8437,7 @@
     "commands/set-persona/SKILL.md"
   ],
   "proxy.ts": [
-    "learnings/frontend/nextjs.md",
-    "learnings/frontend/react-frontend-gotchas.md"
+    "learnings/frontend/nextjs.md"
   ],
   "proxy_pass": [
     "learnings/infrastructure/nginx-patterns.md"
@@ -8703,7 +8689,6 @@
     "learnings/frontend/accessibility-patterns.md"
   ],
   "react 19": [
-    "learnings/frontend/react-frontend-gotchas.md",
     "learnings/frontend/react-state-effects.md"
   ],
   "react 19 context shorthand not supported": [
@@ -9714,9 +9699,6 @@
   ],
   "setinterval": [
     "learnings/reactive-data-patterns.md"
-  ],
-  "setstate": [
-    "learnings/frontend/react-frontend-gotchas.md"
   ],
   "settimeout": [
     "learnings/reactive-data-patterns.md"
@@ -11025,9 +11007,6 @@
   "supervisor": [
     "learnings/claude-code/multi-agent/director/process-and-meta.md"
   ],
-  "suppresshydrationwarning": [
-    "learnings/frontend/react-frontend-gotchas.md"
-  ],
   "surefire": [
     "learnings/cicd/gitlab.md"
   ],
@@ -11760,8 +11739,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "turbopack": [
-    "learnings/frontend/nextjs.md",
-    "learnings/frontend/react-frontend-gotchas.md"
+    "learnings/frontend/nextjs.md"
   ],
   "turbopack gotchas": [
     "learnings/frontend/nextjs.md"
@@ -11941,7 +11919,6 @@
     "skill-references/github/commands.md"
   ],
   "useeffect": [
-    "learnings/frontend/react-frontend-gotchas.md",
     "learnings/frontend/react-state-effects.md"
   ],
   "user memory": [

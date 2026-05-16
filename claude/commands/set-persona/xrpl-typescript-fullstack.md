@@ -27,7 +27,6 @@
 ## Proactive Cross-Refs
 
 - `provider:default/xrpl/gotchas.md`
-- `provider:default/frontend/react-frontend-gotchas.md`
 
 ## Cross-Refs
 

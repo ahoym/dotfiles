@@ -1,6 +1,6 @@
 Testing recipes for Vitest/React Testing Library, Next.js route handlers, cross-implementation fixtures, Python test isolation, and mock design.
 - **Keywords:** Vitest, React Testing Library, renderHook, vi.mock, vi.hoisted, jsdom, localStorage, pytest, pytest.raises, module-level singleton, import side effects, UTC, datetime, cross-implementation fixtures, mock coupling, test helpers, mockClear, mockReset, mockResolvedValue, beforeEach, afterEach, call history, cross-test leakage
-- **Related:** ~/.claude/learnings/frontend/nextjs.md, ~/.claude/learnings/testing/playwright-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/frontend/react-frontend-gotchas.md
+- **Related:** ~/.claude/learnings/frontend/nextjs.md, ~/.claude/learnings/testing/playwright-patterns.md, ~/.claude/learnings/code-quality-instincts.md
 
 ---
 
@@ -404,6 +404,5 @@ Symptom that surfaces the leak: an existing test asserting "broker was called" f
 ## Cross-Refs
 
 - `~/.claude/learnings/frontend/nextjs.md` — route handler test structure
-- `~/.claude/learnings/playwright-patterns.md` — E2E test recipes
+- `~/.claude/learnings/testing/playwright-patterns.md` — E2E test recipes
 - `~/.claude/learnings/code-quality-instincts.md` — test quality instincts
-- `~/.claude/learnings/frontend/react-frontend-gotchas.md` — Vitest stack context
