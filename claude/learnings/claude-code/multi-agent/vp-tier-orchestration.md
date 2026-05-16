@@ -147,9 +147,7 @@ The runner template already supports warm session resume:
 
 **VP impact:** When the VP relaunches a Director for a new convergence cycle, instruct it to rerun the existing runner (`bash <same-run-dir>/let-it-rip.sh`) rather than re-invoking the sweep skill. Re-invoking creates a new run_dir, which loses all `session.state` files and forces cold starts.
 
-## Open Question: VP Tier vs Background Agents
-
-Whether multi-repo orchestration needs a dedicated VP tier (`claude -p` Directors) or just `Agent(run_in_background: true)` from the main session is unresolved. Key unknowns: can background Agents invoke skills? Do permissions propagate? Does CWD change work? Does the `!` preprocessor resolve? An empirical test comparing the two approaches is needed before committing to either architecture.
+For empirical bg-agent vs `claude -p` comparison, see `background-agent-capabilities.md`.
 
 ## Cross-Refs
 
