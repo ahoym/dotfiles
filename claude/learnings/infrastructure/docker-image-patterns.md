@@ -1,6 +1,6 @@
 Docker image patterns — image ref grammar, WORKDIR vs relative paths, multi-service run, image disk reclaim.
 - **Keywords:** image tag, repo:tag, repo-tag, GHCR, registry path, WORKDIR, relative path, CWD, configparser, docker run -d, --restart, detached, multi-service, docker rmi, dangling, shared layers, "0B reclaimed"
-- **Related:** ~/.claude/learnings/docker-compose-patterns.md
+- **Related:** none
 
 ## `:` is the only tag separator — `repo-<hash>` creates N repositories
 

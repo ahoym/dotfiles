@@ -18,6 +18,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `cicd/CLAUDE.md` — CI/CD: GitHub Actions, GitLab CI, pipeline patterns
 - `financial/CLAUDE.md` — Financial/ledger engineering: monetary calculations, architecture, accounting
 - `gitlab/CLAUDE.md` — GitLab API/review interaction: discussions, diffnotes, line positioning
+- `infrastructure/CLAUDE.md` — Container runtime, orchestration, networking, IaC: Docker, Helm, nginx, Terraform
 - `testing/CLAUDE.md` — Testing: Vitest, React Testing Library, Playwright E2E, Newman/Postman
 
 ## Database
@@ -32,11 +33,6 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 ## Deployment
 
 - `vercel-deployment.md` — Vercel: cron job limits, Postgres (Neon), environment variables
-- `kubernetes-helm-patterns.md` — Helm: bootstrapping apps from templates, prometheusrule boilerplate gotcha
-- `nginx-patterns.md` — nginx: alias+try_files SPA routing, add_header inheritance in named locations, Vite base path, proxy_pass trailing slash
-- `docker-compose-patterns.md` — Docker Compose: per-service `logging:`, plugin form, EBUSY on file bind-mounts, path-migration mounts, bind-mount perm inheritance
-- `docker-image-patterns.md` — Docker images: `repo:tag` vs `repo-<hash>` grammar, WORKDIR vs relative paths, multi-service `docker run -d`, disk reclaim semantics
-- `terraform-patterns.md` — Terraform: fallback-source `count` gating, `templatefile()` secret exposure, `lifecycle { ignore_changes }` recovery, `prevent_destroy` literal constraint + Path A/B/C tradeoff, ephemeral-env teardown script, agent-driven IaC account boundary, PR verification ladder
 
 ## Security
 

@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "bf1f901",
+    "last_rebuild_commit": "0aef541",
     "rebuilt_at": "2026-05-16",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -152,8 +152,6 @@
       "learnings/claude-code/web-session-sync.md": "mechanical",
       "learnings/code-quality-instincts.md": "mechanical",
       "learnings/dependency-injection-patterns.md": "mechanical",
-      "learnings/docker-compose-patterns.md": "mechanical",
-      "learnings/docker-image-patterns.md": "mechanical",
       "learnings/financial/applications.md": "mechanical",
       "learnings/financial/chart-of-accounts.md": "mechanical",
       "learnings/financial/continuous-contract-data-quirks.md": "mechanical",
@@ -185,6 +183,11 @@
       "learnings/gitlab/batch-operations-patterns.md": "mechanical",
       "learnings/gitlab/diffnote-line-drift.md": "mechanical",
       "learnings/gitlab/glab-api-caveats.md": "mechanical",
+      "learnings/infrastructure/docker-compose-patterns.md": "mechanical",
+      "learnings/infrastructure/docker-image-patterns.md": "mechanical",
+      "learnings/infrastructure/kubernetes-helm-patterns.md": "mechanical",
+      "learnings/infrastructure/nginx-patterns.md": "mechanical",
+      "learnings/infrastructure/terraform-patterns.md": "mechanical",
       "learnings/java/code-quality.md": "mechanical",
       "learnings/java/concurrency.md": "mechanical",
       "learnings/java/infosec-gotchas.md": "mechanical",
@@ -195,10 +198,8 @@
       "learnings/java/spring-boot-gotchas.md": "mechanical",
       "learnings/java/spring-boot.md": "mechanical",
       "learnings/java/testing.md": "mechanical",
-      "learnings/kubernetes-helm-patterns.md": "mechanical",
       "learnings/local-dev-seeding.md": "mechanical",
       "learnings/messaging-patterns.md": "mechanical",
-      "learnings/nginx-patterns.md": "mechanical",
       "learnings/postgresql-query-patterns.md": "mechanical",
       "learnings/process-conventions.md": "mechanical",
       "learnings/process.md": "mechanical",
@@ -209,7 +210,6 @@
       "learnings/resilience-patterns.md": "mechanical",
       "learnings/review-conventions.md": "mechanical",
       "learnings/schema-design.md": "mechanical",
-      "learnings/terraform-patterns.md": "mechanical",
       "learnings/testing/newman-postman.md": "mechanical",
       "learnings/testing/playwright-patterns.md": "mechanical",
       "learnings/testing/testing-patterns.md": "mechanical",
@@ -310,7 +310,7 @@
     "commands/quantum-tunnel-claudes/SKILL.md"
   ],
   "0b reclaimed": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "1. derive names": [
     "commands/ralph/consolidate/init/SKILL.md"
@@ -786,10 +786,10 @@
     "learnings/git-patterns.md"
   ],
   "add_header": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "add_header is not inherited by named locations": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "addendum guidelines must be self-contained": [
     "learnings/claude-authoring/guidelines.md"
@@ -892,10 +892,10 @@
     "learnings/claude-code/sweep-sessions.md"
   ],
   "agent-driven iac": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "agent-driven iac: account boundary > iam scope": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "agent-to-agent review": [
     "learnings/claude-code/multi-agent/quality.md"
@@ -920,10 +920,10 @@
     "learnings/process.md"
   ],
   "alias": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "alias + try_files: fallback resolves against root, not alias": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "align on the problem before evaluating the solution": [
     "guidelines/communication.md"
@@ -1162,7 +1162,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "asset caching": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "assign integration tests to the wiring agent": [
     "learnings/claude-code/multi-agent/parallel-plans.md"
@@ -1199,7 +1199,7 @@
     "commands/git/split-commit/SKILL.md"
   ],
   "atomic rename": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "atomic-commit-passes-tests": [
     "learnings/refactoring-patterns.md"
@@ -1309,7 +1309,7 @@
     "learnings/code-quality-instincts.md"
   ],
   "aws account boundary": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "aws sdk v2": [
     "learnings/aws/patterns.md"
@@ -1318,7 +1318,7 @@
     "learnings/aws/patterns.md"
   ],
   "awslogs": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "axon": [
     "learnings/financial/event-sourcing-cqrs.md"
@@ -1391,7 +1391,7 @@
     "learnings/financial/domain-ledger-architecture.md"
   ],
   "base path": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "base persona extends": [
     "learnings/claude-authoring/skill-evolution.md"
@@ -1513,10 +1513,10 @@
     "learnings/financial/numeric-precision-strategy.md"
   ],
   "bind-mount": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "bind-mount inherits host file perms; strict-perm apps need host-side chmod": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "bisectable": [
     "commands/git/split-commit/SKILL.md"
@@ -1573,7 +1573,7 @@
     "learnings/python-specific.md"
   ],
   "bootstrap": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "bootstrap (custom-specific": [
     "commands/director/custom-mode.md"
@@ -1757,7 +1757,7 @@
     "learnings/claude-code/multi-agent/background-agent-capabilities.md"
   ],
   "capture group": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "cardclass": [
     "learnings/frontend/ui-patterns.md"
@@ -1846,7 +1846,7 @@
     "learnings/financial/ledger-testing-strategies.md"
   ],
   "chart copy": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "chart of accounts": [
     "learnings/financial/chart-of-accounts.md"
@@ -2054,7 +2054,7 @@
     "learnings/process-conventions.md"
   ],
   "cloudwatch": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "cluster batch": [
     "learnings/claude-code/ralph-curation.md"
@@ -2267,7 +2267,7 @@
     "learnings/claude-authoring/skill-design.md"
   ],
   "compose default + python fail-loud is defense-in-depth, not redundancy": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "compose escalation through existing decision frameworks": [
     "learnings/claude-code/multi-agent/director/process-and-meta.md"
@@ -2279,16 +2279,16 @@
     "learnings/claude-authoring/skill-design.md"
   ],
   "compose v1": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "compose v1 vs v2/v5: hyphen vs space, install paths": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "compose v2": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "compose v5": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "composite action": [
     "learnings/cicd/github-actions-patterns.md"
@@ -2422,7 +2422,7 @@
     "learnings/financial/domain-ledger-architecture.md"
   ],
   "configparser": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "configparser stdlib footguns": [
     "learnings/python-specific.md"
@@ -2981,7 +2981,7 @@
     "commands/set-persona/security-reviewer.md"
   ],
   "cwd": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "cwd matters: one director per repo": [
     "learnings/claude-code/multi-agent/vp-tier-orchestration.md"
@@ -3005,7 +3005,7 @@
     "learnings/python-specific.md"
   ],
   "daemon.json": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "dag": [
     "learnings/cicd/gitlab.md",
@@ -3030,7 +3030,7 @@
     "learnings/financial/futures-etf-translation.md"
   ],
   "dangling": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "dangling refs after consolidation": [
     "learnings/claude-authoring/learnings-content.md"
@@ -3048,7 +3048,7 @@
     "learnings/financial/vendor-divergence.md"
   ],
   "data-source": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "database details": [
     "commands/explore-repo/agent-prompts.md"
@@ -3300,7 +3300,7 @@
     "learnings/frontend/typescript-ci-gotchas.md"
   ],
   "deploy": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "deployment": [
     "commands/explore-repo/agent-prompts.md"
@@ -3343,7 +3343,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "detached": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "detached head in worktrees is expected": [
     "learnings/claude-code/platform-worktrees-and-isolation.md"
@@ -3373,7 +3373,7 @@
     "learnings/xrpl/utilities.md"
   ],
   "dev sandbox": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "dev server may miss new api routes": [
     "learnings/frontend/nextjs.md"
@@ -3525,7 +3525,7 @@
     "commands/ralph/research/cleanup/SKILL.md"
   ],
   "disable placeholder prometheusrule when bootstrapping new helm apps": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "disable-model-invocation": [
     "learnings/claude-authoring/skill-design.md",
@@ -3610,31 +3610,31 @@
     "learnings/python-specific.md"
   ],
   "docker image rm": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "docker login": [
     "learnings/cicd/github-actions-patterns.md"
   ],
   "docker ps filter": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "docker rmi": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "docker rmi reports \"0b reclaimed\" when removing shared-layer refs": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "docker run -d": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "docker smoke test": [
     "learnings/refactoring-patterns.md"
   ],
   "docker stop": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "docker-compose": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "document conflict resolution strategy alongside structural changes": [
     "learnings/claude-authoring/claude-md-advanced.md"
@@ -3837,7 +3837,7 @@
     "commands/do-refactor-code/SKILL.md"
   ],
   "ebusy": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "echo ===word=== trips zsh =foo expansion": [
     "learnings/claude-code/shell-patterns.md"
@@ -3944,7 +3944,7 @@
     "learnings/financial/ledger-schema-migration.md"
   ],
   "entrypoint <interpreter> smoke-tests config-dependent containers": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "enum": [
     "learnings/java/quarkus-kotlin.md"
@@ -3980,10 +3980,10 @@
     "learnings/local-dev-seeding.md"
   ],
   "ephemeral env": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "ephemeral-env teardown when prevent_destroy is module-baked": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "epistemic label": [
     "learnings/claude-authoring/learnings-content.md"
@@ -4149,7 +4149,7 @@
     "commands/git/team-review-request/persona-routing.md"
   ],
   "execstart": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "execution scorecard": [
     "commands/parallel-plan/execute/SKILL.md"
@@ -4291,7 +4291,7 @@
     "learnings/financial/saga-distributed-transactions.md"
   ],
   "fallback-source pattern: always gate data with count": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "false positive": [
     "learnings/java/infosec-gotchas.md"
@@ -4398,7 +4398,7 @@
     "learnings/claude-authoring/learnings-organization.md"
   ],
   "file vs directory mount": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "file-based coordination scales": [
     "learnings/claude-code/multi-agent/headless-nesting.md"
@@ -4431,7 +4431,7 @@
     "learnings/claude-code/platform-permissions.md"
   ],
   "filesystem-path migrations have a deployment-side dependency": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "fill-template": [
     "learnings/claude-code/multi-agent/director/runner-design.md"
@@ -4777,7 +4777,7 @@
     "learnings/cicd/github-actions-patterns.md"
   ],
   "ghcr": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "gin index": [
     "learnings/postgresql-query-patterns.md"
@@ -5162,7 +5162,7 @@
     "learnings/java/concurrency.md"
   ],
   "hcl": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "header format": [
     "learnings/claude-authoring/learnings-content.md"
@@ -5180,7 +5180,7 @@
     "commands/explore-repo/agent-prompts.md"
   ],
   "helm": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "helper class extraction": [
     "commands/do-refactor-code/SKILL.md"
@@ -5248,7 +5248,7 @@
     "learnings/claude-code/hooks.md"
   ],
   "host filesystem": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "hot path": [
     "commands/set-persona/performance-reviewer.md"
@@ -5307,7 +5307,7 @@
   ],
   "iac": [
     "learnings/aws/patterns.md",
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "iam": [
     "learnings/java/spring-boot-gotchas.md"
@@ -5350,7 +5350,7 @@
     "learnings/web-auth-patterns.md"
   ],
   "image tag": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "impermanent loss": [
     "learnings/xrpl/amm.md"
@@ -5411,7 +5411,7 @@
     "learnings/financial/ledger-schema-migration.md"
   ],
   "in-place container update scripts: name-filter, guard, best-effort": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "in-place finalize-wip recovery (work-items mode": [
     "learnings/claude-code/multi-agent/director/failure-modes.md"
@@ -5420,7 +5420,7 @@
     "learnings/claude-code/multi-agent/director/failure-modes.md"
   ],
   "in-place update": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "in_reply_to": [
     "learnings/git-github-api.md"
@@ -5471,7 +5471,7 @@
     "commands/ralph/research/init/SKILL.md"
   ],
   "inherited boilerplate": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "inherited proactive cross-refs may be noise for child personas": [
     "learnings/claude-authoring/personas.md"
@@ -5662,7 +5662,7 @@
     "learnings/vercel-deployment.md"
   ],
   "is the only tag separator — repo-<hash> creates n repositories": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "isinstance bool": [
     "learnings/python-specific.md"
@@ -5918,7 +5918,7 @@
     "learnings/java/quarkus-kotlin.md"
   ],
   "kubernetes": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "label non-shared content as \"private\", not \"company-specific": [
     "learnings/claude-code/cross-repo-sync.md"
@@ -6097,15 +6097,15 @@
     "learnings/financial/market-calendars.md"
   ],
   "lifecycle": [
+    "learnings/infrastructure/terraform-patterns.md",
     "learnings/java/testing.md",
-    "learnings/terraform-patterns.md",
     "learnings/xrpl/permissioned-domains.md"
   ],
   "lifecycle scripts": [
     "learnings/claude-code/multi-agent/coordination.md"
   ],
   "lifecycle { ignore_changes } recovery commands belong colocated": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "limit order": [
     "learnings/financial/futures-order-type-restrictions.md"
@@ -6202,7 +6202,7 @@
     "learnings/java/infosec-gotchas.md"
   ],
   "logging driver": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "lombok": [
     "learnings/java/spring-boot.md"
@@ -6642,7 +6642,7 @@
     "learnings/claude-code/shell-patterns.md"
   ],
   "multi-account": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "multi-adapter": [
     "learnings/dependency-injection-patterns.md"
@@ -6657,7 +6657,7 @@
     "learnings/claude-code/explore-repo.md"
   ],
   "multi-container": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "multi-director": [
     "learnings/claude-code/multi-agent/vp-tier-orchestration.md"
@@ -6718,10 +6718,10 @@
     "learnings/claude-code/multi-agent/vp-tier-orchestration.md"
   ],
   "multi-service": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "multi-service docker run needs -d; foreground blocks the chain": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "multi-session skills need git remote sync": [
     "learnings/claude-authoring/skill-lifecycle.md"
@@ -6772,7 +6772,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "named location": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "namespace": [
     "learnings/claude-code/plugin-packaging.md"
@@ -6888,7 +6888,7 @@
     "learnings/frontend/nextjs.md"
   ],
   "nginx": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "no half-steps in numbered instructions": [
     "learnings/claude-authoring/skill-design.md"
@@ -7093,7 +7093,7 @@
   ],
   "opentofu": [
     "learnings/aws/patterns.md",
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "operational": [
     "commands/learnings/curate/curation-insights.md"
@@ -7184,7 +7184,7 @@
     "learnings/financial/tradestation-api.md"
   ],
   "organizations sub-account": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "organize vs curate: deliberate scope separation": [
     "learnings/claude-authoring/skill-lifecycle.md"
@@ -7376,7 +7376,7 @@
     "learnings/python-specific.md"
   ],
   "path migration": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "path-scoped log": [
     "learnings/git-patterns.md"
@@ -7445,7 +7445,7 @@
     "learnings/claude-code/platform-permissions.md"
   ],
   "per-service logging: overrides global daemon.json": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "per_page": [
     "learnings/git-github-api.md"
@@ -7764,7 +7764,7 @@
     "learnings/code-quality-instincts.md"
   ],
   "placeholder alerts": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "placeholder conventions in command templates": [
     "learnings/claude-authoring/skill-design.md"
@@ -7837,7 +7837,7 @@
     "learnings/claude-code/plugin-packaging.md"
   ],
   "plugin install": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "plugin settings.json only supports agent key": [
     "learnings/claude-code/plugin-packaging.md"
@@ -8191,10 +8191,10 @@
     "learnings/frontend/typescript-ci-gotchas.md"
   ],
   "prevent_destroy": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "prevent_destroy must be a literal — not variable-driven": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "preview field": [
     "learnings/claude-authoring/skill-design.md"
@@ -8322,10 +8322,10 @@
     "learnings/financial/event-sourcing-cqrs.md"
   ],
   "prometheus: false": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "prometheusrule": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "promote": [
     "learnings/schema-design.md"
@@ -8454,10 +8454,10 @@
     "learnings/frontend/react-frontend-gotchas.md"
   ],
   "proxy_pass": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "proxy_pass with vs without trailing slash": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "prudential gate": [
     "learnings/refactoring-patterns.md"
@@ -8881,7 +8881,7 @@
     "learnings/frontend/react-hooks-and-ui.md"
   ],
   "registry path": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "rejectreason": [
     "learnings/financial/futures-order-type-restrictions.md"
@@ -8897,7 +8897,7 @@
     "learnings/claude-authoring/claude-md.md"
   ],
   "relative path": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "relevance assessment": [
     "commands/learnings/distribute/SKILL.md"
@@ -8982,10 +8982,10 @@
     "skill-references/persona-auto-detect.md"
   ],
   "repo-tag": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "repo:tag": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "repointing mr target branches": [
     "learnings/cicd/gitlab.md"
@@ -9075,7 +9075,7 @@
     "commands/explore-repo/agent-prompts.md"
   ],
   "restart": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "result & learnings append pattern": [
     "skill-references/sweep-scaffold.md"
@@ -9543,8 +9543,8 @@
   ],
   "secrets": [
     "commands/set-persona/security-reviewer.md",
-    "learnings/java/infosec-gotchas.md",
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md",
+    "learnings/java/infosec-gotchas.md"
   ],
   "secrets in properties files": [
     "learnings/java/spring-boot.md"
@@ -9580,7 +9580,7 @@
     "learnings/api-design.md"
   ],
   "security headers": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "security review": [
     "commands/set-persona/security-reviewer.md"
@@ -9701,7 +9701,7 @@
   ],
   "set -e": [
     "learnings/bash-patterns.md",
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "set -e and pipefail traps": [
     "learnings/bash-patterns.md"
@@ -9774,7 +9774,7 @@
     "skill-references/sweep-scaffold.md"
   ],
   "shared layers": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "shared reference files reduce cross-skill duplication": [
     "learnings/claude-authoring/skill-platform-unification.md"
@@ -9909,7 +9909,7 @@
     "learnings/claude-authoring/claude-md.md"
   ],
   "single-file bind-mount + atomic rename = ebusy": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "single-pass": [
     "learnings/claude-code/multi-agent/director/watermarks-and-skip.md"
@@ -10233,7 +10233,7 @@
     "learnings/code-quality-instincts.md"
   ],
   "spa": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "spec.md": [
     "learnings/claude-code/ralph-loop.md"
@@ -11179,10 +11179,10 @@
     "learnings/claude-code/explore-repo.md"
   ],
   "systemd": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "systemd execstart with the compose plugin form": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "tabindex": [
     "learnings/frontend/accessibility-patterns.md"
@@ -11295,10 +11295,10 @@
     "learnings/claude-code/sweep-sessions.md"
   ],
   "templatefile": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "templatefile() is a secrets sinkhole": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "templates (skill-scoped": [
     "commands/set-persona/claude-config-reviewer.md"
@@ -11323,10 +11323,10 @@
   ],
   "terraform": [
     "learnings/aws/patterns.md",
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "terraform pr verification ladder": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "terraform vs opentofu": [
     "learnings/aws/patterns.md"
@@ -11446,7 +11446,7 @@
     "learnings/git-patterns.md"
   ],
   "tf": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "tffillorkill": [
     "learnings/xrpl/dex-data.md"
@@ -11742,7 +11742,7 @@
     "learnings/code-quality-instincts.md"
   ],
   "try_files": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "ts": [
     "learnings/financial/tradestation-api.md"
@@ -11860,7 +11860,7 @@
     "learnings/code-quality-instincts.md"
   ],
   "update_image": [
-    "learnings/docker-compose-patterns.md"
+    "learnings/infrastructure/docker-compose-patterns.md"
   ],
   "upstream convergence ≠ same operator": [
     "learnings/xrpl/wallet-clustering.md"
@@ -12013,10 +12013,10 @@
     "learnings/python-specific.md"
   ],
   "values.yaml": [
-    "learnings/kubernetes-helm-patterns.md"
+    "learnings/infrastructure/kubernetes-helm-patterns.md"
   ],
   "var": [
-    "learnings/terraform-patterns.md"
+    "learnings/infrastructure/terraform-patterns.md"
   ],
   "varchar + check constraint > pg enum type for migration safety": [
     "learnings/java/spring-boot.md"
@@ -12139,10 +12139,10 @@
     "learnings/aws/messaging.md"
   ],
   "vite": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "vite base path + nginx: alias + capture-group regex": [
-    "learnings/nginx-patterns.md"
+    "learnings/infrastructure/nginx-patterns.md"
   ],
   "vitest": [
     "learnings/frontend/nextjs.md",
@@ -12439,10 +12439,10 @@
     "skill-references/sweep-agent-preflight.md"
   ],
   "workdir": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "workdir drives relative-path resolution for in-container code": [
-    "learnings/docker-image-patterns.md"
+    "learnings/infrastructure/docker-image-patterns.md"
   ],
   "worker": [
     "learnings/claude-code/multi-agent/headless-nesting.md"

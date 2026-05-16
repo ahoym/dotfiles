@@ -610,4 +610,4 @@ Verify the boundary holds before relying on it: grep production entry points' tr
 - `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)
 - `~/.claude/learnings/testing-patterns.md` — Python module-level singleton test isolation
 - `~/.claude/learnings/web-auth-patterns.md` — OAuth bootstrap script error-path credential leakage
-- `~/.claude/learnings/docker-image-patterns.md` — WORKDIR + relative path resolution (paired with the dev-dep pattern above)
+- `~/.claude/learnings/infrastructure/docker-image-patterns.md` — WORKDIR + relative path resolution (paired with the dev-dep pattern above)
