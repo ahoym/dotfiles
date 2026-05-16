@@ -1,6 +1,6 @@
 Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
 - **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination
-- **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/testing-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
+- **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/vitest-rtl.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
 
 ---
 
@@ -155,6 +155,6 @@ A "backward-compat default" added during a refactor (`def f(x, y, *, margin=MNQ_
 ## Cross-Refs
 
 - `~/.claude/learnings/financial/applications.md` — idempotency patterns
-- `~/.claude/learnings/testing/testing-patterns.md` — validator and route handler testing
+- `~/.claude/learnings/testing/vitest-rtl.md` — validator and route handler testing
 - `~/.claude/learnings/code-quality-instincts.md` — parameter naming conventions
 - `~/.claude/learnings/python-specific.md` — Pydantic v2 serialization options for the "consistent shapes" principle

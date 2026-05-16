@@ -85,7 +85,7 @@ Detailed instructions for each opportunity are inline in the relevant steps (mar
   - ...
 
   Learnings (flat):
-  - learnings/testing-patterns.md
+  - learnings/testing/testing-patterns.md
   - ...
 
   Guidelines:

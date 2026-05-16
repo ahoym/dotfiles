@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "9f838a0",
+    "last_rebuild_commit": "388d431",
     "rebuilt_at": "2026-05-16",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -211,7 +211,9 @@
       "learnings/schema-design.md": "mechanical",
       "learnings/testing/newman-postman.md": "mechanical",
       "learnings/testing/playwright-patterns.md": "mechanical",
+      "learnings/testing/pytest-patterns.md": "mechanical",
       "learnings/testing/testing-patterns.md": "mechanical",
+      "learnings/testing/vitest-rtl.md": "mechanical",
       "learnings/vercel-deployment.md": "mechanical",
       "learnings/web-auth-patterns.md": "mechanical",
       "learnings/xrpl/amm.md": "mechanical",
@@ -246,8 +248,8 @@
       "skill-references/sweep-scaffold.md": "mechanical"
     },
     "stats": {
-      "files": 238,
-      "terms": 4009
+      "files": 240,
+      "terms": 4043
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -610,8 +612,11 @@
   "@noargsconstructor": [
     "learnings/java/spring-boot.md"
   ],
+  "@patch": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "@patch mocks accept any signature — autospec=true for routing tests": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "@postconstruct": [
     "learnings/java/spring-boot.md"
@@ -763,6 +768,9 @@
   "adapter owns broker-specific identity translation": [
     "learnings/dependency-injection-patterns.md"
   ],
+  "adapter tests": [
+    "learnings/testing/testing-patterns.md"
+  ],
   "adapter/integration code needs architecture persona": [
     "learnings/claude-code/multi-agent/quality.md"
   ],
@@ -826,9 +834,6 @@
   ],
   "afterclass": [
     "learnings/java/testing.md"
-  ],
-  "aftereach": [
-    "learnings/testing/testing-patterns.md"
   ],
   "aftermethod": [
     "learnings/java/testing.md"
@@ -1069,6 +1074,9 @@
   "api surface compatibility": [
     "learnings/git-patterns.md"
   ],
+  "app router": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "append-only": [
     "learnings/claude-code/multi-agent/orchestration.md"
   ],
@@ -1279,11 +1287,17 @@
   "autonomy during execution, alignment during planning": [
     "guidelines/communication.md"
   ],
+  "autospec": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "autosquash requires -i — forward-fix beats workarounds": [
     "learnings/git-patterns.md"
   ],
+  "autouse": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "autouse hermetic fixture when adding new on-disk lookups": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "available tools in web sessions": [
     "learnings/claude-code/web-session-sync.md"
@@ -1317,6 +1331,9 @@
   ],
   "awslogs": [
     "learnings/infrastructure/docker-compose-patterns.md"
+  ],
+  "axios interceptors": [
+    "learnings/testing/vitest-rtl.md"
   ],
   "axon": [
     "learnings/financial/event-sourcing-cqrs.md"
@@ -1467,7 +1484,7 @@
     "commands/set-persona/claude-config-author.md"
   ],
   "beforeeach": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "beforemethod": [
     "learnings/java/testing.md"
@@ -1746,7 +1763,7 @@
     "learnings/process-conventions.md"
   ],
   "call history": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "cancel-in-progress": [
     "learnings/cicd/github-actions-patterns.md"
@@ -2456,6 +2473,9 @@
   "confluence mcp publishing": [
     "learnings/process-conventions.md"
   ],
+  "conftest": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "connection pool exhaustion": [
     "commands/set-persona/performance-reviewer.md"
   ],
@@ -2626,6 +2646,9 @@
   ],
   "contract specification": [
     "learnings/financial/futures-order-type-restrictions.md"
+  ],
+  "contract tests": [
+    "learnings/testing/testing-patterns.md"
   ],
   "contract tests against recorded real responses (fake-drift detection": [
     "learnings/testing/testing-patterns.md"
@@ -2897,7 +2920,7 @@
     "learnings/web-auth-patterns.md"
   ],
   "cross-test leakage": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "crossing offers": [
     "learnings/xrpl/patterns.md"
@@ -3065,9 +3088,6 @@
   ],
   "dataframe libraries are not market-calendar sources": [
     "learnings/financial/market-calendars.md"
-  ],
-  "datetime": [
-    "learnings/testing/testing-patterns.md"
   ],
   "day": [
     "learnings/financial/tradestation-api.md"
@@ -3246,6 +3266,9 @@
   "delegating prompts must not expose delegated inputs": [
     "learnings/claude-authoring/skill-design.md"
   ],
+  "delenv": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "delete — already covered elsewhere (n patterns": [
     "commands/learnings/curate/content-mode.md"
   ],
@@ -3384,6 +3407,12 @@
   ],
   "dex": [
     "learnings/xrpl/trade-forensics.md"
+  ],
+  "di seam": [
+    "learnings/testing/pytest-patterns.md"
+  ],
+  "di seams": [
+    "learnings/testing/testing-patterns.md"
   ],
   "diagnose incomplete migration via entry-point import chain": [
     "learnings/dependency-injection-patterns.md"
@@ -3897,6 +3926,9 @@
   "enablemethodsecurity": [
     "learnings/java/integration.md"
   ],
+  "encoded fields": [
+    "learnings/testing/testing-patterns.md"
+  ],
   "encoding corruption from copy/paste in structural refactors": [
     "learnings/refactoring-patterns.md"
   ],
@@ -4089,8 +4121,7 @@
     "commands/parallel-plan/make/analysis-guide.md",
     "commands/ralph/consolidate/init/SKILL.md",
     "commands/ralph/research/compare/SKILL.md",
-    "commands/ralph/research/init/SKILL.md",
-    "learnings/testing/testing-patterns.md"
+    "commands/ralph/research/init/SKILL.md"
   ],
   "example (auto-selection → merge": [
     "commands/git/resolve-conflicts/SKILL.md"
@@ -4218,7 +4249,7 @@
     "learnings/claude-authoring/skill-design.md"
   ],
   "expose injected mocks in the fixture's return tuple": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "extend canonical helpers, don't bypass them": [
     "learnings/claude-authoring/skill-design.md"
@@ -4286,6 +4317,9 @@
   ],
   "failure taxonomy": [
     "learnings/financial/saga-distributed-transactions.md"
+  ],
+  "fake-drift detection": [
+    "learnings/testing/testing-patterns.md"
   ],
   "fallback-source pattern: always gate data with count": [
     "learnings/infrastructure/terraform-patterns.md"
@@ -4478,6 +4512,12 @@
   "fixing misordered stacked pr branches": [
     "learnings/git-github-api.md"
   ],
+  "fixture origin": [
+    "learnings/testing/testing-patterns.md"
+  ],
+  "fixture tuple": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "fixup + autosquash for non-interactive mid-stack amendments": [
     "learnings/git-patterns.md"
   ],
@@ -4588,6 +4628,9 @@
   ],
   "from ralph-loop-usage.md": [
     "commands/learnings/curate/classification-model.md"
+  ],
+  "fromtimestamp": [
+    "learnings/testing/pytest-patterns.md"
   ],
   "front-load context": [
     "learnings/claude-code/multi-agent/quality.md"
@@ -5002,6 +5045,9 @@
   "golden dataset": [
     "learnings/financial/ledger-testing-strategies.md"
   ],
+  "golden files": [
+    "learnings/testing/testing-patterns.md"
+  ],
   "good examples": [
     "commands/parallel-plan/make/analysis-guide.md"
   ],
@@ -5264,6 +5310,9 @@
   "httponly": [
     "learnings/web-auth-patterns.md"
   ],
+  "httpx client": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "httpx timeout": [
     "learnings/python-specific.md"
   ],
@@ -5383,7 +5432,7 @@
     "commands/parallel-plan/make/SKILL.md"
   ],
   "import side effects": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "import-time side effects": [
     "learnings/dependency-injection-patterns.md"
@@ -5609,6 +5658,9 @@
   "internal helper methods on spring beans must be private to prevent authorization bypass": [
     "learnings/java/infosec-gotchas.md"
   ],
+  "internalaxiosrequestconfig": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "interruptedexception": [
     "learnings/java/spring-boot-gotchas.md"
   ],
@@ -5624,8 +5676,11 @@
   "intra-target dedup gap in fold operations": [
     "learnings/claude-authoring/learnings-content.md"
   ],
+  "invalid date": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "invalid date in jsdom/node": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "investigation journal": [
     "learnings/claude-authoring/learnings-content.md"
@@ -5781,10 +5836,10 @@
     "learnings/financial/ledger-testing-strategies.md"
   ],
   "jsdom": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "jsdom provides localstorage": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "json": [
     "learnings/financial/numeric-precision-strategy.md",
@@ -5966,8 +6021,11 @@
     "learnings/claude-authoring/guidelines.md",
     "learnings/claude-authoring/skill-references-and-loading.md"
   ],
+  "lazy module-level promise": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "lazy module-level promise for testability": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "lazy reference": [
     "learnings/claude-authoring/claude-md.md"
@@ -6137,6 +6195,9 @@
   "load reference files before acting on their content": [
     "guidelines/skill-invocation.md"
   ],
+  "load_env": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "loading skeleton": [
     "learnings/reactive-data-patterns.md"
   ],
@@ -6167,7 +6228,7 @@
   "localstorage": [
     "learnings/frontend/react-state-effects.md",
     "learnings/testing/playwright-patterns.md",
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "locator scoping": [
     "learnings/testing/playwright-patterns.md"
@@ -6232,6 +6293,9 @@
   ],
   "macos realpath lacks --relative-to": [
     "learnings/bash-patterns.md"
+  ],
+  "magicmock": [
+    "learnings/testing/pytest-patterns.md"
   ],
   "magnitude ceiling": [
     "learnings/financial/vendor-divergence.md"
@@ -6527,16 +6591,19 @@
     "learnings/financial/futures-tick-rounding.md"
   ],
   "mock call history vs implementation state": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "mock coupling": [
     "learnings/testing/testing-patterns.md"
   ],
   "mock domain methods, not the http layer, after a client http→sdk refactor": [
+    "learnings/testing/pytest-patterns.md"
+  ],
+  "mock fidelity": [
     "learnings/testing/testing-patterns.md"
   ],
   "mockclear": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "mocking strategy": [
     "commands/explore-repo/agent-prompts.md"
@@ -6548,10 +6615,10 @@
     "learnings/java/spring-boot.md"
   ],
   "mockreset": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "mockresolvedvalue": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "modal": [
     "learnings/frontend/react-hooks-and-ui.md"
@@ -6592,7 +6659,7 @@
     "learnings/claude-authoring/claude-md-advanced.md"
   ],
   "module-level singleton": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "modulenotfounderror": [
     "learnings/python-specific.md",
@@ -6619,8 +6686,11 @@
   "monitoring table format": [
     "skill-references/director-playbook.md"
   ],
+  "monkeypatch": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "monkeypatch.delenv(key, raising=false) over patch.dict({}, clear=true) for env isolation": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "moving a source file: grep patch(\"old.path…\") too": [
     "learnings/python-specific.md"
@@ -6875,6 +6945,9 @@
   "next.js 16: middleware.ts → proxy.ts": [
     "learnings/frontend/nextjs.md"
   ],
+  "next.js route handler": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "nginx": [
     "learnings/infrastructure/nginx-patterns.md"
   ],
@@ -7036,6 +7109,9 @@
   ],
   "on conflict": [
     "learnings/local-dev-seeding.md"
+  ],
+  "on-disk lookup": [
+    "learnings/testing/pytest-patterns.md"
   ],
   "onboarding check": [
     "learnings/financial/futures-order-type-restrictions.md"
@@ -8001,6 +8077,9 @@
   "postman collection rebase conflicts from indentation changes": [
     "learnings/testing/newman-postman.md"
   ],
+  "postrequest": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "posttooluse": [
     "learnings/claude-code/hooks.md"
   ],
@@ -8247,6 +8326,9 @@
   ],
   "producer-consumer skill pair check during sync": [
     "learnings/claude-code/cross-repo-sync.md"
+  ],
+  "production consumers": [
+    "learnings/testing/testing-patterns.md"
   ],
   "production readiness checklist": [
     "learnings/financial/event-sourcing-cqrs.md"
@@ -8512,10 +8594,10 @@
     "learnings/python-specific.md"
   ],
   "pytest": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "pytest.raises": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "python -m": [
     "learnings/python-specific.md"
@@ -8530,7 +8612,7 @@
     "learnings/python-specific.md"
   ],
   "python module-level singletons poison test suite via import side effects": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "pythonpath": [
     "learnings/python-specific.md"
@@ -8701,7 +8783,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "react testing library": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "react to comment": [
     "skill-references/github/comment-interaction.md",
@@ -8798,6 +8880,9 @@
   ],
   "record key": [
     "learnings/frontend/typescript-specific.md"
+  ],
+  "recorded fixtures": [
+    "learnings/testing/testing-patterns.md"
   ],
   "recovering from partial iteration state": [
     "learnings/claude-code/ralph-loop.md"
@@ -8939,7 +9024,7 @@
     "learnings/frontend/react-state-effects.md"
   ],
   "renderhook": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "replace real sandbox/environment uuids in committed documentation with placeholders": [
     "learnings/code-quality-instincts.md"
@@ -9043,6 +9128,9 @@
   ],
   "responding to mismatched lgtm": [
     "commands/git/address-request-comments/request-lgtm-verification.md"
+  ],
+  "response": [
+    "learnings/testing/vitest-rtl.md"
   ],
   "response shape": [
     "learnings/api-design.md"
@@ -9288,7 +9376,7 @@
     "learnings/refactoring-patterns.md"
   ],
   "route handler test structure (next.js app router": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "route handler testing": [
     "learnings/frontend/nextjs.md"
@@ -9774,7 +9862,7 @@
     "learnings/bash-patterns.md"
   ],
   "shared test helpers design": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "shedlock": [
     "learnings/financial/period-end-closing.md",
@@ -10216,6 +10304,9 @@
   ],
   "spa": [
     "learnings/infrastructure/nginx-patterns.md"
+  ],
+  "spec": [
+    "learnings/testing/pytest-patterns.md"
   ],
   "spec.md": [
     "learnings/claude-code/ralph-loop.md"
@@ -11328,11 +11419,11 @@
   "test gating and iterative validation": [
     "learnings/cicd/github-actions-patterns.md"
   ],
-  "test helpers": [
-    "learnings/testing/testing-patterns.md"
-  ],
   "test infrastructure (java / postgresql": [
     "learnings/financial/ledger-testing-strategies.md"
+  ],
+  "test isolation": [
+    "learnings/testing/testing-patterns.md"
   ],
   "test isolation: mock data must match runtime encoding": [
     "learnings/testing/testing-patterns.md"
@@ -11370,6 +11461,12 @@
   "test utilities & base classes": [
     "commands/explore-repo/agent-prompts.md"
   ],
+  "test value vs internals": [
+    "learnings/testing/testing-patterns.md"
+  ],
+  "test-helpers": [
+    "learnings/testing/vitest-rtl.md"
+  ],
   "test-only di parameters are a smell": [
     "learnings/dependency-injection-patterns.md"
   ],
@@ -11392,7 +11489,7 @@
     "commands/set-persona/python-quant-dev.md"
   ],
   "testing axios interceptors": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "testing long-running scripts": [
     "commands/learnings/compound/iterative-loop-design.md"
@@ -11401,7 +11498,7 @@
     "learnings/financial/ledger-testing-strategies.md"
   ],
   "testing response-returning validators": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "testing rigor": [
     "commands/set-persona/python-engineer.md"
@@ -11560,6 +11657,9 @@
   "tls verification": [
     "commands/set-persona/security-reviewer.md"
   ],
+  "tmp_path": [
+    "learnings/testing/pytest-patterns.md"
+  ],
   "toctou": [
     "commands/set-persona/correctness-reviewer.md",
     "learnings/claude-code/multi-agent/director/failure-modes.md",
@@ -11682,6 +11782,9 @@
   ],
   "transferrate formula": [
     "learnings/xrpl/cross-currency-payments.md"
+  ],
+  "translation-layer tests": [
+    "learnings/testing/testing-patterns.md"
   ],
   "translation-layer tests must assert post-translation values": [
     "learnings/testing/testing-patterns.md"
@@ -11904,7 +12007,7 @@
     "learnings/bash-patterns.md"
   ],
   "use specific exception types in pytest.raises": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "use structured templates over hard size limits": [
     "skill-references/subagent-patterns.md"
@@ -11930,11 +12033,11 @@
   "usestate": [
     "learnings/frontend/react-state-effects.md"
   ],
-  "utc": [
-    "learnings/testing/testing-patterns.md"
+  "utc datetime": [
+    "learnings/testing/pytest-patterns.md"
   ],
   "utc-explicit datetime conversions": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/pytest-patterns.md"
   ],
   "uuid": [
     "learnings/code-quality-instincts.md"
@@ -11973,6 +12076,9 @@
   ],
   "validation failure tests should verify service layer never called": [
     "learnings/java/spring-boot.md"
+  ],
+  "validator": [
+    "learnings/testing/vitest-rtl.md"
   ],
   "validator bypass": [
     "learnings/financial/vendor-divergence.md"
@@ -12101,13 +12207,13 @@
     "learnings/claude-code/multi-agent/quality.md"
   ],
   "vi.hoisted": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "vi.mock": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "vi.mock() hoisting and vi.hoisted": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "viability checklist": [
     "learnings/claude-code/skill-platform-portability.md"
@@ -12123,10 +12229,10 @@
   ],
   "vitest": [
     "learnings/frontend/nextjs.md",
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "vitest + react testing library stack": [
-    "learnings/testing/testing-patterns.md"
+    "learnings/testing/vitest-rtl.md"
   ],
   "vix": [
     "learnings/financial/futures-order-type-restrictions.md"
@@ -12373,9 +12479,6 @@
   ],
   "why balance-first systems break": [
     "learnings/financial/ledger-schema-migration.md"
-  ],
-  "why it matters": [
-    "learnings/testing/testing-patterns.md"
   ],
   "why numeric(38,18": [
     "learnings/financial/numeric-precision-strategy.md"

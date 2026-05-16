@@ -49,4 +49,4 @@ Load on demand when the work touches the listed area:
 - `provider:default/financial/tradestation-api.md` — TradeStation WebAPI v3 quirks: response shapes, error envelopes, sentinel values
 
 ### Testing
-- `provider:default/testing/testing-patterns.md` — pytest isolation, module-level singleton pitfalls, mock coupling, cross-test leakage (also referenced by `python-engineer`)
+- `provider:default/testing/pytest-patterns.md` — pytest isolation, module-level singleton pitfalls, autospec, MagicMock + DI seams, autouse hermetic fixtures (also referenced by `python-engineer`)

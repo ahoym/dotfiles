@@ -378,5 +378,5 @@ The cutover commit may be hundreds of files by count (data add/delete churn). Th
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
 - `~/.claude/learnings/process-conventions.md` — PR splitting and review process
-- `~/.claude/learnings/testing-patterns.md` — test recipes for refactoring safety
+- `~/.claude/learnings/testing/testing-patterns.md` — test recipes for refactoring safety
 - `~/.claude/learnings/python-specific.md` — `[dependency-groups].dev` + deferred imports for production-image dep exclusion (relevant when the new format introduces a heavy dep)

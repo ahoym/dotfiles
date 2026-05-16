@@ -56,7 +56,7 @@ For each pattern, check against the pre-loaded corpus for matches:
 **Test:** Does every pattern in this file apply equally to a Java agent, a Python agent, and a TypeScript agent? If any pattern references a specific framework, library, language feature, or project path, the file contains content that belongs in `learnings/`, not `guidelines/`.
 
 **Actions:**
-- **All patterns are stack-specific** → Merge useful content into the domain's existing learning file (e.g., `learnings/testing-patterns.md`), delete the guideline. Skip step 5 entirely.
+- **All patterns are stack-specific** → Merge useful content into the domain's existing learning file (e.g., `learnings/testing/testing-patterns.md`), delete the guideline. Skip step 5 entirely.
 - **Mix of universal and stack-specific** → Flag stack-specific patterns for migration to learnings. Proceed to step 5 only for the universal patterns.
 - **All patterns are universal** → Proceed to step 5 normally.
 

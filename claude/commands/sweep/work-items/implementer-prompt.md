@@ -42,7 +42,7 @@ d. **Announce results.** List which learnings were loaded and how they'll influe
 ```
 📚 [pre-implement] loaded 3 learnings:
 - java/spring-boot-gotchas.md — @Retryable catches 4xx, will guard against
-- testing/testing-patterns.md — test naming conventions for new tests
+- java/testing.md — test naming conventions for new tests
 - api-design.md — response shape conventions
 ```
 If no matches: `📚 [pre-implement] no matching learnings found`
