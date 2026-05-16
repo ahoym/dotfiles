@@ -21,11 +21,6 @@ echo "========================================"
 printf "\n%-20s %-6s %-12s %-14s %-6s %-24s\n" "RUN" "ITEM" "STATE" "MILESTONE" "LINES" "LAST ACTIVITY"
 printf "%-20s %-6s %-12s %-14s %-6s %-24s\n" "--------------------" "------" "------------" "--------------" "------" "------------------------"
 
-completed=0
-running=0
-errored=0
-total=0
-
 for run_dir in "$@"; do
     run_name=$(basename "$run_dir")
 

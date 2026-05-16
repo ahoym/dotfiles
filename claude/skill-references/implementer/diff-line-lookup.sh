@@ -20,7 +20,7 @@ MR="${1:?Usage: diff-line-lookup.sh <mr_number> [search_token]}"
 TOKEN="${2:-}"
 
 # Auto-detect platform
-if command -v glab >/dev/null 2>&1 && [ -f .gitlab-ci.yml ]; then
+if command -v glab >/dev/null 2>&1 && git remote get-url origin 2>/dev/null | grep -q gitlab; then
     DIFF_CMD="glab mr diff $MR"
 elif command -v gh >/dev/null 2>&1; then
     DIFF_CMD="gh pr diff $MR"
