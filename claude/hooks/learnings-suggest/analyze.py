@@ -12,9 +12,11 @@ Outputs three panels:
   - Coverage gaps: files often loaded but never suggested
 """
 
+import argparse
 import json
 import os
 import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -56,7 +58,6 @@ def normalize_path(p):
 
 
 def main():
-    import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=DEFAULT_LOOKBACK_DAYS)
     ap.add_argument("--top", type=int, default=10)
@@ -69,7 +70,7 @@ def main():
         print(f"No suggestion log at {SUGGEST_LOG}", file=sys.stderr)
         sys.exit(1)
 
-    cutoff = max(s.get("ts", 0) for s in suggests) - args.days * 86400
+    cutoff = time.time() - args.days * 86400
     suggests = [s for s in suggests if s.get("ts", 0) >= cutoff]
     reads = [r for r in reads if r.get("ts", 0) >= cutoff]
 
@@ -124,18 +125,18 @@ def main():
 
     panel(f"Suggestion telemetry — last {args.days} days")
     print(f"Total prompts logged:        {total_prompts}")
-    pct = (100 * prompts_with_suggestions // total_prompts) if total_prompts else 0
+    pct = round(100 * prompts_with_suggestions / total_prompts) if total_prompts else 0
     print(f"Suggestions fired:           {prompts_with_suggestions}  ({pct}%)")
     for tier in ("strong", "weak"):
         c = tier_counts[tier]
-        rate = (100 * c["loaded"] // c["suggested"]) if c["suggested"] else 0
+        rate = round(100 * c["loaded"] / c["suggested"]) if c["suggested"] else 0
         print(f"  [{tier}] tier:               {c['suggested']:4d}  hit rate {rate}%  ({c['loaded']} loads)")
 
     panel("Top performers (suggested → loaded)")
     perf = sorted(file_suggested.items(), key=lambda kv: -file_loaded_from_suggest.get(kv[0], 0))
     for path, n_suggested in perf[: args.top]:
         n_loaded = file_loaded_from_suggest.get(path, 0)
-        rate = (100 * n_loaded // n_suggested) if n_suggested else 0
+        rate = round(100 * n_loaded / n_suggested) if n_suggested else 0
         if n_loaded == 0:
             continue
         print(f"  {path:<55}  {n_suggested:3d} →  {n_loaded:3d}  ({rate}%)")
