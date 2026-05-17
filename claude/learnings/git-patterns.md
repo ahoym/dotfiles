@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix, silent cross-ref rot, upstream restructure audit, fold inline fix introducing commit, sed strip conflict markers, append-both at scale
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix, silent cross-ref rot, upstream restructure audit, fold inline fix introducing commit, sed strip conflict markers, append-both at scale, git grep tracked-content scope, symlinked layout grep noise
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -645,7 +645,15 @@ done
 
 `/d` deletes the outer markers entirely; `s/^=======$//` **empties the line rather than deleting it** — preserves the blank line markdown needs between sections. Replacing with `/d` collapses content from both sides into adjacent lines, breaking heading spacing.
 
-## Cross-Refs
+## `git grep` for tracked-content scope checks in symlinked layouts
+
+For post-rename cross-ref verification, prefer `git grep <pattern>` over `grep -rn <pattern> ~/.claude/`. Tilde-rooted paths that symlink back into the repo (e.g., `~/.claude/` → `<dotfiles>/claude/`) cause `grep -r` to walk into transcripts (`.claude/projects/`), stale worktree copies (`claude/worktrees/`), and other untracked content — produces hundreds of KB of noise and false-positive hits.
+
+```bash
+git grep -n 'Old Heading Name'   # scopes to tracked files in current branch
+```
+
+Exit 1 = clean (no matches). Use bare `grep -r` only when you actually want untracked files (e.g., searching tool-output dirs).
 
 - `~/.claude/learnings/bash-patterns.md` — shell escaping gotchas for git commands
 - `~/.claude/learnings/cicd/gitlab.md` — GitLab CI/CD patterns and configuration
