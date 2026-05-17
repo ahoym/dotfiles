@@ -68,7 +68,9 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 
 ## Reference Files
 
-- `~/.claude/skill-references/parallel-claude-runner-template.sh` — Bash template for let-it-rip.sh generation
+- `~/.claude/skill-references/work-items-generate-runner.sh` — **Recommended entrypoint.** One bash call: assembles preflight + body/comments + per-issue prompts + runner. Inputs: `manifest.json`, `metadata.json`, `repo-summary.txt`, per-issue `metadata.json`. Auto-extracts `IMPLEMENT_ISSUES` from manifest and computes `PROJECT_ROOT`.
+- `~/.claude/skill-references/work-items-runner-template.sh` — Work-items-specific runner template (issue-<N>/ dirs, `gh issue view`, `IMPLEMENT_ISSUES` array, conditional worktree setup, per-issue cwd). Used by work-items-generate-runner.sh.
+- `~/.claude/skill-references/parallel-claude-runner-template.sh` — Generic PR-centric template (used by `sweep:address-prs` / `sweep:review-prs`). Do NOT use directly for work-items — it lacks issue semantics + worktree-from-main setup.
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, **progress-check script**
 - `~/.claude/skill-references/sweep-agent-preflight.md` — Shared preflight steps (1-5 + Work Item + Repo Context) for all agent prompts

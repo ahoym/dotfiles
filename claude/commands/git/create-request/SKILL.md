@@ -41,9 +41,21 @@ Before creating the review, verify these items are complete:
    - `git log origin/main..HEAD --oneline` - See commits to include (adjust base as needed)
    - `git diff origin/main..HEAD --stat` - See files changed
 
-3. **Check for uncommitted changes**:
-   - If there are uncommitted changes, ask the operator if they want to commit first
-   - Do not proceed with review creation if there are uncommitted changes
+3. **Handle uncommitted changes**:
+   Based on `git status` from step 2:
+
+   - **Clean working tree** → proceed to step 4.
+   - **Dirty + on base branch** — offer:
+     - (a) Create a new branch, stage all uncommitted, commit
+     - (b) Create a new branch, stage a subset (operator specifies which files), commit
+   - **Dirty + on feature branch** — offer:
+     - (a) Commit all uncommitted to the current branch
+     - (b) Commit a subset (leave the rest uncommitted)
+     - (c) Stash, proceed with only the already-committed state
+
+   **Multi-concern flag**: if the uncommitted set spans logically distinct concerns (e.g., unrelated features, docs + code, migration + cleanup), surface the grouping before the operator picks. Suggest running this skill once per concern — each iteration stages only the relevant subset — rather than bundling into one PR.
+
+   After the chosen action completes, re-check `git status` and continue to step 4 only when the tree is clean (or stashed).
 
 4. **Run verifications**:
    Run any available automated checks **before pushing**. Look for project-standard commands (in CLAUDE.md, pyproject.toml, package.json, Makefile, etc.). Common checks:

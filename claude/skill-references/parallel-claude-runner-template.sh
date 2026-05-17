@@ -273,6 +273,17 @@ process_item() {
             printf '### attempt %d ###\n' "$attempt" >> "$item_dir/raw.jsonl"
         fi
 
+        # Compute CWD prefix — address mode launches the session inside the item's worktree
+        # so plain git commands operate on the PR branch (no cd/-C which trip hook-injection gate)
+        local cd_prefix=""
+{{#WORKTREES}}
+        local _wt
+        _wt=$(worktree_for "$item_num")
+        if [ -n "$_wt" ] && [ -d "$_wt" ]; then
+            cd_prefix="cd \"$_wt\" && "
+        fi
+{{/WORKTREES}}
+
         # Launch with stream monitoring if monitor exists, otherwise fall back to plain pipe
         if [ -x "$monitor" ]; then
             {
@@ -282,7 +293,7 @@ process_item() {
                     cat "${item_dir}/prompt.txt"
                 fi
             } \
-                | sh -c "echo \$\$ > ${item_dir}/session.pid; exec claude -p --model $MODEL --verbose --output-format stream-json $resume_flag" \
+                | sh -c "echo \$\$ > ${item_dir}/session.pid; ${cd_prefix}exec claude -p --model $MODEL --verbose --output-format stream-json $resume_flag" \
                 | "$monitor" "$item_dir" \
                 | tee -a "$item_dir/raw.jsonl" >> "$log_file" &
             local pipe_pid=$!
@@ -320,7 +331,7 @@ process_item() {
             fi
         else
             local fallback_timeout=$((INACTIVITY_TIMEOUT_SEC * 2))
-            if timeout "$fallback_timeout" sh -c "cat \"\$1\" | claude -p --model $MODEL 2>&1 | tee -a \"\$2\"" _ "${item_dir}/prompt.txt" "$log_file"; then
+            if timeout "$fallback_timeout" sh -c "${cd_prefix}cat \"\$1\" | claude -p --model $MODEL 2>&1 | tee -a \"\$2\"" _ "${item_dir}/prompt.txt" "$log_file"; then
                 exit_status="success"
             else
                 local fallback_rc=$?
@@ -422,6 +433,9 @@ process_item() {
 }
 
 export -f process_item write_state is_terminal_state
+{{#WORKTREES}}
+export -f worktree_for branch_for
+{{/WORKTREES}}
 export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD TERMINAL_STATES
 
 # --- Launch ---

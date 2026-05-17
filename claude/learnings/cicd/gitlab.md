@@ -198,6 +198,14 @@ glab api projects/:id/issues -X POST -f title=Consolidate\ Config\ Pattern
 glab api projects/:id/issues -X POST -f 'title=Consolidate Config Pattern'
 ```
 
+## glab state values are lowercase GitLab raw values
+
+`glab mr view <N> --json state` returns `opened`/`merged`/`closed` — not `OPEN`/`MERGED`/`CLOSED` like `gh`. Any cross-platform code comparing state strings needs a normalization layer (e.g., `state=$(echo "$raw" | tr '[:lower:]' '[:upper:]')`). Silent skip bugs otherwise: a `[ "$state" = "OPEN" ]` check against GitLab will always be false and skip every open MR.
+
+## glab `-F` flag semantics differ by subcommand
+
+`glab api -F key=value` is a form-field flag (curl-style). On `glab mr view`, `-F` is **not** defined as the output-format flag (`--output` is) — using it produces unexpected/undefined behavior. Don't assume `-F` is portable across glab subcommands; read `glab <sub> --help` per subcommand.
+
 ## Cross-Refs
 
 None — intra-cluster refs handled by cluster index.

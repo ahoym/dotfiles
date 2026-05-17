@@ -405,6 +405,39 @@ wt=$(setup)
 
 For one-off JSON validation, data munging, or arithmetic, reach for `jq`, `node -e`, or shell builtins/coreutils before `python3 -c '...'`. Python invocations require their own permission patterns and add friction; lightweight alternatives are domain-appropriate and usually already allowlisted. Pick the tool by domain: `jq` for JSON, `node -e` / `bun` for JS, `awk`/`grep`/`sed` for text. Only reach for Python when no lightweight alternative fits.
 
+## `xargs -I {} bash -c` Subshell Scoping
+
+Exported bash arrays don't propagate into `xargs -I {} bash -c '...'` subshells; only scalar exports survive. Pass list membership via an exported space-joined string + `case`:
+
+```bash
+export FOO_STR="${FOO[*]}"
+is_member() {
+    case " ${FOO_STR:-} " in
+        *" $1 "*) return 0 ;;
+        *)        return 1 ;;
+    esac
+}
+export -f is_member
+```
+
+`export FOO` for arrays does nothing in the child; `declare -p FOO` in the subshell shows nothing.
+
+## `xargs -I {} bash -c` Silently Drops Non-Exported Functions
+
+Functions called inside the `xargs -I {} bash -c '...'` subshell must be listed in `export -f` — otherwise the subshell gets "command not found" and the unset stdout makes failure look like empty output, not an error. Typical symptom: a script that dispatches work via `xargs -P` has a runner function that calls `worktree_for "$pr_num"`; the case-statement returns empty, downstream logic silently takes the "no worktree" branch, work runs in the wrong CWD.
+
+```bash
+# Broken: worktree_for defined but not exported
+worktree_for() { case "$1" in 104) echo "/path" ;; esac; }
+export -f process_pr                     # worktree_for missing
+printf '%s\n' "${PRS[@]}" | xargs -P 3 -I {} bash -c 'process_pr "$@"' _ {}
+
+# Fix
+export -f process_pr worktree_for branch_for
+```
+
+Always audit `export -f` against the complete function call graph reachable from the dispatched function, not just the entry point.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

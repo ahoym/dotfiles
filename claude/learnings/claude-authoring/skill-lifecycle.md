@@ -36,6 +36,10 @@ When a skill produces structured output intended for another workflow (e.g., cur
 
 When changing a contract between two skills (e.g., the parallel plan format consumed by `/parallel-plan:execute` and produced by `/parallel-plan:make`), update both skills in the same commit. A broken intermediate state — where the producer writes a new format but the consumer still expects the old one — causes silent failures. Add legacy support in the consumer if backwards compatibility is needed.
 
+### New helper scripts must be linked from the playbooks/scaffolds that document their domain
+
+Dropping a script in `~/.claude/skill-references/` (e.g., `sweep-status-summary.sh`) is half the work. Discovery is the other half: agents reading `director-playbook.md`, `sweep-scaffold.md`, or the calling SKILL.md won't find the script unless one of those docs names it. When adding a helper, grep the playbooks/scaffolds for the domain it operates on (`status.md`, `live.md`, `rate-limited`, etc.) and add a one-line reference at the first instructional point for that domain. Without this, agents fall back to raw `cat`/`for` loops that trigger permission prompts.
+
 ## Skill-Scoped Hooks: Placement Decision Framework
 
 Hooks can live in skill `hooks:` frontmatter (active only during skill execution) or in `settings.json` (active always). Choose placement based on scope:
