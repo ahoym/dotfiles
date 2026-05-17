@@ -91,4 +91,16 @@ HOOK_BOOTSTRAP="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bootstrap.sh"
 if [ -x "$HOOK_BOOTSTRAP" ]; then
   echo "  hook   learnings-suggest"
   "$HOOK_BOOTSTRAP" || echo "  warn   learnings-suggest build failed — hook will no-op"
+
+  # Build the section index used by the suggest hook (iteration 2a).
+  INDEX_BUILDER=""
+  case "$(uname -s)-$(uname -m)" in
+    Darwin-arm64)   INDEX_BUILDER="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bin/learnings-index-build-aarch64-darwin" ;;
+    Darwin-x86_64)  INDEX_BUILDER="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bin/learnings-index-build-x86_64-darwin" ;;
+    Linux-x86_64)   INDEX_BUILDER="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bin/learnings-index-build-x86_64-linux-gnu" ;;
+    Linux-aarch64)  INDEX_BUILDER="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bin/learnings-index-build-aarch64-linux-gnu" ;;
+  esac
+  if [ -n "$INDEX_BUILDER" ] && [ -x "$INDEX_BUILDER" ]; then
+    "$INDEX_BUILDER" 2>&1 | sed 's/^/  index  /' || true
+  fi
 fi

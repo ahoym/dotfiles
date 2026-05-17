@@ -35,16 +35,23 @@ block. Treat it as advisory, not directive.
 
 ```
 <learnings-suggestions>
-  [strong] ~/.claude/learnings/python-specific.md — pydantic, model_dump | <description>
-  [weak] ~/.claude/learnings/refactoring-patterns.md — refactoring | <description>
+  [strong] ~/.claude/learnings/python-specific.md:142-187 — pydantic, model_dump | ## Section header
+  [strong] ~/.claude/learnings/java/spring-boot.md — jpa, flyway | <file-level description>
+  [weak]   ~/.claude/learnings/refactoring-patterns.md — refactoring | <description>
 </learnings-suggestions>
 ```
 
-**How to use the hint:**
-- `[strong]` (3+ keyword hits) → load with Read unless dedup says it's already loaded this session
-- `[weak]` (2 hits) → load only if the description suggests genuine relevance to the current task
+**Path forms:**
+- `path:start-end` → section-level hint. Read with `offset=start, limit=(end-start+1)`. Section content is precise; `[weak]` section hints are usually worth loading.
+- `path` (no range) → file-level hint. Use either when the file is short or when the section index can't address the content precisely (dense atomic files, drifted sections). Default to a normal Read; consider `offset+limit` only after sniffing if the file is large.
+
+**Tier interpretation:**
+- `[strong]` (≥3 keyword hits) → load unless dedup says it's already in this session
+- `[weak]` (2 hits) → load only if the description / header suggests genuine relevance
 - Clearly irrelevant → ignore silently; no acknowledgement needed
 - Quoted terms in the prompt (`"noqa"`) force inclusion even below the strong threshold
+
+**Staleness:** if a hint shows a path without a range that you'd expect to be sectioned, the section index is older than the file's last edit — the hook downgraded the hit to file-level rather than risk a stale line range. The `/learnings:curate` pass rebuilds the index.
 
 The hook handles the **keyword** and **domain-shift** gates automatically. The
 remaining agent-owned gates (session-start, plan-mode entry, implementation

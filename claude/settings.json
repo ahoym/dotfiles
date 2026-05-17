@@ -144,6 +144,14 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.claude/hooks/learnings-suggest/read-log.sh" }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

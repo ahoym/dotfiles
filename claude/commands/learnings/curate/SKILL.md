@@ -144,6 +144,16 @@ After applying changes, update the consolidation deep-dive tracker so the next a
 
 This prevents the consolidation loop from queueing files for deep dives that were just manually curated.
 
+### 9b. Rebuild the section index
+
+If any content was edited or moved in step 8, refresh the section-level index consumed by the `learnings-suggest` UserPromptSubmit hook. Skip if no content changed.
+
+```bash
+bash ~/.claude/hooks/learnings-suggest/rebuild-index.sh
+```
+
+Failure is non-fatal — the hook falls back to file-level matching against `.keyword-index.json` when the section index is stale or missing.
+
 ### 10. Report results
 
 ```
