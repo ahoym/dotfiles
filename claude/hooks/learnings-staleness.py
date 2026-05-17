@@ -13,6 +13,17 @@ THRESHOLD = 5
 CLAUDE = Path.home() / ".claude"
 INDEX = CLAUDE / "learnings" / ".keyword-index.json"
 
+# Directories whose changes invalidate the keyword index. Mirrored — different
+# form only (no leading `/`, prefixed with `claude/`) — in
+# claude/hooks/learnings-suggest/src/bin/read-log.rs's LEARNINGS_SUBPATHS.
+# Keep the two in sync.
+LEARNINGS_DIRS = (
+    "claude/learnings/",
+    "claude/guidelines/",
+    "claude/commands/",
+    "claude/skill-references/",
+)
+
 
 def main():
     if not INDEX.exists():
@@ -37,8 +48,7 @@ def main():
             [
                 "git", "-C", str(repo), "diff", "--name-only",
                 f"{anchor}..HEAD", "--",
-                "claude/learnings/", "claude/guidelines/",
-                "claude/commands/", "claude/skill-references/",
+                *LEARNINGS_DIRS,
             ],
             stderr=subprocess.DEVNULL,
             text=True,

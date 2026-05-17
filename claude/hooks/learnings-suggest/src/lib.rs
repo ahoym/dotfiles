@@ -20,6 +20,12 @@ pub fn claude_root() -> PathBuf {
     home().join(".claude")
 }
 
+/// Where transient hook artifacts (suggestion log, read log, sections index) live.
+/// Mirrored in `analyze.py`'s `ART` constant.
+pub fn artifacts_dir() -> PathBuf {
+    claude_root().join("claude-artifacts").join("ast")
+}
+
 pub fn expand_tilde(p: &str) -> PathBuf {
     p.strip_prefix("~/")
         .map(|rest| home().join(rest))

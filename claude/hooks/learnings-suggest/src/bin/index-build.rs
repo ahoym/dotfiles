@@ -4,7 +4,7 @@
 //
 // Run from /learnings:curate or manually after content edits.
 
-use learnings_suggest::{home, providers, Provider, SCHEMA_VERSION};
+use learnings_suggest::{artifacts_dir, providers, Provider, SCHEMA_VERSION};
 use pulldown_cmark::{Event, HeadingLevel, Parser, Tag, TagEnd};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -14,6 +14,17 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const MIN_SECTION_LINES: usize = 8;
 const MAX_KEYWORDS_PER_SECTION: usize = 12;
+
+// Repo-wide convention: line 2 of every learnings file is
+// `- **Keywords:** kw1, kw2, ...`. `Keywords:` (no asterisks) is a legacy
+// form retained for files that predate the bolded marker.
+const KEYWORDS_MARKER: &str = "**Keywords:**";
+const KEYWORDS_MARKER_LEGACY: &str = "Keywords:";
+
+// Upper bound for how many leading lines to scan for the keywords marker.
+// Not the header size — a search budget so we stop before walking the body
+// if a file's header is malformed.
+const KEYWORDS_HEADER_SEARCH_LIMIT: usize = 5;
 
 const STOPWORDS: &[&str] = &[
     "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
@@ -125,14 +136,13 @@ struct Section {
 }
 
 fn extract_explicit_keywords(file_text: &str) -> Vec<String> {
-    // Existing convention: line 2 of each file is `- **Keywords:** kw1, kw2, ...`
     file_text
         .lines()
-        .take(5)
+        .take(KEYWORDS_HEADER_SEARCH_LIMIT)
         .find_map(|line| {
             let l = line.trim_start_matches(|c: char| c == '-' || c.is_whitespace());
-            l.strip_prefix("**Keywords:**")
-                .or_else(|| l.strip_prefix("Keywords:"))
+            l.strip_prefix(KEYWORDS_MARKER)
+                .or_else(|| l.strip_prefix(KEYWORDS_MARKER_LEGACY))
         })
         .map(|kws| {
             kws.split(',')
@@ -363,7 +373,7 @@ fn main() {
         "sections": sections_json,
     });
 
-    let dir = home().join(".claude").join("claude-artifacts").join("ast");
+    let dir = artifacts_dir();
     if let Err(e) = fs::create_dir_all(&dir) {
         eprintln!("learnings-index-build: cannot create {}: {}", dir.display(), e);
         std::process::exit(1);

@@ -2,11 +2,21 @@
 // Cross-referenced offline against suggest.jsonl by analyze.py to compute hit rates.
 // Silent on any failure — never blocks a tool call.
 
-use learnings_suggest::home;
+use learnings_suggest::artifacts_dir;
 use serde_json::{json, Value};
 use std::fs::{self, OpenOptions};
 use std::io::{self, Read, Write};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+// Substring fragments matched against absolute Read paths to decide whether to log.
+// Mirrored — different form only (leading `/`, no `claude/` prefix) — in
+// claude/hooks/learnings-staleness.py's LEARNINGS_DIRS. Keep the two in sync.
+const LEARNINGS_SUBPATHS: &[&str] = &[
+    "/learnings/",
+    "/guidelines/",
+    "/skill-references/",
+    "/commands/",
+];
 
 fn run() -> Option<()> {
     let mut s = String::new();
@@ -19,15 +29,12 @@ fn run() -> Option<()> {
     let input = v.get("tool_input")?;
     let path = input.get("file_path").and_then(Value::as_str)?;
 
-    // Only log Reads of files that could plausibly be a learnings suggestion.
-    let relevant = ["/learnings/", "/guidelines/", "/skill-references/", "/commands/"]
-        .iter()
-        .any(|m| path.contains(m));
+    let relevant = LEARNINGS_SUBPATHS.iter().any(|m| path.contains(m));
     if !relevant {
         return None;
     }
 
-    let dir = home().join(".claude").join("claude-artifacts").join("ast");
+    let dir = artifacts_dir();
     fs::create_dir_all(&dir).ok()?;
     let log = dir.join("reads.jsonl");
 

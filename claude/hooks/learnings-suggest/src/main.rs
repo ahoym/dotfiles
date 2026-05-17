@@ -11,7 +11,7 @@
 // Hook must never block a prompt: any failure → silent no-op.
 
 use aho_corasick::{AhoCorasickBuilder, MatchKind};
-use learnings_suggest::{claude_root, home, providers, Provider, SCHEMA_VERSION};
+use learnings_suggest::{artifacts_dir, claude_root, home, providers, Provider, SCHEMA_VERSION};
 use serde_json::{json, Value};
 use std::collections::{hash_map::DefaultHasher, BTreeMap, HashMap, HashSet};
 use std::fs::{self, OpenOptions};
@@ -191,7 +191,7 @@ fn display_path(root: &Path, rel: &str) -> String {
 // ---------- Telemetry ----------
 
 fn log_event(prompt: &str, session: Option<&str>, hits: &[(Hit, PathBuf)]) {
-    let dir = claude_root().join("claude-artifacts").join("ast");
+    let dir = artifacts_dir();
     if fs::create_dir_all(&dir).is_err() {
         return;
     }
