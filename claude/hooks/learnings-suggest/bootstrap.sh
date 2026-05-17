@@ -1,7 +1,8 @@
 #!/bin/bash
 # Build the learnings-suggest binary for the current platform.
 # Idempotent: re-runs skip when the existing binary is newer than every source file.
-# Installs Rust if missing (brew on macOS, rustup elsewhere).
+# Installs Rust via rustup if missing (official toolchain manager, same path on all platforms —
+# required by `--all-targets` which calls `rustup target add`).
 #
 # Usage:
 #   bootstrap.sh                  # build for current platform only
@@ -43,14 +44,10 @@ any_stale() {
 
 ensure_cargo() {
   command -v cargo >/dev/null 2>&1 && return 0
-  echo "Installing Rust toolchain..."
-  if [ "$OS" = "Darwin" ] && command -v brew >/dev/null 2>&1; then
-    brew install rust
-  else
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-      | sh -s -- -y --default-toolchain stable --profile minimal
-    export PATH="$HOME/.cargo/bin:$PATH"
-  fi
+  echo "Installing Rust toolchain via rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --default-toolchain stable --profile minimal
+  export PATH="$HOME/.cargo/bin:$PATH"
 }
 
 stage_binaries() {
