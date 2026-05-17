@@ -27,12 +27,15 @@ esac
 mkdir -p "$BIN_DIR"
 
 any_stale() {
-  # Returns 0 (true) if any binary is missing or older than source/manifest.
+  # Returns 0 (true in bash) when any binary is missing or older than source/manifest/lockfile.
+  # `|| return 0` short-circuits at the first stale condition; `return 1` only fires after
+  # every binary passes every freshness check.
   local bin
   for b in "${BINS[@]}"; do
     bin="$BIN_DIR/$b-$1"
     [ -x "$bin" ] || return 0
     [ "$bin" -nt "$DIR/Cargo.toml" ] || return 0
+    [ "$bin" -nt "$DIR/Cargo.lock" ] || return 0
     [ -z "$(find "$DIR/src" -type f -newer "$bin" -print -quit 2>/dev/null)" ] || return 0
   done
   return 1
