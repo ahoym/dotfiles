@@ -28,6 +28,7 @@ Helpers, templates, and reference docs under `~/.claude/skill-references/`. **Ch
 | `stream-monitor.sh` | (piped) `... \| claude -p ... \| stream-monitor.sh <PR_DIR> \| tee raw.jsonl` | Pass-through filter; writes `live.md` events as side effect. Used by runners, rarely by hand. |
 | `vp-agent-template.sh` | `bash <path> [TASK] [RUN_DIR_BASE]` | Multi-tier VP→Director→Worker launcher (research/exploration, not sweep). Note: `-template` suffix is a misnomer — this is a direct-run launcher, not a `fill-template.sh` input. |
 | `copy-ref.sh` | `bash <path> <filename> <dest>` | Copy a file from `~/.claude/skill-references/` to a destination — bypasses Bash tool sandbox restriction on `cp` with out-of-project sources. |
+| `build-keyword-index.sh` | `bash <path>` | Rebuild `claude/learnings/.keyword-index.json` via mechanical extraction. Writes staging output to `tmp/claude-artifacts/keyword-index/keyword-index.json`; inspect, then `cp` over the canonical file. |
 | `orchestrator/kill-sessions.sh` | `bash <path> <run_dir> [--runners]` | Kill running `claude -p` sessions in a sweep run dir (via `session.pid`). `--runners` also kills `let-it-rip.sh` runner processes. |
 | `orchestrator/session-liveness.sh` | `bash <path> <run_dir\|session_dir>` | Show alive/dead state for sessions in a run/session dir + tail of each `live.md`. |
 | `orchestrator/sweep-dashboard.sh` | `bash <path> <run_dir> [<run_dir2> ...]` | Cross-run worker state dashboard (state.md / status.md / live.md per item, plus per-run summary counts). |
