@@ -1,8 +1,9 @@
 #!/bin/bash
 # Build the learnings-suggest binary for the current platform.
 # Idempotent: re-runs skip when the existing binary is newer than every source file.
-# Installs Rust via rustup if missing (official toolchain manager, same path on all platforms —
-# required by `--all-targets` which calls `rustup target add`).
+# Installs Rust via rustup if missing (official toolchain manager — required by `--all-targets`
+# which calls `rustup target add`). On macOS prefers `brew install rustup` so updates are tracked
+# by the package manager; elsewhere falls back to the upstream rustup-init shell installer.
 #
 # Usage:
 #   bootstrap.sh                  # build for current platform only
@@ -45,8 +46,15 @@ any_stale() {
 ensure_cargo() {
   command -v cargo >/dev/null 2>&1 && return 0
   echo "Installing Rust toolchain via rustup..."
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --default-toolchain stable --profile minimal
+  if [ "$OS" = "Darwin" ] && command -v brew >/dev/null 2>&1; then
+    brew install rustup
+    # `rustup` is keg-only; rustup-init lives under $(brew --prefix rustup)/bin and seeds
+    # the actual toolchain (cargo, rustc, …) into $HOME/.cargo/bin, same as the curl path.
+    "$(brew --prefix rustup)/bin/rustup-init" -y --default-toolchain stable --profile minimal
+  else
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+      | sh -s -- -y --default-toolchain stable --profile minimal
+  fi
   export PATH="$HOME/.cargo/bin:$PATH"
 }
 
