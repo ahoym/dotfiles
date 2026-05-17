@@ -477,6 +477,21 @@ git push --force-with-lease
 
 Identify unmerged commits by checking which PRs from the branch's stack have already shipped (`gh pr list --search <prefix> --state merged`) — drop those, keep the rest. Companion to "Add/add rebase conflict" (parallel branches creating same file); this is one branch's work round-tripped through merge with edits.
 
+## Stacked PR after base force-rebase — `rebase --onto` add/add-conflicts on duplicates
+
+When PR B is stacked on PR A and PR A's branch is force-rebased (e.g., to drop a commit), PR B's branch still references PR A's *old* SHAs. `git rebase --onto origin/<PR-A-branch> <dropped-commit> HEAD` auto-skips the **first** duplicate via patch-id ("patch contents already upstream") then add/add-conflicts on subsequent ones — rebase's dedup is per-commit, non-transitive across identical file additions.
+
+**Recovery — same as merged-with-edits:**
+
+```bash
+git rebase --abort
+git reset --hard origin/<PR-A-branch>
+git cherry-pick <PR-B-unique-sha-1> [<PR-B-unique-sha-2> ...]
+git push --force-with-lease
+```
+
+Detect the trigger: `gh pr view <B> --json baseRefName` shows a non-`main` base, and that base was just force-pushed. Identify PR-B-unique commits via `git log <PR-A-old-tip>..HEAD` *before* the reset — those SHAs survive the reset since they're still reachable via reflog/ORIG_HEAD.
+
 ## `git merge-tree` is not in default allowlist — preview alternatives
 
 `git merge-tree` (read-only conflict preview) prompts for permission in `claude -p` addresser sessions. Two viable fallbacks:
