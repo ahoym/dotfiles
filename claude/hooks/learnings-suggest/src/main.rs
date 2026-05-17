@@ -179,6 +179,9 @@ fn truncate_chars(s: &str, n: usize) -> String {
     s.chars().take(n).collect()
 }
 
+/// Render a per-provider hit path: tilde-collapses under `$HOME`, otherwise
+/// absolute. Provider-agnostic — works for any provider location, not just
+/// `~/.claude/learnings/`.
 fn display_path(root: &Path, rel: &str) -> String {
     let full = root.join(rel);
     if let Ok(stripped) = full.strip_prefix(home()) {
@@ -359,6 +362,9 @@ fn merge_and_dedup(
         }
     }
     for ((pname, rel), (score, terms, root)) in file_hits {
+        // Reverse-lookup the provider by root path. If two providers ever
+        // shared a parent dir this would collide — falls back to basename.
+        // Not expected in practice.
         let provider_name = provs
             .iter()
             .find(|p| p.root == root)

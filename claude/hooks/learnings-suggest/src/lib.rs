@@ -36,7 +36,10 @@ pub fn expand_tilde(p: &str) -> PathBuf {
 pub struct Provider {
     pub name: String,
     pub base: PathBuf, // The learnings directory itself
-    pub root: PathBuf, // The base's parent — indexes encode paths relative to this
+    // base.parent() — rel paths are encoded against this so they include the
+    // leaf dir (e.g. "learnings/foo.md"), matching the format used in
+    // hand-curated .keyword-index.json files.
+    pub root: PathBuf,
 }
 
 /// Read `~/.claude/learnings-providers.json` and resolve providers.
