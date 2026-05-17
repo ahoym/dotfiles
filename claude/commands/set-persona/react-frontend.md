@@ -33,7 +33,8 @@
 
 ## Proactive Cross-Refs
 
-None — canonical sources are listed in `## Cross-Refs` and load on demand.
+- `provider:default/frontend/react-state-effects.md` — setState rules, hydration gating, lazy initializers, render-time sync
+- `provider:default/frontend/nextjs.md` — proxy.ts rename, async dynamic params, Turbopack gotchas
 
 ## Cross-Refs
 
