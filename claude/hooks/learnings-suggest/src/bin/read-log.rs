@@ -51,12 +51,19 @@ fn run() -> Option<()> {
         "limit": input.get("limit").and_then(Value::as_u64),
     });
 
+    // Serialize the whole record (including trailing newline) into one buffer and
+    // write it in a single syscall. With O_APPEND, a single small write() lands
+    // atomically at EOF — concurrent workers can't interleave fragments. The
+    // previous `writeln!(f, "{}", event)` issued many small writes via the Display
+    // impl, which produced line-tearing across parallel claude -p sessions.
+    let mut line = serde_json::to_vec(&event).ok()?;
+    line.push(b'\n');
     let mut f = OpenOptions::new()
         .create(true)
         .append(true)
         .open(&log)
         .ok()?;
-    writeln!(f, "{}", event).ok()
+    f.write_all(&line).ok()
 }
 
 fn main() {

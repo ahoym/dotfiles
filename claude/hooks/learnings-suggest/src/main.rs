@@ -230,8 +230,15 @@ fn log_event(prompt: &str, session: Option<&str>, hits: &[(Hit, PathBuf)]) {
         "session": session,
         "hits": hit_json,
     });
-    if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&path) {
-        let _ = writeln!(f, "{}", event);
+    // Single-syscall write so concurrent workers can't interleave fragments — see
+    // read-log.rs for the rationale. suggest.jsonl is lower-volume than reads.jsonl
+    // (one record per UserPromptSubmit vs. one per Read), but the race is identical.
+    if let Ok(line) = serde_json::to_vec(&event) {
+        if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&path) {
+            let mut buf = line;
+            buf.push(b'\n');
+            let _ = f.write_all(&buf);
+        }
     }
 }
 
