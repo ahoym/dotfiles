@@ -16,8 +16,8 @@ All gates are mandatory when their trigger fires. No exceptions.
 | **Plan mode entry** | Before `EnterPlanMode` | Glob filenames + grep content → broad task terms | Yes — set one if none active |
 | **Implementation start** | Before executing approved plan | Glob persona dirs → tech stack | Yes — activate match |
 | **Review entry** | Invoking a review/audit skill that doesn't self-load learnings (e.g., native `/simplify`, `/security-review`) BEFORE launching review subagents. Skip if the skill's instructions already include a "load learnings" step (`git:code-review-request`, `git:team-review-request`, `git:address-request-comments` all handle this internally) | Glob filenames + grep content → quality, testing, security, perf, language-specific gotchas relevant to the diff | No |
-| **Keyword** *(hook-owned)* | Domain keyword or quoted term in user message | Handled by `learnings-suggest` `UserPromptSubmit` hook — see below | No |
-| **Domain shift** *(hook-owned)* | User message introduces new domain | Same hook | No |
+| **Keyword** *(hook-owned)* | Domain keyword or quoted term in user message | `learnings-suggest` `UserPromptSubmit` hook (see below); agent falls back to manual pipeline search when the binary is absent | No |
+| **Domain shift** *(hook-owned)* | User message introduces new domain | Same hook; same agent fallback when binary is absent | No |
 | **Pre-edit check** *(hook-owned, iteration 2)* | First Edit/Write in unloaded tech domain | Today: agent-owned. Iteration 2: `PreToolUse` hook on Edit/Write | No |
 | **Skill-task start** | Before executing a complex/long-running skill (sweeps, multi-agent, refactors) | Glob filenames → skill's domain terms (e.g., `sweep`, `director`, `compound`, `worktree`, `multi-agent`) | No |
 
@@ -42,16 +42,19 @@ block. Treat it as advisory, not directive.
 ```
 
 **Path forms:**
-- `path:start-end` → section-level hint. Read with `offset=start, limit=(end-start+1)`. Section content is precise; `[weak]` section hints are usually worth loading.
-- `path` (no range) → file-level hint. Use either when the file is short or when the section index can't address the content precisely (dense atomic files, drifted sections). Default to a normal Read; consider `offset+limit` only after sniffing if the file is large.
+- `path:start-end` → section-level hint. Read with `offset=start, limit=(end-start+1)`.
+- `path` (no range) → file-level hint (short file, dense atomic content, or drifted section).
 
 **Tier interpretation:**
-- `[strong]` (≥3 keyword hits) → load unless dedup says it's already in this session
-- `[weak]` (2 hits) → load only if the description / header suggests genuine relevance
-- Clearly irrelevant → ignore silently; no acknowledgement needed
-- Quoted terms in the prompt (`"noqa"`) force inclusion even below the strong threshold
 
-**Staleness:** if a hint shows a path without a range that you'd expect to be sectioned, the section index is older than the file's last edit — the hook downgraded the hit to file-level rather than risk a stale line range. The `/learnings:curate` pass rebuilds the index.
+| Tier | Action |
+|------|--------|
+| `[strong]` (≥3 hits) | Load unless dedup says it's already in session |
+| `[weak]` (2 hits) | Load only if description / header suggests genuine relevance |
+| Quoted term (`"noqa"`) | Force inclusion below the strong threshold |
+| Clearly irrelevant | Ignore silently |
+
+**Staleness:** a sectioned file appearing without a range means the section index is older than the file — the hook downgraded to file-level rather than risk a stale range. The `/learnings:curate` pass rebuilds the index.
 
 The hook handles the **keyword** and **domain-shift** gates automatically. The
 remaining agent-owned gates (session-start, plan-mode entry, implementation
