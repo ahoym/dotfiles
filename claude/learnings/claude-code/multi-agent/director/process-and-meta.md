@@ -89,3 +89,9 @@ When two reviewer personas independently surface the same underlying concern but
 **Merge rule:** take the higher severity with combined attribution (`HIGH (java-fintech) / INFO (correctness-reviewer): <finding>`). Don't trigger the dissent-deliberation flow — there's nothing to deliberate, just different calibration. The attribution preserves the calibration delta for the addresser; downgrading to the lower severity loses the domain signal.
 
 Triggers the dissent flow only when one persona says "fix" and the other says "don't fix" — incompatible action, not just different urgency.
+
+## Docs-Consolidation Sweeps Surface Gaps In The Docs Being Changed
+
+When sweeping a PR that consolidates authoritative docs (learnings indexes, playbooks, header specs), expect workers to identify missing rules, conventions, or detection heuristics in the very files being changed. Empirical (PR #108, learnings/skills/guidelines consolidation): reviewer + addresser surfaced 7 candidates including the `**Related:**` (header, pre-load sniff) vs `## Cross-Refs` (footer, post-load lateral discovery) distinction — invisible to the docs themselves but load-bearing for the search pipeline.
+
+**Phase 5 triage priority:** docs-consolidation sweeps produce higher-than-usual learning yield because the workers operate against the conventions they're consolidating — they have ground truth in their context. Promote these aggressively; they're the kind of insight the operator wouldn't independently discover without re-reading the entire PR.

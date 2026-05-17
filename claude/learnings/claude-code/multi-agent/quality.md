@@ -8,6 +8,14 @@ Multi-agent quality and validation — verification patterns, trust arc, agent-t
 
 Subagents that derive line numbers from diff text rather than reading the actual file produce 8-35 line drift on new files. The `@@ -X,Y +X,Y @@` hunk header is reliable for *where* changes start; relative counting from there is error-prone past ~30 lines. Before posting inline review comments, the team-lead must re-read each cited file and correct the line numbers — diff-driven inline comments will land at the wrong location otherwise (or anchor to nothing on stacked PRs, returning `line: null`).
 
+## Persisted Diff Artifacts Can Corrupt Content, Not Just Line Numbers
+
+Large `gh pr diff` outputs (>32KB) saved to tool-output files can have rendering artifacts that change *file content*, not just line offsets — e.g., an `aarch64-linux-gnu` mapping read back as `x86_64-linux-gnu` because adjacent identical lines collapsed visually. Before posting any finding that depends on a specific string comparison, verify against `git show <sha>:<path>` (or grep the worktree). Distinct from line-number drift: that one anchors at the wrong line; this one asserts a bug that isn't there.
+
+## Don't Pre-Annotate Diffs When Delegating to a Subagent Reviewer
+
+When constructing a subagent prompt that includes a diff, send the **clean diff** — don't inline notes like `<-- NOTE: this looks wrong`. The subagent treats the annotation as part of the artifact under review, verifies it against source, and (correctly) flags the annotation itself as inaccurate if the orchestrator's read was wrong. The orchestrator-injected hint also primes anchoring on a single hypothesis. Let the reviewer discover issues from a neutral diff; pass directives separately if you need to focus attention.
+
 ## Cross-Check Inline Classification Against Addresser Summary
 
 When re-reviewing an Address pass, the addresser typically posts a top-level summary ("15 implemented, 3 escalated, 2 reacted"). Use it as a sanity-check on per-thread classification — discrepancies signal where the inline analysis may have miscategorized a thread. The summary is one extra read and catches whole classes of misclassification.

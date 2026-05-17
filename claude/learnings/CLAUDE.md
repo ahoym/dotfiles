@@ -49,6 +49,7 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `review-conventions.md` — Code review: self-review, comment etiquette, LGTM, structured footnotes
 - `bash-patterns.md` — Bash: shell env default ordering, quoting gotchas
 - `python-specific.md` — Python: Pydantic v2 optional fields, serialization
+- `rust-patterns.md` — Rust: multi-binary lib.rs extraction, brew-vs-rustup cross-compile, cargo --manifest-path
 - `resilience-patterns.md` — Resilience: idempotent processing, reprocessing loop prevention
 - `reactive-data-patterns.md` — Reactive data patterns for real-time UIs: background refresh, resource validation
 - `process-conventions.md` — Engineering process conventions: scoping, tracking, work organization

@@ -1,5 +1,5 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
@@ -58,6 +58,17 @@ assert_status() {
 ```
 
 Source with: `source "$(cd "$(dirname "$0")" && pwd)/lib.sh"` — resolves absolute path regardless of invocation directory. The `| tail -1 | grep -q "201"` pattern does string matching (would match `2012`); `parse_response` + `assert_status` gives proper numeric comparison.
+
+### Symlink-aware self-location
+
+`$(cd "$(dirname "$0")" && pwd)` returns the **symlinked** parent dir when the script is invoked via a symlink (e.g., `~/.claude/skill-references/foo.sh` → `<repo>/claude/skill-references/foo.sh`). Use `cd -P` to resolve to the physical path:
+
+```bash
+SCRIPT_DIR=$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
+```
+
+Portable on macOS — no `readlink -f` (BSD `readlink` lacks `-f` on older macOS). Node equivalent: `path.dirname(fs.realpathSync(__filename))` — bare `__dirname` doesn't resolve symlinks either.
 
 ## `set -e` and `pipefail` Traps
 
@@ -404,6 +415,16 @@ wt=$(setup)
 ## Prefer `jq`, `node -e`, or shell builtins over `python3` for one-off tasks
 
 For one-off JSON validation, data munging, or arithmetic, reach for `jq`, `node -e`, or shell builtins/coreutils before `python3 -c '...'`. Python invocations require their own permission patterns and add friction; lightweight alternatives are domain-appropriate and usually already allowlisted. Pick the tool by domain: `jq` for JSON, `node -e` / `bun` for JS, `awk`/`grep`/`sed` for text. Only reach for Python when no lightweight alternative fits.
+
+## Template `.sh` Files Are Bilingual — Grep Both Forms Before Declaring a Variable Dead
+
+`.sh` files processed by a template engine (mustache-style `{{KEY}}` via `fill-template.sh`) mix two languages: runtime bash and template placeholders. Before agreeing or pushing back on a "dead variable" finding, grep both forms:
+
+```bash
+grep -nE '\bSTATE_CHECK_CMD\b|\{\{STATE_CHECK_CMD\}\}' template.sh
+```
+
+A bare `STATE_CHECK_CMD=...` export with no consumer can still be load-bearing via a `{{STATE_CHECK_CMD}}` substitution elsewhere, and vice-versa. Single-form greps produce false "dead" findings.
 
 ## Cross-Refs
 
