@@ -436,7 +436,7 @@ export -f process_item write_state is_terminal_state
 {{#WORKTREES}}
 export -f worktree_for branch_for
 {{/WORKTREES}}
-export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD STATE_CHECK_CMD TERMINAL_STATES
+export RUN_DIR INACTIVITY_TIMEOUT_SEC MAX_ATTEMPTS MODEL MODE_LABEL ENTITY_PREFIX ENTITY_LABEL STATE_FIELD TERMINAL_STATES
 
 # --- Launch ---
 printf '%s\n' "${ITEMS[@]}" | xargs -P "$CONCURRENCY" -I {} bash -c 'process_item "$@"' _ {}
