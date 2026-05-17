@@ -9,7 +9,7 @@ DOTFILES_CLAUDE_DIR="$(cd "$(dirname "$0")/claude" && pwd)"
 TARGET_DIR="$HOME/.claude"
 
 # Items to symlink (everything in claude/ except README.md)
-ITEMS=(CLAUDE.md commands guidelines lab learnings learnings-providers.json ralph settings.json settings.local.json skill-references statusline-command.sh)
+ITEMS=(CLAUDE.md commands guidelines hooks lab learnings learnings-providers.json ralph settings.json settings.local.json skill-references statusline-command.sh)
 
 if [ ! -d "$TARGET_DIR" ]; then
   mkdir -p "$TARGET_DIR"
@@ -82,4 +82,13 @@ else
     ln -s "$PLATFORM_SRC" "$PLATFORM_LINK"
     echo "  link   platform-commands -> $PLATFORM/commands"
   fi
+fi
+
+# --- Build the learnings-suggest hook binary for this platform ---
+# Idempotent. Falls back silently if Rust toolchain is unavailable.
+
+HOOK_BOOTSTRAP="$DOTFILES_CLAUDE_DIR/hooks/learnings-suggest/bootstrap.sh"
+if [ -x "$HOOK_BOOTSTRAP" ]; then
+  echo "  hook   learnings-suggest"
+  "$HOOK_BOOTSTRAP" || echo "  warn   learnings-suggest build failed — hook will no-op"
 fi

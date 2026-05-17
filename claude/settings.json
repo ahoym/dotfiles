@@ -136,5 +136,21 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash ~/.claude/hooks/learnings-suggest/learnings-suggest.sh" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 ~/.claude/hooks/learnings-staleness.py" }
+        ]
+      }
+    ]
+  },
   "effortLevel": "medium"
 }
