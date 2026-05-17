@@ -1,6 +1,9 @@
 #!/bin/bash
 # PostToolUse(Read) wrapper: dispatches to platform binary. Silent no-op on miss.
 
+# Early exit when the machine hasn't been set up — limits global hook blast radius.
+[ -f "$HOME/.claude/learnings-providers.json" ] || exit 0
+
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 case "$(uname -s)-$(uname -m)" in

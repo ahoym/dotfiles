@@ -2,6 +2,10 @@
 # UserPromptSubmit wrapper: dispatches to the platform-appropriate prebuilt binary.
 # Silent no-op on unsupported platforms or missing binary — never blocks a prompt.
 
+# Early exit when the machine hasn't been set up — limits global hook blast radius
+# to machines that have run setup-claude.sh.
+[ -f "$HOME/.claude/learnings-providers.json" ] || exit 0
+
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 case "$(uname -s)-$(uname -m)" in
