@@ -1,6 +1,6 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
 - **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests
-- **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing-patterns.md
+- **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
 
@@ -378,5 +378,5 @@ The cutover commit may be hundreds of files by count (data add/delete churn). Th
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
 - `~/.claude/learnings/process-conventions.md` — PR splitting and review process
-- `~/.claude/learnings/testing-patterns.md` — test recipes for refactoring safety
+- `~/.claude/learnings/testing/testing-patterns.md` — test recipes for refactoring safety
 - `~/.claude/learnings/python-specific.md` — `[dependency-groups].dev` + deferred imports for production-image dep exclusion (relevant when the new format introduces a heavy dep)

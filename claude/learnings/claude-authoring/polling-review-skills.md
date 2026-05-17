@@ -4,8 +4,6 @@ Patterns for `/loop` polling skills, quick-exit optimization, re-review detectio
 
 ---
 
-> Core skill design patterns → `~/.claude/learnings/claude-authoring/skill-design.md`
-
 ## Re-Review Detection via Footnote Pattern Matching
 
 When a skill needs to find its own previous comments for incremental/re-review workflows, filter by the structured footnote (`*Persona:* <name>` AND `*Role:* <role>`) rather than by username. This scopes re-review to the correct comment chain and avoids cross-contamination from other agents, other personas, or the same persona in a different role.

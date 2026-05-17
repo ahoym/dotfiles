@@ -152,7 +152,7 @@ bash ~/.claude/skill-references/fill-template.sh \
 - **Work items (GitHub):** `gh issue view "$pr_num" --json state -q '.state'`
 - **Work items (GitLab):** `glab api projects/:id/issues/$pr_num | jq -r .state | tr '[:lower:]' '[:upper:]'`
 
-**`MODEL` selection — based on runner role:** orchestrator runners that delegate to subagents (e.g., `sweep:review-prs` → `git:team-review-request`) → `claude-sonnet-4-6`. Leaf runners doing actual work (reading diffs, editing files, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`) → `claude-opus-4-6`. `[1m]` variant only when context demands it.
+**`MODEL` selection — based on runner role:** orchestrator runners that delegate to subagents (e.g., `sweep:review-prs` → `git:team-review-request`) → `claude-sonnet-4-6`. Leaf runners doing actual work (reading diffs, editing files, pushing commits — e.g., `sweep:address-prs`, `sweep:work-items`) → `claude-opus-4-7`. `[1m]` variant only when context demands it.
 
 **Block conditionals:** `BRANCHES` and `WORKTREES` control `{{#BRANCHES}}...{{/BRANCHES}}` and `{{#WORKTREES}}...{{/WORKTREES}}` blocks in the template. Non-empty → block kept; empty → block stripped. Review mode sets both to empty. Address mode sets both to a truthy value (e.g., `"true"`).
 

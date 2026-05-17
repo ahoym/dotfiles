@@ -1,7 +1,7 @@
 Empirical comparison of background Agent subagents vs claude -p sessions for sweep orchestration. Tested 2026-04-14 from a multi-module Java/Spring repo.
 
 **Keywords:** background agent, claude -p, director, sweep, permissions, context window, skill invocation, cross-repo
-**Related:** autonomous-patterns.md, parallel-plans.md, ../sweep-sessions.md, ../platform-worktrees-and-isolation.md
+**Related:** ~/.claude/learnings/claude-code/sweep-sessions.md, ~/.claude/learnings/claude-code/platform-worktrees-and-isolation.md
 
 ---
 
@@ -44,6 +44,10 @@ Both pay ~12k tokens of CLAUDE.md + system prompt per session. For N workers, th
 **Use claude -p when:** Cross-repo git operations needed, reliable Skill invocation required, multi-repo sweeps, CWD must be the target repo.
 
 **Hybrid (recommended for sweeps):** claude -p Director launched from target repo for orchestration + Skill invocation. bg agents for parallel same-repo subtasks where the Director has set up context. The Director creates artifacts, bg agents execute within the repo.
+
+## Never Block on TaskOutput After a Background-Agent Launch
+
+Don't call `TaskOutput` with `block: true` after launching a background agent. The system delivers a `<task-notification>` automatically on completion — blocking the foreground defeats the entire purpose of background execution. Continue with parallel work or respond to the operator; the notification fires when ready.
 
 ## Cross-Refs
 

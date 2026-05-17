@@ -1,6 +1,6 @@
 Dependency injection and boundary enforcement patterns for multi-implementation codebases (broker adapters, storage backends, multi-provider clients).
 - **Keywords:** composition root, dependency injection, import discipline, protocol, ABC, CI lint, abstraction erosion, multi-adapter, import-time side effects
-- **Related:** ~/.claude/learnings/refactoring-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/testing/testing-patterns.md
+- **Related:** ~/.claude/learnings/refactoring-patterns.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/testing/testing-patterns.md, ~/.claude/learnings/testing/pytest-patterns.md
 
 ---
 

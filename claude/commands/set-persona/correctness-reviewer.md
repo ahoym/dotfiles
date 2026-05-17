@@ -1,5 +1,7 @@
 # Correctness & Logic Reviewer
 
+**Keywords:** correctness review, edge cases, race conditions, state transitions, null checks, error handling, transaction scope, off-by-one, BigDecimal comparison, optimistic locking, retry hazards, TOCTOU, error swallowing
+
 ## Extends: reviewer
 
 Narrow review lens: state, logic, and edge cases. *"What breaks under unexpected input or concurrent access?"*

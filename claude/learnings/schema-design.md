@@ -1,8 +1,8 @@
 Greenfield schema design — when to promote vs defer entities, sidecar vs extension tradeoffs at v0.
-**Keywords:** schema, entity, promote, defer, greenfield, v0, migration, sidecar, consumer-count, table
-**Related:** ~/.claude/learnings/postgresql-query-patterns.md
+- **Keywords:** schema, entity, promote, defer, greenfield, v0, migration, sidecar, consumer-count, table
+- **Related:** ~/.claude/learnings/postgresql-query-patterns.md
 
-# Greenfield Schema Design — When to Promote, When to Defer
+---
 
 ## First-class entities vs sidecars at v0 scale
 
@@ -15,7 +15,7 @@ Greenfield schema design — when to promote vs defer entities, sidecar vs exten
 
 **Why deferring is expensive:** at v1+ you back-fill from the denormalized source (e.g., dedupe wallet rows from N SSIs that reference the same address), rewrite resolution logic to read from joined tables, migrate snapshot references, and regression-test working code. The "v0 scale" framing optimizes for current row count; the migration cost scales with the *consumer count* and *historical-data weight* — both of which only grow.
 
-**Cost of doing it at v0:** one extra `CREATE TABLE` per entity in the same Flyway file. Trivial relative to the v1 migration.
+**Cost of doing it at v0:** one extra `CREATE TABLE` per entity in the same migration file. Trivial relative to the v1 migration.
 
 ## When to defer (sidecars are fine)
 
@@ -29,4 +29,4 @@ Count how many places in the proposed v0 codebase will read from the candidate e
 
 ## Cross-Refs
 
-- `~/.claude/learnings/postgresql-query-patterns.md` → schema migration safety
+- `~/.claude/learnings/postgresql-query-patterns.md` — schema migration safety

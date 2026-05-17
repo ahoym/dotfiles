@@ -1,6 +1,6 @@
 Web authentication patterns: cross-subdomain session sharing, cookie attributes, CSRF, and browser cookie behavior.
 - **Keywords:** cookie, domain, sameSite, lax, strict, httpOnly, CSRF, csrf-csrf, double-submit, cross-subdomain, localhost, port, JWT, clearCookie, rollout
-- **Related:** ~/.claude/learnings/security.md, ~/.claude/learnings/infosec-gotchas.md, ~/.claude/learnings/nginx-patterns.md
+- **Related:** ~/.claude/learnings/infrastructure/nginx-patterns.md
 
 ---
 

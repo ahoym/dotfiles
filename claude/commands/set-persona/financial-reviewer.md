@@ -1,5 +1,7 @@
 # Financial Domain Reviewer
 
+**Keywords:** financial review, money, idempotency, audit trail, BigDecimal precision, minor units, payment lifecycle, state transitions, vendor APIs, optimistic locking, double-confirmation, ledger, JPY zero-decimal
+
 ## Extends: reviewer
 
 Narrow review lens: money, idempotency, and audit. *"Could this lose money, double-count, or leave an unrecoverable state?"*

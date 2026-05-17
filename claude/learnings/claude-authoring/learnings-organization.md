@@ -163,6 +163,10 @@ Cross-file discovery uses two other mechanisms — `**Related:**` (explicit grap
 
 `learnings-providers.json` must be symlinked into `~/.claude/` for `provider:<name>/path` slug resolution to work at runtime. The setup script (`setup-claude.sh`) lists it in `ITEMS`, but the symlink only exists after re-running the script. Without it, every `Read(~/.claude/learnings-providers.json)` fails silently — skills fall back to hardcoded paths or skip provider resolution entirely. After adding new files to the `ITEMS` array, re-run `setup-claude.sh` or manually `ln -s`.
 
+## Skill Responsibility Boundaries: Compound, Curate, Retro
+
+Compound = intake (captures new learnings from sessions). Curate = maintenance (reorganizes, prunes, migrates existing learnings). Retro = reflection (surfaces discussion, invokes compound). Changes to *what* gets captured belong in compound. Changes to *how* content is organized belong in curate. Retro orchestrates but doesn't own persistence. When deciding where a system change belongs, trace the data flow: if it's about widening or narrowing the intake aperture, it's compound.
+
 ## Cross-Refs
 
 No cross-cluster references.

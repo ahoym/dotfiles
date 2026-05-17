@@ -9,6 +9,8 @@ allowed-tools:
 
 # Set Persona
 
+**Keywords:** persona, lens, domain focus, extends, multi-parent extension, proactive cross-refs, provider resolution, persona activation, project-local override
+
 Activate a domain-specific lens that shapes how you approach code in this session.
 
 ## Usage
@@ -52,7 +54,7 @@ Activate a domain-specific lens that shapes how you approach code in this sessio
      3. `provider:<name>/path` → find the provider by `"name"` → `localPath/path`
      4. If the named provider doesn't exist in the config, warn but don't fail
      5. If the resolved file doesn't exist on disk, warn but don't fail
-   - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`, `react-frontend-gotchas.md`"
+   - Announce: "📚 Loaded proactive gotchas: `xrpl-gotchas.md`"
    - Keep this content active throughout the session
 
 6. **Resolve cross-refs on demand**:

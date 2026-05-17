@@ -24,17 +24,9 @@ Knowledge base for the Claude configuration surface: skills, guidelines, learnin
 - Uniform convention > case-by-case optimization — predictability matters
 - Delete with confidence > keep "just in case" — git preserves history
 
-## Known gotchas
-- `Glob` doesn't resolve paths through `~/.claude/` symlinks — verify existence with `Read`
-- `~` doesn't work in Glob/Grep `path` parameter — use actual filesystem paths
-- `@` references in persona files don't resolve (personas are data files read at runtime, not SKILL.md)
-- AskUserQuestion has a 4-option maximum — skills offering choices must respect this
-- Skill discovery cache populates at session start — mid-session additions aren't found until restart
-- `allowed-tools` frontmatter is functional — restricts tool access during skill execution (confirmed 2026-03-16)
-- Gotchas files must stay separate from parent domain files (never merge `*-gotchas.md` into parent)
-
-## Proactive loads
+## Proactive Cross-Refs
 - `provider:default/claude-authoring/routing-table.md`
+- `provider:default/claude-authoring/claude-config-gotchas.md`
 
 ## Cross-Refs
 Load when working in the specific area:

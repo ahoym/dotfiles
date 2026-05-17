@@ -292,3 +292,4 @@ Traditional period-end close concentrates reconciliation and accrual work into a
 - `~/.claude/learnings/postgresql-query-patterns.md` — Window functions, partitioning, migration safety (period snapshot table design)
 - `~/.claude/learnings/java/spring-boot.md` — @Scheduled, ShedLock, transaction boundaries (close orchestration in Java)
 - `~/.claude/learnings/resilience-patterns.md` — Idempotent processing, reprocessing loop prevention (close job failure recovery)
+- `~/.claude/learnings/financial/event-sourcing-cqrs.md` — event-sourcing projection/snapshot patterns that complement period snapshots and balance carry-forward

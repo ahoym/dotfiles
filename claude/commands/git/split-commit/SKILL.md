@@ -5,6 +5,8 @@ description: Split a commit with mixed changes into separate commits
 
 # Split Commit
 
+**Keywords:** git, commit split, atomic commits, rewrite history, force-with-lease, two-group split, bisectable, git reset, interactive patch, git add -p
+
 Split a commit that mixes unrelated changes (e.g., docstrings + features) into separate commits.
 
 ## Usage
@@ -44,7 +46,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    git add <files>
    git commit -m "<message>
 
-   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+   Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
    ```
 
 6. **Apply remaining changes**:
@@ -54,7 +56,7 @@ Split a commit that mixes unrelated changes (e.g., docstrings + features) into s
    git add <files>
    git commit -m "<message>
 
-   Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+   Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
    ```
 
 7. **Verify and push**:

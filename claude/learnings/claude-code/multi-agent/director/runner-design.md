@@ -1,6 +1,6 @@
 Runner template, model selection, permissions, and worktree mechanics that govern how `claude -p` workers actually launch.
 - **Keywords:** runner, template, fill-template, schema-drift, model-selection, worktree, EXIT-trap, stale-branch, permissions, --allowedTools
-- **Related:** observability.md, watermarks-and-skip.md
+- **Related:** none
 
 ---
 

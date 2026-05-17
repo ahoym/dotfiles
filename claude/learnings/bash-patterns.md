@@ -401,6 +401,10 @@ setup() { git worktree add "$path" "$branch" >&2; printf '%s' "$path"; }
 wt=$(setup)
 ```
 
+## Prefer `jq`, `node -e`, or shell builtins over `python3` for one-off tasks
+
+For one-off JSON validation, data munging, or arithmetic, reach for `jq`, `node -e`, or shell builtins/coreutils before `python3 -c '...'`. Python invocations require their own permission patterns and add friction; lightweight alternatives are domain-appropriate and usually already allowlisted. Pick the tool by domain: `jq` for JSON, `node -e` / `bun` for JS, `awk`/`grep`/`sed` for text. Only reach for Python when no lightweight alternative fits.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/platform-permissions.md` — Bash permission prefix matching gotchas (chaining, subshells, quoted strings, tilde expansion — complementary permission-system angle)

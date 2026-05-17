@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Clean Up Ralph Worktrees
 
+**Keywords:** ralph, research worktree cleanup, branch cleanup, post-research, stale worktree, MERGED, REMOTE DELETED, LOCAL ONLY, DIRTY worktree, git worktree remove
+
 Prune stale ralph worktrees by checking if their branches have been merged or deleted on the remote.
 
 ## Usage

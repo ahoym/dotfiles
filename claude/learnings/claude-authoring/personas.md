@@ -57,11 +57,11 @@ Personas reference gotcha files via a `## Proactive Cross-Refs` section — load
 
 ```markdown
 ## Proactive Cross-Refs
-- `learnings/xrpl-gotchas.md`
-- `learnings/react-frontend-gotchas.md`
+- `learnings/xrpl/gotchas.md`
+- `learnings/frontend/react-state-effects.md`
 
 ## Cross-Refs
-- `learnings/xrpl-patterns.md` — full recipes, API details
+- `learnings/xrpl/patterns.md` — full recipes, API details
 ```
 
 **Why separate files, not sections within patterns files:** The `Read` tool is all-or-nothing — no section-level extraction. Loading `xrpl-patterns.md` (200+ lines) to get 15 lines of gotchas wastes context. Small dedicated files keep proactive loading cheap.
@@ -99,6 +99,10 @@ The implementation-start gate matches persona filenames against the task domain,
 ## Persona Gotchas Duplicating Proactive Cross-Refs
 
 When a persona has both an inline "Known gotchas & platform specifics" section AND a `## Proactive Cross-Refs` entry for a `*-gotchas.md` file covering the same domain, the inline section is likely a near-exact duplicate. Detection: compare inline items against the proactive cross-ref file. Resolution: port any unique items from the persona to the gotchas file, then remove the inline section. This is a systematic pattern — check all personas with both inline gotchas and proactive cross-refs.
+
+## Verify Inline Gotchas Have Unique Content Before Extracting to a Companion File
+
+Before creating a `*-gotchas.md` companion file from a persona's inline "Known gotchas & platform specifics" section, check whether the inline bullets are pure pointer-style refs to existing files (e.g., "see X for Y", "see Z for W") vs original content. When inline content is already pointers, extraction produces a thin file with no unique value — the right move is to remove the inline section and add the underlying files to `## Proactive Cross-Refs` directly. In one consolidation run, 2 of 3 personas flagged for "missing companion files" had pointer-only inline sections.
 
 ## Cross-Persona Duplication: Extract to Shared Dependency
 

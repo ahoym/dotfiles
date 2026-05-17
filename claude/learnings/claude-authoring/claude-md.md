@@ -150,6 +150,10 @@ A single non-`@` comment line in CLAUDE.md (~25 tokens always-on) gives agents e
 
 The breadcrumb bridges the gap: no token cost beyond ~25 tokens, no automatic behavior, but natural language requests work because the agent has the path and purpose in context.
 
+## Duplicate `@` Lines Silently Double Always-On Context
+
+When refactoring CLAUDE.md, a duplicated `@./guidelines/foo.md` line injects the full guideline twice into every conversation — doubling that file's always-on token cost. Visual inspection misses the repeat (the lines look right individually). Specifically check for duplicate `@` lines: `grep -E '^@' CLAUDE.md | sort | uniq -d` should print nothing. Caught a real case where `@./guidelines/context-aware-learnings.md` was listed twice; the guideline is ~60 lines, so every session was paying ~120 lines instead of 60.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-code/explore-repo.md` § "CLAUDE.md Should Not `@`-Include Scan Artifacts" — same lazy-vs-eager principle applied to scan output

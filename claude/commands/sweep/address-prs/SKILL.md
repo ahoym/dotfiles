@@ -244,7 +244,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` using the runner schema from sweep-scaffold.md with these address-mode overrides:
 - `MODE` → `"address"`, `MODE_LABEL` → `"Address"`
-- `MODEL` → `"claude-opus-4-6"` (leaf — reads diffs, edits files, pushes commits)
+- `MODEL` → `"claude-opus-4-7"` (leaf — reads diffs, edits files, pushes commits)
 - `BRANCHES` → `"true"`, `WORKTREES` → `"true"`, `PROJECT_ROOT` → absolute path
 
 Entity type keys for PRs:

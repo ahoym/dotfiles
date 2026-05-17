@@ -280,3 +280,4 @@ Use `@Immutable` to prevent Hibernate from ever attempting an UPDATE on event ro
 - `~/.claude/learnings/resilience-patterns.md` — idempotent processing and dedup-before-process patterns that apply to projection handlers and event consumers
 - `~/.claude/learnings/postgresql-query-patterns.md` — JSONB indexing, optimistic locking, and schema migration patterns for event store tables
 - `~/.claude/learnings/java/spring-boot.md` — Spring transactional event listener patterns, Spring Data JPA with immutable entities
+- `~/.claude/learnings/financial/period-end-closing.md` — balance carry-forward and period-snapshot semantics that mirror the projection rebuild and event-replay strategies here

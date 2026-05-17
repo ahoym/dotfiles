@@ -1,6 +1,7 @@
 TradeStation Web API behavior: account-type gating, validation ordering, TIF rules, preview endpoint, options-chain permissions, futures-option symbol formats.
 - **Keywords:** TradeStation, TS, TS API, AccountType, Futures account, Margin account, orderconfirm, OrderID, DAY, GTC, market hours, options expirations, 403 permission, VX futures options, symbol format
 - **Related:** ~/.claude/learnings/financial/futures-etf-translation.md, ~/.claude/learnings/financial/futures-order-type-restrictions.md, ~/.claude/learnings/financial/vendor-divergence.md
+- **Scope:** TradeStation-specific — patterns reflect a single broker's API. Cross-vendor patterns live in `vendor-divergence.md`.
 
 ## Account types gate asset class, not just permission
 

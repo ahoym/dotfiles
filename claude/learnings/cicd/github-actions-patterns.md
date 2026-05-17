@@ -1,4 +1,4 @@
-Reusable CI pipeline structures and platform-specific patterns: composite actions, lint-first dependency chains, Docker build-push colocation, GitHub Actions configuration.
+Reusable GitHub Actions pipeline structures and patterns: composite actions, lint-first dependency chains, Docker build-push colocation, GitHub Actions configuration. Includes generic CI patterns (docker login, ruff divergence, rg/grep guards) most commonly encountered in GitHub Actions contexts.
 - **Keywords:** Docker build push, composite action, lint gate, needs dependency chain, Ruff formatter, CI pipeline structure, cancel-in-progress, test gating, selective tests, latent bugs, iterative validation, GitHub Actions, paths-ignore, continue-on-error, job timeout, gh run view, docker login, password-stdin, container registry, credentials
 - **Related:** ~/.claude/learnings/frontend/typescript-ci-gotchas.md
 

@@ -1,6 +1,7 @@
 OnTheDEX API reference and XRPL native DEX protocol mechanics (CLOB, offers, auto-bridging, tick size).
 - **Keywords:** OnTheDEX, OHLC, ticker, onthedex.live, CLOB, OfferCreate, tfPassive, tfImmediateOrCancel, tfFillOrKill, tfSell, auto-bridging, TickSize
 - **Related:** ~/.claude/learnings/financial/order-book-pricing.md
+- **Scope:** OnTheDEX-API-specific patterns are vendor-coupled; XRPL native DEX patterns are protocol-level and apply to any client.
 
 ---
 

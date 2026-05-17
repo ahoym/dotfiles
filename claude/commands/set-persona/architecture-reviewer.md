@@ -1,5 +1,7 @@
 # Architecture & Maintainability Reviewer
 
+**Keywords:** architecture review, coupling, testability, maintainability, conventions, abstractions, single responsibility, over-engineering, DTO entity separation, JPA, Spring Boot, dependency injection, premature generalization
+
 ## Extends: reviewer
 
 Narrow review lens: coupling, conventions, and testability. *"Will the next engineer understand this at 2am?"*

@@ -16,6 +16,8 @@ allowed-tools:
 
 # Distribute Learnings
 
+**Keywords:** distribute, sync, learnings, guidelines, project-local, dotfiles to project, merge, new/differs/up-to-date, relevance assessment, provider directories
+
 Copy or merge global learnings and guidelines from `~/.claude/` into the current project's `.claude/` directory. Skills are excluded — only guidelines and learnings are distributed.
 
 ## Usage

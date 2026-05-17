@@ -110,6 +110,14 @@ When a skill rule does a complete 180° on a previously-stated capability claim 
 
 Learnings accumulate during sessions; skills get updated when something breaks. No routine asks "which learnings have graduated to operational status and should be folded into their point-of-use skill?" Periodic audit: read learnings files adjacent to a skill, check each against the skill/playbook, and promote proven patterns. Director sessions are the highest-value trigger since they exercise the most learnings.
 
+## Model-Version Drift in Skill Files
+
+When the active model rolls (e.g., Opus 4.6 → 4.7), references hardcoded in skill bodies and skill-references don't auto-update. Two patterns to bulk-grep when the version changes:
+- `Co-Authored-By: Claude Opus X.Y` (and similar) in commit-template SKILL.md files
+- `MODEL = "claude-opus-X-Y"` (or `claude-sonnet-X-Y`) in runner-config SKILL.md files and `skill-references/*-scaffold.md`
+
+`grep -rln 'Opus 4.6\|claude-opus-4-6' claude/commands/ claude/skill-references/` catches both. Update to the current version (preserving the `(1M context)` qualifier when present). This is a periodic chore at model-version boundaries, not continuous.
+
 ## Deprecation Notes Must Describe Current State, Not Target State
 
 "Skills no longer load this file" is a falsifiable claim — if any consumer still loads it, the note is wrong. A future agent reading it may skip a still-needed file. Use progressive language ("being migrated away from") until all consumers are confirmed migrated. Verify consumer state before upgrading deprecation notes to past tense.

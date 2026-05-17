@@ -243,6 +243,21 @@ Utility scripts for monitoring (`sweep-dashboard.sh`), killing sessions (`kill-s
 
 Agents fill idle gaps between launch and completion with status checks unless explicitly told to stop. Stating "event-driven, not polling" as an architectural principle is insufficient — the instruction "wait for the notification" must appear as a step immediately after every `Bash(run_in_background: true)` launch. This applies at every orchestration tier.
 
+## Draft-then-apply for structural delegation
+
+When delegating structural restructures (file splits, cluster promotions, content moves) to background agents, have the agent produce *drafts* under `tmp/claude-artifacts/<task>/` + a change-list (inbound-ref impact, dedup-opportunity table, recommended commit message) rather than applying directly. The orchestrator reviews the proposal and applies. Two wins: structural changes get a review gate without losing parallelism, and the orchestrator catches agent-side convention violations (e.g., intra-cluster refs in new sibling files) before they land.
+
+Pair with operator-decision-then-mechanical-execution: when the restructure has a shape question ("flat cluster vs sub-cluster?"), surface that decision to the operator *first*, then the mechanical execution (mkdir, `git mv`, update CLAUDE.md, audit inbound refs) can be delegated. Don't bundle shape + execution into one agent — the agent will pick a shape and you'll discover it midway through review.
+
+## Converting Inline Orchestrators to Director Playbook Skills
+
+When a skill spawns agents inline (via the Agent tool, waiting for results in waves), it can be converted to the director playbook pattern: assessment-only skill → artifact generation → `let-it-rip.sh` runner. Key steps:
+
+1. **Split assessment from execution.** The skill generates `manifest.json` + per-item `prompt.txt` + `let-it-rip.sh`, then exits. Execution is `bash let-it-rip.sh`, rerunnable.
+2. **Move orchestration logic into prompt templates.** Watermark/skip (steps 1-4 from sweep-scaffold), role-specific work, and artifact writing (results.md, learnings.md, status.md) all go into the prompt template — the runner just pipes prompt.txt to `claude -p`.
+3. **Adapt the runner.** The `parallel-claude-runner-template.sh` is PR-centric. For non-PR items (issues, tickets), adapt: directory naming (`issue-<N>`), state checks (issue open/closed vs PR merged), conditional worktrees (only for roles that modify code).
+4. **Define convergence per role.** Different roles converge differently (implementer: PR opened; clarifier: comment posted; reviewer: review posted). Document in the skill's Convergence section for directors.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/claude-authoring/skill-design.md` — skill design patterns including structured footnote usage and review skill design (source of migrated agent-to-agent review patterns)

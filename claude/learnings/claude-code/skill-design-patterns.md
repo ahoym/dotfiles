@@ -1,6 +1,6 @@
 Patterns for designing composable, well-structured Claude Code skills.
 - **Keywords:** skill design, skill architecture, reference files, composability, standalone, orchestrator
-- **Related:** skill-platform-portability.md, multi-agent/director-patterns.md
+- **Related:** none
 
 ## Skill-specific vs shared reference files
 
