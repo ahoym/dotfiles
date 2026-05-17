@@ -2,15 +2,11 @@
 // Cross-referenced offline against suggest.jsonl by analyze.py to compute hit rates.
 // Silent on any failure — never blocks a tool call.
 
+use learnings_suggest::home;
 use serde_json::{json, Value};
 use std::fs::{self, OpenOptions};
 use std::io::{self, Read, Write};
-use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
-
-fn home() -> PathBuf {
-    PathBuf::from(std::env::var("HOME").unwrap_or_default())
-}
 
 fn run() -> Option<()> {
     let mut s = String::new();

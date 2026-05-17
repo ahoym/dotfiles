@@ -4,6 +4,7 @@
 //
 // Run from /learnings:curate or manually after content edits.
 
+use learnings_suggest::{home, providers, Provider, SCHEMA_VERSION};
 use pulldown_cmark::{Event, HeadingLevel, Parser, Tag, TagEnd};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -13,7 +14,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const MIN_SECTION_LINES: usize = 8;
 const MAX_KEYWORDS_PER_SECTION: usize = 12;
-const SCHEMA_VERSION: u32 = 1;
 
 const STOPWORDS: &[&str] = &[
     "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
@@ -32,48 +32,6 @@ const STOPWORDS: &[&str] = &[
     "see", "now", "get", "got", "set", "run", "ran", "via", "such",
     "e.g", "i.e",
 ];
-
-fn home() -> PathBuf {
-    PathBuf::from(std::env::var("HOME").unwrap_or_default())
-}
-
-fn expand_tilde(p: &str) -> PathBuf {
-    p.strip_prefix("~/")
-        .map(|rest| home().join(rest))
-        .unwrap_or_else(|| PathBuf::from(p))
-}
-
-#[derive(Clone)]
-struct Provider {
-    name: String,
-    base: PathBuf,  // The directory that contains the learnings tree
-    root: PathBuf,  // The path that rel-paths in indexes are relative to (parent of base)
-}
-
-fn providers() -> Vec<Provider> {
-    let pf = home().join(".claude").join("learnings-providers.json");
-    let v: Value = match fs::read_to_string(&pf)
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-    {
-        Some(v) => v,
-        None => return vec![],
-    };
-    let mut out = Vec::new();
-    if let Some(arr) = v.get("providers").and_then(Value::as_array) {
-        for p in arr {
-            let name = p.get("name").and_then(Value::as_str).unwrap_or("").to_string();
-            if let Some(lp) = p.get("localPath").and_then(Value::as_str) {
-                let base = expand_tilde(lp);
-                if base.exists() {
-                    let root = base.parent().unwrap_or(&base).to_path_buf();
-                    out.push(Provider { name, base, root });
-                }
-            }
-        }
-    }
-    out
-}
 
 fn walk_md(dir: &Path, out: &mut Vec<PathBuf>) {
     let entries = match fs::read_dir(dir) {
@@ -312,9 +270,9 @@ fn parse_file(provider: &str, rel: String, file_text: &str) -> Vec<Section> {
     sections
 }
 
-fn anchor_commit() -> Option<String> {
+fn anchor_commit(provs: &[Provider]) -> Option<String> {
     // Best-effort: use HEAD of the repo containing the personal learnings dir.
-    let p = providers().into_iter().find(|p| p.name == "personal")?;
+    let p = provs.iter().find(|p| p.name == "personal")?;
     let real = fs::canonicalize(&p.base).ok()?;
     // Walk up to find .git
     let mut dir = real.as_path();
@@ -334,7 +292,8 @@ fn anchor_commit() -> Option<String> {
 }
 
 fn main() {
-    let provs = providers();
+    // projectLocal is omitted: it's CWD-dependent and only meaningful at hook runtime.
+    let provs = providers(false);
     if provs.is_empty() {
         eprintln!("learnings-index-build: no providers found at ~/.claude/learnings-providers.json");
         std::process::exit(1);
@@ -395,7 +354,7 @@ fn main() {
         "_meta": {
             "schema": SCHEMA_VERSION,
             "built_at": ts,
-            "anchor_commit": anchor_commit(),
+            "anchor_commit": anchor_commit(&provs),
             "source_files": file_count,
             "total_sections": all_sections.len(),
             "min_section_lines": MIN_SECTION_LINES,

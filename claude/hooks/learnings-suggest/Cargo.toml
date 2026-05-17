@@ -8,6 +8,10 @@ serde_json = "1"
 aho-corasick = "1"
 pulldown-cmark = { version = "0.10", default-features = false }
 
+[lib]
+name = "learnings_suggest"
+path = "src/lib.rs"
+
 [[bin]]
 name = "learnings-suggest"
 path = "src/main.rs"

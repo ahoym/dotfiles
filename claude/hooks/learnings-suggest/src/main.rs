@@ -11,6 +11,7 @@
 // Hook must never block a prompt: any failure → silent no-op.
 
 use aho_corasick::{AhoCorasickBuilder, MatchKind};
+use learnings_suggest::{claude_root, home, providers, Provider, SCHEMA_VERSION};
 use serde_json::{json, Value};
 use std::collections::{hash_map::DefaultHasher, BTreeMap, HashMap, HashSet};
 use std::fs::{self, OpenOptions};
@@ -19,69 +20,11 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const SCHEMA_VERSION: u64 = 1;
 const MIN_SCORE: usize = 2;
 const STRONG_SCORE: usize = 3;
 const MAX_HITS: usize = 3;
 const TRIVIAL_LEN: usize = 20;
 const FILTER_PREFIXES: &[&str] = &["commands/"];
-
-fn home() -> PathBuf {
-    PathBuf::from(std::env::var("HOME").unwrap_or_default())
-}
-fn claude_root() -> PathBuf {
-    home().join(".claude")
-}
-
-fn expand_tilde(p: &str) -> PathBuf {
-    p.strip_prefix("~/")
-        .map(|rest| home().join(rest))
-        .unwrap_or_else(|| PathBuf::from(p))
-}
-
-// ---------- Provider resolution (shared by both indexes) ----------
-
-#[derive(Clone)]
-struct Provider {
-    name: String,
-    base: PathBuf, // The learnings directory itself
-    root: PathBuf, // The base's parent — indexes encode paths relative to this
-}
-
-fn providers() -> Vec<Provider> {
-    let pf = claude_root().join("learnings-providers.json");
-    let v: Value = match fs::read_to_string(&pf)
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-    {
-        Some(v) => v,
-        None => return vec![],
-    };
-    let mut out = Vec::new();
-    if let Some(arr) = v.get("providers").and_then(Value::as_array) {
-        for p in arr {
-            let name = p.get("name").and_then(Value::as_str).unwrap_or("").to_string();
-            if let Some(lp) = p.get("localPath").and_then(Value::as_str) {
-                let base = expand_tilde(lp);
-                if base.exists() {
-                    let root = base.parent().unwrap_or(&base).to_path_buf();
-                    out.push(Provider { name, base, root });
-                }
-            }
-        }
-    }
-    // projectLocal: resolved relative to CWD, indexed at runtime only
-    if let Some(pl) = v.get("projectLocal").and_then(|p| p.get("path")).and_then(Value::as_str) {
-        if let Ok(cwd) = std::env::current_dir() {
-            let base = cwd.join(pl);
-            if base.exists() {
-                let root = base.parent().unwrap_or(&base).to_path_buf();
-                out.push(Provider { name: "projectLocal".to_string(), base, root });
-            }
-        }
-    }
-    out
-}
 
 // ---------- Unified hit shape ----------
 
@@ -203,6 +146,8 @@ fn load_file_index(provs: &[Provider]) -> FileIndexEntries {
 
 // ---------- Prompt helpers ----------
 
+// Only matches ASCII "..". macOS smart-quote autocorrect (U+201C/U+201D) is not captured —
+// the bypass would silently miss those quoted terms.
 fn extract_quoted(prompt: &str) -> HashSet<String> {
     let mut out = HashSet::new();
     let bytes = prompt.as_bytes();
@@ -303,99 +248,97 @@ fn build_matcher(keys: &[&str]) -> Option<aho_corasick::AhoCorasick> {
         .ok()
 }
 
-fn run() -> Option<()> {
-    let payload = read_payload()?;
-    let prompt = payload.get("prompt").and_then(Value::as_str).unwrap_or("");
-    let session = payload.get("session_id").and_then(Value::as_str);
+type SectionHits = HashMap<(String, usize), (usize, Vec<String>)>;
+type FileHits = HashMap<(String, String), (usize, Vec<String>, PathBuf)>;
 
-    if prompt.len() < TRIVIAL_LEN || !prompt.chars().any(|c| c.is_ascii_alphabetic()) {
-        return None;
-    }
-
-    let provs = providers();
-    if provs.is_empty() {
-        return None;
-    }
-
-    // --- Section-level matching (preferred) ---
-    let sections = load_sections_index();
-    let mut section_hits: HashMap<(String, usize), (usize, Vec<String>)> = HashMap::new();
-    let section_keys: Vec<String> = sections
-        .as_ref()
-        .map(|idx| idx.by_keyword.keys().cloned().collect())
-        .unwrap_or_default();
-    if let Some(idx) = &sections {
-        if let Some(ac) = build_matcher(&section_keys.iter().map(String::as_str).collect::<Vec<_>>()) {
-            for m in ac.find_iter(prompt) {
-                let kw = &section_keys[m.pattern()];
-                let weight = kw.split_whitespace().count().max(1);
-                if let Some(sec_ids) = idx.by_keyword.get(kw) {
-                    for &sid in sec_ids {
-                        let sec = match idx.sections.get(sid) {
-                            Some(s) => s,
-                            None => continue,
-                        };
-                        if !passes_filter(&sec.rel) {
-                            continue;
-                        }
-                        let entry = section_hits.entry((sec.provider.clone(), sid)).or_insert((0, vec![]));
-                        entry.0 += weight;
-                        if !entry.1.iter().any(|t| t == kw) {
-                            entry.1.push(kw.clone());
-                        }
-                    }
-                }
+fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
+    let keys: Vec<String> = idx.by_keyword.keys().cloned().collect();
+    let mut out: SectionHits = HashMap::new();
+    let ac = match build_matcher(&keys.iter().map(String::as_str).collect::<Vec<_>>()) {
+        Some(ac) => ac,
+        None => return out,
+    };
+    for m in ac.find_iter(prompt) {
+        let kw = &keys[m.pattern()];
+        let weight = kw.split_whitespace().count().max(1);
+        let sec_ids = match idx.by_keyword.get(kw) {
+            Some(ids) => ids,
+            None => continue,
+        };
+        for &sid in sec_ids {
+            let sec = match idx.sections.get(sid) {
+                Some(s) => s,
+                None => continue,
+            };
+            if !passes_filter(&sec.rel) {
+                continue;
+            }
+            let entry = out.entry((sec.provider.clone(), sid)).or_insert((0, vec![]));
+            entry.0 += weight;
+            if !entry.1.iter().any(|t| t == kw) {
+                entry.1.push(kw.clone());
             }
         }
     }
+    out
+}
 
-    // --- File-level matching (always; supplements sections, plus serves dense files) ---
-    let file_idx = load_file_index(&provs);
-    let file_keys: Vec<&str> = file_idx.iter().map(|(k, _)| k.as_str()).collect();
-    let mut file_hits: HashMap<(String, String), (usize, Vec<String>, PathBuf)> = HashMap::new();
-    if let Some(ac) = build_matcher(&file_keys) {
-        for m in ac.find_iter(prompt) {
-            let (kw, paths) = &file_idx[m.pattern()];
-            let weight = kw.split_whitespace().count().max(1);
-            for (root, rel) in paths {
-                if !passes_filter(rel) {
-                    continue;
-                }
-                // Synthesize a provider-name proxy from the root.
-                let pname = root
-                    .file_name()
-                    .and_then(|s| s.to_str())
-                    .unwrap_or("")
-                    .to_string();
-                let entry = file_hits
-                    .entry((pname, rel.clone()))
-                    .or_insert((0, vec![], root.clone()));
-                entry.0 += weight;
-                if !entry.1.iter().any(|t| t == kw) {
-                    entry.1.push(kw.clone());
-                }
+fn match_files(prompt: &str, file_idx: &FileIndexEntries) -> FileHits {
+    let keys: Vec<&str> = file_idx.iter().map(|(k, _)| k.as_str()).collect();
+    let mut out: FileHits = HashMap::new();
+    let ac = match build_matcher(&keys) {
+        Some(ac) => ac,
+        None => return out,
+    };
+    for m in ac.find_iter(prompt) {
+        let (kw, paths) = &file_idx[m.pattern()];
+        let weight = kw.split_whitespace().count().max(1);
+        for (root, rel) in paths {
+            if !passes_filter(rel) {
+                continue;
+            }
+            // provider-name proxy: file index entries don't carry provider names directly.
+            let pname = root
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("")
+                .to_string();
+            let entry = out
+                .entry((pname, rel.clone()))
+                .or_insert((0, vec![], root.clone()));
+            entry.0 += weight;
+            if !entry.1.iter().any(|t| t == kw) {
+                entry.1.push(kw.clone());
             }
         }
     }
+    out
+}
 
-    // Materialize section hits as Hit + staleness downgrade
+/// Combine section hits (preferred) with file hits (fallback), applying the
+/// section-index staleness downgrade and de-duping by (provider, rel).
+fn merge_and_dedup(
+    section_hits: SectionHits,
+    file_hits: FileHits,
+    sections: Option<&SectionsIndex>,
+    provs: &[Provider],
+) -> Vec<(Hit, PathBuf)> {
     let mut hits: Vec<(Hit, PathBuf)> = Vec::new();
-    let mut covered_paths: HashSet<(String, String)> = HashSet::new();
-    if let Some(idx) = &sections {
+    let mut covered: HashSet<(String, String)> = HashSet::new();
+    if let Some(idx) = sections {
         for ((provider, sid), (score, terms)) in section_hits {
             let sec = match idx.sections.get(sid) {
                 Some(s) => s,
                 None => continue,
             };
-            // Resolve provider root
             let prov_root = match provs.iter().find(|p| p.name == provider) {
                 Some(p) => p.root.clone(),
                 None => continue,
             };
-            // Staleness check: if the file is newer than sections.json, drop :start-end
+            // Staleness: if the source file is newer than sections.json, drop :start-end.
             let full = prov_root.join(&sec.rel);
             let section_ref = match fs::metadata(&full).and_then(|m| m.modified()).ok() {
-                Some(mt) if mt > idx.mtime => None, // downgrade to file-level
+                Some(mt) if mt > idx.mtime => None,
                 _ => Some(SectionRef {
                     anchor: sec.anchor.clone(),
                     header: sec.header.clone(),
@@ -412,19 +355,16 @@ fn run() -> Option<()> {
                 },
                 prov_root,
             ));
-            covered_paths.insert((provider, sec.rel.clone()));
+            covered.insert((provider, sec.rel.clone()));
         }
     }
-
-    // Add file-level hits where the path isn't already covered by a section hit
     for ((pname, rel), (score, terms, root)) in file_hits {
-        // Map root to provider name by checking provs (the file_idx root is the provider's root path)
         let provider_name = provs
             .iter()
             .find(|p| p.root == root)
             .map(|p| p.name.clone())
             .unwrap_or_else(|| pname.clone());
-        if covered_paths.contains(&(provider_name.clone(), rel.clone())) {
+        if covered.contains(&(provider_name.clone(), rel.clone())) {
             continue;
         }
         hits.push((
@@ -438,43 +378,98 @@ fn run() -> Option<()> {
             root,
         ));
     }
+    hits
+}
 
-    // Quoted-term bypass: keywords in quotes force inclusion below MIN_SCORE
+fn compute_forced(
+    prompt: &str,
+    sections: Option<&SectionsIndex>,
+    file_idx: &FileIndexEntries,
+    provs: &[Provider],
+) -> HashSet<(String, String)> {
     let quoted = extract_quoted(prompt);
-    let forced: HashSet<(String, String)> = if quoted.is_empty() {
-        HashSet::new()
-    } else {
-        let mut out: HashSet<(String, String)> = HashSet::new();
-        if let Some(idx) = &sections {
-            for (kw, sec_ids) in &idx.by_keyword {
-                if quoted.contains(kw) {
-                    for &sid in sec_ids {
-                        if let Some(sec) = idx.sections.get(sid) {
-                            if passes_filter(&sec.rel) {
-                                out.insert((sec.provider.clone(), sec.rel.clone()));
-                            }
-                        }
+    if quoted.is_empty() {
+        return HashSet::new();
+    }
+    let mut out: HashSet<(String, String)> = HashSet::new();
+    if let Some(idx) = sections {
+        for (kw, sec_ids) in &idx.by_keyword {
+            if !quoted.contains(kw) {
+                continue;
+            }
+            for &sid in sec_ids {
+                if let Some(sec) = idx.sections.get(sid) {
+                    if passes_filter(&sec.rel) {
+                        out.insert((sec.provider.clone(), sec.rel.clone()));
                     }
                 }
             }
         }
-        for (kw, paths) in &file_idx {
-            if quoted.contains(kw) {
-                for (root, rel) in paths {
-                    if !passes_filter(rel) {
-                        continue;
-                    }
-                    let provider_name = provs
-                        .iter()
-                        .find(|p| p.root == *root)
-                        .map(|p| p.name.clone())
-                        .unwrap_or_default();
-                    out.insert((provider_name, rel.clone()));
-                }
-            }
+    }
+    for (kw, paths) in file_idx {
+        if !quoted.contains(kw) {
+            continue;
         }
-        out
+        for (root, rel) in paths {
+            if !passes_filter(rel) {
+                continue;
+            }
+            let provider_name = provs
+                .iter()
+                .find(|p| p.root == *root)
+                .map(|p| p.name.clone())
+                .unwrap_or_default();
+            out.insert((provider_name, rel.clone()));
+        }
+    }
+    out
+}
+
+fn format_block(hits: &[(Hit, PathBuf)]) -> String {
+    let mut lines = vec!["<learnings-suggestions>".to_string()];
+    for (hit, root) in hits {
+        let tier = if hit.score >= STRONG_SCORE { "strong" } else { "weak" };
+        let term_str = hit.terms.iter().take(3).cloned().collect::<Vec<_>>().join(", ");
+        let (path_str, desc) = match &hit.section {
+            Some(sec) => (
+                format!("{}:{}-{}", display_path(root, &hit.rel), sec.lines.0, sec.lines.1),
+                sec.header.clone(),
+            ),
+            None => {
+                let full = root.join(&hit.rel);
+                (display_path(root, &hit.rel), truncate_chars(&first_line(&full), 80))
+            }
+        };
+        lines.push(format!("  [{}] {} — {} | {}", tier, path_str, term_str, desc));
+    }
+    lines.push("</learnings-suggestions>".to_string());
+    lines.join("\n")
+}
+
+fn run() -> Option<()> {
+    let payload = read_payload()?;
+    let prompt = payload.get("prompt").and_then(Value::as_str).unwrap_or("");
+    let session = payload.get("session_id").and_then(Value::as_str);
+
+    if prompt.len() < TRIVIAL_LEN || !prompt.chars().any(|c| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    let provs = providers(true);
+    if provs.is_empty() {
+        return None;
+    }
+
+    let sections = load_sections_index();
+    let section_hits = match sections.as_ref() {
+        Some(idx) => match_sections(prompt, idx),
+        None => HashMap::new(),
     };
+
+    let file_idx = load_file_index(&provs);
+    let file_hits = match_files(prompt, &file_idx);
+
+    let mut hits = merge_and_dedup(section_hits, file_hits, sections.as_ref(), &provs);
+    let forced = compute_forced(prompt, sections.as_ref(), &file_idx, &provs);
 
     hits.retain(|(h, _)| {
         h.score >= MIN_SCORE || forced.contains(&(h.provider.clone(), h.rel.clone()))
@@ -487,38 +482,10 @@ fn run() -> Option<()> {
         return None;
     }
 
-    let mut lines = vec!["<learnings-suggestions>".to_string()];
-    for (hit, root) in &hits {
-        let tier = if hit.score >= STRONG_SCORE { "strong" } else { "weak" };
-        let term_str = hit
-            .terms
-            .iter()
-            .take(3)
-            .cloned()
-            .collect::<Vec<_>>()
-            .join(", ");
-        let (path_str, desc) = match &hit.section {
-            Some(sec) => {
-                let p = display_path(root, &hit.rel);
-                (
-                    format!("{}:{}-{}", p, sec.lines.0, sec.lines.1),
-                    sec.header.clone(),
-                )
-            }
-            None => {
-                let full = root.join(&hit.rel);
-                let desc = truncate_chars(&first_line(&full), 80);
-                (display_path(root, &hit.rel), desc)
-            }
-        };
-        lines.push(format!("  [{}] {} — {} | {}", tier, path_str, term_str, desc));
-    }
-    lines.push("</learnings-suggestions>".to_string());
-
     let out = json!({
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
-            "additionalContext": lines.join("\n")
+            "additionalContext": format_block(&hits),
         }
     });
     println!("{}", out);
