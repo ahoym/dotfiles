@@ -3,8 +3,8 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "9e57818",
-    "rebuilt_at": "2026-05-16",
+    "last_rebuild_commit": "3c9c46c",
+    "rebuilt_at": "2026-05-17",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
       "commands/director/convergence-loop.md": "mechanical",
