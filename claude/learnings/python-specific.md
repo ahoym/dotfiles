@@ -605,6 +605,20 @@ Verify the boundary holds before relying on it: grep production entry points' tr
 
 `uv.lock` still pins the dep (`--frozen` respects it), so dev builds are reproducible; only the image venv stays clean.
 
+## `sys.modules` Pre-Mock Unblocks `__init__.py` Singleton Exports
+
+Singletons exported from a package's `__init__.py` (e.g. `schwab_adapter = _SchwabAdapter()`) are normally test-hostile — instantiation runs at import time, hitting credentials/network. The fix in `tests/conftest.py`:
+
+```python
+import sys
+from unittest.mock import MagicMock
+sys.modules["mypkg.client"] = MagicMock()  # BEFORE any test import touches mypkg
+```
+
+When tests later do `from mypkg import singleton`, Python finds the pre-mocked client module and `__init__.py`'s constructor runs against the mock. Singleton becomes test-safe without restructuring the production code.
+
+Constraint: the pre-mock must execute before the first import of the affected package — `conftest.py` at the test-root level satisfies this for pytest.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/api-design.md` — consistent response shapes (the principle behind the Pydantic serialization recommendation)

@@ -47,6 +47,18 @@ Default `claude -p` turn limit is 100. Compound Director sessions (assessment + 
 
 `/skill-name` syntax doesn't resolve in `claude -p` — use `Skill` tool calls instead. Skills designed for both interactive and headless invocation should default to `Skill("skill-name")` and only use slash-command syntax when interactive context is guaranteed. Applies to any skill an orchestrator might invoke.
 
+## Launcher Must Set CWD Before `exec claude -p`
+
+Headless sessions inherit CWD from the shell that spawned them. `sh -c "exec claude -p ..."` alone starts the session in the parent's CWD (typically the repo root). Launchers that need the session to operate on a specific directory (e.g., a per-PR worktree) must `cd` first:
+
+```bash
+| sh -c "cd \"$worktree\" && exec claude -p --model $MODEL --verbose --output-format stream-json"
+```
+
+Verified: the session's `system/init` event reports the post-`cd` CWD. Without this, agents in the wrong directory either fail or improvise (e.g., `git worktree remove` + `gh pr checkout` to move the PR branch into the parent CWD), destroying worktree state.
+
+The agent cannot self-correct via `cd <abs-path> && <cmd>` or `git -C <abs-path> <cmd>` because Claude Code's hook-injection gate blocks both in headless sessions (see platform-permissions.md).
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-code/platform-permissions.md` — hook-injection gate for `cd <path> && cmd` and `git -C <path>`

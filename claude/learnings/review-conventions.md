@@ -165,6 +165,16 @@ Before flagging a path reference as stale due to a sibling rename, verify whethe
 
 **Reviewer test:** find the config (`*.json`, `*.toml`, `*.yaml`) that names the path. If it still references the old name, the references are correct — don't post the finding.
 
+### GitHub review comments don't track stale-against-fixed-code state
+
+The GitHub review API doesn't mark inline comments as stale when the underlying code was fixed in a subsequent commit. A comment posted against line X of commit A will appear as "active" even if commit B fixed the issue. Addressers must read current file state (+ git log for the touched lines) before implementing — otherwise they'll redo or conflict with prior fixes. Cross-reference the comment's commit SHA with `git log --oneline <path>` to see if fixes landed after.
+
+### Batch-Import PRs: Cross-File Invocation Drift
+
+Batch-import PRs that wire a new helper into multiple files in parallel often drift on the invocation format — e.g., `sweep-results.sh <run-dir>` (bare) in one file vs `bash ~/.claude/skill-references/sweep-results.sh <run-dir>` (fully-qualified) in another. The bare form silently fails at runtime because the script isn't on `$PATH`. Drift arises from parallel edits that don't cross-check.
+
+Review heuristic: when a PR introduces a new helper script/tool and wires it into 3+ files, grep across the diff for the invocation and verify all sites use the same form. A single canonical invocation per helper, documented in the script header or a nearby index, prevents the drift.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — PR/MR scoping and workflow patterns (complementary: workflow vs review)

@@ -25,13 +25,23 @@ You are an autonomous addresser agent. Your job is to address review comments on
 - **Branch**: {BRANCH} → {BASE}
 - **Mode**: {MODE}
 
-## Step 5: Enter Worktree
+## Step 5: Verify Worktree CWD
 
-`cd` into the worktree directory: `{WORKTREE_PATH}`
+Your shell CWD is already `{WORKTREE_PATH}` — the runner launches this session with `cd $worktree && exec claude -p`. Run plain git commands; they operate on the PR branch because CWD is already the worktree.
 
-Verify with **separate** Bash calls (do NOT combine with `&&`):
-1. `pwd`
-2. `git branch --show-current`
+**Do NOT `cd` or use `git -C <path>`.** Both `cd <abs-path> && <cmd>` and `git -C <abs-path> <cmd>` trip Claude Code's hook-injection safety gate — no permission pattern overrides it, and headless `claude -p` sessions cannot approve manual prompts. This specifically breaks `git:resolve-conflicts` and any other skill that needs to run git on the PR branch.
+
+Verify CWD with a single tool call (no compound):
+```bash
+pwd
+```
+
+Expected output: `{WORKTREE_PATH}`. If `pwd` reports a different path, the runner was invoked without the CWD-setting fix — update `{PR_DIR}/status.md` milestone to `errored` (reason: `runner cwd fix missing — see parallel-claude-runner-template.sh`) and exit.
+
+Then in a separate tool call, confirm the branch:
+```bash
+git branch --show-current
+```
 
 ## Step 6: Conflict Check
 

@@ -190,7 +190,14 @@ Sweep and director skills sometimes rename directories within `tmp/claude-artifa
 
 ## Bash Loops and Pipes Trigger Permission Prompts
 
-`for` loops, `cat` in Bash, and piped commands don't match single-command permission patterns like `Bash(gh pr view:*)`. Use individual parallel tool calls (each matches the pattern independently) or write a script to `tmp/` and run via `bash tmp/...` which matches `Bash(bash tmp/claude-artifacts/**)`.
+`for` loops, `cat` in Bash, and piped commands don't match single-command permission patterns like `Bash(gh pr view:*)`. Use individual parallel tool calls (each matches the pattern independently) or wrap in a script under an auto-allowed path:
+
+| Path | Auto-allowed pattern | Use for |
+|------|---------------------|---------|
+| `tmp/claude-artifacts/<name>.sh` | `Bash(bash tmp/claude-artifacts/**)` | One-off session scripts (cleaned up later) |
+| `~/.claude/skill-references/<name>.sh` | `Bash(bash ~/.claude/skill-references/**)` | Reusable scripts across sessions/projects |
+
+Skill-references scripts compound — invest one session writing them, every future session benefits. Examples: `permission-analyzer.sh`, `sweep-status-summary.sh`, `gh-issues-fetch-state.sh`, `work-items-generate-runner.sh`.
 
 ## Root-Level Files Inaccessible to `claude -p` Sessions
 
@@ -221,6 +228,14 @@ For Terraform specifically: bake `prevent_destroy` into modules for irreplaceabl
 
 `Skill(git:address-request-comments *)` with wildcard requires args in the permission match string. In `claude -p` sessions, `Skill("git:address-request-comments", "24")` may not match the `*` pattern — the tool invocation format passes args separately from the skill name. Adding `Skill(git:address-request-comments)` (no wildcard) alongside the `*` variant fixed the denial. Apply to all skills invoked from `claude -p`: `Skill(name)` + `Skill(name *)`.
 
+## Hook-Injection Gate Blocks `cd <abs-path> && <cmd>` and `git -C <abs-path> <cmd>` in Headless Sessions
+
+Claude Code treats both `cd <abs-path> && <cmd>` and `git -C <abs-path> <cmd>` as potential hook-injection vectors ("executes hooks from the target directory") and requires operator approval. **No permission pattern overrides this** — it's a platform-level gate, not a permission-matching decision. Headless `claude -p` sessions cannot approve manual prompts, so these patterns fail outright.
+
+Implication: any workflow that needs a headless session to operate on a specific directory must have CWD pre-set by the launcher (see `headless-nesting.md` → "Launcher Must Set CWD"). The session cannot `cd` itself in, and cannot use `git -C` to target a different path. Plain `git <cmd>` in the already-set CWD is the only reliable path.
+
+Interactive sessions hit the same gate but can approve — so workflows tested interactively may silently break when moved to `claude -p`.
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/claude-code/multi-agent/headless-nesting.md` — launcher CWD pattern that compensates for this gate

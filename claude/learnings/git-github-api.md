@@ -196,6 +196,18 @@ glab api projects/:id/merge_requests/<IID> -X PUT \
 
 `gh api repos/{owner}/{repo}/pulls/<N>/reviews --input <payload>` with `"event": "APPROVE"` returns HTTP 422 `"Can not approve your own pull request"` when the authenticated user owns the PR. Fall back to `"event": "COMMENT"` with an explicit "ready to merge" signal in the body. Detect ownership before posting to avoid the round-trip.
 
+## Inline Comment Reply Endpoint Requires Pull Number
+
+GitHub's REST endpoint for replying to an inline review comment is `POST /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies`. The shorter `/repos/{owner}/{repo}/pulls/comments/{comment_id}/replies` (without `{pull_number}`) returns 404. The pull number is redundant given the comment ID uniquely identifies the thread, but the API requires it anyway.
+
+```bash
+# Correct
+gh api repos/owner/repo/pulls/123/comments/456789/replies -X POST -f body="..."
+
+# 404
+gh api repos/owner/repo/pulls/comments/456789/replies -X POST -f body="..."
+```
+
 ## Cross-Refs
 
 - `~/.claude/learnings/git-patterns.md` — core git operations, rebase, merge, worktree, commit hygiene
