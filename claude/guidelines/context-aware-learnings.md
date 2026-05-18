@@ -16,14 +16,49 @@ All gates are mandatory when their trigger fires. No exceptions.
 | **Plan mode entry** | Before `EnterPlanMode` | Glob filenames + grep content → broad task terms | Yes — set one if none active |
 | **Implementation start** | Before executing approved plan | Glob persona dirs → tech stack | Yes — activate match |
 | **Review entry** | Invoking a review/audit skill that doesn't self-load learnings (e.g., native `/simplify`, `/security-review`) BEFORE launching review subagents. Skip if the skill's instructions already include a "load learnings" step (`git:code-review-request`, `git:team-review-request`, `git:address-request-comments` all handle this internally) | Glob filenames + grep content → quality, testing, security, perf, language-specific gotchas relevant to the diff | No |
-| **Keyword** | Domain keyword or quoted term in user message | Glob filenames → unloaded matches. Quoted terms bypass dedup. | No |
-| **Domain shift** | User message introduces new domain | Glob filenames → new domain keywords | No |
-| **Pre-edit check** | First Edit/Write in unloaded tech domain | Glob filenames → file's tech domain | No |
+| **Keyword** *(hook-owned)* | Domain keyword or quoted term in user message | `learnings-suggest` `UserPromptSubmit` hook (see below); agent falls back to manual pipeline search when the binary is absent | No |
+| **Domain shift** *(hook-owned)* | User message introduces new domain | Same hook; same agent fallback when binary is absent | No |
+| **Pre-edit check** *(hook-owned, iteration 2)* | First Edit/Write in unloaded tech domain | Today: agent-owned. Iteration 2: `PreToolUse` hook on Edit/Write | No |
 | **Skill-task start** | Before executing a complex/long-running skill (sweeps, multi-agent, refactors) | Glob filenames → skill's domain terms (e.g., `sweep`, `director`, `compound`, `worktree`, `multi-agent`) | No |
 
 **Skill-task gate rationale:** Other gates fire on the user's domain, not the skill's operational domain. Multi-agent / sweep / refactor skills have their own learnings clusters that go unloaded when the user message doesn't name them. Load operational learnings before the skill's first substantive action.
 
 **Dedup**: don't re-load files already read this session. When context compression makes history uncertain, err toward re-checking.
+
+## Hook-suggested learnings
+
+The `learnings-suggest` hook fires on `UserPromptSubmit`, matches the prompt
+against the federated keyword index, and may inject a `<learnings-suggestions>`
+block. Treat it as advisory, not directive.
+
+**Format injected:**
+
+```
+<learnings-suggestions>
+  [strong] ~/.claude/learnings/python-specific.md:142-187 — pydantic, model_dump | ## Section header
+  [strong] ~/.claude/learnings/java/spring-boot.md — jpa, flyway | <file-level description>
+  [weak]   ~/.claude/learnings/refactoring-patterns.md — refactoring | <description>
+</learnings-suggestions>
+```
+
+**Path forms:**
+- `path:start-end` → section-level hint. Read with `offset=start, limit=(end-start+1)`.
+- `path` (no range) → file-level hint (short file, dense atomic content, or drifted section).
+
+**Tier interpretation:**
+
+| Tier | Action |
+|------|--------|
+| `[strong]` (≥3 hits) | Load unless dedup says it's already in session |
+| `[weak]` (2 hits) | Load only if description / header suggests genuine relevance |
+| Quoted term (`"noqa"`) | Force inclusion below the strong threshold |
+| Clearly irrelevant | Ignore silently |
+
+**Staleness:** a sectioned file appearing without a range means the section index is older than the file — the hook downgraded to file-level rather than risk a stale range. The `/learnings:curate` pass rebuilds the index.
+
+The hook handles the **keyword** and **domain-shift** gates automatically. The
+remaining agent-owned gates (session-start, plan-mode entry, implementation
+start, review entry) still require the full pipeline below.
 
 ## Search Pipeline
 
