@@ -178,9 +178,17 @@ The most effective skill authoring pattern: execute the workflow manually first,
 
 When a repo ships skills meant for cross-project use alongside project-internal skills, separate them with a namespace directory: `.claude/commands/<namespace>/` for exportable, `.claude/commands/` for internal. Devs symlink only the namespace directory (`ln -s ~/.claude/<repo>/.claude/commands/<namespace> ~/.claude/commands/<namespace>`), keeping internal skills invisible outside the repo. Skills in the namespace appear as `/<namespace>:<skill>` — the directory structure produces the command hierarchy.
 
-## Prerequisites Before Instructions
+## Foundational Sections Before Consumer Logic
 
-Place `## Prerequisites` (permissions, env vars, symlink setup) above `## Instructions` in skill files. Operators scanning a skill file hit blockers before investing time reading the workflow. This also means prerequisites don't need to be duplicated in README or other docs — the skill is the single source of truth.
+Place foundational reference data — `## Prerequisites` (permissions, env vars, symlink setup), provider/destination configs, type taxonomies, scope mappings — above `## Instructions` in skill files. Operators (and fresh-context agents) hit blockers and gain vocabulary before investing time reading the workflow. The rule is "context before usage": if section X is referenced from section Y, X comes first. This also means prerequisites don't need duplication in README or other docs — the skill is the single source of truth.
+
+## Single Source of Truth for Routing Logic
+
+When a skill processes multiple categories of input/output (types, modes, channels), define routing/target/behavior in **one canonical table**, not scattered across a decision tree + table caveats + step sub-bullets. A fresh-context agent should categorize and route by reading the table alone; other sections refer back, not redefine. Symptom of drift: the same rule restated 3+ times with slightly different phrasing, or a behavior caveat that only appears in step N's parenthetical.
+
+## Per-Item Operator Confirm as Execution Path
+
+When a skill auto-processes most categories but one needs operator approval (destructive ops, edits to executable instructions, irreversible changes), model it as a **separate execution path** alongside the auto-path — not as a "remember to ask" caveat inside the auto-path. The path explicitly shows: read target → draft change → `AskUserQuestion` with `Apply` / `Skip` / `Defer` → log outcome. Per-item, never batched; never auto-applied regardless of utility framing. Distinct from "Exploration Skills Default to Report-Only" (that one ends without offering fixes; this one offers but defers each).
 
 ## Cross-Skill Convention Consistency Beats Per-Skill Optimization
 

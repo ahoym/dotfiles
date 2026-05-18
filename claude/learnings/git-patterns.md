@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix, silent cross-ref rot, upstream restructure audit, fold inline fix introducing commit, sed strip conflict markers, append-both at scale, git grep tracked-content scope, symlinked layout grep noise
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -621,6 +621,61 @@ These destroy untracked files, uncommitted changes, or both — with no recovery
 ```bash
 git stash --include-untracked -m "pre-reset-$(date +%Y%m%d-%H%M%S)"
 ```
+
+## Pre-rebase audit for silent cross-ref rot after upstream restructure
+
+When main has done a heavyweight restructure (renames, file deletions, content moves), your branch's *new* additions may reference paths the upstream deleted. Git's auto-merge can't flag this — the dead ref lives in a line your branch added, or in auto-merged content where the deletion happened *outside* the conflict zone. The "modify/delete reference checking" entry above handles the in-conflict case; this catches the silent case (especially for docs/cross-refs where there's no test to surface it).
+
+Recipe:
+
+1. Read the upstream restructure commit's **body** — `git show <sha>` (not just the diff). Extract every renamed / split / deleted / moved path from the prose.
+2. Grep your branch's *additions* for refs to old paths:
+
+```bash
+git diff origin/main...HEAD | grep -E '^\+' | grep -E '<old-path-patterns>'
+```
+
+3. Re-target each occurrence before rebasing — or fold the fix into the commit that introduced it during conflict resolution (see "Fold inline fixes…" below).
+
+The `^\+` filter is critical: without it, main's deletions appear as `-` lines in the grep noise and you can't see what your branch actually adds.
+
+## Fold inline fixes into the introducing commit during mid-rebase replay
+
+When a multi-commit rebase needs silent fixes (stale refs, dead helpers, semantic bugs introduced by branch's own commits), find which commit introduced each issue and Edit during that commit's mid-rebase pause:
+
+```bash
+git log <merge-base>..ORIG_HEAD -- <file>   # identifies the introducing commit
+# when that commit pauses for conflict resolution, Edit the file inline,
+# stage, then `git rebase --continue`
+```
+
+The fix folds into that specific commit's diff — no `chore(rebase)` fixup commit needed.
+
+Distinct from `--fixup+autosquash` (which runs *after* rebase completes and requires a second rebase pass). Folding during replay is one pass and lets you choose precise per-commit placement for each fix.
+
+## Sed-strip conflict markers when N files share an append-both shape
+
+When N files all conflict in the same "HEAD added X, branch added Y, both should stay" shape, one sed pass per marker pattern beats N×3 Edit calls:
+
+```bash
+for f in <files>; do
+  sed -i '' -e '/^<<<<<<< HEAD$/d' \
+            -e '/^>>>>>>> <commit-prefix>/d' \
+            -e 's/^=======$//' "$f"
+done
+```
+
+`/d` deletes the outer markers entirely; `s/^=======$//` **empties the line rather than deleting it** — preserves the blank line markdown needs between sections. Replacing with `/d` collapses content from both sides into adjacent lines, breaking heading spacing.
+
+## `git grep` for tracked-content scope checks in symlinked layouts
+
+For post-rename cross-ref verification, prefer `git grep <pattern>` over `grep -rn <pattern> ~/.claude/`. Tilde-rooted paths that symlink back into the repo (e.g., `~/.claude/` → `<dotfiles>/claude/`) cause `grep -r` to walk into transcripts (`.claude/projects/`), stale worktree copies (`claude/worktrees/`), and other untracked content — produces hundreds of KB of noise and false-positive hits.
+
+```bash
+git grep -n 'Old Heading Name'   # scopes to tracked files in current branch
+```
+
+Exit 1 = clean (no matches). Use bare `grep -r` only when you actually want untracked files (e.g., searching tool-output dirs).
 
 ## Verify Source Clean After `git stash push -- <path>`
 

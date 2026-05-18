@@ -73,6 +73,10 @@ Users need to know what to install before following setup steps. Structure: prer
 
 Audit for: internal project/repo names, MR/PR numbers, absolute paths with usernames, internal tool names, team names, org-specific identifiers. Focus effort on tracked files; `settings.local.json` is gitignored.
 
+### Portability check before promoting tmp/ scripts to checked-in paths
+
+Scripts that lived in gitignored `tmp/` often carry environment assumptions (hardcoded `REPO_ROOT`, `cd /Users/<me>/...`). Before staging the copy, `grep /Users/<username>` (and `$HOME`-style absolutes) over the new files; replace with self-derivation (see `~/.claude/learnings/bash-patterns.md` → "Symlink-aware self-location"). Apply to any script promotion from personal/tmp into shared/committed locations.
+
 ### Sensitive-data scan: two-pass + baseline-vs-new triage
 
 `git diff HEAD` covers modified-file additions only — untracked files need a separate `grep`/`Read` pass since `diff` skips them entirely. For each finding, distinguish HEAD-baseline (already committed, operator-accepted) from new-in-diff before flagging — sanitization should scope to actual new exposure, not re-litigate accepted content. Present a triage table tagged by severity + new-vs-baseline so the operator decides once.
