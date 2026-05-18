@@ -15,6 +15,25 @@ use std::time::{SystemTime, UNIX_EPOCH};
 const MIN_SECTION_LINES: usize = 8;
 const MAX_KEYWORDS_PER_SECTION: usize = 12;
 
+// IDF integer-scale: at match time, keyword score = word_count * kw_weight.
+// kw_weight = round(ln((N+1)/(df+1)) * IDF_SCALE), clamped to [IDF_FLOOR, IDF_CEIL].
+// Common terms (df near N) → ~IDF_FLOOR; rare terms → ~IDF_CEIL. Scale chosen
+// empirically for ~700-section corpora: bigger numbers compress most terms at
+// the ceiling, smaller numbers compress everything near 1. 1.5 spreads typical
+// harness keywords (df ~20-50) into the 4-5 range while keeping rare terms at 8.
+const IDF_FLOOR: usize = 1;
+const IDF_CEIL: usize = 8;
+const IDF_SCALE: f64 = 1.5;
+
+// Markers for cluster-level audience tagging. A CLAUDE.md anywhere in the
+// learnings tree may declare `**Audience:** <name>` (or legacy `Audience:`);
+// all sections under that file's directory inherit the tag. At match time,
+// sections with an audience tag are downweighted when the prompt doesn't
+// mention the audience name — a soft filter, not a hard exclusion.
+const AUDIENCE_MARKER: &str = "**Audience:**";
+const AUDIENCE_MARKER_LEGACY: &str = "Audience:";
+const AUDIENCE_HEADER_SEARCH_LIMIT: usize = 30;
+
 // Repo-wide convention: line 2 of every learnings file is
 // `- **Keywords:** kw1, kw2, ...`. `Keywords:` (no asterisks) is a legacy
 // form retained for files that predate the bolded marker.
@@ -133,6 +152,82 @@ struct Section {
     lines: (usize, usize),
     level: u8,
     keywords: Vec<String>,
+    audience: Option<String>,
+}
+
+fn extract_audience(file_text: &str) -> Option<String> {
+    file_text
+        .lines()
+        .take(AUDIENCE_HEADER_SEARCH_LIMIT)
+        .find_map(|line| {
+            let l = line.trim_start_matches(|c: char| c == '-' || c == '*' || c.is_whitespace());
+            l.strip_prefix(AUDIENCE_MARKER)
+                .or_else(|| l.strip_prefix(AUDIENCE_MARKER_LEGACY))
+        })
+        .map(|s| s.trim().to_ascii_lowercase())
+        .filter(|s| !s.is_empty() && s.len() < 40)
+}
+
+fn walk_for_filename(dir: &Path, target: &str, out: &mut Vec<PathBuf>) {
+    let entries = match fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let name = entry.file_name();
+        let s = name.to_string_lossy();
+        if s.starts_with('.') || s.starts_with('_') {
+            continue;
+        }
+        if path.is_dir() {
+            walk_for_filename(&path, target, out);
+        } else if s == target {
+            out.push(path);
+        }
+    }
+}
+
+/// Build the audience-by-directory-prefix map by scanning every CLAUDE.md under
+/// each provider's tree for an `**Audience:**` marker. Returned vector is sorted
+/// longest-prefix-first so the deepest matching ancestor wins.
+fn build_audience_map(provs: &[Provider]) -> Vec<(String, String, String)> {
+    // (provider_name, rel_dir_prefix, audience_name)
+    let mut out: Vec<(String, String, String)> = Vec::new();
+    for prov in provs {
+        let mut claude_mds = Vec::new();
+        walk_for_filename(&prov.base, "CLAUDE.md", &mut claude_mds);
+        for cmd in claude_mds {
+            let text = match fs::read_to_string(&cmd) {
+                Ok(t) => t,
+                Err(_) => continue,
+            };
+            let aud = match extract_audience(&text) {
+                Some(a) => a,
+                None => continue,
+            };
+            let rel_dir = match cmd.parent().and_then(|p| p.strip_prefix(&prov.root).ok()) {
+                Some(p) => p.to_string_lossy().to_string(),
+                None => continue,
+            };
+            out.push((prov.name.clone(), rel_dir, aud));
+        }
+    }
+    // Longest prefix wins (so /director/CLAUDE.md beats /multi-agent/CLAUDE.md
+    // for a section under multi-agent/director/).
+    out.sort_by(|a, b| b.1.len().cmp(&a.1.len()));
+    out
+}
+
+fn lookup_audience(
+    audiences: &[(String, String, String)],
+    provider: &str,
+    rel: &str,
+) -> Option<String> {
+    audiences
+        .iter()
+        .find(|(p, prefix, _)| p == provider && rel.starts_with(prefix.as_str()))
+        .map(|(_, _, aud)| aud.clone())
 }
 
 fn extract_explicit_keywords(file_text: &str) -> Vec<String> {
@@ -209,6 +304,7 @@ fn parse_file(provider: &str, rel: String, file_text: &str) -> Vec<Section> {
                 lines: (start_line, end_line),
                 level,
                 keywords,
+                audience: None,
             });
         };
 
@@ -309,6 +405,8 @@ fn main() {
         std::process::exit(1);
     }
 
+    let audience_map = build_audience_map(&provs);
+
     let mut all_sections: Vec<Section> = Vec::new();
     let mut file_count = 0usize;
 
@@ -325,7 +423,13 @@ fn main() {
                 Ok(t) => t,
                 Err(_) => continue,
             };
-            let sections = parse_file(&prov.name, rel_path, &text);
+            let mut sections = parse_file(&prov.name, rel_path.clone(), &text);
+            // Inherit audience from any ancestor CLAUDE.md.
+            if let Some(aud) = lookup_audience(&audience_map, &prov.name, &rel_path) {
+                for s in &mut sections {
+                    s.audience = Some(aud.clone());
+                }
+            }
             all_sections.extend(sections);
         }
     }
@@ -338,10 +442,26 @@ fn main() {
         }
     }
 
+    // IDF-derived integer weight per keyword. df = number of sections containing
+    // the keyword; n = total sections. Common keywords (high df) end up at
+    // IDF_FLOOR; rare ones at IDF_CEIL. Clamping the ceiling stops a single
+    // very-rare term from outscoring an aggregate of moderately-rare terms.
+    let n = all_sections.len() as f64;
+    let kw_weights: BTreeMap<String, usize> = by_keyword
+        .iter()
+        .map(|(kw, sec_ids)| {
+            let df = sec_ids.len() as f64;
+            let idf = ((n + 1.0) / (df + 1.0)).ln();
+            let scaled = (idf * IDF_SCALE).round() as i64;
+            let w = scaled.clamp(IDF_FLOOR as i64, IDF_CEIL as i64) as usize;
+            (kw.clone(), w)
+        })
+        .collect();
+
     let sections_json: Vec<Value> = all_sections
         .iter()
         .map(|s| {
-            json!({
+            let mut o = json!({
                 "provider": s.provider,
                 "rel": s.rel,
                 "anchor": s.anchor,
@@ -349,7 +469,11 @@ fn main() {
                 "lines": [s.lines.0, s.lines.1],
                 "level": s.level,
                 "keywords": s.keywords,
-            })
+            });
+            if let Some(aud) = &s.audience {
+                o["audience"] = json!(aud);
+            }
+            o
         })
         .collect();
 
@@ -360,6 +484,16 @@ fn main() {
         .map(|d| d.as_secs())
         .unwrap_or(0);
 
+    let audience_summary: BTreeMap<String, usize> = {
+        let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+        for s in &all_sections {
+            if let Some(a) = &s.audience {
+                *counts.entry(a.clone()).or_insert(0) += 1;
+            }
+        }
+        counts
+    };
+
     let out = json!({
         "_meta": {
             "schema": SCHEMA_VERSION,
@@ -368,8 +502,10 @@ fn main() {
             "source_files": file_count,
             "total_sections": all_sections.len(),
             "min_section_lines": MIN_SECTION_LINES,
+            "audience_counts": audience_summary,
         },
         "by_keyword": by_keyword_json,
+        "kw_weights": kw_weights,
         "sections": sections_json,
     });
 

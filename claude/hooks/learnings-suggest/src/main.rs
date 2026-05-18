@@ -26,6 +26,29 @@ const MAX_HITS: usize = 3;
 const TRIVIAL_LEN: usize = 20;
 const FILTER_PREFIXES: &[&str] = &["commands/"];
 
+// Neutral fallback when a sections.json was built by an older index-build that
+// didn't emit `kw_weights` (additive-optional schema). Keeps scoring numerically
+// equivalent to the pre-IDF behavior so old indexes don't change tier meanings.
+const KW_WEIGHT_NEUTRAL: usize = 1;
+
+// Audience downweight: when a section carries an audience tag (e.g. "director")
+// and the prompt doesn't mention that audience, its score is multiplied by
+// AUDIENCE_KEEP/100. Soft filter — high enough to preserve genuinely-strong
+// matches, low enough to push category-mismatched suggestions out of top-3.
+//
+// PROVISIONAL — this whole audience system (the `**Audience:**` CLAUDE.md
+// convention, the SectionEntry field, the downweight math) is on probation.
+// It introduces a second metadata concept on top of `**Keywords:**`. If telemetry
+// shows IDF + curated keywords would have done the job, rip out audience and
+// simplify back to a single metadata axis. See README §Scoring.
+const AUDIENCE_KEEP: usize = 30;
+
+// Opt-in markers that let a skill prompt declare which slice of itself carries
+// the user-intent signal. When both delimiters are present and well-formed, only
+// the enclosed text is scored; falls through to the full prompt otherwise.
+const CONTEXT_OPEN: &str = "<learnings-context>";
+const CONTEXT_CLOSE: &str = "</learnings-context>";
+
 // ---------- Unified hit shape ----------
 
 #[derive(Clone)]
@@ -35,6 +58,7 @@ struct Hit {
     section: Option<SectionRef>,       // None = file-level
     score: usize,
     terms: Vec<String>,
+    audience: Option<String>,          // Set only for section hits with cluster audience tag.
 }
 
 #[derive(Clone)]
@@ -52,6 +76,10 @@ fn passes_filter(rel: &str) -> bool {
 
 struct SectionsIndex {
     by_keyword: BTreeMap<String, Vec<usize>>,
+    // Per-keyword IDF-derived weight. Empty when sections.json was built by an
+    // index-build version without IDF support — match_sections then falls back
+    // to KW_WEIGHT_NEUTRAL so the score math stays continuous.
+    kw_weights: HashMap<String, usize>,
     sections: Vec<SectionEntry>,
     // mtime of sections.json itself, for staleness checks
     mtime: SystemTime,
@@ -63,6 +91,7 @@ struct SectionEntry {
     anchor: String,
     header: String,
     lines: (usize, usize),
+    audience: Option<String>,
 }
 
 fn load_sections_index() -> Option<SectionsIndex> {
@@ -87,6 +116,17 @@ fn load_sections_index() -> Option<SectionsIndex> {
             );
         }
     }
+    // Optional: per-keyword IDF weights. Missing on indexes built before IDF support.
+    let kw_weights: HashMap<String, usize> = v
+        .get("kw_weights")
+        .and_then(Value::as_object)
+        .map(|obj| {
+            obj.iter()
+                .filter_map(|(k, val)| val.as_u64().map(|n| (k.clone(), n as usize)))
+                .collect()
+        })
+        .unwrap_or_default();
+
     let sec_arr = v.get("sections").and_then(Value::as_array)?;
     let mut sections = Vec::with_capacity(sec_arr.len());
     for s in sec_arr {
@@ -99,9 +139,10 @@ fn load_sections_index() -> Option<SectionsIndex> {
             anchor: s.get("anchor").and_then(Value::as_str).unwrap_or("").to_string(),
             header: s.get("header").and_then(Value::as_str).unwrap_or("").to_string(),
             lines: (l0, l1),
+            audience: s.get("audience").and_then(Value::as_str).map(|x| x.to_string()),
         });
     }
-    Some(SectionsIndex { by_keyword, sections, mtime })
+    Some(SectionsIndex { by_keyword, kw_weights, sections, mtime })
 }
 
 /// File-level keyword index entries: keyword → list of (provider_root, rel_path).
@@ -145,6 +186,20 @@ fn load_file_index(provs: &[Provider]) -> FileIndexEntries {
 }
 
 // ---------- Prompt helpers ----------
+
+/// Extract the user-intent scoring slice. Skill prompts can wrap their
+/// signal-bearing portion in `<learnings-context>...</learnings-context>` to opt
+/// out of having the procedural template body weighted against them. When the
+/// markers are absent or malformed, the whole prompt is used (status quo).
+fn extract_scoring_text(prompt: &str) -> &str {
+    if let Some(open_idx) = prompt.find(CONTEXT_OPEN) {
+        let body_start = open_idx + CONTEXT_OPEN.len();
+        if let Some(rel_close) = prompt[body_start..].find(CONTEXT_CLOSE) {
+            return &prompt[body_start..body_start + rel_close];
+        }
+    }
+    prompt
+}
 
 // Only matches ASCII "..". macOS smart-quote autocorrect (U+201C/U+201D) is not captured —
 // the bypass would silently miss those quoted terms.
@@ -219,6 +274,9 @@ fn log_event(prompt: &str, session: Option<&str>, hits: &[(Hit, PathBuf)]) {
                 o["anchor"] = json!(sec.anchor);
                 o["lines"] = json!([sec.lines.0, sec.lines.1]);
             }
+            if let Some(aud) = &hit.audience {
+                o["audience"] = json!(aud);
+            }
             o
         })
         .collect();
@@ -270,7 +328,15 @@ fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
     };
     for m in ac.find_iter(prompt) {
         let kw = &keys[m.pattern()];
-        let weight = kw.split_whitespace().count().max(1);
+        // IDF-weighted contribution. Multi-word phrases still get their length
+        // bonus on top of IDF — a 2-word rare phrase outweighs two separate rare
+        // 1-word hits because the phrase is a tighter contextual signal.
+        let idf_weight = idx
+            .kw_weights
+            .get(kw)
+            .copied()
+            .unwrap_or(KW_WEIGHT_NEUTRAL);
+        let weight = kw.split_whitespace().count().max(1) * idf_weight;
         let sec_ids = match idx.by_keyword.get(kw) {
             Some(ids) => ids,
             None => continue,
@@ -326,17 +392,22 @@ fn match_files(prompt: &str, file_idx: &FileIndexEntries) -> FileHits {
 }
 
 /// Combine section hits (preferred) with file hits (fallback), applying the
-/// section-index staleness downgrade and de-duping by (provider, rel).
+/// section-index staleness downgrade and de-duping by (provider, rel). Audience
+/// downweight is applied here too: if a section carries an audience tag (set in
+/// the cluster's CLAUDE.md) and the scoring text doesn't mention the audience,
+/// the score is reduced to AUDIENCE_KEEP%. Soft filter — strong matches still
+/// surface, marginal ones get pushed out of the top-3 cap.
 fn merge_and_dedup(
     section_hits: SectionHits,
     file_hits: FileHits,
     sections: Option<&SectionsIndex>,
     provs: &[Provider],
+    scoring_text_lower: &str,
 ) -> Vec<(Hit, PathBuf)> {
     let mut hits: Vec<(Hit, PathBuf)> = Vec::new();
     let mut covered: HashSet<(String, String)> = HashSet::new();
     if let Some(idx) = sections {
-        for ((provider, sid), (score, terms)) in section_hits {
+        for ((provider, sid), (raw_score, terms)) in section_hits {
             let sec = match idx.sections.get(sid) {
                 Some(s) => s,
                 None => continue,
@@ -355,6 +426,15 @@ fn merge_and_dedup(
                     lines: sec.lines,
                 }),
             };
+            // Audience downweight: tag present + audience name absent from
+            // prompt → keep AUDIENCE_KEEP% of the score. Audience name present →
+            // no penalty; the section's domain matches what the prompt is about.
+            let score = match &sec.audience {
+                Some(aud) if !scoring_text_lower.contains(aud.as_str()) => {
+                    (raw_score * AUDIENCE_KEEP) / 100
+                }
+                _ => raw_score,
+            };
             hits.push((
                 Hit {
                     provider: provider.clone(),
@@ -362,6 +442,7 @@ fn merge_and_dedup(
                     section: section_ref,
                     score,
                     terms,
+                    audience: sec.audience.clone(),
                 },
                 prov_root,
             ));
@@ -387,6 +468,7 @@ fn merge_and_dedup(
                 section: None,
                 score,
                 terms,
+                audience: None,
             },
             root,
         ));
@@ -472,16 +554,29 @@ fn run() -> Option<()> {
         return None;
     }
 
+    // Scoring slice: user-intent only when the prompt opted in via the
+    // <learnings-context> markers; otherwise the full prompt. Quoted-term
+    // forcing still consults the *full* prompt — operators expect "foo" to bind
+    // regardless of where it appears.
+    let scoring_text = extract_scoring_text(prompt);
+    let scoring_text_lower = scoring_text.to_lowercase();
+
     let sections = load_sections_index();
     let section_hits = match sections.as_ref() {
-        Some(idx) => match_sections(prompt, idx),
+        Some(idx) => match_sections(scoring_text, idx),
         None => HashMap::new(),
     };
 
     let file_idx = load_file_index(&provs);
-    let file_hits = match_files(prompt, &file_idx);
+    let file_hits = match_files(scoring_text, &file_idx);
 
-    let mut hits = merge_and_dedup(section_hits, file_hits, sections.as_ref(), &provs);
+    let mut hits = merge_and_dedup(
+        section_hits,
+        file_hits,
+        sections.as_ref(),
+        &provs,
+        &scoring_text_lower,
+    );
     let forced = compute_forced(prompt, sections.as_ref(), &file_idx, &provs);
 
     hits.retain(|(h, _)| {
