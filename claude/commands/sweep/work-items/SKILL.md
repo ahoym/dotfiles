@@ -293,7 +293,7 @@ Work-item-specific metadata overrides and adaptations (written into `metadata.js
   1. Local `status.md` check — skip if `issue_state: CLOSED` (terminal entity state only — role convergence signals like `comment_posted` and `pr_opened` are the session's responsibility, not the runner's)
   2. API fallback — `gh issue view <N> --json state -q '.state'`, skip if closed
 - **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
-- **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).
+- **Cleanup**: Worktrees are **preserved** after the run — the work-items template has no EXIT-trap cleanup, so an interrupted or timed-out session keeps its uncommitted work for the next pass (see Important Notes, "Worktrees are preserved"). The operator removes them manually with `git -C <PROJECT_ROOT> worktree remove <RUN_DIR>/worktrees/issue-<N>`. (The generic `parallel-claude-runner-template.sh` still runs an EXIT-trap cleanup for PR-address sweeps, but only removes worktrees whose session completed cleanly with no uncommitted or unpushed work.)
 
 The runner MUST use `stream-monitor.sh` for `live.md` observability (same pattern as PR sweeps).
 

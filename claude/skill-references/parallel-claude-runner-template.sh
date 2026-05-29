@@ -60,16 +60,53 @@ setup_worktrees() {
                 continue
             }
         else
-            git -C "$wt" pull --ff-only origin "$branch" 2>/dev/null || true
+            # Worktree already exists — it may hold recovered work from a prior
+            # interrupted run. Only fast-forward when the tree is clean; skip the
+            # pull otherwise so uncommitted recovery work is never clobbered.
+            if [ -z "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
+                git -C "$wt" pull --ff-only origin "$branch" 2>/dev/null || true
+            else
+                echo "Skipping ff-pull for ${ENTITY_LABEL} $item_num — worktree has uncommitted changes: $wt"
+            fi
         fi
     done
 }
 
 cleanup_worktrees() {
-    # Only clean up worktrees we created, not pre-existing ones
+    # Only clean up worktrees we created, and only when the session finished
+    # cleanly with no unsaved work. A worktree with uncommitted changes, unpushed
+    # commits, or a non-completed state.md holds recoverable work — preserve it so
+    # an interrupted/timed-out session's output survives for the next run. (The
+    # EXIT trap fires on any runner exit, including a harness idle-timeout kill
+    # under `set -e`, so unconditional removal here can destroy live work.)
     for item_num in "${NEW_WORKTREE_ITEMS[@]}"; do
         local wt
         wt=$(worktree_for "$item_num")
+        [ -d "$wt" ] || continue
+
+        # Authoritative guard: never remove a worktree that holds unsaved work.
+        if [ -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
+            echo "Preserving worktree for ${ENTITY_LABEL} $item_num (uncommitted changes): $wt"
+            continue
+        fi
+        local ahead
+        ahead=$(git -C "$wt" rev-list --count '@{upstream}..HEAD' 2>/dev/null || echo 0)
+        if [ "${ahead:-0}" -gt 0 ]; then
+            echo "Preserving worktree for ${ENTITY_LABEL} $item_num (${ahead} unpushed commit(s)): $wt"
+            continue
+        fi
+
+        # Secondary guard: only remove sessions that ran to completion. Anything
+        # else (running/timeout/errored/missing) may have unpushed work with no
+        # upstream to compare against — keep it.
+        local st=""
+        [ -f "${RUN_DIR}/${ENTITY_PREFIX}-${item_num}/state.md" ] && \
+            st=$(grep '^state:' "${RUN_DIR}/${ENTITY_PREFIX}-${item_num}/state.md" 2>/dev/null | awk '{print $2}')
+        if [ "$st" != "completed" ]; then
+            echo "Preserving worktree for ${ENTITY_LABEL} $item_num (state: ${st:-none}): $wt"
+            continue
+        fi
+
         git -C "$PROJECT_ROOT" worktree remove "$wt" --force 2>/dev/null || true
     done
 }
