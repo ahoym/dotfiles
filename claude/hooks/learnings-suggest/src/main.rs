@@ -31,6 +31,15 @@ const FILTER_PREFIXES: &[&str] = &["commands/"];
 // equivalent to the pre-IDF behavior so old indexes don't change tier meanings.
 const KW_WEIGHT_NEUTRAL: usize = 1;
 
+// Specificity guard: a section reaches [strong] only if it matched at least one
+// *specific* term — a multi-word phrase, or a unigram whose IDF weight rose above
+// the floor (i.e. it isn't a corpus-wide common word). This stops a pileup of
+// common single words (residual harness/filler tokens that slipped the stop-list)
+// from crossing STRONG_SCORE on their own — a single common word can never alone
+// make a strong suggestion. Disabled when the index predates IDF weights
+// (kw_weights empty) so older indexes keep their prior tier behavior.
+const SPECIFIC_MIN_WEIGHT: usize = KW_WEIGHT_NEUTRAL + 1;
+
 // Audience downweight: when a section carries an audience tag (e.g. "director")
 // and the prompt doesn't mention that audience, its score is multiplied by
 // AUDIENCE_KEEP/100. Soft filter — high enough to preserve genuinely-strong
@@ -59,6 +68,13 @@ struct Hit {
     score: usize,
     terms: Vec<String>,
     audience: Option<String>,          // Set only for section hits with cluster audience tag.
+    specific: bool,                    // ≥1 matched term was a phrase or above-floor unigram.
+}
+
+/// A hit is [strong] only when it both clears the score threshold and carries a
+/// specific term — never on accumulated common words alone.
+fn is_strong(hit: &Hit) -> bool {
+    hit.score >= STRONG_SCORE && hit.specific
 }
 
 #[derive(Clone)]
@@ -70,6 +86,22 @@ struct SectionRef {
 
 fn passes_filter(rel: &str) -> bool {
     !FILTER_PREFIXES.iter().any(|pre| rel.starts_with(pre))
+}
+
+// aho-corasick matches substrings, so a short keyword would otherwise fire inside
+// unrelated words — `ref` in "prefer", `cat` in "notification", `put` in "output",
+// `ask` in "task". That false-substring path was the dominant source of harness
+// noise (<task-notification> blocks pulling the same files every turn). Keywords
+// are whole tokens (alnum / `_` / `-`), so require a non-word char (or string
+// edge) on both sides of each match before counting it.
+fn is_word_char(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_' || b == b'-'
+}
+
+fn boundary_ok(bytes: &[u8], start: usize, end: usize) -> bool {
+    let left = start == 0 || !is_word_char(bytes[start - 1]);
+    let right = end >= bytes.len() || !is_word_char(bytes[end]);
+    left && right
 }
 
 // ---------- Index loaders ----------
@@ -267,7 +299,7 @@ fn log_event(prompt: &str, session: Option<&str>, hits: &[(Hit, PathBuf)]) {
             let mut o = json!({
                 "path": display_path(root, &hit.rel),
                 "score": hit.score,
-                "tier": if hit.score >= STRONG_SCORE { "strong" } else { "weak" },
+                "tier": if is_strong(hit) { "strong" } else { "weak" },
                 "terms": hit.terms.iter().take(5).collect::<Vec<_>>(),
             });
             if let Some(sec) = &hit.section {
@@ -316,7 +348,7 @@ fn build_matcher(keys: &[&str]) -> Option<aho_corasick::AhoCorasick> {
         .ok()
 }
 
-type SectionHits = HashMap<(String, usize), (usize, Vec<String>)>;
+type SectionHits = HashMap<(String, usize), (usize, Vec<String>, bool)>;
 type FileHits = HashMap<(String, String), (usize, Vec<String>, PathBuf)>;
 
 fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
@@ -326,7 +358,14 @@ fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
         Some(ac) => ac,
         None => return out,
     };
+    // When the index carries no IDF weights (pre-IDF schema), the specificity
+    // guard can't assess unigram rarity — leave it off so tiers are unchanged.
+    let guarded = !idx.kw_weights.is_empty();
+    let pbytes = prompt.as_bytes();
     for m in ac.find_iter(prompt) {
+        if !boundary_ok(pbytes, m.start(), m.end()) {
+            continue;
+        }
         let kw = &keys[m.pattern()];
         // IDF-weighted contribution. Multi-word phrases still get their length
         // bonus on top of IDF — a 2-word rare phrase outweighs two separate rare
@@ -336,7 +375,11 @@ fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
             .get(kw)
             .copied()
             .unwrap_or(KW_WEIGHT_NEUTRAL);
-        let weight = kw.split_whitespace().count().max(1) * idf_weight;
+        let words = kw.split_whitespace().count().max(1);
+        let weight = words * idf_weight;
+        // Specific = phrase, or a unigram rare enough to clear the IDF floor.
+        // Floor-weight unigrams (corpus-common words) don't qualify on their own.
+        let specific_term = !guarded || words > 1 || idf_weight >= SPECIFIC_MIN_WEIGHT;
         let sec_ids = match idx.by_keyword.get(kw) {
             Some(ids) => ids,
             None => continue,
@@ -349,11 +392,12 @@ fn match_sections(prompt: &str, idx: &SectionsIndex) -> SectionHits {
             if !passes_filter(&sec.rel) {
                 continue;
             }
-            let entry = out.entry((sec.provider.clone(), sid)).or_insert((0, vec![]));
+            let entry = out.entry((sec.provider.clone(), sid)).or_insert((0, vec![], false));
             entry.0 += weight;
             if !entry.1.iter().any(|t| t == kw) {
                 entry.1.push(kw.clone());
             }
+            entry.2 |= specific_term;
         }
     }
     out
@@ -366,7 +410,11 @@ fn match_files(prompt: &str, file_idx: &FileIndexEntries) -> FileHits {
         Some(ac) => ac,
         None => return out,
     };
+    let pbytes = prompt.as_bytes();
     for m in ac.find_iter(prompt) {
+        if !boundary_ok(pbytes, m.start(), m.end()) {
+            continue;
+        }
         let (kw, paths) = &file_idx[m.pattern()];
         let weight = kw.split_whitespace().count().max(1);
         for (root, rel) in paths {
@@ -407,7 +455,7 @@ fn merge_and_dedup(
     let mut hits: Vec<(Hit, PathBuf)> = Vec::new();
     let mut covered: HashSet<(String, String)> = HashSet::new();
     if let Some(idx) = sections {
-        for ((provider, sid), (raw_score, terms)) in section_hits {
+        for ((provider, sid), (raw_score, terms, specific)) in section_hits {
             let sec = match idx.sections.get(sid) {
                 Some(s) => s,
                 None => continue,
@@ -443,6 +491,7 @@ fn merge_and_dedup(
                     score,
                     terms,
                     audience: sec.audience.clone(),
+                    specific,
                 },
                 prov_root,
             ));
@@ -469,6 +518,10 @@ fn merge_and_dedup(
                 score,
                 terms,
                 audience: None,
+                // File-index hits: word-count-only scoring already bars a lone
+                // word from reaching STRONG (needs ≥3 word-units), so the guard
+                // isn't needed here. This path is also dormant (no .keyword-index.json).
+                specific: true,
             },
             root,
         ));
@@ -523,7 +576,7 @@ fn compute_forced(
 fn format_block(hits: &[(Hit, PathBuf)]) -> String {
     let mut lines = vec!["<learnings-suggestions>".to_string()];
     for (hit, root) in hits {
-        let tier = if hit.score >= STRONG_SCORE { "strong" } else { "weak" };
+        let tier = if is_strong(hit) { "strong" } else { "weak" };
         let term_str = hit.terms.iter().take(3).cloned().collect::<Vec<_>>().join(", ");
         let (path_str, desc) = match &hit.section {
             Some(sec) => (

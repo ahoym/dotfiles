@@ -61,6 +61,19 @@ const STOPWORDS: &[&str] = &[
     "use", "used", "using", "uses", "make", "makes", "made", "making",
     "see", "now", "get", "got", "set", "run", "ran", "via", "such",
     "e.g", "i.e",
+    // English filler/function words: high document-frequency, zero domain
+    // signal. They key on nearly every prompt (want/need/work/ref/here were
+    // observed dominating suggestion telemetry across a whole session).
+    "want", "wants", "wanted", "need", "needs", "needed", "needing",
+    "here", "there", "work", "works", "working", "ref", "refs",
+    "like", "well", "good", "thing", "things", "way", "ways", "let", "lets",
+    "going", "goes", "able", "around", "across", "both", "either", "else",
+    // Harness-structural tokens: recur in tool results and <task-notification>
+    // blocks, not in operator intent. Dropping them stops notifications and
+    // generic prose from pulling the same sections every turn.
+    "output", "outputs", "claude", "complete", "completed", "notification",
+    "notifications", "task", "tasks", "command", "commands", "exit", "tool",
+    "tools", "background", "runner", "running",
 ];
 
 fn walk_md(dir: &Path, out: &mut Vec<PathBuf>) {
