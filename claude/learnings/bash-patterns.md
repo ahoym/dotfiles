@@ -1,5 +1,5 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template, brew install rustup, brew install rust, keg-only, rustup-init, brew --prefix, rustup target add, brew info, Homebrew formula caveats
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
@@ -262,6 +262,21 @@ find dir/ -name '*.md' -exec sed -i '' -f /tmp/path-fixes.sed {} +
 ```
 
 Order longer patterns first when shorter names are substrings (e.g., `spring-boot-gotchas.md` before `spring-boot.md`).
+
+## `brew install rustup` is keg-only; `brew install rust` ≠ rustup
+
+Two Homebrew formulas, easy to mix up:
+
+- `brew install rust` — installs `rustc` + `cargo` only. **No `rustup`**, so `rustup target add <triple>` (needed for cross-compile / `cargo zigbuild`) fails.
+- `brew install rustup` — installs the toolchain manager. **Keg-only**: binaries are not symlinked into `$(brew --prefix)/bin`. Invoke `rustup-init` via the keg path, then it seeds `~/.cargo/bin` exactly like the upstream `sh.rustup.rs` installer:
+
+```bash
+brew install rustup
+"$(brew --prefix rustup)/bin/rustup-init" -y --default-toolchain stable --profile minimal
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+Generalize: run `brew info <formula>` before scripting `brew install` — caveats like keg-only status, PATH conflicts (`rustup` vs `rust`), and required post-install steps live there.
 
 ## Grep for Table-Row vs Backtick Filename Formats
 

@@ -1,0 +1,32 @@
+[package]
+name = "learnings-suggest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde_json = "1"
+aho-corasick = "1"
+pulldown-cmark = { version = "0.10", default-features = false }
+
+[lib]
+name = "learnings_suggest"
+path = "src/lib.rs"
+
+[[bin]]
+name = "learnings-suggest"
+path = "src/main.rs"
+
+[[bin]]
+name = "learnings-read-log"
+path = "src/bin/read-log.rs"
+
+[[bin]]
+name = "learnings-index-build"
+path = "src/bin/index-build.rs"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+strip = true
+codegen-units = 1
+panic = "abort"

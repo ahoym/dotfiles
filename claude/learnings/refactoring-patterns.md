@@ -1,5 +1,5 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
-- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests
+- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests, platform-conditional branches, OS branches, dedupe blindly, package-manager tracking
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
@@ -123,6 +123,14 @@ Some identified opportunities aren't worth pursuing. Skip when:
 - The change would require judgment calls about behavior, not just mechanical cleanup
 
 Document skipped items and why — it shows thoroughness without wasted effort.
+
+## Platform-conditional branches encode value — don't dedupe blindly
+
+When a script branches on platform (`if Darwin && brew → X, else → Y`), the branch usually encodes more than tradition: native package managers track updates, ship signed binaries, and handle uninstall hygiene that upstream installers don't. Before collapsing to "one path on all platforms" for consistency, name what each branch *encodes* and confirm the unified path preserves it.
+
+Worked example: a bootstrap with `if macOS+brew → brew install <tool>, else → curl <upstream-installer>` doesn't merge cleanly into "always curl" — the brew branch encoded *tracked by the package manager*. Unifying on curl removes that value silently. Right merge: keep the branch, swap the brew side to the correct formula (e.g., `brew install rustup` not `brew install rust`).
+
+Sibling principle to the "no duplication" instincts in `code-quality-instincts.md`: dedup is right when the two paths are interchangeable, wrong when they encode different platform contracts.
 
 ## Test Layering Strategy
 
