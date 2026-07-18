@@ -199,7 +199,7 @@ Write data files for template assembly, then call `fill-template.sh`:
 
 Follow **let-it-rip.sh Generation** in `sweep-scaffold.md`. Write `<RUN_DIR>/metadata.json` using the runner schema from sweep-scaffold.md with these review-mode overrides:
 - `MODE` → `"review"`, `MODE_LABEL` → `"Review"`
-- `MODEL` → `"claude-sonnet-4-6"` (orchestrator — heavy work is in `git:team-review-request`'s subagents)
+- `MODEL` → `"claude-sonnet-4-6"` (orchestrator — heavy work is in `git:team-review-request`'s subagents; standard 200k context is the safe default. Opt into `[1m]` only on credit-enabled accounts with large diffs — see sweep-scaffold.md MODEL selection)
 - `BRANCHES` → `""`, `WORKTREES` → `""` (review mode doesn't use worktrees)
 
 Entity type keys for PRs:

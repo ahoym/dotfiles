@@ -1,8 +1,18 @@
 Methodology for safe, incremental refactoring: survey-first approach, commit granularity, phased execution, PR splitting, and content-loss audits.
-- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests
+- **Keywords:** refactoring, survey, grep, commit granularity, factory vs hooks, React Context, PR splitting, risk profile, phased refactoring, test layering, content-loss audit, bulk rename, bulk line deletion, config-dict script, parallel batch, vendor integration, domain wiring, prudential gate, mechanical gate, Docker smoke test, runtime import check, CMD path change, ModuleNotFoundError, sub-functions, engine, DSL, rule chain, combinator, named branch, abstraction tax, round-trip validation, destructive migration, format cutover, --commit flag, bundle commit, atomic-commit-passes-tests, platform-conditional branches, OS branches, dedupe blindly, package-manager tracking, parity test, equivalence test, guarded duplication, consolidation signal, union of constraints, shared home invariant, pyarrow-free, dependency-free invariant, verify-first plan, secondhand reads, source conflict, hard verify-point, lagging stylistic sweep, comment conciseness pass, rebase re-run sweep, conflict partial map, sweep new content, call-site comment pointer, inherited roadmap, status-block staleness, verify against main, dead-but-shipped type, re-audit do-not-resurface, in-place replace not rebuild, scripted structured-doc edit, derived count recompute, dropped-heading assert, idempotent resolver, invariant checker before transform, reconstruct drops boundary content, redirect stub, file-existence check, fixture resolution
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
+
+## Parity-Test-Guarded Duplication → Consolidate, but Honor Every Invariant
+
+A dedicated parity/equivalence test that exists only to keep two near-identical implementations in sync is a strong **consolidation signal** — and its docstring often names the safe exit ("if a future PR merges these, delete this module").
+
+When consolidating, the shared home must satisfy the **union of every constraint each copy independently honored** — not just the one the test mentions. The obvious target (or the one the test suggests) may break an invariant the *other* copy was protecting. Example: two `merge_candles` copies existed to dodge a `utils → broker` import-boundary ban; one copy was *also* kept dependency-free ("importable anywhere"). Moving the canonical impl into the existing pyarrow-heavy module would satisfy the boundary but break the dependency-free invariant — so a new minimal dependency-free module was the correct home. Enumerate all constraints (import boundary, optional-dep-free, IO-free, broker-agnostic) before picking where shared code lives.
+
+## Plans From Secondhand or Lagged Reads: Verify-First + Flag Conflicts
+
+When drafting an implementation plan from a subagent summary or partial reads rather than a full direct read, mark specifics (line numbers, helper names, sizing bases) as "verify at implementation" and lead with a verify-first checklist. If two sources disagree on a load-bearing fact (e.g. a code comment says futures size off `equity`, the equivalence-test docstring says `cashAtHand`), record BOTH and flag it as a hard verify-point — never assert one as truth. A confidently-wrong "must not break" claim in a plan is worse than an explicit unknown.
 
 ## Survey Before Acting
 
@@ -267,6 +277,10 @@ Demote the underlying transport methods to private (`_get`/`_post`/etc.) at the 
 
 See `~/.claude/learnings/git-patterns.md` → "Add/add rebase conflict where trunk independently shipped the same extraction." The refactoring corollary: when two parallel PRs ship the same extraction and one merges first, the second branch should rebase and take trunk's version wholesale — line-by-line merging produces a Frankenstein that satisfies neither code review.
 
+## Refactor-meets-feature merge: integrate, don't take either side wholesale
+
+Distinct from same-extraction add/add (above): one branch adds *new* symbols to a module while trunk independently *extracts other* symbols out of it into a new shared module (e.g. trunk moved constants/exceptions to `_shared.py`; the branch added a new lock/retry path + exception to the same `manager.py`). Neither "take trunk" nor "take branch" is right — make the merged file look like trunk's slimmed version *plus* the branch's additions. Force `git merge` (not rebase): rebase replays the branch's additions once per commit against a moving target, while a single merge collapses the integration into one pass. Place each new symbol by *actual ownership* — a manager-only exception stays in `manager.py` even though sibling exceptions moved to `_shared.py`; the resulting asymmetry reflects usage, not a smell.
+
 ## Classify pre-existing behavior before "preserving" it through a refactor
 
 When migrating code through an abstraction, behavior that "looks weird" is one of three things:
@@ -345,6 +359,10 @@ docker run --rm --entrypoint python <image> -c 'import config.X; import logic.Y'
 
 Pairs with `python-specific.md` → "`python ./path/script.py` puts only the script's dir on `sys.path`" for the underlying mechanism.
 
+## A redirect-stub masks file-existence integrity checks
+
+Replacing a deleted/moved file with a redirect stub (instead of deleting it) keeps the path resolvable — so file-existence checks, fixture `ground_truth` resolution, and "does it still exist" greps pass *falsely* until the stub is removed. Audit for and remove leftover stubs before trusting an all-green run, and when moving/deleting a referenced file grep **all** artifact types for the path (fixtures, configs, indexes), not just code cross-refs.
+
 ## Round-trip-validate before deleting source data in destructive migrations
 
 A migration tool that deletes the source after writing the target must read the target back and compare byte-equivalent to the source *before* unlinking. Mismatch → preserve source, non-zero exit. Gate the destructive step behind a `--commit` (or `--apply`) flag so the default is dry-safe:
@@ -380,6 +398,10 @@ When extracting a function into a new module, every test `@patch("old_module.sym
 
 Audit step after any extraction: `grep -r "@patch.*old_module" tests/` and rewrite each. Tests that still pass after the move are passing for the wrong reason — they're patching a no-op.
 
+**Partial extraction → patch BOTH modules, not just move the patch.** When only *some* calls of a symbol move (the regime tree moved to `branches.py` but the top-level split + a sibling helper still call `is_RSI_greater_than` from the algo module), the symbol is now reached from two namespaces. A test that patches only one misses the other path's calls. Patch it in *each* module that imports it, and combine the `patch.multiple(...)` contexts with `contextlib.ExitStack` (`stack.enter_context(...)` per module) so one `with _patch(ind):` still reads cleanly. The test *assertions* stay byte-identical — only the patch plumbing follows the moved code; that unchanged-assertion green is what proves behavior preservation.
+
+**Private→public rename + back-compat alias preserves imports, NOT `@patch` interception.** Promoting `_foo`→`foo` with a module-level alias `_foo = foo` keeps `from mod import _foo` working — but a test patching `mod._foo` replaces only the *alias* attribute; once callers invoke `foo`, the patch no longer intercepts (it targets a different name). Every `@patch("mod._foo")` string must move to the new name regardless of the alias. The alias gives false confidence that patch-target tests are unaffected by the rename.
+
 ## Closure State Dicts for Callback-Driven Helpers
 
 When extracting a callback loop (e.g., `retry_until_filled(place_fn, update_fn, ...)`), two patterns keep the signature small:
@@ -389,9 +411,236 @@ When extracting a callback loop (e.g., `retry_until_filled(place_fn, update_fn, 
 
 Both push state-passing into the caller's closures, keeping the helper itself stateless.
 
+## Extract the shared wiring, not a flag-heavy spec — divergent call-site ordering is the tell
+
+When N call sites *look* like one primitive, the genuine shared piece is often just the **wiring** around a per-site closure, not the closure itself. Six order sites each did `poll, cancel = _broker_poll_cancel(...); retry_until_filled(place_fn, ...)` with the same `MAX_TRIES`/sleep — that tail was the real dup. The `place_fn`s themselves diverged and stay per-site.
+
+The tell that one signature **can't** unify the sites: their internal **ordering** differs. Buy needs `fetch_price → size_qty(price)`; sell needs `size_qty → fetch_price`. A single shell with a fixed order can only serve both via a flag — and a `Spec` that needs 5 flags to cover 6 sites is the over-abstraction the sites were warning you about. Stop at the shell that bundles the shared plumbing (poll/cancel + retry defaults "in one place"); leave the divergent closures alone. Sibling to "Reach for sub-functions before engines/DSLs" — same instinct, applied to a callback-driven primitive instead of an if/elif tree.
+
+## Inject leaves into a shared skeleton: pure values eager, side-effectful computations as thunks
+
+When collapsing two near-identical nested-conditional functions into one parameterized skeleton, each algo passes its differing leaves *as data*. Split the leaves by effect:
+
+- **Pure values** (a `Signal(ticker)`, a constant) → pass eagerly. Constructing the untaken one is harmless (no I/O, no log).
+- **Side-effectful computations** (further indicator calls, `logger.info`, broker reads) → pass as zero-arg thunks (`lambda: buy_the_dips(...)`). An eager call would fire the *untaken* branch's side effects and corrupt the log/behavior.
+
+The signature documents the contract: `oversold_main: Signal` (value) vs `bonkers_terminal: Callable[[], Signal]` (thunk). One genuine *control-flow* difference (not just data) earns a real flag — e.g. `check_fluxing: bool` for the one branch that skips a sub-check — kept distinct from the value/thunk leaves.
+
+## Migration stability-guards must default missing legacy state to the prior semantic
+
+A guard that suppresses churn by comparing against persisted state (`last_weight`, `last_hash`, `last_target`) reads `None`/absent for data written before that field existed — so the guard can't fire and the *first* post-migration run churns (close+reopen, rewrite, resend) even when nothing changed. Default the missing value to whatever the legacy shape implied (e.g. a legacy single-position file ⇒ full weight `1.0`) so an unchanged target is recognized as unchanged on tick one. Add a regression test using the **old** file format asserting no action when the target matches.
+
+## A refactor's coverage gap is usually pre-existing — land the tests off main, not the branch
+
+When a behavior-preserving refactor exposes a thin spot in test coverage, check whether the gap predates the refactor before adding tests on the branch: `git diff --stat main...branch -- tests/`. If the relevant test files are byte-identical to main, the gap is base coverage missing on main, not something the refactor introduced. Branch the new tests off `main` as a standalone PR — they cover behavior that already ships, and once the refactor branch rebases it inherits them as a free regression backstop (the same tests re-run against the refactored code path and prove equivalence). Adding them on the refactor branch instead conflates "missing base coverage" with "coverage for this change" and ties shippable tests to an unmerged refactor.
+
+## A lagging stylistic-sweep branch: rebase re-runs the sweep on new content
+
+A branch doing a uniform stylistic pass (comment conciseness, rename, format normalization) that's fallen behind main has a second job at integration time: main merged new code that never went through the pass. Treat the rebase as **re-running the sweep on the newly-merged content**, not just replaying your commit.
+
+- **Conflicts are a partial map, not the whole job.** Conflicts surface only where the new content touched the *same lines* your sweep edited. Resolve each by applying your branch's style to the incoming side (keep the concise/renamed form, extend it to the new entries). Then separately sweep the conflict-free new files/sections — `git diff --stat $(git merge-base HEAD main)..main -- <area>` lists everything that arrived, most of which won't conflict.
+- **Fold the new-content sweep into the same commit** (`commit --amend`) so the branch stays one logical unit; force-push with `--force-with-lease`.
+- A call-site comment whose full rationale now lives in the callee's docstring should shrink to a one-line pointer (`see X.update_excursion`) rather than duplicate it — newly-merged code often duplicates because it landed without the callee's doc.
+
+## Converting Scattered Literals to a Derived Helper — Scope to the Diff, Separate by Intent
+
+When a reviewer asks to derive ~N scattered literals from a constant (e.g. test equity values from a sizing notional), scope the conversion to the lines the triggering PR actually changed (`git diff <base>...HEAD`), not every textual match. The same numeric literal often encodes different intents: a *derived* value (convert — e.g. a bucket-midpoint equity → `equity_for_contracts(n)`), a *boundary* value probing a different threshold (keep — `$1k`/`$2k` testing a margin cliff, not a notional bucket), and an *input/prior-state* value that isn't derived at all (keep — e.g. a persisted `cashAtHand` that the code overwrites). Verify each match's role before swapping; a blanket find-replace silently corrupts the boundary and input cases.
+
+## Isolate an entangled rename into its own commit by reverse-then-redo
+
+The clean approach is a rename-first prep PR (above), but agents typically make *all* edits in the working tree before committing — and `git add -p` is unavailable in the harness, so whole-file staging can't split a rename out of the other edits sharing a file. Recovery: **reverse the rename** in the working tree (replace_all back to old names), commit the substantive changes on the old names, then **re-apply the rename** and commit it alone. Two rules make each commit green in isolation: (1) order any consumer/import update *before* the rename commit — a commit that renames a definition while a consumer still imports the old name fails on checkout; drop the shim / update the import first; (2) re-run the import-sorter after the redo (`ruff check --fix`) — a rename reorders alphabetized import blocks. Net diff is identical to doing it in one commit; the history just bisects cleanly.
+
+## A behavior-preserving refactor's oracle is the original on the same inputs, not committed reference numbers
+
+When refactoring code whose printed output is pasted into a doc (research tables, golden snapshots), don't diff a fresh run against the doc: the doc's numbers drift once the committed data/cache advances past the doc's stamped vintage, so a mismatch reads as a refactor bug when it's just newer data. Verify equivalence by `git stash`-ing the refactor and diffing **refactored-vs-original output on the current inputs** — empty diff = behavior-preserving; the doc is a valid oracle only when its inputs are pinned.
+
+```bash
+run > ref.txt; git stash push -- <paths>; run > orig.txt; git stash pop; diff orig.txt ref.txt
+```
+
+For an **expensive multi-target capture**, take the original from a throwaway worktree at HEAD (`git worktree add --detach ../wt HEAD`) instead of `git stash`: stash serialises (blocks the tree) and — worse — editing the live tree while a long baseline job is mid-run *contaminates* it, since the runner reads source at exec time and silently mixes old/new code across targets. The worktree isolates the baseline so it runs in parallel with continued editing; diff the two output dirs at the end.
+
+**Strip non-deterministic lines before the byte-diff.** Scripts that log wall-clock
+timestamps or print an env/venv-setup banner produce "diffs" that are pure noise — a
+fresh worktree's first run also emits the uv venv-creation banner the warm tree doesn't.
+Pipe both sides through a `sed`/`grep -v` that drops the timestamp prefix + banner lines
+before `diff`; a surviving diff is then a real behavior change. Don't eyeball a raw diff
+full of timestamps and conclude "changed."
+
+## Falsify a "Shared Helper" Finding Before Extracting — Three Phantom-Duplication Shapes
+
+An audit/finding that says "X is duplicated, extract a shared helper" is a hypothesis — read the real code first. Three shapes make it a false positive:
+
+- **Already-factored** — the "duplicate" call sites already delegate to a common helper (e.g. two `_last_persisted_*_weight` fns that both just call `weight_from_mapping`). Nothing to extract.
+- **One-sided** — the duplication exists in only one of the two paths the finding assumes (e.g. a budget-scaler present in the backtest with no live twin). A "shared" helper would *invent* a second use case.
+- **Intentionally-divergent** — same formula, different edge policy or inputs *by design* (Sharpe with/without risk-free rate; `profit_factor` returning `None` vs `inf`). Unifying changes behavior — the divergence is the point.
+
+Only genuine same-semantics duplication across 2+ real call sites is extractable. The other three are **deferrals with documented evidence** — a first-class outcome, not a failure to ship.
+
+## An Extraction's Composability Payoff Is a Premise to Verify, Not a Given
+
+Sibling to "Falsify a Shared Helper Finding" (which checks the duplication is *real*): even real duplication isn't worth extracting unless the *payoff* materializes — usually "the next new-X gets cheap." Verify that claim against the code; two modes silently kill it:
+
+- **The abstraction spans an N=2 that diverges by design.** Two implementations sharing a thin skeleton + many by-design-divergent leaves (holdings source, sizing basis, persistence policy) don't get cheaper behind a Protocol — a *3rd* example brings its own divergent leaves, so "new case ≈ 40 LOC" is illusory; it's 150+ LOC of new leaves either way. The interface just bakes in from N=2.
+- **The hard part survives the abstraction unchanged.** If the irreducible logic (a broker+asset-class wire translation, an exact-vs-broad guard) lives *inside* the leaves, collapsing the dispatch doesn't shrink it — the new case writes the same branches. Payoff = "1 stub vs N stubs," small, bought with churn on a hot/risky path.
+
+When the payoff is speculative (no concrete 3rd case; an unverified "it'll plug into the future pipeline" handshake), defer the framework and ship only the slice that's safe *and* pays off today. Add the ~5-line Protocol the day a real 2nd consumer lands — the existing examples usually already structurally satisfy it, so nothing is lost by waiting.
+
+## Multi-Wave Refactor Handoff to a Fresh Session
+
+A roadmap written *before* execution goes stale the moment you ship — add a **Status block as the single source of truth** (per-item ✅ shipped / ⏸ deferred) and reconcile any body text still reading as the original plan. For the handoff:
+
+- **Name the base branch.** If prior waves are unmerged, say "base on `<wave-N-branch>` until its PR merges, then rebase onto main" — items assuming the prior wave's new files/symbols break on bare main.
+- **Cite symbols, not line numbers, for refs into already-changed files.** A line number into a file a prior wave touched shifts on merge; a re-grep of the symbol survives. List the touched files so the next session knows which refs to distrust.
+- **Bake framing corrections into the roadmap** rather than trusting the next session to re-derive them (e.g. "the framework already shipped — don't rebuild it").
+- **When re-verification *flips* a planned wave, the handoff is the deliverable.** A defer-with-evidence is a first-class outcome, not a punt: record each dropped item as a "verified not worth building" entry citing the code, so the next session doesn't re-attempt it. **Quarantine, don't delete** superseded guidance — retitle the section `SUPERSEDED`/`CLOSED` with a "do NOT execute" banner and keep it as the audit trail of what the plan *was*. If the *next* wave's framing leaned on a now-deferred item (a "this is the terminal of X" handshake), correct every cross-reference threaded through it, not just the headline — grep the deferred item's name across the doc.
+
+## "Preserve-behavior" hinges on the exact default — read it at the source
+
+Routing a call site through a shared helper preserves behavior only if the helper's *defaults* match what each site relied on. A site that omitted a kwarg inherited the *constructed object's* default, not `None` — so giving the helper `build(..., benchmark_ticker=None)` silently flips it when the real default was `"SPY"`. Read the actual default at the definition (`@dataclass` field, `__init__` signature) — never from the call you're copying, and never from a verifier subagent's summary: an adversarial verifier that *read the file* still mis-stated a default in one session; only opening `config.py` caught it before it shipped a silent behavior change. (See `claude-code/multi-agent/quality.md` — un-verified findings are hypotheses.)
+
+## Relocating a byte-identical expression is parity-safe by construction
+
+When a helper *relocates* the exact same expression rather than reimplementing it — e.g. `candles[int(len(candles)*frac)].datetime` lifted verbatim into a constructor — the output is identical by construction and the migration can't numerically drift. Pin the exact expression in a unit test as a regression guard, and prefer a cheap spot-check (re-run one consumer, diff one printed value) over re-running every expensive consumer. Contrast a *reimplemented* duplicated computation, where a full parity test per site earns its keep.
+
+## Reverting one extraction from a multi-commit branch — `checkout <commit>^`, and don't forget its doc edits
+
+To undo a single logical extraction a reviewer rejected while keeping the rest of a multi-commit branch, restore the pre-extraction blobs with `git checkout <extract-commit>^ -- <files>` — but first prove that commit is their **sole** modifier (`git log <extract-commit>..HEAD -- <files>` empty), or `<commit>^` silently drops later edits to those files. Watch for **non-code** files the same commit touched (a `CLAUDE.md` recipe / doc paragraph — `git show <commit> --stat` lists them); revert those with a *targeted Edit* since the file may carry other PR changes you must keep. Re-run the affected tests after — a faithful revert restores the pre-extraction green.
+
+## Detach an opt-in feature into a pure core + self-contained overlay
+
+To make a feature *off by default and structurally absent* from the production path (not merely flag-gated-off), revert the core to a pure function and move ALL feature logic into a standalone overlay module the production path no longer imports — the overlay stays explorable from backtests/research without touching live.
+
+When the overlay must alter the pure core's internal branching but you've removed the core's feature params, **extract the core's branch-dispatch into a plain-typed helper both call** — e.g. `dispatch_by_regime(is_bullish: bool, …)` invoked by both `plz_algo_v2` and the overlay. One shared seam, no duplicated `if`, no divergence; the helper carries no feature knowledge so the core stays pure. Beats the overlay re-implementing the dispatch, which silently drifts when the core's branch selection later changes.
+
+## Detaching a paused feature from a live path: numbered re-wire markers, migrate integration→unit tests
+
+To remove a paused/dormant feature from a production entry path — stronger than flag-gating-off, since it also strips the **import-time** surface a per-tick `try/except` can't guard (a module import or import-time config resolution that could block startup) — replace every call site with a numbered marker comment (`[FEATURE RE-WIRE n/N]`) plus one central note (why + where the N sites are + the prior-wiring commit SHA). Keep the implementation module + its tests intact (explorable from tests/research).
+
+Migrate the now-dead **integration** tests (they drove the detached wiring through the entry point) to direct **unit** tests on the extracted module — same scenarios, called with fakes — so the implementation's coverage survives the detach. Pairs with "Detach an opt-in feature into a pure core + self-contained overlay" (the structural half) — this is the operational half: markers, surface accounting, and test migration.
+
+## Wrap the Nth Call-Arg Across Many Sites with a Bracket-Aware Transformer, Not Regex
+
+To mechanically wrap one argument across ~N call sites (`f(a, X)` → `f(a, g(X))`) where the args contain commas (dict literals) or parens (`float("nan")`), a regex mis-splits on the inner punctuation and silently corrupts a subset. Write a tiny paren-depth + string-skipping scanner that finds the call's matching close paren and the top-level comma, then splices `g(...)` around the last arg. Run it as a one-shot script over the file, then review the diff and run the tests. Reliable where `sed`/regex breaks on nesting; the ~60-site wrap lands in one pass.
+
+## Prove a no-op when the committed golden is itself stale: stash-isolate
+
+To prove a refactor changed no behavior you normally diff a regenerated output against
+the committed golden — but that fails when the *committed* golden is itself stale (it
+doesn't even match a fresh run of the pre-refactor code, e.g. a result table never
+regenerated after an earlier change). Then diff *your-edits run* against a *clean-tree
+run* instead: `git stash push <changed files>`, regenerate → `clean.txt`;
+`git stash pop`, regenerate → `mine.txt`; `diff clean.txt mine.txt`. Identical proves
+your edits are a true no-op — independent of the pre-existing golden drift (a separate
+finding to flag, not silently re-baseline). Isolates *your* effect from baseline rot.
+
+Common trigger: a research/results branch **rebased onto a PR that refreshed the data
+cache** replays its old-vintage result tables unchanged, so they silently drift from the
+data they now ship with. Diagnose by comparing `git log -1 --format=%ci` on the data
+partition vs the results file — data newer than results = stale golden. Capture a fresh
+HEAD baseline (current code on current data) as the no-op oracle.
+
+## Split a compute-and-print script into compute() + render() for an output-preserving, composable refactor
+
+A report/analysis script that interleaves computation with `print()` becomes composable by
+splitting it into `compute() -> JSON-serializable dict` (the numbers) + `render(data)` (the
+`print()` f-strings, reading from the dict) + a shared CLI tail (`--json` emits the data, else
+renders). The numbers become testable + machine-readable with zero output change. Two rules keep
+it a true no-op: `render()` keeps every f-string **character-identical** (only the value source
+changes, local var → dict key), and `compute()` returns **plain Python types** (cast every numpy
+scalar — `float(x)`/`int(x)` — or `json.dumps` raises).
+
+Verify byte-parity against a captured pre-refactor baseline, not the committed output (which may
+be stale — see stash-isolate). Across many scripts, fan out one subagent per file with a shared
+convention + that file's baseline as the oracle; cheap scripts self-verify (run + `diff` ==
+baseline), expensive ones edit-only with a final batch byte-diff — don't trust a slow runner's
+self-reported byte-identity.
+
+## Isolate a data/vintage refresh into its own commit before a behavior change
+
+When a change both (a) refreshes regenerated artifacts to a newer data vintage and (b) alters
+behavior, commit them separately: first regenerate with the **old** behavior on the new data (a
+pure data-drift commit), then apply the behavior change and regenerate again. The second commit's
+artifact diff is then the behavior effect **alone** — directly the quantification a reviewer asks
+for ("how much did this move?") — instead of an unattributable data+behavior blend. Pairs with the
+stash-isolate no-op proof: the first commit's diff is pure data drift, the second pure behavior.
+
+## Inheriting Prior Refactor Work: Verify Status, Don't Re-Derive Deferrals
+
+A handoff roadmap's Status block records the plan's *intent at write-time*, not ground
+truth — the effort may have stalled, reverted, or a "shipped / PR open" item may never
+have merged. Before acting on an inherited multi-wave roadmap, reconcile every status
+claim against `main`: `git log`/`git grep` the named symbol, confirm the cited call site
+changed, check a "merged" branch actually landed. Two recurring stale shapes: a type
+"shipped" but with **zero production importers** (dead code — its consumer PR never
+merged), and a wave marked "shipped, PR open" living only on a local branch. (Worked: a
+roadmap claimed Phase-4B "SHIPPED — PRs OPEN"; `main`'s call site was untouched and the
+branch was local-only.)
+
+When the inherited work includes a prior audit, **seed every finder + verifier with the
+prior audit's "do-not-resurface" list** (its deferred/refuted items + the code evidence)
+so a fresh pass doesn't re-derive settled conclusions. An audit that re-surfaces a
+reverted extraction or a refuted metric-unification burns the verification budget
+re-killing it.
+
+## Only leaf helpers move "down" into a shared base module
+
+See "Relocating a helper into a base/shared module is gated by import direction" (below) — same import-direction rule, consolidated there.
+
+## Share a state machine via a pure decision-function, not class extraction
+
+When two consumers need the same state-transition logic but own *different* surrounding
+state (one tracks a peak per-tick + serializes to JSON; the other walks an event list),
+don't extract a shared stateful class — extract the **decision** as a pure function both
+call, leaving each consumer's state ownership + lifecycle intact. To kill a second copy
+of a trip/reclaim hysteresis: lift `step(state, input) -> new_state` out of the
+production class, have its `apply()` call it (byte-identical), and have the research
+consumer call the same function. The production class keeps its serialization/non-finite
+handling untouched — lowest-risk path to one source of truth. Pin it with a parity test
+that drives both consumers over a shared input sequence and asserts identical decisions.
+
+## A flagged inner-duplicate can sit inside a whole-function copy of the shared engine — widen the collapse
+
+When a review flags a duplicated *sub-component* (a state machine, a formula) and points
+at the SSOT primitive, check the *enclosing* function before swapping just the primitive:
+it may be a verbatim re-implementation of the larger shared unit the primitive belongs to
+(an inline equity-curve walker that re-rolls the whole `portfolio_curve` engine, not only
+its breaker). Collapse to the engine (`portfolio_curve(..., breaker=...)`), not the
+primitive — a net-negative diff removing the duplication the finding under-scoped. Inverse
+of "Falsify a Shared Helper Finding" (which guards *over*-extraction). A sibling copy that
+genuinely *can't* use the engine (different sizing model) still routes the primitive alone.
+Prove either collapse behavior-preserving via the refactored-vs-original output diff above.
+
+## Relocating a helper into a base/shared module is gated by import direction
+
+Before moving a "duplicated" helper *down* into a shared/base module (`_common.py`, a `*_base`), check where it sits in the import graph — the move may be infeasible or unnecessary:
+
+- **A top-of-graph composer can't move down — it's a circular import, not a low-value tidy.** If the helper imports from N sibling modules that themselves import the base, relocating it into the base inverts the graph and cycles (`_common → ribbon_portfolio → _common`). Composition helpers (e.g. `_combined_legs` calling `_bear_legs` + `_pyramid_legs`, each pulling from ~6 siblings) belong at the top — in the module that owns their domain, or a new module *above* the leaves; the base stays leaf-level (loaders / metrics / constants), often with an explicit "importable in isolation, no engine dependency" invariant the move would break.
+- **Single-definition-imported-across-siblings already satisfies de-dup.** One `def` that N scripts `from sibling import helper` has *zero* copies to collapse — the consolidation goal is already met. Confirm real duplication (`rg '^def helper'` → >1 hit) before proposing the move; absent that, it buys only relocation, which the graph forbids anyway.
+
+Inverse of the `TYPE_CHECKING` import-cycle fold (above): there, tight coupling says fold helpers *up* into a class; here a top-of-graph composer must *stay* up. See also "Deciding What NOT to Refactor."
+
+## Scripted edits to a structured doc: replace in place, never rebuild the region
+
+Rewriting a whole region (a contents map, a table, a frontmatter block) to fix a *derived* value inside it — a count, a total, an anchor list — silently drops whatever the rebuild loop didn't model. A "recount the map" pass that reconstructed the block via `splitlines()` → filter → `"\n".join()` deleted an entire section that lived at the region's boundary. Every write should instead be a targeted replace of a line you matched:
+
+```python
+assert text.count(old_line) == 1, f"ambiguous anchor: {old_line}"
+text = text.replace(old_line, new_line, 1)
+```
+
+Three guards make it safe:
+
+- **Assert nothing vanished** — diff the set of headings/keys before vs after and fail on any loss. This is what catches the bug; the transform itself always looks fine.
+- **Make it idempotent** — a resolver that runs twice (retry, partial failure) must converge, not compound. Re-running a reconstruct-style pass turned one dropped section into a corrupted map.
+- **Recompute derived values from the final content**, not by arithmetic on both sides' numbers — after a union merge, `ours + theirs` double-counts anything both sides added.
+
+Write the invariant checker *before* the transform. Its real job is catching your own edit script, not the input; if it only ever runs after you're confident, it runs too late. Corollary: an assert on a substring (`"<<<<<<<" not in text`) is not an invariant — anchor it to structure.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/code-quality-instincts.md` — code quality signals that trigger refactors
 - `~/.claude/learnings/process-conventions.md` — PR splitting and review process
+- `~/.claude/learnings/git-patterns.md` — the `git grep` false-negative pair; proving a branch landed before deleting it
 - `~/.claude/learnings/testing/testing-patterns.md` — test recipes for refactoring safety
 - `~/.claude/learnings/python-specific.md` — `[dependency-groups].dev` + deferred imports for production-image dep exclusion (relevant when the new format introduces a heavy dep)

@@ -65,7 +65,7 @@ Use the model you're currently running (e.g., "Claude Opus 4.7 (1M context)"). T
 
 ### Footnote Enforcement (mandatory post-reply check)
 
-Do not trust that the reply template was followed — verify after posting. After any step that posts replies (initial-ack, commit-ref, top-level summary), fetch the posted comments by ID and confirm each body contains the `Role:` line.
+Do not trust that the reply template was followed — verify after posting. After any step that posts replies (initial-ack, commit-ref, top-level summary, **or a batch of inline/diff comments — e.g. via a wrapper script**), fetch **every** posted comment by ID and confirm **each one's** body contains the `Role:` line — not just the most visible one (e.g. the top-level summary). A step that posts N inline comments plus one top-level summary needs N+1 checks, not 1.
 
 ```bash
 # GitHub example — fetch a posted reply and check for Role footnote

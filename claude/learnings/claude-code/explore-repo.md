@@ -1,5 +1,5 @@
 Patterns for the `/explore-repo` skill — parallel multi-agent scanning, domain file structure, synthesis output, staleness detection, and CLAUDE.md generation.
-- **Keywords:** explore-repo, multi-agent scan, domain files, synthesis, SYSTEM_OVERVIEW, inconsistencies, CLAUDE.md generation, staleness detection, cross-domain dedup, greenfield
+- **Keywords:** explore-repo, multi-agent scan, domain files, synthesis, SYSTEM_OVERVIEW, inconsistencies, CLAUDE.md generation, staleness detection, cross-domain dedup, greenfield, synthesis false finding, emergent claim, unsourced escalation, verify synthesized claim against source, severity escalation
 - **Related:** ~/.claude/learnings/claude-authoring/skill-design.md
 
 ---
@@ -86,6 +86,14 @@ Independent scan agents can report contradictory findings about the same code. E
 **Root cause:** Each agent operates in isolation with no shared state. If a finding spans domains (e.g., a bug in a utility used by integrations but modeled in data-model), the agent that happens to check git blame gets it right while the other relies on stale code comments.
 
 **Mitigation:** The synthesis phase should cross-check gotchas across domain files. When two files make contradictory claims about the same code, flag it and resolve using the evidence (git history, actual code state). This is cheaper than wiring inter-agent communication.
+
+## Synthesis Can Manufacture a False Finding No Source Agent Made
+
+Distinct from cross-agent contradictions: synthesis aggregates *correct* domain scans but can emit an **emergent** claim — a severity rating, causal chain, or failure mode — that no single scan stated. Such unsourced claims are often wrong because agents scoped a narrow fact and synthesis over-generalized it.
+
+Example: synthesis rated `TS_ENV=prod → KeyError` as **Critical** latent deploy risk. Source check: `TradeStationClient` raises a clean **`ValueError`** (`client.py`); the live path sets `TS_ENV=live` via a compose `${VAR:-default}` shell override that bypasses the Terraform `ts_env` var; the only `KeyError` is on *unset* `TS_ENV` (exactly what the scans stated). Downgraded Critical→Low, KeyError→ValueError after the operator flagged it.
+
+**Rule:** Before publishing a synthesized claim absent from all domain files — especially a severity escalation or causal assertion more alarming than any source — read the actual code path. The Cross-Agent Inconsistencies check doesn't catch this: there's no contradiction to detect, just an unsourced escalation.
 
 ## Domain Mapping Table Is Language-Specific
 

@@ -1,6 +1,6 @@
 Watermark recording, skip-detection logic, and rerun semantics — what makes single-pass sweep sessions safe to relaunch.
 - **Keywords:** watermark, skip, last_comment_id, single-pass, dual-signal, self-comment, post-action, sweeper-regex, pre-flight, manifest-updates
-- **Related:** runner-design.md, observability.md
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/director/runner-design.md, ~/.claude/learnings/claude-code/multi-agent/director/observability.md
 
 ---
 
@@ -74,3 +74,13 @@ Distinct from the **resume-cache short-circuit** in `failure-modes.md` (which ca
 3. Reply-only exit paths must still append a `results.md` round + write `status.md` with `milestone: done` (or `addressed-via-reply`) and the refreshed watermark.
 
 **Related:** "Re-Review Body-Only Finding Hidden by Reaction-Advanced Watermark" above — same hidden-work shape, classification cause rather than watermark loss.
+
+## Conflict-Only Force-Process: Scope the Directive to Resolve-Only
+
+When a compound address sweep includes a PR that is `CONFLICTING` but has **zero new review comments** (a fully-addressed PR gone stale against base), the force-process directive must do two things, not one: (a) override skip — no new comments would otherwise skip it; and (b) explicitly scope the pass to `/git:resolve-conflicts <base>` only, stating "no comments to address this pass; do NOT re-process already-addressed threads." Without (b) the addresser re-engages resolved threads and burns a cycle. Validated: a directive with both clauses → addresser flipped `CONFLICTING → MERGEABLE` with 0 comment re-processing.
+
+## Concurrent-Agent Watermark Staleness — Re-Fetch After All Posts
+
+The post-action watermark rule (record `last_comment_id` *after* you post) still leaves a gap: a **concurrent** agent — e.g. the team re-reviewer in a compound loop — can post between your fetch and your watermark write, so the ID you record is already stale. Symptom: the next cycle re-fires on the re-reviewer's comment it "should" have captured. The robust fix is **re-fetch both channels (inline + top-level) after all your own posts land**, then write the max. Note the corrected ID in `results.md` so the director sees why the watermark moved. Validated: PR #233 follow-up pass corrected `4589652703 → 4589748651` (a re-review top-level comment posted after the prior addresser's summary fetch).
+
+**Watermark-independent completion guard.** When a prior pass completed its work (commits pushed, replies posted, `results.md` written) but left `status.md` at a pre-terminal milestone — no watermark — the relaunch treats it as a first run and re-processes everything. Cheaper than trusting the watermark file: check per-thread — *does every non-self comment already carry an Addresser reply after it?* If yes and there's no new operator/reviewer activity, it's a no-op regardless of watermark state. Verify the claimed fixes are in the branch (grep the symbols), write the watermark, exit without re-replying. Distinct from the status.md-reset case above: there the watermark was destroyed; here it was never written despite completed work.

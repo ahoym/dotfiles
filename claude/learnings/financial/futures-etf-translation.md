@@ -153,6 +153,88 @@ The same exposure ships in 4-6 wrappers (full-size + micro + ETF + leveraged var
 
 **For diversification analysis, ask:** how many distinct *return drivers* does this universe contain? 30 tickers wrapping 8 underlyings is an 8-factor book, not a 30-factor book — the standard tooling that compares allocation by ticker count systematically overstates diversification of futures-heavy portfolios.
 
+## A MAE-vs-return invariant holds gross-of-commission only
+
+A "worst intra-hold adverse excursion ≤ realized return" invariant (`mae_pct <=
+pnl_pct`) holds **gross**: the worst adverse price on the same series is no better
+than the exit price. It breaks **net-of-commission** — if `pnl_pct` subtracts
+round-trip commission while MAE is a pure price ratio, a flat/shallow-adverse
+trade whose MAE clamps to ~0 sits *above* a commission-dragged negative `pnl_pct`.
+Before asserting any invariant between two derived metrics, confirm they're on the
+same basis (gross vs. net of fees); a test that only uses zero-commission cases
+never exercises it.
+
+## Margin-breach test is `equity <= maintenance`, not `<`
+
+Margin calls fire when account equity is **≤** the maintenance requirement, so a
+breach scan written as `trough < maint` counts a trough landing exactly on the
+line as safe — the strict `<` understates risk at precisely the level that
+matters. Use `<=`.
+
+## A single-leg trough is not total-account equity
+
+A margin-survival check that marks only one leg's intra-hold trough against a
+realized-only balance is a *per-leg approximation*, not a total-account
+guarantee — a broker checks maintenance against total equity including every
+concurrently-open leg's open P&L. If a second leg (e.g. a defensive bond/VIX
+hedge) can be underwater at the same moment, true trough equity is lower than the
+single-leg figure shows. Also watch the baseline: trades appended at *exit* make
+an "entry equity" captured by exit-order drift from true at-entry equity whenever
+another leg booked P&L during the hold. Scope the claim ("leg-only, gross,
+approximate") or reconstruct from total-account open P&L.
+
+## Rotation algo: per-leg trough already IS total-account — verify, don't reconstruct
+
+A single-`Signal`-per-tick rotation algo (e.g. `plz_v2` → one of `{+@MNQ, +@VX,
++@TY, cash}`) holds **one leg at a time**, so the "single-leg trough ≠
+total-account" hazard above doesn't apply: when a leg is open the book is cash +
+that leg only, and the per-leg trough already *is* total-account equity. Before
+building a concurrent-leg reconstruction to answer "would this trigger a margin
+call total-account?", **verify the position model** — check that no two trades'
+`[entry, exit]` intervals overlap. Sort by entry and run a **running-max-exit
+sweep** (`open_exit = max exit seen so far; clash if nxt.entry < open_exit`), NOT
+an adjacent-pairs check (`nxt.entry < prev.exit`): the latter passes on sorted
+data but misses a short trade nested inside an earlier long one (A=[1,100],
+C=[4,5] — A–C never compared), and the whole verdict rests on catching *every*
+overlap, not a sufficient subset. A trade overlaps some earlier trade iff its
+entry precedes the running max exit, which is exactly what the sweep tests.
+Zero overlaps → single-position → the per-leg scan needs no other leg added; only
+a multi-key `Allocation` algo does. A reviewer's "concurrent legs" premise is
+falsifiable cheaply — test it before paying for the fix it implies.
+
+## L4 order-acceptance probe: gate the verdict on Status, and L4 ≠ fill
+
+A "does this contract route live?" probe places a far-from-mid resting limit
+(can't fill), checks acceptance, cancels. Three traps:
+
+1. **Gate the verdict on order `Status`, not "the place call didn't raise".** TS
+   (and similar brokers) assign an `OrderID` to a structurally-valid envelope
+   *before* margin/account-type validation, so a rejected order returns a
+   populated `OrderID` with `Status='REJ'` and `place_order` does **not** raise.
+   Classify against the broker's status enum (SSOT) — `REJ` → reject, the
+   accepted/working set (`REC/ACK/OPN`) → pass, everything else → indeterminate —
+   and re-confirm against the order-detail status (authoritative over the POST
+   ack). A missing `OrderID` is indeterminate, never a pass.
+2. **L4 acceptance ≠ a fill.** A far-from-mid limit never crosses, so an `ACK`
+   proves the symbol quotes, routes, and passed live margin/account-type
+   validation — not fillability. Word the verdict "L4 live-verified (routing +
+   margin), fill pending"; don't let it stand in for fill-verification. An `ACK`
+   *does* falsify the "broker would refuse this contract" risk without taking a
+   position — strictly more than a sim-only or comment-only gate.
+3. **Cleanup must be crash-safe.** Once the place call succeeds a real resting
+   order exists. Cancel in a `finally` (skipped only for an explicit `--keep`),
+   swallow/log the cancel's own errors, and always surface the `OrderID` so a
+   failed cleanup is hand-recoverable — a post-place exception (network, token
+   refresh, 5xx) otherwise leaks a live order.
+
+## A high win rate is not the edge — read the reward:risk geometry, verify stop-before-TP in code
+
+A tight take-profit against a wide stop (e.g. 1% TP / 1.5-ATR stop ≈ 3:1 distance asymmetry) wins ~90% *by construction* — frequent small (~½R) wins paying for rarer ~1R losses, so the average dollar *loss* exceeds the average win and the edge lives in expectancy/PF_R, not the hit rate. Before trusting a too-good win rate: read the exit code to confirm the engine books the **stop before the take-profit** when a bar spans both (else same-bar fill-optimism inflates it), and compute avg-win-R vs avg-loss-R per trade. A negative-skew, high-win-rate profile is also the most fragile to live fills — the winners are the marginal touch-and-reverse fills you may miss; the losers are the gap-throughs you always get.
+
+## Stop-before-TP is necessary, not sufficient — defer the favourable same-bar exit too
+
+The asymmetric same-bar exit rule (book the same-bar stop, defer the favourable same-bar TP) isn't futures-specific — see `backtest-lookahead-and-fill-realism.md` → "Same-bar exit on an OHLC fill bar — asymmetric is the only correct model", which now carries the necessary-but-not-sufficient distinction (span-both bar vs fills-then-reaches-TP bar) and the ~47–70%-of-net-R impact. Same family as deferring a same-bar break→flip→re-arm refill.
+
 ## Cross-Refs
 
 - `order-book-pricing.md` — Mid-price and slippage concepts apply to futures spread

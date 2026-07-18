@@ -30,6 +30,13 @@ Operates in two modes based on file state — **scan mode** writes domain-specif
 - `/explore-repo` - Auto-detect mode based on file state
 - `/explore-repo <focus-areas>` - Scan specific dimensions only (comma-separated: structure, api, data-model, integrations, flows, config, testing)
 
+## Eager-load at bootstrap
+
+*(skill-launched sessions suppress the learnings gate.)* Read these before starting:
+
+- **`~/.claude/learnings/claude-code/explore-repo.md`** — scan-target selection, mode detection, and synthesis patterns this skill implements.
+- **`~/.claude/learnings/claude-code/multi-agent/orchestration.md`** — parallel Agent-fan-out patterns for the Phase 3 exploration agents.
+
 ## Reference Files
 
 - @agent-prompts.md - Detailed prompts and mandates for each exploration agent
@@ -130,11 +137,12 @@ Determine what work needs to be done by checking existing output files.
    - Only re-scan domains whose files were **materially** affected by the changes. Apply judgment: a 2-line property addition won't change a 350-line config scan, and adding test cases to an existing test file won't change the testing infrastructure scan. Re-scan when the changes would meaningfully alter the domain file's content (new integrations, new entities, new test patterns), not when they're incremental additions to existing patterns. When in doubt, stamp-update rather than re-scan.
    - If the diff is too large (100+ files changed) or the mapping is ambiguous, fall back to re-scanning all stale domains
    - **If `<stale-commit>` is unreachable** (e.g., scan was run on a deleted feature branch like `claude/create-feature-branch-*`), `git diff` and `git log` against it will fail. Detect via `git rev-parse <stale-commit>` returning non-zero, then fall back to re-scanning all stale domains. Don't try to find a nearest-ancestor — it's not worth the heuristic complexity.
-   - **Important:** If `CLAUDE.md` or `README.md` changed, mark ALL domains for re-scan (project-level docs affect all agents' context)
+   - **`CLAUDE.md` and `README.md` changes do not by themselves trigger a re-scan.** Agents glob/grep the working tree directly; PROJECT_CONTEXT is orientation, not source of truth. Let the path-pattern table above decide which domains are affected by actual source changes. Note that synthesis (Phase 5) writes to `CLAUDE.md` and subdirectory `CLAUDE.md` files — treating them as a re-scan trigger would create a write-loop where every synthesis run forces the next scan to redo everything.
 
 4. **Clean up stale synthesis files:**
-   - If entering **scan mode** (any domain files missing or stale), delete any existing `SYSTEM_OVERVIEW.md` and `inconsistencies.md` — they were produced from older scan data and will be regenerated in a subsequent synthesis run
-   - Announce what was cleaned up (e.g., "Deleted stale SYSTEM_OVERVIEW.md and inconsistencies.md from previous scan")
+   - If entering **scan mode** (any domain files missing or stale), delete any existing `inconsistencies.md` — it will be regenerated in a subsequent synthesis run.
+   - **Do NOT delete `SYSTEM_OVERVIEW.md`** during scan mode. Synthesis will surgically update it and needs the old version as a reference. Exception: if the stale-commit is unreachable (Phase 1 Step 3 fallback triggered), delete it — a full rewrite is necessary anyway since the diff base is gone.
+   - Announce what was cleaned up.
 
 5. **Determine mode:**
 
@@ -190,7 +198,7 @@ Launch exploration agents in parallel using the Task tool. Use `subagent_type: "
 
 For each agent:
 1. Read the corresponding section from @agent-prompts.md
-2. Construct the prompt by injecting PROJECT_CONTEXT and file metadata (commit hash, branch, date) where indicated
+2. Construct the prompt by injecting `PROJECT_CONTEXT`, file metadata (`COMMIT_HASH`, `BRANCH_NAME`, `DATE`), and — **for stale domains only** — `CHANGED_FILES`: the domain-filtered list of changed source paths from Phase 1 Step 3, newline-separated. Omit `CHANGED_FILES` for missing domains (fresh scan, nothing to preserve).
 3. Launch via Task tool
 
 **The 7 agents:**
@@ -262,6 +270,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
 1. **Read all 7 domain files** from `docs/explore-repo/`:
    - `structure.md`, `api-surface.md`, `data-model.md`, `integrations.md`, `processing-flows.md`, `config-ops.md`, `testing.md`
+   - Also read the existing `docs/explore-repo/SYSTEM_OVERVIEW.md` (if it exists). Extract its `commit` stamp from the scan metadata header — call this `OVERVIEW_STALE_COMMIT`. If absent or `git rev-parse <OVERVIEW_STALE_COMMIT>` fails, plan a **full rewrite**; otherwise plan a **surgical update**.
 
 2. **Read existing documentation** for comparison:
    - Read CLAUDE.md at the repo root (if it exists)
@@ -272,11 +281,33 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    Before synthesizing, scan all 7 domain files' `## Gotchas` sections for claims about the same code or behavior. Independent agents can report contradictory findings (e.g., one says a bug exists, another says it was fixed). When two files make conflicting claims:
    - Determine the correct state from evidence (git history, actual code)
    - Fix the incorrect domain file in place
-   - Note the correction in `inconsistencies.md` under a "Cross-agent contradictions" section
+   - Note the correction in the Phase 6 summary and commit message (and in `inconsistencies.md` only if the underlying drift is not auto-fixed — see step 5)
+
+   **Also verify synthesized (emergent) claims absent from all domain files.** When the overview introduces a severity rating, causal chain, or failure mode that no single scan stated (e.g. escalating a scan's "KeyError when X is *unset*" into "X=bad-value → KeyError, Critical"), read the actual code path before publishing it. The contradiction check above won't catch an unsourced escalation — there is nothing to contradict.
 
 4. **Synthesize SYSTEM_OVERVIEW.md:**
 
    Write a **cross-domain overview** — this is the unique value that individual domain files cannot provide on their own. Do NOT simply concatenate the domain files.
+
+   **SURGICAL UPDATE (applies when `OVERVIEW_STALE_COMMIT` is set and reachable):**
+   - Reconstruct CHANGED_FILES: `git diff --name-only <OVERVIEW_STALE_COMMIT>..<SCAN_COMMIT>` (same exclusions as Phase 1 Step 3).
+   - Map CHANGED_FILES to affected sections using this table. The buckets are stack-agnostic — the examples lean Java/Spring, but match React/Python/TS equivalents to the same row — and the final catch-all row guarantees any unmatched change still refreshes the core sections:
+     | Changed source path pattern | Affected SYSTEM_OVERVIEW sections |
+     |-----------------------------|-----------------------------------|
+     | `pom.xml`, `build.gradle`, `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `.gitlab-ci.yml`, `Dockerfile*`, `**/*.sh` | Architecture Overview, Module Dependency Graph |
+     | `**/*Controller*`, `**/*Dto*`, `**/dto/**`, `**/routes/**`, `**/handlers/**`, `**/api/**` | Key Workflows (creation-side steps), Critical Path |
+     | `**/*Entity*`, `**/*Repository*`, `**/migration/**`, `**/models/**`, `**/repositories/**`, `**/schema*` | Key Workflows (data-layer steps), Documentation Gaps |
+     | `**/adapter/**`, `**/spi/**`, `**/*Client*` | Cross-Cutting Patterns, Key Workflows, Resilience Assessment |
+     | `**/*Service*` (non-client), `**/*Scheduler*`, `**/*Poller*` | Key Workflows (add/update/remove workflow), Architecture Overview diagram |
+     | `**/application*.yml`, `**/*Config*`, `**/*Properties*`, `**/*.config.*`, `**/settings*`, `.env*` | Cross-Cutting Patterns, Documentation Gaps |
+     | `**/test/**`, `**/*Test*`, `**/*IT*` | Test Coverage Gaps |
+     | Any changed path not matched above (catch-all) | Architecture Overview, Module Dependency Graph, and the core data / handler / config summaries (Key Workflows, Cross-Cutting Patterns) |
+   - **Only rewrite sections** that map to changed paths. Copy all other sections verbatim from the existing file — exact characters, no reformatting.
+   - **Always rewrite:** scan metadata header.
+   - **Rewrite Project Summary and Architecture Overview** only when the module structure or core invariant changed (new `@Scheduled` job, new module, new top-level workflow added or removed).
+   - **When in doubt, preserve verbatim.** Wrong preservation is recoverable; unnecessary diagram rewrites compound across runs and drift the established diagram style — exactly the problem this rule prevents.
+
+   **Full spec (first synthesis, or unreachable stale-commit — from-scratch write):**
 
    **Concision mandate (same standard as the domain agents):**
    - Target length: 250–400 lines including diagrams.
@@ -328,18 +359,18 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
 5. **Synthesize inconsistencies.md:**
 
-   Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found — if there are no docs, skip it. Same format rules as SYSTEM_OVERVIEW.md: tables-first, prose only when needed.
+   Compare existing CLAUDE.md and README.md against what the scan actually found. Only write this file if existing docs were found AND at least one UNFIXED item remains after step 7 — if there are no docs, or every inconsistency was auto-fixed, skip writing the file entirely (or delete an existing one). Same format rules as SYSTEM_OVERVIEW.md: tables-first, prose only when needed.
 
-   **Doc-vs-code inconsistencies** — table:
-   | Severity | Doc source (file § section) | Claim | Reality (file:line) | Suggested fix | Status |
-   |----------|------------------------------|-------|---------------------|----------------|--------|
+   **Doc-vs-code inconsistencies** — table (UNFIXED items only):
+   | Severity | Doc source (file § section) | Claim | Reality (file:line) | Suggested fix | Why unfixed |
+   |----------|------------------------------|-------|---------------------|----------------|-------------|
 
    Severities:
    - **Critical** — actively misleading (wrong commands, incorrect architecture)
    - **Medium** — partially wrong (incomplete flows, outdated patterns)
    - **Low** — minor inaccuracies (stale versions, outdated links)
 
-   Status column carries the auto-fix outcome (see step 7): `[FIXED]` or `[UNFIXED — reason]`.
+   **FIXED items are NOT persisted in this file.** Once the fix is applied to CLAUDE.md / README.md / etc., the inconsistency is gone from the codebase — keeping a `[FIXED]` row in inconsistencies.md only adds historical noise the next synthesis run will have to delete and rebuild. Report the FIXED count + a one-line each in the Phase 6 summary (and in the commit message) so the operator can audit the auto-fixes, but do not commit them to a tracked artifact.
 
    **Config artifact drift** — separate table with the same columns. Cross-reference configuration templates and declarations against their canonical code sources:
    - `.env.template` / `.env.example` vs canonical env var definitions in code (e.g., `env_vars.py`, `config.ts`, `application.properties`) — flag variables present in template but absent in code (dead), and variables in code but missing from template (undocumented)
@@ -365,7 +396,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - For **Critical** inconsistencies: apply the fix directly — these are actively misleading
    - For **Medium** inconsistencies: apply the fix directly — partial accuracy is still harmful
    - For **Low** inconsistencies: apply the fix if it's a simple text replacement; skip if it requires judgment calls
-   - Record what was fixed in the inconsistencies.md file (mark each as `[FIXED]` or `[UNFIXED]` with reason)
+   - Track FIXED vs UNFIXED in working memory; emit FIXED items in the Phase 6 summary and commit message (transient — visible to operator, not persisted). Only UNFIXED items get written to `inconsistencies.md` per step 5.
 
 8. **Update CLAUDE.md files:**
 
@@ -404,7 +435,7 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    mkdir -p docs/explore-repo
    ```
    - Write `docs/explore-repo/SYSTEM_OVERVIEW.md`
-   - Write `docs/explore-repo/inconsistencies.md` (skip if no existing docs)
+   - Write `docs/explore-repo/inconsistencies.md` ONLY if at least one UNFIXED item remains; if every inconsistency was auto-fixed (or there were no existing docs), delete an existing file or skip the write. FIXED items live in the Phase 6 summary + commit message, not in the tracked artifact.
    - Update root CLAUDE.md (including auto-fixes from step 7)
    - Update README.md (if auto-fixes from step 7 apply)
    - Create subdirectory CLAUDE.md files as needed
@@ -427,8 +458,8 @@ Before printing the summary, scan the domain files and SYSTEM_OVERVIEW.md to ext
 - Count resilience coverage from the Resilience Assessment table in SYSTEM_OVERVIEW.md (e.g., "3/7 integrations have retries")
 - Count untested modules from Test Coverage Gaps in SYSTEM_OVERVIEW.md
 - Count documentation gaps listed in SYSTEM_OVERVIEW.md
-- Count inconsistencies listed in inconsistencies.md (doc-vs-code + config artifact drift separately)
-- Count auto-fixes applied vs. unfixed
+- Count UNFIXED inconsistencies persisted in inconsistencies.md (doc-vs-code + config artifact drift separately); if file was skipped because everything was fixed, both counts are 0
+- Count auto-fixes applied vs. unfixed (from working memory of the synthesis run, not from the persisted file)
 
 Use these actual counts in the summary below — do not estimate or approximate. If the SYSTEM_OVERVIEW.md says "15+ partner adapters" but structure.md lists 21 modules, flag the mismatch and fix it.
 
@@ -454,12 +485,15 @@ Test Coverage: [N] source modules without test files ([list high-risk ones])
 
 Documentation Health:
 - [N] critical / [N] medium / [N] low gaps
-- [N] doc inconsistencies ([N] auto-fixed, [N] unfixed)
+- [N] doc inconsistencies surfaced ([N] auto-fixed, [N] persisted as UNFIXED in inconsistencies.md)
 - [N] config artifact drift items
+
+Auto-fixes applied (transient — not persisted):
+- <one-line each FIXED item, file:section → what changed, severity>
 
 Output:
 - docs/explore-repo/SYSTEM_OVERVIEW.md
-- docs/explore-repo/inconsistencies.md
+- docs/explore-repo/inconsistencies.md (only if UNFIXED items remain; otherwise omit / delete)
 - CLAUDE.md ([NEW — created from scratch] or [updated]). If new, add a 1-2 line synopsis: "Covers: [what sections were included, e.g., architecture, commands, patterns, gotchas, API surface]"
 - [list any subdirectory CLAUDE.md files created]
 - [list any auto-fixed files: CLAUDE.md, README.md]

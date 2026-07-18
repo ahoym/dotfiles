@@ -54,7 +54,7 @@ For prompt-free execution, add these allow patterns to user-level `~/.claude/set
 ## Reference Files (conditional — load only when needed)
 
 - `~/.claude/learnings/claude-authoring/routing-table.md` — categorization ambiguous
-- `skill-template.md` + `~/.claude/learnings/claude-authoring-skills.md` — authoring a new Skill
+- `skill-template.md` + `~/.claude/learnings/claude-authoring/skill-design.md` — authoring a new Skill
 - `iterative-loop-design.md` — learning involves iterative/loop patterns
 - `public-release-review.md` — learning will be shared publicly or across repos
 
@@ -81,7 +81,7 @@ Categorize each candidate against this table — it's the source of truth for ro
 ### 1. Identify candidates
 
 - Review the conversation for new patterns, decisions that worked well, validated existing learnings, and **every implemented change** (edits, fixes, file writes). For each fix, ask "what did I need to know to make this change?"
-- Categorize each candidate per the **Type Reference**. Assess scope for Learnings.
+- Categorize each candidate per the **Type Reference**. Assess scope for Learnings: project-specific entities (table names, endpoints, service names, internal tooling) → **Project-local**; broadly reusable, no context-specific details → **Global**; useful across projects but too specific to share (internal tool names, team conventions, proprietary domain details) → **Private**.
 - **Prefer extending an existing target file** over creating a new one — bias toward consolidation when the topic overlaps existing keywords.
 - **Sniff each target file** (`Read(file, limit=80)` or grep keywords) before finalizing utility. If an existing section already covers the pattern → downgrade utility (Medium → Low) or drop. Catches redundancy before the table is built. Skip when the target file doesn't exist yet.
 
@@ -96,7 +96,7 @@ Identified learnings from this session:
 |---|-------------|------|-------|--------|---------|
 | 1 | LGTM verification process | Skill | Global | ~/.claude/commands/address-pr-review/SKILL.md | High |
 | 2 | Co-authorship in PR replies | Guideline | Global | ~/.claude/guidelines/git-workflow.md | Low |
-| 3 | SessionEnd hook configuration | Learning | Global | ~/.claude/learnings/ci-cd.md | High |
+| 3 | SessionEnd hook configuration | Learning | Global | ~/.claude/learnings/cicd/github-actions-patterns.md | High |
 | 4 | Step 10b skip when no workflows | Skill fix | -- | ~/.claude/commands/sweep/address-prs/addresser-prompt.md:~84 | -- |
 ```
 

@@ -16,6 +16,14 @@ Create a pull request (GitHub) or merge request (GitLab), or update an existing 
 - `/git:create-request` - Create review targeting main
 - `/git:create-request <base-branch>` - Create review targeting specified base branch
 
+## Eager-load at bootstrap
+
+*(skill-launched sessions suppress the learnings gate.)* Read these before starting:
+
+- **`~/.claude/learnings/bash-patterns.md`** — zsh `=word` expansion and `glab`/`gh` arg-quoting gotchas that bite when composing title/body strings.
+- **`~/.claude/learnings/gitlab/glab-api-caveats.md`** — `-F`/`-f` file-argument semantics and `glab` divergences from `gh` that bite on `glab mr create`/`update`.
+- **`~/.claude/learnings/git-patterns.md`** — re-status before staging with `git add -A`.
+
 ## Reference Files (conditional — read only when needed)
 
 - `request-body-template.md` — Read before composing review body (step 9). Located in the skill's base directory.
@@ -39,9 +47,13 @@ Before creating the review, verify these items are complete:
    - `git status` - Check for uncommitted changes
    - `git branch --show-current` - Get current branch name
    - `git log origin/main..HEAD --oneline` - See commits to include (adjust base as needed)
-   - `git diff origin/main..HEAD --stat` - See files changed
+   - `git diff origin/main...HEAD --stat` - See files changed. **Use three-dot `...` (= `merge-base..HEAD`), not two-dot.** On a *stale* branch (merge-base ≠ `origin/main`), two-dot `origin/main..HEAD` conflates your commits with main's divergent changes shown *inverted* — files main changed appear as your reversions, and the MR would silently revert main's work if merged. Three-dot always gives the branch's true delta.
+   - **Stale-branch guard:** `git fetch origin main` then compare `git merge-base origin/main HEAD` to `git rev-parse origin/main`. If they differ, the branch is behind main — rebase onto `origin/main` before composing the body. Tell-tale of having missed this: the diff "deletes" or "adds" files this branch never touched.
 
 3. **Handle uncommitted changes**:
+   - **Skip this check entirely when updating an existing review's description** — uncommitted code is irrelevant to a description-only update.
+   - Session artifacts (`tmp/`, `docs/learnings/`, scratch notes) are not blocking even for creation — only prompt when source files are uncommitted.
+
    Based on `git status` from step 2:
 
    - **Clean working tree** → proceed to step 4.
@@ -55,7 +67,7 @@ Before creating the review, verify these items are complete:
 
    **Multi-concern flag**: if the uncommitted set spans logically distinct concerns (e.g., unrelated features, docs + code, migration + cleanup), surface the grouping before the operator picks. Suggest running this skill once per concern — each iteration stages only the relevant subset — rather than bundling into one PR.
 
-   After the chosen action completes, re-check `git status` and continue to step 4 only when the tree is clean (or stashed).
+   After the chosen action completes, re-check `git status` and continue to step 4 only when the tree is clean (or stashed) — non-blocking session artifacts may remain.
 
 4. **Run verifications**:
    Run any available automated checks **before pushing**. Look for project-standard commands (in CLAUDE.md, pyproject.toml, package.json, Makefile, etc.). Common checks:

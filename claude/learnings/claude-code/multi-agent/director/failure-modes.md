@@ -1,8 +1,21 @@
 Director-observed failure patterns: rate limits, races, scope drift, and convergence pathologies.
-- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent
+- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent, compound mode address assessment trigger serialized parallelism background task notification, blocking dispatch merge-queue stall, pre-grant, socket error redispatch, session.state delete, single-item resume-cache recovery
 - **Related:** none
 
 ---
+
+## Compound Mode: Address Assessment Triggered by Runner Completion, Not Launch
+
+In a compound review+address session, `sweep:address-prs` must be invoked when `sweep:review-prs` *returns* (the runner is launching), not when the background task notification fires (the runner completed). When a background task notification arrives in the same turn as the skill return, handling the notification first burns the entire review runtime without any parallelism.
+
+Correct trigger mapping:
+
+| Event | Action |
+|-------|--------|
+| `sweep:review-prs` returns | Invoke `sweep:address-prs` immediately — regardless of background task state |
+| Background task notification: runner completed | Read results → launch address runner (3-min offset) |
+
+The notification's arrival in the same turn as the skill return is the trap — it makes the completion event feel like the natural trigger, but the intended trigger is the return itself.
 
 ## Rate-Limit Sentinel Persists Across Reruns
 
@@ -40,6 +53,12 @@ bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --logs 30
 ```
 Tails each item's `output.log` (the stream-json record) — contains `rate_limit_event`, `is_error`, `context_used_tokens`. Allowlisted under `Bash(bash ~/.claude/skill-references/**)`. Do NOT use `tail`/`cat` on `live.md` or `output.log` directly — those aren't allowlisted and prompt the operator on every call.
 
+### Refinement: Selective In-Place Reset When the Storm Partially Completes
+
+The "fresh-timestamp restart" above is for a *whole-cycle* storm. When the storm is **partial** — some PRs completed with valid watermarks (`milestone: done`, `last_<mode>_sha` written, real commits) while others stalled — a fresh run-dir is *wrong*: it discards the completed PRs' watermarks and forces them through a full re-process. Reset in place instead: delete `status.md` only for the stalled/errored items (forces a clean first-run), preserve the done items' `status.md` (they skip on watermark match — confirm with `watermark == HEAD` before relaunch), and clear **all** `session.state` files (stale `session_id` → instant "No conversation found" exit). Relaunch the same `let-it-rip.sh`; the done items skip, the reset items reprocess.
+
+**Errored-session false-skip trap:** an errored session can write a watermark that *matches* current state (`last_<mode>_sha` = HEAD, `last_comment_id` = latest) despite doing zero work — a naive relaunch then skips it silently. Always reset `status.md` for errored/stalled items before relaunch; never trust an errored item's watermark. Validated: PR #233 errored with `last_addressed_sha=152f368` = HEAD + `last_comment_id` = latest review comment; without reset it would have skipped its 9 unaddressed findings.
+
 ## 30-Second Exit Diagnosis: raw.jsonl Turn-Text First
 
 A `claude -p` session exiting in <60s has multiple distinct failure modes that look identical at the event-tag level. **Always read `raw.jsonl` turn text before hypothesizing the cause** — `live.md`'s synthesis can mislead.
@@ -48,10 +67,14 @@ A `claude -p` session exiting in <60s has multiple distinct failure modes that l
 |-------|----------|----------|---------------|-----------|----------------------------|
 | Genuine 5h rate limit | <60s | false | 0 | `rate_limit` | API blocked turn 1 |
 | Compound-mode storm | <60s | **true** | 0 | `completed is_error: true` | session never ran |
+| **`[1m]` credits-disabled** | ~30s | **true** | 0 | `rate_limit` (`status: rejected`) + `completed is_error: true` | `"Usage credits required for 1M context"` |
 | **Resume-cache short-circuit** | ~30s | false | ~40k | `rate_limit` (informational) | *"already posted, nothing to do"* |
+| **Resume of dead session** | ~30s | false | 0 | none (runner stderr) | *"No conversation found with session ID: ..."* |
 | Watermark match (legitimate skip) | <30s | false | ~10k | none | session wrote `milestone: skipped` |
 
 The **resume-cache short-circuit** is the trap: `claude -p --resume <session_id>` carries cached context from prior cycles, so the model "remembers" cycle N-1's `milestone: posted` and self-skips without reading directives or re-checking watermarks. The `rate_limit_event` in stream-json is informational (`status: allowed`) and unrelated to the bail-out — but its presence in `live.md` makes it look causal.
+
+**Resume of a dead session** is the inverse: a cycle that *errored in bootstrap* (e.g. worktree creation failed) still completed its `claude -p` invocation, so the runner persisted `session.state` with that session's ID. The relaunch reads `session.state` (< 6h TTL) and runs `claude -p --resume <id>` — but the errored session isn't resumable, so it dies turn-1 with `No conversation found with session ID: ...`, 0 tokens, ~30s, `milestone` stuck at `launching`. The template's `No conversation found` → fresh-start fallback doesn't re-run within the same launch. Recovery: `touch <item_dir>/session.reset` (template escape hatch — forces `session.state` deletion next launch) or delete `session.state`, then relaunch. Root cause worth fixing: don't persist `session.state` when the cycle's `status.md` milestone is `errored`/non-terminal.
 
 **Diagnostic gate (pre-action):**
 1. **First pass — allowlisted summary:** `bash ~/.claude/skill-references/sweep-status-summary.sh <RUN_DIR> --logs 60`. Greps the output.log dump for `rate_limit_event`, `"is_error":true`, `"already posted"`, `"complete"`, `"nothing to do"`. Often resolves the diagnosis without going deeper.
@@ -60,6 +83,31 @@ The **resume-cache short-circuit** is the trap: `claude -p --resume <session_id>
 4. Recovery: fresh-timestamp restart (same as compound storm), since `claude --resume` keeps reading the same `session_id` even with directives present.
 
 **Anti-pattern:** jumping to the rate-limit hypothesis based on the `live.md` `rate_limit` tag without reading turn text. One real session lost ~4 hours waiting for a 5h quota reset that wasn't actually blocking.
+
+## Single-Item Resume-Cache Recovery: `session.state` Delete
+
+When the resume-cache short-circuit (above) hits only **one** item in a multi-PR run, fresh-timestamp restart is overkill — it forces every healthy item to redo watermark/worktree work. Lighter recovery: delete only the affected item's `session.state`:
+
+```bash
+rm <run_dir>/<entity-prefix>-<N>/session.state
+bash <run_dir>/let-it-rip.sh
+```
+
+The runner generates a new session_id for that item (no `--resume`) and rereads its prompt + directives from scratch, while other items either watermark-skip (clean) or pick up where they left off. Preserves status.md watermarks, worktrees, prior results.md. Use when:
+
+- One item shows the short-circuit signature (~30-60s exit, `rate_limit` tag, no API post, `is_error: false`)
+- Other items completed cleanly the same cycle
+- No corruption in status.md / state.md for the affected item beyond the missed pass
+
+This is the lighter-weight first option; when multiple items stalled or an errored item's `status.md`/watermark is corrupted (e.g., `milestone: started` with no SHA update), escalate to the Selective In-Place Reset (above), and to a full fresh-timestamp restart when the whole cycle stormed.
+
+## `[1m]` Model Variant Rejected When Org Usage Credits Are Disabled
+
+The `[1m]` (1M-context) model suffix requires usage credits. On accounts where they're off, every `claude -p` session launched with a `[1m]` model dies turn-1 with a 429 and the synthetic message `API Error: Usage credits required for 1M context · turn on usage credits at claude.ai/settings/usage, or use --model to switch to standard context`. The `rate_limit_event` carries `status: rejected`, `overageDisabledReason: org_level_disabled`.
+
+**Surface signature is identical to the compound-mode storm** — `state: completed`, `status.md` milestone stuck at `launching`, `context_used_tokens: 0`, ~30s duration, on all PRs the same cycle. The distinguishing tell is in `output.log` (via `sweep-status-summary.sh --logs N`): the storm has no synthetic message; this has `"Usage credits required for 1M context"` and `overageDisabledReason: org_level_disabled`.
+
+**Fix is NOT a fresh-timestamp restart** (that's the storm recipe — it won't help here, the rejection is deterministic). Drop the `[1m]` suffix: edit `<RUN_DIR>/metadata.json` `MODEL` (`claude-sonnet-4-6[1m]` → `claude-sonnet-4-6`, `claude-opus-4-7[1m]` → `claude-opus-4-7`), regenerate the runner (`sweep-prs-generate-runner.sh <RUN_DIR>`), relaunch. Standard 200k context works fine. The sweep scaffold's claim that the 1M premium is "free since March 2026" does not hold on credit-disabled accounts — trust the empirical 429 over the doc.
 
 ## In-Place Finalize-WIP Recovery (work-items mode)
 
@@ -152,6 +200,22 @@ The agent will cycle through variants if one is denied: subshell `$(…)`, redir
 
 **Recovery:** fresh-timestamp restart usually clears it (same playbook as storm, even though signature differs). The transient API issue is gone by retry time. If two consecutive restarts hit it on the same PR, escalate — the agent may be triggering a deterministic API failure (huge tool result, malformed input).
 
+## Blocking-Director Parallel-Dispatch Merge-Queue Stall
+
+When the director dispatches N workers as blocking parallel `Agent` calls, there is no event loop between dispatches to process the merge queue. Workers that finish their content work (review, address, gate) block indefinitely polling for a grant that never arrives.
+
+**Pre-grant workaround (serial dispatch):** pre-write the merge grant for each worker *before* dispatching it. Safe when the worker will be the sole queue holder at merge time. Update `merge-state.json` with `current_holder: <iid>`. For multi-MR serial: pre-grant each, dispatch, wait for ack, pre-grant next.
+
+**Root cause:** `Agent` tool is blocking — the director can't run the queue loop while agents are active.
+
+## API Socket Error Mid-Run: Redispatch Recovery
+
+**Signature:** Agent returns `"API Error: The socket connection was closed unexpectedly"`, `subagent_tokens: 0`, `tool_uses: N > 0`. Clean disconnect — local tools ran but review subagent couldn't spawn or complete.
+
+Distinct from rate-limit storm (`is_error: true`, 0 tool uses) and API-retry hang (hours of progress before `api_retry error: "unknown"`).
+
+**Recovery:** redispatch a fresh agent. Pass completed step flags in the new prompt so it skips already-done steps. Remote commits from prior work persist; `git fetch && git checkout -B <branch> origin/<branch>` recovers them.
+
 ## In-Place Retry Viable When Worker Has `Role:*` Self-Filter
 
 The default storm recovery (above) is fresh-timestamp restart because corrupted `status.md` re-triggers full reprocessing. Exception: when the worker prompt classifies its own prior posts via a `Role:` footnote (e.g., `sweep:address-prs` filters `Role:.*Addresser` to skip self-replies), an in-place rerun of the same `let-it-rip.sh` recovers cleanly. The runtime watermark logic re-fetches state from the API (steps 1-3 of `addresser-prompt.md`) and the Role filter prevents duplicate replies on already-addressed threads. Cheaper than fresh-timestamp because no artifact regeneration.
@@ -189,3 +253,23 @@ GitLab returns `opened` → `OPENED` after uppercase; `MERGED`/`CLOSED` map to t
 When a subagent prompt embeds a diff for review, transcription errors during prompt construction can alter identifiers (e.g., `import jakarta.persistence.GenerationType;` → `import jakarta.persistence.GenerationType.UUID;`). The reviewer treats the corruption as real → posts a HIGH compile-error finding that doesn't reproduce in the actual source.
 
 **Mitigation:** for any HIGH severity finding before merging cross-persona review output, spot-check against the actual source: `git show origin/<branch>:<file> | sed -n '<line>p'`. Persona disagreement on a HIGH (e.g., one persona flags, another doesn't see it) is the strongest signal that one persona may be reading a corrupted excerpt.
+
+## Usage-Limit-Cut Mid-Work: Distinct from Storm and API-Hang
+
+An account usage limit hit *during* a long address/implement session is a third signature, distinct from the <60s storm and the errored/timeout API-hang:
+
+| Field | Limit-cut mid-work | Storm | API-hang |
+|-------|--------------------|-------|----------|
+| `state` | completed | completed | errored (timeout) |
+| Duration | minutes (full work) | <60s | minutes |
+| `is_error` (result event) | true | true | n/a (no result) |
+| `num_turns` | high (80-90+) | low | n/a |
+| `context_used_tokens` | non-trivial | 0 | non-trivial |
+| milestone | stuck at `started` | stuck `launching` | varies |
+| Commits / worktrees | none; worktrees **wiped by EXIT trap** | none | none |
+
+Tell vs storm: the storm dies turn-1 (tokens 0, <60s); limit-cut dies deep into the work (high turns, real token use) but still produces no commit — the limit blocked the final commit/push turns and the cleanup trap then removed the worktree.
+
+**Recovery — in-place rerun, NOT fresh-timestamp.** Address sessions carry a `Role:.*Addresser` self-filter and nothing was committed, so re-running the same `let-it-rip.sh` reprocesses cleanly: runner recreates the wiped worktrees, runtime watermark re-fetches from the API, per-PR directives carry over. Confirm with the operator that the limit actually reset before rerunning.
+
+**Reply reconciliation when the cut session already posted replies.** A cut cycle may have posted initial inline replies before dying (external state) while the worktree reset left zero local commits (local state). On rerun the worker must reconcile: do NOT re-post initial replies (dupes threads) — re-do the edits, commit, push, and post commit-ref replies as if first commit. Empirical thread inspection (`Role: Addresser` filter on existing comments) beats reasoning about what should have happened.

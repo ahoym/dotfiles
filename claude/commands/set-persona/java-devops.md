@@ -19,6 +19,10 @@
 - Check that health endpoints differentiate liveness vs readiness (Spring Actuator groups)
 - Watch for logging that leaks sensitive data (request bodies, credentials, PII)
 
+## Known gotchas & platform specifics
+
+- Follow the 6-step metrics discussion process (gather → map → gap-analyze → propose → prune → cardinality-check) before adding any metric — see `provider:default/java/observability.md` for the full checklist and Micrometer API traps
+
 ## Proactive Cross-Refs
 
 - `provider:default/java/observability-gotchas.md`
@@ -27,3 +31,5 @@
 
 Load when working in the specific area:
 - `provider:default/java/observability.md` — Micrometer patterns, metric naming, cardinality control, structured logging with MDC
+- `provider:default/java/spring-boot.md` — Spring Boot operational patterns: Flyway, @Transactional boundaries, config pitfalls
+- `provider:default/java/concurrency.md` — Container-aware thread/connection pool sizing, @Scheduled + ShedLock, ExecutorService lifecycle

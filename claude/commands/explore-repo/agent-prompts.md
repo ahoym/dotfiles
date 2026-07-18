@@ -64,6 +64,13 @@ FILE OUTPUT:
   The header must be the very first content in the file, with no blank lines before it.
   IMPORTANT: Use `<!-- -->` HTML comment delimiters exactly as shown. Do NOT use YAML frontmatter (`---`) or any other format.
 - After writing the file, return a 2-3 sentence summary of your key findings. This summary is for the orchestrator — keep it brief. Do NOT return your full findings as the task result.
+
+SURGICAL UPDATE (applies only when CHANGED_FILES is present):
+- Incremental update — do NOT rewrite from scratch. Read the existing output file first.
+- Per section: if a file in CHANGED_FILES maps to that section (use the domain boundary table), re-scan and rewrite it. Otherwise copy verbatim — no rephrasing, no reformatting.
+- Always rewrite: scan metadata header.
+- Key Findings: non-obvious facts about the current state, not a changelog. Remove stale entries, add new ones from changed sections, keep accurate entries from unchanged sections. Never replace the full list.
+- When in doubt, preserve verbatim. Wrong preservation is recoverable; unnecessary reformatting is churn.
 ```
 
 ---

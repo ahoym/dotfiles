@@ -53,6 +53,12 @@ Before adding a new futures contract to a registry like `CONTRACT_SPECS`:
 
 Likely candidates beyond VIX-family: less-liquid agriculturals, ETF-derivative futures with auction-only sessions, single-stock futures on some exchanges. Confirm per product.
 
+## Trade actions: futures are BUY/SELL only — not SELLSHORT/BUYTOCOVER
+
+A futures short is just a negative position (no borrow/locate), so orders use plain `BUY`/`SELL`: open-short = `SELL`, close-short = `BUY` — mirroring the long leg. The equity-style `SELLSHORT`/`BUYTOCOVER` actions are rejected: TradeStation returns HTTP 400 `"Failed to build order confirmation: Invalid trade action."` for `BUYTOCOVER MNQM26` while the identical `BUY` confirms. The reject is on `OrderAssetCategory: FUTURE`, so it's futures-wide, not contract-specific.
+
+Mock tests miss it (no exchange rules); a confirm-only `/orderexecution/orderconfirm` of the exact body diagnoses it without placing. Asset-class routing belongs in the broker adapter, not the broker-agnostic order layer — the agnostic layer names the *intent* (open/close short), the adapter emits the correct wire action (futures → BUY/SELL, equity → SELLSHORT/BUYTOCOVER). See `~/.claude/learnings/dependency-injection-patterns.md` (adapter owns translation).
+
 ## Cross-Refs
 
 - `futures-etf-translation.md` — ETF → futures sizing and P/L translation; the "Retry of non-idempotent broker calls is a double-fill risk" section pairs with this one (the no-blind-retry rationale doesn't preclude cancel-and-replace LMT ladders, which are exchange-rule-compliant).

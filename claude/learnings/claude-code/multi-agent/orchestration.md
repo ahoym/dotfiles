@@ -52,6 +52,10 @@ After parallel Explore agents return, synthesize their findings into a concise s
 
 **Heuristic:** If the plan will include "port X from repo A to repo B", the explore prompt should say "read the FULL contents of these files — report package declarations, imports, and complete class bodies."
 
+## Filter Shared Context to the Diff's Actual Stack When Fanning Out Review Subagents
+
+When front-loading persona/proactive learnings into review subagents, embed only learnings matching the diff's real stack — a `correctness-reviewer`/`architecture-reviewer` persona's proactive cross-refs are often Java/Spring-specific and are pure noise in a Python review (and dilute every subagent prompt ×N). Read a learning's *content* before trusting a generic-sounding filename: `order-book-pricing.md` reads like fill-modeling but is XRPL/TypeScript-specific — useless for a futures backtest.
+
 ## Three-Phase Subagent Refactoring
 
 When performing codebase-wide refactoring with subagents:
@@ -119,6 +123,8 @@ The plan file is the single source of truth across sessions — it should contai
 ## Partial Batch Completion Is Normal Operating Mode
 
 When parallel extractors fail (API rate limits, permission issues), process completed ones immediately rather than retrying the full batch. Track partial completion explicitly in progress notes ("5 of 10 PRs, #21-#26 deferred") so the next session picks up exactly where it left off. This avoids wasting successful extractor outputs and keeps the workflow moving forward. The progress tracker in the plan file is the single coordination point — partial batches get their own row with clear deferred-item lists.
+
+**Subagents killed by a session/token limit mid-run** are a sharper case: they leave partial file edits *and* never return their final report (the planned summary, removal list, etc. is lost). Recovery: (1) don't re-spawn — the limit applies to the next batch too; (2) verify the partial edits are valid (`ruff check` + the test suite), since an agent may have died mid-file; (3) reconstruct what they would have reported from the `git diff` (e.g. which comments were removed); (4) finish the remaining items in the main thread.
 
 ## Explore Agent Can't Access ~/.claude/ Paths
 
@@ -227,6 +233,21 @@ Subagents lose track of diff structure mid-review and confidently produce false 
 ## Project-Context Persona Weighted Heavier on Project-Specific Dissent
 
 When personas disagree on a correctness finding and one persona has loaded project-specific context (e.g., a `<repo>/CLAUDE.md` documenting a warmup gotcha or a non-obvious code-path discriminator) while the other reasoned from general docs, the project-loaded persona's reading is more reliable on that specific concern. Don't auto-resolve to "highest severity wins" — check whether the dissent involves a *documented project-specific behavior*. If so, weight the project-context persona heavier. The dissent itself is still valuable (surfacing what the general-persona missed), but the resolution should not raise severity past the project-loaded persona's call.
+
+## Resolve Dissent by Verifying the Controlling Fact in Source, Not a Deliberation Round-Trip
+
+When a reviewer dissent hinges on a single verifiable fact (e.g. "is `pnl_pct` net of commission?", "does this context manager corrupt under nesting?"), read the source to settle it instead of `SendMessage`-ing the disagreeing subagents. Empirical/authoritative beats a deliberation round-trip — faster, and it sides with whichever persona is *correct* rather than whichever argues better. Reserve the deliberation protocol for genuine judgment calls (severity, tradeoffs) where no single fact decides it. Present the resolution as confirmed agreement in the merged review, noting the source line that settled it.
+
+## Severity Dissent Split by Reachability — Present-Tense Severity + "Fix Before Enable"
+
+When a same-finding severity gap (both personas say "fix"; HIGH vs LOW) hinges on *reachability* — is the path live in production today? — the controlling fact yields no loser: a default-OFF / feature-flagged / UNTUNED path is genuinely LOW today and HIGH once enabled. Resolve to the present-tense severity (often MEDIUM) with a "fix before <the milestone that enables it>" recommendation, stating BOTH bounds in the merged finding (`LOW today — default-OFF; HIGH once the tuning sweep enables it`). Preserves the domain signal the "take the higher severity" merge rule protects without overstating today's risk — differs from `director/process-and-meta.md` "take higher with combined attribution" (that's a prior-asymmetry gap with no reachability axis; here the reachability fact justifies the middle value).
+
+## Stage a Large Shared Read-Only Input as a File — Pass the Path, Don't Embed ×N
+
+For an in-memory Agent-tool fan-out where every subagent needs the same large read-only input (a 50KB+ PR diff, a spec, a dataset), write it once to `tmp/claude-artifacts/<topic>/` and give each agent the path to `Read`, instead of inlining the full text into every prompt. Agents share the orchestrator's filesystem, so a path costs ~1 line versus embedding the input ×N across the prompts and the orchestrator's own context (a 57KB diff over 4 reviewers ≈ 228KB of duplicated prompt text). Compatible with "don't read the *repository*" subagent rules — a staged tmp artifact isn't the repo.
+
+**Produce the staged file fresh from the source command — don't `cp` the harness's persisted tool-output file.** `gh pr diff <N> > tmp/claude-artifacts/<topic>/full-diff.txt` (CWD-relative target). A `cp /Users/.../tool-results/<id>.txt …` of the harness's saved big-output artifact uses an absolute path that fails CWD-relative permission patterns (operator-rejected) and couples to harness internals; regenerating is permission-clean and self-contained.
+
 ## Agent Delegation for Post-Hoc Cleanup
 
 When bulk operations produce incorrect results (wrong line numbers, duplicate comments, missing inline positioning), launch parallel Agent subagents to clean up — one per item or small batch. The agent prompt needs: the API commands (with examples), what to verify, and what to fix. Agents read the actual state themselves; the orchestrator doesn't need to pre-read each item.
@@ -234,6 +255,10 @@ When bulk operations produce incorrect results (wrong line numbers, duplicate co
 Pattern: write one detailed cleanup prompt, parameterize only the item ID, launch N agents in parallel. Each agent: fetches state → identifies issues → verifies against source of truth (file content, diff) → fixes (delete + repost). ~30-50 tool uses per agent, 2-5 minutes wall clock. Scales linearly — 6 agents cleaning 6 MRs finish in the same time as 1 cleaning 1.
 
 Key: the prompt must include concrete API examples (`glab api graphql -F query=@...`), not just descriptions. Agents copy-paste working examples; they improvise from descriptions (often incorrectly).
+
+## Re-verify subagent factual *corrections* against source — they over-correct
+
+Distinct from diff-hallucination false negatives ("no X in diff"): when you delegate factual *fixes* (doc audits, count/path/symbol corrections), agents confidently emit plausible-but-wrong replacement values — and will even "correct" a value that was already right. Telling the agent to "verify against source" is insufficient; it still ships wrong corrections. The orchestrator must independently re-grep each concrete claim before committing. Real cases from one CLAUDE.md audit: an agent changed a correct "14 top-level packages" → "9" (admitted guess) and "9 dataclasses" → "8" (unverifiable) — both caught and reverted by re-counting, while its genuinely-stale fixes (test-file count, patch target, fixture names) verified clean. Accept the verifiable fixes, revert the rest; don't downgrade-trust the agent wholesale.
 
 ## Orchestrator Scripts: Parameterize by Run Dir, Not Tier
 
@@ -268,6 +293,18 @@ Trust boundary options:
 - **Dependency (e.g., `fill-template.sh`'s expansion semantics)**: the template engine's security model assumes all input is trusted; agents invoking it should document that assumption
 
 Not listed as a per-skill finding because any sweep skill inherits it. Worth surfacing to the operator explicitly when setting up a sweep against anything other than operator-authored content.
+
+## Pass an auto-persisted oversized tool output to subagents by file path, not inline
+
+When a tool output is too large and the harness saves it to a `tool-results/<id>.txt` file ("Output too large … Full output saved to: <path>"), reference that path in each parallel subagent prompt instead of re-pasting the content. A large diff inlined into N parallel reviewers costs N× the paste; the file-path form keeps every prompt small and the agents Read the same artifact. Pair with an explicit scope clause — "this file IS the full diff the orchestrator fetched; do NOT read any other repository files" — so the path doesn't become a license to roam the repo (preserves the reviewer-template's "work only from the provided diff" contract).
+
+## A shared block hand-pasted into N fan-out prompts gets dropped from one — and the subagent hides it
+
+Pasting a large shared payload (the diff, a spec, injected SYSTEM_CONTEXT) into each of N hand-built `Agent()` prompts reliably leaves a `[PLACEHOLDER]` unfilled in one. The drop is silent: a subagent that finds its expected input missing **reasons around the gap** — self-fetches (`git show origin/<branch>:<file>`), re-derives, or reviews nothing — and still returns plausible findings, so nothing errors. The tell is the subagent *reporting* it self-sourced ("the diff placeholder was empty, so I fetched…"). Verify before launch: `grep -nE '\[[A-Z_]+\]|\{\{?[A-Z_]+\}?\}'` each assembled prompt (zero matches), or pass the payload by file path (see the section above) so it can't be partially dropped. Same trap as `~/.claude/learnings/claude-code/multi-agent/director/runner-design.md` → "fill-template.sh has no defaults" (runner `{KEY}` left raw, agent infers around it), but here in hand-built in-context fan-out where there's no template engine to blame.
+
+## Corpus Three-Way Merge: Bucket-Compare → Adjudicate → Disjoint Editors → Verify
+
+Merging two divergent copies of a config/docs corpus (e.g. a work-machine export vs the local tree, both independently reorganized) fans out cleanly in two workflow waves. **Analysis wave:** per-cluster compare agents (each owning a file bucket, briefed that counterparts may be renamed/moved — same-path pairing misses reorganizations) + parallel sensitive-content sweeps (pattern-grep, deep-read of risky files, config review) + a completeness critic that diffs bucket coverage against the authoritative tree diff. Structured per-file dispositions (`take-local`/`take-dump`/`merge`/`port-new`/`drop`/`decide`) make the human decision layer cheap — ask the owner only the genuine `decide` conflicts, while agents grind in the background. **Execution wave:** editor agents with strictly disjoint file lists (no worktree isolation needed), each seeded with a jq query to pull its own work orders from the analysis output plus global rules (scrub conventions, adjudicated decisions), each ending with a self-check grep for banned terms; then barrier → adversarial verifiers (scrub grep, cross-file consistency, syntax/cross-refs). Verifier findings fix inline; commit in reviewable layers.
 
 ## Cross-Refs
 

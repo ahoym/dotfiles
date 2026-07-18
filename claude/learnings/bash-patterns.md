@@ -1,8 +1,30 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template, brew install rustup, brew install rust, keg-only, rustup-init, brew --prefix, rustup target add, brew info, Homebrew formula caveats, tool-result lag, delayed tool result, re-fire command, repeated verification, parallel tool batch cancellation, sibling cancel cascade, stale index.lock, batch mutating steps, one command per turn, rg shell function shim, command -v rg, ripgrep required script guard, function not inherited by bash subshell, zsh no word-splitting, unquoted parameter expansion, array word-split, zsh equals expansion, leading-equals token, =word filename expansion, echo separator failure, zsh brace expansion, comma brace list, brace-expanded args, gh --jq brace split, accepts at most 1 arg, TSV, tab-delimited, awk OFS, hard tabs, NF field count
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
+
+## Tool-Result Delivery: Lag and Parallel-Batch Cancellation
+
+### Lagged results — do not re-fire
+
+When a tool call returns no output, it almost always still executed; the result is just delayed (sometimes by several turns). Re-issuing the same command floods the session and reads as thrashing to the operator. Wait for the result instead of re-polling. For multi-step **mutating** work (e.g. a sequence of commits), collapse all steps into ONE command joined by `;` that prints the final state at the end (`git log --oneline -N; echo SEP; git status --short`) — one round-trip, one confirmation, robust to lag.
+
+### Parallel-batch cancel-cascade
+
+When several Bash calls are issued in one assistant message and one errors (non-zero exit), the sibling calls in that batch are cancelled. Never bundle a command that may fail (e.g. `check_import_boundaries.sh` when `rg` resolves to a shell-function wrapper instead of a PATH binary) with others you need to run. A cancelled/interrupted `git commit` can leave a stale `.git/index.lock` that blocks all later git; clear it with `rm -f .git/index.lock` once no real git process is running. See also `~/.claude/learnings/git-patterns.md`.
+
+### A lock-fatal git command may have already applied — verify before retrying
+
+A `git add`/`commit` that prints `fatal: Unable to create '.git/index.lock'` (or a sibling in the same batch) can still have mutated the repo if the lock cleared mid-operation. Before re-running, check actual state — `git status`, `git diff --cached --stat`, `git log -1` — so you don't double-apply or mis-read a completed change as a no-op. Pairs with the lock-clear above: clear the stale lock, *then* reconcile state, then act.
+
+### Verify-then-batch: never lead a batch with an unverified-assumption call
+
+Blast radius = batch size. A single bad lead command takes down every sibling. Measured in one session: a batch led by `eza -la` (tool not installed) killed **35** siblings; a batch led by `read_candles(dir, year)` (kwarg-only signature called positionally) killed **53** — 88 of that session's 139 failures from just 2 bad lead commands. Any call resting on an unconfirmed assumption — tool exists on PATH, API signature, file present, `git` index free — runs **solo first**; batch the dependents only after it returns clean. Verifying alone costs 1 failure; verifying as a batch lead costs N.
+
+### Same intent failing repeatedly = stop and diagnose
+
+The trigger isn't byte-identical repeats — it's the same *intent* retried through reshuffled wrappers (to-file vs stdout, `grep` filter swap, `cat` vs Read). That hides as "not a duplicate" but is the same thrash. Re-issuing is only valid for *known-transient* lag, bounded (1 retry, then wait). If an intent fails or its result is missing 3+ times, the action is not the fix — the cause is. Measured red-flags in one session: `snapshot.py` re-run 8×, `orig_counts.py` 7×, `rm -f .git/index.lock` 6×, and `findings.md` re-Read 24× (re-reading to confirm an Edit landed — trust the success message). The lock-clear is the tell: clearing the same lock 6× treats the symptom while the cause (batched/interrupted git) regenerates it. When the loop repeats, change the approach, not the attempt count.
 
 ## Shell Env Default Ordering Gotcha
 
@@ -166,6 +188,8 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 `gh api` natively resolves `{owner}/{repo}` from the current repo context — no need to manually look up the owner and repo name.
 
+**Pass the literal `{owner}/{repo}` braces; don't hand-type a slug.** `gh` substitutes them from repo context. A slug guessed from the directory or project name is often wrong (dir `plz-review` → real remote `ahoym/plz-algo`, *not* the `ahoym/plz-review` you'd guess from the dir name) and silently 404s or trips a permission denial. If you genuinely must hardcode (cross-repo), derive it from `git remote get-url origin` — never a guess.
+
 **Use `--paginate` to get all results.** `gh api` defaults to 30 results per page (ascending). Without `--paginate`, comments beyond the first page are silently missed. `--paginate` is a CLI flag (no quoting needed) that auto-fetches all pages.
 
 **Use `--input file.json` for complex JSON payloads.** When a POST body has nested arrays or objects (e.g., review with inline comments), write the JSON to a temp file and pass via `--input`. Avoids shell quoting issues entirely — no `-f`/`-F` field-by-field construction needed.
@@ -180,9 +204,19 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 zsh interprets `[]` in command arguments as glob patterns. `glab api -f position[base_sha]=<value>` fails with `no matches found`. Escape with backslashes: `-f position\[base_sha\]=<value>`. Same applies to any CLI tool passing bracket-notation params in zsh. Better yet, avoid bracket notation entirely — use GraphQL variables or JSON payloads instead.
 
+Same nomatch abort fires on **`()` and `?`** in unquoted args — `echo ---FILES (a/b)---` or `echo done?` aborts the *whole* command with `no matches found` / `bad pattern` before anything runs (a recurring bite when labelling `echo` section markers between outputs). Use plain markers without glob metachars, quote the arg, or split into separate Bash calls. Sibling to the `==token==` parser-operator entry below — both turn a throwaway label into a command-killer.
+
 ## zsh parses `==token==` as a comparison/test operator
 
 A Bash command line with an argument starting `==` (e.g., `echo ==branch==` or `==section===` as an output section divider) fails in zsh with `(eval): ==token=== not found` — zsh treats leading `==` as a parser-level operator. Surfaces commonly when emitting section markers between command outputs in a single Bash call. Fixes: use plain markers (`--- branch ---`, `### section ###`, or just labels), or split into separate Bash calls. The latter pairs naturally with the bash-hygiene rule against compound `&&` chains.
+
+## zsh globs an unquoted glob inside a flag value (`grep --include=*.py`)
+
+`grep -rn pattern --include=*.py logic/` fails in zsh with `(eval):1: no matches found: --include=*.py` — zsh tries to filename-expand the `*.py` token even though it's part of a flag value. Same class as the bracket/`==` cases. Prefer `rg`, which takes file-type globs via `-g` and doesn't expand them against the cwd: `rg -n pattern logic/ -g '*.py'`. (Quoting `--include='*.py'` also works but adds a quoted string, which trips the permission-prompt hygiene rule — `rg -g` is the cleaner default.)
+
+## zsh `$VAR:l` / `:d` parse as parameter-expansion modifiers
+
+In zsh, `$VAR:l` lowercases the value and `:d`/`:h`/`:t`/`:r` are path modifiers — so `git show $ref:logic/foo.py` expands `$ref:l` and mangles the path (`FETCH_HEAD` + `:l` consumes the `l` of `logic`, yielding `fetch_headogic/foo.py`). Brace the variable (`git show ${ref}:logic/foo.py`) or inline the literal ref (`git show FETCH_HEAD:path`). Bites any `$VAR:`-adjacent construct: git `<rev>:<path>`, `scp host:path`, URL-after-variable.
 
 ## rsync --delete Auto-Removes Renamed Directories
 
@@ -190,7 +224,13 @@ A Bash command line with an argument starting `==` (e.g., `echo ==branch==` or `
 
 ## macOS Bash 3.x Compatibility
 
-macOS ships bash 3.2. Two common bash 4+ features that silently fail or error:
+macOS ships bash 3.2. Common bash 4+ features that silently fail or error:
+
+- **`mapfile -t arr < <(...)`**: `mapfile: command not found` — and under `set -u` the later `${#arr[@]}` aborts the script. Use a while-read append:
+  ```bash
+  arr=()
+  while IFS= read -r line; do [[ -n "$line" ]] && arr+=("$line"); done < <(...)
+  ```
 
 - **`declare -A`** (associative arrays): Use a `case` function instead:
   ```bash
@@ -214,6 +254,10 @@ macOS ships bash 3.2. Two common bash 4+ features that silently fail or error:
   ```
 
 When generating shell scripts that will run on macOS (e.g., `let-it-rip.sh` from sweep skills), avoid all bash 4+ features. `xargs`, `export -f`, and `bash -c` all invoke `/bin/bash` (3.x) on macOS.
+
+## Default to POSIX-standard tools, not modern alternatives
+
+Reach for `ls` / `grep` / `find` / `cat`, not `eza` / `rg` / `fd` / `cat -A`. The modern tools are a training-data bias, not a given — they are frequently absent (an operator may have never installed `eza` or `rg`), and a `command not found` as the **lead** of a parallel batch cancels every sibling (see cancel-cascade above). Also macOS-specific: `cat -A` (GNU-only), `realpath --relative-to`, `stat`/`date`/`sed` GNU flags all differ from BSD. Rule: use the POSIX tool unless you've confirmed the alternative exists (`command -v rg`); if a modern tool errors once, don't assume its siblings exist either.
 
 ## Validate Generated Scripts Before Presenting
 
@@ -458,6 +502,76 @@ export -f process_pr worktree_for branch_for
 ```
 
 Always audit `export -f` against the complete function call graph reachable from the dispatched function, not just the entry point.
+
+## `rg` Shimmed as a Shell Function Breaks Scripts That Call It
+
+When `rg` is a shell *function* (e.g. the Claude Code wrapper: `rg () { ... ARGV0=rg "$claude_bin" "$@"; }`) and there is no real `rg` binary on `PATH`, any project script invoked as `bash script.sh` fails its `command -v rg >/dev/null || { echo "ripgrep required"; exit 1; }` guard — functions aren't inherited by the bash subshell, so the check finds nothing. Symptom: a repo's `check_import_boundaries.sh` / lint helper bails with "ripgrep (rg) is required" even though `rg` works fine when you type it.
+
+Workaround: run the script's underlying `rg` query directly via the Bash tool (the interactive shell *does* resolve the function), or install a real `rg` binary. Don't trust the script's pass/fail — reproduce its core check manually.
+
+## `rg -r` is a *replace* flag — `rg -rn "pat"` silently rewrites output
+
+`-r`/`--replace` takes a value, so the bundled `rg -rn "pat" path` parses as `-r n` (replace every match with the literal `n`), **not** `-r` + `-n`. The command still prints matching lines, but with each match substituted — so a search for `warmup_candles` displays as `n`, masking the real field name and giving false confidence that the code says something it doesn't. No error is raised. Use `rg -n "pat"` for line numbers; never put another short flag immediately after `-r`. Verify a suspicious result by re-running with `--no-replace` or a bare `rg -n`.
+
+## zsh doesn't word-split unquoted parameters — use arrays
+
+In zsh (unlike bash), `files="a.py b.py"; cmd $files` passes **one** argument
+`"a.py b.py"`, not three — zsh doesn't word-split unquoted parameter expansions.
+A multi-file command (`perl -0pi -e ... $files`, `grep ... $files`) then receives
+one giant nonexistent filename and fails (`Can't open ...: No such file`). Use an
+array — arrays *do* expand to separate words: `files=(a.py b.py); cmd $files`. Or
+force-split a string with `${=files}`. The trap is silent when paired with `||`
+fallbacks (a `grep` on the bad path errors → the fallback fires → looks like a
+clean result while nothing was actually checked).
+
+## zsh equals-expansion — a leading `=` token runs filename expansion
+
+In zsh, an unquoted word starting with `=` triggers *equals-expansion*: `=foo` resolves to the path of command `foo` (like `which`). So a separator/label like `echo === SECTION ===` or `echo ===git===` fails with `(eval):1: == not found` / `X not found` — zsh tries to expand the leading `==`/`===` token as a command lookup. Drop the leading `=`: use `echo SECTION` or a non-`=` prefix (`--- foo`). This is distinct from the `:l`-modifier and word-splitting traps; it bites repeatedly on decorative `echo` separators.
+
+## zsh brace-expansion — `{a,b,c}` in an unquoted arg splits into multiple words
+
+An unquoted `{x,y,z}` (commas inside braces) is **brace-expanded** by zsh into separate words *before* the command runs. `gh pr view --jq {number:.number,head:.headRefName}` expands to three args → `gh` aborts with `accepts at most 1 arg(s), received 3`. Any CLI taking a single brace-delimited value (jq filters, `find`/`-exec`, mustache templates) is hit. Fixes: quote the arg, or sidestep — `gh --json a,b,c` (a bare comma list is fine) then parse the JSON, or run one single-field `--jq .field` per value. Sibling to the leading-`=` and `()`/`?` nomatch traps: a throwaway inline construct becomes a command-killer.
+
+## Parallelize independent CPU-bound runners with `xargs -P` + per-process thread caps
+
+Independent scripts (read-only inputs, each writing its own output file) parallelize
+trivially: `printf '%s\n' "$PAIRS" | xargs -P <N> -n 2 bash run_one.sh` over
+newline-separated "infile outfile" pairs, with `N` = *physical* cores
+(`sysctl -n hw.physicalcpu` on macOS — not `hw.ncpu`, which counts hyperthreads). Cap
+BLAS threads per process (`export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+MKL_NUM_THREADS=1`) so N numpy/talib processes don't oversubscribe cores and thrash.
+Bonus: a parallel batch surfaces a failing item in the first wave (seconds) instead of
+N minutes into a sequential run — a fast way to flush latent bugs. (Use the pair-list +
+`xargs -n 2`, not `declare -A` — macOS bash 3.2 lacks associative arrays; see the macOS
+Bash 3.x section above.)
+
+**Converting a *running* sequential loop to parallel: kill the in-flight child first.**
+Stopping the loop's controller leaves its current runner alive; if the parallel batch
+re-runs that same item, two processes race on one output file (truncate + interleaved
+writes → corruption). `TaskStop` the loop **and** `pkill -f <runner-path>` before
+launching the parallel batch, then re-run the killed item in the batch.
+
+## Editing TSV / tab-delimited files: preserve tabs with awk
+
+The Edit tool and BSD `sed` mangle hard tabs (drop them, or don't interpret `\t`). To rewrite a column in a `.tsv`, use awk and re-emit tabs explicitly:
+
+```bash
+awk -F'\t' 'BEGIN{OFS="\t"} $1=="key"{$2="newval"} {print}' in.tsv > out.tsv && mv out.tsv in.tsv
+awk -F'\t' '{print NF}' in.tsv | sort -u   # verify: every row reports the expected field count
+```
+
+When authoring a new TSV with the Write tool, embed real tab characters and run the field-count check after — a Write that silently used spaces shows `NF=1`.
+
+## Identify a file by content before writing; never `-f`-overwrite a path you don't own
+
+Identify a file by its **content** (`grep` the expected marker/symbol), not its name,
+size, or memory — two same-named exports can be swapped, and a size guess is not
+identification (a 77 MB `.zst` and a 9.7 MB one both "look like the dump"; the smaller
+was the one wanted). Extract/decompress to **scratch**, verify, *then* place at the final
+path. Writing straight to the destination — `zstd -d -f -o <dest>`, `cp -f`, `mv -f` —
+silently clobbers whatever is there, fatal when the path is one another actor (operator,
+parallel session) owns or is about to write. Prefer a scratch target + explicit copy over
+`-f` on a shared path.
 
 ## Cross-Refs
 

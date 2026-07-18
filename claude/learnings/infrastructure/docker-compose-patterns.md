@@ -96,6 +96,13 @@ Before merging a path-migration PR, grep `docker-compose.yaml`, runbooks, terraf
 
 Symptom in stateful order-flow systems: action committed externally (broker fill, payment posted) and persisted in-container, `--rm` kills the container, host file still reflects pre-action state, next iteration sees stale state and re-runs the action → duplicate effect. Recovery: `docker cp` from a still-running container, or reconstruct from the external system of record.
 
+### Multiple writers + all-or-nothing fallback = silent shadowing
+
+The rule isn't "reads fall back, writes don't" — it's *every read and every write must resolve to the file the host mounts*. Mirror cases: migrated → mount the new path, all writers target new; un-migrated → host mounts the legacy file, so every writer must fall back to legacy too. Two traps when one record has >1 writer:
+
+- **Writer asymmetry → split-brain.** One persist function falls back to legacy, another always targets the new/per-account path → half the record lands in the mounted file, half in the container's ephemeral layer (lost on `--rm`). Fix: extract one shared target-selection helper so writers can't drift apart. Grep for *every* writer of a record, not just the obvious one.
+- **Partial file shadows the complete source.** A read fallback gated on `if data is None` only fires when the preferred file is *entirely absent*. The first writer that creates a *partial* file there (e.g. position state, no config block) permanently shadows the complete fallback entry — reads return the partial dict and never consult the source → `KeyError` on the missing keys next iteration. Tell: "the change persisted somewhere but the mounted file never changed."
+
 ## Bind-mount inherits host file perms; strict-perm apps need host-side chmod
 
 Single-file bind-mounts (`-v host/cred.json:/ctn/cred.json`) inherit the host file's mode verbatim into the container. Apps enforcing strict perms on credentials (e.g. `0o600` token files, SSH keys, GPG keyrings) trip immediately if the host file is `0o644`/`0o664`:

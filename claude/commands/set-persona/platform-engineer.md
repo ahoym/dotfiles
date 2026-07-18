@@ -32,7 +32,10 @@
 
 Load when working in the specific area:
 - `provider:default/aws/patterns.md` — EventBridge scheduling limits, ECS Fargate cost-aware defaults
+- `provider:default/aws/messaging.md` — SQS/SNS/EventBridge: queue selection, idempotent consumers, DLQ config, backpressure
 - `provider:default/git-patterns.md` — Parallel branch rebase with worktrees, pnpm lockfile conflicts, worktree settings isolation, zsh glob expansion
 - `provider:default/bash-patterns.md` — Shell env default ordering, shared test library pattern, `set -e`/`pipefail` traps, teardown ordering
 - `provider:default/cicd/gitlab-ci-patterns.md` — YAML anchors, Maven builds, BuildKit caching, pipeline optimization
 - `provider:default/cicd/gitlab.md` — glab CLI debugging, MR API endpoints, pipeline stage rules, CI guards
+- `provider:default/infrastructure/nginx-patterns.md` — nginx: alias+try_files, add_header inheritance, proxy_pass, Vite base path
+- `provider:default/infrastructure/kubernetes-helm-patterns.md` — K8s/Helm: ArgoCD, chart bootstrapping, values cascade, Istio AuthorizationPolicy

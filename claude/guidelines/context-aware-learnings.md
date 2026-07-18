@@ -14,7 +14,7 @@ All gates are mandatory when their trigger fires. No exceptions.
 |------|---------|-------------|---------------|
 | **Session start** | Before FIRST tool call | Glob filenames → ambient context + user message | No |
 | **Plan mode entry** | Before `EnterPlanMode` | Glob filenames + grep content → broad task terms | Yes — set one if none active |
-| **Implementation start** | Before executing approved plan | Glob persona dirs → tech stack | Yes — activate match |
+| **Implementation start** | Operator hands you an implementation directive (verbs: "wire", "add", "build", "reshape", "refactor", "implement", "make", "create", "fix"). Fires on each new sub-domain mid-session, not just on plan-mode exit. | Glob persona dirs → tech stack | Yes — activate match |
 | **Review entry** | Invoking a review/audit skill that doesn't self-load learnings (e.g., native `/simplify`, `/security-review`) BEFORE launching review subagents. Skip if the skill's instructions already include a "load learnings" step (`git:code-review-request`, `git:team-review-request`, `git:address-request-comments` all handle this internally) | Glob filenames + grep content → quality, testing, security, perf, language-specific gotchas relevant to the diff | No |
 | **Keyword** | Domain keyword or quoted term in user message | Glob filenames → unloaded matches. Quoted terms bypass dedup. | No |
 | **Domain shift** | User message introduces new domain | Glob filenames → new domain keywords | No |
@@ -24,6 +24,12 @@ All gates are mandatory when their trigger fires. No exceptions.
 **Skill-task gate rationale:** Other gates fire on the user's domain, not the skill's operational domain. Multi-agent / sweep / refactor skills have their own learnings clusters that go unloaded when the user message doesn't name them. Load operational learnings before the skill's first substantive action.
 
 **Dedup**: don't re-load files already read this session. When context compression makes history uncertain, err toward re-checking.
+
+**Implementation-start gate fires per directive, not per session.** Each operator directive naming a new sub-domain (new endpoint, new feature surface, new refactor scope) re-triggers the gate. A long session is a series of discrete implementation starts, not one continuous flow — don't bank one persona activation across unrelated sub-domains. Re-confirm the persona matches the new sub-domain at each fire; switch or layer personas if it doesn't.
+
+**If no persona matches the tech stack, still glob the relevant cluster `CLAUDE.md` files and load them per the standard pipeline.** Persona absence is not an excuse to skip learnings loads — the cluster indexes carry the teaching either way. Announce `🎭 No persona — none relevant, proceeding without` and continue with the learnings-load pipeline as normal.
+
+**Unloaded-but-matched hook output is a gate firing, not a suggestion.** When `UserPromptSubmit` surfaces `📚 Unloaded-but-matched: <file>`, the hook has matched keywords above its floor — but score is a weak precision signal (filename-dismissal misses files whose content is broader than the name suggests). Default: **sniff the header** (`Read(file, limit=3)` for description + keywords + related) in the current turn. After sniffing, full-load if the header aligns with current work, or skip with a named reason (wrong domain, superseded pattern, clearly ambient mention). "I haven't hit friction yet" is not a valid skip reason — the gate exists to surface signal before friction, not after. Announce loads per the Observability rules; skips proceed silently per communication.md's silent-skip protocol (announce a skip only when declining is non-obvious or the operator asked for skip provenance).
 
 ## Search Pipeline
 
@@ -39,13 +45,13 @@ Every gate search follows these steps:
 
 ## Observability
 
-Always announce searches and results. No-match announcements are mandatory.
+Announce loads and search results; no-match announcements are mandatory. Skips are silent by default (see communication.md's silent-skip protocol) — announce a skip only when declining is non-obvious enough that absence would confuse, or when the operator has asked for skip provenance this session. Plan mode is the deliberate exception: its block format still reports per-file skipped lines and skipped cross-refs.
 
 **Gate tags** (which trigger fired): `session-start` · `plan-mode` · `implementation` · `keyword` · `domain-shift` · `pre-edit`
 
 **Source tags** (how the file was found): `via index` · `via pipeline` · `via both` · `via content grep` · `via cross-ref`
 
-**Format**: `📚 [gate] loaded X (source, reason)` · `📚 [gate] "term" — no matches` · `📚 [gate] skipped X (domain mismatch: reason)`
+**Format**: `📚 [gate] loaded X (source, reason)` · `📚 [gate] "term" — no matches` · when a skip warrants announcing: `📚 [gate] skipped X (domain mismatch: reason)`
 
 Plan mode uses block format with per-file matched/skipped lines and explicit no-match terms.
 

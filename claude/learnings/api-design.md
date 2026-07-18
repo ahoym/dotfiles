@@ -1,5 +1,5 @@
 Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
-- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination
+- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination, vendor spec staleness, SDK source of truth, API version mismatch, stale swagger, streaming-only endpoint, mock-to-backend wiring, shape-gap audit, server-DTO field mapping
 - **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/vitest-rtl.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
 
 ---
@@ -43,6 +43,18 @@ When an HTTP client (e.g., Unirest, OkHttp) automatically percent-encodes query 
 When building a shared API client utility, first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
 **Normalization strategy:** Start client-side only — build a typed fetch wrapper returning a discriminated union (`{ ok, data } | { ok, error }`). Zero server changes. Server-side envelope wrapping can come later as a separate refactor.
+
+## "Wire X to the real backend" is a shape-gap audit, not a coding task
+
+Replacing a mock/stub with a live backend starts by enumerating server-DTO vs frontend-type field-by-field — not by editing the fetch call. Mocks often encode a richer shape than the server currently emits (planned-but-unbuilt sync, a future "merged" endpoint), so blind wiring ships a UI with blank columns, inert filters, and false-state badges.
+
+Before coding:
+1. Read the actual server controller + DTO — confirm endpoint path, exact field set, enum names.
+2. Build a mapping table (server-field → frontend-field), naming what becomes null/empty/default.
+3. Surface the UX degradation column-by-column (a table is more honest than prose).
+4. Get partner sign-off on the degraded UX *before* writing the mapper — they may pick a different option (wait for backend, build the merged endpoint, rework the columns).
+
+Skip-symptoms: writing the mapper before showing the field gap; trusting the endpoint path in a "TODO: wire up" comment; "the type is the same on both sides" without reading the server DTO. Cost of the audit is one Read; cost of skipping it is rework after a half-empty UI ships.
 
 ## Validator Return Types: T | Response over Discriminated Unions
 
@@ -151,6 +163,12 @@ When wrapping a vendor API behind an adapter (BrokerAdapter → VendorClient), t
 ## Backward-Compat Defaults: Remove When No Caller Depends On Them
 
 A "backward-compat default" added during a refactor (`def f(x, y, *, margin=MNQ_MARGIN_PER_CONTRACT)`) becomes load-bearing the moment any future caller relies on it. If existing callers all pass the value explicitly, the default never served its purpose — and now hides what looks like genericity behind a domain-specific value (a module *appears* generic but silently uses contract-specific constants). Two-step API evolution: add with default → verify all callers pass explicitly → remove the default. The honest signature forces new callers to be explicit about domain-specific constants instead of inheriting silent ones.
+
+## A vendor's published OpenAPI / api-docs repo can lag the live API by a major version
+
+Don't trust a vendor's public `api-docs` repo as the source of truth for endpoint paths — it may document an older major version than what's live. Verify the spec's version against the base URL your integration actually calls (symptom: your code hits `/v3/...` but the repo's `swagger.yaml` only describes `/v2/...`). When the published spec is stale, a maintained **SDK source** (client crate/package — e.g. docs.rs crate source, a community SDK) usually has the authoritative current endpoint strings hardcoded. JS-rendered doc portals also defeat plain HTML fetches; pull the raw spec file or the SDK source instead of the rendered page.
+
+Related: some resources are **streaming-only** (newline-delimited JSON over a long-lived connection) with no REST/JSON equivalent — a `get().json()` client can't consume them; they need a stream + line-iterator path. The published docs may not make the streaming-vs-REST split obvious; the SDK's module layout usually does.
 
 ## Cross-Refs
 

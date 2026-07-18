@@ -1,5 +1,5 @@
 Python/pytest patterns: module-level singleton isolation, UTC datetime conversions, pytest.raises specificity, env-var fixture isolation, MagicMock + DI seams, autospec for routing tests, autouse hermetic fixtures.
-- **Keywords:** pytest, pytest.raises, module-level singleton, import side effects, conftest, load_env, UTC datetime, fromtimestamp, monkeypatch, delenv, autouse, MagicMock, spec, autospec, @patch, DI seam, fixture tuple, httpx Client, on-disk lookup, tmp_path
+- **Keywords:** pytest, pytest.raises, module-level singleton, import side effects, conftest, load_env, UTC datetime, fromtimestamp, monkeypatch, delenv, autouse, MagicMock, spec, autospec, @patch, DI seam, fixture tuple, httpx Client, on-disk lookup, tmp_path, tzset, zoneinfo, process-global state, timezone simulation, self-executing module, asyncio.run, coroutine never awaited, import boundary, subprocess import, sys.modules leak, structural inspection
 - **Related:** ~/.claude/learnings/python-specific.md, ~/.claude/learnings/dependency-injection-patterns.md
 
 ---
@@ -141,6 +141,86 @@ def _isolate_perpetual_dir(tmp_path, monkeypatch):
 ```
 
 Symptom that surfaces the leak: an existing test asserting "broker was called" fails because the new lookup found a real file and returned before the broker path. The failing test is high-signal — it tells you which existing tests had implicit assumptions about on-disk state, not just about mocks. Use `monkeypatch.setattr(module, "ATTR", val)` (import-based), not `setattr("pkg.module.ATTR", ...)` (string-based) — the import form is typo-checked and survives renames.
+
+The same autouse fixture can also be *requested* as a positional parameter on the specific tests that need its return value (`def test_loads(_isolate_perpetual_dir): ...`) — pytest returns the same cached instance rather than re-running it. So one fixture both isolates every test (autouse) and hands its `tmp_path` to the tests that seed populated data; no second fixture needed.
+
+## Reproduce read→write→read round-trip bugs with a stateful dict mock
+
+A static `return_value` mock can't catch a bug living in the *round-trip* — a write partial-merges into a store, a later read observes the merged result. Mock read + write over a shared dict so writes mutate what reads see:
+
+```python
+store = {...}  # seed initial state
+def fake_write(payload, _key):
+    store.update(payload)   # mirror the real writer's partial-merge semantics
+    return dict(store)
+def fake_read(_key, **_):
+    return dict(store)
+```
+
+Drive the real (un-mocked) operation against it and assert the store's final shape. Caught a persistence bug where a filled close left a stale key the next read re-acted on — invisible to `return_value=fixed_dict` because the second read never reflected the write.
+
+## A Test That Mutates Process-Global State Can Poison Later Tests
+
+A test that sets process-global state (`os.environ["TZ"]` + `time.tzset()`, `locale.setlocale`, `logging.basicConfig`, signal handlers) and relies on a `finally` to restore it **leaks that state into every later test** if the body crashes before the restore — and the `finally` itself can crash on the same missing/unavailable API. Guard the precondition/platform check *before* the mutation, so a skip leaves nothing to leak:
+
+```python
+if not hasattr(time, "tzset"):  # Unix-only; absent on Windows / some macOS builds
+    pytest.skip("time.tzset() unavailable; cannot simulate a non-UTC tz")
+original = os.environ.get("TZ")
+os.environ["TZ"] = "America/New_York"; time.tzset()
+try:
+    ...
+finally:
+    ...  # restore
+```
+
+Symptom: a cluster of unrelated downstream failures (timestamp / `date.fromtimestamp` assertions) that pass in isolation but fail in a full run, all traceable to one earlier state-mutating test. Confirm the root cause by `git stash`-ing the suspect change and re-running the *same full sweep* — identical failures with it stashed = pre-existing pollution, not your change.
+
+## Don't "simplify" a process-tz test to `zoneinfo` — it loses the UTC-runner regression catch
+
+A test that mutates process tz (`os.environ["TZ"]` + `time.tzset()`) to force local ≠ UTC looks replaceable by a leak-free, cross-platform `zoneinfo` version that builds the non-UTC reference without touching global state — but the two are **not** equivalent. The regression being guarded against (the function under test dropping `tz=timezone.utc` → implicit *local* time) still **passes** the `zoneinfo` version on a UTC CI runner, because local == UTC there. Mutating the process tz to force local ≠ UTC is precisely what makes that regression fail *in CI*; the Windows / no-`tzset` skip is the price of that CI-catchable power.
+
+```python
+# Process-tz version — catches a dropped-tz regression in UTC CI (needs the no-tzset skip):
+os.environ["TZ"] = "America/New_York"; time.tzset()
+assert candle_date_utc(candle) == date(2022, 1, 1)      # FAILS if the fn went local-time
+
+# zoneinfo version — cross-platform, no skip, but a local-time fn PASSES on UTC CI:
+assert datetime.fromtimestamp(ts, ZoneInfo("America/New_York")).date() == date(2021, 12, 31)
+```
+
+Decide by what the test exists to catch: a local-time regression on a UTC runner → keep the process-tz mutation + guard-before-mutation skip; pure platform-independence with no CI-regression stake → `zoneinfo`. Sibling to "A Test That Mutates Process-Global State Can Poison Later Tests" above. (Note: setting `TZ` *without* `tzset()` is a no-op on a running interpreter — libc has cached the zone — so there is no portable runtime tz switch; tz-simulation always skips on no-`tzset` platforms.)
+
+## Import a self-executing-at-import module without running its `main()`
+
+A script ending in `asyncio.run(run())` (or a bare `main()`) at module scope can't be imported in a test — the import fires the whole program. To inspect its module-level wiring (a `DISPATCH` table, a computed constant) **without** running it, patch the entry call to a no-op that disposes the coroutine, then import:
+
+```python
+with (
+    patch("signal.signal"), patch("logic.utils.timing.validate_trading_window"),  # neutralize import-time guards
+    patch("asyncio.run", side_effect=lambda coro: coro.close()),                   # don't run; close the coro
+):
+    import scripts.trading.run__lose_money as m
+assert m.DISPATCH[0][1].sizing is None                                             # module globals now inspectable
+```
+
+`coro.close()` (vs leaving it unawaited) suppresses `RuntimeWarning: coroutine 'run' was never awaited`. Complements the run-one-iteration approach (import *inside* a `patch(...)` block, raise a sentinel from `compute_sleep_time` to break a `while True`): patch-and-close inspects *structure*; sentinel-break exercises *behavior*.
+
+## Prove a module imports no forbidden namespace — in a clean subprocess
+
+To assert a module respects an import boundary (e.g. `logic/libs/` must not pull in broker code), import it in a fresh interpreter and scan `sys.modules`. A subprocess is immune to `conftest`'s `sys.modules` injection and catches *transitive* leaks that a static `grep` of the file's own `import` lines misses:
+
+```python
+def test_imports_no_broker_modules():
+    code = ("import sys, logic.libs.strategy\n"
+            "leaked = [m for m in sys.modules if m.startswith(('logic.plz','logic.tradestation','logic.adapters'))]\n"
+            "assert not leaked, leaked\n")
+    r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                       cwd=Path(__file__).resolve().parents[2])  # repo root so `logic` imports
+    assert r.returncode == 0, r.stderr
+```
+
+An in-process import assertion *can't* prove this — another test (or `conftest`) may have already loaded the forbidden module into the shared `sys.modules`. Self-contained, so CI needn't run a separate boundary shell script.
 
 ## Cross-Refs
 

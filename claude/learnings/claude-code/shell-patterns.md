@@ -70,8 +70,20 @@ In headless mode, compound `cd <path> && git <cmd>` triggers a Claude Code safet
 
 zsh resolves `=word` as an executable lookup (PATH search), so `echo === DONE ===` errors with `(eval):1: == not found` and aborts the command. Use `---`, `***`, or `###` as visual delimiters — quoting (`'==='`) sidesteps zsh but triggers the quoted-string permission prompt instead.
 
+## zsh Aborts the Whole Command on an Unmatched Glob
+
+zsh's `nomatch` (default on) makes any unmatched glob char (`*`, `?`, `[...]`) error with `(eval):1: no matches found: <pattern>` and abort the *entire* command line — even when the glob is incidental, like a `?` in an echo marker (`echo ---EMPTY?---`) or a dotglob that matches nothing (`rm -rf dir/.[!.]*`). The real work after it never runs.
+
+**Fix:** Keep glob metacharacters out of literal markers — use `---`, `***`, `###` (no `?`/`*`/`[`). For optional dotfile cleanup, prefer `rm -rf <dir>; mkdir -p <dir>` (recreate empty) over globbing hidden entries. This is distinct from the `=word` expansion issue above — same symptom (command aborts), different cause (glob vs PATH lookup).
+
 ## Bash Tool CWD Persists Across Tool Calls
 
 Contrary to common assumption, Claude Code's Bash tool does NOT fully reset CWD between invocations — a `cd <path>` in one Bash call affects the implicit CWD of subsequent calls in the same session. Useful for orchestration (set CWD once, run many commands from it) but dangerous for tool-result reuse: relative paths in later Read/ls/grep calls may resolve against an unexpected directory if an earlier Bash call changed it.
 
 **Defensive practice:** Use absolute paths in Read/Write/Glob invocations when a prior Bash may have changed CWD. Or `cd` back to project root explicitly after a worktree-scoped block.
+
+## Spurious `ENOSPC` "temp filesystem full" From Bash Output Capture
+
+Bash calls can intermittently fail with *"the temp filesystem at .../tasks is full (0MB free)... writes failed with ENOSPC"* even when `df` shows tens of GB free and the tasks dir is near-empty — the output-capture temp is transiently unavailable, not actually full. The command may have run fine; only its stdout/stderr capture failed.
+
+**Workaround:** Redirect output to a project-local file and read it back, sidestepping the capture path: `git branch ... > tmp/claude-artifacts/<topic>/out.txt; cat tmp/claude-artifacts/<topic>/out.txt`. The documented persistent fix is to set `CLAUDE_CODE_TMPDIR` to a roomier filesystem, but the error is often transient.

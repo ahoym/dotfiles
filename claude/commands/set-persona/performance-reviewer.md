@@ -37,7 +37,7 @@ Narrow review lens: queries, resources, and scale. *"What happens at 10x/100x cu
 
 ## Severity Calibration
 
-- **CRITICAL**: Unbounded query on asset_movements (could return millions), connection pool exhaustion under load
+- **CRITICAL**: Unbounded query on a high-volume table (could return millions), connection pool exhaustion under load
 - **HIGH**: N+1 query in poller loop (runs every 30s), missing index on frequently-queried column, no pagination on list endpoint, retry blocking single-threaded poller
 - **MEDIUM**: Suboptimal batch size, unnecessary eager loading, redundant DB round trips
 - **LOW**: Minor serialization inefficiency, unused eager fetch, verbose logging in hot path
@@ -52,3 +52,4 @@ Every finding MUST include inline code references — quote the exact problemati
 - `provider:default/postgresql-query-patterns.md` — window functions, CTEs, partial indexes, partitioning
 - `provider:default/java/observability-gotchas.md` — metric cardinality, timer patterns
 - `provider:default/java/observability.md` — Grafana PromQL, structured logging patterns
+- `provider:default/java/concurrency.md` — thread pool sizing, resource leak patterns

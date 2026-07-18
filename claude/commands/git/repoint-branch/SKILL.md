@@ -77,14 +77,36 @@ Extract independent changes from a compound branch into a new branch targeting m
    git checkout -b <new-branch-name>
    ```
 
+6a. **Stale-branch detection** (mandatory — wholesale copy silently regresses main-side changes otherwise):
+   ```bash
+   FORK_BASE=$(git merge-base <original-branch> origin/main)
+   git diff --name-only $FORK_BASE..origin/main
+   ```
+   If the output is empty, branch is current → step 7 plain copy is safe.
+   If non-empty, intersect with `FILES_TO_EXTRACT`:
+   ```bash
+   STALE_OVERLAP=$(comm -12 <(git diff --name-only $FORK_BASE..origin/main | sort) <(printf '%s\n' "${FILES_TO_EXTRACT[@]}" | sort))
+   ```
+   Files in `STALE_OVERLAP` are shared-fate — main added something at the same file since fork. For those files, wholesale `git show <orig>:<file> > <file>` would wipe main's parallel additions (e.g., new factories in a shared `mocks.ts`, new types in a shared `entities/index.ts`). Use the 3-way merge path in step 7 for `STALE_OVERLAP` files specifically; the rest are safe to copy wholesale.
+
 7. **Apply the changes**:
    For each file in `FILES_TO_EXTRACT`:
+   - **Not in `STALE_OVERLAP`** (safe wholesale copy):
    ```bash
    # Ensure parent directories exist
    mkdir -p $(dirname <filepath>)
    # Get the file content from the original branch
    git show <original-branch>:<filepath> > <filepath>
    ```
+   - **In `STALE_OVERLAP`** (3-way merge to preserve main's parallel additions):
+   ```bash
+   git show origin/main:<filepath>          > tmp/merge-main-<filepath_slug>
+   git show $FORK_BASE:<filepath>           > tmp/merge-base-<filepath_slug>
+   git show <original-branch>:<filepath>    > tmp/merge-feat-<filepath_slug>
+   git merge-file -p tmp/merge-main-<filepath_slug> tmp/merge-base-<filepath_slug> tmp/merge-feat-<filepath_slug> > <filepath>
+   ```
+   `git merge-file` exits 0 on clean merge, >0 on conflict — fall back to manual resolution if conflict markers appear. After applying, grep for the parallel additions to confirm survival (e.g., `grep -c "createMockNewFactory" <filepath>` should be ≥ 1 if main added it).
+
    Stage and commit all extracted files:
    ```bash
    git add <FILES_TO_EXTRACT>
@@ -142,3 +164,4 @@ Returned to feature/phase2.
 - Only extracts file contents, not commit history
 - Verify extracted files don't import/depend on code from parent branches
 - If changes depend on parent branch code, this will create broken code on main
+- **Stale feature branches need 3-way merge for shared files** (step 6a). Wholesale copy silently regresses main-side additions when main has moved since the feature forked. Run `yarn test` (or equivalent) on the extracted branch before pushing to catch any factory/type that got wiped.

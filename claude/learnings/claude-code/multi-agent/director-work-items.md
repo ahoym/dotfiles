@@ -33,7 +33,7 @@ Every issue starts at `clarify`. Implementation requires passing through `confir
 
 | Issue | Role | State | Milestone | Worker | Worktree | PR |
 |-------|------|-------|-----------|--------|----------|-----|
-| #97 | implement | running | running | claude-opus-4-6 | worktrees/issue-97 | (pending) |
+| #97 | implement | running | running | claude-opus-4-7 | worktrees/issue-97 | (pending) |
 | #102 | clarify-confirm | completed | done | claude-sonnet-4-6 | -- | -- |
 
 ## Mixed-mode runs (clarify-confirm + implement)

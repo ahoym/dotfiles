@@ -1,5 +1,5 @@
 DAG-based parallel plan design: critical path analysis, agent splitting, branch strategies, fan-in cherry-pick, and plan file structure.
-- **Keywords:** DAG, critical path, parallel agents, fast/slow track, worktree, cherry-pick, fan-in, haiku, model selection, strict file ownership, plan splitting, prompts file
+- **Keywords:** DAG, critical path, parallel agents, fast/slow track, worktree, cherry-pick, fan-in, haiku, model selection, strict file ownership, plan splitting, prompts file, territory partition, file ownership map, live-path exposure, import closure, wave gating, behavior-preserving regression risk
 - **Related:** none
 
 ---
@@ -143,6 +143,18 @@ Split monolithic parallel plans into two sibling files:
 - Executor reads Shared Contract from plan file + Preamble from prompts file, prepends both to each agent's prompt
 - Reviewers only need the plan file; the prompts file is rarely read by humans
 - Shared Contract stays in plan file (single source of truth, not duplicated in preamble)
+
+## Territory Partition: Group Items by File-Ownership, Not One-Agent-Per-Item
+
+Strict file ownership (no file edited by two agents → conflicts impossible by construction) is the goal — but when refactor *items* overlap on files, don't serialize them: **partition items into file-disjoint territories** and give each agent a whole territory. Build a file→item map, then merge any items that share a file into one agent (two items both editing a study's `_common.py`; or `#8`'s new method being the natural home for `#2`'s inline calc → one agent). Parallelism width = number of file-disjoint territories; the ceiling is set by **file conflicts, not item count**. Splitting a shared-file item into its own agent for "more parallelism" just reintroduces the conflict.
+
+Verify the map against the code, not the plan's file lists: locate every cited site (bare filenames hide which directory/study they live in), and confirm the conflict-critical overlaps are contained — a **deleted symbol with consumers outside the territory**, or a shared package `__init__.py`, breaks disjointness. Front-load those to one owner (others import direct-from-module instead of via the package `__init__`).
+
+## Sequence Parallel Refactor Waves by Live-Path Exposure
+
+"Behavior-preserving" ≠ "safe to touch anytime." A no-op refactor of a file the **live/hot path imports** still carries regression risk, so a plan that edits production-reachable files in the first batch violates "touch live code last" even with zero behavior change. Trace the production import closure (entry point → order/hot path → adapters), tag each agent's exposure, and sequence the live-reachable agents into a **final gated wave** (DRY_RUN log-diff, golden/contract tests, or static-only for un-runnable code) that runs after the zero-exposure agents are merged + green. Waves stay internally parallel — the gate is a barrier between exposure tiers, not per-item; it costs `slowest(wave1) + slowest(wave2)` vs `slowest(all)`.
+
+Keep the risk framing honest by distinguishing two classes: **edits-a-live-imported-file** (refactor-regression risk → gate + sequence last) vs **changes-behavior / enablement-flip** (the money-moving risk → a separate effort, not a refactor at all). Calling the first "live code" without the distinction over-states the risk.
 
 ## Cross-Refs
 

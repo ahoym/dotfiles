@@ -18,5 +18,7 @@ Financial and ledger engineering: monetary calculations, ledger architecture, pr
 | futures-tick-rounding.md | Per-contract tick grid (MNQ=0.25, VX/VXM=0.05) — `round(price, 2)` rejects on Cboe; snap with `round(round(p/tick)*tick, 4)` |
 | market-calendars.md | Market-calendar library selection — disentangle from DataFrame library choice (NYSE holidays, futures roll math) |
 | scheduling-time-windows.md | Runtime gates from time windows: cross-midnight wrap, weekday/market-aware open-days, derive-from-window sleep cadence |
-| tradestation-api.md | TradeStation Web API gotchas: AccountType gating (Futures can't hold equities), OrderID precedes margin validation, DAY-vs-GTC market-hours rule, orderconfirm as permission gate, 403 on options chains, futures-option symbol format |
+| tradestation-api.md | TradeStation Web API gotchas: AccountType gating (Futures can't hold equities), OrderID precedes margin validation, DAY-vs-GTC market-hours rule, orderconfirm as permission gate, 403 on options chains, futures-option symbol format, per-product `@`-continuous order routing (`@MNQ` routes, `@TY` doesn't), barchart-probe entitlement triage |
 | vendor-divergence.md | Cross-vendor data quality: sentinel values, divergent failure modes on shared upstream, probe-based validation bypass |
+| risk-overlays-and-stops.md | Risk-as-a-layer in systematic trading: stop-loss alpha-vs-risk (Kaminski-Lo stopping premium, vol-drag under leverage), overlay attribution, sizing-vs-de-risk distinction |
+| backtest-lookahead-and-fill-realism.md | The intrabar (execution) look-ahead walk-forward CAN'T catch (close-based gate on an intrabar fill), the held-vs-blew causal test, and fill-price-vs-probability realism for limit/fade strategies |

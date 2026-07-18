@@ -37,7 +37,7 @@ Narrow review lens: money, idempotency, and audit. *"Could this lose money, doub
 ## Severity Calibration
 
 - **CRITICAL**: `double` for money, missing idempotency on payment submission, state transition allowing double-confirmation
-- **HIGH**: Minor unit conversion error, missing @Version on asset_movements, batch status not checked at payment granularity
+- **HIGH**: Minor unit conversion error, missing @Version on a high-contention movements table, batch status not checked at payment granularity
 - **MEDIUM**: Missing amount validation (negative/zero), audit gap (status change without event journal), receiver validation not enforced per payment type
 - **LOW**: Suboptimal reconciliation query, missing stale detection metric, verbose vendor response logging
 - **INFO**: Suggestions for reconciliation improvements, additional metrics, future currency support
@@ -49,5 +49,7 @@ Every finding MUST include inline code references — quote the exact problemati
 ## Proactive Cross-Refs
 
 - `provider:default/financial/applications.md` — fee calculation invariants, zero-divisor guards, decimal precision
+- `provider:default/financial/numeric-precision-strategy.md` — cross-layer precision: DB NUMERIC, wire strings, BigDecimal/BigNumber.js, crypto decimals
 - `provider:default/financial/domain-ledger-architecture.md` — entry lifecycle, balance composition, reconciliation
+- `provider:default/financial/saga-distributed-transactions.md` — saga patterns, compensation, transactional outbox
 - `provider:default/code-quality-instincts.md` — single source of truth, no duplication

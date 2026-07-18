@@ -12,3 +12,4 @@ Multi-agent patterns for Claude Code — orchestration, coordination, quality, p
 | headless-nesting.md | Nested `claude -p` hierarchies: multi-tier spawning, `--allowedTools` propagation, prompt construction |
 | vp-tier-orchestration.md | VP-tier: multi-repo Director coordination, event-driven monitoring, `--max-turns`, concurrency, session resumption |
 | background-agent-capabilities.md | bg Agent vs claude -p: capability matrix, context costs, cross-repo blockers, decision framework |
+| workflow-tool.md | The `Workflow` JS-script orchestrator: parse-error traps, `scriptPath` iteration, the map→design-tournament→judge→synthesize shape |

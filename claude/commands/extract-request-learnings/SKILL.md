@@ -81,17 +81,22 @@ General/private writers use staging directories inside the project (`docs/learni
    **Triage into three tiers based on metadata:**
    - **Dedicated extractor** (1 MR per agent): `user_notes_count > 10`, OR description signals a new module/adapter/integration (keywords: "new module", "new adapter", "integration", "implement", "complete implementation"), OR state is `closed` with `user_notes_count >= 5` (rich "why not" signal)
    - **Small-group extractor** (3-5 MRs per agent): `user_notes_count` 2-10, OR zero-discussion but description indicates substantial work (refactors, multi-file fixes, feature additions with filled-in descriptions)
-   - **Skip entirely**: Dependency version bumps with empty descriptions, SDK releases with no changes, drafts closed immediately with 0 notes and no commits, reference data additions (asset lists, SQL data inserts)
+   - **Skip entirely**: Dependency version bumps with empty descriptions, SDK releases with no changes, drafts closed immediately with 0 notes and no commits, reference data additions (asset lists, SQL data inserts). Also skip MRs whose description is the template placeholder text with no content filled in (e.g. `_**What does this MR do?**_. _**What are the important classes/files affected?**_...` with no answers) — these carry zero signal regardless of note count.
 
    **Key principle**: Discussion notes are the easiest signal but not the only one. Implementation patterns in the diff are equally valuable — a 30-file, 0-note MR introducing a new adapter has more signal than a 1-file, 5-note MR where all notes are bot approval + SonarQube. Triage on the *work*, not just the *discussion*.
 
-8. **Spawn 3 writer subagents in parallel** with all extractor outputs concatenated to all. **Re-read `writer-prompt.md` immediately before spawning** (use offset+limit for the orchestrator section, lines 1-20) — do not rely on an earlier read. Use it as a **verbatim template** — fill in placeholders per writer:
+8. **Spawn writer subagents.** **Re-read `writer-prompt.md` immediately before spawning** (use offset+limit for the orchestrator section, lines 1-20) — do not rely on an earlier read. Use it as a **verbatim template** — fill in placeholders per writer:
    - **Project writer**: `WRITER_SCOPE=project`, `SCOPE_FILTER=project-specific`, `READ_PATH=docs/learnings/`, `WRITE_PATH=docs/learnings/`, files from step 5
    - **General writer**: `WRITER_SCOPE=general`, `SCOPE_FILTER=general`, `READ_PATH=<defaultWriteTarget provider localPath>`, `WRITE_PATH=docs/learnings/_staging/general/`, files from step 5 (read `~/.claude/learnings-providers.json` to find the provider with `defaultWriteTarget: true`)
    - **Private writer**: `WRITER_SCOPE=private`, `SCOPE_FILTER=private`, `READ_PATH=<private provider localPath>`, `WRITE_PATH=docs/learnings/_staging/private/`, files from step 5 (read `~/.claude/learnings-providers.json` to find the provider with `writeScope: "private"`)
    - **DEDUP_GUIDANCE**: pull from the plan file's progress tracker notes (recurring pattern mentions). Do not improvise — use what's written.
    Each writer independently deduplicates against its own file set.
    Create staging directories before spawning: `mkdir -p docs/learnings/_staging/general docs/learnings/_staging/private`
+
+   **Batch size and writer strategy:**
+   - **≤15 MRs**: spawn all 3 writers in parallel with the full extractor output.
+   - **16–30 MRs**: use **two sequential writer rounds** — split extractor outputs in half by source group, spawn 3 writers for round 1, run finalize (step 9), then spawn 3 writers for round 2 with the second half. Round 2 reads updated files from round 1 and deduplicates against them. Each writer processes ~15–20 learnings instead of 40+, keeping dedup sharp.
+   - **Model allocation**: extractors and project/general writers → `model: "opus"`; private writer → `model: "haiku"` (private learnings are rarely expected; Haiku suffices for a no-op pass).
 
 9. **Finalize staged files** — run the finalize script to copy staged files to their final locations and clean up:
    ```bash
@@ -136,3 +141,5 @@ General/private writers use staging directories inside the project (`docs/learni
 - **All review states**: Include open, merged, and closed. Closed reviews capture "why not" decisions.
 - **Oldest-first ordering**: Resilient to new reviews being pushed during extraction.
 - **Categories emerge organically**: Don't predefine — let them form from the data. Pass existing categories to subagents so they can classify or suggest new ones.
+- **Batch scaling**: ~30 MRs / 7 extractor subagents (2 dedicated + 4–5 groups of 3–5 MRs) is the tested ceiling per batch. For larger repos, keep groups ≤5 MRs to avoid overwhelming individual extractors.
+- **Page overlap when changing `per_page`**: switching from e.g. `per_page=10` to `per_page=30` shifts page boundaries and the first results may include already-processed IIDs. Skip them in triage by comparing against the last IID in the progress tracker; only extract IIDs that come after it.

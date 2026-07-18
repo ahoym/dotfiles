@@ -1,5 +1,5 @@
 Web authentication patterns: cross-subdomain session sharing, cookie attributes, CSRF, and browser cookie behavior.
-- **Keywords:** cookie, domain, sameSite, lax, strict, httpOnly, CSRF, csrf-csrf, double-submit, cross-subdomain, localhost, port, JWT, clearCookie, rollout
+- **Keywords:** cookie, domain, sameSite, lax, strict, httpOnly, CSRF, csrf-csrf, double-submit, cross-subdomain, localhost, port, JWT, clearCookie, rollout, OAuth scope, missing required scope, granted vs requested scope, refresh token scope, JWT scope claim, scp, 403 diagnosis, re-consent
 - **Related:** ~/.claude/learnings/infrastructure/nginx-patterns.md
 
 ---
@@ -130,3 +130,26 @@ Same-origin requests use `'same-origin'` literal — tokens obtained without `Or
 ## Hardcoded vs env-var security allowlists
 
 Hardcoding an allowlist in source provides no additional security over env-var configuration when both the source bundle and env vars live in the same deployment artifact (e.g. K8s pod). The trust boundary is the deployment pipeline, not the code. Env vars are preferable for values that change per environment or per service onboarding (e.g. CORS origins). Reserve hardcoding for values that are truly fixed across all environments and where the operational cost of code changes is acceptable (e.g. cookie domain allowlists with a small, stable set).
+
+## Refresh-token rotation determines multi-client safety
+
+Whether two clients/processes can share one refresh token hinges on rotation:
+
+- **Non-rotating RT** (same token reused for its whole lifetime; only the access token rotates) → concurrent reuse from multiple clients is generally safe. Tell-tale in an SDK: a fixed `creation_timestamp` and an expiry computed from it (e.g. `creation + 85d`) imply the RT isn't replaced on refresh.
+- **Rotating RT** (a new RT issued each refresh) → two clients race; the second to refresh presents a consumed token and bricks until re-bootstrap.
+
+Rotation and refresh-token **reuse-detection** (revoke the whole token family on replay) usually co-occur, so non-rotating providers typically *tolerate* concurrent reuse. But reuse-detection is **server-side and unobservable from the SDK** — treat "safe to share" as strong-evidence, not proven, until a live concurrent refresh is verified. When unsure, give each client its own token file.
+
+## Two-tier lock acquisition: fail-fast probe at startup, retry at runtime
+
+When one `fcntl.flock` file lock guards both a startup contract and a runtime critical section, the two acquisition sites should behave *differently*. **Startup probe → fail-fast**: a lock already held at construction means two processes share one `lock_path` — the misconfiguration that races on rotating-RT refresh and bricks auth. Raise immediately so the second process never boots; retrying here only masks the config error the probe exists to catch. **Runtime refresh → retry/poll**: contention from a peer mid-refresh is expected and recoverable, so poll up to a stale-lock threshold before giving up. A failed probe halts only startup, not a running loop (it runs once at `__init__`); rolling-restart overlap is absorbed by the orchestrator's restart policy, which retries construction once the old process releases the lock.
+
+## OAuth 403 "missing scope": granted scope ≠ requested/configured scope
+
+A token can 403 with `Missing required scope` even though that scope is in your client's requested-scopes list — because the *persisted* token predates the scope being added. OAuth refresh tokens carry only the scopes granted at original consent; widening the requested-scopes string does nothing until you re-run the authorization grant and mint a fresh token. The refresh token cannot widen its own scope.
+
+Diagnose without guessing:
+- **Decode the JWT access token's `scope`/`scp` claim** (base64url-decode the middle segment) to see what's actually granted vs requested. Token stores often persist only `access_token`/`refresh_token`, not the granted `scope`.
+- **Replay a known-good endpoint with the same token.** Still `200` → the token is valid and the failure is scope/entitlement-specific to that endpoint, not a broken/expired token. `401` vs `403` vs `404` further separates auth-failure / missing-scope / wrong-path.
+
+Fix = add the scope to the auth request **and** re-run the interactive grant; then propagate the new token to every deployment that uses it.

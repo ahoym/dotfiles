@@ -45,6 +45,11 @@ Use `--paginate` for complete result sets. `per_page=100` silently truncates MRs
 glab api projects/:id/merge_requests/<number>/notes --paginate | jq '...'
 ```
 
+**`--paginate` emits one JSON array per page**, not one merged array. Any downstream `jq` that assumes a single document breaks past page 1: filters emit one value per page (`false\ntrue`), and feeding that into `jq --argjson` errors — often silently dropping the item in `|| fallback` chains. Merge first:
+```bash
+glab api <endpoint> --paginate | jq -s 'add // []'
+```
+
 ## Cross-Refs
 
 - `~/.claude/skill-references/gitlab/commands/` — canonical command reference scripts

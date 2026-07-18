@@ -82,6 +82,10 @@ A dataclass `equity: float = 0.0` lets a missed construction site silently produ
 
 Defaults remain appropriate for accumulators (`fees_paid: float = 0.0` accumulating from zero) and metadata (`label: str = ""`). For *inputs* to derived monetary calculations, treat the missing default as a feature — it forces every construction site to be explicit about the value.
 
+## "Cumulative return %" is ambiguous: sum-of-simple-returns vs compound — verify which
+
+A "cumulative return over N bars" indicator can mean the **sum** of the last N per-bar % returns (`sum((c_i-c_{i-1})/c_{i-1}·100)`) or the **compound** return (`c_last/c_{last-N}-1`). They diverge near a threshold boundary (five −1.22% bars: sum −6.10% trips a `<-6` gate, compound −5.95% doesn't), so a re-implementation that compounds where production sums silently mis-fires the gate. When reproducing a return metric, read the production helper's body and match its convention exactly; pin it with an assert-equal at a boundary input where the two forms disagree.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/resilience-patterns.md` — dedup-before-process, domain-typed exceptions, stale-cache correctness patterns in financial/transactional systems (complements the calculation-level error handling here)

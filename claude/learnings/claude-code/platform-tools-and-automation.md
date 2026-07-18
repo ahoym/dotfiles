@@ -12,7 +12,7 @@ Claude Code tool behavior and automation — @ references, cron patterns, pollin
 
 ## Use TaskOutput, Not Bash, to Check Background Bash Tasks
 
-When monitoring background Bash commands launched with `run_in_background: true`, always use the `TaskOutput` tool — never fall back to ad-hoc Bash commands (like `tail`, `grep`, or `cat` on output files under `/private/tmp/`). Note: `TaskOutput` only works for background Bash tasks — for background Agent tasks, rely on the automatic notification system (see `multi-agent-patterns.md` § "TaskOutput Only Works for Background Bash Tasks").
+When monitoring background Bash commands launched with `run_in_background: true`, always use the `TaskOutput` tool — never fall back to ad-hoc Bash commands (like `tail`, `grep`, or `cat` on output files under `/private/tmp/`). Note: `TaskOutput` works for background Bash **and `local_workflow` (Workflow tool)** tasks — for background Agent (`local_agent`) tasks, rely on the automatic notification system (see `multi-agent-patterns.md` § "TaskOutput Only Works for Background Bash Tasks").
 
 **Why:**
 - `TaskOutput` with `block: false` gives a non-blocking status check — no Bash permissions needed
@@ -46,6 +46,8 @@ When multiple tool calls are sent in a single batch and one fails, all sibling c
 `~/.claude` is a real directory on disk. Key subdirectories (`commands/`, `guidelines/`, `learnings/`, `lab/`) are **directory-level symlinks** to the dotfiles repo (e.g., `commands -> /Users/<user>/WORKSPACE/dotfiles/.claude/commands`). Edits to files under these paths land in the repo automatically — no separate copy step needed.
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
+
+**Edit/Write refuse file-level symlinks.** Editing a path that is itself a symlink (e.g. `~/.claude/settings.json`) errors with "Refusing to write through symlink — resolve the symlink and pass the real target path". Paths that merely *traverse* a directory symlink (`~/.claude/commands/foo/SKILL.md`) work fine. For individually-symlinked files, Edit the resolved target (`<dotfiles>/claude/settings.json`) directly.
 
 ## Glob Limitations with Symlinks
 
@@ -212,6 +214,8 @@ Empirically verified: editing an existing comment on a GitHub issue changes the 
 
 When the same string appears in multiple locations of a file (e.g., a cross-ref in both a header `Related:` line and a `## Cross-Refs` footer), use `Edit` with `replace_all: true` instead of two separate Edit calls with line-context anchors. One call, atomic, no need to track both line numbers. Especially useful for path renames where the path appears in 3-5 spots across header/body/footer.
 
+**Substring-match caveat:** `old_string` matches anywhere, including mid-line. A trailing-punctuation anchor like `…"cashAtHand": 5000},` matches both a line-final `},` and the same text inside `…5000}, "mnq"`, so `replace_all` can hit more sites than are visually obvious. Confirm the swap is correct for *every* match (often it is — all sites want the same change); otherwise add disambiguating context to scope it.
+
 ## Lazy-load `@` includes via procedural-reference tables
 
 `@path` in CLAUDE.md eagerly loads the file every session. For context-specific guides (e.g., backtesting docs in a trading repo), switch to a procedural-reference table — path listed without `@`, with a "when to read" condition:
@@ -238,6 +242,10 @@ readlink ~/.claude/settings.local.json
 ```
 
 Then pass the resolved absolute path to Edit/Write. Common trip points: individually-symlinked entries under `~/.claude/` (`CLAUDE.md`, `settings.json`, `settings.local.json`) — directory-level symlinks (`commands/`, `learnings/`) are normalized through earlier and don't trigger this guard.
+
+## Repo check script probing `command -v <tool>` can fail under the sandbox PATH
+
+A `bash scripts/check-*.sh` that gates on `command -v rg` (or any tool) can print "tool required" and exit non-zero under the restricted Bash-tool sandbox even when the tool is installed and on your interactive PATH — the sandboxed invocation runs with a narrower PATH (e.g. missing `/opt/homebrew/bin`). Don't report the check as failing: extract and run the script's *core* command directly (e.g. the `rg <pattern> <paths>` it would have run) to get the real result, or re-run with the tool's full path. The wrapper's failure is a PATH artifact, not a check failure. **Second cause, same symptom:** `rg` may be the Claude Code shell-function *shim* with no on-disk binary — a child `bash script.sh` that calls it then fails *regardless of PATH*, surfacing the identical "tool required" message. Same fix (run the script's core grep directly). Full detail: `bash-patterns.md` → "`rg` Shimmed as a Shell Function Breaks Scripts That Call It".
 
 ## Cross-Refs
 

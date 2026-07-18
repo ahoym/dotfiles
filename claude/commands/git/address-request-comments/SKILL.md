@@ -178,6 +178,8 @@ When `COMMENT_ONLY=true`:
 
     **Do not skip this step.** Step 8 posted an initial reply (acknowledgement/agreement). This step posts a **second reply** on the same threads with the commit hash. Reviewers need the commit ref to verify the fix — the review actions summary alone is not enough.
 
+    **Optimization (author + implementing + zero escalations):** when `COMMENT_ONLY=false`, you are the request author, and you implement immediately with no escalated/awaiting-decision threads, you MAY fold the step-8 acknowledgement and this commit-ref reply into a SINGLE reply per thread (assessment + `Fixed in <hash>`) to halve PR noise. The two-phase split is required only when escalations need reviewer sign-off before you act — there, post the ack first and the commit-ref after.
+
     For each implemented suggestion/fix, follow **Reply to Inline Comment** in the platform command scripts. Include `Fixed in <COMMIT_HASH>` in the body, referencing the specific commit that addressed that comment. **Append the Footnote Format — same rules as step 7 — and run the Footnote Enforcement check against every commit-ref reply before proceeding to step 13.**
 
     For suggestions that were skipped (not approved):

@@ -16,9 +16,11 @@ Examples of the kind of reasoning expected (not an exhaustive table):
 
 When a file suggests multiple domains, include all of them. The more terms a persona matches, the stronger the signal.
 
+**Repo-level domain ≠ diff-level domain.** A financial-services repo doesn't make every diff a fintech-persona match — check whether the changed code touches the domain's core invariants (money movement, balance, double-entry) or is an adjacent read-only/browse surface. A search/list endpoint over existing records doesn't warrant `java-fintech`/`financial-reviewer` just because the repo is a ledger service; route by what the code does, not what the repo is.
+
 ## Matching Heuristic
 
-For each persona file, read the first 5-10 lines (name + description + `## Domain priorities` heading). Match derived domain terms against:
+For each persona file, issue a parallel `Read(file, limit=10)` (all personas in one tool block — not `bash for-loop + head`, which prompts on quoted echo headers). Ten lines covers name + description + `## Domain priorities` heading. Match derived domain terms against:
 1. The persona name itself (e.g., `java-fintech` matches "java" and "fintech")
 2. Keywords in the description line
 3. Terms in the `## Domain priorities` list
@@ -89,16 +91,33 @@ For each finding from each persona, create a composite key: `(file, line_range, 
 
 Group findings that share a composite key. These are "about the same thing."
 
+**Cross-file semantic dedup.** The Phase 1 composite key only catches same-file, line-adjacent duplicates. When personas anchor the same root cause on different files or non-adjacent lines (e.g., one flags a query's cost at its definition, another flags the same cost at the repository interface it's exposed through), matching `category` plus clearly-overlapping `reasoning`/`summary` text is an Agreement candidate too — don't let the mechanical key miss what the team-lead lens would catch by eye.
+
 ### Phase 3: Classify
 
 - **Agreement** — 2+ personas, same severity tier (within one level), compatible recommendations (same direction, possibly different specifics). Merge into one finding. Tag with all persona names: `[persona-1, persona-2]`. Use the most detailed reasoning. Produce one inline comment with combined attribution.
 
 - **Unique** — Only 1 persona flagged this. Pass through with single-persona attribution: `[persona-1]`.
 
-- **Disagreement** — 2+ personas, AND one of: (a) severity differs by 2+ levels, (b) recommendations are contradictory (one says change, one says keep), (c) one persona's positive signal contradicts another's finding. Flag as `DISSENT_CANDIDATE` for deliberation (step 11).
+- **Disagreement** — 2+ personas, AND one of: (a) severity differs by 2+ levels AND recommendations diverge in direction, (b) recommendations are contradictory (one says change, one says keep), (c) one persona's positive signal contradicts another's finding. Flag as `DISSENT_CANDIDATE` for deliberation (step 11).
 
   **Not a disagreement:** Both personas agree on the problem but suggest different fixes. That's an agreement with complementary recommendations — merge and include both suggestions.
+
+  **Not a disagreement (severity-only):** Substance and recommendation align, only severity tier differs (e.g., LOW vs HIGH on the same drift-class concern with the same proposed fix). Synthesize as the median tier with a one-line attribution note in the finding body (e.g., "Severity range: java-fintech LOW, architecture-reviewer HIGH — team-lead synthesis MEDIUM"). Do NOT trigger deliberation — `SendMessage` rounds on calibration-only deltas waste tokens because neither subagent has new information that would flip their tier.
+
+  **Not a disagreement (reconcilable positive-vs-finding):** When persona A lists a pattern as a positive signal (e.g., "loader correctly mirrors sibling — payment-routing safety consistent") and persona B flags a related concern at HIGH (e.g., "the mirror creates silent data loss when external system evolves faster than the enum — observability is grep-only"), check if both can coexist: A endorses the pattern's *existence*, B criticizes a specific *aspect* (observability, test coverage, policy explicitness). If both perspectives describe the same surface honestly, synthesize the finding at median severity with attribution noting both — do NOT trigger deliberation. Deliberation is for substantively conflicting recommendations (keep the pattern vs remove it). Aspect-criticism + pattern-endorsement is reconcilable: post B's concern at the median tier, retain A's positive in the summary.
 
 ### Phase 4: Deduplicate inline comments
 
 When multiple personas flagged the same line range, produce ONE inline comment with combined attribution and the merged reasoning. Never post duplicate comments on the same line.
+
+### Phase 5: Dedupe across authors (independent reviewers on the same MR)
+
+Before posting, check existing inline notes from non–Team-Reviewer authors (no `Role: Team-Reviewer` footnote) for findings that overlap the team's. When an independent reviewer has already covered the same concern:
+
+- **Drop** if their finding fully covers the team's angle — adding a parallel post is noise.
+- **Reference, don't duplicate** if the team's finding lands at an adjacent layer (e.g., DTO vs. SPI record) or a different angle (correctness vs. consistency). Post the new finding with `(note <id>)` or markdown link to theirs and frame it as parallel — "same drift class @reviewer flagged on `<file>` …" — so resolving theirs naturally lands the team's at the same time.
+
+**"Resolved" ≠ fixed.** A thread marked resolved doesn't mean the flagged code changed — bots can bulk-resolve their own previously-opened threads on a later pass, independent of whether the line was touched. Before dropping a finding as "already covered," verify the current file content still matches the old finding, not just the thread's resolved status. If the same issue has been flagged multiple times and is still unfixed, still drop it from the posted review (a third post is still noise) — but name the repeat-and-still-broken pattern in the conversational summary to the operator, since it signals the author is missing or ignoring prior feedback.
+
+Cross-author dedup applies in both first-review and re-review modes. In re-review, also skip reacting to independent-reviewer threads — reactions are reserved for the team's own resolved/acknowledged threads.
