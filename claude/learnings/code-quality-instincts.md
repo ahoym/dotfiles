@@ -60,6 +60,8 @@ When a parameter name describes implementation (`clientId` for what's actually a
 
 If the implementation is a single train/test split, don't call it "walk-forward analysis." Name for current behavior, not aspirational scope.
 
+When you *rename* an aspirational name to match current behavior (`StrategyPipeline` → `OverlayPipeline` for a class that runs only the overlay chain) and the codebase genuinely has a future use for the old name, reserve it in the plan/design doc with a bridge note ("Phase 1's `OverlayPipeline`, widened to fold in the algo") instead of deleting it — the implemented artifact gets the honest name, the aspirational name stays earmarked for the phase that earns it.
+
 ## Add discoverability comments for cross-cutting behavior
 
 When a global handler silently catches what domain-specific handlers previously handled, add comments pointing to the global one. Cross-cutting behavior needs breadcrumbs at the point of displacement.
@@ -135,6 +137,10 @@ Defensive guards often fail not because they're wrong, but because they're at th
 
 **Review heuristic:** for every new defensive guard, enumerate the 4 quadrants of its conditions. `(filled<0, remaining<0)`, `(filled<0, remaining>=0)`, `(filled>=0, remaining<0)`, `(filled>=0, remaining>=0)`. Confirm which quadrants the guard actually covers. If the guard's stated intent is "catch anomalous filled", it must live where all anomalous-filled paths converge, not inside one anomalous-remaining branch.
 
+### A fetch-and-validate guard's scope follows where the value is *consumed*, not where it's fetched
+
+A guard that skips/aborts on a bad input belongs at every site that *uses* the value to make a decision — not uniformly wherever the value is *fetched*. A live quote is fetched on every order attempt, but it's only *consumed* for sizing on buys and limit-pricing on limit orders. A market-sell *exit* fetches the price too (for proceeds) but doesn't price the order — gating it on the same "bad quote → skip" guard would strand the position open on a transient sentinel. Map the buy/sell × limit/market matrix and place the guard per-cell: buy→skip, futures→raise (fail loud on the delicate path), market-sell→never block. Leave a one-line comment at each *un*-guarded site stating the deliberate omission, or the next refactor "uniformly applies" it and breaks the exit. Sibling to "Nested guard mis-scope" (correct *level*) — this is correct *scope* across sites.
+
 ### `url.startswith(prefix)` is not URL allow-listing
 
 `url.startswith("https://example.com")` passes for `https://example.com.evil.com/`. Without a path/separator anchor, prefix-matching a URL is a bypass class. Compare parsed components instead:
@@ -151,6 +157,10 @@ INFO-level for loopback URIs (`127.0.0.1:N`), HIGH-level for any internet-facing
 ### Transport-layer dataclasses don't carry behavior choice
 
 When a dataclass identifies *who* (e.g., `Account` with `id`, `broker`, `limits_key`), don't add fields that select *what algorithm to run on it*. Coupling identity to behavior is a layering violation that bleeds business decisions into transport types.
+
+### A magic constant can encode a hidden assumption about a sibling parameter
+
+A tuning constant validated at one value of a *related* parameter silently breaks when that parameter varies — e.g. a `barsback=50_000` request cap sized for 5-min bars 400s at 15/30/60-min, where the same row count spans far more calendar time. When you see a magic number, ask "what *other* parameter's value does this implicitly assume?" Scope the workaround to the case it was validated for (guard it: `if unit != "Minute"`) rather than letting it apply universally.
 
 Pattern: keep behavior selection at the entry point as `(identity, callable)` pairs. The loop collapses to `for identity in IDENTITIES:` once all converge on one behavior.
 
@@ -253,6 +263,8 @@ if current_direction == desired_direction: return  # missing base in compare
 
 The `_` is a flag. If a parsed field participates in equality in any sibling code path, it usually belongs in *this* compare too. When in doubt, compare the full normalized form (the input string itself, or the full parsed tuple) — partial-equality bugs are silent and only surface when a previously-degenerate dimension (here: base symbol — always the same product before VX rotation landed) becomes meaningful.
 
+Degenerate sub-case: the guard compares against a field that is *never populated* (`new_weight == last_weight` where `last_weight` is always `None`). This isn't partial-identity — it's a dead comparison that can never short-circuit (or always does), so the no-op guard silently does nothing. When reviewing a `new == last` guard, confirm `last` is actually written somewhere on a prior path.
+
 ## Don't reconstruct what the source-of-truth already computes
 
 When the system-of-record (broker, database, external API) exposes an aggregate (account equity, sum, materialized view) that you currently compute by hand from its components, prefer reading the aggregate directly. Hand-rolled reconstructions silently drift when the components stop tracking the underlying truth — e.g. local `cashAtHand + position.market_value` worked for equities (cashAtHand tracks broker cash) but broke for futures (cashAtHand frozen at allocation, MarketValue is notional). The broker's own equity field was right both times. Pattern smell: any time a calculation locally mirrors what an SoR field reports, that mirror is a maintenance liability waiting for one regime to invalidate one of the inputs.
@@ -282,8 +294,11 @@ Fix: drop existing bars whose timestamp is at/after the start of the currently-o
 ```python
 cutoff_ms = _current_period_cutoff_ms(unit, interval)
 finalized_existing = [c for c in existing if c["datetime"] < cutoff_ms]
-merged = merge_candles(finalized_existing, fetched, prefer="existing")
+finalized_fetched = [c for c in fetched if c["datetime"] < cutoff_ms]  # both sides
+merged = merge_candles(finalized_existing, finalized_fetched, prefer="existing")
 ```
+
+**Filter `fetched` too, not just `existing`.** Dropping only the existing side leaves a latent gap: a fetch path that *returns* the in-formation bar re-introduces it post-merge. Vendor "last N bars" queries (`barsback`) include the current forming bar; date-bounded queries (`firstdate`) often return only settled bars — so the bug stays invisible until the unfiltered path runs, then writes a partial trailing bar for that path's tickers only. The `< cutoff` drop on the fetched set is a no-op for the settled-only path and drops the forming bar for the other. (Manifestation: `financial/continuous-contract-data-quirks.md` → barsback vs firstdate.)
 
 Sub-case of the "Cache layering" entry above — the one-way-write invariant doesn't help when the writer writes garbage early. Same hazard whenever a refresh policy biases toward existing on conflict and a refresh can run before the period closes.
 
@@ -372,9 +387,170 @@ Two failure modes the validator-bypass pattern hides:
 
 The validator's failure is information — honor it.
 
+## Dual-format store: every writer must write the new-format key, not just the legacy one
+
+When a persisted store carries both a legacy shape (`investedPosition`) and a new multi-shape (`investedFuturesPositions`) during a migration, and the writer does a **partial merge** (keys absent from the payload are preserved), a writer that updates only the legacy keys leaves the new-format key holding stale data. A reader on the new key never sees the write. Symptom: a filled close cleared the legacy keys but not the new dict → the allocation reader still saw the position → re-sold it every tick (long→flat→short).
+
+**Audit:** for each writer feeding a dual-format store, confirm it writes *every* format a reader consumes — mirror the completest writer (the equity persister dual-wrote both; the futures per-leg writers didn't). Partial-merge persistence makes the omission silent: no "missing key" error, just a preserved stale value.
+
+## Reusing a named mechanism in a new context — trace its full lifecycle first
+
+A review suggestion that says "just reuse `<existing mechanism>`" can still require a *second* change to make that mechanism work in the new context. A `SYNC_FROM_BROKER = -1` sentinel was a **read-time** marker — produced at parse, resolved before any persist — so reusing it on the *write* path as a "couldn't-confirm, reconcile next tick" marker silently failed: the persist filter kept only `q > 0` and dropped it on the very next write. The fix needed widening the filter too. Before adopting "reuse X," read X's full lifecycle (who writes it, who reads it, which filters/guards it passes) — a mechanism that's load-bearing in one phase can be silently discarded in another. Naming an existing mechanism ≠ it being one line.
+
+## Audit both halves of a deliberately-mirrored function pair together
+
+When two functions are written as mirrors (equity vs futures executors, sync vs async paths, read vs write sides), they drift — one gains a write/guard/branch the other misses, and the second-written half is the usual offender. Worse, a documented "deferred / for now / future schema bump" comment on the missing half makes a live bug look like an intentional TODO: an equity executor's missing `investedAllocation` write (churn every tick) hid behind exactly such a comment while the futures executor wrote its analogous key. Heuristic: when a function mirrors another, diff them line-for-line — every `persist`, every dry-run/`effective_execute` gate, every state write must appear on both sides or have a stated reason not to. A "deferred" comment is not such a reason until you've confirmed the read side tolerates the missing write.
+
 ## Cross-Refs
 
 - `~/.claude/learnings/process-conventions.md` — complementary process-level patterns
 - `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology
 - `~/.claude/learnings/financial/vendor-divergence.md` — vendor-specific validation patterns relocated from this file
 - `~/.claude/learnings/financial/continuous-contract-data-quirks.md` — concrete instance of the validator-respect pattern in continuous-contract futures data
+
+## Reviewer-Asserted Invariant → Retire Sibling Defensive Checks in the Same Commit
+
+When a reviewer asserts an invariant (e.g. "make this parameter required, not `Optional`"), honoring it usually means more than the one line they pointed at: grep for existing defensive checks that guard against the now-impossible violation (`if x is not None`, null-coalescing, fallback branches) and retire them in the **same commit** — even when they live in a different file than the comment. A required invariant is only real once every consumer stops guarding against the null that can no longer occur; leaving the guards in place ships a contradiction (the type says "always present," the code says "might be absent"). Likewise, two comments on two files describing one coupled API change should be addressed together so neither half is left half-migrated. Surfaced: PR #232 — a `run_spec: RunSpec` "make required" finding on one file required retiring a now-dead `if output.run_spec is not None` guard in a different script.
+
+## "Reduce the nesting" ≠ collapse resource guards
+
+When flattening a nested `try`/`if` pyramid, separate two kinds of nesting. **Control-flow nesting** (a decision pyramid like `if not None` → `try int()` → `if fresh`) collapses cleanly: extract the whole decision into a `_helper(...) -> bool` that returns early at each non-match branch, then call it as a single guard (`if self._adopt(snapshot): return`). **Resource-management `try`/`finally`** (one block per resource — file handle, advisory lock) is *not* accidental nesting; keep one block per resource, since collapsing them trades a real cleanup guarantee for cosmetic flatness. State the distinction in the method docstring so the next reader doesn't "unnest" the resource guards.
+
+## A zero/positivity guard on an extremum metric silently excludes the extremes
+
+A `if denom > 0:` (div-by-zero) or `if x is not None:` guard wrapped around the update of a worst-case metric (`if util > worst_util: worst_util = util`) drops exactly the cases the metric exists to surface — the wipeout where `equity <= 0` (infinite utilization) skips the `worst_util` update while still counting as a breach in a sibling counter. The headline extremum then reads optimistic and disagrees with the breach count. Fix: map the degenerate input to the extremum's sentinel (`util = float("inf")` when `equity <= 0`) so the metric and the counters agree, instead of excluding it. Review heuristic: when a guard protects an arithmetic op that feeds a min/max, check whether the guarded-out branch *is* the extremum.
+
+## Refreshing a superseded index row: neutralize the stale lead, don't just append
+
+A curated index/TL;DR whose convention is "append a correction, don't rewrite history" still misleads when the **lead** is a bold present-tense claim that is now false (`**X is now the default**`) — a reader sees the prominent stale claim before the correction trail below it. Fix the tense: reframe the original as history (`Original conclusion: **X was made the default**`) and mark the row `SUPERSEDED`, keeping the appended ⚠️/✅ correction. Neutralizing a false present-tense lead isn't "rewriting history" — it stops a stale claim from reading as current.
+
+## Merge-induced parallel-promotion orphan
+
+When a merge pulls in another branch's version of an abstraction you also built (both independently promoted the same boilerplate), conflict resolution usually repoints every consumer to one version — leaving yours an orphan whose *functions* have zero callers while only a thin slice (e.g. constants) stays imported. Collapse to the consumed slice: lift the still-used names into the kept module, repoint, delete the rest. Two traps: (1) a function in the orphan that drifted during its parallel life is a latent bug, not just dead code — e.g. a loader missing a leg/param added meanwhile `KeyError`s on first use; (2) before deleting, `git grep` each orphaned symbol to confirm zero consumers **and** that it's a strict subset of a kept-and-used helper (`mnq_algo == make_mnq_algo(plz_algo_v2)`), so the deletion provably loses nothing. Sibling to "siblings-as-versions" and "generalization of the working case" — the merge is what creates the duplicate here.
+
+## Verify a shared-file single-writer invariant from the deployment artifacts before documenting it
+
+Before writing "assumes single-threaded/single-writer access" on a whole-file read-modify-write (or deciding it needs no file lock), confirm the invariant from the actual deployment — don't assume from the in-process threading model. Two artifacts settle it: (1) the container/orchestration spec (`docker-compose.yaml` volume mounts) — *which* services mount the shared file; (2) the process/iteration model — does one process drive all entities sequentially (`for x in ACCOUNTS`) or is it one-container-per-entity? Single-writer holds only when exactly one process mounts and writes the file. A docstring claim like "one container per account" can be imprecise (it's often one-per-*broker*, looping multiple accounts) — read the compose mounts, not the comment. If a concurrent-writer topology is possible, the RMW needs a file lock + re-read under lock (or atomic rename), not a docstring.
+
+## A module-move "for cleaner deps" drags in the *whole* module its new collaborator lives in
+
+When a review suggests moving function `f` from module A to module B "for a cleaner dependency direction," check what B would actually `import` — the entire module the named collaborator lives in (and its transitive deps), not just the symbol. Moving `f` to B because B owns its output / 2-of-3 collaborators can still be wrong if `f`'s remaining collaborator lives in A: B then imports *all* of A. Worked example — a stdlib-pure spec module (`sizing.py`: only `math`/`Decimal`) was proposed as the home for a `symbol → tick` resolver because it returns `spec.tick_size`; but the resolver also needs `parse_contract` from `roll.py`, which imports `BrokerAdapter`/`Account` — so the move would have dragged the broker/account graph into the foundational module and inverted the single `roll → sizing` edge. Keep `f` where its heaviest-coupling collaborator lives when that preserves one low→high edge and keeps the foundational module import-light. The deciding test is the actual import list, not which module the output "feels like."
+
+## A format-classifier that runs before its validator has only borrowed safety
+
+A pure helper that classifies input by *format* to pick a side-effecting action (wire `TradeAction`, route, dispatch key) and runs *before* the validator that rejects malformed input is correct only because the validator runs downstream — the safety is borrowed, not intrinsic. Implications:
+
+- **Single-source the shared shape.** If the classifier's pattern and the validator's pattern are separate literals encoding the same domain shape, derive both from one sub-pattern. Separate copies desync silently: a one-sided widening of the validator (extra root char, new code, wider year) sends a now-valid input to the classifier's *default* branch — wrong action, not a clean reject. Extraction beats a guard test that pins them equal — it makes desync structurally impossible rather than detecting it after the fact.
+- **Document the precondition, don't re-assert it.** State on the helper that callers pass a validator-valid value and which branch is the deliberate default. Don't add a re-validation assert — it's a pure internal helper, not an I/O boundary (defensive-at-boundaries, trusting-inside). If the call order is ever reorganized so it sees unvalidated input, re-validate at *that* new boundary.
+
+## A lossy/derived label used as a lookup-dict key silently selects the wrong object
+
+A `{label: obj}` dict whose key is a *display/truncated/rounded* label collapses two distinct inputs that format to the same string — the second overwrites the first, so a later `dict[label]` re-lookup returns the wrong object with no error. Carry the object alongside its row (`scored.append((row, obj))`, sort/filter the pairs, select `obj` directly) instead of re-keying by the label. Worked example: a grid-sweep holdout keyed `{_grid_label(cell): scenario}` where `_grid_label` does `int(reclaim*100)` — two cells truncating to one label scored the *wrong* cell on the unseen test half. Latent until the lossy fn actually collides, so it survives tests that use a non-colliding grid. The label is fine for *display*; the bug is reusing it as an *identity key*. Sibling to "Already in state X guards must compare full identity" — both are partial-identity-key failures, here on dict insertion rather than equality.
+
+## Reconcile a measured-vs-recommended value by relabeling, not recomputing, when the refined numbers already exist
+
+When a doc's headline figures were computed at a parameter the analysis later refined away (an inherited default the sweep rejects), and the refined value's numbers already live elsewhere in the doc, reconcile by **labeling the headline's provenance + pointing to the refinement** rather than re-running the headline. Recomputing cascades through every cross-reference and can re-introduce the over-pinning the analysis itself warns against; relabeling keeps each number attributed to the config that produced it. Either way, fix the contradictory *conclusion* statements ("X is defensible" when the sweep picked Y) — those are the actual bug, not the headline's existence. Sibling to "Refreshing a superseded index row: neutralize the stale lead."
+
+## Make a sort NaN-safe in the key, but preserve the existing tie-break
+
+A NaN sort key has an *undefined* position (NaN is neither `>` nor `<`), so a
+`maxdd==0` / `calmar==nan` cell lands anywhere and differs run-to-run. Fix it in the
+key — `key=lambda x: x.k if x.k == x.k else float("-inf")` parks NaN last under
+`reverse=True`. **Don't also add a secondary key the original lacked** (`(k, label)`):
+a stable sort's equal-key ties hold *insertion order*, which is often a parity
+contract — a new key silently reorders genuine ties, and under select-the-first
+(`eligible[0]`) changes *which* element is picked on a tie. Document the
+insertion-order tie-break rather than changing it. Siblings: "A zero/positivity guard
+on an extremum metric silently excludes the extremes" (sentinel-map the degenerate
+input); `python-specific.md` → "a NaN value used as a comparison anchor is sticky."
+
+## Verify a degenerate/empty state is reachable before testing or guarding it
+
+Before adding a test or guard for an empty/degenerate state, confirm the system's
+own writers can produce it. If every writer skips-on-empty or deletes-on-empty
+(`write_candles([])` writes no partition; `replace_partition(…, [])` deletes it),
+a hand-built artifact for that state exercises a path production never reaches.
+Check too whether an existing test already covers the *reachable* branch via a
+different trigger — a `mkdir dir/` + read that returns `[]` already hits the same
+`if not rows: raise` branch a zero-row file would, so the "untested branch" is in
+fact tested. Sibling to "Adding to default-iterated registries: verify before
+adding" and "Respect input validators" — reachability first, then coverage.
+
+## An error/log message string is a soft API surface — grep the literal before rewording
+
+Out-of-band log/alert tooling greps error-message literals, so changing the
+wording of a raised or logged message is a soft API change. Passing tests don't
+prove safety: they typically substring-match a *stable keyword* (`non-finite`),
+not the full phrasing, so a reworded prefix (`Balance.Equity is non-finite` →
+`<id>: Equity is non-finite`) slips through green while a downstream grep on the
+old literal breaks silently. `git grep` the old phrasing across the repo before
+rewording or harmonizing message shapes; if nothing keys on it, the change is
+free — but verify, don't assume.
+
+## A guard whose trigger overlaps a legitimate steady state must WARN, not raise — especially in a fan-out loop
+
+When a proposed guard fires on a condition that *also* occurs in normal
+operation (an empty fetch is both a vendor-regression signature *and* the
+routine idempotent "no new data" outcome), a hard `raise` turns the steady state
+into a failure. Worse, inside a per-item fan-out (multi-ticker sweep, batch job)
+a raise aborts every remaining item — the per-item-batch-abort anti-pattern.
+Scope a WARN to the narrow anomalous slice (`bond + Minute + zero-bars`) so the
+regression surfaces in logs without breaking the legitimate path or
+false-positiving; reserve `raise` for conditions that are *never* legitimate. A
+reviewer asking to "convert silent staleness into a failure" doesn't mean a hard
+raise — a loud WARN is the failure-to-notice fix when zero is sometimes normal.
+
+## Required keyword-only vs sentinel-`None` for a param used by only one branch
+
+For a param that feeds only one branch (`interval` only matters when `unit ==
+"Minute"`), required keyword-only (`*, interval: int`) makes omission a
+`TypeError` at call-binding — caught even in runs that never hit the branch —
+whereas a sentinel (`int | None = None` + raise inside the branch) lets
+irrelevant-branch callers omit cleanly but only fails at runtime when the branch
+executes. Choose required-keyword-only when every caller already holds the value
+(the pipeline threads `(unit, interval)` everywhere, so "always state it" costs
+nothing and buys the stronger call-time guarantee); choose the sentinel when
+forcing a dummy on callers that ignore it would mislead readers into thinking it
+matters there. Either way, pair the removed default with a positive
+`pytest.raises(TypeError)`/`ValueError` test to lock the contract. Sibling to
+"Env-discriminator default args are a footgun" (required vs defaulted) — this is
+the next axis: *how* to enforce required-ness.
+
+## A tolerant and a strict restore path must agree on the *safety* invariant, not just tolerate differently
+
+A state machine with two deserializers — a tolerant one (degrade gracefully, never crash the loop) and a strict one (fail loud on a bad blob) — may legitimately differ on *tolerance* (missing keys → pristine vs. raise) but must still agree on every *safety* invariant. A leg/tenant/owner discriminator that `to_dict` **always** co-writes with the state is one: because it's co-written, any blob carrying state *without* it is provenance-unknown (a hand-edit, or a cross-owner blob whose stamp was stripped) — never a genuine record your own code wrote. The tolerant path must therefore fail safe to un-armed (ignore the stateful slice, re-baseline + warn), not silently inherit a money-affecting latch; the strict path raises. Discarding it loses nothing real *because* genuine records always carry the stamp. A blob with no state at all is still a clean first run → pristine, no warning. Sibling to "Dual-format store: every writer must write the new-format key" — both turn on "what does my own writer always emit?"
+
+## A durable commit gated on a coarse success signal records a false state — and the fail-safe drop must still be loud
+
+Before committing durable state on `if f() is True:`, check what that `True` *means*. A submit/orchestrate call (`place_order`, `execute_*`) returns `True` on *submission*, and a "treat a transient empty read as already-flat" path returns `True` with the side-effect never having run — so even "persist-after-confirm" records a false "done" when the confirmation signal is coarser than the side-effect. Closing the gap needs a *verifying* read (position/fill query), not a richer boolean. Separately: when you correctly *don't* persist/act because confirmation failed (safe direction — re-attempt next tick), still alert loudly — a money-moving decision made and not executed is operator-relevant even when it fails safe. Fail-safe ≠ silent. Sibling to "A guard whose trigger overlaps a legitimate steady state must WARN, not raise."
+
+## Making a previously-optional field load-bearing exposes fixtures that omitted it
+
+When a review makes an optional/ignored field required or load-bearing (a discriminator, a now-validated key), the existing tests seeding fixtures *without* it were exercising a shape production can't actually produce — your own writer always co-writes the field. Two-part fix: add the field to those fixtures (production's always-written shape) so they keep hitting the intended reload/validation path, and add a *new* test for the now-explicit behavior on the genuinely-fieldless input. Green tests after the change are necessary but not sufficient — confirm the updated fixtures still reach the branch they were written to cover. Sibling to "Verify a degenerate/empty state is reachable before testing or guarding it."
+
+## Promoting a private value type to public: value tier, not beside its consumer
+
+When a private enum / frozen-dataclass (a pure value type, no behavior) graduates to public, resist the natural pull to co-locate it with the Protocol/module that consumes it — put it in the models/value tier with the other domain value objects. That keeps it import-light, avoids same-layer coupling (the consumer imports *down* to the value), and lets a future second consumer import the canonical type instead of reaching into the first consumer's layer. Sibling to "A module-move 'for cleaner deps' drags in the *whole* module its new collaborator lives in" — both turn on keeping value/foundational modules import-light.
+
+## A "see X for current numbers" staleness banner is a deferred-refresh IOU
+
+A doc carrying a banner like "figures below predate the re-prove — see `results/*.txt`" has *deferred* a refresh, not avoided it. Removing that banner in a later cleanup obligates completing the refresh in the same change — otherwise honestly-flagged-stale silently becomes unflagged-stale, which is strictly worse. Before dropping any "provisional / see source" disclaimer, diff the doc's figures against the source it points to and refresh them.
+
+## Verifying a figures-doc refresh: a numeric diff catches numbers, only a read catches a backwards claim
+
+Two complementary checks after refreshing or tightening a doc full of figures. (1) A numeric-token multiset diff proves no figure changed or appeared: `comm -13 <(git show HEAD:f | grep -oE '[0-9.]+' | sort -u) <(grep -oE '[0-9.]+' f | sort -u)` — empty means no new number. (2) But a regex/numeric sweep is blind to an inverted *qualitative* conclusion ("≥2-rung cuts drawdown" when the data now says 0/9; "PF thin" when it's fat) — read each summary cell. A grep-only sweep reports "clean" while a flipped verdict survives.
+
+## Reconciling figures across several docs in parallel — grep leftovers + cross-doc consistency
+
+When N docs cite the same re-proved numbers and you fan out one agent per doc, two failure modes
+the per-doc pass misses: (1) **stale leftovers** — `git grep` each old headline figure (old
+capstone $, old PF range) across ALL docs to catch numbers an agent skipped; watch for regex-dot
+false positives (`6.1` matches `2026-06-19`, `5/6` matches `35/606`). (2) **cross-doc divergence**
+— agents reading the same tables independently round or scope ranges differently (one cites the
+recommended slow-TF cells, another the full sweep), so spot-check that the shared headline figures
+agree. Extends "Verifying a figures-doc refresh" above — numeric-diff + read-verdicts, now applied
+across the whole doc set.
+
+## Duplicated prose of load-bearing config: keep-in-sync pointer, don't always collapse
+
+When N docs restate the same load-bearing config (a signal→symbol map, a status set, an env table) that can't auto-generate the prose, "consolidate to one home" is the *wrong* fix if the copies serve genuinely different purposes — a per-symbol glossary vs. a signal-translation flow — because collapsing one into a pointer kills its standalone value. Add an explicit `single source of truth: <module::SYMBOL> — keep in sync` note under *each* copy instead; reserve true consolidation for verbatim, purpose-less duplication. Cite any load-bearing *figure* (a measured beta, a threshold) in exactly one copy and point the others at it, so the number itself doesn't re-duplicate. Boundary case of "Consolidation: each piece of knowledge in exactly one location" — same family as keeping a 1-line wrapper that has multiple call sites.

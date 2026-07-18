@@ -1,5 +1,5 @@
 Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
-- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination
+- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination, vendor spec staleness, SDK source of truth, API version mismatch, stale swagger, streaming-only endpoint
 - **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/vitest-rtl.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
 
 ---
@@ -151,6 +151,12 @@ When wrapping a vendor API behind an adapter (BrokerAdapter → VendorClient), t
 ## Backward-Compat Defaults: Remove When No Caller Depends On Them
 
 A "backward-compat default" added during a refactor (`def f(x, y, *, margin=MNQ_MARGIN_PER_CONTRACT)`) becomes load-bearing the moment any future caller relies on it. If existing callers all pass the value explicitly, the default never served its purpose — and now hides what looks like genericity behind a domain-specific value (a module *appears* generic but silently uses contract-specific constants). Two-step API evolution: add with default → verify all callers pass explicitly → remove the default. The honest signature forces new callers to be explicit about domain-specific constants instead of inheriting silent ones.
+
+## A vendor's published OpenAPI / api-docs repo can lag the live API by a major version
+
+Don't trust a vendor's public `api-docs` repo as the source of truth for endpoint paths — it may document an older major version than what's live. Verify the spec's version against the base URL your integration actually calls (symptom: your code hits `/v3/...` but the repo's `swagger.yaml` only describes `/v2/...`). When the published spec is stale, a maintained **SDK source** (client crate/package — e.g. docs.rs crate source, a community SDK) usually has the authoritative current endpoint strings hardcoded. JS-rendered doc portals also defeat plain HTML fetches; pull the raw spec file or the SDK source instead of the rendered page.
+
+Related: some resources are **streaming-only** (newline-delimited JSON over a long-lived connection) with no REST/JSON equivalent — a `get().json()` client can't consume them; they need a stream + line-iterator path. The published docs may not make the streaming-vs-REST split obvious; the SDK's module layout usually does.
 
 ## Cross-Refs
 

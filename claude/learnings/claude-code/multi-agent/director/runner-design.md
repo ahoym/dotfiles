@@ -83,3 +83,13 @@ Failure mode this leaves open: a schema mismatch between `FETCH_ITEM_STATE_CMD` 
 Symptom: 3+ correction replies per thread instead of the expected 2 (ack + commit-ref). Replies look like *"can't find the function this comment references"* followed by a self-correction *"actually, after rebasing the worktree, the function exists"*.
 
 Mitigation: insert `git fetch origin <branch> && git reset --hard origin/<branch>` (or `git pull --rebase origin <branch>`) in the worktree setup function, after `git worktree add` and before the worker reads any source. Per-cycle relaunches need this because the previous cycle's commits are remote-only until refresh.
+
+## `git worktree add <bare-branch>` Fails for Remote-Only PR Branches
+
+`setup_worktrees` runs `git worktree add "$wt" "$branch"` with the bare branch name. When the director runs from `main` and never fetched the PR branch, only `origin/<branch>` exists locally — `git worktree add` fails with `fatal: invalid reference: <branch>`, the worktree is never created, and the runner launches `claude -p` from the project root anyway. The addresser's Step-5 CWD guard catches it (errors cleanly in ~90s), but a full cycle is wasted on the bootstrap death.
+
+Distinct from "Newly-Created Worktree Lags Remote" (which assumes the worktree *was* created but is stale) — here creation fails outright. Fix: template `setup_worktrees` to `git fetch origin <branch>:<branch>` (materialize the local ref) before `git worktree add`. Director-side unblock without touching the working tree: `git fetch origin <branch>:<branch>` (refs only, no index/worktree mutation), then relaunch. Validated: director compound sweep on a remote-only PR branch — fetch + relaunch created the worktree on the next cycle.
+
+## Stale Worktree HEAD After Force-Push — Diagnostic Tell + Hard Reset
+
+When an address worktree is created from (or reused on) a local branch ref that lags the force-pushed remote, the worker reads stale source and posts pushback on "phantom code." **The tell:** a review comment references a path or symbol that `Grep`/`git ls-files` reports absent in the worktree, yet `gh pr diff --name-only` lists the file. Before concluding the comment is phantom, compare `git rev-parse HEAD` against the PR's `headRefOid`. For a **rebased** branch the histories diverge, so `git pull --ff-only` fails ("Not possible to fast-forward") — use `git reset --hard origin/<branch>` (safe only with a clean working tree). Distinct from "Newly-Created Worktree Lags Remote" above, where a fast-forward/rebase pull suffices because the branch only moved forward. Validated: PR #231 addresser — a `place_ts_order.py` comment pointed at a file present only at the newer SHA; hard reset to `origin/<branch>` resolved it.

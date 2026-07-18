@@ -1,5 +1,5 @@
 Python idioms and gotchas for Pydantic v2, TypedDict, dataclasses, env var handling, and package management.
-- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword, dependency-groups, --no-dev, deferred import, dev-only dep, container venv, pyarrow
+- **Keywords:** pydantic, optional fields, model_dump, exclude_none, TypedDict, NotRequired, pyright, dataclass, __post_init__, __all__, pyproject.toml, uv, poetry, noqa, linter suppression, Protocol, PEP 544, structural typing, pydocstyle, private module, patch path, from None, exception chain, fchmod, mkstemp, fd leak, bool int subclass, isinstance bool, httpx Timeout, split phases, async blocking, sys.path, PYTHONPATH, package-mode, ModuleNotFoundError, script relocation, Docker CMD, python -m, keyword-only, signature audit, positional-to-keyword, dependency-groups, --no-dev, deferred import, dev-only dep, container venv, pyarrow, np.roll, circular shift, rolling window look-ahead
 - **Related:** ~/.claude/learnings/api-design.md, ~/.claude/learnings/testing/pytest-patterns.md, ~/.claude/learnings/testing/testing-patterns.md
 
 ---
@@ -199,6 +199,18 @@ rg 'patch\("logic\.plz\._adapter\.' tests/
 
 Applies to any string-based reference to the old path: `patch()`, `patch.object()` string forms, `importlib.import_module()`, monkeypatch fixtures.
 
+## Relocating a whole test class orphans `import pytest` in the source file
+
+When you move a test class out of a file wholesale, the file's `import pytest` often goes unused — `pytest` is typically only consumed by `pytest.raises` / `pytest.mark.*` *inside* the moved class. Lint catches it (F401), but only after the move, so an automated address cycle that relocates tests predictably trips one follow-up lint commit. Scan the source file's remaining `pytest.` usages before committing the relocation.
+
+## Extracting a module: route shared calls through the origin module to avoid patch churn
+
+The inverse of the above. When pulling a cohesive block into a *new* module that still reuses the origin module's helpers, reference them via the origin module (`operations.write_x(...)`) rather than re-importing by name (`from operations import write_x`). Tests that `patch("origin.write_x")` keep working unchanged — the new module resolves the name on the origin module at call time, so a single patch point covers both the origin and the extracted code. Only the import-source lines of the *moved* symbols themselves change in tests; the dozens of patches on reused helpers don't.
+
+## `StrEnum.value` vs a stored `.name` silently never compares equal
+
+`TradeDirection.LONG.value` is `"long"`; if state was persisted as the uppercase member *name* (`"LONG"`), `enum_member.value == stored` is always `False`, so any guard keyed on it silently misfires (e.g. closes+reopens every tick). Compare on the form the data was written in — `.name` vs `.name`, or normalize both ends. A test that exercises the "should be equal" branch catches it; a dry-run-only test won't.
+
 ## Subclass Stdlib Exceptions for Backwards-Compat Migration
 
 When introducing a domain-specific exception that replaces a standard one, subclass the original: `class DomainError(StdlibError): ...`. Existing callers' `except StdlibError` catches keep working during migration, and new code can catch the more specific domain type. Critical in systems where error handling is load-bearing (hot loops, retry logic, signal handlers) — a silent type change can break error paths in production.
@@ -359,6 +371,11 @@ Underscore prefix on a `dataclass` field signals intent but the field still appe
 
 `d.get(k, fb)` falls back only on absent key. `d.get(k) or fb` falls back on any falsy value — `0`, `""`, `False`, `[]`. For numeric count fields where `0` is a legitimate value (day-trade count, queue depth, retry remaining), `or` introduces a silent wrong-fallback bug. Use `(k, fb)` or `v if v is not None else fb` when only absent-key should trigger.
 
+## `from_dict` stays parse-only; typed-field promotion shifts `to_dict()` output
+
+- Migration/normalization logic belongs in `__post_init__`, not bolted onto a `from_dict` factory after `cls(**kwargs)`. Post-construction mutation in the factory breaks the parse-only contract and creates a hidden init path the plain constructor skips.
+- Promoting a bare-string dict key to a typed dataclass field (`x: Dict = field(default_factory=dict)`) is a 3-part change — enum/key + dataclass field + read-site — AND shifts `to_dict()` output: every record now emits the new key (e.g. `"investedAllocation": {}`). Check serialization consumers before promoting; safe only when writes merge (`{**old, **new}`) rather than overwrite.
+
 ## `float(large_int_string)` IEEE 754 precision trap
 
 `float("10000000000000001") == float("10000000000000000")` — the float type can't represent adjacent large integers. Any guard claiming integer-precision validation that uses `float` as an intermediate (e.g., `float(qty) != int(float(qty))` for whole-shares enforcement) silently passes invalid input at scale. Use `Decimal(str)` as the intermediate for precision-critical guards.
@@ -478,6 +495,7 @@ Three fixes:
 | `ENV PYTHONPATH=/workspace` | Dockerfile / env-driven runners. Broadest — also covers `docker exec ... python ...`. |
 | `python -m pkg.sub.script` | Shell invocation when CWD is the repo root. `-m` adds CWD to `sys.path`. |
 | `package-mode = true` + entry-point | Most invasive; project becomes pip-installable, paths irrelevant. |
+| `sys.path.insert(0, str(PROJECT_ROOT))` shim atop the script | Per-script fix for a repo of standalone CLI scripts (`PROJECT_ROOT = Path(__file__).resolve().parents[N]`). Needs `# noqa: E402` on the now-below-code `logic`/`config` imports. The tell that a script is missing it: its siblings in the same dir all have the shim and import fine, it alone `ModuleNotFoundError`s. |
 
 Pairs with `refactoring-patterns.md` → "Smoke-test Docker import after `CMD` path changes" for the verification recipe.
 
@@ -534,6 +552,12 @@ grep -rn -E "(fn1|fn2|fn3)\(" --include="*.py" -l | grep -v <changed-file>
 
 For each hit, verify the now-keyword param is passed as `name=value`. CI passes if test coverage is thin — runtime is where it bites. Same audit discipline as renames/removals (`git-workflow.md` → "API Changes").
 
+## `timedelta != 0` is silently `True` — ordering ops raise, `!=` doesn't
+
+Cross-type `!=` between `timedelta` and `int` returns `True` silently (verified Python 3.13.2): `timedelta(0) != 0` → `True`. Same for numpy object arrays — `np.array([timedelta(0)], dtype=object) != 0` → `[True]`. This is distinct from ordering (`<`, `>`, `<=`, `>=`), which DO raise `TypeError` on `timedelta` vs `int`. The reason: `timedelta.__ne__(int)` returns `NotImplemented`, and Python's `!=` fallback resolves un-comparable objects to "not equal" by identity; ordering operators have no such fallback.
+
+Consequence for time-series code: a "is this a day boundary?" check written as `(date_a - date_b) != 0` is **always** `True` — every bar reads as a boundary, so per-bar returns get treated as daily returns and annualized Sharpe is wildly off. Use ordinals (`date.toordinal()`) for date-boundary arithmetic on date arrays, not raw `date`/`timedelta` vs int. Before flagging such a comment as "wrong — that raises TypeError," run it in the actual venv: `!=` has the `NotImplemented`→identity fallback that ordering ops lack.
+
 ## DST drift in `datetime + timedelta(days=N)` vs epoch math
 
 `datetime.fromtimestamp(t) + timedelta(days=85)` adds 85 calendar days in **local time**; `datetime.fromtimestamp(t + 85 * 86_400)` adds 85 × 86,400 seconds in **UTC**. Across a DST transition these differ by an hour. For tests asserting against system computation that uses epoch arithmetic, mirror the system's math — don't reconstruct via wall-clock `timedelta`.
@@ -575,6 +599,10 @@ Two fixes (pick by intent):
 2. **Require the explicit form** in `_parse_args`: `if args.flag and not args.x: parser.error("--flag requires --x to be set explicitly")`. Cleaner when "operate on all defaults" doesn't compose with the flag's semantics anyway.
 
 Family: `dict.get(k) or fb` ≠ `dict.get(k, fb)` — both are "fallback collapsed silently" gotchas, but the argparse one bites at the resolved-vs-raw layering boundary, not the falsy-value one.
+
+## Argparse `default=os.environ.get("KEY")` leaks the value into `--help`
+
+argparse embeds the *resolved* default verbatim in `--help` output. If the env var is set when `--help` runs, a real secret/account id lands in terminal scrollback, screen-share, or CI logs. Use `default=None` in the parser and resolve in the body after `parse_args()`: `account = args.account_id or os.environ.get("KEY")`. Preserves the flag → env → auto-discovery chain and never prints the live value.
 
 ## Headless matplotlib default for CLI scripts
 
@@ -618,6 +646,187 @@ sys.modules["mypkg.client"] = MagicMock()  # BEFORE any test import touches mypk
 When tests later do `from mypkg import singleton`, Python finds the pre-mocked client module and `__init__.py`'s constructor runs against the mock. Singleton becomes test-safe without restructuring the production code.
 
 Constraint: the pre-mock must execute before the first import of the affected package — `conftest.py` at the test-root level satisfies this for pytest.
+
+## pydocstyle D417 fires on *partial* Args blocks
+
+D417 ("Missing argument descriptions") triggers only when a Google-style `Args:` block documents *some* parameters but omits others — not when there's no `Args:` block at all. Condensing a docstring by deleting the obvious arg lines while keeping the interesting one breaks the build. Fix: either document every arg, or drop the `Args:` block entirely and fold the one meaningful arg into prose. (Same family as the D101/D102 notes above — you can't shorten by deleting a docstring either.)
+
+## `Path.with_suffix()` swaps only the *last* suffix — test the inputs that distinguish it from `.replace()`
+
+`pathlib.Path("token.bak.json").with_suffix(".lock")` → `token.bak.lock` (only the final suffix changes), and a suffix-less `tokenfile` → `tokenfile.lock`. A naive `str.replace(".json", ".lock")` diverges on both: multi-dot names and names lacking the expected extension. When a derived-path helper uses `.with_suffix()`, the test must assert on exactly those two inputs — otherwise a future refactor to `.replace()` passes the happy-path test and silently mishandles them. Same discipline as "distinguish a helper from its closest sibling" — pick inputs where the two implementations disagree.
+
+## Keep a derived property total; fail loud at the consuming gate, not inside it
+
+A derived `@property`/Optional accessor evaluated over many records (a per-trade
+metric in a scan, a per-row field in a sweep) should stay **total** — return
+`None`/sentinel on a degenerate input rather than `raise` — so one bad record
+can't crash the whole iteration. Put the fail-loud (`raise`/`SystemExit`) at the
+*script or gate that consumes the aggregate*, where it can report "cannot proceed"
+with context. Pairs the two: the property guards `entry_price <= 0` → `None`; the
+script that gates a decision filters those out and `SystemExit`s if nothing
+usable remains. Raising inside the hot property instead turns a single bad row
+into a total failure and scatters the diagnostic away from the decision point.
+
+## An empty `{}` file is `not None` — use a truthy check to fall through to a fallback source
+
+A file-read helper that returns `None` for a missing file but the parsed value (`{}`, `[]`) for an empty/partial one means `if data is not None:` treats an empty stub as authoritative. When the file is one tier of a fallback chain (per-account → legacy shared, cache → source), an interrupted/partial write leaves `{}` that *shadows* the fallback tier — the exact lost-state bug fallbacks exist to prevent. Use `if data:` (truthy) so empty content falls through, and apply it symmetrically on **both** the read and write side of the pair, or they disagree on how an empty stub is handled.
+
+```python
+existing = read_data_from_file(path)   # None if missing, {} if file contains {}
+if existing:                           # NOT `is not None` — empty stub falls through
+    return merge(existing, update)
+return write_to_fallback(...)
+```
+
+Distinct from the `dict.get(k) or fb` and `JSON null vs missing key` entries: this is about a *file-existence vs file-content* contract, not a dict value.
+
+## A finiteness check rejects `NaN`/`Inf` but not a *finite* sentinel
+
+`math.isfinite` is necessary-not-sufficient when a vendor's "no data" marker is itself finite — TradeStation emits `INT32_MIN/100` (`-21474836.48`) for missing/halted reads, which passes `isfinite` and every `== 0`/`< 0` domain guard, then flows into sizing as a ~21.4M magnitude. Reject it explicitly by magnitude alongside the finiteness floor (`float("-21474836.48") == -2147483648/100` is exact, so equality works). Two independent floors — pairs with the `float("NaN")` entry above, which only closes the non-finite half.
+
+## `dict.get(key, default)` erases the absent-vs-present-empty distinction
+
+`data.get("Positions", [])` returns `[]` for both an *absent* key (incomplete/degraded API read) and a *present-and-empty* one (genuine flat). When that distinction is load-bearing — a source-of-truth reconcile where empty means "affirmatively nothing" — defaulting conflates a read failure with a real empty result, so an incomplete read drives a destructive decision (wipe config, re-open a still-held position). Use `if key not in payload: raise` to fail loud and retry the tick. Sibling to `dict.get(k) or fb ≠ dict.get(k, fb)` (value-falsiness axis) — this is the key-presence axis.
+
+## A finiteness guard must spare a *legitimate* NaN sentinel — distinguish it from impossible ±inf/negative
+
+When NaN is a valid domain sentinel (an indicator during warm-up, "no reading yet"), a blanket `require math.isfinite(x)` wrongly raises on it. Split the contract: NaN → the documented safe path (skip the decision, no-op), `±inf`/negative/out-of-domain → raise, and gate the computation on `x > 0` so NaN and 0 both fall through without acting (`NaN > 0` and `0 > 0` are both False). Put the guards *after* any pass-through early-return, so off-path ticks carrying dummy `0.0`/NaN values (a non-target branch) aren't validated against the on-path contract. Sibling to "`float("NaN")`/`float("Infinity")` succeed silently" and "A finiteness check rejects NaN/Inf but not a finite sentinel" above — those close the *reject* half; this one stops a guard from over-rejecting a NaN that's load-bearing.
+
+## D205 fires when a docstring is compressed into a single paragraph
+
+pydocstyle wants a one-line **summary**, a blank line, then the body. Collapsing a multi-paragraph docstring into one flowing paragraph (the natural move when tightening for conciseness) trips `D205 "1 blank line required between summary line and description"`. Keep a short summary line + blank line before the detail. Same family as the D403/D417/D101 rules above: *shortening* a docstring can introduce a lint error, so re-run `ruff` after any trim.
+
+## A "last bar / record timestamp" you adopt may be tz-aware while the rows it's subtracted against are naive
+
+Two timestamp producers in one codebase need not agree on tz-awareness — e.g. `Candle.to_readable_time()` → `datetime.fromtimestamp(ts, tz=UTC)` (aware) vs a loop stamping records with bare `datetime.fromtimestamp(ts)` (naive). Adopting the aware accessor as a value subtracted against the naive records raises `TypeError: can't subtract offset-naive and offset-aware datetimes`. Match the representation the *consumer* compares against (here the naive `fromtimestamp` form); don't assume a suggested accessor (`x_axis[-1]`, `.timestamp`, etc.) is type-compatible with what subtracts it.
+
+## `json` round-trips NaN/Infinity by default — a type-only float gate passes a poisoned value
+
+Python's `json.dumps`/`loads` emit and parse `NaN`/`Infinity`/`-Infinity` literally (`allow_nan=True` default), so a deserialized numeric field can be non-finite even from "valid" JSON. A gate that checks type only — `isinstance(x, (int, float)) and not isinstance(x, bool)` — passes `nan`/`inf` (both are `float`). Add `math.isfinite(x)` whenever the value feeds a comparison or accumulator. Failure mode: a non-finite value used as a comparison anchor is *sticky* — `x > nan` is always `False`, so e.g. a NaN high-water mark never updates and every downstream `>`/`>=` test silently no-ops. Reject at the write boundary (`json.dumps(..., allow_nan=False)` raises) or the read boundary (`math.isfinite`).
+
+## `ruff --fix` + `ruff format` don't fix every rule — re-run `ruff check` after
+
+`ruff check --fix` only auto-fixes *fixable* rules; non-autofixable ones (e.g. `D205` "1 blank line required between summary and description") are reported but left in place, and `ruff format` reformats around them without fixing them. So a `--fix` → `format` pass can leave a real lint error that lands in a commit and only surfaces at a later full `ruff check .` (or a PR gate). Re-run `ruff check <file>` after the fix+format pass, and read the `Found N errors (M fixed, K remaining)` line — `K remaining > 0` is the tell that `format` won't clear.
+
+## `x or fallback` is correct for a display label — the value-domain `is not None` rule inverts
+
+The `dict.get(k) or fb` / truthy-vs-`is not None` caution applies to *values used
+in logic*, where `0` / `""` / `[]` are legitimate and `or` wrongly collapses them.
+For a human-readable diagnostic *label*, the rule flips: `account_id or "balance"`
+is the right call — an empty-string id under `is not None` renders a useless empty
+prefix (`": Equity is non-finite"`), and an empty id carries no diagnostic value
+distinct from a missing one. Pick by whether the value is consumed (use
+`is not None`, preserve falsy) or merely displayed (use `or`, fold falsy to the
+fallback).
+
+## `ruff check <file>` parses an explicitly-named non-`.py` file as Python
+
+Ruff lints files passed explicitly *by argument* regardless of extension — so a
+"check the changed files" loop that includes a `README.md` / `.txt` / `.json`
+makes ruff parse prose as Python and emit hundreds of bogus syntax errors (a
+markdown README yielded 1343). Filter the file list to `*.py` before passing to
+`ruff check`, or pass a directory and let ruff's own include/exclude rules apply.
+
+## `np.searchsorted(days, t, "right") - 1` underflows to -1 — a silent array-TAIL (future) read
+
+The standard "as-of" index (last bar at or before `t`) is `searchsorted(...,'right')-1`, which returns **-1** when `t` precedes the first bar — and `series[-1]` then reads the *last* element, i.e. a future value (look-ahead in a time series). A `max(idx, 0)` clamp hides it as a stale read of bar 0; neither is what you want for a pre-history lookup. Guard at the consumer: `series[idx] if idx >= 0 else float("nan")` (NaN-on-underflow), and for an N-bar lookback guard `idx >= N`. Consolidate multiple as-of helpers onto one core with one documented underflow policy so a reader can't infer the wrong edge behavior from a sibling.
+
+## Temporary module-global rebind: save/restore under try/finally, restore the *saved* value
+
+Code that swaps a sibling module's global for a sweep (`other.KEY = "rsi10"`; run; reset) must wrap set/reset in `try/finally` and restore the value it *read*, not a hardcoded literal — a mid-loop `raise` otherwise skips the reset and silently poisons every later read in the process with the wrong value, and a hardcoded reset (`= "rsi14"`) breaks when the default changes. Document the swap contract at the global's definition site (process-global, not reentrant). The cleaner fix is to thread the value as an argument; try/finally is the proportionate minimum when the call structure is shared.
+
+## `@dataclass(frozen=True)` doesn't freeze a dict/list field's *contents* — wrap in `MappingProxyType`
+
+`frozen=True` blocks attribute *rebinding* (`obj.attr = x` → `AttributeError`), not mutation of a mutable field — `obj.choices['k'] = v` still mutates the shared instance. For a real read-only promise, wrap the field in `__post_init__` (the frozen-init escape hatch is `object.__setattr__`):
+
+```python
+@dataclass(frozen=True)
+class LegTarget:
+    choices: Mapping[str, str]          # not dict[...] — the view isn't a dict
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "choices", MappingProxyType(dict(self.choices)))
+```
+
+`MappingProxyType` raises `TypeError` on item assignment; reads (`in`, `[]`, `.values()`, `sorted()`) are unchanged so call sites don't churn. The plain frozen-rebind test (`obj.attr = ...` → `AttributeError`) does NOT cover this — add a `pytest.raises(TypeError)` on `obj.field['k'] = ...`. `__post_init__` also needs a one-line docstring or ruff D105 fires.
+
+## A stateful instance in a dispatch list: its construction site sets its lifetime
+
+In a `(identity, callable)` dispatch table, *where* a stateful callable is constructed decides whether it's a singleton or rebuilt per call:
+
+```python
+DISPATCH = [
+    (acct_a, StatefulAlgo(...)),                       # built ONCE at module load
+    (acct_b, lambda ds: wrap(StatefulAlgo(...)(ds))),  # built EVERY call → state never accumulates
+]
+```
+
+Passed directly as the list element it's constructed once (state persists across the loop that iterates `DISPATCH`); constructed *inside* a per-call `lambda` body it's fresh every invocation, silently defeating any across-call state (hysteresis, caches, counters). Hoist to a named var when it must live inside a lambda. A diff-only reviewer can't distinguish the two — the loop that iterates `DISPATCH` isn't in the hunk — so "this resets per poll" is a hypothesis to check against the full file, not a finding.
+
+## `match` over an Enum — `assert_never`, Not a Trailing `raise`, for Static Exhaustiveness
+
+A `match side:` over an enum that ends in `raise ValueError(...)` only catches a missing case at *runtime* — adding a new member without a `case` slips past the type checker until that member is actually dispatched. Make non-exhaustiveness a check-time type error with `assert_never` (`from typing import assert_never`), in either form: **after the match** (a bare `assert_never(side)` on the line after the last `case`) or as a **wildcard arm** (`case _ as x: assert_never(x)`). Prefer the after-match form — a wildcard arm makes the match exhaustive, so any trailing `raise` you keep alongside it becomes unreachable dead code. The bare `raise` alone covers literal method/attr renames *inside* the arms (real references) but **not** new members, so it undercuts any "caught at check-time" claim for the enum itself. No need to keep a separate runtime `raise`: `assert_never` itself raises `AssertionError` at runtime and — being a function call, not an `assert` statement — is **not** stripped by `python -O` (unlike a bare `assert`; see the assert-footgun entry above), so the fail-loud guarantee survives on a hot path.
+
+## "Build once" for a per-iteration-derived object whose source is reassigned externally → property setter
+
+When a hot loop rebuilds a derived wrapper every iteration (`Pipeline((self.x,)).run(...)` per bar) and `self.x` can be reassigned *after* `__init__` (a config factory sets it; a test/research path does `obj.x = ...`), don't build the derived object inline in `__init__` (it goes stale on reassignment) nor cache-and-compare per call (noisy). Make `x` a property whose setter rebuilds the cached derived object once per assignment:
+
+```python
+@property
+def risk_overlay(self): return self._risk_overlay
+
+@risk_overlay.setter
+def risk_overlay(self, overlay) -> None:
+    self._risk_overlay = overlay
+    self._pipeline = Pipeline((overlay,)) if overlay is not None else None
+```
+
+The setter fires on `__init__`'s own assignment *and* any external reassignment, so the loop reuses `self._pipeline` allocation-free while staying correct when the source is swapped.
+
+## `getattr(x, "attr", default)` on a *required* Protocol member silently masks non-conformance
+
+When a Protocol declares `attr` required and every conforming implementer carries it, a consumer reading `getattr(obj, "attr", default)` is self-contradictory: the default can *only* fire for a non-conforming implementer, so it green-lights the contract violation (and a "safe" default like `True` may hide a real bug). Read `obj.attr` directly so a missing attr fails loud (`AttributeError`), and make test fakes declare the attr to conform. Consumer-side mirror of "`@runtime_checkable` Protocol does NOT enforce attributes" above — the contract lives on the Protocol; trust it at the call site instead of re-tolerating its absence.
+
+## A dataclass field-coercion `frozenset(x)`/`set(x)`/`tuple(x)` silently shreds a bare `str`
+
+`str` is iterable, so a `__post_init__` that coerces an iterable field accepts a bare `"TQQQ"` and shreds it into `frozenset({'T', 'Q'})` rather than raising — a single-element value silently becomes a per-character collection. Guard `isinstance(x, str)` *before* the coercion:
+
+```python
+if isinstance(self.tickers, str):
+    raise TypeError(f"tickers must be an iterable of symbols, not a bare str: {self.tickers!r}")
+if not isinstance(self.tickers, frozenset):
+    object.__setattr__(self, "tickers", frozenset(self.tickers))
+```
+
+Bites hardest where the field's whole purpose is a can't-drift invariant (e.g. a ticker universe pre-fetched from it): the bogus set passes construction and surfaces far downstream as missing-data, not at the call site. Same "implicit type widening" family as `bool` being an `int` subclass above.
+
+## A rename onto a name shadowed by a local var → linter strips the (now-"unused") import
+
+A whole-word rename that lands on a name already used as a *local* binding collides
+silently: renaming the imported `_net_r`→`net_r` in a function holding `net_r = []`
+makes `net_r(...)` call the list (`'list' object is not callable`). Worse — because the
+local shadows the import for the *entire* function (Python's function-scope rule), the
+module-level import now looks unused, so `ruff --fix` **deletes** it; fixing the local
+then `NameError`s on the missing import. Two rules: before a token-rename, grep the
+target files for local bindings of the new name (`^\s*<name>\s*=`, `for <name>`,
+`as <name>`); and never run `ruff --fix` between introducing a shadow and resolving it
+(autofix strips a genuinely-needed but transiently-shadowed import). Fix = restore the
+import and rename the *local* (e.g. `net_r`→`net_rs`), not the import.
+
+## ruff D202: removing a nested def orphans the blank-after-docstring
+
+D202 ("no blank line after function docstring") is exempted when the line after the docstring is a nested `def`/`class` — so `"""…"""\n\n    def seg(...)` passes. Delete that nested function in a refactor (e.g. inlining it to an imported helper) and the now-orphaned blank line in front of the next *statement* trips D202. Drop the blank in the same edit; `ruff check --fix` resolves it.
+
+## `np.roll` is circular — the wrapped front of a rolling-window helper is a latent look-ahead
+
+`np.roll(a, k)` wraps the last `k` elements into the *first* `k` slots, so a rolling
+min/max built as `reduce(np.minimum, (np.roll(a, off) for off in range(w)))` contaminates
+indices `0..w-2` with end-of-series (future) values, and a shift-1 cross detector
+(`np.roll(x, 1)`) wraps the final bar into index `0`. Benign only while every consumer
+masks the front (warmup ≥ w); a low-warmup reuse silently leaks future data into the
+series. Neutralize at the source — `out[:w-1] = inf`/`-inf` (min/max-neutral), `flag[0] =
+False` for the shift — rather than trusting downstream masking. Sibling to the
+`np.searchsorted(..., "right") - 1` underflow entry: both are numpy index idioms that
+silently read tail/future data in a time series.
 
 ## Cross-Refs
 

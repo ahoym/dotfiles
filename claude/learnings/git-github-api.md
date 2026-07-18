@@ -1,5 +1,5 @@
 GitHub-specific API patterns — PR management, stacked PRs, pagination gotchas, reviews endpoint, batch operations, and bulk extraction via gh CLI.
-- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to, review payload, batch metadata, sweeper detection, issue operations, body-file, issue split, blocker dependency update, issue close, issue triage, auto-close keywords, Closes Fixes Resolves, not planned reason
+- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to, review payload, batch metadata, sweeper detection, issue operations, body-file, issue split, blocker dependency update, issue close, issue triage, auto-close keywords, Closes Fixes Resolves, not planned reason, repository ruleset, required_status_checks, do_not_enforce_on_create, matrix job context name, push rejected by ruleset, statusCheckRollup, stale self-note, partial supersession, trim issue in place, blocked-by banner
 - **Related:** ~/.claude/learnings/git-patterns.md, ~/.claude/learnings/cicd/gitlab.md
 
 ---
@@ -28,6 +28,19 @@ When an orchestrator computes line numbers from a structured review payload, val
 ## Multi-Hunk Line Number Tracking
 
 When posting inline comments on a file with 4+ hunks, compute new-file line numbers by tracking cumulative net-line delta per hunk. Hunk-by-hunk: `new_line = old_line + sum(+added − -removed for each preceding hunk)`. Don't assume the hunk header's `@@ -N,M +P,Q @@` is absolute — it's the *starting* position after prior hunks have already been applied.
+
+## Build a Batch Inline-Review Payload with a Script, Not Hand-Escaped JSON
+
+When posting N inline comments in one review (`gh api repos/{owner}/{repo}/pulls/<n>/reviews --input file.json`), build the payload with a short Python script that `json.dump`s a dict — don't hand-write JSON with escaped `\n`. Comment bodies carry multi-line text and code fences; manual escaping breaks silently across 10+ comments.
+
+```python
+comments.append({"path": p, "line": n, "side": "RIGHT", "body": text + footnote})
+json.dump({"event": "COMMENT", "body": review_body, "comments": comments}, open(out, "w"), indent=2)
+```
+
+- `line` + `side: "RIGHT"` targets the new-file line (every line of an *added* file is valid; modified files need a diff-hunk line).
+- The post is **atomic**: GitHub rejects the whole review if any single `line` is off-hunk, so a successful `--input` post confirms all positions were valid — verify only the landed count, not each line.
+- Bonus: write-file-then-`--input` keeps inline quoted JSON out of the shell (no permission-prompt churn).
 
 ---
 
@@ -138,6 +151,18 @@ The GitHub reviews API accepts a JSON payload via `--input`. Write to file first
 - `line`: line number in the final version of the file (RIGHT side of diff)
 - `side`: always `"RIGHT"` for comments on the new version
 - `event`: `"COMMENT"`, `"APPROVE"`, or `"REQUEST_CHANGES"`
+- **Multi-line range**: add `start_line` + `start_side` alongside `line` + `side` (the *end* line) — `start_line < line`, both `"RIGHT"`, both within added/context diff lines. Single-line comments omit `start_*` and use just `line` + `side`. Multi-line and single-line comments mix freely in the same `comments[]` array.
+
+### Build the payload with a script when bodies contain markdown
+
+Hand-writing the JSON breaks silently when body/inline text has code fences, backslashes (`find … -exec … \;`), or embedded quotes (`python -c "import x"`) — escaping bugs slip through. Build it with a throwaway Python script: hold each body in a triple-quoted string, assemble the dict, `json.dump` to the payload file, then `gh api … --input`. Triple-quotes kill quote- and newline-escaping; only literal backslashes still double (`\\;`).
+
+```python
+c1 = """**HIGH** … `RUN python -c "import talib, numpy"` … `\\;` in PoC …"""
+payload = {"event": "COMMENT", "commit_id": sha,
+           "body": body, "comments": [{"path": p, "line": 77, "side": "RIGHT", "body": c1 + FOOT}]}
+json.dump(payload, open(out, "w"), indent=2)
+```
 
 ## Approved Reviewers Extraction
 
@@ -248,6 +273,22 @@ Only `Closes #N` / `Fixes #N` / `Resolves #N` keywords (case-insensitive) inside
 
 When triaging, cross-reference each open issue's acceptance criteria against codebase symbols (grep for files/functions named in the issue) and against merged-PR titles — title `(#N)` is a strong signal but not a state change.
 
+## A stale PR's deliverable often shipped via a *different* PR
+
+When assessing whether an open issue/PR is still relevant, separate two supersession modes:
+
+- **Deliverable shipped elsewhere** — the proposed file/feature already landed via an unrelated PR (e.g. a broad refactor). `git log --oneline -- <key-file>` reveals which commit/PR actually added it; the tracking PR is then redundant even though it's still open.
+- **Approach superseded** — the *goal* shipped but via a different architecture than the PR proposes (e.g. systemd-template vs docker-compose). The PR's code is dead even if its objective was met. Check both: "did the deliverable land?" *and* "was the design overtaken?" — work-shipped ≠ approach-still-valid.
+
+Close with a comment that cites the superseding PR numbers and the divergence, so the lineage is recoverable.
+
+## Issue bodies drift: dated self-notes decay, partial supersession trims in place
+
+Two failure modes when triaging long-lived issues — the issue's own text lies:
+
+- **Dated self-notes are stale-able claims, not facts.** An in-body `> **Update (DATE):** none of these are done` or a `⛔ Blocked-by #X` banner decays the moment a PR merges after DATE. The classic trap: #X closed *unmerged* but the work shipped via a different PR (#Y/#Z) days later, so the banner is doubly wrong. Diff the note's date against `git log` / merged-PR dates and read current code — never trust the narrative.
+- **Partial supersession → trim in place, don't close.** When only part of an issue is dead (e.g. Tier-1 obsoleted by a pricing fix, Tier 2-4 still live), `gh issue edit --body-file` to strike the dead section (cite the superseding PRs) and keep it open for the remainder. Close (`--reason "not planned"`) only when the *whole* premise is dead. Surface close-vs-trim as an operator decision, not a default.
+
 ## PR review inline comments: `line: null` with populated `position` is normal
 
 When posting via `gh api ... pulls/N/reviews` with the `line` field, the API response often shows `"line": null, "original_line": null` but populated `"position": <int>, "original_position": <int>`. The comment IS positioned correctly at the right file line — `position` is the legacy diff-line-position field GitHub still uses for some inline comments. Verify by visiting `html_url` rather than panicking and re-posting (which creates duplicates).
@@ -256,6 +297,14 @@ When posting via `gh api ... pulls/N/reviews` with the `line` field, the API res
 gh api repos/.../pulls/comments/<id> --jq '{path, line, position, html_url}'
 # {"path":"foo.py","line":null,"position":14,"html_url":"...#discussion_r..."}
 # Render the html_url — it will land at the correct file line.
+```
+
+Headless verification (team-review / `claude -p`, where you can't render a URL): read the **last line of the comment's `diff_hunk`** — it's the exact source line the comment anchored to. Confirms placement without trusting `line`/`position`.
+
+```bash
+gh api repos/.../pulls/<review_id>/comments \
+  --jq '.[] | "\(.path)@\(.position): " + (.diff_hunk | split("\n") | .[-1])'
+# backtesting/research/mnq_fixtures.py@88: +    sizing.CONTRACT_SPECS["MNQ"] = ContractSpec(
 ```
 
 ## Read PR files via `contents?ref=<branch>` when CWD is on a different branch
@@ -287,6 +336,8 @@ Do NOT trust local file line numbers when CWD ≠ PR branch. Subagents that read
 
 When a PR's base is a non-main branch (e.g., the head of an upstream PR in a stack), `POST /pulls/{N}/reviews` returns `line: null` on every inline comment in the payload — even when `line + side` are valid for the latest commit's diff and even when using `position` instead. The comments attach to the review thread (visible in the PR conversation tab) but never anchor to specific diff lines. Affects any review tooling that depends on `line` for diff-positioning. Workaround: post stacked-PR review findings as bullet points in the review body rather than inline.
 
+**Counter-data-point — don't apply the body-only workaround reflexively.** A later stacked PR (base = an upstream PR's head branch, not `main`) had all 7 inline comments anchor correctly: `POST /pulls/{N}/reviews` returned populated `line` values, confirmed via `gh api .../pulls/{N}/comments --jq '.[].line'` (260, 190, 90, … — none null). The one difference vs the unanchored case: every `line` was head-SHA-verified (`git show <head_sha>:<file> | grep -n <anchor>`) before posting. Likely determinant is **line-number correctness, not the stacked base** — the `line: null` failures blamed on stacking may actually have been wrong line numbers (the silent-failure path above). Try inline with verified lines first; fall back to body-only bullets only if a stacked PR actually returns `line: null`.
+
 ## `gh api -f body=@file` posts literal `@file`; use `-F body=@<absolute-path>`
 
 `-f` (lowercase) treats `@path` as a 7-character literal string and posts it as-is. `-F` (uppercase) reads the file and sends its content. The fix is one character — `-f` → `-F`. Do NOT reach for the `jq -n --arg body "$(cat file)" | gh api ... --input -` "workaround"; the `$(cat ...)` subshell defeats the `Bash(jq *)` allowlist and you'll cascade into permission denials. For top-level comments, `gh pr comment --body-file <absolute-path>` handles file expansion natively.
@@ -300,6 +351,8 @@ The `commit_id` field on inline review comments updates as new commits push — 
 ## `pulls/N/reviews` returns inline-only submissions with `body: ""`
 
 Posting inline comments via `pulls/N/reviews` creates a review record with empty body. When scanning for the most recent Team-Reviewer review summary (e.g., to fetch context for re-review), filter `body != ""` AND check the role footnote — otherwise the most recent non-empty review is masked by intervening empty inline-only review submissions.
+
+The same mechanism is *self-noise* on a re-review fetch: each inline reply **you** post (`-F in_reply_to=`) also spawns an empty-body `COMMENTED` review authored by you. A naive "N new reviews since last cycle" count then reads your own N replies as N new reviewer passes. Before treating new `pulls/N/reviews` entries as findings, drop `body == ""` AND `user == self` — genuine reviewer findings carry a non-empty body or new non-self inline comments.
 
 ## `?` is a zsh glob — `gh api .../comments?per_page=100` fails
 
@@ -345,6 +398,10 @@ The 422 path covered above (line outside hunk + 3-line context) is the strict-er
 
 Reviewer subagents working from a 100KB+ raw diff without checking the worktree are the typical caller — they infer line numbers from hunk math and skip verification. Either checkout the PR branch + verify each line, or fall back to `position`.
 
+**Verify against the head SHA blob, not the local tree — no checkout needed.** When the worktree is on a different commit than the PR head (common: you reviewed without checking out), `Read`-ing the local file gives stale line numbers. Read the blob at the PR head directly and grep the anchor token: `git show <head_sha>:<path> | grep -n <anchor_token>`. The grep'd line is the value for `line` + `side: RIGHT`. Resolves the "don't trust local lines when CWD ≠ PR branch" case above for any file, on any local commit.
+
+**Get `<head_sha>` authoritatively — `headRefOid`, not the commits array.** `gh pr view <N> --json headRefOid -q .headRefOid` (or `git fetch origin <branch>` → `FETCH_HEAD`) is the PR tip. Don't infer it from `gh pr view <N> --json commits` — the array's stream order isn't a reliable newest-last signal, and a stale local `origin/<branch>` ref can point at an older commit than the live PR head.
+
 ## Cross-Referencing Issue Updates: New-Issue-First, Then Sed-Replace
 
 When updating multiple issues that reference each other (e.g., umbrella + sub-issues, where a new sub-issue gets inserted into the umbrella's body):
@@ -357,3 +414,59 @@ When updating multiple issues that reference each other (e.g., umbrella + sub-is
 3. **Push body edits in batch**: `gh issue edit <N> --body-file ...` per issue.
 
 Stage all bodies in `tmp/claude-artifacts/issue-edits/` first; review before pushing. GitHub assigns issue numbers sequentially — there's no pre-allocation API, so the new-issue-first ordering is forced.
+
+---
+
+## Repository Ruleset Required-Status-Checks Gotchas
+
+A `required_status_checks` ruleset (`gh api repos/{o}/{r}/rulesets`) has two config traps that silently block all work:
+
+- **`~ALL` + `do_not_enforce_on_create: false` blocks every new-branch push.** Checks can't run until the ref exists, so a brand-new branch can never satisfy them — `git push` is rejected with "N of N required status checks are expected." Scope `conditions.ref_name.include` to `["refs/heads/main"]`, or set `do_not_enforce_on_create: true` to gate updates only.
+- **The required-check `context` must be the *resolved* job name, not the workflow template.** A matrix job declared `Test (Python ${{ matrix.python-version }})` in YAML reports to GitHub as `Test (Python 3.13)`. Copying the template string verbatim into the ruleset creates a check that never matches → blocks merge forever. Confirm the real name via `gh pr view <n> --json statusCheckRollup -q '.statusCheckRollup[].name'`.
+
+Update with `gh api -X PUT repos/{o}/{r}/rulesets/{id} --input payload.json` (send the full ruleset body — name/target/enforcement/conditions/rules — not a partial patch). Diagnose a PR that merged over red CI: `gh pr view <n> --json statusCheckRollup,mergedAt` — a check with `conclusion: FAILURE` alongside a non-null `mergedAt` means the gate wasn't enforcing at merge time.
+
+## Build Rich Review Payloads With a Script, Not Hand-Escaped JSON
+
+A review with a markdown body + N multi-line inline comments is painful to hand-write as JSON (every newline → `\n`, nested quotes escaped) and `jq`/`-f body=@` with inline format strings trips quoted-string permission prompts. Build it with a throwaway Python script — **plain (non-f) triple-quoted (`'''`) bodies need no escaping** (`{braces}` stay literal, embedded `"` is free, real newlines work), `json.dump` emits valid JSON — then `gh api repos/{o}/{r}/pulls/{n}/reviews --input payload.json`.
+
+```python
+FOOTNOTE = "\n\n---\n- *Role:* Team-Reviewer"   # explicit \n is fine in a normal string
+body = '''## Team Review
+Overview with `code`, "quotes", and {prevAsset, ref} literal braces.'''
+comments = [{"path": SRC, "line": 93, "side": "RIGHT", "body": c1 + FOOTNOTE}]
+json.dump({"commit_id": SHA, "body": body + FOOTNOTE, "event": "COMMENT",
+           "comments": comments}, open(out, "w"), indent=2)
+```
+
+`side: RIGHT` + source `line` for added/new-file lines. Validate the JSON (`python -c "import json; json.load(open(out))"`) before posting. Pairs with "GitHub Inline Review Comments Must Target Diff-Hunk Lines" (line validity) — this is about *constructing* the payload robustly.
+
+## `--json files` Caps at 100 — Use `git diff` for Large PRs
+
+`gh pr view <n> --json files` (and the files API page) silently returns at most **100** files — a 469-file PR shows only 100, with no truncation warning. For the complete list when the branch is local, use git against the merge-base:
+
+```bash
+git fetch origin main --quiet
+git diff --name-only origin/main...HEAD                              # all changed files
+git diff --name-only origin/main...HEAD -- . ':(exclude)*.parquet'   # text only
+git diff --name-only origin/main...HEAD | grep -c '\.parquet$'       # count binary
+```
+
+The `:(exclude)` pathspec isolates reviewable text from binary/asset churn. `--json additions,deletions,changedFiles` counts only text, so a `469 files, +311/-40` stat is the tell that ~465 files are binary.
+
+## Reviewing on the Base Branch: Anchor Lines via the PR-Head Blob
+
+On a first review you're usually still on the base branch (`git rev-parse --abbrev-ref HEAD` to confirm), so a local `Read`/`grep` of a changed file returns **base-branch** line numbers — shifted wherever the diff added/removed lines above, which silently "corrects" a right line to a wrong one. Anchor inline-comment lines against the PR-head version instead: `git show <head_sha>:<file>` (or `git show origin/<head_branch>:<file>`) + grep the token, or compute from the diff's `@@ +N,M @@` hunk header. Symptom of trusting the working tree: a changed call site appears to be *missing* an argument that the PR-head blob actually contains.
+
+## jq's File-Reading Flags Are Permission-Blocked — Assemble JSON in Python
+
+`jq --rawfile`, `-f`/`--from-file`, and `--slurpfile` are rejected by the permission guard as "dangerous flags that could execute code or read arbitrary files" — a hard **block**, not a prompt, so the `jq -n --rawfile body body.md … -f filter.jq` route to build a review/comment payload from markdown files dies even with the filter in its own file. Don't fight it: assemble the payload in a throwaway Python stdlib script (`json.dumps`/`read_text` handle all escaping) and `gh api … --input payload.json`. Same conclusion as the hand-escaped-JSON sections above, from the other direction — the Python assembler is the one path that's neither prompt- nor block-prone.
+
+```python
+# build-payload.py — no quoting, no dangerous flags
+import json, pathlib
+d = pathlib.Path("tmp/claude-artifacts/change-request-replies")
+payload = {"commit_id": SHA, "event": "COMMENT", "body": (d / "body.md").read_text(),
+           "comments": [{"path": p, "line": 52, "side": "RIGHT", "body": (d / "c1.md").read_text()}]}
+(d / "payload.json").write_text(json.dumps(payload))
+```

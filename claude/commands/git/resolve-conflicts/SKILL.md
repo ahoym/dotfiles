@@ -172,7 +172,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
    ```bash
    git log --oneline -p origin/<base-branch>..HEAD -- <file> | grep -E '^[-+].*\b\w+\s*=' | head -20
    ```
-   If renames exist, grep the resolved file for the old names and rewrite stragglers before finalizing. Prose-heavy files (docs, learnings) rarely need this check.
+   If renames exist, grep the resolved file for the old names and rewrite stragglers before finalizing. Prose-heavy files (docs, learnings) rarely need this — **except numbered-section docs where both sides appended sections**: the auto-merge can leave two `§N`s. Renumber one chain and `grep -rn` the ordinal tokens (`§8 §9 …`) repo-wide, incl. scripts that print their own `§N` labels.
 
 9. **Complete the operation**:
 

@@ -1,5 +1,5 @@
 Patterns for code review interactions — review judgment, self-review, reviewer behavior, comment etiquette, structured footnotes, approval flows, and review identity.
-- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline, stale path, sibling rename, config ownership
+- **Keywords:** code review, self-review, LGTM, structured footnotes, review comments, emoji reactions, approval flow, reviewer identity, multi-agent review, empty reviews, comment etiquette, identification vs suggestion, prioritization, reversibility, scope discipline, stale path, sibling rename, config ownership, control variant, data drift attribution, frozen figure, metric delta, measure-then-defer, re-prove
 - **Related:** ~/.claude/learnings/process-conventions.md, ~/.claude/learnings/claude-code/multi-agent/orchestration.md
 
 ---
@@ -149,6 +149,12 @@ When a PR is rebased onto a new base (split, restack, dependency-update force-pu
 
 `git diff <prev-cycle-head>..<head>` after a rebase pulls in every change that landed on main between the old base and new base — for an active main, that's typically dozens of unrelated files. Use `git diff <PR-base>..<head>` (diff vs current main) to see PR scope. Diagnostic: if the diff stat lists files unrelated to the PR's stated purpose (docs sweeps, sibling-feature additions, infra changes), you're seeing rebase noise. Switch to base-vs-head before reasoning about findings — code inherited from a recently-merged sibling PR can otherwise look like a new addition and produce false-positive findings.
 
+## A base-branch merge in re-review is never inert — it can supersede the branch's own work
+
+Distinct from rebase noise (above): when NEW_COMMITS includes a *merge* of the base branch, inspect its conflict resolution (`git show --cc <merge>`) — never dismiss it as "just pulls in main." If the base independently changed the same files, the merge can supersede the branch's headline work. **Parallel promotion** is the classic trap: branch and main each promote the same boilerplate to different modules; a "keep both" merge repoints every consumer to the base's version and leaves the branch's a dead, often *staler* duplicate (its hardcoded variant drifts from the now-canonical general one). Verify post-merge that the branch's new symbols still have consumers: `git grep "<new_symbol>"` — zero functional callers = orphaned. The subagent-skip heuristic does NOT apply to a conflict-resolving merge; re-run persona selection on the merge's resolved files.
+
+For such cross-file integration reviews (merge integrity, module overlap), give reviewer subagents repo read access — the diff-only reviewer template can't answer "does this duplicate an existing module" or "do the resolved scripts still import consistently."
+
 ## Body-content role-footnote filters drift; prefer timestamp-based filtering
 
 A `body ~ "Role: Team-Reviewer"` filter for "comments from previous team review" breaks when the footnote format drifts between cycles (`*Role: Team-Reviewer*` vs `*Role:* Team-Reviewer`). The footnote is human-edited prose; format conventions evolve. For "comments since last team review", store `LAST_REVIEW_TS` and filter `created_at > LAST_REVIEW_TS` — this is invariant to footnote format. Body-content role-tag filters remain valid as a per-comment role check on individual comments, just not as the primary cycle discriminator.
@@ -169,11 +175,103 @@ Before flagging a path reference as stale due to a sibling rename, verify whethe
 
 The GitHub review API doesn't mark inline comments as stale when the underlying code was fixed in a subsequent commit. A comment posted against line X of commit A will appear as "active" even if commit B fixed the issue. Addressers must read current file state (+ git log for the touched lines) before implementing — otherwise they'll redo or conflict with prior fixes. Cross-reference the comment's commit SHA with `git log --oneline <path>` to see if fixes landed after.
 
+### A finding can be already-satisfied at the reviewed commit — trace the cited expression to its value
+
+Distinct from the stale-against-fixed case above: here HEAD *is* the reviewed commit, but the finding is wrong because the reviewer reasoned from a symbol's *name*, not its resolved *value*. Example: "`report_name=f"sweep_{stamp}"` doesn't include the swept notional" — but `stamp` two lines up was `f"{int(notional)}_{…}"`, so the value already encoded it. Before implementing an addresser-side fix, follow every intermediate binding in the cited line to its concrete value; a symbol named `stamp` may already carry the field the finding claims is missing. Same discipline as "Verify the claimed failure mode" below, applied when *agreeing* rather than refuting.
+
 ### Batch-Import PRs: Cross-File Invocation Drift
 
 Batch-import PRs that wire a new helper into multiple files in parallel often drift on the invocation format — e.g., `sweep-results.sh <run-dir>` (bare) in one file vs `bash ~/.claude/skill-references/sweep-results.sh <run-dir>` (fully-qualified) in another. The bare form silently fails at runtime because the script isn't on `$PATH`. Drift arises from parallel edits that don't cross-check.
 
 Review heuristic: when a PR introduces a new helper script/tool and wires it into 3+ files, grep across the diff for the invocation and verify all sites use the same form. A single canonical invocation per helper, documented in the script header or a nearby index, prevents the drift.
+
+## Verify the claimed failure mode in-repo before flagging a comment/import as "wrong"
+
+When a finding asserts *why* code is broken — "this import is inside the try/except so it's swallowed," "`timedelta != 0` raises TypeError," "this comment is inaccurate" — the assertion is a theory about runtime/language behavior, not an observation. Verify it against the actual repo before posting:
+
+- **Import scope:** `git show <branch>:<file>` and check indentation. A `from … import …` in a function body but *before* the `try` executes unconditionally — it is NOT guarded. Confusing "in the function" with "in the try" produces false ImportError-handling findings (this misfired twice in one PR review).
+- **Language semantics:** run it in the project venv. `timedelta(0) != 0` → `True` silently (`__ne__` → `NotImplemented` identity fallback), but ordering ops (`<`,`>`) DO raise `TypeError` — so a finding claiming `!=` raises is wrong. See `python-specific.md` → "`timedelta != 0` is silently `True`".
+
+Reviewer-credibility cost is real: each false-positive that an addresser refutes with a one-line repro erodes the weight of the reviewer's true findings. A "why we're *not* using X" comment especially deserves separate scrutiny — the implementation can be correct while its explanatory comment carries an imprecise failure-mode description for years. Read the explanation independently of the code.
+
+**Fabricated literal content, not just bad theories.** A subagent reasoning over a large diff *artifact* instead of reading the file can fabricate the literal text of a removed `-` line — and post it as `🔴 CRITICAL`. Observed: a "self-compare bug" finding quoting `weights_equal(new_weight, new_weight)` when the actual removed line was `weights_equal(new_weight, previous_weight)`, plus a `🟡 MEDIUM` "test stubs with `...` bodies" for tests that were fully implemented. In the first case the comment's own `diff_hunk` contradicted its body. For any finding that quotes code from a `-` line or claims `...`/stub/empty bodies, re-fetch the bytes (`git show <base>:<file>`, or `gh api …/pulls/comments/{id}` → `.diff_hunk`) and quote them — if you can't quote it, you didn't see it. Severity tags and persona pedigree are not evidence.
+
+## Verify a conditional/latent finding's trigger before propagating its severity
+
+A subagent that flags a bug gated on a condition it couldn't check ("labels *can* collide", "fails *if* the grid has X", "whether the actual inputs trigger it isn't visible in the diff") has produced a hypothesis, not a graded finding. Before merging it, evaluate the trigger against the real inputs — read the actual constants/config/call sites. A latent-but-not-currently-triggered issue is **low/defensive**, not the medium/high the subagent guessed; frame it honestly as "verified the current inputs don't collide — this is a fragility, not an active bug." Worked case: a "medium correctness" label-collision was downgraded to low after confirming `int(reclaim*100)` produces no duplicate over the actual `TRIPS×FRACS×TWS` grid.
+
+The trigger can also be *structurally absent* — then the finding is **void**, not merely low. An "equity wrappers reset if `DISPATCH` is rebuilt per poll" bug evaporated once the full file showed `DISPATCH` is module-level (built once at import). The addresser must discharge the conditional against the source the diff-only reviewer couldn't see (see `python-specific.md` → dispatch-list instance lifetime) before agreeing *or* grading — agreeing with a conditional whose condition is false propagates a false positive into a code change.
+
+## When the cleaner fix differs in shape from the suggestion, name it — don't silently substitute
+
+An addresser who agrees with a finding's *intent* but implements a different-shaped fix than proposed should say so in the reply, not let the diff speak for itself. Example: reviewer asked "add a new test file for X"; the cleaner move was to *relocate* X's existing suite to its canonical module and leave a one-line re-export identity check behind. Naming both moves ("moved the suite + added an identity assertion, rather than duplicating") shows the choice was deliberate. Softer than pushback — same intent, different shape — and distinct from disagreeing with the finding itself.
+
+## A summary-line review note can be deferred plan work — check the owning spec first
+
+A finding framed as a cheap fix ("pin the float round-trip", "make Y robust to Z") can be the *start of deferred design work* — read the plan/spec that owns the code before scoping it. If implementing it would resolve an **open decision**, contradict a stated **"no change to X" / "PLAN ONLY"** principle, or require a not-yet-built prerequisite (the serialization a "serialization test" presumes), it's premature implementation, not a fix — surface that before acting rather than letting a "this is cheap" scoping read stand. Worked case: a "pin `_peak` serialization + stale-balance robustness" note was a live-wiring plan's deferred Edge-cases A/B, gated behind a "no `apply()` change" principle.
+
+## Summary-only review findings have no thread — disposition them in a top-level comment
+
+Findings in the review *body* (not inline comments) carry no comment ID, so the per-comment-ID addressing loop skips them. They still need disposition: record what was done/deferred for each in one top-level PR comment with the role footnote (there's no inline thread to reply to). A re-review's "N summary-only findings left as optional" points to items the addresser still owns — not closure.
+
+### Asset-heavy PR review: split binary from text
+
+For a data/asset PR (parquet, images, fixtures), review the **text** diff and spot-check the **binary** separately — don't skim 400 binary files. The `N files, +X/-Y` stat reveals the split (additions/deletions count text only). Review the code/docs/test diff in full; verify the binary via its auto-generated catalog/manifest (committed in the same PR) rather than the bytes — confirm the catalog rows are internally consistent (counts, date floors, per-entity expectations) and match the change description.
+
+### Reconcilable vs genuine review dissent
+
+When two reviewers conflict — one flags X as a defect, the other lists X as a *positive signal* — test whether they're judging **different axes** before surfacing an open tradeoff. Example: a silent fallback default is "fail-safe" on the *availability* axis (never errors) yet a "data-loss trap" on the *completeness* axis (silently truncates). Both hold; it's not an either/or. If the proposed fix costs nothing on the axis the dissenter values, resolve to consensus and note the reconciliation — reserve the `⚖️ Dissent` block for genuine same-axis either/or calls the author must decide. Applies whether or not agent-to-agent deliberation (e.g. SendMessage) is available.
+
+## Verify a reviewer's cited existing-symbol/line before acting — AI reviewers fabricate concrete APIs
+
+An AI reviewer can cite a specific helper + line that doesn't exist ("reuse `equity_math.drawdown_episodes` (line 27)"; "this is the *third* copy") with full confidence. Before implementing OR dismissing, verify against the source (`git grep` the symbol, read the file) — a fabricated "X already exists" inverts the fix (build-on-existing vs promote-the-duplicate). When the premise is false but the underlying point still holds (no promoted helper existed, but it *was* the 2nd copy → the Tier-2 "second consumer promotes" trigger still fires), correct the premise in the reply and implement the valid point rather than rejecting the whole finding. The addresser-side dual of "Verify the claimed failure mode in-repo before flagging."
+
+## Orchestrator: refute a refutable subagent finding from the source before merging it
+
+A reviewer subagent can assert a confident HIGH that's just a misread of control flow — e.g. "the flip acts a poll late" because it assumed the algo branches on `currently_bullish` directly, when the function actually feeds that value *into* a deterministic gate and branches on the **output** (stored regime == traded regime, same tick). Before merging such a finding, trace the one fact it hinges on. Two strong refutation signals: (a) another subagent's analysis already contradicts it (a co-reviewer independently reached the opposite conclusion), and (b) it's checkable from the diff in one read. When refutable from the source, reject it — the orchestrator resolves it directly, no deliberation round-trip — and say so transparently in the review body rather than posting a false-positive HIGH on a live-money path. The merge-side sibling of "Verify a reviewer's cited existing-symbol/line before acting."
+
+## Interface-conformance PRs are structurally un-reviewable diff-only
+
+When a PR's correctness *is* conformance to an unchanged interface — a new type mirroring an existing `Protocol`, a `*Config` field's annotation, or a documented call-shape — the diff alone can't verify the claim. The orchestrator must grep the referenced signatures from the unchanged files and inject them as SYSTEM_CONTEXT (and/or grant subagents a named-file read allowlist). Trigger-sibling to the cross-file-integration and inject-verified-facts cases — the trigger here is *a new type claiming to mirror an existing one*, and the high-value finding is often an asymmetry the author's prose glosses (a "mirrors X exactly / hand it straight to the slot" claim true for one field, silently false for its sibling — a single factory vs a chain of factories).
+
+## Honor a repo's deliberately-lower-standard code tier when reviewing
+
+When a repo explicitly holds a tier of code to a lower bar — research/analysis "reproducers, untested by design", throwaway probes, generated code — don't flag that standard (missing tests, type hints, docstrings) as a defect; it's noise the author already signed off on. Review for what *does* matter at that tier: bugs that make the **output/conclusion wrong** (look-ahead, unmodeled cost, in-sample passed off as OOS) and duplication *within* the tier. Seed reviewer subagents with the tier's standard (cite the promotion-rule / convention doc) so they don't manufacture "add tests" findings. Sibling to "Scope discipline: not for this PR" — both drop valid-but-wrong-context findings.
+
+## Grade a suspected backtest look-ahead by A/B-ing it against the causal correction
+
+A look-ahead (a full-sample statistic used to make a per-bar decision — e.g. `np.nanmedian(vol)` over the whole window to size every bar) is a confirmed trigger, but its *severity* turns on whether correcting it changes the conclusion. Don't guess "this inflates the edge → CRITICAL": when the branch is runnable, recompute the causal version (expanding/trailing through bar i) and compare. Causal **equal-or-better** ⇒ real-but-immaterial (LOW/MEDIUM, direction holds, only in-sample magnitudes shift); causal collapses the result ⇒ it's the headline bug. Distinct from "Verify a conditional/latent finding's trigger" (is it reachable?) — here the trigger fires and you measure its *impact*. Generalizes: when the PR branch is checked out, the orchestrator should tell reviewer subagents to verify empirically (run the reproducer to reproduce the headline metric; A/B the suspected leak) rather than reason from the diff — it converts "plausible bug" hypotheses into graded-or-discharged findings before the merge step.
+
+## An engine that defers some optimistic intrabar paths but not a structurally-identical one — the asymmetry is the finding
+
+A/B-grading (entry above) generalizes beyond full-window-stat look-ahead to any *undeferred optimism* class: intrabar-path fills, same-bar round-trips, a same-bar take-profit booked on the fill bar. Sharpest case: when a backtester already defers SOME optimistic same-bar paths (break→flip→refill, confirm-close stop) but books a structurally-identical one (a same-bar TP on a fresh limit fill), the **asymmetry itself is the finding**, and any doc claiming "zero exits booked optimistically" is *falsifiable by reproduction* — count the same-bar wins and their share of net R. Defer the path mirroring the engine's own existing deferrals, re-run: edge direction holds but magnitudes drop ⇒ magnitude-inflation + a false disclosure, not a result-inverting bug (grade per the A/B rule above; fix the engine *and* the overstated claim).
+
+## `git diff --stat` tells you which findings can post inline before you build the payload
+
+An inline review comment must target a line that appears in the diff (added or context). Before composing the review payload, run `git diff <base>...<head> --stat -- <target-files>`: a file shown as **pure insertions** (`548 +++++`, zero `-`) is wholly new, so *every* line is postable inline; a file with mixed `+/-` requires confirming the specific anchor line is a changed/context line (read its hunks) before posting. A finding whose target file is absent from `--stat` is outside the diff → demote to summary-only. Pre-empts the "post and discover the rejection at request time" failure mode.
+
+### Scope a quality review to hand-written code; behavior-preserving only on frozen output
+
+When a diff is dominated by vendored/generated content — a `[web-session] sync skills`
+commit's `.claude/**`, committed backtest-output `.txt` dumps, generated catalogs — scope
+the review to the hand-written code. Reviewing vendored skill markdown or output dumps for
+"simplification" is wasted effort; separate those groups out first (`git diff --stat` by
+top dir). For **frozen-output research records** (scripts whose committed `.txt`/`.md`
+numbers *are* the artifact), constrain fixes to *provably* behavior-preserving ones
+(dead-code, hoist, rename, dedup of a deterministic call); any numeric drift silently
+staleizes the committed conclusions — flag risky refactors rather than applying them.
+
+## A PR's own gotcha/learnings-doc additions are a reviewer checklist
+
+When a PR adds "lessons learned" content (a `python-gotchas.md` / `learnings.md` entry documenting a bug class it just hit), treat each documented gotcha as a falsifiable check, not background: (1) verify the fix actually landed in the diff, and (2) grep the *rest* of the changeset for the same anti-pattern. An author who just discovered a bug class frequently repeats it in the same PR. Seeding reviewer subagents with these concrete checks (vs open-ended "find issues") yields the highest-signal findings — e.g. a documented `np.cov` (ddof=1) ÷ `np.var` (ddof=0) beta-inflation gotcha recurred one commit later in the same PR's `spread_hardening.py`, caught independently by two personas (the cross-persona convergence is itself the confidence signal).
+
+## Attribute a metric delta to code vs data with a control variant
+
+When a code change might move a data-dependent number, you can't compare the new run to a committed figure alone — the underlying data may have drifted since that figure was committed. Run a **control variant the change doesn't touch** alongside the affected one: if the control reproduces *its* committed figure exactly, the data vintage is stable, so any delta on the affected variant is the change's, not drift. (A streak-accounting edit: control `R3_vol` reproduced 127/49.0/2.59 exactly, isolating a +2.8pt CAGR shift to the `delever` variants alone.) Sibling to "Grade a suspected backtest look-ahead by A/B-ing it against the causal correction" — that A/Bs the fix; this adds a control to rule out data drift as the cause.
+
+## A correct review fix that shifts a frozen published figure: measure, then defer
+
+Distinct from "Scope a quality review … behavior-preserving only on frozen output" (which flags *refactors* that might drift): here the fix is a legitimate correctness fix the reviewer wants and it *does* move a committed number. Don't update the figure piecemeal — a headline that spans N tables + README + downstream/armed artifacts can't be kept consistent in one addressing pass, and a half-updated doc is worse than a flagged one. Instead: implement + **measure the delta** (control-variant probe above), confirm the qualitative verdict still holds, then **revert the behavior change, document it in-code as a KNOWN LIMITATION, and escalate the full re-prove** to the operator (bundle with the effort's next data-refresh). Keep any *unreachable-on-clean-data* half of the same fix separately — it's a no-op on the numbers, so it ships cleanly.
 
 ## Cross-Refs
 

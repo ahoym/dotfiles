@@ -14,9 +14,20 @@ Audit any `or 0`, `get(field, 0)`, finite-checks-without-range-check on numeric 
 
 ## Vendor-divergent failure modes on shared upstream data
 
-Multiple vendors that wrap the same upstream (corporate-actions, pricing, reference data) each apply their own cleanup pass — **failure modes diverge even when the underlying garbage is shared**. A `val > 0` guard catches one vendor's signed-cents underflow but waves through another vendor's positive-but-absurd magnitude. Concrete: TS returns `-21_474_836.48` sentinels for missing UVXY days; Schwab returns positive bars in the hundreds of billions of dollars (`Close=$514,500,000,000`) over the same window because of bad split-adjustment math. Both are unusable; only one trips a sign check.
+Multiple vendors that wrap the same upstream (corporate-actions, pricing, reference data) each apply their own cleanup pass — **failure modes diverge even when the underlying garbage is shared**. A `val > 0` guard catches one vendor's signed-cents underflow but waves through another vendor's positive-but-absurd magnitude. Concrete: TS returns `-21_474_836.48` sentinels for missing UVXY days; Schwab returns positive bars in the hundreds of billions of dollars (`Close=$514,500,000,000`) over the same window. Both trip a naive eyeball, but only the sentinel trips a sign check — and the billions are *not* corruption (see caveat below).
 
-Defense: pair the sign/finite check with a **magnitude ceiling** — per-symbol upper bound, per-asset-class cap, or a percent-change-since-listing sanity check. Keep both: positive-but-billions and negative-cents are both "no data," but only different validators catch each.
+**Caveat — "absurd magnitude" can be legitimate back-adjustment.** Schwab's $514B UVXY is *correct*: 13 reverse splits (~1.5e9× cumulative) carried into early bars of a continuous adjusted series. Verify before calling it corrupt: count *all* splits, check returns for split-cliffs (none → adjusted), compare against split-*adjusted* history (never unadjusted spot). See `continuous-contract-data-quirks.md` → "Huge early prices: corrupt or legit back-adjustment?".
+
+Defense: pair the sign/finite check with a **percent-change-since-prior-bar** sanity check, not an absolute magnitude ceiling. A flat "reject Close > $1M for an ETF" wrongly rejects legitimate reverse-split back-adjusted history (see caveat above) — gate on *jumps*, which catch corruption while passing smooth back-adjustment.
+
+## Recover a sentinel-poisoned window by backfilling from the sibling vendor
+
+When vendor A serves sentinels for a deep-history window but vendor B serves the *same* back-adjusted series, backfill from B instead of trimming. Proof they're the same series: B's bar at the first clean date equals the cache **to the dollar** (UVXY: Schwab `2016-04-19` == cache == `$19,487,500`). Then:
+- Pair B's OHLCV with A's own per-date timestamps (uniform time-of-day, dedup-safe seam).
+- Validate every backfilled bar: OHLC finite & > 0 **and** OHLC-consistent (`low ≤ min(O,C)`, `high ≥ max(O,C)`); skip-and-report any failure, never fabricate.
+- Confirm the merge: zero split-cliffs across the full series (UVXY's only >60% day post-backfill is Volmageddon 2018-02-05). A clean join = same continuous series.
+
+The "missing" window was feed-specific, not absent — distrust "this vendor has no pre-YYYY data" until you've checked a second vendor.
 
 ## Probe vendors below your validator
 

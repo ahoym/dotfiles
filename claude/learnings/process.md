@@ -40,3 +40,12 @@ The mistake mode is treating one of the divergent runs as authoritative and reas
 ### Broker permission probe sequence: symbol → market-data → preview-endpoint
 
 Probe broker-account capability without risking capital by layering: (1) symbol lookup (broker recognizes it?), (2) live quote (data flowing?), (3) preview/dry-run endpoint (account accepts the order?). The preview is the definitive permission test — symbol and quote can succeed on accounts that still can't trade the instrument, because permission validation usually runs deeper in the order pipeline than market-data access.
+
+### Map an external API's "reject-not-clip" limit by bisection, then classify its type
+
+When an API returns an error (e.g. 400) for out-of-range requests instead of clipping to what it has, you can't just request "everything" — binary-search the boundary parameter (oldest `firstdate`, max `count`) to find the cliff. Two follow-ups make the result actionable and stop you over-trusting a documented "it only serves N days":
+
+- **Classify the limit type by probing a second entity that differs on the confounding axis.** A dense vs sparse entity (high-volume vs low-volume symbol) reaching the *same* boundary value → the limit is the dimension they share (a calendar window); the sparse one reaching *further* → it's a row/count cap. The classification picks the fetch strategy: a calendar window means one fixed cutoff reused for all entities; a count cap means a per-entity request size.
+- **Alternate params for the "same" query can hit different, independently-buggy limits.** A date-window param and a last-N-rows param may diverge wildly (one served 3yr of history where the other 400'd at 10k rows). Probe both; never assume one substitutes for the other.
+
+Limits are usually a *rolling* window — encode the floor as days-back with a small safety margin (the API rejects, not clips, past it) and note it needs re-probing.

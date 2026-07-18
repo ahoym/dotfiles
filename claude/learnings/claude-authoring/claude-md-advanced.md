@@ -1,5 +1,5 @@
 Advanced CLAUDE.md patterns: signpost lazy-loading, modular refactoring, conflict resolution documentation, and the solatis two-file pattern for context budgeting.
-- **Keywords:** CLAUDE.md, signpost, lazy load, modular includes, refactor, conflict resolution, solatis, token budget, context budgeting
+- **Keywords:** CLAUDE.md, signpost, lazy load, modular includes, refactor, conflict resolution, solatis, token budget, context budgeting, guideline directory reform, route conditional by theme, dedup on move, split test, fingerprint grep verify
 - **Related:** none
 
 ---
@@ -46,6 +46,25 @@ Community pattern (solatis/claude-config) using strict token budgets per documen
 **Enforcement**: technical-writer and quality-reviewer sub-agents run in a planner pipeline. Content test: "Could a developer learn this by reading source?" If yes, delete.
 
 **Comparison with signpost pattern**: Solatis budgets the *writing* (caps on doc size). The signpost/lazy-load pattern budgets the *reading* (defer loading until relevant). Both reduce context cost — they're complementary, not competing.
+
+## Split a Mixed `@`-Loaded File: Conventions Stay, Procedures Signpost Out
+
+When an `@`-loaded guideline file mixes always-relevant **conventions** (naming, path style, commit rules) with situational **procedures** (rebase steps, rename-check workflows), split it: conventions stay eager; procedures move to an on-demand learning. The split test — *"does every session need this rule, or only sessions doing X?"* Procedures fail it and cost context on every unrelated session.
+
+Leave a one-line pointer in the vacated file (→ the learning) and add the moved content to the learnings index in the same change. An extracted procedure with no inbound link gets rediscovered and rewritten — the pointer + index entry is what surfaces it "when doing X."
+
+## Reforming a Whole `@`-Loaded Directory: Route by Theme, Dedup on the Way Out
+
+Applying the split test across an entire `@`-loaded guideline *set* (not one file) — route each conditional section by theme, don't dump it all in one place:
+- **Cross-cutting craft** (refactor / review heuristics, not domain-bound) → one new dedicated learning.
+- **Domain-specific** (test conventions, a subsystem gotcha) → that domain's existing home (e.g. `tests/CLAUDE.md`).
+- **A distinct cluster** (e.g. language gotchas) → a small new seed file; 2 items is enough to start one.
+
+**Read the destination before copying.** Conditional guideline content is often *already duplicated* at its natural home (test-writing patterns frequently live in both the guideline and `tests/CLAUDE.md`), so the split doubles as a dedup — keep one copy, leave the guideline a pointer. Verify with a fingerprint grep: each moved section present in exactly one destination, absent from the vacated file (only the signpost paraphrase remains).
+
+## A Pointer or Summary Is Only as Durable as Its Target
+
+An index entry, signpost, or auto-memory note that *points to or summarizes* a separate source-of-truth artifact dangles when the target isn't durable: a `tmp/claude-artifacts/` doc is gitignored + machine-local (gone on a fresh checkout), and a memory that paraphrases a doc silently diverges when the doc is edited and orphans it when the memory is deleted. If an artifact must persist across sessions, put it in a tracked path (`docs/`); keep memory/index entries thin (location + trigger), not content summaries that rot.
 
 ## Cross-Refs
 

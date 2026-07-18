@@ -47,7 +47,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 1. **Platform commands** — platform-specific commands are inlined via `!` preprocessing. No detection needed.
 
-2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch).
+2. **Resolve the request and detect mode** — resolve the request number from `$ARGUMENTS` (URL → extract number, number → use directly, empty → detect from current branch). A non-number/non-URL directive (e.g. `from fresh`, `from scratch`) → detect the number from the current branch AND force `MODE=first-review`, reviewing the full current diff anew and ignoring any prior Team-Reviewer review the detection below would otherwise match.
 
    **Consolidated Fetch:**
    ```
@@ -124,7 +124,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
      - `{{PERSONA_CONTENT}}` → front-loaded content from step 6
      - `{{SYSTEM_CONTEXT}}` → caller/threading context from step 7 (or empty)
      - `{{REQUEST_TITLE}}`, `{{REQUEST_BODY}}`, `{{COMMITS}}` → PR metadata
-     - `{{FULL_DIFF}}` → the full diff
+     - `{{FULL_DIFF}}` → the full diff. **For a large diff (≳1.5k lines / 50KB+), write it once to `tmp/claude-artifacts/team-review-<N>/full-diff.txt` and substitute a one-line instruction to `Read` that path, instead of embedding the diff in each prompt — embedding ×N (e.g. 4 personas × 57KB ≈ 228KB) bloats every prompt and the orchestrator's context. A staged tmp artifact isn't "the repository," so the template's no-repo-reads rule still holds. See `~/.claude/learnings/claude-code/multi-agent/orchestration.md` → "Stage a Large Shared Read-Only Input as a File".**
      - `{{OUTPUT_FILE}}` → `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
 
    Wait for all subagents to complete before proceeding.
@@ -135,7 +135,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     a. Extract a recognizable code token from the finding's `summary` or `inline_comment` (e.g., a function name, variable, keyword — the most specific identifier mentioned).
     a-prime. **Detect diff-artifact-offset reporting first.** When the diff is provided as a single concatenated text artifact, subagents sometimes return positions counting from the artifact start instead of source-file lines (e.g., `line_start: 336` for the 92nd line of the 8th file in a 765-line artifact). If `line_start` exceeds the source file's line count at head SHA (`git show <head_sha>:<file> | wc -l`), this is the failure mode — the ±5/±10 windows in (b)-(e) cannot recover it because the line doesn't exist in the file. Re-anchor immediately: `git show <head_sha>:<file>` + grep `anchor_token`, then skip (b)-(e). This is distinct from the `<= 5` placeholder case in (f), which catches the opposite extreme.
-    b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`.
+    b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`. **Local `Read` is valid only if the PR branch is checked out.** On a first-review you're usually still on the base branch, so a local `Read` returns *base-branch* line numbers — shifted wherever the diff added/removed lines above the finding, which can silently "correct" a right line to a wrong one. When the PR branch isn't checked out, verify against the PR-head version: `git show origin/<HEAD_BRANCH>:<file>` (or `git show <head_sha>:<file>`) + grep the token, or compute the line from the diff's `@@ +N,M @@` hunk header.
     c. Check if the code token appears at `line_start`. If yes, the line number is correct — move on.
     d. If not, scan the ±5 line window for the token. If found, update `line_start` (and `line_end` by the same delta) to the correct line.
     e. If the token isn't found within ±5 lines, widen to ±10. If still not found, keep the original and flag: `⚠️ Could not verify line number for <file>:<line_start> (<token>)`.

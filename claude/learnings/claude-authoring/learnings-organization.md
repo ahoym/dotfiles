@@ -1,5 +1,5 @@
 Patterns for organizing learnings files — cross-reference conventions, directory clustering, curated indexes, file splitting, and keyword gate design.
-- **Keywords:** cross-refs, cross-reference, directory clustering, file splitting, CLAUDE.md index, catch-all directory, hub-spoke, discovery vs semantic, dedup, keyword gate, sniff gate, keyword purpose, keyword quality
+- **Keywords:** cross-refs, cross-reference, directory clustering, file splitting, CLAUDE.md index, catch-all directory, hub-spoke, discovery vs semantic, dedup, keyword gate, sniff gate, keyword purpose, keyword quality, section-header granularity compare, index diff token cost, reworded section reads as novel, relocated section reads as missing, superset draft detection
 - **Related:** none
 
 ---
@@ -167,6 +167,17 @@ Cross-file discovery uses two other mechanisms — `**Related:**` (explicit grap
 
 Compound = intake (captures new learnings from sessions). Curate = maintenance (reorganizes, prunes, migrates existing learnings). Retro = reflection (surfaces discussion, invokes compound). Changes to *what* gets captured belong in compound. Changes to *how* content is organized belong in curate. Retro orchestrates but doesn't own persistence. When deciding where a system change belongs, trace the data flow: if it's about widening or narrowing the intake aperture, it's compound.
 
+## Compare index-heavy docs at section-header granularity, not by reading the diff
+
+Diffing two versions of an indexed learnings doc is deceptively expensive: index/map cells are single enormous lines, so a ~1,100-line diff can cost ~73k tokens — most of it one restated index bullet. Extract and compare the `^#{2,3} ` headers instead; that answers "what's actually new here?" for a fraction of the cost, and you only read the body of the sections that turn out to be novel.
+
+Header-level comparison also sees through the two things raw-line diffing gets wrong:
+
+- **Reworded content reads as novel.** A reorg that renames a section (`Running the project's Python when uv can't fetch…` → `uv can't fetch the pinned Python (403)`) makes every line "missing." Fuzzy-match normalized headers (`difflib.get_close_matches`) before believing it.
+- **Relocated content reads as missing.** After a file split, content is absent from its old path but present in the repo — search the whole directory, never one file.
+
+Cheap dedup signals worth computing at the same time: exact header equality across branches finds one draft that is a strict superset of another, and near-duplicate headers cluster the drafts that should merge into one section rather than land as N.
+
 ## Cross-Refs
 
-No cross-cluster references.
+- `~/.claude/learnings/git-patterns.md` — proving content already landed across a squash-merge or file split

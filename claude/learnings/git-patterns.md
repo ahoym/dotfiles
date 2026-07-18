@@ -1,5 +1,5 @@
 Git workflow patterns — rebase strategies, worktree isolation, lockfile conflicts, commit hygiene, file tracking, and branch management.
-- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix, silent cross-ref rot, upstream restructure audit, fold inline fix introducing commit, sed strip conflict markers, append-both at scale, git grep tracked-content scope, symlinked layout grep noise
+- **Keywords:** rebase, worktree, cherry-pick, pnpm lockfile, force-push-with-lease, git mv, soft reset, zsh glob, stash, merge conflicts, pre-commit hooks, symlink, stale main, merge-base ancestry, post-rebase divergence, orphan commits, N-vs-N divergence, squash-merge stacked branch, rebase --onto upstream squash, auto-merge concatenation, pre-rebase semantic check, API surface compatibility, forwarding property, re-export back-compat, long-lived PR, stacked-PR split, carve-out branch, cherry-pick auto-dedup, path-scoped log, textual conflict prediction, branch -f, rewind branch pointer, preserve dirty tree, stash untracked third parent, stash@{0}^3, git apply --3way dry-run, no-op patch apply, atomic commit split, temp-revert staging, preemptive PR number suffix, silent cross-ref rot, upstream restructure audit, fold inline fix introducing commit, sed strip conflict markers, append-both at scale, git grep tracked-content scope, symlinked layout grep noise, parallel implementation superset, subsumption drop empty commit, contested vs additive conflict, forward-reference comment audit, deferred-decision guard, transient index.lock watcher, rebase --continue retry, cache-key conflict resolution, content-hash identity discriminator, label vs hash collision, concurrent push shared branch, parallel-session push reject, merge-not-force recovery, PR merged wrong base branch, cherry-pick to correct base, scrub wrong branch pre-merge base, explicit-sha force-with-lease, stale SHA reference audit, set-upstream-to on bare-SHA branch, auto-merged sibling consistency anchor, conflicted-dir convention, mainline deliberate-deletion honor, incidental reorg resurrection, stage-2 stage-3 ours-theirs diff, index-stage diff, additive append wrong enclosing scope, semantic anchor vs marker position, aggregate conflict prediction overcount, parallel-impl consumer mapping, zero-consumer trunk class, take-theirs breaks live consumer, serialized-shape test blast radius, discriminator key migration write, still-conflicting-after-push, mergeable async recompute poll, main advanced mid-resolution, re-fetch before final push, checkout --theirs whole-file replace, programmatic conflict resolution unicode rows, git show stage-3 splice, duplicate test dropped helper NameError, semantic contradiction in clean auto-merge, disjoint doc rows qualify untouched claim, Edit anchor ASCII substring of kept unicode line, touch-then-revert undercount prediction, net-zero file byte-identity verify, empty path-scoped diff revert proof, verify against main-tip not merge-base, gh baseRefOid authoritative MR scope, stale origin-main file-count mismatch, multi-ref fetch aborts on bad ref, fetch-left-stale-ref, CONFLICTING vs already-up-to-date, binary in git, data in git, parquet in git, git repo bloat, .git size, write amplification, history growth, shallow clone, --depth 1, partial clone, blobless clone, --filter=blob:none, sparse checkout, Git LFS, GIT_LFS_SKIP_SMUDGE, git filter-repo, DVC, object storage manifest, repo size limit, duplicate section-number collision, same-ordinal section merge, renumber propagation, ordinal token repo-wide grep, script printed section label, mergeStateStatus BLOCKED, mergeable vs mergeStateStatus, branch protection not conflict, git grep silent false negative, git grep -F literal dot, BRE dollar not anchor before alternation, git grep vs GNU grep divergence, prove branch landed before delete, three-dot cannot detect squash-merge, byte-identity per-file landed check, content-anywhere grep after file split, branch SHA restore manifest, delete branch reversibility, line-initial conflict marker assert, diff3 base marker arm, IDE git-status poll holds index.lock, large-binary-diff slow status poll, bounded until-git-add spin-loop, real poller process not no-git
 - **Related:** ~/.claude/learnings/bash-patterns.md, ~/.claude/learnings/cicd/gitlab.md, ~/.claude/learnings/git-github-api.md
 
 ---
@@ -34,6 +34,10 @@ git show HEAD:path/to/file
 ```
 
 If the file contents are already there, the commit already happened. Don't assume changes are lost or that git is confused — check HEAD first.
+
+## Single source of truth for asserted numbers before committing
+
+When a commit (or the docs it touches) asserts figures — row counts, before/after deltas, test counts — derive every number from **one** verification script run, and copy from *only* that output. Numbers flowing from multiple garbled intermediate runs are how wrong figures (e.g. a "3,683 rows / 1-day gap" claim that was actually 3,684 / no gap) land in a commit and have to be walked back. One run → one set of numbers → into the doc and the commit body together.
 
 ## Parallel Branch Rebase with Worktree Isolation
 
@@ -122,6 +126,20 @@ Pick this over soft-reset when downstream commits depend on the source's origina
 
 **Followup:** `gh pr edit <N> --base feat/foo-base` to stack the PR. After carve-out merges, plain `git rebase origin/main` auto-skips the carve-out commit (`warning: skipped previously applied commit`).
 
+## Split by file-checkout-at-final-state when commits interleave layers
+
+Carve-out + cherry-pick assumes commits map cleanly to the split layers. When they don't — a branch where a single commit touches model + backtest + live at once, plus later fix commits scattered across layers — reconstruct each split branch from `main` and lay down files at their **final** state instead:
+
+```bash
+git checkout -b split/layer-a origin/main
+git checkout <feature-sha> -- <layer-a-files>    # final state — every later fix included
+git commit && git push -u origin split/layer-a
+git checkout -b split/layer-b split/layer-a      # stack: B imports from A
+git checkout <feature-sha> -- <layer-b-files>
+```
+
+Carries all later fixes into both PRs (not the buggy intermediates), trading away per-commit history. Verify each layer is self-contained (`grep "import"` — layer A must not import layer B) and that its tests pass standalone before pushing. Stack the dependent layer; retarget it to `main` after A merges.
+
 ## Verify Remote/Project Identity Before Cross-Repo Work
 
 When working across repos with similar names (e.g., `foo-service` vs `foo-service-v2`), verify `git remote -v` and the project path match before committing or pushing. A wrong-repo push wastes a commit cycle and may create orphan branches/PRs on the wrong project.
@@ -195,6 +213,8 @@ When you need two atomic commits from one file's changes and interactive staging
 4. `git add -A` → `git commit -F msg-B.txt`.
 
 Verify each commit's contents with `git diff HEAD~..HEAD --stat` after the first commit to confirm only commit-A's scope landed. The intermediate state must still pass tests — choose which slice goes first accordingly (typically the standalone tooling change, then the data/config that consumes it).
+
+**Before reaching for temp-revert, look for a no-reconstruction seam.** When a feature and a follow-up refactor overwrite the *same lines* (you can't hunk-split them), don't reconstruct the intermediate state — split by **file bucket** where one bucket can't affect tests. A behavior change + its required test updates can't separate (one commit would be red), but comment/doc/markdown changes are test-neutral: commit `code + tests` (green) then `docs-only` (green). The feature flip must be atomic with its tests; the prose rides separately. Reconstruction (temp-revert) is the fallback only when no such test-neutral seam exists.
 
 ## Preemptive `(#NNN)` in Commit Subjects — Verify Before Pushing
 
@@ -273,6 +293,12 @@ git push origin temp-branch:<pr-branch>
 
 **Fix:** Use `git fetch origin --prune` (no branch name) or `git remote prune origin` to prune all stale remote-tracking refs before checking for gone branches.
 
+## A multi-ref `git fetch` aborts wholesale on one bad ref — leaving the others stale
+
+`git fetch origin main <deleted-branch>` fails *entirely* (`fatal: couldn't find remote ref <deleted-branch>`) and **does not update `origin/main`** — every valid ref in the same command is left at its stale value. Common trigger: refreshing a stacked PR whose dependency branch was deleted after merge, so you fetch `main` + the now-gone dep branch in one command.
+
+**Tell:** GitHub reports the PR `mergeable: CONFLICTING` while local `git merge origin/main` says `Already up to date` (and `git log HEAD..origin/main` is empty). That contradiction means your `origin/main` is stale — not that GitHub is wrong. Re-fetch the single good ref (`git fetch --prune origin main`) and re-diff before concluding "no conflicts." Sibling to the stale-`origin/main` entries below; here the stale ref came from a fetch that *looked* like it succeeded.
+
 ## Use Git for State Queries, Not File Content
 
 For "where is the world right now" questions — branch divergence, what's merged, who has what — prefer git operations (`git log A..B`, `git log B..A`, `git branch`, `git status`, `git remote`) over reading file content. Git answers in one shot and is authoritative; reading files gives ambiguous data that's easy to misinterpret. Concrete failure mode: after a remote merge, switching to local main showed files in their pre-merge state (because local main was diverged from `origin/main`). The natural next move was to read file content and try to reason about why the merged changes "weren't there" — which led to wrong conclusions. The fast right move was `git log origin/main..main` and `git log main..origin/main` — both ran in one shot and made the divergence obvious. Reach for git first when the question is about world state; reach for Read when the question is about content.
@@ -280,6 +306,8 @@ For "where is the world right now" questions — branch divergence, what's merge
 ## Always Diff Against `origin/main`, Not Local `main`
 
 Local `main` may be behind remote — especially after other branches merge. `git diff main...HEAD` inflates the changeset with commits already merged upstream. Always use `git diff origin/main...HEAD` (or `git fetch origin main` first) to get the true delta. This applies to any tool that computes MR scope from a diff against main.
+
+Even `origin/main` is stale if you haven't fetched this session. The authoritative PR scope is GitHub's: `gh pr view <N> --json baseRefOid,files` gives the real diff base + file list. A large mismatch between local `git diff <base>..HEAD --name-only | wc -l` and `gh pr view <N> --json files --jq '.files|length'` (seen: 93 vs 48) is the tell that local main is stale — `git fetch origin main`, then diff against the reported `baseRefOid`.
 
 ## Large-Branch Regression Triage: Classify → Wholesale Revert → Add-Back
 
@@ -305,6 +333,10 @@ When resolving a merge conflict where main deletes a file that HEAD modifies, gr
 
 When merging upstream into a feature branch and *every* conflict resolves to "keep theirs," verify `git diff origin/<base>..origin/<branch> --stat` after the merge. A sibling PR may have superseded all the branch's changes — the merge will succeed but the resulting diff is empty. Check before pushing or addressing comments to avoid wasted work on a redundant PR.
 
+## Conflict-Free Rebase: Audit the Net Diff to Confirm Nothing Was Silently Dropped
+
+A clean rebase isn't proof nothing was lost — it can mean the branch and the new base touched *disjoint* files (truly safe), or that the base rewrote the same regions and the branch's edits were superseded (silently dropped). Distinguish them: `git diff <base>..HEAD --stat` lists exactly what the branch still adds; any file absent from that delta is now byte-identical to base. For each absent file, cross-check the branch's *original* commit (`git show <orig-sha> --stat -- <file>`) — if the original never touched it, the rebase was genuinely disjoint; if it did, the edit was superseded and may need re-applying.
+
 ## Initial `gitStatus` in System Prompt is Frozen
 
 The system prompt's `gitStatus` block is a snapshot from session start and does **not** update. New untracked files created later in the session won't appear there. Always run a fresh `git status --short` before staging for a commit — especially when another process (hook, ralph, skill) may have added files mid-session. Missed files either leak into the wrong PR or force a follow-up commit.
@@ -322,6 +354,16 @@ Agent workflows can't drive interactive `git add -p`. Split one file across N se
 4. Final commit: copy the saved full version back.
 
 Order commits additively so each step only adds lines — simpler than shrinking and re-growing. Skip the save/restore if the file belongs to one commit only.
+
+## Index-side commit split: `git apply --cached` patches (no working-tree edits)
+
+Alternative to the edit-revert methods above when the changes are hunk-disjoint: stage each commit's subset to the **index** directly, leaving the working tree fully modified throughout — no reconstruction, no Edit-tool stale-read churn, and a `--check` dry-run.
+
+1. `git diff <file>` → copy the relevant hunks into a per-commit patch (keep the `diff --git`/`---`/`+++` headers). Verify: `git apply --cached --recount --check c1.patch`.
+2. `git apply --cached --recount c1.patch && git commit …`. `--recount` re-derives hunk line counts and locates by context, so headers tolerate shifts from earlier-committed hunks.
+3. **The trailing commit per file needs no patch** — once prior hunks are committed, a plain `git add <file>` stages only the remaining diff (the index already holds the earlier hunks).
+
+Corollary: when git's own diff fuses two logically-separate edits into one hunk (a docstring change abutting an import change), let the trailing `git add` compute the remainder fresh — hand-write patches only for the first N−1 subsets and the fused hunk splits itself. `git apply` tolerates blank context lines written without the leading space, but confirm with `--check`. Sibling to "Hunk Splitting Across Commits" / the edit-revert entries — same goal, index-side instead of working-tree-side.
 
 ## Stash + Worktree for Moving Uncommitted Drift to a New Branch
 
@@ -348,11 +390,19 @@ git rebase --onto origin/main <feat/Y-tip-before-merge> fix/X
 
 Same `--onto` mechanic as commit-message-based rebase above; trigger here is detecting the upstream squash via parent count. With 12 squashed commits + 3 unique, this collapses ~14 conflict rounds to zero.
 
+**Sibling trigger — your branch's remote force-rewritten under you** (a web-session `[web-session] sync skills` job strips a commit + reorders history; `git fetch` shows `(forced update)`). Your local commit now sits on a superseded old base, so a plain `git rebase origin/<branch>` replays every old commit and conflicts. Replay only yours: `git rebase --onto origin/<branch> <your-commit>^ <branch>`, then plain `git push` (fast-forward) — **never `--force`**, which clobbers the rewrite's new work. Plain `git rebase origin/<branch>` is correct only when the old base is still an ancestor (normal divergence, not a rewrite — confirm with `git log --oneline HEAD..@{u}`).
+
 ## Auto-Merge Silently Concatenates Parallel Additions
 
 When two branches independently add the same top-level construct (class, dict, function) in the same file, git auto-merge can lay both blocks side-by-side without a `CONFLICT` marker. Python re-binds at module scope, so the later definition silently overrides the earlier — passing lint, failing only at runtime/test.
 
 "No CONFLICT marker" ≠ "clean merge." Always run the test suite after merging, even when `git merge` reports zero conflicts.
+
+## Additive "keep both" lands in the wrong scope when one side inserted a new enclosing block
+
+The `=======` marker sits at the *textual* diff boundary, not the semantic one. When the base side inserted a **new enclosing scope** (class, `describe` block, doc section) between your appended item's original anchor and the marker, naive keep-HEAD-then-theirs drops your addition inside that new scope. Place the appended content at its semantic home — the end of the block it was authored in — not at the marker position.
+
+Worked shape: branch appended a method to `TestWriteAlgoPlzLimitsByKey`; main grew that class *and* added a `TestReadAlgoPlzLimitsByKeyLegacyFallback` class before the marker. Keep-both-at-marker would have made the new test the last method of the *read* class. Resolve by inserting before `class TestRead…:`, then delete the duplicate theirs block. Companion to "Auto-Merge Silently Concatenates Parallel Additions" (that's the no-marker variant).
 
 ## Verify merge state against `origin/main`, not local `main`
 
@@ -394,6 +444,8 @@ Companion to "Post-rebase blast radius" — pre-rebase is the forward analysis, 
 ## Post-rebase blast radius extends beyond conflict markers
 
 A clean rebase (zero conflicts) does NOT mean the branch still works. Base-branch evolution introduces silent compatibility breaks: a renamed/moved function (your imports still reference the old location), a new required constructor field (your call sites silently pass the wrong shape), a changed signature (positional → keyword-only), a removed helper (now a `NameError`). Always run the full test suite after rebase, not just verify clean merge. The conflict resolver is a syntax-level tool; semantic compatibility requires runtime verification.
+
+The break need not be a *compatibility* break — a base-branch **behavior change** to a shared helper that stays API-compatible (e.g. `compute_contract_count` gaining a `+1` in a base-branch PR) leaves your code compiling and importing fine but silently invalidates tests that assert the old computed values. Same remedy (run the suite), different signature: green imports, red assertions. The fix usually belongs in the commit that owns those tests — `git commit --fixup=<that-commit>` + autosquash keeps each commit atomic rather than dumping the adjustment into HEAD.
 
 ## `git mv` pre-stages — renames bundle into the next commit silently
 
@@ -507,6 +559,8 @@ Do NOT force-push the local pre-rebase SHAs over the remote: same diff result bu
 
 Symptom that flips the rule: extra non-matching commits *only* on the local side that include a merge commit or a main-side commit (`#NNN`) — that's a local rebase that pulled main forward, force-push to land it. Forcing in the wrong direction overwrites the rebased side with stale SHAs.
 
+**Symptom in the review-addressing flow:** `gh pr checkout <N>` switches the branch but its built-in `git pull` aborts with `Not possible to fast-forward, aborting` — that abort *is* the rebased-remote signature, not an error to fight. When local has **no unique commits** (every local SHA is a pre-rebase dupe by message, on a staler `main` base), `git reset --hard origin/<branch>` is simpler than rebase — but first confirm the PR's touched files are byte-identical local-vs-remote (`git diff HEAD origin/<branch> -- <paths>`) so nothing unique is dropped. In a PR-review context, the review comments' `commit_id`s being the *remote* SHAs confirm the remote is the state that was reviewed — edit against it.
+
 ## Local rebase pulls forward orphan main commits when remote PR base lags main
 
 When your local PR branch is based on main commit X but the remote PR branch was rebased onto Y (where Y is an ancestor of X on main), `git rebase origin/<pr-branch>` does what you asked: replays everything not in the new base — including commits in `Y..X` that exist on main but not on the rebased PR branch. Symptom: `git log origin/<pr-branch>..HEAD` shows your new commit plus an unexpected commit whose message matches a commit already on main (with a fresh SHA from the cherry-pick).
@@ -561,6 +615,10 @@ Empty → base hasn't touched any file your branch modified → rebase is textua
 Faster than `git merge-tree` (prompts for permission in `claude -p`) and more precise than the diff-intersection fallback, which flags files-both-sides-touched but not whether main's edits land in the same hunks.
 
 Companion to "Pre-rebase semantic check" (API drift after clean textual replay) and "Post-rebase blast radius" (full test run after replay). This one decides whether you need conflict-resolution rounds at all.
+
+**Caveat — aggregate prediction overcounts.** Both `merge-tree` and the path-scoped log show the *squashed* overlap; rebase replays per-commit and resolves many overlaps cleanly along the way. A 3-file prediction routinely collapses to 1 actual conflict round. Treat the predicted set as an upper bound on files to inspect, not the conflict count.
+
+**Caveat — net-diff prediction *undercounts* touch-then-revert pairs.** `git diff --name-only <merge-base>..HEAD` is the *net* diff, so a file a branch modifies in one commit and reverts in another (extract→revert churn, net-zero) is absent from it — the path-scoped log never flags it, even when main independently edited that same file. Scan per-commit to surface it: `git log <merge-base>..HEAD --oneline -- $(git diff --name-only <merge-base>..origin/main)`. Whether it actually conflicts on replay depends on hunk overlap (the churn touched different functions than main → clean auto-merge), but either way it needs the byte-identity check below ("Empty path-scoped diff proves…").
 
 ## Non-interactive commit splitting via edit-revert + temporal staging
 
@@ -677,6 +735,8 @@ git grep -n 'Old Heading Name'   # scopes to tracked files in current branch
 
 Exit 1 = clean (no matches). Use bare `grep -r` only when you actually want untracked files (e.g., searching tool-output dirs).
 
+**Inverse trap — verifying a move *into a new file*.** `git grep` scopes to tracked content, so a section just relocated into an untracked new file returns **empty** — a false "content was lost." When verifying a content move before the first commit, use `git grep --untracked <pattern>` (searches tracked + untracked-but-not-ignored) or `grep` the working tree, or stage the new files first.
+
 ## Verify Source Clean After `git stash push -- <path>`
 
 `git stash push -- <pathspec>` is documented to revert the pathspec in the working tree after saving it, but a `.git/index.lock` race during compound `stash push && cd <worktree> && stash pop` can leave the stash created **and** the source file still dirty. Result: both source and destination end up with the same diff.
@@ -688,6 +748,355 @@ git diff --stat <path>   # must be empty; if not, the revert silently failed
 ```
 
 Mitigation: run `stash push` and the cross-worktree `stash pop` as separate tool calls so any lock contention surfaces loudly instead of being swallowed by `&&` short-circuit.
+
+## Parallel Implementation Landed on Main — Take the Superset, Duplicate Drops
+
+When a branch commit reimplements a feature that *also* landed on main via a separate PR (parallel work — common with split 1/2 + 2/2 PRs), the rebase conflicts are **contested, not additive**: both sides implement the same thing. Verify which is the merged/refined version (usually main, via `git log origin/main` showing the same feature title), then resolve every conflict for that commit toward main's side (`git checkout --ours <files>` during rebase). If main's version fully subsumes the branch commit, the commit drops out of the rebase as empty automatically — the genuinely-new follow-up work lives in the *later* branch commits and replays cleanly on top.
+
+```bash
+git checkout --ours <conflicted-files>   # rebase: --ours = main (HEAD)
+git add <files> && git rebase --continue # subsumed commit vanishes if empty
+```
+
+## Audit Forward-Reference Comments After a Superset-Take
+
+A superset kept from main may contain forward-references like `see PR 2/2` / `deferred to follow-up` / `not yet supported`. If the branch you're rebasing *is* that follow-up, those comments are now stale **and** may flag a design decision that was deferred but never actually made. Grep for them post-rebase and resolve as part of the PR:
+
+```bash
+rg -n 'PR \d/\d|deferred|not yet supported|TODO.*follow' -g '*.py'
+```
+
+Don't just reword to past tense — check whether the deferred *behavior* was implemented. A guard that `raise`s "not supported yet" is a deferred decision in disguise, not a stale comment.
+
+## Transient `index.lock` from Background File-Watcher During Rebase
+
+`git rebase --continue` can fail mid-replay with `error: Unable to create '.../.git/index.lock': File exists` even with no git command running — a background file-watcher, IDE, or scheduled process (look for a `*.lock` in the repo) grabbed the index for a beat. It's transient, not a crashed git process. Confirm and retry:
+
+```bash
+ps aux | grep '[g]it '          # no real git process → lock is transient
+ls -la .git/index.lock          # usually already gone
+git rebase --continue           # retry succeeds
+```
+
+The rebase was rescheduled (`done` lists the commit, `.git/rebase-merge` still exists), so a plain retry resumes — no `--abort` needed.
+
+**Same for a solo `git add && git commit`:** an un-batched chained mutation can still race a transient external lock at the *commit* step, yet the `add` already staged and the lock self-clears by retry. Check `git status` (file shows staged) and retry a **bare `git commit`** — no re-`add`, no `rm`. Reserve `rm -f .git/index.lock` for a genuinely stranded 0-byte lock (self-inflicted, below), not the common case where a quick retry just works.
+
+## Stale `index.lock` is usually self-inflicted, not a watcher
+
+Before blaming a file-watcher (above), check the likelier cause: your own `git add`/`commit`/`checkout` killed mid-write — by a parallel-batch cancel-cascade (one sibling Bash call errors → harness cancels the rest) or a user interrupt. The killed git leaves a 0-byte `index.lock` that blocks the next git op. Diagnostic: 0-byte lock + no running git + a just-interrupted git command = self-inflicted.
+
+Fix: run git mutations as **solo, sequential** Bash calls — never batch `git commit` with other tool calls. If a lock is already stranded, clear and proceed atomically in one chained call: `rm -f .git/index.lock && git add <files> && git commit ...`. Don't blame a hook without proof — a hook's `git diff` is read-only and cannot create the lock.
+
+## IDE `git status` poll holds `index.lock` — large binary diff needs a spin-loop, not one retry
+
+Distinct from the two cases above: here `ps aux | grep '[g]it '` **does** show a real process — an editor/IDE polling `git -C <repo> status --porcelain` on a tight timer. When the working tree has many changed **binary** files (a data refresh writing 100s of parquet partitions), each poll is slow (~1s, high CPU) and grabs `index.lock` to write back its refreshed index, so polls run near-continuously and a single `git add`/`commit` retry keeps losing the race. Don't kill the operator's editor — land in a gap with a bounded retry spin:
+
+```bash
+n=0; until git add <paths> 2>/dev/null; do n=$((n+1)); [ $n -ge 800 ] && { echo GAVE_UP; break; }; done
+```
+
+Same spin for the `commit` step (bare `git commit -F msg`, no re-`add`). Contention vanishes once committed — the diff shrinks and polls get fast again. (Gotcha: `echo STAGED_$n_ATTEMPTS` prints nothing after the number — `$n_ATTEMPTS` is one undefined var; use `${n}`.)
+
+## Contested conflict where one side redesigns cache-key/identity derivation
+
+When one side of a conflict rewrites how a cache key / report name / run identity is *derived* (e.g. a switch from a hand-built name with suffixes → a content-hash `label__<hash>` scheme), don't just pick the new design. Check whether the **other** side's distinguishing input survives the new derivation — in the hash **or** the label. If the field that made two runs distinct (`tlt_target`, a flag, an env) isn't part of the new content hash, combining naively makes formerly-distinct runs collide on one cache key → silently-wrong cached results. Verify by reading the hash's input axes (`RunSpec.from_run` / `identity_hash` fields), then fold the missing field into the label so distinct runs keep distinct keys. Resolution = adopt the new design **plus** thread the old side's discriminator through it — a correctness fix, not cosmetic.
+
+## Push rejected mid-conflict-resolution → branch may be shared with a parallel session
+
+A `git push` rejected with "fetch first" during/after a conflict-resolution (non-rewriting merge) usually means another agent or web session pushed to the *same* branch while you worked. Don't force-push to recover — that clobbers their commits. `git fetch` then inspect both sides (`git log --oneline origin/<br>..HEAD` and `HEAD..origin/<br>`); if they touched different files, a plain `git merge origin/<br>` integrates cleanly. Re-run the affected tests after integrating, then a normal `git push`.
+
+## `GIT_EDITOR=true` Suppresses the Editor Prompt on `rebase --continue`
+
+After staging a conflict resolution, `git rebase --continue` opens `$EDITOR` to confirm the commit message — an interactive block that stalls automated/permission-sensitive sessions. Prefix with `GIT_EDITOR=true` to accept the existing message non-interactively:
+
+```bash
+GIT_EDITOR=true git rebase --continue
+```
+
+Same trick (`GIT_EDITOR=true`) works for any git op that would pop an editor (`git commit --amend`, `git merge --no-edit` is the merge-specific equivalent).
+
+## PR merged into the wrong base branch — cherry-pick to correct, scrub the wrong one
+
+When a PR was merged with the wrong base (e.g. base `web-session` instead of `main`), the merge is done and GitHub's history is immutable. Correct *where the code lives* without touching the PR:
+
+```bash
+# 1. Land on the correct branch — cherry-pick the merged squash-commit(s)
+git checkout -b tmp/cp origin/main
+git cherry-pick <sha1> <sha2>          # clean if the wrong-base commits don't overlap its base commit's files
+uv run pytest <affected>               # validate the cherry-picked state before pushing
+git checkout main && git merge --ff-only tmp/cp && git push
+
+# 2. Scrub the wrong branch back to its pre-merge base — force-push with an explicit lease
+git fetch origin <wrong-branch>        # refresh the lease's expected value
+git branch <wrong-branch> <base-sha>   # local branch at the pre-merge base
+git push --force-with-lease=<wrong-branch>:<old-remote-tip-sha> origin <wrong-branch>
+```
+
+Use `--force-with-lease=<branch>:<expected-sha>` (explicit form) when the local branch has no upstream tracking ref — bare `--force-with-lease` would have nothing to compare against. The cherry-pick produces **new SHAs**; verify nothing references the old ones afterward:
+
+```bash
+git branch -a --contains <old-sha>; git tag --contains <old-sha>     # both empty = no refs
+git grep -nE "<short1>|<short2>" $(git rev-list --all)                # no textual refs in any commit
+```
+
+Old commits then survive only as unreferenced objects (reflog + GitHub's merged-PR refs) — nothing actionable. A bare local branch created from a SHA (`git branch foo <sha>`) has no upstream; set it with `git branch --set-upstream-to=origin/foo foo` to sync status/pull/push.
+
+**Simpler scrub when already on the wrong branch:** `git reset --hard <base-sha>` + `git push --force-with-lease` — no need for the `git branch <wrong-branch> <sha>` pointer move when you're already checked out there.
+
+**PR-workflow landing:** when the project routes all changes through PRs, skip `--ff-only` to main. Instead: `git checkout -b <fix-branch> origin/main && git cherry-pick <sha> && git push -u origin <fix-branch> && gh pr create --base main`.
+
+## `git checkout -b <name>` forks a new branch when `origin/<name>` already exists
+
+`git checkout -b <name>` only guards against a *local* branch collision. If `<name>` exists solely as a remote branch (e.g. an open PR's branch you've never checked out locally), git silently creates a **fresh branch from HEAD** carrying none of the PR's commits — and a later `push --force-with-lease` to that name clobbers the PR's entire diff. Before `checkout -b` for branch-named work, confirm it isn't already remote:
+
+```bash
+git ls-remote --heads origin <name>       # non-empty → branch exists remotely
+gh pr list --head <name> --json number     # open PR on it?
+```
+
+To work on the existing branch instead: `git checkout <name>` (auto-tracks `origin/<name>`), or `git fetch && git reset --hard origin/<name>` if a wrong local branch already exists.
+
+**Corollary:** when the operator says "checkout `<name>`, rebase onto main" and `<name>` matches an open PR, they mean **use that PR's branch**, not create a new one.
+
+## Conflicting line-number refs: verify against code, don't pick a side
+
+When both sides of a doc/comment conflict assert source line numbers (e.g. `operations.py:145` vs `:146`), **neither is necessarily correct** — each was audited against a different code state and the file kept growing afterward. Resolve by grepping the *current* code for the symbol, not by choosing the "newer" side:
+
+```bash
+grep -n 'def snap_price_to_tick' logic/futures/sizing.py   # → the real line
+```
+
+Observed: one side said `:181`, the other `:225`, the actual line was `:250` — both stale. Companion to "Parallel Implementation Landed on Main": take the richer side's prose, but recompute every line/path reference against HEAD's actual code.
+
+Same rule for **file-manifest / directory-listing conflicts** (e.g. a doc's `tree`-style block listing `research/*.py`): one side is often stale because the base branch *added* files (a new module from an upstream PR) the branch never saw. Resolve by `ls`-ing the actual directory and taking the complete set — don't pick the better-worded side:
+
+```bash
+ls backtesting/research/*.py   # → the authoritative file set; the richer description loses if it's missing files
+```
+
+**PR-branch (not checked out):** to verify a line in a branch you haven't checked out — e.g. correcting a reviewer/subagent's reported line number against the real source — fetch and grep the ref directly, no checkout needed:
+
+```bash
+git fetch origin <branch>                          # → FETCH_HEAD
+git show FETCH_HEAD:path/to/file.py | grep -n 'def target_symbol'
+```
+
+This is the fix for findings that report diff-artifact offsets (line position in a concatenated multi-file diff) instead of source lines: grep the anchor token in the branch source and use that line. Brace/inline the ref — `git show $ref:path` hits the zsh `:l`-modifier trap (see bash-patterns.md).
+
+## Auto-merged siblings are the consistency anchor for conflicted files in the same dir
+
+When both branches reorganize a directory and only *some* files conflict, the **auto-merged (clean-merged) siblings already encode the winning convention** — they took the base branch's content silently. Resolving the conflicted files to the *other* side leaves the directory internally inconsistent (e.g. half the scripts import `fixtures`/`formatting`, half import a rival helper). Check what the auto-merged peers import/use first, then resolve conflicts to match:
+
+```bash
+# which API did the non-conflicted scripts in this dir land on?
+grep -hE 'from backtesting.research|import _common' docs/research/<area>/scripts/*.py
+```
+
+This often outweighs "the richer-worded side wins" — directory consistency + alignment with the eventual merge-back target both point the same way.
+
+The same anchor applies *within* a single conflicted file: the auto-merged (non-conflicted) regions — especially the import block — may have already resolved to one side, so taking the *other* side's body in a conflict hunk `NameError`s on imports the auto-merge dropped. Pick the hunk side that matches the merged imports, then `ruff check <file>` (or the project linter) on the resolved file — an unused/undefined-name error is the fast signal you took the wrong side.
+
+## Honor mainline's deliberate decision over a branch's incidental preservation
+
+When `main` deliberately deleted/retired something in a PR (with rationale in the commit body), and your branch *incidentally* kept it — e.g. a `git mv` relocated the files as a side effect of a reorg, not a decision to preserve them — honor main's deletion. Resolving to keep them **resurrects** the files on merge-back, silently undoing a mainline decision. Read the deleting commit's body (`git show <sha>`) to distinguish "deliberately removed, recoverable from history" from "accidentally dropped." Flag the removal explicitly to the operator (it's reversible — the content is still in the branch).
+
+## Compact ours-vs-theirs delta on a conflicted file
+
+To see *only* what differs between the two sides of a conflict without reading the whole file (or wading through markers), diff the index stages directly — `:2:` = ours, `:3:` = theirs:
+
+```bash
+diff <(git show :2:path/to/file) <(git show :3:path/to/file)
+```
+
+For rename conflicts the stages key to the *current* (new) path. Far cheaper than reading a 400-line file to find a 20-line conflict; reveals whether a conflict is import-style noise or a real logic divergence.
+
+## Don't amend a pushed commit you've cited in "Fixed in `<hash>`" replies — add a follow-up commit
+
+After addressing review comments, the inline replies say `Fixed in <hash>`. A later cleanup must NOT `git commit --amend` that commit — the rehash orphans every cited `<hash>`, and reviewers clicking the ref hit a dangling commit. Land the cleanup as a **separate follow-up commit** instead; the cited commit stays reachable in history and the new concern is independently reviewable. (Amending is fine only before you've published the hash anywhere external.)
+
+When the rehash is **unavoidable** — a required rebase/force-push (e.g. reconciling onto a moved `main`) rewrites *every* cited hash — don't edit N inline replies. Post **one top-level note** mapping old→new SHAs and summarising the reconcile; it supersedes the now-dangling per-thread refs in one place. Pair it with re-confirming the fixes still hold on the new base (a parallel-promotion rebase can silently re-resolve them — see "Parallel Implementation Landed on Main").
+
+## `git rebase --onto origin/<branch> <old-base>` to replant when the remote PR branch was force-rebased
+
+When a PR branch is force-updated upstream (e.g. rebased onto a just-merged sibling PR), your local base commit is replaced by an equivalent-but-rehashed one. A plain `git rebase origin/<branch>` then tries to re-apply your base fix and conflicts. Replant only *your* commits with the three-arg form:
+
+```bash
+git fetch origin <branch>
+git rebase --onto origin/<branch> <old-base-sha> <branch>   # take commits after <old-base>, replant on remote head
+git push --force-with-lease origin <branch>
+```
+
+`<old-base-sha>` is your local commit's original parent (the now-superseded base). Cleaner than the worktree approach (see "Worktree at Remote Ref for Diverged PR Branches") when you just need to move a commit or two onto the new remote head.
+
+## Map consumers on both sides before picking a parallel-impl conflict side
+
+"Trunk is canonical" (see "Parallel Implementation Landed on Main") **inverts** when main shipped a shared class *ahead of its consumers*. Before resolving an add/add on duplicate implementations, grep who imports each side: `git grep -l '<Symbol>' origin/main -- '*.py'` vs `git grep -l '<Symbol>' <pr-branch> -- '*.py'`. If main has **zero code consumers** (only docstring mentions) while the PR has the live wiring that depends on the PR's API, taking `--theirs` silently breaks the PR. Pick the side whose API the live consumers need; reconcile structure from the other.
+
+Follow-through: when the resolution changes a **serialized shape** (e.g. adds a discriminator key to `to_dict`), it has test blast radius — skip-write/unchanged-comparison tests that seed the old key-set now see a diff (the extra key triggers a one-time migration write). Seed steady-state with the new key and assert the migration write on first persist.
+
+## Parallel-promotion collision where BOTH sides have live consumers — keep both, rename by question
+
+The inverse of "Map consumers on both sides": when an add/add lands a same-named symbol that **both** branches actively consume **and** the two implementations answer *different questions* (different signature/return, neither a superset), picking a side breaks the loser — "pick the side the consumers need" misfires because each side has consumers needing a different contract. Resolution: keep BOTH, rename by the question each answers (siblings, not versions — e.g. `drawdown_episodes` = peak→trough→recovery spans vs `deepest_drawdown_episodes` = depth-ranked top-N), then repoint each side's consumers + tests + `__all__`. Distinct from the orphan/superset cases (one side wins) and same-contract duplicates (collapse to one). Apply the "name siblings as siblings, not versions" rule at the merge seam.
+
+## PR still CONFLICTING right after you pushed a clean resolution — diagnose, don't re-resolve
+
+Two distinct causes, one symptom. Disambiguate before touching the resolution:
+
+```bash
+git fetch origin main
+git rev-list --count <pr-branch>..origin/main   # >0 → main advanced; 0 → async lag
+```
+
+- **>0** — `origin/main` moved between your fetch and your push (common on active repos / long resolutions). Your resolution was fine; merge the *new* main and resolve the fresh conflicts. Re-check `git rev-list --count` after fetch and *before* the final push to pre-empt a second race.
+- **0** — GitHub's `mergeable` is computed asynchronously and returns stale `UNKNOWN`/`CONFLICTING` for a few seconds after a push. Poll until it settles: `gh pr view <N> --json mergeable --jq '.mergeable'` in a short retry loop.
+
+## `git checkout --theirs <file>` replaces the WHOLE file
+
+It takes stage-3 wholesale, discarding any of *your* side's changes that auto-merged cleanly **outside** the conflict region. Safe only when the file's sole divergence is the conflict block. When your side added content elsewhere (verify: `git diff <merge-base>..<pr-branch> -- <file>`), resolve the conflict block in place instead — `--theirs` would silently drop those additions.
+
+## Programmatic resolution for unicode-heavy / very long conflict rows
+
+When a conflicted line is dense with special chars (`−`, `→`, `≈`, `§`, `×`, em-dash, smart quotes), transcribing it into an `Edit` `old_string` is error-prone. Resolve with a script that reads the real bytes and splices by marker index:
+
+```python
+side = subprocess.run(["git", "show", f":3:{PATH}"], capture_output=True, text=True).stdout
+row = next(l for l in side.splitlines(keepends=True) if l.startswith("| **Anchor**"))
+row = row.replace(OLD_CLAUSE, NEW_CLAUSE)            # surgical edit on the kept side
+lines = open(PATH, encoding="utf-8").readlines()
+start = next(i for i, l in enumerate(lines) if l.startswith("<<<<<<< "))
+end   = next(i for i, l in enumerate(lines) if l.startswith(">>>>>>> "))
+open(PATH, "w", encoding="utf-8").writelines(lines[:start] + [row] + lines[end + 1:])
+```
+
+Companion to "Sed-strip conflict markers" (that's keep-both-additive; this is keep-one-side-with-a-clause-edit).
+
+**Lighter alternative when only one side needs editing** — you don't always need the script. `Edit` transcription is only error-prone for lines you reproduce *in full*, so don't: anchor in-place edits on a short **ASCII-clean** substring *within* the kept unicode line (zero special-char reproduction), and fully transcribe only the line(s) you **delete** (the markers + the superseded row), each exactly once. For a 2-row keep-one/soften-one conflict that's fewer moving parts than a splice script.
+
+## Drop a duplicate test whose helper the auto-merge removed
+
+In an add/add test-file conflict where both sides have an equivalent test backed by *different* helper names, the auto-merge keeps only one helper. Keeping the other side's test then `NameError`s on the dropped helper. Before keeping a test from either side, confirm its helper is defined in the merged file (`grep -n 'def _helper'`). Keep the side whose helper survived (or the richer test), drop the duplicate, but **preserve any genuinely-new test** the other side added (verify it only touches the surviving public API).
+
+## A one-region conflict on a file with a huge 2-way diff is not a contradiction
+
+When `git merge` flags only a small conflict in a file but `git diff <ours> <theirs>` on that same file shows a massive divergence (e.g. 301 vs 182 lines), the 3-way merge already did the right thing — don't hand-merge the whole file. Diff each side against the merge-base to see who owns the file's current shape:
+
+```bash
+BASE=$(git merge-base HEAD origin/main)
+git diff --stat "$BASE" HEAD          # e.g. +222/-102 — your branch rewrote the file
+git diff --stat "$BASE" origin/main   # e.g.   +4/-3   — main made a tiny change
+```
+
+The big-delta side is what the merge kept; the small-delta side only conflicted where it happened to overlap. Resolution: keep the big side wholesale and fold in the small side's one change (e.g. adopt main's `from logic.models.constants import FIAT_USD` into the branch's enriched class). Reconciles the apparent paradox *and* tells you the right resolution.
+
+## A textually-clean doc auto-merge can still be semantically contradictory
+
+Two doc/index regions merge cleanly when they don't textually overlap — but the *result* can self-contradict: main adds a **new, disjoint** row/section reporting a finding that **qualifies an untouched claim on your side** (e.g. main's new `mnq-mean-reversion` row says the ATR-stop edge your `mnq-drawdown-mitigation` row promotes "was partly a lag artifact — pause the live plan"). No conflict marker flags it; the rows don't touch. During conflict resolution, read **both auto-merged sides for semantic tension**, not just the marker hunks — the prose analog of "scan for symbol drift outside conflict regions." Surface the contradiction to the operator and reconcile it (cross-ref / soften the qualified claim) rather than clearing markers and leaving the table to contradict itself.
+
+## `git mv` + an Edit to the moved file: re-`git add` or the edit is silently dropped
+
+`git mv old new` stages the rename with the file's **current** content; a later `Edit` to `new` lands only in the working tree. If the commit's `git add` list omits `new`, the commit captures the pre-edit (renamed) blob and the edit vanishes — local `pytest` passes (working tree has the fix) while CI fails on the committed stale content, the divergence "tests pass locally" can't catch.
+
+The tell is the index/worktree split in `git status --short`: `RM new` = **R**ename-staged + **M**odified-unstaged. After any `git mv` + Edit, re-`git add new` (or `git add -A`) and confirm the staged blob (`git show :new | head`). Sibling to "`git mv` pre-stages — renames bundle into the next commit": same pre-staging mechanic, opposite symptom (dropped edit vs. bundled rename).
+
+## Empty path-scoped diff proves a revert / churn-pair is byte-identical
+
+`git diff <ref>..HEAD -- <paths>` returning empty proves those paths are byte-for-byte identical to `<ref>`. Two high-value uses:
+
+- **Reviewing a revert PR** — `git diff origin/main..HEAD -- <reverted-dir>` empty means the PR restored main exactly; skip re-deriving those files' correctness, the empty diff *is* the proof (e.g. a PR that extracted then reverted a shared skeleton nets to main's inline form).
+- **After a clean rebase of a branch that nets-zero on a file main also edited** (the touch-then-revert case above) — the correct post-rebase state is **main's version**, not the merge-base's. A conflict-free auto-merge of (your revert) over (main's independent edit to the same file) can silently drop main's edit or Frankenstein it with no marker (the "semantically contradictory clean auto-merge" family). Verify against the *mainline commit that changed the file*, not the merge-base: `git diff <main-tip> HEAD -- <file>` must be empty, plus a positive check that main's feature survived (`git grep -c <main-only-symbol> HEAD -- <file>`).
+
+## A clean merge keeps your text but can make its *claims* stale
+
+A conflict-free rebase/merge can preserve your edit verbatim yet leave the *facts it
+asserts* wrong — because the other side added new reality your text now mis-describes.
+Distinct from the dropped/Frankensteined-edit family above: nothing was lost; what
+survived is now false. Bit twice in one session — a doc edit said "`_common` has 4
+consumers / 15 runners carry their own copy"; the merge kept it verbatim but also
+pulled in a 20th runner that imports `_common`, so the count was silently wrong
+post-merge. After a rebase that pulls in code touching the same domain your edits
+*describe*, re-derive every count / enumeration / "only X uses Y" claim from the merged
+tree (grep it) — a clean merge proves your text survived, not that it's still true.
+
+## Binary / data files in git: the cost is history growth, not working-tree size
+
+Committing churning binary (parquet, sqlite, compressed blobs) is efficient only while `.git` growth ≈ unique-data growth. Git can't delta-compress already-compressed binary, so **each rewrite of a file adds ~its own size to history forever**, even when the genuinely-new data is tiny. Diagnose with `du -sh .git` vs `du -sh <data-dir>` — a ratio >>1× is accumulated dead revisions you'll never read. A JSON→parquet (or any format) migration shrinks the working tree but leaves the old churn riding in history; only `git filter-repo` reclaims it.
+
+**Write amplification** = history added ÷ unique data added. A weekly rewrite of a 17 MB current-slice for ~1 MB of new data ≈ 15×. Period/year-partitioning that *freezes* old partitions (byte-identical → no churn) bounds the bleed to the active partition and is what keeps the approach viable.
+
+**When it tips into inefficient** (whichever first): `.git` ~300 MB–1 GB (clone/CI slow; GitHub nudges ~1 GB, escalates ~5 GB) · any single file >50–100 MB (GitHub's hard push wall — reachable with tick/1-min data) · cadence increase (daily refresh, more series).
+
+**Mitigation ladder:** cut refresh cadence (cheapest — divides amplification) → Git LFS (pointers in git, blobs out-of-band; fixes clone speed + the 100 MB wall, not total stored bytes) → object storage + content-hash manifest committed in git (DVC-style; breaks linear history growth — the endgame) → `git filter-repo` to excise old blobs (destructive, rewrites SHAs).
+
+## A clone need not pull full `.git` history
+
+`git clone` pulls all history by default, but consumers can opt out:
+- `git clone --depth 1` — tip snapshot only, skips historical revisions.
+- `git clone --filter=blob:none` — blobless partial clone; blobs lazy-fetched on checkout, full commit graph kept.
+- `--filter=blob:none --sparse` + `git sparse-checkout set <paths>` — never download blobs for paths you don't materialize (clone code, skip a data dir entirely).
+- Git LFS: `GIT_LFS_SKIP_SMUDGE=1 git clone` fetches no LFS blobs.
+
+Caveats: these are **consumer-side** — GitHub still stores full history, so repo-size limits still apply. And lazy-fetch **shifts cost to the reproducibility use case**: checking out an old SHA's data fetches those historical blobs on demand (network, fails offline) — you pay the history cost exactly when you exercise the "pin data to a SHA" benefit that justified putting data in git.
+
+## Octopus-merge file-disjoint branches as a throwaway integration gate
+
+When N parallel branches are file-disjoint by construction (each agent owned its own files) and will ship as N separate PRs, test their *combined* state first: `git checkout -b _gate main && git merge --no-edit b1 b2 … bN` — a single octopus merge commit with zero conflicts also *proves* the disjointness — then run the full suite + lint, and delete the branch. Catches cross-branch interference a per-branch CI run can't, without merging anything to `main` or committing the integration as a deliverable.
+
+## Same-numbered section collision in a doc merge — renumber one side, propagate every citation
+
+When both branches append a new section under the *same ordinal* (each adds a `§8`) to a numbered-section doc, git auto-merges the prose with **no CONFLICT marker** and leaves the file with two `§8`s. The fix is additive (both survive) but not local: keep both, renumber one side's whole chain (`§8/§9/§10` → `§9/§10/§11`), and propagate the new numbers to **every** citation — the index/topic docs, cross-effort refs in *other* dirs, and the effort's own **scripts, which print their `§N` label in docstrings/`print()` output** (a reproducer emitting `§8a basis` under a finding the doc now calls `§9` silently contradicts it). Before finalizing, `grep -rn` the ordinal tokens (`§8 §9 §10 …`) repo-wide, not just the conflicted files — and skip same-token refs that belong to a *different* effort (and non-section tokens like `§1256`). Escalation of "scan for symbol drift outside conflict regions"; distinct from the new-row-qualifies-old-claim case above (semantic contradiction) — this is a duplicate-ordinal collision.
+
+## `mergeStateStatus: BLOCKED` with `mergeable: MERGEABLE` is branch protection, not a conflict
+
+`gh pr view <N> --json mergeable,mergeStateStatus` reports two orthogonal axes. After a clean resolution + push, `mergeable: MERGEABLE` means the conflicts are gone; a co-reported `mergeStateStatus: BLOCKED` is a *separate* gate — required checks still running/failing or a required review — not unresolved merge state. Don't re-open the resolution or re-merge; the block clears on its own axis (wait on CI / request review). Sibling to the still-CONFLICTING-after-push entry: there the symptom is a stale `mergeable`; here `mergeable` is already correct and only `mergeStateStatus` is red.
+
+## `git grep` silently under-matches two patterns GNU `grep` handles — both fail *closed*
+
+Two confirmed divergences, both returning a **false negative that reads as a clean "absent"** — the dangerous direction, since the natural conclusion is "this content isn't there."
+
+- **`-F` makes `.` literal.** `git grep -F "check.s"` does *not* match `check's`. Writing `.` as a wildcard-ish stand-in for an apostrophe (to dodge shell quoting) matches nothing.
+- **BRE `$` before `\|` is not an anchor.** `git grep "^<<<<<<<\|^=======$\|^>>>>>>>"` misses the `=======` lines; plain `grep` with the identical pattern matches all three.
+
+```bash
+git grep --no-index -c "^<<<<<<<\|^=======$\|^>>>>>>>" f   # 2  <- wrong, silent
+git grep --no-index -c -E "^(<<<<<<<|=======|>>>>>>>)" f   # 3  <- correct
+```
+
+Default to `-E` for any alternation, and never put a regex metachar inside `-F`. Corollary: a `git grep` returning "not found" is only evidence once the pattern itself is proven on a positive control. Sibling of the tracked-content-scope false-empty above — same failure mode (false absent), different cause.
+
+## Proving a branch's work already landed — before deleting it
+
+`git diff main...branch` (three-dot) **cannot** tell you this: it diffs from the merge-base, so a squash-merged branch still shows its full changeset. Whole-file `git diff main..branch -- <file>` is also wrong for append-only files — any *unrelated* later change to that path reports "differs." Both mislead toward "still unmerged."
+
+What actually works, in order:
+
+```bash
+git diff --quiet origin/main..$B -- <path>          # byte-identity: landed, whatever the merge style
+git grep -F -q "<distinctive added line>" origin/main   # content-anywhere: survives a file split/rename
+```
+
+The second matters after a reorg: content moved to a *different file* is absent at its old path but present in the repo. So "absent at that path" ≠ "absent from main" — grep the whole tree before calling a branch unmerged. Sample the branch's added lines (skip short/boilerplate ones) and check each. Expect false "novel" hits from prose the reorg *reworded* — compare section headers, not raw lines, to see through renames.
+
+## Capture a SHA manifest before deleting branches — park it in the PR body
+
+Branch deletion is reversible only while you still know the SHA. Record it *before* the delete, and put the manifest somewhere durable (the consolidating PR's body, not a scratch file):
+
+```bash
+for b in <branches>; do printf '%s %s\n' $(git rev-parse origin/$b) $b; done
+git push origin <sha>:refs/heads/<branch>     # restore
+```
+
+Deleting source branches while their only other home is an *unmerged* PR is the risky window — the manifest is what makes it a bounded risk rather than a bet on that PR merging. Hold back any branch whose content the PR doesn't actually capture.
+
+## A conflict-completeness assert must match *line-initial* markers, not the substring
+
+`assert "<<<<<<<" not in text` false-positives on any doc that *discusses* merge conflicts — prose and fenced examples legitimately contain `` `<<<<<<<` `` inline. The check that means something:
+
+```python
+re.findall(r"^(?:<<<<<<<|=======|>>>>>>>|\|\|\|\|\|\|\|)", text, re.M)   # empty == resolved
+```
+
+Include the `|||||||` arm — a repo with `merge.conflictStyle = diff3` emits a base section the 3-marker check misses entirely.
 
 ## Cross-Refs
 

@@ -8,6 +8,7 @@ Composition persona for quant Python work. Inherits Python craft, testing rigor,
 
 ### Quant correctness
 - **No look-ahead bias**: today's decision uses information available *before* today's bar closes — never today's close, today's high/low, or any forward-derived field
+- **Intrabar execution look-ahead ≠ selection look-ahead — and walk-forward catches only the latter**: a close-based gate on an order that fills *intrabar* (a resting limit / stop) is look-ahead even with clean OOS, because the bias is identical in every window. A fill may use only intrabar price at the fill instant, never the bar's close or a same-bar lifecycle event. Test with a strict causal gate + a held-vs-blew decomposition. See `financial/backtest-lookahead-and-fill-realism.md`
 - **Point-in-time data discipline**: corporate actions (splits, dividends, mergers) applied as of effective date, not retroactively rewritten
 - **Transaction cost realism**: slippage, commission, and market impact modeled explicitly — a backtest without costs is marketing material, not evidence
 - **Survivorship bias awareness**: delisted/merged tickers must be present in the historical universe, not silently filtered out
@@ -44,6 +45,7 @@ Load on demand when the work touches the listed area:
 ### Financial domain
 - `provider:default/financial/applications.md` — calculation safety invariants, zero-divisor guards, idempotency patterns; load for fee, sizing, or risk calc work
 - `provider:default/financial/order-book-pricing.md` — modeling fills, slippage, bid/ask mechanics in the backtester
+- `provider:default/financial/backtest-lookahead-and-fill-realism.md` — the intrabar (execution) look-ahead walk-forward can't catch (close-gate on an intrabar fill), the held-vs-blew test, and fill-price-vs-probability realism for limit/fade strategies
 - `provider:default/financial/market-calendars.md` — trading-day arithmetic, session boundaries, holiday handling
 - `provider:default/financial/futures-tick-rounding.md` — tick-size rounding for futures order prices
 - `provider:default/financial/tradestation-api.md` — TradeStation WebAPI v3 quirks: response shapes, error envelopes, sentinel values

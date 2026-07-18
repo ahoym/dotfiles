@@ -93,3 +93,11 @@ Counter-example: CBOT 30Y T-Bond (ZB / `@US`) trades in 1/32 = 0.03125 — magni
 | ZN, ZF, ZT (notes) | 1/64 = 0.015625 | 6 | ❌ — needs `round(_, 6)` |
 
 **Onboarding audit:** when registering a new contract spec, check `tick_size`'s decimal-expansion length against the trailing `round(_, N)`. If insufficient, either bump `N` globally (cheap, safe — wider absorb window) or compute it from the tick: `decimal_places = abs(Decimal(str(tick_size)).as_tuple().exponent)`. The bug is latent until a finer-tick contract gets onboarded — no test will catch it without a fixture using that tick.
+
+## Snapping upstream is necessary, not sufficient — the wire-format site re-corrupts
+
+A correct `snap_price_to_tick` is silently undone by any later *fixed-precision format* of the same value before it reaches the broker. The live `+@US` reject (`Price = 111.97 is not precise [1/32]`) came from: open-leg snapped `111.96875` (on-grid ✓) → adapter built `LimitPrice` with `f"{price:.2f}"` → `"111.97"` (off-grid ✗). MNQ/VX (2-dp ticks) survive `.2f`; only US 1/32 (5-dp) and TY 1/64 (6-dp) break, so it hides until a fine-tick contract trades.
+
+The snap site and the **wire-format site** (request-body / order-string construction) are different layers — auditing only the price-*math* sites (the "When this matters" list) misses the format string. Lint `f"{price:.Nf}"` and `round(price, N)` *everywhere* on a futures order path, not just at the snap.
+
+**Root cause is a duplicated formatter.** The order script formatted correctly (tick-aware decimals); the live adapter carried a divergent `.2f` copy. Fix: one shared `format_price_on_tick(price, tick_size)` (snap, then render at `max(2, tick_decimals)`) that every order path calls — each caller owns only its `None`-tick fallback (equity → cents vs unregistered-root → preserve precision). Two correct-but-separate grid formatters are one edit from re-diverging; collapse them.

@@ -274,6 +274,8 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
    - Fix the incorrect domain file in place
    - Note the correction in `inconsistencies.md` under a "Cross-agent contradictions" section
 
+   **Also verify synthesized (emergent) claims absent from all domain files.** When the overview introduces a severity rating, causal chain, or failure mode that no single scan stated (e.g. escalating a scan's "KeyError when X is *unset*" into "X=bad-value → KeyError, Critical"), read the actual code path before publishing it. The contradiction check above won't catch an unsourced escalation — there is nothing to contradict.
+
 4. **Synthesize SYSTEM_OVERVIEW.md:**
 
    Write a **cross-domain overview** — this is the unique value that individual domain files cannot provide on their own. Do NOT simply concatenate the domain files.

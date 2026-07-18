@@ -78,6 +78,10 @@ When a broker uses a different identifier than the human-friendly account number
 
 If translation lives on the model (e.g., `Account.id` holds the hash), broker semantics leak into the supposedly broker-agnostic model — every consumer must know which broker it's talking to in order to choose the right id field. The whole point of the adapter is to absorb that knowledge.
 
+The same applies to **wire-action translation**: when the correct order action depends on broker + asset class (TradeStation futures shorts are `BUY`/`SELL`, not the equity `SELLSHORT`/`BUYTOCOVER`), the broker-agnostic layer carries only the *intent* (open/close short) and the adapter translates intent → wire action. Hardcoding the action in the agnostic layer re-leaks a broker+asset-class rule the adapter exists to absorb.
+
+**Refactoring corollary — keep a typed dispatch at the adapter's translation granularity.** When replacing a stringly-typed dispatch (`getattr(adapter, method_name)`) with a typed enum, keep the enum at the *intent* granularity the adapter translates on (all four of buy/sell/sellshort/buytocover), not a "simpler" collapsed set (buy/sell). Collapsing looks like a clean simplification but destroys the signal the adapter needs — it *is* hardcoding the wire action, re-leaking the rule. The `getattr`→enum swap is still worth it: it restores static analysis (a broker-method rename fails at check-time, not at runtime on the live order path); the granularity is what keeps it behavior-preserving.
+
 ## Diagnose incomplete migration via entry-point import chain
 
 Composition root + protocol delivers import-time independence only when no broker-agnostic call site imports legacy concrete modules at the top level. When `BROKER=newbackend` crashes at startup despite the composition root being correctly gated, the gap is at the call sites — not the abstraction.
@@ -87,3 +91,7 @@ Diagnostic: trace `from X import Y` from the entry point outward; flag any top-l
 Blocker set = union of top-level legacy-concrete imports along the entry point's import graph. CI lint prevents *new* violations; this diagnostic catches *existing* ones inherited from before the lint landed.
 
 Lazy imports (function-scope `from X import Y`) are also a deliberate tool: when you can't yet move a side-effecting import behind the composition root, deferring it inside a getter function is a cheap way to make the module import-safe for env-gated alternatives. Treat as a transitional measure — the cleaner end-state is the side effect inside the adapter constructor.
+
+## Behavior-preserving seam knob: default to each site's current value
+
+The legitimate counterpart to the test-only-DI smell above. When extracting a shared constructor from N call sites that differ in *one* behavioral knob (e.g. a cross-process lock on/off), make that knob a real parameter and have each site keep the value it used before (default it to the behavior-preserving value). Production callers genuinely exercise both settings, so it's not a test-only seam — and the extraction becomes pure zero-behavior-change dedup, which is what lets you ship it without re-validating each site's runtime. When the sites *disagree* on the knob, surface its policy as an explicit decision (it's a real behavior fork, not an implementation detail).

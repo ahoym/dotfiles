@@ -23,3 +23,7 @@ SKILL.md cross-refs to related learnings go at the end of the file, framed as "R
 ## Coupling check for workflow phases
 
 When reviewing plans that add a new phase to a larger workflow, ask: "is this coupled to its orchestrator, and does it need to be?" Phases designed as orchestrator-internal are harder to test, reuse, and evolve. Default to standalone-first unless tight coupling is genuinely required.
+
+## Posting/mutating skill under plan mode → do the read-only work, gate only the write
+
+When a skill whose payload is an external mutation (post a review, open a PR, push a branch) is invoked while plan mode is active, don't bail or immediately ask. Do the full read-only analysis (fetch, diff, subagent review, merge — most of the skill's value), stage the artifact, and hold *only* the external write until plan mode exits. Announce the hold up front; the harness blocks the write anyway, so degrading to read-only-then-execute preserves the work instead of discarding it.

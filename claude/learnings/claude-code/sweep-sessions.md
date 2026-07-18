@@ -311,6 +311,10 @@ When a `claude -p` session fetches MR watermark data and sees `merge_status: can
 
 Full fresh re-reviews find new issues each cycle because they examine the entire diff, not just verification of prior fixes. Findings can increase (4 → 5 → 7) before converging (→ 2 → 0). Escalate to operator after 2 consecutive cycles of scope growth. Natural convergence pattern: initial spikes settle as the code hardens and remaining findings are increasingly low-severity or acknowledged design decisions.
 
+## Scope Merge-Commit Re-Reviews by Commit-Level Diff, Not PR Diff
+
+A merge commit (branch merges base to resolve conflicts) creates a new HEAD SHA that triggers a re-review — but its changed files are the *base*'s churn, often unrelated to the PR's domain (one auth PR's merge commit touched 50+ backtesting/docs/config files, zero auth files). Scope the re-review to the commit-level diff (`gh api …/commits/<sha>` → `.files[] | select(.filename | startswith("<domain>"))`), not the cumulative PR-vs-base diff. Empty domain-relevant changes → skip the subagent relaunch, post a brief "merge commit, no `<domain>` changes" confirmation, and reconcile any reactions a prior cycle left unposted.
+
 ## Runner `session.state` Must Be Cleared for Clean Relaunches
 
 The runner persists `session.state` with `session_id` for resume support. On relaunch (new cycle), a stale `session.state` triggers `No conversation found with session ID` and the session exits in ~30s with 0 context tokens. Always clear `session.state` alongside `status.md` and `state.md` before relaunching.
@@ -386,3 +390,11 @@ Silent narrowing forces the operator to detect what's missing. Even when narrowi
 ## Director Should Run `/sweep:compound-agent-learnings` Before Wrap-Up
 
 Per-issue `learnings.md` files written by `claude -p` agents die in `tmp/` unless promoted. Director Phase 5 (wrap-up) should invoke `/sweep:compound-agent-learnings <RUN_DIR>` to extract generalizable observations and route them through `/learnings:compound`. This applies to all sweep skills (work-items, address-prs, review-prs).
+
+## `.claude/` Edits Hard-Block the Headless Addresser — Escalate Pre-Staged, Director Takes Over
+
+A review comment can ask the addresser to edit a file under `.claude/` (e.g. relocate a guideline section to reduce always-on context). Headless `claude -p` sessions **cannot** edit `.claude/` — the sensitive-dir gate denies it with no interactive-approval path. This is categorically-impossible work, distinct from "disagree and escalate." Correct handling:
+
+1. **Don't commit a half-move.** If you already created the destination file before hitting the blocked source edit, revert it — a partial move duplicates content and fails the reviewer's goal.
+2. **Escalate with the work pre-staged** — put ready-to-paste content + exact destination + signpost in the reply so the operator/director's residual effort is mechanical.
+3. **Director takeover.** The *interactive* director can edit `.claude/` (it's a permission prompt, not a hard gate). Director makes the move in a worktree on the PR branch, commits, pushes, posts a confirming reply, and — if a re-review will run — writes a directive telling the reviewer that the placement is an operator decision (suppresses a re-flag of the original concern). Validated: PR #230 anonymization-section move — addresser escalated pre-staged, director performed the `.claude/` edit + push, re-review returned 0 new findings under the directive.

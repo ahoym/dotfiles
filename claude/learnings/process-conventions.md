@@ -241,6 +241,10 @@ When an issue's acceptance criteria mix code-shippable items (modules, scripts, 
 
 Auditing migration progress: distinguish "PR landed, issue intentionally still open because cutover hasn't run" from "issue forgotten." A glance at the criteria checklist tells you which. Don't auto-close on merge for cutover-bearing issues.
 
+### Dated self-corrections in issue bodies go stale — re-verify during triage
+
+A "⛔ Blocked-by #N" or "✅ none of the 4 done" note inside an issue body is a point-in-time snapshot, not current truth. During triage, re-verify each against ground-truth: PR merge status (`gh pr view N`) and the actual code (`grep`/read the named symbols on `main`). Common stale shapes: blocked-by a PR that closed unmerged while the work landed via a *different* PR (see git-github-api.md "A stale PR's deliverable often shipped via a different PR"); "nothing done" notes predating a merge that shipped half the items. Trusting the note at face value propagates the error into your assessment and any comment you post.
+
 ## Confluence MCP Publishing
 
 ### Markdown content format eliminates manual conversion
@@ -254,3 +258,15 @@ Auditing migration progress: distinguish "PR landed, issue intentionally still o
 ### Page tree publishing: parent first, children parallel
 
 Update the parent page first to confirm the page ID, then create all child pages concurrently with `parentId`. Siblings have no ordering dependency — batch all `createConfluencePage` calls in one message for parallel execution.
+
+### Rewrite history before posting commit-SHA-referencing replies
+
+When a task ends with both posting review replies that cite commit hashes (`Fixed in <sha>`) and a history rewrite (rebase onto main + `--force-with-lease`), do the **rebase first** — a force-push after the replies orphans every SHA they reference. Order: implement → rebase → push → reply-with-final-hashes. (Inline-comment threads survive a force-push — they re-anchor by comment ID — so only the *quoted* hashes go stale, which is exactly why you post them last.)
+
+### Implementing a plan's deferred item means reconciling the plan in the same change
+
+When a PR builds something a plan documented as future/open, the plan's present-tense claims go stale on the spot — `**Status:** PLAN ONLY`, a "no change to X" design principle, an "Open decisions / confirm before building" item. Fix them in the same PR: flip the status to what's now built, *neutralize* the false principle (don't just append a note), and mark resolved decisions RESOLVED with a code/test pointer. A plan still reading "not implemented" after you implemented it actively misleads the next reader. (The index-row "neutralize the stale lead" rule, applied to plans/specs.)
+
+### Prove a scoped change preserves a parity guarantee from the diff, not by assertion
+
+When a change to a function carries a parity guarantee ("§N numbers stay byte-identical", "hot path unchanged"), prove it: show the diff's changed lines all live in a branch the guaranteed path never enters, plus the invariant that keeps it unreachable. `git show <sha> -- <file> | grep '^-'` isolates removed lines — if every one sits inside a never-hit branch (e.g. a `not isfinite(equity)` guard that clean finite-equity data never trips), the guaranteed path is character-identical by construction. Cheaper and more rigorous than re-running; converts "should be identical" from hypothesis to proof.
