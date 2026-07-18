@@ -291,16 +291,17 @@ This phase runs in a fresh invocation with a clean context. Read domain files fr
 
    **SURGICAL UPDATE (applies when `OVERVIEW_STALE_COMMIT` is set and reachable):**
    - Reconstruct CHANGED_FILES: `git diff --name-only <OVERVIEW_STALE_COMMIT>..<SCAN_COMMIT>` (same exclusions as Phase 1 Step 3).
-   - Map CHANGED_FILES to affected sections using this table:
+   - Map CHANGED_FILES to affected sections using this table. The buckets are stack-agnostic — the examples lean Java/Spring, but match React/Python/TS equivalents to the same row — and the final catch-all row guarantees any unmatched change still refreshes the core sections:
      | Changed source path pattern | Affected SYSTEM_OVERVIEW sections |
      |-----------------------------|-----------------------------------|
-     | `pom.xml`, `.gitlab-ci.yml`, `Dockerfile*`, `**/*.sh` | Architecture Overview, Module Dependency Graph |
-     | `**/*Controller*`, `**/*Dto*`, `**/dto/**` | Key Workflows (creation-side steps), Critical Path |
-     | `**/*Entity*`, `**/*Repository*`, `**/migration/**` | Key Workflows (data-layer steps), Documentation Gaps |
+     | `pom.xml`, `build.gradle`, `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `.gitlab-ci.yml`, `Dockerfile*`, `**/*.sh` | Architecture Overview, Module Dependency Graph |
+     | `**/*Controller*`, `**/*Dto*`, `**/dto/**`, `**/routes/**`, `**/handlers/**`, `**/api/**` | Key Workflows (creation-side steps), Critical Path |
+     | `**/*Entity*`, `**/*Repository*`, `**/migration/**`, `**/models/**`, `**/repositories/**`, `**/schema*` | Key Workflows (data-layer steps), Documentation Gaps |
      | `**/adapter/**`, `**/spi/**`, `**/*Client*` | Cross-Cutting Patterns, Key Workflows, Resilience Assessment |
      | `**/*Service*` (non-client), `**/*Scheduler*`, `**/*Poller*` | Key Workflows (add/update/remove workflow), Architecture Overview diagram |
-     | `**/application*.yml`, `**/*Config*`, `**/*Properties*` | Cross-Cutting Patterns, Documentation Gaps |
+     | `**/application*.yml`, `**/*Config*`, `**/*Properties*`, `**/*.config.*`, `**/settings*`, `.env*` | Cross-Cutting Patterns, Documentation Gaps |
      | `**/test/**`, `**/*Test*`, `**/*IT*` | Test Coverage Gaps |
+     | Any changed path not matched above (catch-all) | Architecture Overview, Module Dependency Graph, and the core data / handler / config summaries (Key Workflows, Cross-Cutting Patterns) |
    - **Only rewrite sections** that map to changed paths. Copy all other sections verbatim from the existing file — exact characters, no reformatting.
    - **Always rewrite:** scan metadata header.
    - **Rewrite Project Summary and Architecture Overview** only when the module structure or core invariant changed (new `@Scheduled` job, new module, new top-level workflow added or removed).
