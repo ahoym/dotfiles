@@ -19,7 +19,7 @@ Translate a `<repo>/docs/plans/<initiative>/` planning artifact into Jira ticket
 
 ## When NOT to use
 
-- Decisions still in flight — DON'T create tickets while architecture is being riffed. Tickets created prematurely cost ~5k tokens per `editJiraIssue` to fix later.
+- Decisions still in flight — DON'T create tickets while architecture is being riffed. Tickets created prematurely cost ~5k tokens per `mcp__claude_ai_Atlassian__editJiraIssue` to fix later.
 - No planning doc exists — propose one first; the doc IS the source of truth, tickets are the work-tracking surface.
 - Single-ticket work — overkill; just create the ticket directly.
 
@@ -40,9 +40,9 @@ Extract:
 
 Convention discovery before bulk creation:
 
-- `getAccessibleAtlassianResources` → cloudId
-- `getJiraProjectIssueTypesMetadata` → available types and hierarchy levels
-- `searchJiraIssuesUsingJql` for recent tickets in target project (last ~30 days) → title prefix, issue type the team uses for atomic work, label patterns, priority defaults
+- `mcp__claude_ai_Atlassian__getAccessibleAtlassianResources` → cloudId
+- `mcp__claude_ai_Atlassian__getJiraProjectIssueTypesMetadata` → available types and hierarchy levels
+- `mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql` for recent tickets in target project (last ~30 days) → title prefix, issue type the team uses for atomic work, label patterns, priority defaults
 
 Adopt these conventions for the new tickets. Don't invent conventions where the team has them.
 
@@ -58,7 +58,7 @@ Don't free-form prompt — focused multiple-choice keeps the gate cheap.
 
 ### 4. Delegate bulk MCP calls to a subagent
 
-This is the key efficiency move. The Atlassian MCP returns ~5k tokens per `createJiraIssue` / `editJiraIssue` call (custom fields). For a 7-ticket batch, that's 35k+ tokens of response bloat. Delegating to a subagent isolates that cost.
+This is the key efficiency move. The Atlassian MCP returns ~5k tokens per `mcp__claude_ai_Atlassian__createJiraIssue` / `mcp__claude_ai_Atlassian__editJiraIssue` call (custom fields). For a 7-ticket batch, that's 35k+ tokens of response bloat. Delegating to a subagent isolates that cost.
 
 Spawn a `general-purpose` Agent with the full task bundle:
 
@@ -81,7 +81,9 @@ Once the subagent returns:
 ## Subagent prompt skeleton
 
 ```
-Create Jira tickets via Atlassian MCP in project <X>, cloudId <Y>.
+Create Jira tickets via the Atlassian MCP in project <X>, cloudId <Y>.
+
+Prerequisite: the Atlassian MCP server must be available/enabled in your settings — the create calls use mcp__claude_ai_Atlassian__createJiraIssue. If it isn't accessible, stop and report rather than proceeding.
 
 Epic to create:
 - Title: "<epic title>"
@@ -94,7 +96,7 @@ Child tickets to create after epic (in parallel, each with parent: <epic-key>):
 2. "<title 2>"  — description: <body 2>
 ...
 
-Use contentFormat: "markdown" for all descriptions.
+Create every ticket via mcp__claude_ai_Atlassian__createJiraIssue, using contentFormat: "markdown" for all descriptions.
 Test the epic creation first to verify rendering, then batch the children in parallel.
 Report back:
 - Epic key
@@ -104,10 +106,10 @@ Report back:
 
 ## Bulk edit case
 
-When the operator already has tickets and decisions changed, the same Agent-delegation pattern applies — bundle all `editJiraIssue` calls into a subagent prompt. The 5k-token-per-call response bloat compounds; isolation matters more for edits than for creates.
+When the operator already has tickets and decisions changed, the same Agent-delegation pattern applies — bundle all `mcp__claude_ai_Atlassian__editJiraIssue` calls into a subagent prompt. The 5k-token-per-call response bloat compounds; isolation matters more for edits than for creates.
 
 ## Out of scope
 
 - **Creating the planning doc** — separate concern. The doc must exist before this skill runs.
 - **Architectural decisions** — locked in the doc; this skill doesn't re-litigate.
-- **Issue links beyond Epic-child** — `parent` field handles Epic linking. If the doc has explicit "Blocks" relationships, those are mentioned in ticket descriptions; only create formal `Blocks` issue links if the team uses them (check via `getIssueLinkTypes` and recent ticket sample).
+- **Issue links beyond Epic-child** — `parent` field handles Epic linking. If the doc has explicit "Blocks" relationships, those are mentioned in ticket descriptions; only create formal `Blocks` issue links if the team uses them (check via `mcp__claude_ai_Atlassian__getIssueLinkTypes` and recent ticket sample).

@@ -67,7 +67,7 @@ Parse `$ARGUMENTS`:
 - `--always-clarify` → `ALWAYS_CLARIFY=true` (suppress the DoR-ready bypass — every ticket goes through clarify even when DoR predicts implement)
 - `--converge` (default) / `--no-converge` → `CONVERGE` defaults to `true`. When converge is on, all `team-review` + `address-comments` items in this dispatch are aggregated into a single `/director review+address --converge --prs=...` invocation that owns the review → address → review loop until convergence. `implement` items still dispatch in parallel via sweep:work-items regardless. Pass `--no-converge` to fall back to one-shot `sweep:review-prs` / `sweep:address-prs` sessions per delegate (no address follow-up loop).
 - `--include-downstream` → `INCLUDE_DOWNSTREAM=true` (when unset — the default — review/address only fires on **frontier** MRs whose `target_branch` is `main` or an already-merged branch; MRs stacked on unmerged branches are demoted to deferred with reason `downstream of !<iid>` so the cycle isn't wasted on content that will shift when upstream lands. When set, all open MRs in the epic dispatch regardless of stack depth.)
-- `--cloud=<host>` → `CLOUD_ID` (default `<your-site>.atlassian.net`; when no default is configured, resolve via Atlassian MCP resource discovery — `getAccessibleAtlassianResources` — and take the first accessible site)
+- `--cloud=<host>` → `CLOUD_ID` (default `<your-site>.atlassian.net`; when no default is configured, resolve via Atlassian MCP resource discovery — `mcp__claude_ai_Atlassian__getAccessibleAtlassianResources` — and take the first accessible site)
 
 ### Phase 2: Run fetch + classify pipeline
 
@@ -524,7 +524,13 @@ Also write `<RUN_DIR>/data.json` with the full `EpicClassifyResult` for operator
 
 Skip this phase if `SKIP_RUNNER=true` (i.e., `--plan-only` was passed).
 
-Write `<RUN_DIR>/let-it-rip.sh` with the template below. The runner:
+Generate `<RUN_DIR>/let-it-rip.sh` via the wrapper (do NOT hand-write or read the runner template — `fill-template.sh` handles substitution):
+
+```bash
+bash ~/.claude/skill-references/epic-advance-generate-runner.sh <RUN_DIR> <EPIC_KEY> <ISO_TS> <ALWAYS_CLARIFY> <CONVERGE>
+```
+
+The wrapper writes `<RUN_DIR>/metadata.json`, assembles the runner from `epic-advance-runner-template.sh`, marks it executable, and `bash -n`-validates it. The runner:
 
 1. Reads `manifest.json` for tranche structure and per-item details
 2. Loops tranches sequentially (Tranche 0 → 1 → ...)
@@ -533,286 +539,13 @@ Write `<RUN_DIR>/let-it-rip.sh` with the template below. The runner:
 5. For stacked items, the prompt to `sweep:work-items` includes a **directive injection step**: write `directives.md` into the sub-RUN_DIR's per-item dir telling the implementer to add the auto-flag footer to the MR description (B2 design)
 6. Updates `<RUN_DIR>/<TICKET_KEY>/status.md` as items progress
 
-Mark the file executable: `chmod +x <RUN_DIR>/let-it-rip.sh`.
-
-**Template substitutions** to apply when writing the runner: `<EPIC_KEY>` (parsed in Phase 1), `<ISO timestamp>` (run start time), `<ALWAYS_CLARIFY_VALUE>` (literal `true` or `false` from the parsed `--always-clarify` flag — defaults to `false`), `<CONVERGE_VALUE>` (literal `true` or `false` from the parsed converge flag — **defaults to `true`**; pass `--no-converge` to skill-time to bake `false`). Operators can also flip both flags at run-time by passing `--always-clarify`, `--converge`, or `--no-converge` to the generated runner.
+**Wrapper arguments** (positional, in order): `<EPIC_KEY>` (parsed in Phase 1), `<ISO_TS>` (run start time), `<ALWAYS_CLARIFY>` (literal `true` or `false` from the parsed `--always-clarify` flag — defaults to `false`), `<CONVERGE>` (literal `true` or `false` from the parsed converge flag — **defaults to `true`**; pass `--no-converge` at skill-time to bake `false`). The wrapper writes these into `<RUN_DIR>/metadata.json`, which `fill-template.sh` substitutes into the template's `{{EPIC_KEY}}` / `{{ISO_TS}}` / `{{ALWAYS_CLARIFY}}` / `{{CONVERGE}}` markers. Operators can also flip both flags at run-time by passing `--always-clarify`, `--converge`, or `--no-converge` to the generated runner.
 
 **Converge mode behavior:** when `CONVERGE=true`, the dispatch loop aggregates every active item with `action ∈ {team-review, address-comments}` into a single `/director review+address --converge --prs=#139,#140,...` group rather than spawning separate `sweep:review-prs` / `sweep:address-prs` sessions per delegate. `sweep:work-items` (implement) is unaffected and still dispatches in parallel. The `--prs=` list passed to director is authoritative — it pins director to the MR set this epic-advance run identified, so director won't widen scope to unrelated MRs in the repo. Convergence semantics (when the loop terminates) are owned by `/director` — refer to its sweep-mode.md.
 
 #### Runner template
 
-The runner is generated dynamically at skill-run-time using the manifest data. The structure is bash + jq.
-
-```bash
-#!/bin/bash
-# Generated by /sweep:epic-advance for epic <EPIC_KEY> at <ISO timestamp>
-# Run: bash let-it-rip.sh        — execute dispatch
-#      bash let-it-rip.sh --dry-run  — print claude -p invocations without executing
-
-set -u
-RUN_DIR="$(cd "$(dirname "$0")" && pwd)"
-MANIFEST="$RUN_DIR/manifest.json"
-DRY_RUN=0
-ALWAYS_CLARIFY=<ALWAYS_CLARIFY_VALUE>   # baked at skill-time; runtime override below
-CONVERGE=<CONVERGE_VALUE>               # baked at skill-time; runtime override below
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    --always-clarify) ALWAYS_CLARIFY=true ;;
-    --converge) CONVERGE=true ;;
-    --no-converge) CONVERGE=false ;;
-  esac
-done
-
-log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$RUN_DIR/run.log"; }
-
-update_status() {
-  local key=$1 state=$2 extra=${3:-}
-  local f="$RUN_DIR/$key/status.md"
-  local ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  case "$state" in
-    running) sed -i.bak "s/^state:.*/state: running/; s/^started_at:.*/started_at: $ts/" "$f" ;;
-    done|failed)
-      sed -i.bak "s/^state:.*/state: $state/; s/^ended_at:.*/ended_at: $ts/" "$f"
-      [[ -n "$extra" ]] && sed -i.bak "s|^delegate_run_dir:.*|delegate_run_dir: $extra|" "$f"
-      ;;
-  esac
-  rm -f "$f.bak"
-}
-
-# Build the prompt for a given delegate + ticket-list + tranche.
-# Takes ticket_keys (for manifest lookups + per-item-dir resolution); the
-# delegate_args fed into the prompt are resolved from the manifest. They differ
-# for MR-targeting delegates (delegate_args = "#<iid>", ticket_key = "PROJ-<n>").
-build_prompt() {
-  local delegate=$1; shift
-  local tranche=$1; shift
-  local ticket_keys=("$@")
-
-  # Resolve delegate_args ordered the same as ticket_keys.
-  local delegate_args=()
-  local key
-  for key in "${ticket_keys[@]}"; do
-    local arg
-    arg=$(jq -r --arg k "$key" \
-      '.active[] | select(.ticket_key == $k) | .delegate_args[0]' "$MANIFEST")
-    delegate_args+=("$arg")
-  done
-
-  case "$delegate" in
-    sweep:address-prs|sweep:review-prs)
-      cat <<EOF
-Run /$delegate ${delegate_args[*]}
-
-After it generates its run dir (you'll see "Artifacts written to <PATH>"), run:
-  bash <PATH>/let-it-rip.sh
-
-Then capture the <PATH> and report it back as the last line of your output, prefixed with DELEGATE_RUN_DIR=.
-EOF
-      ;;
-
-    director)
-      # Aggregated review+address loop. delegate_args is the MR-IID list
-      # (!139 !140 ...) — pass as a comma-separated --prs= for /director.
-      local prs_csv
-      prs_csv=$(IFS=,; echo "${delegate_args[*]}")
-      cat <<EOF
-Run /director review+address --converge --prs=$prs_csv
-
-/director will own the convergence loop (review → address → review → ... until its sweep-mode convergence rule fires). When /director exits, capture the session directory it created (typically tmp/claude-artifacts/director-sessions/<timestamp>/) and report it as the last line of your output, prefixed with DELEGATE_RUN_DIR=.
-EOF
-      ;;
-
-    sweep:work-items)
-      # Build directive lines for stacked tickets in this tranche-group.
-      # NOTE: never name the per-item directory (e.g. `issue-$key/` or `pr-$key/`)
-      # in the directive payload — that path convention is sweep:work-items's
-      # internal choice (it uses `issue-<id-or-key>/` for every role; `pr-<N>/`
-      # is a different skill's convention), so don't hardcode or assume it here.
-      # Naming a path also implicitly hints a role to the parent assessor and
-      # bypasses sweep:work-items's conversation-stage gate. Phrase the
-      # instruction so the parent resolves the actual per-item dir at runtime
-      # from sweep:work-items's manifest.
-      local directive_block=""
-      for key in "${ticket_keys[@]}"; do
-        local stack_text
-        stack_text=$(jq -r --arg k "$key" \
-          '.active[] | select(.ticket_key == $k) | .stacking.auto_flag_text // empty' "$MANIFEST")
-        if [[ -n "$stack_text" ]]; then
-          directive_block+="
-After /sweep:work-items generates its run dir and per-item directories, but BEFORE running its let-it-rip.sh:
-
-Locate the per-item directory it created for $key (read its manifest.json — the directory naming is sweep:work-items's internal choice; do not assume \`issue-\` or \`pr-\`). Write a \`directives.md\` file inside that directory with this content:
-
-\`\`\`
-Stacking directive for $key:
-
-When creating the MR description, include this section at the bottom:
-
-## Stack
-$stack_text
-\`\`\`
-"
-        fi
-      done
-
-      # Build --dor-ready=KEY1,KEY2 listing the tickets in this group whose DoR
-      # verdict is `implement`. sweep:work-items uses this to skip its always-clarify
-      # gate for those keys and apply the stage-3 decision rule directly. Suppressed
-      # when ALWAYS_CLARIFY=true.
-      local dor_ready_flag=""
-      if [[ "${ALWAYS_CLARIFY:-false}" != "true" ]]; then
-        local dor_ready_keys=""
-        for key in "${ticket_keys[@]}"; do
-          local verdict
-          verdict=$(jq -r --arg k "$key" \
-            '.active[] | select(.ticket_key == $k) | .dor.verdict // empty' "$MANIFEST")
-          if [[ "$verdict" == "implement" ]]; then
-            [[ -n "$dor_ready_keys" ]] && dor_ready_keys+=","
-            dor_ready_keys+="$key"
-          fi
-        done
-        [[ -n "$dor_ready_keys" ]] && dor_ready_flag=" --dor-ready=$dor_ready_keys"
-      fi
-
-      cat <<EOF
-Run /sweep:work-items ${delegate_args[*]}$dor_ready_flag
-$directive_block
-After /sweep:work-items generates its run dir (you'll see "Artifacts written to <PATH>"), run:
-  bash <PATH>/let-it-rip.sh
-
-Then report the <PATH> as the last line of your output, prefixed with DELEGATE_RUN_DIR=.
-EOF
-      ;;
-  esac
-}
-
-# Dispatch one (delegate × tranche) combination.
-# Takes ticket_keys: per-item directories and update_status are keyed on
-# ticket_key. delegate_args (e.g. !<iid>) are resolved inside build_prompt.
-dispatch_group() {
-  local delegate=$1
-  local tranche=$2
-  shift 2
-  local ticket_keys=("$@")
-
-  local group_id="${delegate//:/-}-tranche-$tranche"
-  local log_file="$RUN_DIR/$group_id.log"
-  local prompt
-  prompt=$(build_prompt "$delegate" "$tranche" "${ticket_keys[@]}")
-
-  if (( DRY_RUN )); then
-    echo "===== $group_id ====="
-    echo "$prompt"
-    echo "====="
-    return 0
-  fi
-
-  log "starting $group_id (${#ticket_keys[@]} items: ${ticket_keys[*]})"
-  for k in "${ticket_keys[@]}"; do update_status "$k" running; done
-
-  # Run claude -p with the assembled prompt
-  local exit_code=0
-  echo "$prompt" | claude -p > "$log_file" 2>&1 || exit_code=$?
-
-  # Extract DELEGATE_RUN_DIR= line from output
-  local sub_dir
-  sub_dir=$(grep -oE 'DELEGATE_RUN_DIR=.*' "$log_file" | tail -1 | cut -d= -f2- || true)
-
-  if (( exit_code == 0 )); then
-    log "done $group_id"
-    for k in "${ticket_keys[@]}"; do update_status "$k" done "$sub_dir"; done
-  else
-    log "FAILED $group_id (exit $exit_code) — see $log_file"
-    for k in "${ticket_keys[@]}"; do update_status "$k" failed "$sub_dir"; done
-  fi
-}
-
-# Main loop: walk tranches sequentially
-TRANCHE_LEVELS=$(jq -r '.tranches[].level' "$MANIFEST" | sort -n)
-
-for level in $TRANCHE_LEVELS; do
-  log "===== Tranche $level ====="
-  pids=()
-
-  # When CONVERGE=true, fold sweep:address-prs + sweep:review-prs items into a
-  # single virtual delegate (`director`) so the runner spawns one /director
-  # session that owns the review→address loop. sweep:work-items still
-  # dispatches separately.
-  if [[ "$CONVERGE" == "true" ]]; then
-    delegates=(director sweep:work-items)
-  else
-    delegates=(sweep:address-prs sweep:review-prs sweep:work-items)
-  fi
-
-  for delegate in "${delegates[@]}"; do
-    # Get ticket_keys for this (delegate, tranche). We pass keys (not delegate_args)
-    # because per-item directories and update_status are keyed on ticket_key;
-    # build_prompt resolves the actual delegate_args from the manifest.
-    # while-read append instead of mapfile: mapfile is bash 4+ and this
-    # template targets macOS default /bin/bash 3.2 (see pids note below).
-    ticket_keys=()
-    if [[ "$delegate" == "director" ]]; then
-      while IFS= read -r _key; do
-        [[ -n "$_key" ]] && ticket_keys+=("$_key")
-      done < <(
-        jq -r --argjson lvl "$level" \
-          '.active[]
-             | select(.tranche == $lvl)
-             | select(.delegate_skill == "sweep:address-prs" or .delegate_skill == "sweep:review-prs")
-             | .ticket_key' \
-          "$MANIFEST"
-      )
-    else
-      while IFS= read -r _key; do
-        [[ -n "$_key" ]] && ticket_keys+=("$_key")
-      done < <(
-        jq -r --argjson lvl "$level" --arg del "$delegate" \
-          '.active[] | select(.tranche == $lvl) | select(.delegate_skill == $del) | .ticket_key' \
-          "$MANIFEST"
-      )
-    fi
-
-    if (( ${#ticket_keys[@]} > 0 )); then
-      dispatch_group "$delegate" "$level" "${ticket_keys[@]}" &
-      pids+=($!)
-    fi
-  done
-
-  # Wait for all delegates in this tranche.
-  # Note `${pids[@]:-}` — bash 3.2 (macOS default) treats `${arr[@]}` on an
-  # empty declared array as unbound under `set -u`, which would crash this
-  # loop on tranches where no delegate had work.
-  for pid in "${pids[@]:-}"; do
-    [[ -z "$pid" ]] && continue
-    wait "$pid" || log "WARN: pid $pid in tranche $level returned non-zero"
-  done
-
-  # Dry-run never produces `state: done`, so skip the "any-success" gate
-  # and let the preview walk every tranche.
-  if (( DRY_RUN )); then
-    continue
-  fi
-
-  # Decide whether to proceed to next tranche
-  any_done=0
-  while IFS= read -r k; do
-    if grep -q '^state: done' "$RUN_DIR/$k/status.md" 2>/dev/null; then
-      any_done=1
-      break
-    fi
-  done < <(jq -r --argjson lvl "$level" '.active[] | select(.tranche == $lvl) | .ticket_key' "$MANIFEST")
-
-  if (( any_done )); then
-    log "Tranche $level: at least one success, proceeding"
-  else
-    log "Tranche $level: NO successes — halting before subsequent tranches"
-    break
-  fi
-done
-
-log "Dispatch complete. See per-item status.md files for results."
-```
+The runner lives in `~/.claude/skill-references/epic-advance-runner-template.sh` and is assembled by the wrapper above (bash + jq — tranche loop, `case "$delegate"` dispatch, `build_prompt`, converge/director branch, status updates). **Do NOT read the runner template** — `fill-template.sh` handles all substitution. The skill only passes the flag values as wrapper args.
 
 #### Runner template notes
 
