@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "cb05407",
+    "last_rebuild_commit": "be82bc7",
     "rebuilt_at": "2026-07-18",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -37,6 +37,7 @@
       "commands/git/split-commit/SKILL.md": "mechanical",
       "commands/git/split-request/SKILL.md": "mechanical",
       "commands/git/team-review-request/SKILL.md": "mechanical",
+      "commands/git/team-review-request/line-number-verification.md": "mechanical",
       "commands/git/team-review-request/persona-routing.md": "mechanical",
       "commands/git/team-review-request/re-review-mode.md": "mechanical",
       "commands/git/team-review-request/reviewer-prompt-template.md": "mechanical",
@@ -266,8 +267,8 @@
       "skill-references/sweep-scaffold.md": "mechanical"
     },
     "stats": {
-      "files": 258,
-      "terms": 4967
+      "files": 259,
+      "terms": 4994
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -668,7 +669,7 @@
   "8. apply changes (with approval": [
     "commands/learnings/curate/SKILL.md"
   ],
-  "8. comment posting (post_item_comment_cmd template": [
+  "8. comment posting (post_issue_comment_cmd template": [
     "commands/sweep/work-items/platform-github.md",
     "commands/sweep/work-items/platform-gitlab.md",
     "commands/sweep/work-items/platform-jira.md"
@@ -840,6 +841,9 @@
   "a bit-identical/parity invariant only validates paths whose triggering inputs appear in the window": [
     "learnings/testing/testing-patterns.md"
   ],
+  "a cited \"reproduces the baseline exactly on window w\" invariant only proves fidelity for the code paths w exercises": [
+    "learnings/claude-code/multi-agent/quality.md"
+  ],
   "a clean merge keeps your text but can make its *claims* stale": [
     "learnings/git-patterns.md"
   ],
@@ -893,6 +897,9 @@
   ],
   "a lagging stylistic-sweep branch: rebase re-runs the sweep on new content": [
     "learnings/refactoring-patterns.md"
+  ],
+  "a lock-fatal git command may have already applied — verify before retrying": [
+    "learnings/bash-patterns.md"
   ],
   "a lossy/derived label used as a lookup-dict key silently selects the wrong object": [
     "learnings/code-quality-instincts.md"
@@ -1133,6 +1140,9 @@
   "add_header is not inherited by named locations": [
     "learnings/infrastructure/nginx-patterns.md"
   ],
+  "add_reply_to_pull_request_comment": [
+    "learnings/git-github-api.md"
+  ],
   "addendum guidelines must be self-contained": [
     "learnings/claude-authoring/guidelines.md"
   ],
@@ -1166,8 +1176,14 @@
   "addresser comments on other reviewer's threads are not actionable": [
     "learnings/claude-authoring/polling-review-skills.md"
   ],
+  "addresser-side verification": [
+    "learnings/claude-code/multi-agent/quality.md"
+  ],
   "adjacent-items": [
     "learnings/claude-code/multi-agent/director/process-and-meta.md"
+  ],
+  "adjudicating a large review batch: fan out per-cluster verifiers, then own the footnote": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "adr": [
     "learnings/design-and-research-docs.md"
@@ -2821,6 +2837,9 @@
   "comment identity": [
     "skill-references/request-interaction-base.md"
   ],
+  "comment-only mode": [
+    "learnings/git-github-api.md"
+  ],
   "comment-only re-reviews produce empty persona routing": [
     "learnings/claude-code/sweep-sessions.md"
   ],
@@ -4299,6 +4318,9 @@
   "diff3 base marker arm": [
     "learnings/git-patterns.md"
   ],
+  "diff_hunk cost": [
+    "learnings/git-github-api.md"
+  ],
   "different rally history → different boundary per symbol": [
     "learnings/financial/continuous-contract-data-quirks.md"
   ],
@@ -4446,6 +4468,12 @@
   ],
   "discriminator key migration write": [
     "learnings/git-patterns.md"
+  ],
+  "discriminator vs inject-facts": [
+    "learnings/claude-code/multi-agent/quality.md"
+  ],
+  "discussion_r": [
+    "learnings/git-github-api.md"
   ],
   "discussions api": [
     "learnings/gitlab/diffnote-line-drift.md"
@@ -4751,6 +4779,9 @@
   ],
   "duplicate test dropped helper nameerror": [
     "learnings/git-patterns.md"
+  ],
+  "duplicated input constants (cost/spec/param) that *disagree* across sibling runner copies are a provenance bug, not a dry nit — they silently fork the committed result tables": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "duplicated prose of load-bearing config: keep-in-sync pointer, don't always collapse": [
     "learnings/code-quality-instincts.md"
@@ -5326,6 +5357,9 @@
   ],
   "fan-in cherry-pick: parallel siblings miss each other's work": [
     "learnings/claude-code/multi-agent/parallel-plans.md"
+  ],
+  "fan-out adjudication": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "fan-out migration of side-effectful code: static-verify only, never execute": [
     "learnings/claude-code/multi-agent/quality.md"
@@ -5912,6 +5946,9 @@
   "gh run view": [
     "learnings/cicd/github-actions-patterns.md"
   ],
+  "gh unavailable": [
+    "learnings/git-github-api.md"
+  ],
   "ghcr": [
     "learnings/infrastructure/docker-image-patterns.md"
   ],
@@ -6070,6 +6107,12 @@
   ],
   "github issue updatedat bumps on comment edits": [
     "learnings/claude-code/platform-tools-and-automation.md"
+  ],
+  "github mcp server": [
+    "learnings/git-github-api.md"
+  ],
+  "github mcp server tools (when gh is unavailable — web/remote sessions": [
+    "learnings/git-github-api.md"
   ],
   "github native sub-issues: graphql addsubissue, requires node ids": [
     "learnings/git-github-api.md"
@@ -6459,6 +6502,9 @@
   "high-confidence actions (auto-applying": [
     "commands/learnings/consolidate/SKILL.md"
   ],
+  "highest-yield orchestrator check: verify each cited headline number was generated at the config the doc recommends/ships": [
+    "learnings/claude-code/multi-agent/quality.md"
+  ],
   "highlights (patterns needing action only": [
     "commands/learnings/curate/content-mode.md"
   ],
@@ -6628,6 +6674,9 @@
   ],
   "identify a file by content before writing; never -f-overwrite a path you don't own": [
     "learnings/bash-patterns.md"
+  ],
+  "identity footnote ownership": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "idle-timed-out review subagents: re-launch fresh with a brevity/early-write directive": [
     "learnings/claude-code/multi-agent/quality.md"
@@ -7359,6 +7408,9 @@
   "label vs hash collision": [
     "learnings/git-patterns.md"
   ],
+  "lagged results — do not re-fire": [
+    "learnings/bash-patterns.md"
+  ],
   "lagging stylistic sweep": [
     "learnings/refactoring-patterns.md"
   ],
@@ -7878,6 +7930,9 @@
   "maxturns": [
     "learnings/claude-code/agent-definitions.md"
   ],
+  "mcp__github": [
+    "learnings/git-github-api.md"
+  ],
   "mduo13.github.io xrpl dev portal mirror": [
     "learnings/xrpl/utilities.md"
   ],
@@ -8118,6 +8173,9 @@
   ],
   "mock fidelity": [
     "learnings/testing/testing-patterns.md"
+  ],
+  "mock-to-backend wiring": [
+    "learnings/api-design.md"
   ],
   "mockclear": [
     "learnings/testing/vitest-rtl.md"
@@ -9066,6 +9124,9 @@
   "parallel tool call error cascade": [
     "learnings/claude-code/platform-tools-and-automation.md"
   ],
+  "parallel-batch cancel-cascade": [
+    "learnings/bash-patterns.md"
+  ],
   "parallel-claude-runner-template.sh handles both prs and issues": [
     "learnings/claude-code/sweep-sessions.md"
   ],
@@ -9209,6 +9270,9 @@
   ],
   "pep 544": [
     "learnings/python-specific.md"
+  ],
+  "per-cluster verifier": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "per-entity": [
     "learnings/java/concurrency.md"
@@ -9368,6 +9432,9 @@
   ],
   "persona inheritance / extraction": [
     "commands/learnings/curate/persona-design.md"
+  ],
+  "persona pairing": [
+    "learnings/claude-code/multi-agent/quality.md"
   ],
   "persona proactive-load paths decay silently": [
     "learnings/claude-authoring/personas.md"
@@ -10457,6 +10524,9 @@
   ],
   "pull the cause when redundancy looks suspicious": [
     "learnings/code-quality-instincts.md"
+  ],
+  "pull_request_read": [
+    "learnings/git-github-api.md"
   ],
   "pulls/n/comments commit_id mutates with new pushes; created_at is the cycle discriminator": [
     "learnings/git-github-api.md"
@@ -11656,6 +11726,9 @@
   "saga state machine": [
     "learnings/financial/saga-distributed-transactions.md"
   ],
+  "same intent failing repeatedly = stop and diagnose": [
+    "learnings/bash-patterns.md"
+  ],
   "same-bar exit": [
     "learnings/financial/backtest-lookahead-and-fill-realism.md"
   ],
@@ -12005,6 +12078,9 @@
   "serialized-shape test blast radius": [
     "learnings/git-patterns.md"
   ],
+  "server-dto field mapping": [
+    "learnings/api-design.md"
+  ],
   "serverless": [
     "learnings/frontend/typescript-ci-gotchas.md",
     "learnings/vercel-deployment.md"
@@ -12117,6 +12193,9 @@
   ],
   "shallow clone": [
     "learnings/git-patterns.md"
+  ],
+  "shape-gap audit": [
+    "learnings/api-design.md"
   ],
   "share a state machine via a pure decision-function, not class extraction": [
     "learnings/refactoring-patterns.md"
@@ -12819,9 +12898,6 @@
   ],
   "stability vs correctness": [
     "learnings/testing/testing-patterns.md"
-  ],
-  "stack": [
-    "commands/sweep/epic-advance/SKILL.md"
   ],
   "stack trace": [
     "learnings/java/spring-boot-gotchas.md"
@@ -14911,6 +14987,9 @@
   "verify-first plan": [
     "learnings/refactoring-patterns.md"
   ],
+  "verify-then-batch: never lead a batch with an unverified-assumption call": [
+    "learnings/bash-patterns.md"
+  ],
   "verifying a figures-doc refresh: a numeric diff catches numbers, only a read catches a backwards claim": [
     "learnings/code-quality-instincts.md"
   ],
@@ -15039,6 +15118,9 @@
   ],
   "web-skills": [
     "learnings/claude-code/web-session-sync.md"
+  ],
+  "web/remote session": [
+    "learnings/git-github-api.md"
   ],
   "webfetch": [
     "learnings/claude-code/platform-tools-and-automation.md"
@@ -15256,7 +15338,7 @@
     "learnings/protobuf-patterns.md"
   ],
   "wire x to the real backend\" is a shape-gap audit, not a coding task": [
-    "guidelines/communication.md"
+    "learnings/api-design.md"
   ],
   "with recursive": [
     "learnings/postgresql-query-patterns.md"
