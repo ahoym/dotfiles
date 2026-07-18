@@ -387,7 +387,7 @@ Always write `<RUN_DIR>/manifest.json` with the schema below — the manifest is
       "labels": ["backend"],
       "action": "address-comments",
       "delegate_skill": "sweep:address-prs",
-      "delegate_args": ["!42"],
+      "delegate_args": ["#42"],
       "target": { "type": "mr", "iid": 42, "url": "...", "project_path": "..." },
       "base_branch": "main",
       "frontier": true,
@@ -465,7 +465,7 @@ Always write `<RUN_DIR>/manifest.json` with the schema below — the manifest is
 - **`active[]`** is the flat detail list. Each item carries `tranche` so the runner can resolve the dispatch order without cross-referencing.
 - **No `concurrency` field.** Each delegate skill manages its own concurrency. The runner doesn't impose an outer cap.
 - **No `mode` field on implement actions.** All `implement`-routed tickets go to `sweep:work-items`, which decides clarify-vs-implement at runtime via its own conversation-stage logic. The `dor` field on each item is what the runner template reads to build the `--dor-ready=<KEY>` list (Phase 4) — `verdict: implement` items get the flag; the final clarify-vs-implement call still belongs to sweep:work-items's stage-3 rule.
-- **`delegate_args`** is the argument list the runner passes to the delegate skill. MR-targeting actions: `["!<iid>"]`. Ticket-targeting actions: `["<KEY>"]`. The runner may aggregate same-delegate items into a single invocation (e.g., `["PROJ-131", "PROJ-132"]` to one sweep:work-items call) or spawn one per item — implementation choice for the runner-generation slice.
+- **`delegate_args`** is the argument list the runner passes to the delegate skill. MR-targeting actions: `["#<iid>"]`. Ticket-targeting actions: `["<KEY>"]`. The runner may aggregate same-delegate items into a single invocation (e.g., `["PROJ-131", "PROJ-132"]` to one sweep:work-items call) or spawn one per item — implementation choice for the runner-generation slice.
 - **`stacking.stacked_on_mr_iid`** is `null` when the blocker's MR doesn't yet exist (because the blocker is being created in this same run). The runner constructs the auto-flag footer at MR-creation time using the actual IID. The `auto_flag_text` field carries the templated text minus the IID.
 - **`base_branch` for in-run stacked items** uses the predicted sweep branch convention: `sweep/<BLOCKER_KEY>-<slug>`. The runner verifies this matches the actual branch sweep:work-items creates; if convention differs, runner-generation slice handles the mismatch.
 - **`frontier`** — populated only on MR-targeting items (`action ∈ {team-review, address-comments}`). `true` when `target_branch` is the repo default branch or a merged branch; `false` otherwise. When `false` and `INCLUDE_DOWNSTREAM=false`, the item lives in `deferred[]`, not `active[]`. `blocker_mr` (sibling field) carries `{ "iid": <int>, "project_path": "<path>" }` of the open upstream MR when the blocker is locatable; `null` when the target branch is unmerged but no source MR was found.
@@ -537,7 +537,7 @@ Mark the file executable: `chmod +x <RUN_DIR>/let-it-rip.sh`.
 
 **Template substitutions** to apply when writing the runner: `<EPIC_KEY>` (parsed in Phase 1), `<ISO timestamp>` (run start time), `<ALWAYS_CLARIFY_VALUE>` (literal `true` or `false` from the parsed `--always-clarify` flag — defaults to `false`), `<CONVERGE_VALUE>` (literal `true` or `false` from the parsed converge flag — **defaults to `true`**; pass `--no-converge` to skill-time to bake `false`). Operators can also flip both flags at run-time by passing `--always-clarify`, `--converge`, or `--no-converge` to the generated runner.
 
-**Converge mode behavior:** when `CONVERGE=true`, the dispatch loop aggregates every active item with `action ∈ {team-review, address-comments}` into a single `/director review+address --converge --prs=!139,!140,...` group rather than spawning separate `sweep:review-prs` / `sweep:address-prs` sessions per delegate. `sweep:work-items` (implement) is unaffected and still dispatches in parallel. The `--prs=` list passed to director is authoritative — it pins director to the MR set this epic-advance run identified, so director won't widen scope to unrelated MRs in the repo. Convergence semantics (when the loop terminates) are owned by `/director` — refer to its sweep-mode.md.
+**Converge mode behavior:** when `CONVERGE=true`, the dispatch loop aggregates every active item with `action ∈ {team-review, address-comments}` into a single `/director review+address --converge --prs=#139,#140,...` group rather than spawning separate `sweep:review-prs` / `sweep:address-prs` sessions per delegate. `sweep:work-items` (implement) is unaffected and still dispatches in parallel. The `--prs=` list passed to director is authoritative — it pins director to the MR set this epic-advance run identified, so director won't widen scope to unrelated MRs in the repo. Convergence semantics (when the loop terminates) are owned by `/director` — refer to its sweep-mode.md.
 
 #### Runner template
 
@@ -569,7 +569,7 @@ log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$RUN_DIR/run.log"; }
 update_status() {
   local key=$1 state=$2 extra=${3:-}
   local f="$RUN_DIR/$key/status.md"
-  local ts="$(date -Iseconds)"
+  local ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   case "$state" in
     running) sed -i.bak "s/^state:.*/state: running/; s/^started_at:.*/started_at: $ts/" "$f" ;;
     done|failed)
@@ -583,7 +583,7 @@ update_status() {
 # Build the prompt for a given delegate + ticket-list + tranche.
 # Takes ticket_keys (for manifest lookups + per-item-dir resolution); the
 # delegate_args fed into the prompt are resolved from the manifest. They differ
-# for MR-targeting delegates (delegate_args = "!<iid>", ticket_key = "PROJ-<n>").
+# for MR-targeting delegates (delegate_args = "#<iid>", ticket_key = "PROJ-<n>").
 build_prompt() {
   local delegate=$1; shift
   local tranche=$1; shift
@@ -627,11 +627,12 @@ EOF
       # Build directive lines for stacked tickets in this tranche-group.
       # NOTE: never name the per-item directory (e.g. `issue-$key/` or `pr-$key/`)
       # in the directive payload — that path convention is sweep:work-items's
-      # internal choice, and it varies by role (clarify uses `pr-`, implement
-      # uses `issue-`). Naming a path here implicitly hints a role to the
-      # parent assessor and bypasses sweep:work-items's conversation-stage gate.
-      # Phrase the instruction so the parent resolves the actual per-item dir
-      # at runtime from sweep:work-items's manifest.
+      # internal choice (it uses `issue-<id-or-key>/` for every role; `pr-<N>/`
+      # is a different skill's convention), so don't hardcode or assume it here.
+      # Naming a path also implicitly hints a role to the parent assessor and
+      # bypasses sweep:work-items's conversation-stage gate. Phrase the
+      # instruction so the parent resolves the actual per-item dir at runtime
+      # from sweep:work-items's manifest.
       local directive_block=""
       for key in "${ticket_keys[@]}"; do
         local stack_text
@@ -641,7 +642,7 @@ EOF
           directive_block+="
 After /sweep:work-items generates its run dir and per-item directories, but BEFORE running its let-it-rip.sh:
 
-Locate the per-item directory it created for $key (read its manifest.json — the directory naming varies by role; do not assume \`issue-\` or \`pr-\`). Write a \`directives.md\` file inside that directory with this content:
+Locate the per-item directory it created for $key (read its manifest.json — the directory naming is sweep:work-items's internal choice; do not assume \`issue-\` or \`pr-\`). Write a \`directives.md\` file inside that directory with this content:
 
 \`\`\`
 Stacking directive for $key:
