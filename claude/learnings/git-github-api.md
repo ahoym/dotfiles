@@ -1,5 +1,5 @@
 GitHub-specific API patterns — PR management, stacked PRs, pagination gotchas, reviews endpoint, batch operations, and bulk extraction via gh CLI.
-- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to, review payload, batch metadata, sweeper detection, issue operations, body-file, issue split, blocker dependency update, issue close, issue triage, auto-close keywords, Closes Fixes Resolves, not planned reason, repository ruleset, required_status_checks, do_not_enforce_on_create, matrix job context name, push rejected by ruleset, statusCheckRollup, stale self-note, partial supersession, trim issue in place, blocked-by banner
+- **Keywords:** GitHub API, gh CLI, pagination, stacked PR, PR comments, reviews endpoint, per_page, direction, cascade rebase, retarget, force-push-with-lease, inline comment reply, in_reply_to, review payload, batch metadata, sweeper detection, issue operations, body-file, issue split, blocker dependency update, issue close, issue triage, auto-close keywords, Closes Fixes Resolves, not planned reason, repository ruleset, required_status_checks, do_not_enforce_on_create, matrix job context name, push rejected by ruleset, statusCheckRollup, stale self-note, partial supersession, trim issue in place, blocked-by banner, GitHub MCP server, mcp__github, pull_request_read, add_reply_to_pull_request_comment, gh unavailable, web/remote session, discussion_r, diff_hunk cost, comment-only mode
 - **Related:** ~/.claude/learnings/git-patterns.md, ~/.claude/learnings/cicd/gitlab.md
 
 ---
@@ -457,3 +457,19 @@ payload = {"commit_id": SHA, "event": "COMMENT", "body": (d / "body.md").read_te
            "comments": [{"path": p, "line": 52, "side": "RIGHT", "body": (d / "c1.md").read_text()}]}
 (d / "payload.json").write_text(json.dumps(payload))
 ```
+
+## GitHub MCP Server Tools (when `gh` is Unavailable — Web/Remote Sessions)
+
+Claude Code web/remote sessions have no `gh`/`glab` CLI, so the review/address skills' `gh`-based platform-command scripts won't run. Use the `mcp__github__*` tools instead (fetch schemas via `ToolSearch` first). Script role → tool map:
+
+| gh-script role | MCP tool |
+|---|---|
+| consolidated fetch (state / reviews / top-level comments) | `pull_request_read` — `method`: `get`, `get_reviews`, `get_comments` |
+| fetch inline/review comments | `pull_request_read` `method: get_review_comments` — returns review *threads* (each with `is_resolved`/`is_outdated` + a numeric comment id) |
+| reply to an inline comment | `add_reply_to_pull_request_comment` |
+| react to a comment (rocket, etc.) | `add_reply_to_pull_request_comment` (`reaction`) or `add_issue_comment` (`reaction`) |
+| post a top-level PR comment | `add_issue_comment` (pass the PR number as `issue_number`) |
+
+- **`add_reply_to_pull_request_comment.commentId` is the numeric digits from the `#discussion_r<N>` anchor** — not the `PRRT_...` GraphQL thread node id. It accepts `body` and/or `reaction` in one call, so it covers both the reply and the react-only case (no separate reactions endpoint needed).
+- **Context cost: every review-comment response echoes the full `diff_hunk`.** On a comment against a newly-*added* file that hunk is the entire file inlined — posting N replies returns N huge payloads. Batch the replies and never re-fetch a thread you already hold.
+- **Branch/mode note.** The addresser auto-detect compares the PR author against the current git user (`git config user.name`, usually the automation, e.g. `Claude`). Author ≠ user → **comment-only** (also the honest mode when your designated branch can't push to the PR's head branch). To implement you need explicit go-ahead to push to the PR's *actual* head branch: `git fetch origin <head_branch>` + checkout, commit, push, then reply with commit refs. Read PR-version files with `git show <head_sha>:<path>` — the working tree is on the base branch.
