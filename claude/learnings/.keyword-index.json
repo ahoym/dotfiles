@@ -3,7 +3,7 @@
     "learnings/claude-authoring/polling-review-skills.md"
   ],
   "_meta": {
-    "last_rebuild_commit": "20f945d",
+    "last_rebuild_commit": "cb05407",
     "rebuilt_at": "2026-07-18",
     "file_sources": {
       "commands/director/SKILL.md": "mechanical",
@@ -267,7 +267,7 @@
     },
     "stats": {
       "files": 258,
-      "terms": 4963
+      "terms": 4967
     }
   },
   "# noqa: f401 on side-effect imports hides import-order safety contracts": [
@@ -3447,6 +3447,9 @@
   "coroutine never awaited": [
     "learnings/testing/pytest-patterns.md"
   ],
+  "corpus three-way merge: bucket-compare → adjudicate → disjoint editors → verify": [
+    "learnings/claude-code/multi-agent/orchestration.md"
+  ],
   "correct enum types in test data — copy-paste risk": [
     "learnings/java/spring-boot.md"
   ],
@@ -3829,6 +3832,9 @@
   ],
   "data vs trade entitlement": [
     "learnings/financial/tradestation-api.md"
+  ],
+  "data-contract edits require a full producer/consumer grep": [
+    "learnings/claude-code/skill-design-patterns.md"
   ],
   "data-source": [
     "learnings/infrastructure/terraform-patterns.md"
@@ -9494,7 +9500,7 @@
   "phase 4: deduplicate inline comments": [
     "commands/git/team-review-request/persona-routing.md"
   ],
-  "phase 4: definition of ready (informational": [
+  "phase 4: definition of ready (drives --dor-ready": [
     "commands/sweep/epic-advance/SKILL.md"
   ],
   "phase 4: inspect each mr": [
@@ -11830,6 +11836,9 @@
   "scripts & utilities": [
     "commands/explore-repo/agent-prompts.md"
   ],
+  "scrub sensitive content inside the introducing commit": [
+    "learnings/git-patterns.md"
+  ],
   "scrub wrong branch pre-merge base": [
     "learnings/git-patterns.md"
   ],
@@ -13811,6 +13820,9 @@
   ],
   "targeted bulk line-deletion via python config-dict script": [
     "learnings/refactoring-patterns.md"
+  ],
+  "task .output files wrap the return value under .result": [
+    "learnings/claude-code/multi-agent/workflow-tool.md"
   ],
   "task tool": [
     "learnings/claude-code/platform-worktrees-and-isolation.md"
