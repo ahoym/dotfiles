@@ -1,5 +1,5 @@
 Process principles and meta-patterns for the director role: paradigm, decision discipline, scope management, escalation composition.
-- **Keywords:** supervisor, decision-matrix, computable-state, orchestrate, replicate, escalation, intent, directive-timing, adjacent-items, severity-calibration, persona-attribution, dissent-vs-divergence
+- **Keywords:** supervisor, decision-matrix, computable-state, orchestrate, replicate, escalation, intent, directive-timing, adjacent-items, severity-calibration, persona-attribution, dissent-vs-divergence, additive rebase conflict, union-merge agent, cross-ticket TODO verification, boundary-crossing reference
 - **Related:** none
 
 ---
@@ -76,6 +76,16 @@ When the operator names a subset for a re-sweep ("re-run on #101 and #103") AND 
 
 Scope typos and omissions are common in fast conversations. The director has more signal than the operator in the moment (last-comment timestamps from earlier fetches, session history). Proactively verify rather than processing the literal request and then discovering the gap mid-cycle. One extra line pre-launch beats one aborted session and one operator correction.
 
+## Purely Additive Post-Grant Rebase Conflict: Dispatch Union-Merge Agent, Don't Escalate
+
+When post-grant rebase fails with `conflict_nature: "additive — both sides added new sections, no overlapping edits"`, this is a **routine director decision** — not an operator escalation.
+
+**Director action:** dispatch a conflict-resolve agent with explicit permission to union-merge (keep content from both sides). Log to `decisions.log` as `cost-time`.
+
+**Worker instructions:** "Edit the file to remove conflict markers and include all content from both sides — their section + our section, no lines dropped." Then `git add <file> && git rebase --continue`. Re-run gate, merge.
+
+**Provider-corpus trigger:** learnings files accumulate independently-authored sections. Multiple open MRs touching the same active files (e.g., `java/observability.md`) will almost always produce additive-only conflicts at merge time.
+
 ## Review Persona ≠ Addresser Persona — Don't Auto-Propagate at Initial Handoff
 
 Review personas (architecture, correctness, security, etc.) are the *reviewer's* finding lens. The addresser needs the *engineering* lens that matches the changed domain — often a different shape. Resist writing a director directive setting `addresser persona = first review persona` just because the review signal is fresh and uncertainty feels uncomfortable. When the assessment-time persona match isn't confident, leave the addresser at `none` and let the addresser-prompt's per-finding judgment carry the work. If cycle-1 re-review reveals weak/generic responses, *then* write a persona directive for cycle-2.
@@ -101,3 +111,20 @@ When sweeping a PR that consolidates authoritative docs (learnings indexes, play
 An addresser that pushes back on a review finding always frames it as "operator decision needed" — that escalation is conservative by default, not a signal the call is genuinely the operator's. Split the dissent first: **taste** (which fix is better) → persona-resolve per the playbook; **factual** (one side's premise or prescribed fix is provably wrong) → the director verifies directly and decides-with-report, no operator round-trip.
 
 Verify read-only off the PR branch without touching the working tree: `git show origin/<branch>:<file>` (or `gh api .../contents`). Flow-dependent claims especially — a diff hunk hides the unchanged lines that disprove "this value is never updated"; read the whole function. Log the call to `decisions.md` (category: dissent) and relaunch review as an independent second signal. Empirical: addresser claimed a reviewer's `cash_at_hand` "pre-close snapshot" finding misread the control flow; `git show` confirmed proceeds were credited before the cap computed and the suggested field didn't exist on the dataclass; the next re-review withdrew the finding on its own.
+
+## Cross-Ticket / Cross-Service Reference Verification Is The Director's Job
+
+Reviewer suggests `// TODO(<TICKET>): wire X from <column-or-source>`. Addresser implements it verbatim. Neither verifies the ticket actually tracks the right work, or that the proposed source signal exists in the cited location — both operate from local file context. The director sits on cross-ticket-graph + sibling-repo + live-schema context and is the only layer that can catch:
+
+- Wrong ticket reference (ticket cited is for a different feature, already merged, or doesn't exist)
+- Wrong source signal (cited column/table doesn't have the field; ambiguous derivation; signal lives in a different view)
+- Reinvention (sibling repo already has the field with documented semantics)
+
+**Trigger:** any new TODO/code comment carrying a ticket ref or cross-service claim. Spend a minute on:
+1. `glab/gh` lookup on the cited ticket — does its summary match the comment's claim?
+2. If the claim is "derive from `<column>` in `<table>`", probe the live schema (cheap: a one-shot `DESCRIBE TABLE` via the app's existing wiring) or grep the relevant adapter for the column name.
+3. Grep sibling repos for the field name — if it exists there, read the precedent before assuming the new repo is greenfield.
+
+Empirical: an MR had `// TODO(TICKET-A): Wire isInternallyOwned from a customer view column` accepted by reviewer + addresser; ticket lookup showed TICKET-A was a different, already-merged loader feature, `DESCRIBE TABLE` of the customer view showed no internal-ownership column, and a sibling service repo had the actual source (its wallets view's `is_internal`). Director correction filed a new ticket (TICKET-B), rewrote the TODO via addresser directive, updated the MR description.
+
+The pattern generalizes: anywhere a TODO crosses a boundary the local agents can't see (ticket graph, other repo, live data), it's the director's verification beat.

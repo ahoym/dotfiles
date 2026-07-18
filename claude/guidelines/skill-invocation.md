@@ -25,3 +25,7 @@ When a skill explicitly classifies a decision as routine ("auto-decide, don't pr
 ## Load reference files before acting on their content
 
 When a skill step says to read a reference file, load it before proceeding — don't substitute training knowledge for documented templates. Reference files encode accumulated fixes that training recall misses.
+
+## Honor explicit no-post overrides by substituting a report for the post step
+
+When the user invokes a posting-oriented skill (code review, PR/MR comment posting) with an explicit override like "don't post, show me here," run the full pipeline unchanged through verification and merge/synthesis — persona selection, subagent fan-out, line-number correction, dedup — and substitute only the final platform-posting step with a direct conversational report using the same structure the skill would have posted (body + inline findings). The override targets the last mile, not license to skip verification or synthesis.

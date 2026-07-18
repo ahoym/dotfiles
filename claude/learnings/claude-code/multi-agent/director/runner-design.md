@@ -32,7 +32,7 @@ Sweep skill prerequisite patterns are platform-specific (`gh pr view:*` vs `glab
 
 ## Sweep Runner Model Selection: Orchestrator vs Leaf
 
-Match the model to the runner's role. **Orchestrator runners** mainly invoke other skills/subagents (`sweep:review-prs` calling `git:team-review-request`, which spawns reviewer subagents) — `claude-sonnet-4-6` is fine because the heavy work is in the spawned children. **Leaf runners** do the actual work themselves: read diffs, edit files, run git, push commits (`sweep:address-prs`, `sweep:work-items` implementer) — use `claude-opus-4-6`. The runner template's `{{MODEL}}` placeholder is filled per-skill at let-it-rip generation. The `[1m]` variant only when context demands it (very large diffs, multi-file refactors).
+Match the model to the runner's role. **Orchestrator runners** mainly invoke other skills/subagents (`sweep:review-prs` calling `git:team-review-request`, which spawns reviewer subagents) — `claude-sonnet-4-6` is fine because the heavy work is in the spawned children. **Leaf runners** do the actual work themselves: read diffs, edit files, run git, push commits (`sweep:address-prs`, `sweep:work-items` implementer) — use `claude-opus-4-7`. The runner template's `{{MODEL}}` placeholder is filled per-skill at let-it-rip generation. The `[1m]` variant only when context demands it (very large diffs, multi-file refactors).
 
 ## Runner Template Assumes PR Entity Type
 

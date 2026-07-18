@@ -15,13 +15,16 @@ Loaded when mode is `review`, `address`, or `review+address`. Handles PR-based s
    - **Offset**: `--offset=N` minutes between review/address launches (default 3)
    - **Convergence**: if the operator requests "run to convergence" or "converge", read `convergence-loop.md` from this skill's directory and enter convergence loop mode after Phase 3 launch
 2. **Load sweep playbook**: read `~/.claude/skill-references/director-playbook.md` for monitoring table format, convergence rules, intervention triggers, and offset cadence.
-3. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`. Create session directory at `tmp/claude-artifacts/director-sessions/<timestamp>/`.
-4. Initialize `session.json` (append-only item-centric index):
-   ```json
-   { "created_at": "<ISO>", "session_dir": "<path>", "items": {} }
+3. Compute timestamp via separate `Bash` call: `date +%Y-%m-%d-%H%M`.
+4. Bootstrap the session directory + initial files via the helper:
+   ```bash
+   bash ~/.claude/skill-references/director-bootstrap.sh <timestamp>
    ```
-   Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs. Append-only. To check status: read the last run_dir's `<item-dir>/status.md`.
-5. Initialize `decisions.md` with header.
+   Creates `tmp/claude-artifacts/director-sessions/<timestamp>/` with:
+   - `session.json` — append-only item-centric index. Indexed by item (`pr-69`, `issue-56`), not by run. Each item maps to an ordered list of run_dirs. Append-only — never update or remove entries. To check status: read the last run_dir's `<item-dir>/status.md`.
+   - `decisions.md` — append-only decision log per the playbook's Decision Framework, seeded with a `# Director Decisions — <timestamp>` header.
+
+   The helper validates the timestamp format and atomic-creates the dir (fails loudly on a parallel-invocation race).
 
 ## Assess + Generate Artifacts (sweep-specific)
 
@@ -46,9 +49,10 @@ After each skill completes, read its generated `manifest.json` to get the `run_d
 
 ## Monitor additions (sweep-specific)
 
-- **Conflicts** (routine — auto-decide): `mergeable: CONFLICTING` → write directive to addresser. Do not ask operator. Do not rebase yourself.
-- **Compound auto-relaunch**: Address completes → relaunch review if findings > 0. Review completes → relaunch address if new comments posted. Maintain 3-min offset.
-- **Conflict resolution**: regenerate address artifacts with `RESOLVE_CONFLICTS: "true"` when no session in-flight.
+- **Conflicts** (routine — auto-decide): conflict resolution is handled inline by the addresser when `RESOLVE_CONFLICTS=true`. On `mergeable: CONFLICTING`, regenerate the address artifacts with `RESOLVE_CONFLICTS: "true"` in the PR's `metadata.json`, then re-assemble the prompt via `fill-template.sh`. Only regenerate when no address session is in-flight for the PR (`status.md` milestone != `addressing`/`pushing`); if one is running, write a directive for the next cycle instead of regenerating mid-flight. The addresser checks for conflicts at runtime — its Step 6 invokes `git:resolve-conflicts` before addressing comments, so rebase + address completes in a single `claude -p` run and no conflict state goes in metadata. Do not ask operator. Do not rebase yourself.
+- **Compound auto-relaunch**: after every runner completion, run this decision tree automatically — do not prompt the operator unless escalation is needed. Maintain 3-min offset.
+  - Address runner completes → read review `results.md` for last cycle's findings. Findings > 0 this cycle → relaunch review runner to verify resolution. All findings resolved (or review already converged) → check address convergence rules.
+  - Review runner completes → read `results.md`. New findings posted (inline comments > 0 or thread replies > 0) → relaunch address runner. Review skipped or 0 findings → review loop is converging; start the 30m skip window.
 
 ## Convergence (sweep-specific)
 

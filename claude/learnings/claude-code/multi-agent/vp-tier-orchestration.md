@@ -116,9 +116,9 @@ Write a Phase 4 continuation prompt that:
 
 The Director playbook defines a three-channel interface (down: directives, up: status, sideways: kill/observe). The VP extends this one tier up with the same pattern:
 
-- **VP writes** `director-lms/directives.md` (append-only dated sections)
+- **VP writes** `director-<repo>/directives.md` (append-only dated sections)
 - **Director reads** directives at each phase gate (before launching runners, before evaluating convergence)
-- **VP reads** `director-lms/status.md` and `director-lms/results.md` for monitoring
+- **VP reads** `director-<repo>/status.md` and `director-<repo>/results.md` for monitoring
 
 VP directives can instruct Directors to:
 - Override concurrency: "Set CONCURRENCY=6 for the next runner launch"

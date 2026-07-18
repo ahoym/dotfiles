@@ -1,8 +1,21 @@
 Director-observed failure patterns: rate limits, races, scope drift, and convergence pathologies.
-- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent
+- **Keywords:** rate-limit, storm, parallel, TOCTOU, oscillation, halve-per-cycle, deferred-runs, discovery-scope, fresh-timestamp, state-check-cmd, gitlab glab, runner template schema mismatch, diff transcription corruption, reviewer subagent, compound mode address assessment trigger serialized parallelism background task notification, blocking dispatch merge-queue stall, pre-grant, socket error redispatch, session.state delete, single-item resume-cache recovery
 - **Related:** none
 
 ---
+
+## Compound Mode: Address Assessment Triggered by Runner Completion, Not Launch
+
+In a compound review+address session, `sweep:address-prs` must be invoked when `sweep:review-prs` *returns* (the runner is launching), not when the background task notification fires (the runner completed). When a background task notification arrives in the same turn as the skill return, handling the notification first burns the entire review runtime without any parallelism.
+
+Correct trigger mapping:
+
+| Event | Action |
+|-------|--------|
+| `sweep:review-prs` returns | Invoke `sweep:address-prs` immediately — regardless of background task state |
+| Background task notification: runner completed | Read results → launch address runner (3-min offset) |
+
+The notification's arrival in the same turn as the skill return is the trap — it makes the completion event feel like the natural trigger, but the intended trigger is the return itself.
 
 ## Rate-Limit Sentinel Persists Across Reruns
 
@@ -70,6 +83,23 @@ The **resume-cache short-circuit** is the trap: `claude -p --resume <session_id>
 4. Recovery: fresh-timestamp restart (same as compound storm), since `claude --resume` keeps reading the same `session_id` even with directives present.
 
 **Anti-pattern:** jumping to the rate-limit hypothesis based on the `live.md` `rate_limit` tag without reading turn text. One real session lost ~4 hours waiting for a 5h quota reset that wasn't actually blocking.
+
+## Single-Item Resume-Cache Recovery: `session.state` Delete
+
+When the resume-cache short-circuit (above) hits only **one** item in a multi-PR run, fresh-timestamp restart is overkill — it forces every healthy item to redo watermark/worktree work. Lighter recovery: delete only the affected item's `session.state`:
+
+```bash
+rm <run_dir>/<entity-prefix>-<N>/session.state
+bash <run_dir>/let-it-rip.sh
+```
+
+The runner generates a new session_id for that item (no `--resume`) and rereads its prompt + directives from scratch, while other items either watermark-skip (clean) or pick up where they left off. Preserves status.md watermarks, worktrees, prior results.md. Use when:
+
+- One item shows the short-circuit signature (~30-60s exit, `rate_limit` tag, no API post, `is_error: false`)
+- Other items completed cleanly the same cycle
+- No corruption in status.md / state.md for the affected item beyond the missed pass
+
+This is the lighter-weight first option; when multiple items stalled or an errored item's `status.md`/watermark is corrupted (e.g., `milestone: started` with no SHA update), escalate to the Selective In-Place Reset (above), and to a full fresh-timestamp restart when the whole cycle stormed.
 
 ## `[1m]` Model Variant Rejected When Org Usage Credits Are Disabled
 
@@ -169,6 +199,22 @@ The agent will cycle through variants if one is denied: subshell `$(…)`, redir
 | Last event | `completed is_error: true` | `api_retry error: "unknown"` |
 
 **Recovery:** fresh-timestamp restart usually clears it (same playbook as storm, even though signature differs). The transient API issue is gone by retry time. If two consecutive restarts hit it on the same PR, escalate — the agent may be triggering a deterministic API failure (huge tool result, malformed input).
+
+## Blocking-Director Parallel-Dispatch Merge-Queue Stall
+
+When the director dispatches N workers as blocking parallel `Agent` calls, there is no event loop between dispatches to process the merge queue. Workers that finish their content work (review, address, gate) block indefinitely polling for a grant that never arrives.
+
+**Pre-grant workaround (serial dispatch):** pre-write the merge grant for each worker *before* dispatching it. Safe when the worker will be the sole queue holder at merge time. Update `merge-state.json` with `current_holder: <iid>`. For multi-MR serial: pre-grant each, dispatch, wait for ack, pre-grant next.
+
+**Root cause:** `Agent` tool is blocking — the director can't run the queue loop while agents are active.
+
+## API Socket Error Mid-Run: Redispatch Recovery
+
+**Signature:** Agent returns `"API Error: The socket connection was closed unexpectedly"`, `subagent_tokens: 0`, `tool_uses: N > 0`. Clean disconnect — local tools ran but review subagent couldn't spawn or complete.
+
+Distinct from rate-limit storm (`is_error: true`, 0 tool uses) and API-retry hang (hours of progress before `api_retry error: "unknown"`).
+
+**Recovery:** redispatch a fresh agent. Pass completed step flags in the new prompt so it skips already-done steps. Remote commits from prior work persist; `git fetch && git checkout -B <branch> origin/<branch>` recovers them.
 
 ## In-Place Retry Viable When Worker Has `Role:*` Self-Filter
 

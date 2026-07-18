@@ -93,10 +93,14 @@ If lint still fails after 2 iterations, set `{PR_DIR}/status.md` milestone to `c
 
 ### 10b: Remote CI verification
 
-Poll `gh pr checks {PR_NUMBER}` every 30 seconds until every non-skipped check reaches a terminal state (`pass`, `fail`, `cancelled`). Max wait: 10 minutes.
+Poll every 30 seconds until CI reaches a terminal state. Max wait: 10 minutes. Use the platform's commands:
+
+**GitHub:** `gh pr checks {PR_NUMBER}` until every non-skipped check is terminal (`pass`, `fail`, `cancelled`). Failing logs: `gh run view --log-failed <run-id>`.
+
+**GitLab:** `glab api projects/:id/merge_requests/{PR_NUMBER} | jq -r '.head_pipeline.status'` until terminal (`success`, `failed`, `canceled`, `skipped`). For job-level detail: `glab api "projects/:id/pipelines/<pipeline-id>/jobs" | jq -r '.[] | {name, status}'`. Failing logs: `glab api projects/:id/jobs/<job-id>/trace`. (GitLab status values are lowercase; map `success`→pass, `failed`→fail.)
 
 - **All pass** → record `ci_status: pass` in the results.md table (Step 11).
-- **Any fail** → fetch failing job logs via `gh run view --log-failed <run-id>`, diagnose root cause, fix, commit with message `fix: address CI failure from address cycle`, push. Return to 10a. Max 2 remote iterations total.
+- **Any fail** → fetch failing job logs (above), diagnose root cause, fix, commit with message `fix: address CI failure from address cycle`, push. Return to 10a. Max 2 remote iterations total.
 - **Timeout** → set `{PR_DIR}/status.md` milestone to `ci-pending` and record `ci_status: pending` in results.md. Next cycle's watermark logic will re-verify.
 
 ### 10c: Record CI state

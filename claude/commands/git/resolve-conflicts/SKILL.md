@@ -28,9 +28,16 @@ Flags can be combined: `/resolve-conflicts --merge main`
 0.5. **Detect in-flight conflict state**: run `git status --porcelain` first. If any path shows `UU`, `AA`, `DU`, `UD`, `DD`, `AU`, or `UA`, you're mid-resolution — conflicts already exist from a prior `git merge`, `git rebase`, `git stash pop`, or `git cherry-pick`. In that case:
    - **Skip steps 1–6.** Don't re-run merge/rebase orchestration. The conflict markers are already in place.
    - Jump to step 7 with `IN_FLIGHT=true`. Finalize with the mode's native continuation: merge → `git commit`, rebase → `git rebase --continue`, stash-pop → `git stash drop` after staging (no commit needed on the in-flight op itself), cherry-pick → `git cherry-pick --continue`.
-   - For in-progress interactive rebase with redundant upcoming commits (e.g., branch's incremental fixes already squash-merged into base — diagnose via same-title base commit with larger tree), edit `.git/rebase-merge/git-rebase-todo` to drop redundant `pick` lines before `git rebase --skip`.
+   - For in-progress interactive rebase with redundant upcoming commits (e.g., branch's incremental fixes already squash-merged into base), apply the title-duplicate triage below, then edit `.git/rebase-merge/git-rebase-todo` to drop redundant `pick` lines before `git rebase --skip`.
 
    **Worktree CWD check**: if the target branch is checked out in another worktree, `git checkout <branch>` will fail with "already used by worktree at <path>". Run `git worktree list` and `cd` into the worktree's path before proceeding. All subsequent git commands operate on that worktree's state.
+
+**Title-duplicate triage (before resolving any conflict).** When a branch commit shares a title with a base commit (different SHAs), `git show --stat <branch-SHA>` and `git show --stat <base-SHA>` to compare. Three cases:
+- **Superset** — same file list, base has more insertions → redundant (earlier version landed via another MR). Edit `.git/rebase-merge/git-rebase-todo` to drop, or `git rebase --skip`.
+- **Divergent** — different file lists / structure → independent rework of same feature. Do NOT auto-skip; ask operator which is canonical (resolve preferring "theirs" keeps branch's rework; skip keeps base's version).
+- **Comment-only** — diff is comment/docs noise, substantive change already in base → skip.
+
+When multiple upcoming commits need dropping, edit the todo before continuing — one `--skip` per commit costs unnecessary conflict rounds.
 
 1. **Parse arguments**:
    - If `$ARGUMENTS` contains `--preview`, set `PREVIEW_ONLY=true`
@@ -176,7 +183,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
 
 9. **Complete the operation**:
 
-   **If IN_FLIGHT=true (from pre-flight):** finalize with the mode's native continuation — `git commit` for merge, `git rebase --continue` for rebase, `git stash drop` for stash-pop (no commit of the pop itself), `git cherry-pick --continue` for cherry-pick. Skip steps 11-12.
+   **If IN_FLIGHT=true (from pre-flight):** finalize with the mode's native continuation — `git commit` for merge, `git rebase --continue` for rebase, `git stash drop` for stash-pop (no commit of the pop itself), `git cherry-pick --continue` for cherry-pick. Skip steps 12-13.
 
    **If STRATEGY=merge:**
    ```bash
@@ -195,7 +202,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
    ```
    If stash pop itself conflicts (common after rebase — stash has pre-rebase content), resolve by keeping the post-rebase version (authoritative), then `git stash drop`.
 
-10. **Run project formatters/linters** (rebase-only; merge skips this):
+11. **Run project formatters/linters** (rebase-only; merge skips this):
 
     Rebasing across formatter config or dependency changes routinely produces unstaged Prettier/ESLint/gofmt drift after `git rebase --continue` succeeds. Detect and run the project's fix command. Check for common scripts in order:
     ```bash
@@ -220,7 +227,8 @@ Flags can be combined: `/resolve-conflicts --merge main`
     - Leave unstaged and let the operator handle it
 
     Do NOT silently amend or commit — the decision depends on project convention (squash-merge vs linear history) and the operator's preference.
-11. **Push to update the PR**:
+
+12. **Push to update the PR**:
 
     **If STRATEGY=merge:**
     Ask: "Conflicts resolved. Push to update the PR?"
@@ -234,7 +242,7 @@ Flags can be combined: `/resolve-conflicts --merge main`
     git push --force-with-lease origin <current-branch>
     ```
 
-12. **Verify PR status**:
+13. **Verify PR status**:
     ```
     !`cat ~/.claude/platform-commands/check-pr-mergeable.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```

@@ -36,6 +36,7 @@ Load when working in the specific area:
 - `provider:default/claude-authoring/personas.md` — judgment vs recipes, proactive loads, composition
 - `provider:default/claude-authoring/learnings-content.md` — genericization, headers, scope, boundary tests, cross-refs
 - `provider:default/claude-authoring/learnings-organization.md` — directories, indexes, splitting
+- `provider:default/claude-authoring/polling-review-skills.md` — patterns specific to polling and review skill design
 - `provider:default/claude-code/platform-permissions.md` — permission patterns, allowlist tuning
 - `provider:default/claude-code/platform-worktrees-and-isolation.md` — path resolution, worktree gotchas, isolation behavior
 - `provider:default/claude-code/skill-platform-portability.md` — frontmatter features, cross-platform compat, plugin packaging
@@ -47,3 +48,6 @@ Load when working in the specific area:
 - `provider:default/claude-code/multi-agent/coordination.md` — file coordination, staging
 - `provider:default/claude-code/multi-agent/quality.md` — verification, trust arc
 - `provider:default/claude-code/multi-agent/parallel-plans.md` — parallel plan execution, DAG shape, speedup bounds
+- `provider:default/claude-code/multi-agent/headless-nesting.md` — nesting claude -p headlessly, signal contracts
+- `provider:default/claude-code/multi-agent/director/CLAUDE.md` — director cluster index: orchestrating parallel claude -p runs (failure modes, runner design, watermarks)
+- `provider:default/claude-code/multi-agent/director-work-items.md` — director patterns for sweep:work-items mode

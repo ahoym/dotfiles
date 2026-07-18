@@ -51,3 +51,9 @@ Every finding MUST include inline code references — quote the exact problemati
 - `provider:default/code-quality-instincts.md` — naming, logging, dead code, wrapper methods
 - `provider:default/process-conventions.md` — MR scoping, review process, infrastructure evidence
 - `provider:default/java/spring-boot.md` — multi-module patterns, JPA/Hibernate, Lombok, @Transactional
+
+## Cross-Refs
+
+Load when working in the specific area:
+- `provider:default/api-design.md` — consistent response shapes, versioning, error contracts
+- `provider:default/refactoring-patterns.md` — coupling reduction, abstraction extraction

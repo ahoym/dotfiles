@@ -44,6 +44,7 @@ This is a hub persona for the ledger domain cluster. Load when working in the sp
 
 - `provider:default/financial/domain-ledger-architecture.md` — core schema patterns, balance composition, entry lifecycle, reconciliation architecture; load for any schema design or balance calculation work
 - `provider:default/financial/applications.md` — calculation safety invariants, zero-divisor guards, idempotency patterns, decimal precision; load for any fee, amount, or financial calculation work
+- `provider:default/financial/numeric-precision-strategy.md` — cross-layer precision: DB NUMERIC, wire strings, BigDecimal/BigNumber.js, crypto decimals; load for amount representation or precision work
 - `provider:default/financial/saga-distributed-transactions.md` — distributed transaction patterns for multi-service ledger flows, compensation logic, saga state machines; load for any cross-service write coordination
 - `provider:default/financial/ledger-testing-strategies.md` — ledger-specific testing invariants (double-entry balance assertions, idempotency harnesses, reconciliation test fixtures); load when writing ledger tests
 - `provider:default/financial/event-sourcing-cqrs.md` — event sourcing and CQRS patterns for append-only ledger stores, projection design, eventual consistency tradeoffs; load for read-model or projection work

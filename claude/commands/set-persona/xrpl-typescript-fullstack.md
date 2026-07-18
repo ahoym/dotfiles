@@ -24,9 +24,24 @@
 - Minimal secrets exposure — sign server-side when possible, never persist seeds longer than needed
 - Export encryption over storage encryption — exported files leave the browser security boundary, localStorage is at least origin-scoped
 
+## Known gotchas & platform specifics
+
+### XRPL
+Offer semantics, flag bit positions, trust lines, AMM, validation, funded fields — see `provider:default/xrpl/gotchas.md` (Proactive load). For orderbook internals, fills detection (RippleState sign convention, fee adjustment), and client setup — see `provider:default/xrpl/patterns.md`.
+
+### Next.js 16 / Turbopack
+Platform gotchas (proxy.ts rename, async dynamic params, Turbopack build requirements, rate limiter wiring) — see `provider:default/frontend/nextjs.md` (Proactive load).
+
+### Vercel / Serverless
+WebSocket singleton lifetime, in-memory rate limiter scope — see `provider:default/xrpl/patterns.md`, `provider:default/vercel-deployment.md`, and `provider:default/frontend/nextjs.md`.
+
+### TypeScript / Browser Boundaries
+Buffer/TextEncoder, shared encoding fixtures, URI XSS — see `provider:default/xrpl/gotchas.md`.
+
 ## Proactive Cross-Refs
 
 - `provider:default/xrpl/gotchas.md`
+- `provider:default/frontend/react-hooks-and-ui.md`
 
 ## Cross-Refs
 

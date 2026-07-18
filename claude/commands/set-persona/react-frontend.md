@@ -35,6 +35,7 @@
 
 - `provider:default/frontend/react-state-effects.md` — setState rules, hydration gating, lazy initializers, render-time sync
 - `provider:default/frontend/nextjs.md` — proxy.ts rename, async dynamic params, Turbopack gotchas
+- `provider:default/frontend/react-hooks-and-ui.md` — cross-cutting React hooks and UI gotchas
 
 ## Cross-Refs
 
@@ -47,5 +48,7 @@ These learning files contain full recipes, code examples, and edge cases for eac
 - `provider:default/frontend/nextjs.md` — Next.js 16 proxy.ts, dynamic params, Turbopack gotchas, rate limiter wiring
 - `provider:default/frontend/accessibility-patterns.md` — ARIA attribute patterns with code examples
 - `provider:default/frontend/ui-patterns.md` — Tailwind tooltips, SVG gotchas, design token centralization
+- `provider:default/frontend/typescript-specific.md` — TypeScript: union types, Record keys, type narrowing
+- `provider:default/frontend/typescript-ci-gotchas.md` — pnpm/Node CI: lockfile handling, action setup, browser caching, linting config
 - `provider:default/testing/vitest-rtl.md` — Vitest/RTL stack, vi.mock hoisting, route handler test patterns, shared test helpers, jsdom gotchas
 - `provider:default/testing/playwright-patterns.md` — 17 testing patterns covering selectors, state, modals, assertions

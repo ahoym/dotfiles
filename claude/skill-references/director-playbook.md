@@ -37,21 +37,21 @@ When the operator names N items (`/director review+address 47 48 49`), pass `--c
 
 If the operator passes `--concurrency=N` explicitly, honor it as-is regardless of item count.
 
-## Loop Setup: Offset Cadence
+## Loop Setup
 
-Run review and address sweeps on offset schedules:
-- Review: :00, :05, :10, ...
-- Address: :03, :08, :13, ...
-
-The 3-minute offset ensures review findings are posted before the address sweep reads them. Same-time firing wastes a full cycle on handoff.
+**Event-driven compound mode (standard):** The flow is driven by runner completion events — no fixed schedule needed.
 
 **Cycle 0 launch sequence:**
 1. Assess review candidates and generate review artifacts
 2. Launch review runner immediately (in background)
-3. Assess address candidates and generate address artifacts (while review runs)
-4. After review reaches `posted`/`done`, launch address runner
+3. **Immediately** assess address candidates and generate address artifacts — do not wait for the runner to complete. Invoke `sweep:address-prs` as soon as `sweep:review-prs` returns.
+4. When review runner completes (background task notification) → check results → launch address runner
 
-Launching review before address assessment parallelizes address artifact generation with review execution, reducing total wall-clock time. The address assessment may show "no comments" if review hasn't posted yet — this is expected. Address sessions handle no-op gracefully and pick up comments on the next cycle.
+Launching review before address assessment parallelizes address artifact generation with review execution. The address assessment may show "no comments" if review hasn't posted yet — this is expected; address sessions handle no-op gracefully.
+
+**Cron-scheduled mode (legacy):** If running on a fixed schedule rather than event-driven, offset review and address launches by 3 minutes to avoid same-cycle handoff gaps:
+- Review: :00, :05, :10, ...
+- Address: :03, :08, :13, ...
 
 ## Session Observability
 
@@ -123,7 +123,7 @@ First cycle: full table. Subsequent cycles: delta-only (changed rows), with a on
 
 After every runner completion in compound mode, the director executes this decision tree automatically — no operator prompt needed:
 
-1. **Address runner completes** → read review `results.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (all PRs terminal?).
+1. **Address runner completes** → read review `results.md`. If findings > 0 this cycle → relaunch review to verify resolution. If all resolved → check address convergence (0 new findings AND terminal signal on all prior findings — PRs may still be OPEN).
 2. **Review runner completes** → read `results.md`. If **new** findings posted (new inline comments > 0 OR new thread replies > 0) → relaunch address. If skipped or 0 new findings → review converging, start 30m skip window. **A re-review body declaring "0 new findings, N prior resolved" is NOT findings posted** — `milestone: posted` with 0 new work means the loop is converging, don't relaunch.
 3. **Both converged** → proceed to Phase 5.
 
@@ -236,6 +236,7 @@ Previous cycle skipped despite new comments. Process inline comment IDs [<id1>, 
 
 **Why both run_dirs:** Reviewer directive is primary suppression. Addresser directive is defense — if the reviewer persona's lens happens to surface a finding anyway (e.g., a "data quality" persona reading a keyword index), the addresser still skips cleanly with an attributable reply instead of editing machine-generated content.
 
+### Directive Lifecycle
 
 - Directives are append-only (dated sections, never overwrite)
 - To mark a directive as satisfied, append a new section:

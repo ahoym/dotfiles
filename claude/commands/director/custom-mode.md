@@ -43,7 +43,7 @@ Generate `manifest.json` following the artifact contract, extended with wave dep
     { "id": "wave-2", "items": ["1b", "1c", "2b"] }
   ],
   "items": [
-    { "id": "1a", "label": "SDK client beans", "repo": "lms", "branch": "feat/ab-1a-sdk-beans", "base": "main", "mr_target": "main" }
+    { "id": "1a", "label": "SDK client beans", "repo": "server-a", "branch": "feat/ab-1a-sdk-beans", "base": "main", "mr_target": "main" }
   ]
 }
 ```

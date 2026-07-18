@@ -9,7 +9,7 @@ Top-level keys available to statusline scripts: `context_window`, `cost`, `cwd`,
 Key nested structures:
 - `rate_limits.five_hour` / `seven_day`: `{ used_percentage, resets_at }` — `resets_at` is a unix timestamp
 - `context_window`: `used_percentage`, `remaining_percentage`, `total_input_tokens`, `total_output_tokens`, `context_window_size`, `current_usage`
-- `model`: `display_name` (e.g. `"Opus 4.6 (1M context)"`)
+- `model`: `display_name` (e.g. `"Opus 4.7 (1M context)"`)
 - `workspace`: `current_dir`, `project_dir`, `added_dirs`
 - No terminal dimensions in the JSON.
 

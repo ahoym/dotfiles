@@ -90,11 +90,13 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
+   **Artifact path discipline.** If you write the diff (or any scratch file) to disk during this skill, use `tmp/claude-artifacts/change-request-replies/` — that path is allowlisted for Read/Write/Bash with no mkdir needed. Do **not** invent a new subdirectory under `tmp/claude-artifacts/` (e.g. `tmp/claude-artifacts/team-review-<N>/`) — it isn't allowlisted, the first `>` redirect fails with "no such file or directory," and you have to interrupt the flow with a mkdir. Step 8's diff-artifact prescription uses this same dir; keep all skill artifacts there.
+
    **Re-review only:** Also identify `NEW_COMMITS` — commits after `LAST_REVIEW_TS`.
 
 5. **Select reviewer personas** — read `persona-routing.md` from this skill's directory, then:
    - Glob `~/.claude/commands/set-persona/*.md` to get all persona files
-   - Read the first 5-10 lines of each (name + description + domain priorities heading)
+   - Issue parallel `Read(persona_file, limit=10)` calls — one tool block, all personas at once. Do **not** use `bash for-loop + head` or any quoted-string shell pattern — those trigger permission prompts and break the fire-and-forget contract. The header (name + description + `## Domain priorities` heading) fits in 10 lines.
    - Derive domain terms from `CHANGED_FILES` paths using judgment (see persona-routing.md)
    - Match terms against persona descriptions using the matching heuristic
    - Apply constraints: min 1, max 3. Don't select both a child and its parent persona.
@@ -111,6 +113,10 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
    - Read each resolved proactive file
    - Store the combined content as `PERSONA_CONTENT[persona_name]`
 
+   **Don't drop the parent when writing the subagent prompt.** For personas with `## Extends`, the text injected at `{{PERSONA_CONTENT}}` in step 8 must literally contain parent + child concatenated (mindset, methodology, proactive loads) — pasting only the child's specialized section strips the base `reviewer` persona's code-quality/process instincts from every extends-based subagent. Easy to get right at step 6 (reading the parent) and still lose at step 8 (forgetting to paste it into the prompt).
+
+   **Curate for narrow diffs.** A proactive-load file (e.g. `gitlab-ci-cd.md`, `concurrency-and-resources.md`) is often hundreds of lines covering a broad domain; a diff touching one small package rarely needs all of it, and the cost multiplies by reviewer count (N personas × full files). After reading each proactive file, extract only the sections plausibly relevant to `CHANGED_FILES`' actual content (file types touched, patterns present) into `PERSONA_CONTENT` — skip sections on domains absent from the diff (e.g. CI/CD learnings when no `.gitlab-ci.yml`/pipeline file changed). This is consistent with the reviewer template's step 2 ("learnings are supplementary, not the primary driver") — full-file inclusion is the safe default for large/cross-cutting diffs, but disproportionate for a 3-file, single-package change.
+
 7. **Identify system context for cross-cutting code** — scan `CHANGED_FILES` for cross-cutting patterns: AOP aspects (`@Aspect`), interceptors, shared utilities, SPI implementations, filters, or middleware. If found:
    - Grep the codebase for callers: annotation usages (`@ExternalService`, `@Timed`), injection sites, pointcut targets
    - For each caller, note: class name, threading model (web request, `@Scheduled`, `@Async`, message listener), and invocation frequency if discoverable (e.g., `fixedDelay` value)
@@ -118,13 +124,17 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    If no cross-cutting patterns detected, set `SYSTEM_CONTEXT` to empty. This step is lightweight — a few targeted greps, not a full codebase scan.
 
-8. **Launch parallel reviewer subagents** — read `reviewer-prompt-template.md` from this skill's directory. For each selected persona, launch a **foreground** Agent (all in one message for parallel execution). Each subagent prompt includes:
+8. **Launch parallel reviewer subagents** — read `reviewer-prompt-template.md` from this skill's directory.
+
+   **Write the diff to a tmp artifact first.** Save `FULL_DIFF` to `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-diff.txt` and pass the path to subagents — do not inline the diff in each prompt. Inlining duplicates the diff N times (one per reviewer), which adds up fast for large MRs (a 70KB diff × 3 reviewers = ~210KB of duplicate prompt cost). See `~/.claude/learnings/claude-code/multi-agent/orchestration.md` → "Stage a Large Shared Read-Only Input as a File". A staged tmp artifact isn't "the repository," so the template's no-repo-reads rule still holds.
+
+   For each selected persona, launch a **foreground** Agent (all in one message for parallel execution). Each subagent prompt includes:
    - The reviewer prompt template with placeholders filled:
      - `{{PERSONA_NAME}}` → persona name
      - `{{PERSONA_CONTENT}}` → front-loaded content from step 6
      - `{{SYSTEM_CONTEXT}}` → caller/threading context from step 7 (or empty)
      - `{{REQUEST_TITLE}}`, `{{REQUEST_BODY}}`, `{{COMMITS}}` → PR metadata
-     - `{{FULL_DIFF}}` → the full diff. **For a large diff (≳1.5k lines / 50KB+), write it once to `tmp/claude-artifacts/team-review-<N>/full-diff.txt` and substitute a one-line instruction to `Read` that path, instead of embedding the diff in each prompt — embedding ×N (e.g. 4 personas × 57KB ≈ 228KB) bloats every prompt and the orchestrator's context. A staged tmp artifact isn't "the repository," so the template's no-repo-reads rule still holds. See `~/.claude/learnings/claude-code/multi-agent/orchestration.md` → "Stage a Large Shared Read-Only Input as a File".**
+     - `{{DIFF_FILE_PATH}}` → path to the tmp diff artifact (e.g. `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-diff.txt`)
      - `{{OUTPUT_FILE}}` → `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
 
    Wait for all subagents to complete before proceeding.
@@ -135,14 +145,20 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     a. Extract a recognizable code token from the finding's `summary` or `inline_comment` (e.g., a function name, variable, keyword — the most specific identifier mentioned).
     a-prime. **Detect diff-artifact-offset reporting first.** When the diff is provided as a single concatenated text artifact, subagents sometimes return positions counting from the artifact start instead of source-file lines (e.g., `line_start: 336` for the 92nd line of the 8th file in a 765-line artifact). If `line_start` exceeds the source file's line count at head SHA (`git show <head_sha>:<file> | wc -l`), this is the failure mode — the ±5/±10 windows in (b)-(e) cannot recover it because the line doesn't exist in the file. Re-anchor immediately: `git show <head_sha>:<file>` + grep `anchor_token`, then skip (b)-(e). This is distinct from the `<= 5` placeholder case in (f), which catches the opposite extreme.
-    b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`. **Local `Read` is valid only if the PR branch is checked out.** On a first-review you're usually still on the base branch, so a local `Read` returns *base-branch* line numbers — shifted wherever the diff added/removed lines above the finding, which can silently "correct" a right line to a wrong one. When the PR branch isn't checked out, verify against the PR-head version: `git show origin/<HEAD_BRANCH>:<file>` (or `git show <head_sha>:<file>`) + grep the token, or compute the line from the diff's `@@ +N,M @@` hunk header.
+
+    **Fast path for all-new files.** For files with `@@ -0,0 +1,N @@` hunks (fully new — entire content added), a self-contained re-anchor requires no repo access: `grep -n "^@@" diff.txt` lists every hunk header with its diff-artifact line number. For file F whose hunk header is at diff-artifact line H, the formula is `source_line = diff_artifact_line − H`. Build a map of `file → H` from the diff once, then apply the formula to all findings for that file. Faster than `git show wc -l` and works when repo access is unavailable (subagent context). For partially-modified files (mixed `+`/context lines), the ±5/±10 windows in (b)-(e) still apply.
+
+    **Working-tree mismatch trap.** Steps (b)-(f) `Read`/`grep` a file at its repo-relative path — valid only when the orchestrator's CWD is checked out to the MR's head SHA. On a first-review you're usually still on a different branch (commonly `main`, with the MR's branch never checked out locally), so the tracked path silently returns the base-branch version instead — line numbers are shifted wherever the diff added/removed lines above the finding, which can silently "correct" a right line to a wrong one, and for an unmerged MR the file can be missing the diff's new code entirely, corrupting every line-number check with no error. Before using (b)-(f) against a repo-relative path, confirm with `git branch --show-current` / `git diff HEAD..<head_sha> --stat -- <file>` (empty = identical); if they diverge, fetch `git show <head_sha>:<file> > tmp/claude-artifacts/change-request-replies/<file-basename>` (or `git show origin/<HEAD_BRANCH>:<file>`) once per changed file and read/grep that snapshot instead, or compute the line from the diff's `@@ +N,M @@` hunk header.
+    b. Read the actual file content around the reported `line_start` (±5 lines): `Read(file, offset=line_start-5, limit=11)`.
     c. Check if the code token appears at `line_start`. If yes, the line number is correct — move on.
     d. If not, scan the ±5 line window for the token. If found, update `line_start` (and `line_end` by the same delta) to the correct line.
-    e. If the token isn't found within ±5 lines, widen to ±10. If still not found, keep the original and flag: `⚠️ Could not verify line number for <file>:<line_start> (<token>)`.
+    e. If the token isn't found within ±5 lines, widen to ±10. If still not found, grep the full diff artifact for the anchor token across all files — subagents occasionally attribute cross-component findings to the wrong file (the visible component rather than the one that owns the logic). If the token appears in another diff file, update `file` and re-anchor `line_start` from that file's `@@ +N,M @@` hunk. If not found anywhere in the diff, keep the original and flag: `⚠️ Could not verify line number for <file>:<line_start> (<token>)`.
 
     f. **New-file placeholder fix.** Subagents commonly emit `line_start: 1, line_end: 1` (or `0, 0`) for findings on wholly-new files in the diff — the ±5/±10 windows don't help. When `line_start <= 5` AND the file is fully `+` in the diff: fetch the MR-branch source via `git show origin/<HEAD_BRANCH>:<file>` and grep the `anchor_token` across the full file. Update `line_start`/`line_end` to the matched line. If the anchor is non-unique, pick the occurrence closest to the finding's described context.
 
     This step catches the most common subagent error (LLM line-counting imprecision) before it reaches GitLab. Correct lines before merging — merged findings inherit the corrected positions.
+
+    **Substance verification for high-confidence claims (recommended).** Line-number correction only checks *where* a finding points, not whether its *technical claim* is true. When a finding depends on a library/utility's exact behavior (does a formatter append the currency code, does a disabled query resolve `isLoading` a certain way) or asserts something exists/doesn't exist outside the diff, spend one `git show <head_sha>:<path>` or grep against the real repo before merging — subagents reason from general library knowledge, which may not match this repo's actual version or config (they're diff-only by design, per `reviewer-prompt-template.md`). One orchestrator-side check beats giving every subagent repo access, and it can upgrade a hedged "can't confirm from the diff alone" finding to confirmed (see "Drop self-resolving findings" below) or add a concrete citation to an already-confident one.
 
 10. **Merge findings** — follow the **Merge Algorithm** in `persona-routing.md`:
     - Index findings by `(file, overlapping line range, category)`
@@ -151,6 +167,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
     - **Disagreement** (conflicting severity or contradictory recommendations): flag as `DISSENT_CANDIDATE`
 
     Not a disagreement: both agree on the problem but suggest different fixes — merge with complementary recommendations.
+
+    **Drop self-resolving findings.** INFO-tier findings whose own `recommendation` is a verification step ("confirm X is in place", "check Y") or that the reviewer admits "doesn't apply" are the orchestrator's job to resolve at merge time — read the file, grep the anchor, and either drop the finding (verification passes) or upgrade it to a real finding (verification fails). Posting "confirming this check doesn't apply" is noise; posting "this check passes" is theater. Resolve, then drop or upgrade.
 
 11. **Deliberation** (only if `DISSENT_CANDIDATES` exist) — for each disagreement between 2 personas:
     - SendMessage to Persona A's subagent: "Persona B disagrees with your finding on `<file>:<line>`. Their position: [B's summary and reasoning]. Does this change your recommendation? Respond with MAINTAIN or REVISE and brief reasoning."
@@ -186,13 +204,19 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
     Append the **Footnote Format** from the base reference with `Role: Team-Reviewer`. For the `*Persona:*` field, list all reviewer personas used (e.g., `*Persona:* react-frontend, financial-reviewer`), not the orchestrator's persona. The base reference's persona detection precedence (formal → ad-hoc → none) applies to single-persona skills; team-review always has explicit reviewer personas from step 5.
 
-    **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range.
+    **Inline comments:** for each merged finding, compose one inline comment with combined attribution. Use the most detailed `inline_comment` from the contributing subagents, prefixed with the signal-strength tag. Never post duplicate comments on the same line range. **Each inline comment must also end with the Footnote Format block** (same `Role: Team-Reviewer` footer as the top-level review) — the base reference's footnote rule covers "every reply, review body, and inline comment," not just the body above. Easy to miss: this bullet sits right after the footnote instruction for the review body, and reads as if that instruction's scope stopped there.
 
     **Body discipline.** The body is a count + pointer, not a finding list. The `### Findings` section is exactly one line: `N finding(s) — see inline comments.` No bullets, no per-finding summaries, no file paths, no rationale. All specifics live in inline comments exclusively. Summary-only findings (no inline target) get appended as `N summary-only finding(s): <one-sentence theme>.` Allowed sections only: overview, reviewer roster, Findings, Dissent, Positive Signals.
 
 13. **Post the review** — write the review payload to `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-team-reviewer.json`. Event: `COMMENT`.
 
     **Inline target must be in the diff.** GitLab `createDiffNote` (and GitHub's equivalent) require `newLine` to be a line that appears in the MR/PR diff (added or context). Findings whose target file is unchanged in the diff — e.g., a pre-existing helper class called from new code — cannot post inline. Re-anchor on a related changed line (the call site in a changed file) and reference the unchanged file in the body, OR demote to summary-only. Don't try to post and discover the rejection at request time.
+
+    **Context lines in modified files require more than `newLine` alone.** For context lines (unchanged lines visible in a hunk) in partially-modified files, `newLine` alone triggers "Line code can't be blank / Line code must be a valid line code". Only `+` (added) lines are safe to post on with `newLine` only. For any finding that targets a context line in a modified file, either: (a) re-anchor to the nearest `+` line in the same hunk, or (b) demote to summary-only. New files (fully `+`) are unaffected — every line is an added line.
+
+    **Batch posts via a wrapper script when N > 5.** Each inline post is one `glab api graphql ...` Bash call. For more than ~5 inline comments, write a single wrapper script that loops a `post()` function over `(body_file, path, line)` triples, then invoke with one `bash` call. Saves N-1 Bash tool calls + permission prompts. The script body uses file-based GraphQL variables (`-F query=@...`, `-F body=@...`, `-f noteableId=...`) — no quoted strings, no shell escaping. Errors are visible in the `errors: []` field of each GraphQL response.
+
+    **Use a per-cycle versioned wrapper name** — `tmp/claude-artifacts/change-request-replies/let-it-rip-<short-sha>.sh` (first 7 chars of `HEAD_SHA`), not the bare `let-it-rip.sh`. The artifact dir persists across cycles, so a fixed filename collides with the prior cycle's script — and a `bash` invocation chained after a blocked Write fires the *stale* script with old SHAs / old body paths / old comment IDs. GraphQL returns 200 with note IDs, but the posts target the wrong commit.
 
     ```
     !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`

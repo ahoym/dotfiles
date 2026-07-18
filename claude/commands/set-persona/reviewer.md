@@ -22,3 +22,9 @@ Base persona for all code review workflows. Provides universal review instincts 
 - `provider:default/code-quality-instincts.md`
 - `provider:default/process-conventions.md`
 - `provider:default/review-conventions.md`
+
+## Cross-Refs
+
+Load when working in the specific area:
+- `provider:default/testing/testing-patterns.md` — Test Pyramid, mock boundaries, test naming, flaky tests, CI parallelism (cross-language)
+- `provider:default/refactoring-patterns.md` — Survey before acting, scope discipline, content-loss audits

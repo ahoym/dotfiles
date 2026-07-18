@@ -58,6 +58,7 @@ Load on demand when the work touches the listed area:
 
 ### Testing
 - `provider:default/testing/pytest-patterns.md` — pytest isolation, module-level singleton pitfalls, import side effects, UTC datetime handling, autospec, autouse hermetic fixtures
+- `provider:default/testing/testing-patterns.md` — Test Pyramid, mock boundaries, naming, flaky tests, CI parallelism
 
 ### Resilience
 - `provider:default/resilience-patterns.md` — retry/idempotency, dedup, circuit breakers, scheduler decoupling; load for service code that integrates with external APIs

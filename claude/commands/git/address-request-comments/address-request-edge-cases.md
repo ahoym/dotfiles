@@ -20,6 +20,8 @@ Read this file when processing comments (step 5+). Skip on quiet no-ops.
 
 **Disagreement = escalate.** When the addresser disagrees or is uncertain, present the suggestion to the partner and wait for their decision. Approval can come via CLI or review comments — either channel is valid.
 
+**Reviewer-tagged "Optional" = decline inline, no escalation.** When the reviewer's body explicitly delegates the call (e.g., "Optional — skip if you prefer X", "feel free to leave as-is", "nit, take or leave"), the reviewer has pre-authorized declining. Post a disagreement reply with reasoning inline; do not round-trip to the operator. Skip the top-level summary too — the inline reply is the complete record.
+
 To identify agent vs operator comments, check for `Role:.*Reviewer` or `Role:.*Addresser` in the comment body. Comments without a Role tag are from the operator.
 
 ## Conditional Requests
@@ -127,11 +129,25 @@ Pushback structure: name the criteria, point out the case doesn't match, suggest
 
 Pairs with the "Push back when warranted" core principle — this is the *how* once you've decided to push back.
 
+## Operator note body — fetch full text before acting
+
+When auditing notes chronologically to map thread state (e.g., `jq ... | .[0:80]`), use at least **200 characters** for notes without a `Role:` tag — operator instructions are frequently multi-directive and a short truncation silently drops everything after the first sentence. Before implementing any operator inline note, verify you have the complete body: a note that starts with "remove X, make Y required" may continue "…and add @Builder to the record". Fetch the full note by ID if the chronological display used truncation.
+
 ## Role-prefixed operator directives override prior defers
 
 When an operator comment opens with a role name ("Addresser …", "Reviewer …"), it's a direct directive to that role and supersedes any earlier addresser stance — including a confident "deferring to a follow-up MR" reply. Re-evaluate fresh: implement the directive rather than restating the prior defer. The operator has seen the prior reply and is explicitly overriding it.
 
 Example: addresser replied "Deferring the package move to a separate cleanup MR." Operator follows up with "Addresser can we actually move it now?" → implement the move on this branch; don't re-argue the defer.
+
+## Meta-directive scope expansion — "across the MR" / "in general"
+
+When an operator comment anchored to a specific inline location uses MR-wide language ("Claude in general …", "across the MR", "going forward in this MR", "everywhere we do X"), the scope is the MR's added content, not just the anchored line. Sweep instead of point-fixing.
+
+The right scope is what *this MR* introduces — `git log <base>..HEAD --name-only` to enumerate changed files, then narrow to comments/code the MR commits actually added (use `git diff <merge-base>..HEAD` if the MR ate a base-branch merge). Pre-existing content from merged-in branches is out of scope unless the operator says otherwise.
+
+Reply on the thread with: (a) what you swept, (b) where you applied the change (file list), (c) what you intentionally left untouched and why. The thread comment becomes the audit trail for the sweep — operator can spot omissions before approving.
+
+Inverse of the "only include what was specifically approved" rule above: that rule fires when approval is point-scoped; this rule fires when the directive is explicitly broader than its anchor.
 
 ## After LGTM Verification
 

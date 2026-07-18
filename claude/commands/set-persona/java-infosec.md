@@ -20,3 +20,10 @@
 ## Proactive Cross-Refs
 
 - `provider:default/java/infosec-gotchas.md`
+
+## Cross-Refs
+
+Load when working in the specific area:
+- `provider:default/java/spring-boot-gotchas.md` — @Value secret injection, @Profile, Spring config gotchas relevant to credential handling
+- `provider:default/java/integration.md` — External auth flows, JWT validation across service boundaries, error-response leakage
+- `provider:default/api-design.md` — Consistent error contracts, input validation, security hardening

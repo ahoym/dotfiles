@@ -1,5 +1,5 @@
 Cross-language test design patterns: contract tests, fixture origin, translation-layer testing, mock fidelity, and test-existence heuristics.
-- **Keywords:** contract tests, fake-drift detection, fixture origin, mock coupling, mock fidelity, translation-layer tests, adapter tests, test isolation, encoded fields, cross-implementation fixtures, recorded fixtures, golden files, production consumers, DI seams, test value vs internals
+- **Keywords:** contract tests, fake-drift detection, fixture origin, mock coupling, mock fidelity, translation-layer tests, adapter tests, test isolation, encoded fields, cross-implementation fixtures, recorded fixtures, golden files, production consumers, DI seams, test value vs internals, --update re-bless, golden baseline gate, stability vs correctness
 - **Related:** ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/dependency-injection-patterns.md
 
 ---
@@ -135,6 +135,10 @@ A test that builds two inputs differing in dimension D and asserts equal output 
 - **Inert chain element.** In a 2-element chain where element #2 can't change the outcome (two monotone drawdown guards on one leg — the tightest trips first, masking the looser), a buggy `apply()` that dropped #2 still passes. Fix: make #2 the binding element and add a contrast — `assert chain_result != element1_alone_result` proves #2 is composed.
 
 General tell: ask "would this pass under the exact bug it guards against?" If yes, assert a value reachable *only* when the guarded behavior actually fires. Sibling to the parity-oracle entries above (those trim over/under-coverage of a baseline; this catches a parity assertion that exercises nothing).
+
+## A `--update`-able regression/golden gate verifies stability, not correctness
+
+A gate that diffs current output against a committed baseline (and offers `--update` to re-bless) only proves the output didn't *change* — `--update` makes it pass trivially. After a change shifts the output, confirm the **target metric** actually improved (e.g., the moved fixture's ground-truth still retrieves in the top-K), and prefer fixing the surface (keywords, mapping, the code) over re-blessing a regressed baseline. A blind `--update` silently masks a recall/accuracy loss that the stability diff was never measuring.
 
 ## Cross-Refs
 

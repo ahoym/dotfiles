@@ -1,9 +1,5 @@
 Shell scripting gotchas and recipes covering `set -euo pipefail` traps, `gh api` query patterns, shared test helpers, and zsh compatibility.
-<<<<<<< Updated upstream
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template
-=======
-- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template, brew install rustup, brew install rust, keg-only, rustup-init, brew --prefix, rustup target add, brew info, Homebrew formula caveats, tool-result lag, delayed tool result, re-fire command, repeated verification, parallel tool batch cancellation, sibling cancel cascade, stale index.lock, batch mutating steps, one command per turn, rg shell function shim, command -v rg, ripgrep required script guard, function not inherited by bash subshell, zsh no word-splitting, unquoted parameter expansion, array word-split, zsh equals expansion, leading-equals token, =word filename expansion, echo separator failure, zsh brace expansion, comma brace list, brace-expanded args, gh --jq brace split, accepts at most 1 arg
->>>>>>> Stashed changes
+- **Keywords:** set -e, pipefail, set -u, unbound variable, command substitution, gh api, zsh globbing, rsync --delete, lib.sh, empty array expansion, teardown, heredoc, git commit -F, multi-line commit message, mustache template, dead export, fill-template, brew install rustup, brew install rust, keg-only, rustup-init, brew --prefix, rustup target add, brew info, Homebrew formula caveats, tool-result lag, delayed tool result, re-fire command, repeated verification, parallel tool batch cancellation, sibling cancel cascade, stale index.lock, batch mutating steps, one command per turn, rg shell function shim, command -v rg, ripgrep required script guard, function not inherited by bash subshell, zsh no word-splitting, unquoted parameter expansion, array word-split, zsh equals expansion, leading-equals token, =word filename expansion, echo separator failure, zsh brace expansion, comma brace list, brace-expanded args, gh --jq brace split, accepts at most 1 arg, TSV, tab-delimited, awk OFS, hard tabs, NF field count
 - **Related:** ~/.claude/learnings/claude-code/platform-permissions.md, ~/.claude/learnings/git-patterns.md
 
 ---
@@ -538,6 +534,17 @@ Stopping the loop's controller leaves its current runner alive; if the parallel 
 re-runs that same item, two processes race on one output file (truncate + interleaved
 writes → corruption). `TaskStop` the loop **and** `pkill -f <runner-path>` before
 launching the parallel batch, then re-run the killed item in the batch.
+
+## Editing TSV / tab-delimited files: preserve tabs with awk
+
+The Edit tool and BSD `sed` mangle hard tabs (drop them, or don't interpret `\t`). To rewrite a column in a `.tsv`, use awk and re-emit tabs explicitly:
+
+```bash
+awk -F'\t' 'BEGIN{OFS="\t"} $1=="key"{$2="newval"} {print}' in.tsv > out.tsv && mv out.tsv in.tsv
+awk -F'\t' '{print NF}' in.tsv | sort -u   # verify: every row reports the expected field count
+```
+
+When authoring a new TSV with the Write tool, embed real tab characters and run the field-count check after — a Write that silently used spaces shows `NF=1`.
 
 ## Identify a file by content before writing; never `-f`-overwrite a path you don't own
 

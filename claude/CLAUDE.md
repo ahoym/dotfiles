@@ -35,3 +35,9 @@ Edit requires a recent Read of the target file — having the content in context
 | **Permission patterns** (settings.json) | ✅ Required | ❌ Won't match |
 | **Read** (file_path) | ✅ | ✅ CWD-relative |
 | **`@` references** (CLAUDE.md/SKILL.md) | ✅ | ✅ file-relative |
+
+# Temporary Files
+
+Write any scratch/intermediate file — notes, drafts, generated scripts, reply bodies, manifests, downloaded payloads — under CWD-relative `tmp/claude-artifacts/<subdir>/`. This path is pre-allowlisted for Read/Write/Edit/Bash (`bash`, `chmod`, `cp`, `mv`, `rm`, `rmdir`) in `settings.json`, so writing there avoids permission prompts. Don't use `/tmp/`, `~/tmp/`, project-root scratch dirs, or ad-hoc folders — those aren't covered by the allowlist and will prompt.
+
+Use CWD-relative form (`tmp/claude-artifacts/...`), not absolute paths — permission patterns are literal-string-matched.

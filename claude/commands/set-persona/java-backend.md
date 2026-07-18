@@ -32,6 +32,10 @@ Enforce `provider:default/code-quality-instincts.md` (no duplication, single sou
 
 Load when working in the specific area:
 - `provider:default/java/spring-boot.md` — Multi-module patterns, Flyway gotchas, JPA/Hibernate annotations, Lombok patterns, @Transactional boundaries, config pitfalls
+- `provider:default/java/concurrency.md` — Thread safety, connection/thread pool sizing, @Scheduled + ShedLock, ExecutorService lifecycle, lazy-loading traps
+- `provider:default/java/integration.md` — External API integration, pagination, error handling, gRPC onError semantics, schema migrations
+- `provider:default/java/testing.md` — Mockito, TestNG, Spring test lifecycle, ApplicationContextRunner, fixture factories
+- `provider:default/java/code-quality.md` — Java-specific code quality: SonarQube rules, logging hygiene, Impl suffix, format strings
 - `provider:default/api-design.md` — Consistent response shapes, DRY validation, security hardening, contract audit approach
 - `provider:default/resilience-patterns.md` — Dedup-before-process, domain exceptions for integration failures, stale cache silent data loss
 - `provider:default/financial/applications.md` — Fee calculation invariants, zero-divisor guards, command-query separation in financial state
@@ -43,4 +47,4 @@ Load when working in the specific area:
 - `provider:default/local-dev-seeding.md` — Hybrid API + SQL seeding architecture, schema drift detection, deterministic seed UUIDs
 - `provider:default/java/infosec-gotchas.md` — JWT validation, CORS, secrets management, dependency vulnerabilities
 - `provider:default/java/observability-gotchas.md` — Logging pitfalls, metric cardinality, trace context propagation
-- `provider:default/java/observability.md` — Structured logging, distributed tracing, health checks, alerting patterns
+- `provider:default/java/observability.md` — Micrometer counters, Grafana dashboards, structured logging, metric cardinality, distributed tracing, health checks, alerting patterns
