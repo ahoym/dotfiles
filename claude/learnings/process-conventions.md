@@ -1,6 +1,6 @@
 Patterns for how engineering work is organized, scoped, and tracked — PR splitting, MR scoping, phased delivery, and preparatory refactoring.
 - **Keywords:** PR splitting, MR scoping, cherry-pick, preparatory refactoring, scope creep, staged renames, plan-first PR, PR description, git history, safeguards, plan retirement, plan lifecycle, acceptance criteria, issue closure, tracking issue maintenance
-- **Related:** ~/.claude/learnings/review-conventions.md, ~/.claude/learnings/code-quality-instincts.md
+- **Related:** ~/.claude/learnings/review-conventions.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/git-github-api.md
 
 ---
 
@@ -243,7 +243,7 @@ Auditing migration progress: distinguish "PR landed, issue intentionally still o
 
 ### Dated self-corrections in issue bodies go stale — re-verify during triage
 
-A "⛔ Blocked-by #N" or "✅ none of the 4 done" note inside an issue body is a point-in-time snapshot, not current truth. During triage, re-verify each against ground-truth: PR merge status (`gh pr view N`) and the actual code (`grep`/read the named symbols on `main`). Common stale shapes: blocked-by a PR that closed unmerged while the work landed via a *different* PR (see git-github-api.md "A stale PR's deliverable often shipped via a different PR"); "nothing done" notes predating a merge that shipped half the items. Trusting the note at face value propagates the error into your assessment and any comment you post.
+An in-body `⛔ Blocked-by #N` / `✅ none done` note is a point-in-time snapshot, not current truth — during triage, re-verify each against PR merge status and the actual code on `main`, never the narrative. Full pattern (including the partial-supersession *trim-in-place* case) in `git-github-api.md` → "Issue bodies drift: dated self-notes decay, partial supersession trims in place".
 
 ## Confluence MCP Publishing
 

@@ -31,16 +31,7 @@ When posting inline comments on a file with 4+ hunks, compute new-file line numb
 
 ## Build a Batch Inline-Review Payload with a Script, Not Hand-Escaped JSON
 
-When posting N inline comments in one review (`gh api repos/{owner}/{repo}/pulls/<n>/reviews --input file.json`), build the payload with a short Python script that `json.dump`s a dict — don't hand-write JSON with escaped `\n`. Comment bodies carry multi-line text and code fences; manual escaping breaks silently across 10+ comments.
-
-```python
-comments.append({"path": p, "line": n, "side": "RIGHT", "body": text + footnote})
-json.dump({"event": "COMMENT", "body": review_body, "comments": comments}, open(out, "w"), indent=2)
-```
-
-- `line` + `side: "RIGHT"` targets the new-file line (every line of an *added* file is valid; modified files need a diff-hunk line).
-- The post is **atomic**: GitHub rejects the whole review if any single `line` is off-hunk, so a successful `--input` post confirms all positions were valid — verify only the landed count, not each line.
-- Bonus: write-file-then-`--input` keeps inline quoted JSON out of the shell (no permission-prompt churn).
+`json.dump` a dict from a throwaway Python script instead of hand-escaping `\n` — manual escaping breaks silently across 10+ comments. `line` + `side: "RIGHT"` targets the new-file line (added files: every line valid; modified files need a diff-hunk line). Full technique + example + the atomic-post / landed-count check: "Build Rich Review Payloads With a Script, Not Hand-Escaped JSON" (below).
 
 ---
 
@@ -155,14 +146,7 @@ The GitHub reviews API accepts a JSON payload via `--input`. Write to file first
 
 ### Build the payload with a script when bodies contain markdown
 
-Hand-writing the JSON breaks silently when body/inline text has code fences, backslashes (`find … -exec … \;`), or embedded quotes (`python -c "import x"`) — escaping bugs slip through. Build it with a throwaway Python script: hold each body in a triple-quoted string, assemble the dict, `json.dump` to the payload file, then `gh api … --input`. Triple-quotes kill quote- and newline-escaping; only literal backslashes still double (`\\;`).
-
-```python
-c1 = """**HIGH** … `RUN python -c "import talib, numpy"` … `\\;` in PoC …"""
-payload = {"event": "COMMENT", "commit_id": sha,
-           "body": body, "comments": [{"path": p, "line": 77, "side": "RIGHT", "body": c1 + FOOT}]}
-json.dump(payload, open(out, "w"), indent=2)
-```
+When a body has code fences, backslashes (`find … -exec … \;`), or embedded quotes, hand-written JSON escaping breaks silently. Build it with a throwaway Python script using triple-quoted bodies (only literal backslashes still double, `\\;`). Full pattern + example: "Build Rich Review Payloads With a Script, Not Hand-Escaped JSON" (below).
 
 ## Approved Reviewers Extraction
 
@@ -441,6 +425,9 @@ json.dump({"commit_id": SHA, "body": body + FOOTNOTE, "event": "COMMENT",
 
 `side: RIGHT` + source `line` for added/new-file lines. Validate the JSON (`python -c "import json; json.load(open(out))"`) before posting. Pairs with "GitHub Inline Review Comments Must Target Diff-Hunk Lines" (line validity) — this is about *constructing* the payload robustly.
 
+- **The post is atomic** — GitHub rejects the whole review if any single `line` is off-hunk, so a successful `--input` post confirms every position was valid; verify only the landed count, not each line.
+- **`jq`'s file-reading flags are a hard block, not a prompt** — `--rawfile`, `-f`/`--from-file`, and `--slurpfile` are rejected outright, so a `jq -n --rawfile body … -f filter.jq` route to assemble a payload from markdown files can't work even with the filter in its own file. The Python assembler is the one path that's neither prompt- nor block-prone.
+
 ## `--json files` Caps at 100 — Use `git diff` for Large PRs
 
 `gh pr view <n> --json files` (and the files API page) silently returns at most **100** files — a 469-file PR shows only 100, with no truncation warning. For the complete list when the branch is local, use git against the merge-base:
@@ -460,7 +447,7 @@ On a first review you're usually still on the base branch (`git rev-parse --abbr
 
 ## jq's File-Reading Flags Are Permission-Blocked — Assemble JSON in Python
 
-`jq --rawfile`, `-f`/`--from-file`, and `--slurpfile` are rejected by the permission guard as "dangerous flags that could execute code or read arbitrary files" — a hard **block**, not a prompt, so the `jq -n --rawfile body body.md … -f filter.jq` route to build a review/comment payload from markdown files dies even with the filter in its own file. Don't fight it: assemble the payload in a throwaway Python stdlib script (`json.dumps`/`read_text` handle all escaping) and `gh api … --input payload.json`. Same conclusion as the hand-escaped-JSON sections above, from the other direction — the Python assembler is the one path that's neither prompt- nor block-prone.
+`jq`'s file-reading flags (`--rawfile`, `-f`/`--from-file`, `--slurpfile`) are a hard permission **block**, not a prompt — see the sub-bullet under "Build Rich Review Payloads With a Script" above. That's why the Python assembler is the only robust route. When each body already lives in its own `.md` file, read them straight in:
 
 ```python
 # build-payload.py — no quoting, no dangerous flags

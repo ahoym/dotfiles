@@ -233,7 +233,7 @@ A tight take-profit against a wide stop (e.g. 1% TP / 1.5-ATR stop ≈ 3:1 dista
 
 ## Stop-before-TP is necessary, not sufficient — defer the favourable same-bar exit too
 
-Booking the stop before the take-profit (above) only fixes the *span-both* bar. A bar that fills a fresh limit and reaches the take-profit **without** touching the stop still books a **favourable same-bar TP** — it assumes price tagged the level then ran to target within one OHLC bar, the intrabar path a bar backtest can't order. Defer a same-bar take-profit to a strictly later bar (keep the same-bar stop); deferral is safe because stop-before-TP means a returned TP implies the stop didn't hit, so nulling it can't skip a stop. On a 1%-TP / 1.5-ATR fade these favourable same-bar TPs were ~47–70% of net R on slow TFs — removing them cut headline PF_R / net-$ ~25–50% (verdict survived; the *level* was overstated). Same family as deferring a same-bar break→flip→re-arm refill.
+The asymmetric same-bar exit rule (book the same-bar stop, defer the favourable same-bar TP) isn't futures-specific — see `backtest-lookahead-and-fill-realism.md` → "Same-bar exit on an OHLC fill bar — asymmetric is the only correct model", which now carries the necessary-but-not-sufficient distinction (span-both bar vs fills-then-reaches-TP bar) and the ~47–70%-of-net-R impact. Same family as deferring a same-bar break→flip→re-arm refill.
 
 ## Cross-Refs
 

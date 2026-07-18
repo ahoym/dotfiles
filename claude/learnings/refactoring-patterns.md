@@ -585,15 +585,7 @@ re-killing it.
 
 ## Only leaf helpers move "down" into a shared base module
 
-Before consolidating helpers into a shared base module (a `_common.py`, a `utils`, the
-root of an effort's import DAG), check the dependency *direction*. The base is imported
-BY the others, so it can only absorb helpers that depend on nothing above it. An
-**aggregator** that imports sibling modules can't move into the module those siblings
-import FROM — that's a circular import (`_common → ribbon_portfolio → _common`). Tell:
-the helper's own module imports 3+ siblings. Such top-of-DAG helpers stay put (or get a
-NEW module *above* the leaves), regardless of an issue that says "consolidate into the
-base." Single-definition + sibling-imported is already DRY; relocation into the root is
-often infeasible, not a missed cleanup.
+See "Relocating a helper into a base/shared module is gated by import direction" (below) — same import-direction rule, consolidated there.
 
 ## Share a state machine via a pure decision-function, not class extraction
 
@@ -623,7 +615,7 @@ Prove either collapse behavior-preserving via the refactored-vs-original output 
 
 Before moving a "duplicated" helper *down* into a shared/base module (`_common.py`, a `*_base`), check where it sits in the import graph — the move may be infeasible or unnecessary:
 
-- **A top-of-graph composer can't move down — it's a circular import, not a low-value tidy.** If the helper imports from N sibling modules that themselves import the base, relocating it into the base inverts the graph and cycles. Composition helpers (e.g. `_combined_legs` calling `_bear_legs` + `_pyramid_legs`, each pulling from ~6 siblings) belong at the top, in the module that owns their domain; the base stays leaf-level (loaders / metrics / constants), often with an explicit "importable in isolation, no engine dependency" invariant the move would break.
+- **A top-of-graph composer can't move down — it's a circular import, not a low-value tidy.** If the helper imports from N sibling modules that themselves import the base, relocating it into the base inverts the graph and cycles (`_common → ribbon_portfolio → _common`). Composition helpers (e.g. `_combined_legs` calling `_bear_legs` + `_pyramid_legs`, each pulling from ~6 siblings) belong at the top — in the module that owns their domain, or a new module *above* the leaves; the base stays leaf-level (loaders / metrics / constants), often with an explicit "importable in isolation, no engine dependency" invariant the move would break.
 - **Single-definition-imported-across-siblings already satisfies de-dup.** One `def` that N scripts `from sibling import helper` has *zero* copies to collapse — the consolidation goal is already met. Confirm real duplication (`rg '^def helper'` → >1 hit) before proposing the move; absent that, it buys only relocation, which the graph forbids anyway.
 
 Inverse of the `TYPE_CHECKING` import-cycle fold (above): there, tight coupling says fold helpers *up* into a class; here a top-of-graph composer must *stay* up. See also "Deciding What NOT to Refactor."
