@@ -94,7 +94,7 @@ glab api projects/:id/issues/<IID>/related_merge_requests \
 
 Filter PR body text to confirm exact issue ref (avoid `#9` matching `#99`).
 
-## 8. Comment posting (POST_ITEM_COMMENT_CMD template)
+## 8. Comment posting (POST_ISSUE_COMMENT_CMD template)
 
 Agent writes body to `<ABS_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<IID>-comment.md`, then:
 
@@ -128,6 +128,5 @@ When source resolves to `gitlab`, these patterns must be in `~/.claude/settings.
 
 ```json
 "Bash(glab api:*)", "Bash(glab mr create:*)", "Bash(glab mr list:*)",
-"Bash(glab issue list:*)", "Bash(glab issue view:*)", "Bash(glab issue comment:*)",
-"Bash(glab issue create:*)", "Bash(glab auth:*)"
+"Bash(glab issue list:*)", "Bash(glab issue view:*)", "Bash(glab auth:*)"
 ```

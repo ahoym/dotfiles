@@ -92,7 +92,7 @@ PRs/MRs live on the repo's git host, not in Jira. Use the existing GH or GL comm
 
 Jira's "Development" panel sometimes contains linked branches/MRs (`mcp__claude_ai_Atlassian__getJiraIssueRemoteIssueLinks`), but it's eventually-consistent and unreliable — prefer the git-host search.
 
-## 8. Comment posting (POST_ITEM_COMMENT_CMD template)
+## 8. Comment posting (POST_ISSUE_COMMENT_CMD template)
 
 Agents post clarification / confirmation comments to the Jira ticket via MCP:
 

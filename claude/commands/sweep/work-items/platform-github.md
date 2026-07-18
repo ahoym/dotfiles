@@ -67,7 +67,7 @@ gh pr list --state open --head "sweep/<N>-*" --json number,headRefName,url
 
 Filter client-side; substring matches like `#9` matching `#99` must be ruled out by checking PR body for exact phrases (`Relates to #<N>`, `Fixes #<N>`, `Closes #<N>`, `Blocked by:.*#<N>`).
 
-## 8. Comment posting (POST_ITEM_COMMENT_CMD template)
+## 8. Comment posting (POST_ISSUE_COMMENT_CMD template)
 
 Agent writes body to `<ABS_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<N>-comment.md`, then:
 
