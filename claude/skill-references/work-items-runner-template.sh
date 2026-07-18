@@ -8,7 +8,7 @@
 #
 # Adapts the generic parallel-claude-runner-template.sh to issue semantics:
 #   - issue-<N>/ dirs (vs pr-<N>/)
-#   - `gh issue view` (vs `gh pr view`)
+#   - parameterized per-source state check via FETCH_ITEM_STATE_CMD (vs hardcoded gh pr view)
 #   - issue_state: + only CLOSED is terminal (no MERGED for issues)
 # Adds work-items-specific worktree setup for implementer sessions:
 #   - For each issue in IMPLEMENT_ISSUES, create a git worktree under
@@ -106,6 +106,26 @@ echo ====================================================
 echo ""
 
 rm -f "${RUN_DIR}/.rate-limited"
+
+# --- Pre-flight: validate FETCH_ITEM_STATE_CMD ---
+# Dry-run the platform command with a dummy pr_num before launching sessions.
+# Catches flag/argument errors (e.g., `glab api --jq` — unsupported) that would
+# otherwise make the runner-level state check return UNKNOWN for every issue,
+# defeating the closed-item skip (sessions would launch needlessly).
+_probe=$(
+    pr_num=0
+    {{FETCH_ITEM_STATE_CMD}} 2>&1
+) || true
+case "$_probe" in
+    *"Unknown flag"*|*"unrecognized argument"*|*"flag provided but not defined"*|*"unknown shorthand flag"*)
+        echo "BLOCKED: FETCH_ITEM_STATE_CMD appears invalid — aborting before launch." >&2
+        echo "Probe output:" >&2
+        echo "  $_probe" >&2
+        echo "Fix: update metadata.json → FETCH_ITEM_STATE_CMD, then regenerate let-it-rip.sh via work-items-generate-runner.sh." >&2
+        exit 2
+        ;;
+esac
+
 OVERALL_START=$(date +%s)
 
 # --- State writer ---
@@ -167,8 +187,10 @@ process_issue() {
     fi
 
     # Pre-flight 3: API state check (1 API call) — covers first-run + externally-changed issues
+    # FETCH_ITEM_STATE_CMD references $pr_num — set it in the subshell before invocation.
     local state
-    state=$(gh issue view "$n" --json state -q '.state' 2>/dev/null || echo "UNKNOWN")
+    state=$(pr_num="$n"; {{FETCH_ITEM_STATE_CMD}} 2>/dev/null || echo "UNKNOWN")
+    [ -z "$state" ] && state="UNKNOWN"
     if [ "$state" = "CLOSED" ]; then
         printf '# Issue #%s\nmilestone: skipped\nreason: %s\nissue_state: %s\n' "$n" "$state" "$state" > "$status_file"
         echo "[$ts] Issue #${n}: SKIPPED ($state)"

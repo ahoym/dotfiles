@@ -15,7 +15,8 @@
 #                          role is one of: clarify | confirm | implement
 #   metadata.json        — runner config (MODE, MODE_LABEL, MODEL, RUN_DIR,
 #                          CONCURRENCY, ITEMS, TIMESTAMP, BRANCHES, WORKTREES,
-#                          PROJECT_ROOT) per sweep-scaffold.md
+#                          PROJECT_ROOT; optional FETCH_ITEM_STATE_CMD — defaulted
+#                          from manifest source when unset) per sweep-scaffold.md
 #   repo-summary.txt     — shared repo context (~50 lines)
 #   issue-<N>/metadata.json — per-issue template metadata (one file per
 #                              eligible issue, written by the LLM during
@@ -84,21 +85,37 @@ while IFS=$'\t' read -r number role; do
         "$(wc -l < "$issue_dir/prompt.txt")"
 done < <(jq -r '.eligible[] | [.number, .role] | @tsv' "$RUN_DIR/manifest.json")
 
-# 3. Augment runner metadata with IMPLEMENT_ISSUES + PROJECT_ROOT, then assemble
-#    via the dedicated work-items runner template (no sed-patching needed).
+# 3. Augment runner metadata with IMPLEMENT_ISSUES + PROJECT_ROOT + FETCH_ITEM_STATE_CMD,
+#    then assemble via the dedicated work-items runner template (no sed-patching needed).
 #
 # IMPLEMENT_ISSUES: subset of eligible issues with role=implement. The runner
 #   uses this to set up worktrees + cd into them before launching claude -p.
 #
 # PROJECT_ROOT: where to run `git worktree add` from. Defaults to git toplevel.
+#
+# FETCH_ITEM_STATE_CMD: per-source runner-level state-check command (referencing
+#   $pr_num), substituted into the runner as {{FETCH_ITEM_STATE_CMD}}. Default it
+#   from the manifest source when the assessment didn't set it, so the placeholder
+#   never leaks into the generated script. Jira has no shell state command
+#   (MCP-only) → empty, so the runner falls through to the in-session check.
 implement_issues=$(jq -r '[.eligible[] | select(.role == "implement") | .number] | join(" ")' "$RUN_DIR/manifest.json")
 project_root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
+# Per-source default (mirrors sweep-scaffold.md → FETCH_ITEM_STATE_CMD examples).
+item_source=$(jq -r '.source // empty' "$RUN_DIR/manifest.json")
+case "$item_source" in
+    github) default_state_cmd="gh issue view \"\$pr_num\" --json state -q '.state'" ;;
+    gitlab) default_state_cmd="glab api projects/:id/issues/\$pr_num | jq -r .state | tr '[:lower:]' '[:upper:]'" ;;
+    *)      default_state_cmd="" ;;
+esac
+
 # Patch runner metadata.json in place — preserve existing fields, add/update
-# IMPLEMENT_ISSUES and PROJECT_ROOT. Idempotent across reruns.
+# IMPLEMENT_ISSUES, PROJECT_ROOT, and FETCH_ITEM_STATE_CMD. Idempotent across reruns.
 tmp_meta=$(mktemp)
-jq --arg impl "$implement_issues" --arg root "$project_root" \
-    '. + {IMPLEMENT_ISSUES: $impl, PROJECT_ROOT: (.PROJECT_ROOT // "" | if . == "" then $root else . end)}' \
+jq --arg impl "$implement_issues" --arg root "$project_root" --arg state_cmd "$default_state_cmd" \
+    '. + {IMPLEMENT_ISSUES: $impl,
+          PROJECT_ROOT: (.PROJECT_ROOT // "" | if . == "" then $root else . end),
+          FETCH_ITEM_STATE_CMD: (.FETCH_ITEM_STATE_CMD // "" | if . == "" then $state_cmd else . end)}' \
     "$RUN_DIR/metadata.json" > "$tmp_meta"
 mv "$tmp_meta" "$RUN_DIR/metadata.json"
 

@@ -63,17 +63,13 @@ GitLab Issues have no separate "Done" status. Normalize via `tr '[:lower:]' '[:u
 
 ## 6. Blocked-by detection
 
-Parse issue description for:
-- Lines matching `^Blocked by:` (case-insensitive) → extract `#(\d+)` from each
-- Inside `## Dependencies` / `## Blocked by` sections → extract `#(\d+)` from any line
-
-GitLab also has typed issue links via REST — could augment with:
+Parse the issue description for blocker refs per the **Blocked-by shared parse rule** in `SKILL.md` § Platform contract. GitLab also has typed issue links via REST — prefer these over body-text parsing when present:
 
 ```bash
 glab api projects/:id/issues/<IID>/links | jq '.[] | {iid, title, link_type, state}'
 ```
 
-`link_type == "is_blocked_by"` is the formal blocker. Prefer this over body-text parsing when present.
+`link_type == "is_blocked_by"` is the formal blocker.
 
 A blocker is **resolved** if:
 - The blocker issue is `closed`, OR

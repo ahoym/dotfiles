@@ -48,9 +48,7 @@ GitHub Issues have no separate "Done" status — closed = closed.
 
 ## 6. Blocked-by detection
 
-Parse issue body for:
-- Lines matching `^Blocked by:` (case-insensitive) → extract `#(\d+)` from each
-- Inside `## Dependencies` / `## Blocked by` headed sections → extract `#(\d+)` from any line
+Parse the issue body for blocker refs per the **Blocked-by shared parse rule** in `SKILL.md` § Platform contract. Then resolve each extracted blocker.
 
 A blocker is **resolved** if:
 - The blocker issue is `CLOSED`, OR

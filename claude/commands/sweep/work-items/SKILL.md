@@ -76,6 +76,12 @@ Per-source behaviour lives in `platform-<source>.md` (`platform-github.md`, `pla
 
 Plus a "Permissions" appendix listing the `~/.claude/settings.json` patterns required when that source is in use.
 
+**Blocked-by shared parse rule (github + gitlab).** Both git-host sources extract blocker refs from the issue body/description identically — `platform-github.md` § 6 and `platform-gitlab.md` § 6 point here rather than restating it:
+- Lines matching `^Blocked by:` (case-insensitive) → extract `#(\d+)` from each
+- Inside `## Dependencies` / `## Blocked by` headed sections → extract `#(\d+)` from any line
+
+Each platform's § 6 then adds only its own blocker-resolution commands (GitLab additionally prefers typed `is_blocked_by` REST links). `platform-jira.md` § 6 does not use this rule — Jira resolves blockers via typed issue links (`jira-issue-mapping.md` § Blocked-by detection).
+
 **Adding a new source** (Linear, Asana, etc.) means adding `platform-<name>.md` answering all core sections plus permissions — no surgery on this SKILL.md beyond the source-detection table.
 
 ## Prerequisites (hard gate)
@@ -107,7 +113,7 @@ If missing, report with `BLOCKED:` prefix listing each missing pattern. Do not c
 ## Reference Files
 
 - `~/.claude/skill-references/work-items-generate-runner.sh` — **Recommended entrypoint.** One bash call: assembles preflight + body/comments + per-issue prompts + runner. Inputs: `manifest.json`, `metadata.json`, `repo-summary.txt`, per-issue `metadata.json`. Auto-extracts `IMPLEMENT_ISSUES` from manifest and computes `PROJECT_ROOT`.
-- `~/.claude/skill-references/work-items-runner-template.sh` — Work-items-specific runner template (issue-<N>/ dirs, `gh issue view`, `IMPLEMENT_ISSUES` array, conditional worktree setup, per-issue cwd). Used by work-items-generate-runner.sh.
+- `~/.claude/skill-references/work-items-runner-template.sh` — Work-items-specific runner template (issue-<N>/ dirs, parameterized `{{FETCH_ITEM_STATE_CMD}}` state check, `IMPLEMENT_ISSUES` array, conditional worktree setup, per-issue cwd). Used by work-items-generate-runner.sh.
 - `~/.claude/skill-references/parallel-claude-runner-template.sh` — Generic PR-centric template (used by `sweep:address-prs` / `sweep:review-prs`). Do NOT use directly for work-items — it lacks issue semantics + worktree-from-main setup.
 - `~/.claude/skill-references/fill-template.sh` — Bash assembly for prompt generation (replaces LLM string substitution)
 - @~/.claude/skill-references/sweep-scaffold.md — Shared artifact structure, watermark logic, result/learnings patterns, **progress-check script**
@@ -293,14 +299,14 @@ Work-item-specific metadata overrides and adaptations (written into `metadata.js
   {"ENTITY_PREFIX": "issue", "ENTITY_LABEL": "Issue", "STATE_FIELD": "issue_state",
    "TERMINAL_STATES": "CLOSED"}
   ```
-  `FETCH_ITEM_STATE_CMD` is set separately from platform detection (see sweep-scaffold.md → "FETCH_ITEM_STATE_CMD" examples for GitHub `gh issue view ...` and GitLab `glab api ... | jq ... | tr ...` forms).
+  `FETCH_ITEM_STATE_CMD` — the runner-level state-check command, substituted into `work-items-runner-template.sh` as `{{FETCH_ITEM_STATE_CMD}}` (referencing `$pr_num`). Set it here from platform detection, or let `work-items-generate-runner.sh` default it from the manifest `source`: GitHub/GitLab per the sweep-scaffold.md forms (`gh issue view ...` / `glab api ... | jq ... | tr ...`); Jira has no shell equivalent (MCP-only) → empty, so the runner falls through to the in-session check.
 - **Config arrays**: `IMPLEMENT_ISSUES=(<numbers>)` — issues that get worktrees vs in-place clarifiers. Write this array to the runner script so the worktree setup section knows which issues need checkouts.
 - **Worktree setup**: Only for issues in `IMPLEMENT_ISSUES`. Create worktrees under `<RUN_DIR>/worktrees/issue-<N>/` from the issue's `BASE_BRANCH` (read from `metadata.json`). When `BASE_BRANCH` is the default branch, the implementer starts fresh. When it's a dependency's PR branch, the implementer stacks on top of that branch's work. **For non-default base branches:** run `git fetch origin <BASE_BRANCH>` before `git worktree add` — the dependency's branch likely only exists on the remote.
 - **PR target for stacked branches**: When `BASE_BRANCH` is not the default branch, the implementer's PR must target `BASE_BRANCH` (not main). The `BASE_BRANCH` value is available in `metadata.json` and must be passed through to the implementer prompt so `gh pr create --base <BASE_BRANCH>` is used.
 - **Pre-flight state check**:
   1. Local `status.md` check — skip if `issue_state: CLOSED` (terminal entity state only — role convergence signals like `comment_posted` and `pr_opened` are the session's responsibility, not the runner's)
   2. API fallback — `FETCH_ITEM_STATE_CMD` (e.g., `gh issue view <N> --json state -q '.state'` for GitHub, `glab api projects/:id/issues/$pr_num | jq -r .state | tr ...` for GitLab), skip if closed
-  3. **Known limitation:** `work-items-runner-template.sh` currently hardcodes the GitHub form for the API fallback — on GitLab/Jira sweeps the runner-level fallback returns UNKNOWN and does not skip; the in-session preflight (`CHECK_ISSUE_STATE_CMD`, per-source) still exits closed items early. Parameterizing the template is a tracked follow-up.
+  3. **Per-source parameterization.** `work-items-runner-template.sh` substitutes `{{FETCH_ITEM_STATE_CMD}}` (supplied by `work-items-generate-runner.sh` from the sweep-scaffold per-source definition) and dry-run-validates it before launch, so GitHub and GitLab sweeps run their native state command and skip closed items at the runner level. Jira has no shell state command (MCP-only) → its `FETCH_ITEM_STATE_CMD` is empty and the runner falls through to launch; the in-session preflight (`CHECK_ISSUE_STATE_CMD`, per-source) still exits closed items early.
 - **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
 - **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).
 
