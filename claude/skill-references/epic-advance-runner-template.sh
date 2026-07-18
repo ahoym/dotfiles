@@ -67,7 +67,7 @@ EOF
 
     director)
       # Aggregated review+address loop. delegate_args is the MR-IID list
-      # (!139 !140 ...) — pass as a comma-separated --prs= for /director.
+      # (#139 #140 ...) — pass as a comma-separated --prs= for /director.
       local prs_csv
       prs_csv=$(IFS=,; echo "${delegate_args[*]}")
       cat <<EOF
@@ -143,7 +143,7 @@ EOF
 
 # Dispatch one (delegate × tranche) combination.
 # Takes ticket_keys: per-item directories and update_status are keyed on
-# ticket_key. delegate_args (e.g. !<iid>) are resolved inside build_prompt.
+# ticket_key. delegate_args (e.g. #<iid>) are resolved inside build_prompt.
 dispatch_group() {
   local delegate=$1
   local tranche=$2

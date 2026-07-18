@@ -80,7 +80,7 @@ Plus a "Permissions" appendix listing the `~/.claude/settings.json` patterns req
 - Lines matching `^Blocked by:` (case-insensitive) → extract `#(\d+)` from each
 - Inside `## Dependencies` / `## Blocked by` headed sections → extract `#(\d+)` from any line
 
-Each platform's § 6 then adds only its own blocker-resolution commands (GitLab additionally prefers typed `is_blocked_by` REST links). `platform-jira.md` § 6 does not use this rule — Jira resolves blockers via typed issue links (`jira-issue-mapping.md` § Blocked-by detection).
+Each platform's § 6 then adds only its own blocker-resolution commands (GitLab additionally prefers typed `is_blocked_by` REST links). `platform-jira.md` § 6 does not use this rule — Jira resolves blockers via typed issue links (`~/.claude/skill-references/jira-issue-mapping.md` § Blocked-by detection).
 
 **Adding a new source** (Linear, Asana, etc.) means adding `platform-<name>.md` answering all core sections plus permissions — no surgery on this SKILL.md beyond the source-detection table.
 
