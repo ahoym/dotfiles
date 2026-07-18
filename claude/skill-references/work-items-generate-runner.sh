@@ -126,6 +126,15 @@ bash "$SKILL_REFS/fill-template.sh" \
     "$RUN_DIR" > "$OUT"
 chmod +x "$OUT"
 
+# Validate syntax — catches placeholder leaks and template assembly bugs early.
+SYNTAX_ERR="$RUN_DIR/.syntax-err"
+if ! bash -n "$OUT" 2>"$SYNTAX_ERR"; then
+    echo "ERROR: generated runner failed bash -n syntax check:" >&2
+    cat "$SYNTAX_ERR" >&2
+    exit 1
+fi
+rm -f "$SYNTAX_ERR"
+
 implementer_count=$(echo "$implement_issues" | wc -w | tr -d ' ')
 
 echo ""
