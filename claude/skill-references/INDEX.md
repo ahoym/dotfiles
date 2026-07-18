@@ -25,6 +25,7 @@ Helpers, templates, and reference docs under `~/.claude/skill-references/`. **Ch
 | `audit-permissions.sh` | `bash <path> <run-dir>` | Scan `raw.jsonl` for permission denials, suggest patterns to add to `settings.json`. |
 | `permission-analyzer.sh` | `bash <path>` (env: `SESSIONS_LIMIT`, `MIN_COUNT`) | Rank read-only Bash/MCP candidates for allowlist promotion across recent transcripts. |
 | `gh-issues-fetch-state.sh` | `bash <path> <N> [<N> ...]` | Fetch state + updatedAt + latest-comment metadata for GH issues. JSON output, `===issue-<N>===` separators. |
+| `epic-fetch-mr-states.sh` | `bash <path> <project_path> <iid> [<iid> ...]` | Batch-fetch GitLab MR core fields + unaddressed-thread counts (Phase 4 of `epic-fetch-classify`). JSONL output, one MR per line. |
 | `stream-monitor.sh` | (piped) `... \| claude -p ... \| stream-monitor.sh <PR_DIR> \| tee raw.jsonl` | Pass-through filter; writes `live.md` events as side effect. Used by runners, rarely by hand. |
 | `vp-agent-template.sh` | `bash <path> [TASK] [RUN_DIR_BASE]` | Multi-tier VP→Director→Worker launcher (research/exploration, not sweep). Note: `-template` suffix is a misnomer — this is a direct-run launcher, not a `fill-template.sh` input. |
 | `copy-ref.sh` | `bash <path> <filename> <dest>` | Copy a file from `~/.claude/skill-references/` to a destination — bypasses Bash tool sandbox restriction on `cp` with out-of-project sources. |
@@ -81,6 +82,10 @@ Read by skills via `@`/Skill tool, not invoked directly. Listed here so cross-re
 | `platform-detection.md` | GitHub vs GitLab detection |
 | `request-interaction-base.md` | Base for `git:*` request skills |
 | `review-comment-classification.md` | Reviewer comment classification (drives reactions) |
+| `definition-of-ready.md` | DoR heuristic for work-item dispatch (used by sweep:epic-advance, sweep:work-items --dor-ready) |
+| `epic-fetch-classify.md` | Jira epic → children → MR-state fetch/classify pipeline (epic-state, sweep:epic-advance) |
+| `jira-issue-mapping.md` | Jira/Atlassian-MCP canonical rules: statusCategory states, blocked-by links, stacking |
+| `mr-state-classification.md` | Jira×MR 9-class state taxonomy + unaddressed-thread heuristics |
 
 ## Cross-Refs
 
