@@ -197,6 +197,12 @@ Zsh interprets `[brackets]` as glob patterns. `git add app/api/accounts/[address
 - Extract stash version side-by-side (keep both): `git archive stash@{0}^3 | tar -x -C tmp/rescued/` or per-file `git show stash@{0}^3:<path> > <dest>`.
 - Apply stash's tracked changes separately when pop is blocked atomically: `git stash show -p stash@{0} | git apply --3way`.
 
+**A conflicted pop keeps the stash entry.** `git stash pop` only drops the entry on a clean apply — after a conflict the stash stays in `git stash list` even once you resolve and commit, so verify absorption (`git stash show --name-only` vs committed set; check `stash@{0}^3` for an untracked component) and `git stash drop` manually. Corollary diagnostic: an app reporting a config file as "invalid/malformed JSON" with `<<<<<<< Updated upstream` markers inside means a stash-pop conflict was never resolved — the fix is conflict resolution, not JSON repair.
+
+## Scrub Sensitive Content Inside the Introducing Commit
+
+Git history persists in the PR — a later "genericize" cleanup commit still leaves identifiers (employer names, internal hosts, ticket keys) readable in earlier commits. When porting content that needs scrubbing, apply the scrub *within* the commit that introduces the content, and gate every commit boundary with `git grep -i <banned-terms> HEAD -- <paths>` → zero hits before committing. Scope the acceptance grep to tracked content (`git grep`, or `grep --exclude-dir` for gitignored worktrees/run-logs) so untracked debris doesn't produce false failures.
+
 ## `git apply --3way --check` Output Is Misleading
 
 `git apply --3way --check` reports `Applied patch to '<file>' cleanly.` even though `--check` makes it a dry-run (no actual write). A 3-way merge can also resolve every hunk as already-applied — the apply succeeds without changing the tree. Either way the message is the same as a real apply.

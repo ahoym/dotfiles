@@ -30,6 +30,10 @@ For a substantial change with genuine design ambiguity, run a four-phase workflo
 
 The `Workflow` tool has **no `run_in_background` param** (unlike `Agent`/`Bash`) — passing it is an `InputValidationError`. It always backgrounds: returns a `runId` + task ID immediately and auto-notifies (`<task-notification>`) on completion. To **consume the result in the same turn** instead of ending the turn, call `TaskOutput(task_id, block=true, timeout)` on the workflow's task ID — it returns the script's return value (truncated; full JSON in the `.output` file). `TaskOutput` works on `local_workflow` tasks (and Bash), NOT `local_agent` (those overflow context — rely on the notification). For a long workflow, block in ≤300s increments and re-block on timeout.
 
+## Task `.output` files wrap the return value under `.result`
+
+A completed workflow's persisted output file (`tasks/<id>.output`) is not the script's return value — it's a wrapper: `{agentCount, logs, result, summary, totalTokens, totalToolCalls, workflowProgress}`. `jq '.compare[]' file` fails with "Cannot iterate over null"; the correct path is `jq '.result.compare[]' file`. Check `jq 'keys'` first when extraction queries return null.
+
 ## A no-progress watchdog kills agents that run long silent calls
 
 Workflow `agent()`s are killed by a ~180s no-progress watchdog and retried (~6×) — a single Bash call that runs minutes with no intervening tool output (a full-data backtest, a long `uv sync`, an expensive script under stash-isolate parity) reads as "stalled" and dies on every retry, burning hours/tokens before the pipeline gives up on that item. Keep each agent's steps emitting output, chunk long work, or move it out of the agent: prove a refactor's parity with pinned-expression unit tests + a cheap spot-check (relocation-identical = parity by construction) instead of re-running expensive consumers inside the agent. Agents with only fast unit tests / static checks never trip it.

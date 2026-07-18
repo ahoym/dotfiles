@@ -214,7 +214,13 @@ In zsh, `$VAR:l` lowercases the value and `:d`/`:h`/`:t`/`:r` are path modifiers
 
 ## macOS Bash 3.x Compatibility
 
-macOS ships bash 3.2. Two common bash 4+ features that silently fail or error:
+macOS ships bash 3.2. Common bash 4+ features that silently fail or error:
+
+- **`mapfile -t arr < <(...)`**: `mapfile: command not found` — and under `set -u` the later `${#arr[@]}` aborts the script. Use a while-read append:
+  ```bash
+  arr=()
+  while IFS= read -r line; do [[ -n "$line" ]] && arr+=("$line"); done < <(...)
+  ```
 
 - **`declare -A`** (associative arrays): Use a `case` function instead:
   ```bash

@@ -47,6 +47,8 @@ When multiple tool calls are sent in a single batch and one fails, all sibling c
 
 Other entries (e.g., `CLAUDE.md`, `settings.json`) are individually symlinked. Non-dotfiles content (`history.jsonl`, `debug/`, `cache/`) lives directly in `~/.claude/` as real files.
 
+**Edit/Write refuse file-level symlinks.** Editing a path that is itself a symlink (e.g. `~/.claude/settings.json`) errors with "Refusing to write through symlink — resolve the symlink and pass the real target path". Paths that merely *traverse* a directory symlink (`~/.claude/commands/foo/SKILL.md`) work fine. For individually-symlinked files, Edit the resolved target (`<dotfiles>/claude/settings.json`) directly.
+
 ## Glob Limitations with Symlinks
 
 Glob can silently return empty results in two cases: (1) untracked files in directories, and (2) paths through directory symlinks. Since `~/.claude` subdirectories are symlinks, `Glob(path: "/Users/<user>/.claude")` returns empty while `ls` finds files — e.g., `Glob(pattern="set-persona/*.md", path="/Users/<user>/.claude/commands")` returns zero results even when 20+ files exist. Fall back to `Bash` `ls` when searching inside symlinked directory trees (e.g., `ls ~/.claude/commands/set-persona/`). This affects persona discovery in sweep skills, learnings directory scanning, and any file enumeration under `~/.claude/`. Verify claims about file existence/absence with `ls` before stating files don't exist.
