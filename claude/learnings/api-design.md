@@ -1,5 +1,5 @@
 Patterns for consistent, secure, and maintainable REST API design including response shapes, validation, security hardening, and contract auditing.
-- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination, vendor spec staleness, SDK source of truth, API version mismatch, stale swagger, streaming-only endpoint
+- **Keywords:** REST, response shape, nullable fields, validator extraction, security hardening, Cache-Control, XSS, URI sanitization, idempotency key, discriminated union, OpenAPI, correlation ID, URL encoding, request signing, percent-encoding, HMAC, pagination, vendor spec staleness, SDK source of truth, API version mismatch, stale swagger, streaming-only endpoint, mock-to-backend wiring, shape-gap audit, server-DTO field mapping
 - **Related:** ~/.claude/learnings/financial/applications.md, ~/.claude/learnings/testing/vitest-rtl.md, ~/.claude/learnings/code-quality-instincts.md, ~/.claude/learnings/python-specific.md
 
 ---
@@ -43,6 +43,18 @@ When an HTTP client (e.g., Unirest, OkHttp) automatically percent-encodes query 
 When building a shared API client utility, first audit actual vs documented contract: read every route handler and client consumer, compare actual shapes against docs — they often diverge.
 
 **Normalization strategy:** Start client-side only — build a typed fetch wrapper returning a discriminated union (`{ ok, data } | { ok, error }`). Zero server changes. Server-side envelope wrapping can come later as a separate refactor.
+
+## "Wire X to the real backend" is a shape-gap audit, not a coding task
+
+Replacing a mock/stub with a live backend starts by enumerating server-DTO vs frontend-type field-by-field — not by editing the fetch call. Mocks often encode a richer shape than the server currently emits (planned-but-unbuilt sync, a future "merged" endpoint), so blind wiring ships a UI with blank columns, inert filters, and false-state badges.
+
+Before coding:
+1. Read the actual server controller + DTO — confirm endpoint path, exact field set, enum names.
+2. Build a mapping table (server-field → frontend-field), naming what becomes null/empty/default.
+3. Surface the UX degradation column-by-column (a table is more honest than prose).
+4. Get partner sign-off on the degraded UX *before* writing the mapper — they may pick a different option (wait for backend, build the merged endpoint, rework the columns).
+
+Skip-symptoms: writing the mapper before showing the field gap; trusting the endpoint path in a "TODO: wire up" comment; "the type is the same on both sides" without reading the server DTO. Cost of the audit is one Read; cost of skipping it is rework after a half-empty UI ships.
 
 ## Validator Return Types: T | Response over Discriminated Unions
 

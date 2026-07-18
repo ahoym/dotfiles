@@ -143,18 +143,6 @@ When the operator asks mid-task to fold in work that **both** (1) the originatin
 
 When an operator request implies infrastructure ("add X to the Y config", "register Z in the W registry"), verify Y/W actually exist *before* implementing. If they don't, push back with the discovery and offer scoped alternatives — don't fabricate the prerequisite to fulfill the assumption. Example: "add the snake_case fields to the logback masking config" → search confirmed no logback masking config exists in repo → push back, offer Java-level `@ToString(exclude=...)` as smaller scope, fold wire-format masking into a tracked follow-up issue. Unilaterally introducing project-wide infrastructure to make a one-line ask compile is a much larger blast radius than the operator likely intended.
 
-## "Wire X to the real backend" is a shape-gap audit, not a coding task
-
-When asked to replace a mock/stub with a live backend, the first move is enumerating server-DTO vs frontend-type field-by-field — not editing the fetch call. The mock often encoded a richer shape than the server currently emits (planned-but-unbuilt sync, future "merged" endpoint, etc.), and blindly wiring produces a UI with blank columns, inert filters, and false-state badges.
-
-Before coding:
-1. Read the actual server controller + DTO. Confirm endpoint path, exact field set, enum names.
-2. Build a mapping table (server-field → frontend-field) and explicitly name what becomes null/empty/default.
-3. Surface the UX degradation column-by-column. A table is more honest than prose.
-4. Get partner sign-off on the degraded UX *before* writing the mapper — they may pick a different option (wait for backend, build the merged endpoint, rework the table columns).
-
-Skip-or-skim symptoms: writing the mapper before showing the field gap; assuming the endpoint path in a "TODO: wire up" comment is correct; "the type is the same on both sides" without reading the server DTO. The cost of the shape audit is one Read; the cost of skipping it is rework after a half-empty UI ships.
-
 ## "We're doing X anyway" is a defer-reconsider signal
 
 When the operator interjects on a previously-deferred item with "we're [doing X anyway]" / "riding the same train as" / "while we're touching this", the marginal cost of the deferred work has just dropped — re-evaluate the defer instead of restating the original rationale. Pivot from defer to land-now: post a follow-up on the original thread with the new commit ref, name what changed in the cost calculus (e.g., "the enum is being expanded in `<commit>` anyway, so adding `UNKNOWN` rides the same train"), and update any prior commitments (deferred follow-up MRs that the new commit subsumes) so the trail is clean. The inverse — clinging to the original defer because that was the previously-stated plan — is sunk-cost framing dressed up as consistency. Operator nudges of this shape almost always mean *they've already done the cost-math*; don't relitigate.
