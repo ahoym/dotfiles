@@ -1,6 +1,6 @@
 Watermark recording, skip-detection logic, and rerun semantics — what makes single-pass sweep sessions safe to relaunch.
 - **Keywords:** watermark, skip, last_comment_id, single-pass, dual-signal, self-comment, post-action, sweeper-regex, pre-flight, manifest-updates
-- **Related:** runner-design.md, observability.md
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/director/runner-design.md, ~/.claude/learnings/claude-code/multi-agent/director/observability.md
 
 ---
 

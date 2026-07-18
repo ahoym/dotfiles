@@ -1,6 +1,6 @@
 Authoring and using the `Workflow` tool — the JS-script multi-agent orchestrator (distinct from `claude -p` / the Agent tool).
 - **Keywords:** Workflow tool, workflow script, agent(), parallel(), pipeline(), scriptPath, resumeFromRunId, design tournament, judge panel, synthesize, StructuredOutput schema, parse error, plain JS
-- **Related:** orchestration.md, quality.md
+- **Related:** ~/.claude/learnings/claude-code/multi-agent/orchestration.md, ~/.claude/learnings/claude-code/multi-agent/quality.md
 
 ## Workflow scripts are plain JS — two parse-error traps that waste round-trips
 

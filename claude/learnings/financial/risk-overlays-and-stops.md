@@ -1,6 +1,6 @@
 Risk management as a separate layer in systematic trading: stop-loss alpha-vs-risk, drawdown control under leverage, overlay attribution, and the sizing-vs-de-risk distinction.
 - **Keywords:** stop-loss, trailing stop, ATR stop, risk overlay, drawdown guard, circuit breaker, stopping premium, Kaminski-Lo, volatility drag, geometric return, vol-targeting, position sizing, Kelly, alpha vs risk, RMS, portfolio construction, attribution, monotone de-risk, Grinold-Kahn, Carver
-- **Related:** ~/.claude/learnings/financial/futures-etf-translation.md, ~/.claude/learnings/financial/numeric-precision-strategy.md
+- **Related:** ~/.claude/learnings/financial/futures-etf-translation.md, ~/.claude/learnings/financial/numeric-precision-strategy.md, ~/.claude/learnings/code-quality-instincts.md
 
 ---
 

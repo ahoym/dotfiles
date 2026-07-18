@@ -53,3 +53,4 @@ If `docs/learnings/CLAUDE.md` exists in the current project, read it for repo-lo
 - `resilience-patterns.md` — Resilience: idempotent processing, reprocessing loop prevention
 - `reactive-data-patterns.md` — Reactive data patterns for real-time UIs: background refresh, resource validation
 - `process-conventions.md` — Engineering process conventions: scoping, tracking, work organization
+- `design-and-research-docs.md` — Capturing design sessions into durable docs: separate spec from reasoning, preserve the full citation set; doc-onboarding audits

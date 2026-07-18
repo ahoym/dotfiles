@@ -178,7 +178,7 @@ Note: `--jq` expressions with `contains()` or string comparisons also trigger pe
 
 `gh api` natively resolves `{owner}/{repo}` from the current repo context — no need to manually look up the owner and repo name.
 
-**Pass the literal `{owner}/{repo}` braces; don't hand-type a slug.** `gh` substitutes them from repo context. A slug guessed from the directory or project name is often wrong (dir `plz-review` → real remote `ahoym/algo-trading`, *not* `ahoym/plz-algo`) and silently 404s or trips a permission denial. If you genuinely must hardcode (cross-repo), derive it from `git remote get-url origin` — never a guess.
+**Pass the literal `{owner}/{repo}` braces; don't hand-type a slug.** `gh` substitutes them from repo context. A slug guessed from the directory or project name is often wrong (dir `plz-review` → real remote `ahoym/plz-algo`, *not* the `ahoym/plz-review` you'd guess from the dir name) and silently 404s or trips a permission denial. If you genuinely must hardcode (cross-repo), derive it from `git remote get-url origin` — never a guess.
 
 **Use `--paginate` to get all results.** `gh api` defaults to 30 results per page (ascending). Without `--paginate`, comments beyond the first page are silently missed. `--paginate` is a CLI flag (no quoting needed) that auto-fetches all pages.
 

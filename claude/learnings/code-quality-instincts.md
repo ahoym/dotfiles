@@ -407,6 +407,7 @@ When two functions are written as mirrors (equity vs futures executors, sync vs 
 - `~/.claude/learnings/refactoring-patterns.md` — refactoring methodology
 - `~/.claude/learnings/financial/vendor-divergence.md` — vendor-specific validation patterns relocated from this file
 - `~/.claude/learnings/financial/continuous-contract-data-quirks.md` — concrete instance of the validator-respect pattern in continuous-contract futures data
+- `~/.claude/learnings/financial/risk-overlays-and-stops.md` — financial instantiation of the tolerant/strict restore-invariant (a de-risk overlay must fail-safe to the clamped state, not silently un-arm)
 
 ## Reviewer-Asserted Invariant → Retire Sibling Defensive Checks in the Same Commit
 
