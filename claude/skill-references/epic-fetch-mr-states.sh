@@ -55,7 +55,10 @@ for iid in "$@"; do
   author=$(jq -r '.author.username // ""' <<<"$mr_json")
 
   # Discussions (paginated). May return [] on 404/perms.
-  discussions=$(glab api "projects/${PROJ_ENC}/merge_requests/${iid}/discussions" --paginate 2>/dev/null || echo '[]')
+  # --paginate emits one JSON array PER PAGE; jq -s 'add' merges them into a
+  # single array so the downstream filters see one document (>20 discussions
+  # would otherwise yield multi-line jq output and break --argjson).
+  discussions=$(glab api "projects/${PROJ_ENC}/merge_requests/${iid}/discussions" --paginate 2>/dev/null | jq -s 'add // []' || echo '[]')
 
   # Self-posted team-review override: any non-system note from the MR author
   # starting with "## Team Review:" in any discussion.

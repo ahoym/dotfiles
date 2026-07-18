@@ -108,7 +108,7 @@ PROJ-106 (merged)
 - **Stale drafts:** PROJ-114 (`!49`, draft, last updated 21 days ago)
 ```
 
-If `--write`, also dump a `data.json` next to `report.md` containing the full `EpicClassifyResult` (schema in the pipeline reference). **`data.json` is for human inspection only** — no skill should read it back as authoritative input. The dispatcher always re-runs the pipeline.
+If `--write`, also dump a `data.json` next to `report.md` containing the full `EpicClassifyResult` (schema in the pipeline reference). **`data.json` is for operator inspection only** — no skill should read it back as authoritative input. The dispatcher always re-runs the pipeline.
 
 ### Phase 4: Announce
 

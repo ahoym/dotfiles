@@ -6,7 +6,7 @@ description: "Live fetch + classify pipeline for a Jira epic and its children. W
 
 Canonical implementation of the live-fetch pipeline that turns an epic key into a fully-classified result set. Skills source the pipeline from this file rather than re-deriving it; this guarantees the assessor, plan emitter, and dispatcher all classify identically.
 
-**Live fetch only.** This pipeline is the source of truth at run-time. No skill should consume a previously-written `data.json` as authoritative state — Jira and MR state drift in seconds, not days. The classify result may be written to disk for human inspection, but never read back as input by another pipeline run.
+**Live fetch only.** This pipeline is the source of truth at run-time. No skill should consume a previously-written `data.json` as authoritative state — Jira and MR state drift in seconds, not days. The classify result may be written to disk for operator inspection, but never read back as input by another pipeline run.
 
 ## Inputs
 
@@ -188,7 +188,7 @@ type Classification =
   | "not-started";
 ```
 
-This schema is the in-memory contract between the pipeline and its consumers. The same schema can be serialized to `data.json` for human inspection; it must never be deserialized as authoritative input by another pipeline run.
+This schema is the in-memory contract between the pipeline and its consumers. The same schema can be serialized to `data.json` for operator inspection; it must never be deserialized as authoritative input by another pipeline run.
 
 ## Performance notes
 

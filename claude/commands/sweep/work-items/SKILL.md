@@ -37,6 +37,7 @@ Each `claude -p` session checks its watermark before working — if nothing chan
 | `/sweep:work-items --label=bug` | Filter by label (works on all sources) |
 | `/sweep:work-items --jql='project=PROJ AND status=Open'` | Arbitrary JQL (Jira only) |
 | `/sweep:work-items --source=jira` | Override source detection |
+| `/sweep:work-items --no-claim` | Jira: skip implement-time assign + sprint mutation |
 | `/sweep:work-items --max=10` / `--concurrency=3` | Caps |
 
 Flags combine.
@@ -57,7 +58,7 @@ Phase 1 resolves source by argument shape:
 
 ## Platform contract
 
-Per-source behaviour lives in `platform-<source>.md` (`platform-github.md`, `platform-gitlab.md`, `platform-jira.md`). Each platform file follows the same 10-section contract — read the matching file once Phase 1 resolves the source.
+Per-source behaviour lives in `platform-<source>.md` (`platform-github.md`, `platform-gitlab.md`, `platform-jira.md`). Each platform file follows the same core contract below — read the matching file once Phase 1 resolves the source. `platform-jira.md` adds one extra section (§ 10 Implement-time ticket mutation), shifting Branch naming to § 11 there.
 
 | § | Section | Used in |
 |---|---|---|
@@ -68,13 +69,14 @@ Per-source behaviour lives in `platform-<source>.md` (`platform-github.md`, `pla
 | 5 | State mapping (→ `OPEN` / `CLOSED`) | Phase 3a |
 | 6 | Blocked-by detection | Phase 3a2 |
 | 7 | Linked-PR detection | Phase 3b |
-| 8 | Comment posting (`POST_ITEM_COMMENT_CMD`) | Phase 5 |
+| 8 | Comment posting (`POST_ISSUE_COMMENT_CMD`) | Phase 5 |
 | 9 | Watermark fields | Phase 3c |
-| 10 | Branch naming (`sweep/<id-or-key>-<slug>`) | Phase 5 |
+| 10 | Implement-time ticket mutation — **platform-jira.md only** | Phase 5 |
+| 10 / 11 | Branch naming (`sweep/<id-or-key>-<slug>`) — § 10 in github/gitlab, § 11 in jira | Phase 5 |
 
 Plus a "Permissions" appendix listing the `~/.claude/settings.json` patterns required when that source is in use.
 
-**Adding a new source** (Linear, Asana, etc.) means adding `platform-<name>.md` answering all 10 sections plus permissions — no surgery on this SKILL.md beyond the source-detection table.
+**Adding a new source** (Linear, Asana, etc.) means adding `platform-<name>.md` answering all core sections plus permissions — no surgery on this SKILL.md beyond the source-detection table.
 
 ## Prerequisites (hard gate)
 
@@ -133,6 +135,7 @@ Parse `$ARGUMENTS` to extract:
 - **Max**: `--max=<N>` → `MAX_ISSUES` (default 30)
 - **Concurrency**: `--concurrency=<N>` → `CONCURRENCY` (default 5)
 - **DoR-ready bypass**: `--dor-ready=KEY1,KEY2,...` → `DOR_READY_KEYS[]`. Caller (typically `/sweep:epic-advance`) certifies that listed tickets passed DoR (concrete AC + slice design + no blocking ambiguity). Affects the conversation-stage rule in Phase 5 — see that section.
+- **No-claim opt-out**: `--no-claim` → `NO_CLAIM=true` (default false). Jira only — suppresses the implement-time assign + sprint mutation in Phase 5.
 
 Resolve source per the table above. Read `platform-<source>.md` once resolved — all subsequent phases reference it.
 
@@ -216,17 +219,17 @@ Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` 
   "default_branch": "<main or master>",
   "repo_summary_lines": <N>,
   "eligible": [
-    {"id": "12", "title": "...", "role": "implement", "url": "...", "labels": ["bug"], "base_branch": "main"},
-    {"id": "PROJ-101", "title": "...", "role": "clarify", "url": "...", "labels": ["backend"], "base_branch": "main"}
+    {"number": "12", "title": "...", "role": "implement", "url": "...", "labels": ["bug"], "base_branch": "main"},
+    {"number": "PROJ-101", "title": "...", "role": "clarify", "url": "...", "labels": ["backend"], "base_branch": "main"}
   ],
   "skipped": [
-    {"id": "15", "reason": "PR exists (#42)"},
-    {"id": "PROJ-109", "reason": "Blocked by PROJ-107, PROJ-108 (no PR)"}
+    {"number": "15", "reason": "PR exists (#42)"},
+    {"number": "PROJ-109", "reason": "Blocked by PROJ-107, PROJ-108 (no PR)"}
   ]
 }
 ```
 
-`id` is bare issue number (GH/GL) or full Jira key — same field name, different shape per source.
+`number` is bare issue number (GH/GL) or full Jira key — same field name, different shape per source. The field is named `number` (not `id`) because `work-items-generate-runner.sh` reads `.eligible[].number`.
 
 #### Data files & prompt assembly
 
@@ -238,26 +241,28 @@ Create run directory: `tmp/claude-artifacts/sweep-work-items/<YYYY-MM-DD-HHMM>` 
    - `metadata.json`:
      ```json
      {
-       "ITEM_ID": "<bare number or Jira key>",
-       "ITEM_TITLE": "<title>",
-       "ITEM_URL": "<url>",
-       "ITEM_LABELS": "<comma-separated>",
+       "ISSUE_NUMBER": "<bare number or full Jira key>",
+       "ISSUE_TITLE": "<title>",
+       "ISSUE_URL": "<url>",
+       "ISSUE_LABELS": "<comma-separated>",
        "OWNER_REPO": "<owner/repo>",
        "BASE_BRANCH": "<default branch or dependency PR branch>",
        "MODEL_NAME": "<model>",
        "PERSONA_NAME": "<persona or none>",
        "RUN_DIR": "<absolute path>",
-       "ITEM_DIR": "<absolute path>",
-       "ITEM_UPDATED_AT": "<timestamp>",
+       "ISSUE_DIR": "<absolute path>",
+       "ISSUE_UPDATED_AT": "<timestamp>",
        "LAST_COMMENT_ID": "<id or none>",
        "SOURCE": "<jira|github|gitlab>",
-       "POST_ITEM_COMMENT_CMD": "<from platform-<source>.md § 8>",
-       "FETCH_ITEM_WITH_COMMENTS_CMD": "<from platform-<source>.md § 2 + § 4>",
-       "CHECK_ITEM_STATE_CMD": "<from platform-<source>.md § 5>"
+       "POST_ISSUE_COMMENT_CMD": "<from platform-<source>.md § 8>",
+       "FETCH_ISSUE_WITH_COMMENTS_CMD": "<from platform-<source>.md § 2 + § 4>",
+       "CHECK_ISSUE_STATE_CMD": "<fetch command from platform-<source>.md § 2, state normalized per § 5>"
      }
      ```
 
      The `*_CMD` fields are literal command strings (not invocations) — emitted into the agent's runtime prompt for it to execute.
+
+     Key names keep the `ISSUE_` prefix for every source — the prompt templates and `sweep-agent-preflight.md` consume exactly these placeholders. For Jira, `ISSUE_NUMBER` carries the full key (`PROJ-101`).
 
    - `body.txt` — item body text
    - `comments.txt` — formatted comment thread
@@ -295,6 +300,7 @@ Work-item-specific metadata overrides and adaptations (written into `metadata.js
 - **Pre-flight state check**:
   1. Local `status.md` check — skip if `issue_state: CLOSED` (terminal entity state only — role convergence signals like `comment_posted` and `pr_opened` are the session's responsibility, not the runner's)
   2. API fallback — `FETCH_ITEM_STATE_CMD` (e.g., `gh issue view <N> --json state -q '.state'` for GitHub, `glab api projects/:id/issues/$pr_num | jq -r .state | tr ...` for GitLab), skip if closed
+  3. **Known limitation:** `work-items-runner-template.sh` currently hardcodes the GitHub form for the API fallback — on GitLab/Jira sweeps the runner-level fallback returns UNKNOWN and does not skip; the in-session preflight (`CHECK_ISSUE_STATE_CMD`, per-source) still exits closed items early. Parameterizing the template is a tracked follow-up.
 - **Working directory**: For implementers, `cd` into the worktree before launching `claude -p`. For clarifiers, stay in project root.
 - **Cleanup**: Worktree cleanup on EXIT trap (only for worktrees created by this run).
 
@@ -355,7 +361,6 @@ Convergence is a director concern, not this skill's. Summary for directors:
 - **`Relates to` not `Closes`.** PRs reference items with `Relates to #{N}` / `Relates to PROJ-XXX`, never `Closes` or `Fixes`. The operator decides when to close.
 - **Footnote identity.** `Role: Sweeper` (clarifier) and `Role: Sweeper-Confirm` (confirmer) — used by skip detection to determine conversation stage.
 - **Worktrees are preserved.** Implementer worktrees persist after the sweep for follow-up work. Clean up with `git worktree remove` after PRs/MRs merge.
-- **Mixed-source unsupported.** A single sweep is one source — split if needed.
 - See **Shared Important Notes** in `sweep-scaffold.md` for rerunnable, rate limits, crash recovery, and cleanup.
 
 ## Out of scope (today)

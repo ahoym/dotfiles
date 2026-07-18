@@ -90,7 +90,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
-   **Artifact path discipline.** If you write the diff (or any scratch file) to disk during this skill, use `tmp/claude-artifacts/change-request-replies/` — that path is allowlisted for Read/Write/Bash with no mkdir needed. Do **not** invent a new subdirectory under `tmp/claude-artifacts/` (e.g. `tmp/claude-artifacts/team-review-<N>/`) — it isn't allowlisted, the first `>` redirect fails with "no such file or directory," and you have to interrupt the flow with a mkdir. Step 8's diff-artifact prescription uses this same dir; keep all skill artifacts there.
+   **Artifact path discipline.** If you write the diff (or any scratch file) to disk during this skill, use `tmp/claude-artifacts/change-request-replies/` — the standard dir for this skill family. Any subdirectory of `tmp/claude-artifacts/` is covered by the settings.json wildcards (`Read`/`Write`/`Bash(bash …)` on `tmp/claude-artifacts/**`, plus `mkdir:*`); the actual gotcha is that a bash `>` redirect can't create parent directories, so a brand-new subdir fails with "no such file or directory" until you `mkdir -p` it. Reusing the existing dir avoids that extra step and keeps all skill artifacts in one predictable place — step 8's diff-artifact prescription uses this same dir.
 
    **Re-review only:** Also identify `NEW_COMMITS` — commits after `LAST_REVIEW_TS`.
 

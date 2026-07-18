@@ -96,9 +96,9 @@ Map classification → action. Three actions; each maps to one delegate skill:
 | `not-started` (unblocked) | `implement` | ticket | `sweep:work-items` |
 | `in-progress-no-mr` (unblocked) | `implement` | ticket | `sweep:work-items` |
 
-**No `clarify` action.** All `implement`-targeted tickets go to `sweep:work-items`, which has its own clarify → confirm → implement conversation lifecycle (driven by Sweeper-comment state, not ticket-content readiness). Re-implementing that decision here would duplicate sweep:work-items's logic. The DoR check (Phase 4) becomes **informational** — surfaced in the plan so operators see which tickets sweep:work-items is likely to clarify first vs. implement directly — but does not affect routing.
+**No `clarify` action.** All `implement`-targeted tickets go to `sweep:work-items`, which has its own clarify → confirm → implement conversation lifecycle (driven by Sweeper-comment state, not ticket-content readiness). Re-implementing that decision here would duplicate sweep:work-items's logic. The DoR check (Phase 4) never changes *which delegate* a ticket goes to — but it does shape *how* sweep:work-items receives it, via the `--dor-ready` flag (see Phase 4).
 
-### Phase 4: Definition of Ready (informational)
+### Phase 4: Definition of Ready (drives `--dor-ready`)
 
 For each `implement`-routed ticket, apply the Definition of Ready heuristic in `~/.claude/skill-references/definition-of-ready.md`. Capture the `verdict` + `reason` per ticket.
 
@@ -161,7 +161,7 @@ For ticket T with blockedBy = [B1, B2, ...]:
 
 **Tranche numbering** is per-dispatch-run. Tranche 0 is always non-empty (always at least one MR-targeted action or unblocked implement). Tranche N (N>0) exists only when same-run stacking is detected. Most epics have only Tranche 0.
 
-This logic is documented also in `~/.claude/skill-references/jira-issue-mapping.md` § Base-branch determination for stacking. When an item gets deferred, capture the human-readable reason and surface in the Deferred section.
+Base-branch *computation* follows `~/.claude/skill-references/jira-issue-mapping.md` § Base-branch determination for stacking, with one deliberate dispatcher override: where that doc computes "repo default branch + diamond-dependency flag" for multi-blocker items, this dispatcher **DEFERs instead of auto-dispatching** — flagged diamonds need operator review before any branch choice is acted on. When an item gets deferred, capture the readable reason and surface it in the Deferred section.
 
 ### Phase 5.5: Frontier filter (review/address only)
 
@@ -175,8 +175,9 @@ For MR M:
     M.frontier = true
     continue
 
-  # Look up the target branch's merged-state. Reuse data already fetched in
-  # Phase 4 when possible; otherwise issue a single glab call:
+  # Look up the target branch's merged-state. Reuse branch data already fetched
+  # by the classify pipeline (epic-fetch-classify.md Phase 4, run during this
+  # skill's Phase 2) when possible; otherwise issue a single glab call:
   #   glab api projects/:id/repository/branches/<url-encoded target> -R <project>
   # and cache by branch name. 404 → treat as removed; assume merged-then-deleted
   # (the common cause).
@@ -241,7 +242,7 @@ Plan structure:
 # Dispatch Plan: <EPIC_KEY> — <summary>
 
 **Generated:** <ISO timestamp>
-**Mode:** plan-only · stacking <enabled|disabled> · downstream <filtered|included>
+**Mode:** <plan-only|full> · stacking <enabled|disabled> · downstream <filtered|included>
 
 ## Summary
 
@@ -463,7 +464,7 @@ Always write `<RUN_DIR>/manifest.json` with the schema below — the manifest is
 - **`tranches[]`** drives sequential execution. The runner processes tranche 0 fully (waits for all sub-processes to terminate), then tranche 1, etc. Within a tranche, items dispatch in parallel across delegates.
 - **`active[]`** is the flat detail list. Each item carries `tranche` so the runner can resolve the dispatch order without cross-referencing.
 - **No `concurrency` field.** Each delegate skill manages its own concurrency. The runner doesn't impose an outer cap.
-- **No `mode` field on implement actions.** All `implement`-routed tickets go to `sweep:work-items`, which decides clarify-vs-implement at runtime via its own conversation-stage logic. The `dor` field on each item is **informational** — it tells the operator what we expect sweep:work-items to do, but doesn't bind the runner.
+- **No `mode` field on implement actions.** All `implement`-routed tickets go to `sweep:work-items`, which decides clarify-vs-implement at runtime via its own conversation-stage logic. The `dor` field on each item is what the runner template reads to build the `--dor-ready=<KEY>` list (Phase 4) — `verdict: implement` items get the flag; the final clarify-vs-implement call still belongs to sweep:work-items's stage-3 rule.
 - **`delegate_args`** is the argument list the runner passes to the delegate skill. MR-targeting actions: `["!<iid>"]`. Ticket-targeting actions: `["<KEY>"]`. The runner may aggregate same-delegate items into a single invocation (e.g., `["PROJ-131", "PROJ-132"]` to one sweep:work-items call) or spawn one per item — implementation choice for the runner-generation slice.
 - **`stacking.stacked_on_mr_iid`** is `null` when the blocker's MR doesn't yet exist (because the blocker is being created in this same run). The runner constructs the auto-flag footer at MR-creation time using the actual IID. The `auto_flag_text` field carries the templated text minus the IID.
 - **`base_branch` for in-run stacked items** uses the predicted sweep branch convention: `sweep/<BLOCKER_KEY>-<slug>`. The runner verifies this matches the actual branch sweep:work-items creates; if convention differs, runner-generation slice handles the mismatch.
@@ -517,7 +518,7 @@ The per-item dir is the operator's debugging entry point. From here they can nav
 
 #### Inspection-only `data.json`
 
-Also write `<RUN_DIR>/data.json` with the full `EpicClassifyResult` for human inspection. Same caveat as epic-state — never re-input.
+Also write `<RUN_DIR>/data.json` with the full `EpicClassifyResult` for operator inspection. Same caveat as epic-state — never re-input.
 
 ### Phase 8: Generate runner
 
@@ -747,8 +748,13 @@ for level in $TRANCHE_LEVELS; do
     # Get ticket_keys for this (delegate, tranche). We pass keys (not delegate_args)
     # because per-item directories and update_status are keyed on ticket_key;
     # build_prompt resolves the actual delegate_args from the manifest.
+    # while-read append instead of mapfile: mapfile is bash 4+ and this
+    # template targets macOS default /bin/bash 3.2 (see pids note below).
+    ticket_keys=()
     if [[ "$delegate" == "director" ]]; then
-      mapfile -t ticket_keys < <(
+      while IFS= read -r _key; do
+        [[ -n "$_key" ]] && ticket_keys+=("$_key")
+      done < <(
         jq -r --argjson lvl "$level" \
           '.active[]
              | select(.tranche == $lvl)
@@ -757,7 +763,9 @@ for level in $TRANCHE_LEVELS; do
           "$MANIFEST"
       )
     else
-      mapfile -t ticket_keys < <(
+      while IFS= read -r _key; do
+        [[ -n "$_key" ]] && ticket_keys+=("$_key")
+      done < <(
         jq -r --argjson lvl "$level" --arg del "$delegate" \
           '.active[] | select(.tranche == $lvl) | select(.delegate_skill == $del) | .ticket_key' \
           "$MANIFEST"
