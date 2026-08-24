@@ -22,7 +22,7 @@ Fetch and address review comments from a pull request (GitHub) or merge request 
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, artifact path discipline, and resolution patterns
 - `request-reply-templates.md` — Read before composing replies (step 8)
 - `request-lgtm-verification.md` — Read only when an LGTM comment is detected
 - `address-request-edge-cases.md` — Read when processing comments (step 6+). Skip on quiet no-ops.
@@ -49,7 +49,7 @@ When `COMMENT_ONLY=true`:
 
 1. **Fetch request data** — follow the base reference: **Platform Commands** → **Consolidated Fetch** → **Terminal State Handling**. Then fetch inline comments by running the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`):
    !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
-   Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
+   Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (CWD-relative — never `/tmp/`, and never the absolutized `/Users/…/<repo>/tmp/…` form; see **Artifact Path Discipline** in the base reference). Apply **Incremental Fetch Rules** and **Quiet No-Op** from the base reference. On quiet no-op, stop here.
 
    **Never dismiss comments as duplicates based on topic.** Each comment ID is a distinct interaction that requires its own response — even if a previous comment on the same thread covered the same topic. A "duplicate" is only a comment you already replied to (same ID). Different comment IDs from different review passes are separate comments, not duplicates.
 

@@ -39,5 +39,6 @@ glab api graphql \
 # Check errors array in response — non-empty means comment was not posted.
 
 # Step 4: Post review summary as top-level comment (see post-top-level-comment.sh):
+# Body file is written CWD-relative like the inline bodies above; only this -F @ arg is absolute.
 glab api projects/:id/merge_requests/<number>/notes -X POST \
   -F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md

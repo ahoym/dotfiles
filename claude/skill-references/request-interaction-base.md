@@ -95,7 +95,17 @@ Write reply bodies to `tmp/claude-artifacts/change-request-replies/<id>-<persona
 
 Top-level comments: `tmp/claude-artifacts/change-request-replies/<number>-<persona>-<role>-top.md`.
 
-**Path selection for tool calls (Read, Write, Edit/Update):** Use CWD-relative paths when CWD is a symlinked `~/.claude` repo (tilde paths normalize through the symlink and fail permission matching). Use `~/` paths in non-symlinked contexts. Never use absolute `/Users/.../` paths — they match neither pattern style. Note: the Edit tool displays as `Update` in permission prompts — `Edit(...)` allow patterns don't match `Update` prompts. Add `Update(...)` companion patterns for every `Edit(...)` pattern.
+## Artifact Path Discipline
+
+**Every `Read`/`Write`/`Edit` on `tmp/claude-artifacts/` uses the CWD-relative path** — `tmp/claude-artifacts/…`. Never the absolute form (`/Users/…/<repo>/tmp/claude-artifacts/…`), never `$(pwd)`-prefixed, never tilde. Same for `bash tmp/claude-artifacts/<script>.sh`.
+
+Permission patterns are literal-string-matched against the `file_path` / argv you send, not against the resolved file. `Write(tmp/claude-artifacts/**)` matches the relative form only; the absolute form names the same file and still prompts. The `Write` tool's own schema says `file_path` must be absolute — **for this tree, ignore that**: CWD-relative works and is the only form that clears permissions unprompted.
+
+**The absolute form belongs in `gh`/`glab` `@file` arguments only** (`-F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/…`) — the sandbox blocks `$HOME` expansion there and the CLI's CWD may differ from the project root. Reading an inlined platform command is not a cue to absolutize the `Write` that produced the file: write relative, pass absolute to the CLI.
+
+Scope: this rule covers the artifact tree. Tilde stays correct for config reads elsewhere (`~/.claude/skill-references/…`) — except when CWD is a symlinked `~/.claude` repo, where tilde normalizes through the symlink and fails matching, so use CWD-relative there too. `claude -p` sessions launched by `/sweep:*` and `/director` are the deliberate exception: they receive absolute `RUN_DIR`/`PR_DIR` because they `cd` into worktrees.
+
+Note: the Edit tool displays as `Update` in permission prompts — `Edit(...)` allow patterns don't match `Update` prompts. Add `Update(...)` companion patterns for every `Edit(...)` pattern.
 
 ## Mutual Resolution Filter
 

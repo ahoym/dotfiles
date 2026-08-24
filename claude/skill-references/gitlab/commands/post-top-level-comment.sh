@@ -5,6 +5,7 @@
 # belongs to a discussion, inline or top-level).
 #
 # Write body to tmp/claude-artifacts/change-request-replies/<mr_number>-<persona>-<role>-top.md, then:
+# The Write file_path stays CWD-relative (absolutizing it prompts) — only the -F @ arg below is absolute.
 # MUST use uppercase -F (not -f) with body=@path — -F reads the file, -f posts the literal string.
 # Avoid glab mr comment --message "$(cat ...)" — $(cat) triggers permission prompts.
 glab api projects/:id/merge_requests/<number>/notes -X POST \

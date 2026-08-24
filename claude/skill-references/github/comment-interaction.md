@@ -69,6 +69,7 @@ Write the message body to `tmp/claude-artifacts/change-request-replies/<comment_
 
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md, then:
+# The Write file_path stays CWD-relative (absolutizing it prompts) — only the -F @ arg below is absolute.
 # MUST use uppercase -F (not -f) with body=@path — -F reads the file, -f posts the literal string.
 gh api repos/{owner}/{repo}/pulls/<number>/comments \
   -X POST -F body=@<ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<comment_id>-<persona>-<role>.md \
@@ -107,5 +108,6 @@ Write the message body to `tmp/claude-artifacts/change-request-replies/<pr_numbe
 ```bash
 # Write body to tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md, then:
 # --body-file reads the file content. Use absolute path — CWD may differ from project root.
+# That applies to the --body-file arg ONLY. The Write file_path stays CWD-relative — absolutizing it prompts.
 gh pr comment <number> --body-file <ABSOLUTE_PROJECT_ROOT>/tmp/claude-artifacts/change-request-replies/<pr_number>-<persona>-<role>-top.md
 ```

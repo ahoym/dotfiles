@@ -31,7 +31,7 @@ Announce:
 
 ## Fetch Previous Comment State
 
-Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`). Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter for comments containing `*Role:* Team-Reviewer` in their body — these are the team's previous comments.
+Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`). Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (CWD-relative — never `/tmp/`, and never the absolutized `/Users/…/<repo>/tmp/…` form; see **Artifact Path Discipline** in the base reference). Filter for comments containing `*Role:* Team-Reviewer` in their body — these are the team's previous comments.
 !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
 For each previous comment, identify the originating persona from the inline comment attribution (e.g., `[fintech-ledger]` or `[fintech-ledger, java-spring]`).

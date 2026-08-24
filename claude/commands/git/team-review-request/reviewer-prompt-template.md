@@ -33,7 +33,7 @@ The diff is in unified format with `--- /+++ ` headers per file and `@@ -A,B +N,
    - `"domain-learning"` — a domain learning in your persona content surfaced this concern; you would not have flagged it without that context
    - `"persona-confirmed-by-learning"` — you identified the issue independently, then found a domain learning that reinforces or adds detail to your concern
 6. **Separate identification from suggestion.** Finding an issue and proposing a fix require independent reasoning. When uncertain about the right fix, identify the issue without prescribing a solution.
-7. Write your findings JSON to: `{{OUTPUT_FILE}}`
+7. Write your findings JSON to: `{{OUTPUT_FILE}}`. **Use that path exactly as given — do not absolutize it.** Both it and `{{DIFF_FILE_PATH}}` are CWD-relative, your CWD is the orchestrator's, and permission patterns match the literal `file_path` you send: rewriting `tmp/…` as `/Users/…/tmp/…` names the same file but triggers a permission prompt. The `Write` tool's schema says `file_path` must be absolute; for this path, ignore that.
 8. Return a 2-3 sentence summary to the orchestrator (in addition to the JSON file).
 
 ## Output Schema
