@@ -16,7 +16,7 @@ Two-phase check with short-circuit — see step 5 in SKILL.md for the full comma
 
 ## Fetch previous comment state
 
-Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`). Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (project `tmp/`, never `/tmp/`). Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
+Run the **Fetch Inline/Review Comments** script (returns `id, in_reply_to_id, commit_id, path, line, body, user, created_at`). Pipe the JSON output through the Write tool into `tmp/claude-artifacts/change-request-replies/pr-<REQUEST_NUMBER>-inline-comments.json` (CWD-relative — never `/tmp/`, and never the absolutized `/Users/…/<repo>/tmp/…` form; see **Artifact Path Discipline** in the base reference). Filter results for comments containing both `*Persona:* <PERSONA_NAME>` and `*Role:* Reviewer` in their body. Store as our previous comments with `{id, path, line, body, created_at}`.
 !`cat ~/.claude/platform-commands/fetch-inline-comments.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
 
 Replies are present in the same fetch — group by `in_reply_to_id == <our_comment_id>` to attach each reply to its parent.

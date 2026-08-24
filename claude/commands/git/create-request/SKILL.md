@@ -103,6 +103,9 @@ Before creating the review, verify these items are complete:
 9. **Compose review body** — Read `request-body-template.md` from the skill's base directory. Structure the body following that template.
 
 10. **Write body and create/update review** — Use `<BRANCH_NAME>` in the temp filename for parallel safety.
+
+    **The `Write` call takes the CWD-relative path** — `tmp/claude-artifacts/change-request-replies/request-body-<BRANCH_NAME>.md` — never `/Users/…/<repo>/tmp/…`. `Write(tmp/claude-artifacts/**)` is literal-string-matched, so an absolutized path prompts even though it names the same file, and the `Write` schema's "must be absolute" does not apply here. Pass the CLI argument below exactly as the inlined command shows it — some use the relative path, GitLab's `-F description=@<ABSOLUTE_PROJECT_ROOT>/…` uses the absolute one (the sandbox blocks `$HOME` expansion in `@` paths, and the CLI's CWD may differ from the project root). Either way, don't let an absolute CLI argument pull the `Write` along with it.
+
     **Create:**
     !`cat ~/.claude/platform-commands/create-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     **Update (if existing review):**

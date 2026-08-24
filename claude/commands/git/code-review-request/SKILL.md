@@ -32,7 +32,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, and resolution patterns
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared fetch, tracking, footnote, artifact path discipline, and resolution patterns
 - `re-review-mode.md` — Read only when `MODE=re-review` (step 4)
 
 ## Instructions
@@ -167,7 +167,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    **Each inline comment and follow-up reply** must also end with the footnote.
 
-11. **Post the review** — write the review payload following the **Reply File Naming** convention from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`).
+11. **Post the review** — write the review payload following the **Reply File Naming** and **Artifact Path Discipline** conventions from the base reference (e.g., `tmp/claude-artifacts/change-request-replies/review-<REQUEST_NUMBER>-<PERSONA>-reviewer.json`, CWD-relative in the `Write` call — the absolute form prompts).
     ```
     !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
     ```

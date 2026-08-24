@@ -33,7 +33,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
 ## Reference Files (conditional — read only when needed)
 
-- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared footnote format, reply naming, incremental tracking, mutual resolution, and comment identity patterns
+- `~/.claude/skill-references/request-interaction-base.md` — **Read first.** Shared footnote format, reply naming, artifact path discipline, incremental tracking, mutual resolution, and comment identity patterns
 - `persona-routing.md` — Read at step 5 for persona selection and step 10 for merge algorithm
 - `reviewer-prompt-template.md` — Read at step 8, injected into subagent prompts
 - `line-number-verification.md` — Read at step 9, MANDATORY line-number correction before merging findings
@@ -91,7 +91,7 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
 
    For large diffs, read the full diff — thorough review requires seeing all changes.
 
-   **Artifact path discipline.** If you write the diff (or any scratch file) to disk during this skill, use `tmp/claude-artifacts/change-request-replies/` — the standard dir for this skill family. Any subdirectory of `tmp/claude-artifacts/` is covered by the settings.json wildcards (`Read`/`Write`/`Bash(bash …)` on `tmp/claude-artifacts/**`, plus `mkdir:*`); the actual gotcha is that a bash `>` redirect can't create parent directories, so a brand-new subdir fails with "no such file or directory" until you `mkdir -p` it. Reusing the existing dir avoids that extra step and keeps all skill artifacts in one predictable place — step 8's diff-artifact prescription uses this same dir.
+   **Artifact path discipline.** If you write the diff (or any scratch file) to disk during this skill, use `tmp/claude-artifacts/change-request-replies/` — the standard dir for this skill family — and address it by its **CWD-relative path in every `Read`/`Write`/`Edit`/`bash` call**, never `/Users/…/<repo>/tmp/…`. The settings.json wildcards (`Read`/`Write`/`Bash(bash …)` on `tmp/claude-artifacts/**`, plus `mkdir:*`) are literal-string-matched, so an absolutized path prompts even though it names the same file — and the `Write` tool's schema saying `file_path` "must be absolute" does not apply here. Full rule: **Artifact Path Discipline** in the base reference. Two other gotchas: a bash `>` redirect can't create parent directories, so a brand-new subdir fails with "no such file or directory" until you `mkdir -p` it; reusing the existing dir avoids that step and keeps all skill artifacts in one predictable place — step 8's diff-artifact prescription uses this same dir.
 
    **Re-review only:** Also identify `NEW_COMMITS` — commits after `LAST_REVIEW_TS`.
 
@@ -137,6 +137,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
      - `{{REQUEST_TITLE}}`, `{{REQUEST_BODY}}`, `{{COMMITS}}` → PR metadata
      - `{{DIFF_FILE_PATH}}` → path to the tmp diff artifact (e.g. `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-diff.txt`)
      - `{{OUTPUT_FILE}}` → `tmp/claude-artifacts/change-request-replies/team-review-<REQUEST_NUMBER>-<persona>-findings.json`
+
+   **Substitute both paths CWD-relative, verbatim.** Subagents inherit your CWD, so the relative form resolves for them and matches the `tmp/claude-artifacts/**` allow patterns. Absolutizing either placeholder makes every reviewer's `Read` and `Write` prompt for permission — N prompts, mid-flight, on a fire-and-forget launch.
 
    Wait for all subagents to complete before proceeding.
 
@@ -201,6 +203,8 @@ For prompt-free execution, ensure these allow patterns in `~/.claude/settings.lo
     **Batch posts via a wrapper script when N > 5.** Each inline post is one `glab api graphql ...` Bash call. For more than ~5 inline comments, write a single wrapper script that loops a `post()` function over `(body_file, path, line)` triples, then invoke with one `bash` call. Saves N-1 Bash tool calls + permission prompts. The script body uses file-based GraphQL variables (`-F query=@...`, `-F body=@...`, `-f noteableId=...`) — no quoted strings, no shell escaping. Errors are visible in the `errors: []` field of each GraphQL response.
 
     **Use a per-cycle versioned wrapper name** — `tmp/claude-artifacts/change-request-replies/let-it-rip-<short-sha>.sh` (first 7 chars of `HEAD_SHA`), not the bare `let-it-rip.sh`. The artifact dir persists across cycles, so a fixed filename collides with the prior cycle's script — and a `bash` invocation chained after a blocked Write fires the *stale* script with old SHAs / old body paths / old comment IDs. GraphQL returns 200 with note IDs, but the posts target the wrong commit.
+
+    **Write it — and invoke it — CWD-relative:** `bash tmp/claude-artifacts/change-request-replies/let-it-rip-<short-sha>.sh`. The absolute form doesn't match `Bash(bash tmp/claude-artifacts/**)` and prompts. Same for the review payload and every comment body file above. The `-F …=@` arguments *inside* the script copy whatever form the inlined platform command shows — GitLab's inline GraphQL posts are relative, its top-level note is absolute. That split is intentional: it governs the CLI argument only, never the `Write` that produced the file. See **Artifact Path Discipline** in the base reference.
 
     ```
     !`cat ~/.claude/platform-commands/post-code-review.sh 2>/dev/null || echo "UNCONFIGURED: run setup-claude.sh to set up platform-commands"`
